@@ -10,6 +10,20 @@ export const discoveryOfferCache = sqliteTable("vii_discovery_offer_cache_v1", {
   leaseToken: text("lease_token"),
 });
 
+export const bizConversionSnapshots = sqliteTable("vii_biz_conversion_snapshots_v1", {
+  cacheKey: text("cache_key").primaryKey().notNull(),
+  world: text("world").notNull(),
+  siteId: integer("site_id").notNull(),
+  fromDay: text("from_day").notNull(),
+  tillDay: text("till_day").notNull(),
+  payload: text("payload").notNull(),
+  supplierCreatedAt: text("supplier_created_at").notNull(),
+  savedAt: text("saved_at").notNull(),
+  staleAfter: text("stale_after").notNull(),
+}, (table) => [
+  index("idx_vii_biz_conversion_range").on(table.fromDay, table.tillDay, table.world, table.siteId),
+]);
+
 export const mapSnapshots = sqliteTable("vii_map_snapshots_v1", {
   entityKey: text("entity_key").primaryKey().notNull(),
   world: text("world").notNull(),

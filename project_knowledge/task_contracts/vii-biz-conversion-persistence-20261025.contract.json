@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "taskId": "vii-biz-conversion-persistence-20261025",
+  "status": "verified_candidate",
+  "outcome": "Biz aggregate bookings and revenue pulled in the admin are saved server-side and reused across reloads instead of being recalculated for every business.",
+  "naturalDestination": "/admin/business-performance",
+  "authorizationBoundary": "Implement and verify in the current candidate. Publication requires an explicit deploy instruction and verified production route.",
+  "affectedFamily": [
+    "admin business-performance report",
+    "Biz aggregate conversion batch endpoint",
+    "vacations, events and hourly rooms supported by the conversion endpoint"
+  ],
+  "invariants": [
+    "supplier data remains the source of truth and cached values never create or alter an order",
+    "phone-level contact details are not persisted in the aggregate snapshot cache",
+    "admin authorization and same-origin write protection remain required",
+    "a failed refresh never replaces a last known good snapshot"
+  ],
+  "acceptance": [
+    "A successful aggregate pull is durably stored by world, supplier business and exact date range.",
+    "The second identical pull returns the saved snapshot without another supplier request while it is fresh.",
+    "Opening or reloading the report returns saved matching snapshots immediately.",
+    "Stale data is refreshed, and supplier failure falls back to the last good snapshot with an explicit stale status.",
+    "A user can explicitly force a refresh without losing saved results when the supplier fails.",
+    "Focused persistence tests, admin regressions and the production build pass."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "taskId": "vii-biz-conversion-persistence-20261025",
+  "status": "verified_candidate",
+  "publicationStatus": "not_published",
+  "outcomes": [
+    {
+      "requirement": "Remember a successful Biz pull across admin reloads.",
+      "evidence": "Aggregate snapshots are stored in vii_biz_conversion_snapshots_v1 by world, supplier business and exact date range, and the report GET returns matching saved snapshots."
+    },
+    {
+      "requirement": "Do not recalculate every business on an identical reload.",
+      "evidence": "The cache test proves one supplier call for the first pull and zero additional supplier calls for the second identical fresh pull."
+    },
+    {
+      "requirement": "Keep the last result when Biz is temporarily unavailable.",
+      "evidence": "A forced refresh failure returns the last good aggregate with stale_fallback status and does not overwrite the saved payload."
+    },
+    {
+      "requirement": "Avoid unnecessary retention of supplier contact details.",
+      "evidence": "The persistence layer deletes contacts before serialization; tests verify the restored aggregate has no contacts field."
+    }
+  ],
+  "automatedChecks": {
+    "focusedTests": "15/15 passed",
+    "completeRegressionSuite": "1604/1604 passed",
+    "productionBuild": "vinext five-stage build and RSC manifest verification passed after the final implementation",
+    "predictivePreflight": "verified",
+    "diffCheck": "passed"
+  },
+  "naturalDestination": {
+    "candidate": "/admin/business-performance",
+    "status": "not visually exercised because this candidate has not been published and the route requires the authenticated production administration session"
+  }
+}

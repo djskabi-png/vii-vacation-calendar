@@ -66,6 +66,8 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.doesNotMatch(route, /contacts:\s*conversions\.contacts/);
   assert.match(page, /נתוני Biz מאומתים/);
   assert.match(page, /startBizBatch/);
+  assert.match(page, /נתונים שכבר נמשכו נשמרים בשרת/);
+  assert.match(page, /רענון כפוי מ־Biz/);
   assert.match(page, /stopBizBatch/);
   assert.match(page, /לא נטען/);
   assert.match(page, /נעצרו/);

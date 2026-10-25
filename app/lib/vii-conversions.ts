@@ -163,6 +163,10 @@ function sanitized(raw: unknown, expected: { siteID: number; from: string; till:
   };
 }
 
+export function parseViiConversionSummary(raw: unknown, expected: { siteID: number; from: string; till: string }, includeContacts = false) {
+  return sanitized(raw, expected, includeContacts);
+}
+
 export function conversionTarget(placeId: string, world: string): { world: ConversionWorld; siteID: number } | null {
   const match = /^(?:vacation|event|events|hourly|room|rooms)-(\d+)$/.exec(placeId.trim());
   if (!match) return null;

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-biz-conversion-persistence-20261025",
+  "project": "VII",
+  "task_type": "admin backend persistence",
+  "requested_outcome": "Persist Biz aggregate bookings and revenue after an admin pull so reloads reuse saved data instead of recalculating every business.",
+  "natural_destination": "The authenticated VII business-performance administration report.",
+  "authorization_boundary": "Implement and verify in the current candidate. Production publication still requires an explicit deploy instruction and verified production route.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-ADMIN-001", "reason": "The request changes authoritative operational behavior in the administration system.", "acceptance_impact": "Require durable server-side persistence, reload proof, freshness visibility and role preservation."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A cache success claim is incomplete without repeat-request and failure-state evidence.", "acceptance_impact": "Test first pull, second pull, reload, forced refresh and stale fallback."},
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The change affects production reporting and must not be called live without exact-release evidence.", "acceptance_impact": "Keep candidate and public status separate and require a verified deploy route."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "The dashboard remembers data only in the current browser tab and loses it after reload.", "prevention": "Store aggregate snapshots in the runtime database and return them with the report query.", "acceptance_check": "A new request using the same database returns the saved snapshot."},
+    {"rejection": "A repeated pull still calls Biz for every business.", "prevention": "Key fresh snapshots by world, supplier business and exact date range.", "acceptance_check": "The second identical pull completes with zero extra supplier calls."},
+    {"rejection": "A temporary Biz failure deletes or hides previously loaded totals.", "prevention": "Use stale-if-error and never overwrite the last good payload on failure.", "acceptance_check": "A forced refresh failure returns the saved value with stale_fallback status."},
+    {"rejection": "Detailed phone records are retained merely to accelerate aggregate reporting.", "prevention": "Strip contacts before persistence and cache only summary and click aggregates.", "acceptance_check": "The persisted payload contains no contacts field."}
+  ],
+  "affected_family": ["Business-performance report reload and date-range changes.", "Biz aggregate batch pulls for vacations, events and hourly rooms.", "Explicit refresh and supplier-unavailable recovery states."],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "VII platform data and cache policy", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}, {"label": "VII accepted administration feedback", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "The isolated persistent-cache slice is implemented.", "checks": ["Prove first pull persists and the second identical pull makes no supplier call.", "Prove detailed contacts are absent from the stored aggregate."], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Does a page reload still show the saved exact-range totals?", "Can a supplier outage erase the last good snapshot?", "Can two businesses or two date ranges collide in one cache key?", "Are phone-level contact details accidentally persisted?"], "natural_destination_evidence": "Open the authenticated business-performance report, load a range, reload it and inspect saved-time status.", "affected_family_evidence": "Run cache isolation, admin report and conversion adapter regression tests plus the production build."},
+  "effectiveness": {"baseline": "Every batch reload called Biz again for every selected supported business.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time", "supplier calls on first identical request", "supplier calls on second identical request", "saved snapshots restored after reload", "stale fallback retained during failure"], "target": "One supplier call on the first pull, zero on a fresh identical pull, and no loss of the last good aggregate during failure."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

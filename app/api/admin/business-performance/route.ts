@@ -4,6 +4,7 @@ import { operationsDatabase } from "../../../lib/operations-audit.ts";
 import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
+import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions } from "../../../lib/biz-conversion-cache.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -96,7 +97,15 @@ export async function GET(request: Request) {
     for (const row of bookings.results) { const key = `${row.world}:${row.placeId}`; rows.set(key, { ...base, ...(rows.get(key) || {}), ...row }); }
     const reviewMap = new Map(reviews.results.map((row) => [row.placeId, Number(row.reviews || 0)]));
     for (const row of rows.values()) row.reviews = reviewMap.get(String(row.placeId)) || 0;
-    return Response.json({ basis, from, till, rows: [...rows.values()] }, { headers });
+    const cached = await bizConversionDatabase().then((database) => loadCachedBizConversions(database, from, till)).catch((error) => {
+      console.warn("biz_conversion_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
+      return [];
+    });
+    const bizSnapshots = Object.fromEntries(cached.map((item) => {
+      const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
+      return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
+    }));
+    return Response.json({ basis, from, till, rows: [...rows.values()], bizSnapshots }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });
@@ -109,10 +118,11 @@ export async function POST(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null);
   if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
-  const body = await request.json().catch(() => null) as { from?: unknown; till?: unknown; targets?: unknown } | null;
+  const body = await request.json().catch(() => null) as { from?: unknown; till?: unknown; targets?: unknown; forceRefresh?: unknown } | null;
   const from = typeof body?.from === "string" ? body.from : "";
   const till = typeof body?.till === "string" ? body.till : "";
-  if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365 || !Array.isArray(body?.targets) || body.targets.length > 4) {
+  if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365 || !Array.isArray(body?.targets) || body.targets.length > 4
+    || (body?.forceRefresh !== undefined && typeof body.forceRefresh !== "boolean")) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   }
   const targets = (body.targets as BatchTarget[]).flatMap((row) => {
@@ -122,11 +132,14 @@ export async function POST(request: Request) {
   });
   if (targets.length !== body.targets.length) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
   const token = await supplierToken().catch(() => "");
-  if (!token) return Response.json({ error: "supplier_unavailable" }, { status: 503, headers });
+  const cacheDb = await bizConversionDatabase().catch(() => null);
+  if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });
   const results: Array<{ placeId: string; conversions?: Awaited<ReturnType<typeof fetchViiConversions>>; error?: string }> = [];
   const settled = await Promise.all(targets.map(async ({ placeId, target }) => {
       try {
-        return { placeId, conversions: await fetchViiConversions({ ...target, from, till, token, sectionOnly: true }) };
+        const result = await cachedBizConversions({ db: cacheDb, ...target, from, till, forceRefresh: body.forceRefresh === true,
+          fetcher: () => fetchViiConversions({ ...target, from, till, token, sectionOnly: true }) });
+        return { placeId, conversions: result.conversions, cache: result.cache };
       } catch (error) {
         return { placeId, error: error instanceof ViiConversionsError ? error.code : "supplier_unavailable" };
       }
