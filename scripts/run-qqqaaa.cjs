@@ -16,6 +16,8 @@ const suites = [
   ["feature-icon-geometry", ["qa:icon-geometry"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],
   ["map-experience", ["qa:map"]],
+  ["multilingual-production", ["qa:locales"]],
+  ["responsive-transitions", ["qa:responsive-transitions"]],
   ["sitewide-release", ["qa:site"]],
   ["public-production-matrix", ["qa:production"]],
 ];

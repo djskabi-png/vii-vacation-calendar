@@ -79,9 +79,14 @@ async function verifyImages(page) {
 async function verifyFeatureIconGeometry(page) {
   return page.evaluate(() => {
     const visible = (element) => {
-      const style = getComputedStyle(element);
       const rect = element.getBoundingClientRect();
-      return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) !== 0 && rect.width > 2 && rect.height > 2;
+      if (rect.width <= 2 || rect.height <= 2 || rect.bottom <= 0 || rect.right <= 0 || rect.left >= document.documentElement.clientWidth) return false;
+      if (element.closest("[hidden],[aria-hidden='true'],[inert]")) return false;
+      for (let current = element; current && current !== document.documentElement; current = current.parentElement) {
+        const style = getComputedStyle(current);
+        if (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse" || style.contentVisibility === "hidden" || Number(style.opacity) === 0) return false;
+      }
+      return true;
     };
     const rectOf = (rect) => ({ left: Number(rect.left.toFixed(2)), right: Number(rect.right.toFixed(2)), top: Number(rect.top.toFixed(2)), bottom: Number(rect.bottom.toFixed(2)), width: Number(rect.width.toFixed(2)), height: Number(rect.height.toFixed(2)) });
     const problems = [];
@@ -115,7 +120,7 @@ async function verifyFeatureIconGeometry(page) {
 
 async function verifyLocaleExperience(page, path, locale) {
   const base = await assertNaturalPage(page, path);
-  await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+  await page.waitForFunction((expected) => document.documentElement?.lang === expected && !document.documentElement?.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
   await page.waitForTimeout(450);
   const collectLocaleSurface = (expectedLocale) => {
     const visible = (element) => {
@@ -212,7 +217,7 @@ async function verifyLocaleExperience(page, path, locale) {
   } catch (error) {
     if (!String(error).includes("Execution context was destroyed")) throw error;
     await page.waitForLoadState("domcontentloaded", { timeout: 15_000 }).catch(() => undefined);
-    await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+    await page.waitForFunction((expected) => document.documentElement?.lang === expected && !document.documentElement?.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
     await page.waitForTimeout(350);
     observed = await page.evaluate(collectLocaleSurface, locale);
   }
@@ -278,7 +283,7 @@ async function runLocaleMatrix(browser, viewport, routeSubset) {
       await observed(id, "localized navigation", viewport.id, async () => {
         try {
           await assertNaturalPage(page, localizedRoute("/", locale));
-          await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+          await page.waitForFunction((expected) => document.documentElement?.lang === expected && !document.documentElement?.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
           return await verifyLocalizedNavigation(page, locale);
         } catch (error) {
           const screenshot = join(outputDir, `${id}.png`);

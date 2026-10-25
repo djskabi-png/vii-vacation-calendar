@@ -21,7 +21,7 @@ test("QQQAAA has one durable aggregate package entry point", () => {
 });
 
 test("QQQAAA retains every broad VII suite and the approved exclusions", () => {
-  for (const suite of ["test", "qa:regression-guards", "audit:search", "audit:availability", "qa:icon-geometry", "qa:site", "qa:production"]) {
+  for (const suite of ["test", "qa:regression-guards", "audit:search", "audit:availability", "qa:icon-geometry", "qa:overlay-geometry", "qa:map", "qa:locales", "qa:responsive-transitions", "qa:site", "qa:production"]) {
     assert.match(runner, new RegExp(suite.replaceAll(":", "\\:")));
   }
   assert.match(runner, /exclusions: \["accessibility", "typography"\]/);
