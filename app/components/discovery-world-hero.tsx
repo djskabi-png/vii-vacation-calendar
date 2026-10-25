@@ -20,6 +20,7 @@ export function DiscoveryWorldHero({ type, presentation, breadcrumbs, count, cou
     <div className="shell discovery-world-hero__layout">
       <div className="discovery-world-hero__content">
         {showBreadcrumbs ? <BreadcrumbTrail className="discovery-world-hero__breadcrumbs" items={breadcrumbs} /> : null}
+        <span className="sr-only">{presentation.eyebrow}</span>
         <h1>{presentation.title}</h1>
         <p>{presentation.description}</p>
         <div className="discovery-world-hero__proof" aria-label="מידע מרכזי">

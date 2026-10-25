@@ -5,6 +5,7 @@ import { whatsappLeadDatabase } from "../../../lib/whatsapp-lead-storage.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
+import { loadCachedBizConversions } from "../../../lib/biz-conversion-cache.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -69,20 +70,30 @@ export async function GET(request: Request) {
     const db = await operationsDatabase();
     await Promise.allSettled([ensureReviewSchema(), whatsappLeadDatabase()]);
     const since = new Date(Date.now() - 30 * 86400_000).toISOString();
+    const today = new Date().toISOString().slice(0, 10);
+    const fromDate = new Date(`${today}T00:00:00Z`); fromDate.setUTCDate(fromDate.getUTCDate() - 29);
+    const bizRange = { from: fromDate.toISOString().slice(0, 10), till: today };
     const report = await cachedAdminReport({ db, family: "admin-overview", parameters: { periodDays: 30 }, freshForMs: 60_000,
       forceRefresh: new URL(request.url).searchParams.get("refresh") === "1", loader: async () => {
-    const [bookings, reviews, whatsappLeads, catalog, activity, search, business] = await Promise.all([
+    const [bookings, reviews, whatsappLeads, catalog, activity, search, business, bizRows] = await Promise.all([
       count(db, "vii_booking_audit").catch(() => null),
       count(db, "guest_reviews").catch(() => null),
       count(db, "whatsapp_leads").catch(() => null),
       readSupplierCatalogDashboard(db).catch(() => null), readActivities(db),
       readSearchSummary(db, since).catch(() => null), readBusinessSummary(db, since).catch(() => null),
+      loadCachedBizConversions(db, bizRange.from, bizRange.till).catch(() => []),
     ]);
+    const biz = bizRows.length ? { calls: bizRows.reduce((sum, row) => sum + row.conversions.summary.maskyoo.contacts, 0),
+      whatsapp: bizRows.reduce((sum, row) => sum + row.conversions.summary.whatsapp.contacts, 0),
+      orders: bizRows.reduce((sum, row) => sum + row.conversions.summary.all.orders, 0),
+      revenue: bizRows.reduce((sum, row) => sum + row.conversions.summary.all.revenue, 0),
+      savedAt: bizRows.map((row) => row.cache.savedAt).sort().at(-1) || null, coverage: bizRows.length } : null;
     return {
       totals: { bookings, reviews, whatsappLeads },
       periodDays: 30,
       search,
       business,
+      biz,
       catalog: catalog?.states.map((state) => ({ world: state.world, activeCount: state.activeCount, acceptedAt: state.acceptedAt })) ?? null,
       recentActivity: activity,
       generatedAt: new Date().toISOString(),

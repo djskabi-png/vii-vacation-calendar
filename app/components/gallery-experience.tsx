@@ -217,8 +217,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
           <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לכל התמונות</button>
           <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
           {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
-          {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button>
-          <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button></> : null}
+          {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button>
+          <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button></> : null}
           <span className="story-gallery__mobile-position" aria-live="polite">{selected + 1}/{visibleItems.length}</span>
           <div className="story-gallery__caption"><span>{current?.topic || tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
         </div>
@@ -226,8 +226,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       <div className="story-gallery__story" onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
         {current ? <img className="story-gallery__image" src={current.src} alt={current.label} title={current.label} /> : null}
-        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button>
-        <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button></> : null}
+        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button>
+        <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button></> : null}
         <div className="story-gallery__caption"><span>{current?.topic || tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
       </div>
 

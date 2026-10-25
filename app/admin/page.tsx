@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, ArrowLeft, BarChart3, CalendarSync, CheckCircle2, Eye, FilePenLine, ListChecks, MessageCircle, MousePointerClick, RefreshCw, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp, Users } from "lucide-react";
+import { Activity, ArrowLeft, BarChart3, CalendarSync, CheckCircle2, FilePenLine, ListChecks, MessageCircle, RefreshCw, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
 import { getIsraelGreeting } from "./israel-greeting";
+import { AdminHighlightBoard } from "./admin-highlight-board";
 import styles from "./admin.module.css";
 
 type Overview = {
@@ -85,12 +86,8 @@ export default function AdminHome() {
         <aside className={styles.priorityCard} aria-labelledby="priority-title"><header><h2 id="priority-title">מה כדאי לעשות עכשיו</h2><span>{priorities.length || 0} משימות</span></header><div className={styles.priorityList}>{priorities.length ? priorities.map(({ title, detail, href, icon: Icon }) => <a className={styles.priorityItem} href={href} key={href}><span><Icon size={17} /></span><div><strong>{title}</strong><small>{detail}</small></div><ArrowLeft size={16} /></a>) : <div className={styles.allClear}><CheckCircle2 size={25} /><p>אין כרגע משימה דחופה שעולה מהנתונים.</p></div>}</div></aside>
       </div>
 
-      <section className={styles.metrics} aria-label="מדדי משפך מרכזיים">
-        <article><span className={styles.metricIcon}><Eye size={17} /></span><small>חשיפות לעסקים</small><strong>{number(overview.business?.impressions)}</strong><span>{overview.periodDays} הימים האחרונים</span></article>
-        <article><span className={styles.metricIcon}><MousePointerClick size={17} /></span><small>כניסות מתוך חשיפה</small><strong>{rate(overview.business?.pageViews || 0, overview.business?.impressions || 0)}</strong><span>{number(overview.business?.pageViews)} כניסות</span></article>
-        <article data-tone="success"><span className={styles.metricIcon}><TrendingUp size={17} /></span><small>פעולה מתוך כניסה</small><strong>{rate((overview.business?.phoneReveals || 0) + (overview.business?.whatsappLeads || 0) + (overview.business?.bookingRequests || 0), overview.business?.pageViews || 0)}</strong><span>טלפון, ליד שמור או הזמנה</span></article>
-        <article data-tone="warning"><span className={styles.metricIcon}><Users size={17} /></span><small>דפדפנים ייחודיים</small><strong>{number(overview.business?.uniqueBrowsers)}</strong><span>לא אומדן של אנשים</span></article>
-      </section>
+      <AdminHighlightBoard data={overview} />
+      <p className={styles.visuallyHidden}>המדדים כוללים חשיפות לעסקים, כניסות מתוך חשיפה, פעולה מתוך כניסה ודפדפנים ייחודיים. דפדפנים ייחודיים הם לא אומדן של אנשים.</p>
 
       <section className={styles.section} aria-labelledby="tools-title"><div className={styles.sectionHead}><div><h2 id="tools-title">מרכזי העבודה</h2><p>כל יכולת מובילה למסלול עבודה מלא, לא למסך ראווה.</p></div><span>{modules.length} כלים פעילים</span></div><div className={styles.modules}>{modules.map(({ title, description, href, icon: Icon }) => <a key={href} href={href} className={styles.module}><span className={styles.moduleIcon}><Icon size={21} aria-hidden="true" /></span><span><strong>{title}</strong><small>{description}</small></span><ArrowLeft size={17} aria-hidden="true" /></a>)}</div></section>
 

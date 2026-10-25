@@ -99,6 +99,7 @@ export default async function EventsPage() {
           <div className="shell events-hero__layout">
             <div className="events-hero__content">
               <BreadcrumbTrail className="events-hero__breadcrumbs" items={[{ name: translate("ראשי"), path: localizedPath("/", language) }, { name: translate("אירועים") }]} />
+              <span className="sr-only">{presentation.eyebrow}</span>
               <h1>{presentation.title}</h1>
               <p>{presentation.description}</p>
               <div className="events-hero__proof" aria-label={translate("יתרונות החיפוש")} tabIndex={0}>{presentation.proof.map((item, index) => <span key={item}>{index === 0 ? <b>{eventPlaces.length}</b> : null}{item}</span>)}</div>

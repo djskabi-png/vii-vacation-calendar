@@ -6,6 +6,7 @@ export const adminModules = [
   { id: "worlds", label: "בקרת עולמות", editable: true, pages: ["/admin/worlds"], apis: ["worlds"] },
   { id: "search", label: "עמודי חיפוש ותור אישורים", editable: true, pages: ["/admin/search-pages", "/admin/content-queue"], apis: ["search-pages", "content-queue"] },
   { id: "analytics", label: "דוחות וביצועי עסקים", editable: true, pages: ["/admin/search-analytics", "/admin/business-performance"], apis: ["search-analytics", "business-performance"] },
+  { id: "professor", label: "שאל את פרופסור", editable: true, pages: ["/admin/professor"], apis: ["professor"] },
   { id: "promotions", label: "קידום מקומות", editable: true, pages: ["/admin/discovery-promotions"], apis: ["discovery-promotions"] },
   { id: "redirects", label: "כתובות והפניות", editable: true, pages: ["/admin/redirects"], apis: ["redirects"] },
   { id: "catalogs", label: "קטלוגים וספקים", editable: true, pages: ["/admin/catalog-sync"], apis: ["catalog-sync"] },

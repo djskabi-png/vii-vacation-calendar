@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
+import { BarChart3, BrainCircuit, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
 import styles from "./admin.module.css";
 import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
 
@@ -12,6 +12,7 @@ const groups = [
     { href: "/admin/growth", label: "מרכז קידום", icon: Sparkles },
     { href: "/admin/search-pages", label: "מרכז עמודי חיפוש", icon: FileSearch },
     { href: "/admin/business-performance", label: "ביצועי עסקים", icon: BarChart3 },
+    { href: "/admin/professor", label: "שאל את פרופסור", icon: BrainCircuit },
     { href: "/admin/quality", label: "איכות ויציבות", icon: ShieldCheck },
   ] },
   { label: "תוכן וגילוי", links: [

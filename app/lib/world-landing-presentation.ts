@@ -22,7 +22,7 @@ export const defaultWorldLandingPresentations: Record<ManagedWorldLandingType, W
     heroImages: [worldTopicMedia.spa]
   },
   hourly: {
-    title: "חדרים לפי שעה",
+    title: "חדרים לפי שעה בישראל",
     description: "בוחרים אזור ומוצאים מקום פרטי ונעים לשהייה קצרה, בלי להזמין לילה שלם.",
     eyebrow: "כמה שעות שהן רק שלכם",
     proof: ["מקומות מאומתים", "חיפוש לפי אזור ומחיר", "יצירת קשר ישירה"],
@@ -43,9 +43,9 @@ export const defaultWorldLandingPresentations: Record<ManagedWorldLandingType, W
     heroImages: [worldTopicMedia.attractions]
   },
   trails: {
-    title: "יוצאים מהצימר. נכנסים לישראל היפה.",
+    title: "מסלולי טיול בישראל למטייל העצמאי",
     description: "מפלים, מעיינות, חופים, יערות ומדבר. בוחרים לפי אזור, זמן ודרגת קושי ויוצאים עם תוכנית ברורה.",
-    eyebrow: "מסלולים שהופקו במיוחד למטיילי V",
+    eyebrow: "יוצאים מהצימר. נכנסים לישראל היפה.",
     proof: ["מידע ממקורות רשמיים", "בחירה לפי קושי וזמן", "דגשי בטיחות בכל מסלול"],
     heroImages: [worldTopicMedia.trails]
   }

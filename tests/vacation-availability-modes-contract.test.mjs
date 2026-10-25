@@ -47,7 +47,9 @@ test("unit cards keep compact facts, a distinct sleeping explanation and place s
   assert.match(css, /grid-template-areas: "image identity" "image body"/);
   assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);
-  assert.match(css, /\.room-card__amenities \{[^}]*flex-wrap: nowrap;[^}]*overflow-x: auto;[^}]*touch-action: pan-x/);
+  assert.match(css, /\.room-card__amenities \{[^}]*display: grid;[^}]*grid-template-columns: repeat\(4/);
+  assert.match(css, /\.room-card__amenities \{ grid-template-columns: repeat\(2/);
+  assert.doesNotMatch(css, /\.room-card__amenities \{[^}]*overflow-x: auto/);
 });
 
 test("the party recommendation is shown before the unit list", async () => {

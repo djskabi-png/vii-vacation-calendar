@@ -67,8 +67,8 @@ export default function GuidesPage({ initialArticles }: { initialArticles: Magaz
         <div className="shell magazine-masthead__bar"><span>מגזין וי</span><p>רעיונות טובים לחופשה שמתחילה עוד לפני שיוצאים</p><strong>{availableArticles.length} כתבות לקריאה</strong></div>
         <div className="shell magazine-feature">
           <div className="magazine-feature__copy">
-            <span className="eyebrow">בחירת המערכת</span>
-            <h1>{translate("החופשה הטובה מתחילה ברעיון טוב")}</h1>
+            <span className="eyebrow">{translate("החופשה הטובה מתחילה ברעיון טוב")}</span>
+            <h1>{translate("מדריכי נופש, ספא ואירועים בישראל")}</h1>
             <p>{translate("מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר.")}</p>
             <Link className="button primary" href={`/guides/${featured.slug}`}>לכתבה הראשית</Link>
           </div>

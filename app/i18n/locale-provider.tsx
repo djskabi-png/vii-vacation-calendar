@@ -57,6 +57,7 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "מדריכי נופש, ספא ואירועים בישראל": "Vacation, spa and event guides in Israel",
     "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "The property rules do not allow this party or these dates. Return to the property page and change your selection.",
     "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "This property cannot complete the booking online right now. You can contact it directly.",
     "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "This booking request is still being checked by the property. Do not send it again; check the status shortly.",
@@ -186,6 +187,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "מדריכי נופש, ספא ואירועים בישראל": "Гиды по отдыху, спа и мероприятиям в Израиле",
     "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "Правила объекта не позволяют выбрать этот состав гостей или эти даты. Вернитесь на страницу объекта и измените выбор.",
     "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "Сейчас этот объект не позволяет завершить бронирование на сайте. Можно связаться с ним напрямую.",
     "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "Объект ещё проверяет этот запрос на бронирование. Не отправляйте его повторно; проверьте статус чуть позже.",
@@ -325,6 +327,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "מדריכי נופש, ספא ואירועים בישראל": "Guides de vacances, spa et événements en Israël",
     "מי מגיע": "Participants",
     "רעיונות שממשיכים את החופשה": "Des idées pour prolonger les vacances",
     "לכל הכתבות": "Voir tous les articles",

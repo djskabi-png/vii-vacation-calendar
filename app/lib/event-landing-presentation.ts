@@ -28,9 +28,9 @@ const defaultQuickSearches: EventLandingSearchItem[] = [
 ];
 
 export const defaultEventLandingPresentation = {
-  title: "מוצאים מקום לחגוג בו",
+  title: "מקומות לאירועים בישראל",
   description: "בוחרים אזור, תאריך וכמות משתתפים ומוצאים מקום שמתאים בדיוק לאירוע שלכם.",
-  eyebrow: "האירוע שלכם מתחיל כאן",
+  eyebrow: "מוצאים מקום לחגוג בו",
   proof: ["מקומות בכל הארץ", "חיפוש לפי כמות וסוג אירוע", "השוואה במקום אחד"],
   heroImages: [worldTopicMedia.events] satisfies HeroImage[],
   quickSearchEyebrow: "מתחילים מהסגנון שלכם",
@@ -88,8 +88,10 @@ function parseQuickSearches(value: string | undefined) {
 export function parseEventLandingPresentation(content?: EditorialContent | null) {
   const attributes = content?.attributes || {};
   const heroImages = [resolveWorldTopicImage("events", attributes.eventTopicImage, attributes.eventTopicImageAlt)];
+  const requestedTitle = content?.title?.trim() || "";
+  const title = !requestedTitle || requestedTitle === "מוצאים מקום לחגוג בו" ? defaultEventLandingPresentation.title : requestedTitle;
   return {
-    title: content?.title?.trim() || defaultEventLandingPresentation.title,
+    title,
     description: content?.summary?.trim() || defaultEventLandingPresentation.description,
     eyebrow: attributes.eventHeroEyebrow?.trim().slice(0, 90) || defaultEventLandingPresentation.eyebrow,
     proof: defaultEventLandingPresentation.proof.map((fallback, index) => attributes[`eventProof${index + 1}`]?.trim().slice(0, 90) || fallback),
