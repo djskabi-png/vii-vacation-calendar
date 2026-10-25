@@ -69,7 +69,8 @@ test("tightly overlapping clusters expand into individually selectable spider ma
   assert.match(component, /setAttribute\("aria-label", `\$\{clusterText\}, \$\{mapControlCopy\.cluster\}`\)/);
   assert.match(component, /map\.getBoundsZoom\(paddedClusterBounds, false, L\.point\(140, 140\)\)/);
   assert.match(component, /clusterDistance < 120 \|\| targetZoom <= currentZoom/);
-  assert.match(component, /map\.setView\(clusterCenter, Math\.min\(12, Math\.max\(10, currentZoom \+ 3\)\)/);
+  assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter\)/);
+  assert.match(component, /map\.panInside\(clusterCenter/);
   assert.doesNotMatch(component, /distanceTo\(clusterBounds\.getSouthWest\(\)\) < 80\) map\.flyTo/);
 });
 

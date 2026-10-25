@@ -576,7 +576,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
               const currentZoom = map.getZoom();
               const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 12);
               if (clusterDistance < 120 || targetZoom <= currentZoom) {
-                map.setView(clusterCenter, Math.min(12, Math.max(10, currentZoom + 3)), { animate: true });
+                // Nearby or already maximally zoomed places need a decision,
+                // not another animated zoom that can leave the same cluster
+                // under the pointer. Expand them immediately and keep the
+                // complete spider inside the usable canvas.
+                spiderfyCluster(cluster.entries, clusterCenter);
+                map.panInside(clusterCenter, { padding: L.point(120, 120), animate: true });
               } else {
                 map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
               }

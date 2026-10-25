@@ -48,9 +48,7 @@ function revealDesktopMap() {
 
   const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
   window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(".map-results-experience")?.scrollIntoView({ block: "start", behavior });
-    });
+    document.querySelector<HTMLElement>(".map-results-experience")?.scrollIntoView({ block: "start", behavior });
   });
 }
 
@@ -105,7 +103,6 @@ export function useMapViewState() {
       lockPage();
     }
     setIsMapOpen(true);
-    revealDesktopMap();
   }, [lockPage]);
 
   const closeMap = useCallback(() => {
@@ -130,11 +127,17 @@ export function useMapViewState() {
     if (hasFreshOpenIntent()) {
       setIsMapOpen(true);
       if (window.matchMedia("(max-width: 820px)").matches) lockPage();
-      else revealDesktopMap();
     }
     setMapInteractive(true);
     return () => unlockPage();
   }, [lockPage, unlockPage]);
+
+  useEffect(() => {
+    // The results shell is conditionally rendered. Reveal it only after React
+    // has committed the open map, otherwise the first desktop click can leave
+    // the map below the fold even though its toggle is already active.
+    if (mapOpen) revealDesktopMap();
+  }, [mapOpen]);
 
   useEffect(() => {
     if (!mapOpen) return;

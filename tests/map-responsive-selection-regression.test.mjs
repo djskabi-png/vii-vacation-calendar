@@ -19,9 +19,15 @@ test("desktop map opening reveals the map and closing returns to the original po
   assert.match(hook, /querySelector<HTMLElement>\("\.map-results-experience"\)\?\.scrollIntoView/);
   assert.match(hook, /scrollIntoView\(\{ block: "start", behavior \}\)/);
   assert.match(hook, /prefers-reduced-motion: reduce/);
-  assert.match(hook, /setIsMapOpen\(true\);\s*revealDesktopMap\(\)/);
+  assert.match(hook, /if \(mapOpen\) revealDesktopMap\(\)/);
   assert.match(hook, /window\.scrollTo\(0, scrollPosition\.current\)/);
   assert.match(read("app/globals.css"), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
+});
+
+test("a dense cluster expands immediately instead of requiring another zoom cycle", () => {
+  const map = read("app/components/listing-map.tsx");
+  assert.match(map, /if \(clusterDistance < 120 \|\| targetZoom <= currentZoom\) \{\s*\/\/[\s\S]*?spiderfyCluster\(cluster\.entries, clusterCenter\);/);
+  assert.match(map, /map\.panInside\(clusterCenter, \{ padding: L\.point\(120, 120\), animate: true \}\)/);
 });
 
 test("map canvas resizes without resetting the user's camera", () => {
