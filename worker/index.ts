@@ -173,7 +173,7 @@ interface ExecutionContext {
 function catalogWorldForPublicPath(pathname: string) {
   if (/^\/(?:[a-z]{2}\/)?events(?:\/|$)/.test(pathname)) return "events" as const;
   if (/^\/(?:[a-z]{2}\/)?hourly(?:\/|$)/.test(pathname)) return "rooms" as const;
-  if (/^\/(?:[a-z]{2}\/)?spa(?:\/|$)/.test(pathname)) return "spa" as const;
+  if (/^\/(?:[a-z]{2}\/)?spas?(?:\/|$)/.test(pathname)) return "spa" as const;
   if (/^\/(?:[a-z]{2}\/)?(?:vacation|business)(?:\/|$)/.test(pathname)) return "vacations" as const;
   return undefined;
 }
