@@ -138,9 +138,13 @@ test("the runtime checks durable retry work every 10 minutes", async () => {
   assert.match(config, /crons: \["\*\/10 \* \* \* \*"\]/);
 });
 
-test("public vacation routes select the vacations heartbeat for both route spellings", async () => {
+test("catalog retry work is owned by the scheduler and never by a public request", async () => {
   const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
-  assert.match(worker, /\(\?:vacations\?\|business\)/);
+  const scheduledHandler = worker.slice(worker.indexOf("scheduled(controller"), worker.indexOf("async fetch("));
+  const publicFetch = worker.slice(worker.indexOf("async fetch("));
+  assert.match(scheduledHandler, /runSupplierCatalogScheduleTick\(database/);
+  assert.doesNotMatch(publicFetch, /runSupplierCatalogScheduleTick\(database/);
+  assert.doesNotMatch(publicFetch, /runQualityChecks\(database/);
 });
 
 test("an expired running retry is closed without blindly repeating an uncertain supplier pull", async () => {
