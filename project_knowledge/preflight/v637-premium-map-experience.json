@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "task_id": "v637-premium-map-experience",
+  "project": "VII",
+  "task_type": "premium-shared-map-experience",
+  "requested_outcome": "A production map experience across every public VII world that helps users decide quickly, shows only verified prices when a real price exists, keeps map and list state synchronized, works on desktop and mobile in all four languages, is published, and is verified at the public destination.",
+  "natural_destination": "The public VII discovery routes for vacation, events, spa, hourly rooms, attractions and trails, plus their map and list transitions, on vii.spaplus.co in Hebrew, English, Russian and French.",
+  "authorization_boundary": "Authorized: research public competitor patterns, change VII source and tests, publish the exact verified candidate once, and verify production. Not authorized: invent supplier prices or availability, alter supplier source truth, purchase services, or change unrelated public content.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-WEB-005", "reason": "The shared map must survive desktop, mobile and short-height transitions.", "acceptance_impact": "Adds cross-viewport transition, reload and state-recovery checks."},
+    {"lesson_id": "ADIR-WEB-006", "reason": "A visible public map change requires deployed mobile evidence.", "acceptance_impact": "Requires public desktop and 390px screenshots plus live interaction evidence."},
+    {"lesson_id": "ADIR-MOBILE-001", "reason": "The map is a touch-first discovery surface on mobile.", "acceptance_impact": "Adds full-screen map, safe-area, gesture, selection-card and list-return checks."},
+    {"lesson_id": "ADIR-VISUAL-001", "reason": "Marker and card geometry must be judged at the actual destination.", "acceptance_impact": "Adds measured marker, cluster, card and toolbar geometry checks."},
+    {"lesson_id": "ADIR-CONSISTENCY-001", "reason": "The change is shared by six worlds and four languages.", "acceptance_impact": "Expands regression to every world and locale rather than a vacation-only sample."},
+    {"lesson_id": "ADIR-INTENT-001", "reason": "The request is for a trustworthy decision experience, not a decorative map.", "acceptance_impact": "Requires map-list synchronization, meaningful marker values and useful selected-place actions."},
+    {"lesson_id": "ADIR-SEO-001", "reason": "Map interaction may change URL and search state but must not create duplicate indexable routes.", "acceptance_impact": "Adds URL, back/reload and canonical invariance checks."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "Only vacation markers show prices while another world remains generic despite having a verified price.", "prevention": "Create one shared typed marker-value resolver and inventory every world adapter.", "acceptance_check": "Fixtures and live samples prove verified prices render in vacation, events, spa, hourly and attractions whenever source data contains a price."},
+    {"rejection": "A marker displays an invented, stale or wrong-date price.", "prevention": "Render price markers only from the same accepted result object and current date/filter state; otherwise use a semantic non-price marker.", "acceptance_check": "Price provenance tests cover dated, undated and missing-price records and compare marker value with the corresponding list card."},
+    {"rejection": "The selected card, map button or controls disappear on mobile or short-height screens.", "prevention": "Use a single responsive map shell with explicit safe-area layers and no body-state-dependent hiding.", "acceptance_check": "Automated geometry and interaction checks pass at desktop, 390px mobile and short-height viewports for all worlds."},
+    {"rejection": "Panning or zooming makes map pins, list cards and result counts disagree.", "prevention": "Keep one eligible result pool and make viewport filtering an explicit pending state applied by the user.", "acceptance_check": "Pan, zoom, search-this-area, reset and back/reload checks prove deterministic synchronized IDs and counts."},
+    {"rejection": "Dense or identical coordinates hide places or make selection impossible.", "prevention": "Preserve clustering and spiderfying with explicit active-marker focus and list synchronization.", "acceptance_check": "Dense and identical-coordinate fixtures expose every place and keep active marker/card paired."},
+    {"rejection": "Hebrew works but LTR labels, cards or controls clip or reverse.", "prevention": "Localize map UI strings and direction at the shared component boundary.", "acceptance_check": "Hebrew, English, Russian and French screenshots and text-direction assertions pass."},
+    {"rejection": "The code is changed but the public map is not actually published or verified.", "prevention": "Bind release evidence to one commit, one deployment identity and post-publication browser proof.", "acceptance_check": "The exact public release shows the changed marker/card behavior and rollback identity is recorded."}
+  ],
+  "affected_family": [
+    "vacation search map and list",
+    "event search map and list",
+    "spa discovery map and list",
+    "hourly-room discovery map and list",
+    "attraction discovery map and list",
+    "trail discovery map and list",
+    "shared map marker, cluster, selected-place card and map/list controls",
+    "Hebrew, English, Russian and French",
+    "desktop, 390px mobile and short-height viewports",
+    "loading, empty, error, missing-price, single-result, dense-result and viewport-change states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII accepted map truth and static place-map policy", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md lines 46, 49, 58, 78, 109-110, 133 and 183"},
+      {"label": "Airbnb public search and map interaction guidance", "source": "https://www.airbnb.com/help/article/252"},
+      {"label": "Airbnb search ranking and geographic distribution guidance", "source": "https://www.airbnb.com/help/article/39"},
+      {"label": "Booking public sorting and price-transparency description", "source": "https://www.booking.com/content/how_we_work.en-gb.html"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared price-marker resolver and responsive selected-place card work for one verified-price record and one missing-price record.",
+    "checks": [
+      "Compare marker price with its corresponding list card and current query state.",
+      "Exercise marker selection, close, pan, zoom and list return on desktop and 390px mobile.",
+      "Confirm the missing-price record shows a semantic marker and never a fabricated amount."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any world show a price not present in the same accepted result object?",
+      "Can a map/list toggle, reload, back action or viewport transition lose the result state or hide the primary control?",
+      "Can overlapping coordinates, a long translated title or a missing image make a place unreachable?",
+      "Can map, list and visible count disagree after deliberate pan and zoom?",
+      "Can a public user reach a broken tile, missing attribution, blank map or stale selected card?"
+    ],
+    "natural_destination_evidence": "Production screenshots and interaction logs from the exact deployed release across the six world routes and representative locales/viewports.",
+    "affected_family_evidence": "A dedicated map QA matrix plus full affected tests covering all adapters, worlds, languages, viewports and state transitions."
+  },
+  "effectiveness": {
+    "baseline": "The current shared map has inconsistent marker semantics between worlds and the latest broad QA reported missing selected cards or hidden mobile map controls in several worlds.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "All dedicated map QA checks pass on the first published candidate, with zero repeated user corrections for map price truth, controls, selection or responsive behavior."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

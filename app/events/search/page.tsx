@@ -43,6 +43,7 @@ import { eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEve
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
+import type { MapPriceQuote } from "../../lib/map-price";
 
 type EventSortKey = DiscoverySortKey | "capacity";
 const EVENT_SORT_VALUES: EventSortKey[] = ["recommended", "popular", "price-asc", "price-desc", "rating-desc", "capacity", "name"];
@@ -211,6 +212,17 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     if (sort === "capacity") return [...complete].sort((first, second) => second.guests - first.guests || first.name.localeCompare(second.name, "he"));
     return orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
   }, [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
+  const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((place) => {
+    if (datedEventSearch && /^event-\d+$/.test(place.slug)) {
+      const result = supplierSearch.results[Number(place.slug.slice("event-".length))];
+      if (result?.available === true && typeof result.total === "number" && result.total > 0) {
+        return [[place.slug, { amount: result.total, mode: "stay_total" }]];
+      }
+      return [];
+    }
+    const amount = undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null;
+    return amount ? [[place.slug, { amount, mode: "from" }]] : [];
+  })) as Record<string, MapPriceQuote>;
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultSet;
@@ -302,7 +314,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             </div> : null}
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(eventFrom)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className={`event-filter-toggle ${filtersOpen ? "active" : ""}`} aria-controls="event-result-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg><span>סינון</span></button><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label={discoverySortLabel(language)} value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
-            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} startingPrice={undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => { if (mapOpen) setActiveMapPlaceId(active ? place.slug : null); }} />)}
+            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad priceById={mapPriceById} onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} startingPrice={undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => { if (mapOpen) setActiveMapPlaceId(active ? place.slug : null); }} />)}
             {!datedEventSearch && !catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה או מקום קרוב</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
             {!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && facility === "הכל" && !noNoiseLimit && !accessibleOnly ? <RegionalAvailability world="events" region={area} guests={guests || 20} embedded /> : null}
           </section>

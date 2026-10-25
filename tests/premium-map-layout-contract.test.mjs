@@ -11,14 +11,14 @@ test("desktop map uses the full canvas without a narrow result rail", () => {
   assert.doesNotMatch(styles, /\.map-results-rail|\.map-results-scroll|\.map-result-card|\.map-result-select/);
   assert.match(component, /<div className="map-results-canvas">\{mapCanvas\}<\/div>/);
   assert.match(styles, /\.map-results-experience \{[^}]*overflow: hidden;[^}]*border-radius: 24px/);
-  assert.match(component, /marker\.on\("click", \(\) => selectPlace\(place\.id\)\)/);
+  assert.match(component, /marker\.on\("click", \(event\) => \{[\s\S]*selectPlace\(place\.id\)/);
 });
 
 test("place cards open only after marker activation and use a quiet modern basemap", () => {
   assert.match(component, /const initialSelectedId = single \?/);
   assert.doesNotMatch(component, /\.on\("mouseover", \(\) => setSelectedId/);
   assert.doesNotMatch(component, /\.on\("focus", \(\) => setSelectedId/);
-  assert.match(component, /marker\.on\("click", \(\) => selectPlace/);
+  assert.match(component, /marker\.on\("click", \(event\) => \{[\s\S]*L\.DomEvent\.stopPropagation/);
   assert.match(component, /element\?\.setAttribute\("aria-pressed", String\(active\)\)/);
   assert.doesNotMatch(component, /selectionReadyAt/);
   assert.match(component, /if \(event\.originalEvent && event\.originalEvent === clusterActivationEvent\) return/);
@@ -45,8 +45,11 @@ test("failed street tiles switch the whole layer once without touching markers",
   layers.add(street);fail();assert.equal(adds,1);
 });
 
-test("useful numeric labels appear on markers while generic places keep icons", () => {
-  assert.match(component, /const useTextLabel = clustered \|\| \/\\d\/\.test\(place\.markerLabel\)/);
+test("marker semantics are explicit so dates and capacities never masquerade as prices", () => {
+  assert.match(component, /markerKind: "price" \| "capacity" \| "count" \| "category"/);
+  assert.match(component, /const useTextLabel = clustered \|\| place\.markerKind !== "category"/);
+  assert.match(component, /marker-kind--\$\{clustered \? "count" : place\.markerKind\}/);
+  assert.doesNotMatch(component, /\/\\d\/\.test\(place\.markerLabel\)/);
 });
 
 test("tightly overlapping clusters expand into individually selectable spider markers", () => {
@@ -90,8 +93,9 @@ test("desktop search combines a synchronized result list, sticky map and quick f
 });
 
 test("vacation markers prioritize verified price and map zoom is direct", () => {
-  assert.match(component, /typeof listing\.price === "number"/);
-  assert.match(component, /listing\.price\.toLocaleString/);
+  assert.match(component, /priceById\?\.\[listing\.slug\]/);
+  assert.match(component, /validMapPrice\(listing\.price\)/);
+  assert.match(component, /formatMapPrice\(verifiedPrice, language\)/);
   assert.match(component, /scrollWheelZoom: interactive/);
   assert.match(component, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
   assert.match(component, /wheelPxPerZoomLevel: 80/);

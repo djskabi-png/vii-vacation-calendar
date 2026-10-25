@@ -1,0 +1,39 @@
+{
+  "mode": "architecture",
+  "goal": "Choose a trustworthy shared marker and interaction architecture for all VII discovery maps.",
+  "decision": "proceed_with_conditions",
+  "facts": [
+    {"claim": "The current shared map already supports Leaflet, clustering, overlapping-marker expansion and selected cards.", "evidence": "app/components/listing-map.tsx in the active release checkout."},
+    {"claim": "Vacation, event, discovery and trail adapters currently derive marker labels differently.", "evidence": "ListingMap, DiscoveryMap and TrailMap in app/components/listing-map.tsx."},
+    {"claim": "VII product truth forbids deriving an undated opening price from an arbitrary availability probe.", "evidence": "VII_FEEDBACK_STANDARD.md line 46."},
+    {"claim": "Airbnb documents map pan/zoom discovery and Booking documents price and sorting transparency.", "evidence": "Airbnb help articles 252 and 39; Booking How We Work."}
+  ],
+  "assumptions": [
+    {"claim": "A shared typed marker-value resolver can consume every current adapter without changing supplier schemas.", "status": "untested", "evidence_or_test": "Compile-time adapter tests and fixture comparisons will support or disprove it."},
+    {"claim": "The reported missing selected cards are caused by responsive visibility/state rules rather than Leaflet selection failure.", "status": "untested", "evidence_or_test": "Reproduce each world at the failing viewport and inspect DOM, body flags and click transitions before editing."}
+  ],
+  "risks": [
+    {"risk": "Displaying a price from unverified free text misleads users.", "severity": "high", "mitigation": "Use only price fields already accepted by the corresponding list result and encode missing price explicitly.", "verification": "Marker/list parity fixtures plus live samples per world."},
+    {"risk": "A shared CSS change hides map controls in another viewport or world.", "severity": "high", "mitigation": "Replace body-coupled visibility with component state and run a six-world three-viewport matrix.", "verification": "Automated geometry assertions and screenshots."},
+    {"risk": "Viewport filtering silently removes eligible results or changes ranking.", "severity": "high", "mitigation": "Keep viewport results pending until explicit action and preserve the accepted source pool.", "verification": "ID/count snapshots before pan, after pan and after applying viewport search."},
+    {"risk": "Adding map detail harms performance.", "severity": "medium", "mitigation": "Keep Leaflet lazy, reuse one card, avoid eager media and measure interaction/load budgets.", "verification": "Bundle/build comparison and browser timing observations."}
+  ],
+  "alternatives": [
+    {"option": "Keep generic pins in every non-vacation world.", "tradeoff": "Low implementation risk but fails cross-world comparison and the explicit user request."},
+    {"option": "Render an amount parsed from any text containing a number.", "tradeoff": "Appears comprehensive but can invent misleading prices, dates or capacities and is rejected."},
+    {"option": "Build separate map implementations per world.", "tradeoff": "Allows local tuning but multiplies regressions and contradicts the shared-platform objective."},
+    {"option": "Use one shared typed marker-value contract with verified price, semantic fallback and shared responsive shell.", "tradeoff": "Requires adapter inventory and migration but centralizes truth, QA and future evolution; selected."
+    }
+  ],
+  "acceptance_checks": [
+    {"check": "Verified-price markers match list cards in every price-bearing world.", "status": "pending", "evidence_or_reason": "Requires source tracing and automated fixtures."},
+    {"check": "Missing-price entities remain useful and never show invented amounts.", "status": "pending", "evidence_or_reason": "Requires semantic fallback tests."},
+    {"check": "Map/list and selected marker/card state stay synchronized across viewports.", "status": "pending", "evidence_or_reason": "Requires dedicated browser matrix."},
+    {"check": "Production serves the exact tested release with rollback recorded.", "status": "pending", "evidence_or_reason": "Requires publish and public evidence."
+    }
+  ],
+  "natural_destination": "The six public VII map-enabled discovery routes on vii.spaplus.co.",
+  "affected_family": "All map-enabled worlds, four languages, shared map/list controls, marker values, selected-place cards, loading/error states and responsive layouts.",
+  "authorization_boundary": "Proceed with source, tests and one verified publication. Do not invent or modify supplier data and do not replace the approved place-detail snapshot consent model.",
+  "remaining_blockers": ["Exact verified price provenance must be proven for each non-vacation adapter before its marker may show an amount."]
+}

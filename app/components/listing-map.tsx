@@ -12,6 +12,8 @@ import { localizedPath } from "../i18n/locale-routing";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
+import { formatMapPrice, priceModeFromLabel, validMapPrice, verifiedPriceFromLabel, type MapPriceQuote } from "../lib/map-price";
+import { trackMapInteraction } from "../lib/analytics";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -36,6 +38,10 @@ type MapPlace = {
   lng: number;
   href: string;
   markerLabel: string;
+  markerKind: "price" | "capacity" | "count" | "category";
+  valueLabel?: string;
+  rating?: number;
+  reviews?: number;
   precision?: "exact" | "area";
   illustrativeImage?: boolean;
 };
@@ -98,6 +104,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     place.lng,
     place.href,
     place.markerLabel,
+    place.markerKind,
+    place.valueLabel ?? "",
+    place.rating ?? "",
+    place.reviews ?? "",
     place.precision ?? "",
     place.illustrativeImage ? "1" : "0",
   ].join(":")).join("|");
@@ -105,19 +115,19 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const places = useMemo(() => incomingPlaces, [placesSignature]);
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
-    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area" }
+    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area", priced: "with verified price", review: "reviews" }
     : language === "ru"
-      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места", searchArea: "Искать в этой области" }
+      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места", searchArea: "Искать в этой области", priced: "с подтверждённой ценой", review: "отзывов" }
       : language === "fr"
-        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
-      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone", priced: "avec prix vérifié", review: "avis" }
+      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה", priced: "עם מחיר מאומת", review: "חוות דעת" };
   const mapCopy = language === "en"
-    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of", open: "Open map" }
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of", open: "Open map", onMap: "places on the map", together: "See the results and map together, then choose a place without losing your search", loadingShort: "Loading the map…", regional: "The approximate area is shown. The exact arrival point is provided after confirmation." }
     : language === "ru"
-      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на", open: "Открыть карту" }
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на", open: "Открыть карту", onMap: "мест на карте", together: "Смотрите результаты вместе с картой и выбирайте место, не теряя параметры поиска", loadingShort: "Карта загружается…", regional: "Показан приблизительный район. Точная точка прибытия предоставляется после подтверждения." }
       : language === "fr"
-        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de", open: "Ouvrir la carte" }
-        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על", open: "פתיחת המפה" };
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de", open: "Ouvrir la carte", onMap: "lieux sur la carte", together: "Consultez les résultats et la carte ensemble, puis choisissez sans perdre votre recherche", loadingShort: "Chargement de la carte…", regional: "La zone approximative est affichée. Le point d’arrivée exact est fourni après confirmation." }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על", open: "פתיחת המפה", onMap: "מקומות על המפה", together: "רואים את התוצאות ואת המפה יחד, ובוחרים מקום בלי לאבד את החיפוש", loadingShort: "המפה נטענת…", regional: "מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור." };
   const mapControlCopy = language === "en"
     ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
     : language === "ru"
@@ -136,6 +146,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const activePlaceCallback = useRef(onActivePlaceChange);
   const hoveredPlaceId = useRef(activePlaceId);
   const suppressViewportPrompt = useRef(false);
+  const mapOpenTracked = useRef(false);
   const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
   // A place page must display a real map, not a venue photo pretending to be
@@ -153,6 +164,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const snapshotUrl = preview ? mapSnapshotPublicUrl(tone, preview.id) : "";
   const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
+  const pricedPlaceCount = places.filter((place) => place.markerKind === "price").length;
   const focusKey = initialPlaceIds?.join("|") ?? "";
 
   const activateMap = useCallback(() => {
@@ -161,6 +173,14 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   }, []);
 
   useEffect(() => {
+    if (!enabled || single || mapOpenTracked.current) return;
+    mapOpenTracked.current = true;
+    trackMapInteraction({ action: "open", world: tone, resultCount: places.length });
+  }, [enabled, places.length, single, tone]);
+
+  useEffect(() => {
+    // A changed place must never keep a snapshot accepted for the prior place.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSnapshotUnavailable(true);
     if (!snapshotUrl) return;
     const controller = new AbortController();
@@ -176,12 +196,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     if (snapshotUnavailable) return;
     const image = previewImageRef.current;
     if (!image) return;
-    const usePlaceFallback = () => setSnapshotUnavailable(true);
-    image.addEventListener("error", usePlaceFallback);
+    const handlePlaceFallback = () => setSnapshotUnavailable(true);
+    image.addEventListener("error", handlePlaceFallback);
     // A cached 404 can finish before React hydrates and attaches onError.
     // Inspect the element as well so the preview can never remain broken.
-    if (image.complete && image.naturalWidth === 0) usePlaceFallback();
-    return () => image.removeEventListener("error", usePlaceFallback);
+    if (image.complete && image.naturalWidth === 0) handlePlaceFallback();
+    return () => image.removeEventListener("error", handlePlaceFallback);
   }, [snapshotUnavailable, preview?.id, tone]);
 
   useEffect(() => {
@@ -204,7 +224,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     selectedIdRef.current = id;
     setSelectedId(id);
     activePlaceCallback.current?.(id);
-  }, [places]);
+    trackMapInteraction({ action: "marker_select", world: tone, resultCount: places.length, placeId: id });
+  }, [places, tone]);
 
   const closeSelectedPlace = useCallback(() => {
     const marker = markerInstances.current.get(selectedIdRef.current);
@@ -231,7 +252,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     setViewportDirty(false);
     setSelectedId("");
     activePlaceCallback.current?.(null);
-  }, [pendingVisibleIds]);
+    trackMapInteraction({ action: "search_area", world: tone, resultCount: pendingVisibleIds.length });
+  }, [pendingVisibleIds, tone]);
 
   useEffect(() => {
     selectedIdRef.current = effectiveSelectedId;
@@ -271,16 +293,16 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     let cancelled = false;
     void leaflet.then((L) => {
       if (cancelled || !mapInstance.current) return;
-      const useTextLabel = /\d/.test(place.markerLabel);
+      const useTextLabel = place.markerKind !== "category";
       const markerContent = useTextLabel
-        ? `<span class="vii-map-marker__icon">${markerIcon(tone)}</span><span class="vii-map-marker__label">${safeMarkerLabel(place.markerLabel)}</span>`
+        ? `${place.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(place.markerLabel)}</span>`
         : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
       const previewMarker = L.marker([place.lat, place.lng], {
         keyboard: true,
         alt: place.name,
         zIndexOffset: 1400,
         icon: L.divIcon({
-          className: `vii-map-marker-wrap map-tone--${tone}${useTextLabel ? " is-text" : " is-icon"} is-card-active is-hover-preview`,
+          className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${place.markerKind}${useTextLabel ? " is-text" : " is-icon"} is-card-active is-hover-preview`,
           html: `<span class="vii-map-marker">${markerContent}</span>`,
           iconSize: useTextLabel ? [140, 54] : [54, 58],
           iconAnchor: useTextLabel ? [70, 51] : [27, 54],
@@ -288,7 +310,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       }).addTo(mapInstance.current);
       previewMarker.getElement()?.setAttribute("data-map-place-id", place.id);
       previewMarker.getElement()?.setAttribute("aria-label", place.name);
-      previewMarker.on("click", () => selectPlace(place.id));
+      previewMarker.on("click", (event) => {
+        if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+        selectPlace(place.id);
+      });
       enableMarkerKeyboardActivation(previewMarker);
       previewMarker.on("mouseover", () => activePlaceCallback.current?.(place.id));
       previewMarker.on("mouseout", () => activePlaceCallback.current?.(null));
@@ -425,9 +450,9 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             : 34 + Math.sqrt(index + 1) * 24;
           const spiderPoint = centerPoint.add(L.point(Math.cos(angle) * radius, Math.sin(angle) * radius));
           const spiderPosition = map.layerPointToLatLng(spiderPoint);
-          const useTextLabel = /\d/.test(entry.markerLabel);
+          const useTextLabel = entry.markerKind !== "category";
           const markerContent = useTextLabel
-            ? `<span class="vii-map-marker__icon">${markerIcon(tone)}</span><span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
+            ? `${entry.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
 
           L.polyline([center, spiderPosition], {
@@ -442,7 +467,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             alt: entry.name,
             zIndexOffset: 900 + index,
             icon: L.divIcon({
-              className: `vii-map-marker-wrap map-tone--${tone}${useTextLabel ? " is-text" : " is-icon"}${entry.id === selectedIdRef.current ? " is-active" : ""}`,
+              className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${entry.markerKind}${useTextLabel ? " is-text" : " is-icon"}${entry.id === selectedIdRef.current ? " is-active" : ""}`,
               html: `<span class="vii-map-marker">${markerContent}</span>`,
               iconSize: useTextLabel ? [140, 54] : [54, 58],
               iconAnchor: useTextLabel ? [70, 51] : [27, 54],
@@ -450,6 +475,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           }).addTo(markerLayer);
           spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
           spiderMarker.on("click", (event) => {
+            if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
             // Ignore only the event which expanded the cluster, not a new tap
             // or immediate keyboard action on the newly revealed place.
             if (event.originalEvent && event.originalEvent === clusterActivationEvent) return;
@@ -503,17 +529,17 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
           // Clusters communicate result count. Numeric labels keep useful values,
           // such as price or capacity, visible without opening a result card.
-          const useTextLabel = clustered || /\d/.test(place.markerLabel);
+          const useTextLabel = clustered || place.markerKind !== "category";
           const markerContent = clustered
             ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
             : useTextLabel
-              ? `<span class="vii-map-marker__icon">${markerIcon(tone)}</span><span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
+              ? `${place.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
               : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
           const marker = L.marker(clusterCenter, {
             keyboard: true,
             alt: clustered ? clusterText : place.name,
             icon: L.divIcon({
-              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${cluster.entries.some((entry) => entry.id === selectedIdRef.current) ? " is-active" : ""}`,
+              className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${clustered ? "count" : place.markerKind}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${cluster.entries.some((entry) => entry.id === selectedIdRef.current) ? " is-active" : ""}`,
               html: `<span class="vii-map-marker">${markerContent}</span>`,
               iconSize: clustered ? [72, 58] : useTextLabel ? [140, 54] : [54, 58],
               iconAnchor: clustered ? [36, 54] : useTextLabel ? [70, 51] : [27, 54],
@@ -525,6 +551,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${mapControlCopy.cluster}`);
             marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
             marker.on("click", (event) => {
+              if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
               clusterActivationEvent = event.originalEvent;
               selectedIdRef.current = "";
               setSelectedId("");
@@ -542,7 +569,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             });
           } else {
             marker.getElement()?.setAttribute("aria-label", place.name);
-            marker.on("click", () => selectPlace(place.id));
+            marker.on("click", (event) => {
+              if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+              selectPlace(place.id);
+            });
             bindPlaceMarkerInteraction(marker, place.id);
             markerRegistry.set(place.id, marker);
           }
@@ -675,12 +705,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         <span className="map-preview-label">{placeFallback ? fallbackLabel : mapCopy.preview}</span>
         <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
         <div>
-          <h3>{single ? preview.name : `${places.length} מקומות על המפה`}</h3>
-          <p>{single ? `${preview.location}, ${preview.area}` : "רואים את התוצאות ואת המפה יחד, ובוחרים מקום בלי לאבד את החיפוש"}</p>
+          <h3>{single ? preview.name : `${places.length} ${mapCopy.onMap}`}</h3>
+          <p>{single ? `${preview.location}, ${preview.area}` : mapCopy.together}</p>
         </div>
         {!enabled && <button className="button map-load-button" type="button" onClick={activateMap}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
-        {enabled && !mapReady && <span className="map-loading-pill">המפה נטענת...</span>}
-        {single && previewRegional && <small className="map-precision-note">מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.</small>}
+        {enabled && !mapReady && <span className="map-loading-pill">{mapCopy.loadingShort}</span>}
+        {single && previewRegional && <small className="map-precision-note">{mapCopy.regional}</small>}
       </div>
       {!snapshotUnavailable && <a className="map-preview-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>© OpenStreetMap</a>}
     </>
@@ -694,7 +724,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
       <span>{mapCopy.open}</span>
     </button>}
-    {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
+    {!single && <div className="map-results-summary" aria-live="polite" data-place-count={places.length} data-priced-count={pricedPlaceCount}><strong>{places.length} {cardCopy.visible}</strong>{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
+    {onClose && !single && <button className="map-mobile-close" type="button" onClick={() => { trackMapInteraction({ action: "close", world: tone, resultCount: places.length }); onClose(); }} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
@@ -703,8 +734,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         <small>{selected.category}</small>
       </PreviewCardGallery>
       <div className="map-selection-card__body">
-        <span className="map-selection-card__location">{selected.location}</span>
+        <span className="map-selection-card__location">{selected.location}{selected.area && selected.area !== selected.location ? ` · ${selected.area}` : ""}</span>
         <strong>{selected.name}</strong>
+        {(selected.valueLabel || selected.rating) && <div className="map-selection-card__decision">
+          {selected.valueLabel && <b>{selected.valueLabel}</b>}
+          {selected.rating && <span>★ {selected.rating.toFixed(1)}{selected.reviews ? ` · ${selected.reviews.toLocaleString()} ${cardCopy.review}` : ""}</span>}
+        </div>}
         <span className="map-selection-card__meta">{selected.meta}</span>
         {selected.precision === "area" && <span className="map-selection-card__precision">{precisionCopy}</span>}
         <Link href={localizedPath(selected.href, language)}>{cardCopy.details}</Link>
@@ -720,7 +755,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   </div>;
 }
 
-export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
+export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, priceById, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; priceById?: Record<string, MapPriceQuote>; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
   const { language, translate } = useSiteLanguage();
   const units = useMemo(() => ({
     he: { bedrooms: "חדרי שינה", units: "יחידות", guests: "אורחים", upTo: "עד" },
@@ -734,7 +769,11 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     ru: { place: "Место", location: "Израиль", area: "Израиль" },
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
-  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => ({
+  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => {
+    const verifiedPrice = priceById?.[listing.slug] ?? (validMapPrice(listing.price) ? { amount: listing.price, mode: "from" as const } : undefined);
+    const compactPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language) : "";
+    const fullPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language, false) : "";
+    return ({
     id: listing.slug,
     name: localizedBusinessText(listing.name, language, translate, latinBusinessAlias(listing.name) || fallback.place),
     location: localizedBusinessText(listing.location, language, translate, latinBusinessAlias(listing.location) || fallback.location),
@@ -749,15 +788,13 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     lat: listing.lat!,
     lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
-    markerLabel: mode === "events"
-      ? listing.guests > 0 ? `${listing.guests} ${units.guests}` : translate(listing.type)
-      : typeof listing.price === "number"
-        ? language === "he"
-          ? `${listing.price.toLocaleString("he-IL")} ₪`
-          : `₪${listing.price.toLocaleString(language === "fr" ? "fr-FR" : language === "ru" ? "ru-RU" : "en-US")}`
-        : translate(listing.type),
+    markerLabel: compactPrice || (mode === "events" && listing.guests > 0 ? `${listing.guests} ${units.guests}` : translate(listing.type)),
+    markerKind: compactPrice ? "price" : mode === "events" && listing.guests > 0 ? "capacity" : "category",
+    valueLabel: fullPrice || undefined,
+    rating: listing.score,
+    reviews: listing.reviews,
     precision: "exact",
-  })), [detailQuery, fallback, language, listings, mode, translate, units]);
+  }); }), [detailQuery, fallback, language, listings, mode, priceById, translate, units]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
@@ -778,19 +815,25 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
   const places = useMemo<MapPlace[]>(() => items.filter((item) => typeof item.lat === "number" && typeof item.lng === "number").map((item) => {
-    const price = item.priceLabel?.match(/[\d,.]+/)?.[0];
+    const price = verifiedPriceFromLabel(item.priceLabel);
+    const priceQuote = price ? { amount: price, mode: priceModeFromLabel(item.priceLabel) } satisfies MapPriceQuote : null;
+    const compactPrice = priceQuote ? formatMapPrice(priceQuote, language) : "";
+    const fullPrice = priceQuote ? formatMapPrice(priceQuote, language, false) : "";
     return {
       id: item.id,
       name: localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || fallback.place),
       location: localizedBusinessText(item.location, language, translate, latinBusinessAlias(item.location) || fallback.location),
       area: localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area),
       category: tone === "activities" ? localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area) : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
-      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? localizedBusinessText(item.priceLabel || item.location, language, translate, fallback.location) : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
+      meta: localized ? (price ? fullPrice : tone === "spa" ? localized.packages : tone === "activities" ? localizedBusinessText(item.priceLabel || item.location, language, translate, fallback.location) : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
       lat: item.lat!,
       lng: item.lng!,
       href: `/discover/place/${item.id}`,
-      markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה",
+      markerLabel: compactPrice || (tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה"),
+      markerKind: compactPrice ? "price" : "category",
+      valueLabel: fullPrice || undefined,
+      rating: item.rating,
       precision: item.mapPrecision || "area",
     };
   }), [fallback, items, language, localized, tone, translate]);
@@ -845,6 +888,7 @@ export function TrailMap({ trails, autoLoad = false, onClose, onVisibleCountChan
       lng: center.lng,
       href: `/trails?area=${encodeURIComponent(area)}${query.size > 1 ? `&${[...query].filter(([key]) => key !== "area").map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join("&")}` : ""}`,
       markerLabel: language === "he" ? `${groupCount} מסלולים` : language === "en" ? `${groupCount} ${groupCount === 1 ? "trail" : "trails"}` : language === "ru" ? `Маршруты: ${groupCount}` : `${groupCount} ${groupCount === 1 ? "itinéraire" : "itinéraires"}`,
+      markerKind: "count" as const,
       precision: "area" as const,
     };
   // areaNames is a fixed vocabulary; only the selected locale changes it.

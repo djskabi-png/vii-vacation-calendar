@@ -83,7 +83,7 @@ test("editorial visibility has exact enter and exit boundaries", async () => {
   assert.equal(editorialAreaVisible({top:-900,bottom:0},844),false);
   assert.equal(editorialAreaVisible({top:0,bottom:100},0),false);
 });
-test("editorial floating-control policy preserves active maps, keyboard focus and cleanup", async () => {
+test("editorial floating-control policy keeps map discovery available and cleans up", async () => {
   const component=await fs.readFile(new URL("../app/components/world-editorial-links.tsx",import.meta.url),"utf8");
   const css=await fs.readFile(new URL("../app/globals.css",import.meta.url),"utf8");
   assert.match(component,/observer\.observe\(element\)/);
@@ -92,6 +92,6 @@ test("editorial floating-control policy preserves active maps, keyboard focus an
   assert.match(component,/removeAttribute\("data-world-editorial-reading"\)/);
   assert.match(component,/\[pathname, language, variant\]/);
   assert.match(css,/max-width:820px/);
-  assert.match(css,/\.mobile-map-fab:not\(\.active\):not\(:focus\)/);
+  assert.doesNotMatch(css,/body\[data-world-editorial-reading\] \.mobile-map-fab/);
   assert.match(css,/\.back-to-top:not\(:focus\)/);
 });

@@ -18,6 +18,7 @@
     "qa:regression-guards": "node scripts/verify-regression-guard-matrix.mjs",
     "qa:icon-geometry": "node scripts/audit-feature-icon-geometry.cjs",
     "qa:overlay-geometry": "node scripts/audit-overlay-geometry.cjs",
+    "qa:map": "node scripts/audit-map-experience.cjs",
     "qa:qqqaaa": "node scripts/run-qqqaaa.cjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
     "db:generate": "drizzle-kit generate"

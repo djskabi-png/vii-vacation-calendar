@@ -55,6 +55,7 @@ import { hasConfirmedDatedAvailability } from "../lib/dated-availability-eligibi
 import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
+import type { MapPriceQuote } from "../lib/map-price";
 
 export type SearchLandingContext = {
   path: string;
@@ -717,6 +718,18 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // Keep the exact location cohort first. The exact cohort is already ranked by
   // the selected sort and booking priority; nearby recovery is distance-ranked.
   const resultSet = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
+  const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((property) => {
+    const availability = liveAvailabilityFor(property.slug)?.quote;
+    if (selectedStay) {
+      if (availability?.availability !== "available") return [];
+      const amount = availability.priceMode === "stay_total" ? availability.totalPrice : availability.nightlyPrice;
+      if (typeof amount !== "number" || amount <= 0) return [];
+      const mode = availability.priceMode === "stay_total" ? "stay_total" : "nightly";
+      return [[property.slug, { amount, mode }]];
+    }
+    const amount = supplierStartingPrice(startingPrices[property.slug] ?? property);
+    return amount ? [[property.slug, { amount, mode: "from" }]] : [];
+  })) as Record<string, MapPriceQuote>;
 
   useEffect(() => {
     if (catalogLoading || catalogError || onlineCheckPending || datedAvailabilityPending || datedAvailabilityError) return;
@@ -998,7 +1011,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {!mapOpen && <ProgressiveResults autoLoad initialCount={initialResultWindow} className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setResultWindow((current) => ({ key: resultWindowKey, count: Math.min(displayedResults.length, (current.key === resultWindowKey ? current.count : initialResultWindow) + 9) }))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} mapActive={activeMapPropertyId === property.slug} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
-              <div className="airbnb-map-split__map"><DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} /></div>
+              <div className="airbnb-map-split__map"><DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} priceById={mapPriceById} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} /></div>
             </div>}
             {!onlineOnly && !selectedStay && !catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {!mapOpen && !selectedStay && !flexibleSearch && selectedTypes.length === 0 && !pool && !spa && !whole && !accessibleOnly && !onlineOnly && !selectedExtras.length ? <RegionalAvailability world="vacation" region={area} guests={guests} embedded /> : null}

@@ -1,0 +1,104 @@
+{
+  "goal": "Publish a trustworthy, fast and premium shared VII map experience that supports discovery and decision-making across every public world.",
+  "intent_model": {
+    "literal_request": "Research Airbnb and Booking maps, improve VII maps to their level or better, show prices across all worlds, publish, and add comprehensive QA.",
+    "implied_outcome": "Users can understand where relevant places are, compare real values, select a place and move between map and list without broken state or uncertainty on any device or language.",
+    "likely_rejections": [
+      "A visually improved map still displays inconsistent or fabricated prices.",
+      "The map works only in vacation or only on desktop.",
+      "The map and list disagree after pan, zoom or a return navigation.",
+      "The candidate passes source tests but is not visibly verified in production."
+    ],
+    "interpretation_rules": [
+      {"phrase": "בכל העולמות", "operational_meaning": "Inventory and test every public world that exposes a map, not one shared component in isolation.", "acceptance_impact": "Requires six-world adapter and destination evidence."},
+      {"phrase": "מחירים על המפה", "operational_meaning": "Show the same verified price used by the corresponding result card when one exists; never invent a price for a source without one.", "acceptance_impact": "Adds price provenance and missing-price fallback checks."},
+      {"phrase": "לפחות ברמה שלהם", "operational_meaning": "Adopt proven decision patterns such as clear value markers, clustering, active-card sync, explicit viewport refresh and mobile map/list control while preserving VII identity.", "acceptance_impact": "Adds competitor-pattern comparison and original branded implementation checks."},
+      {"phrase": "תשיק אותה בסוף", "operational_meaning": "Publish only the exact candidate that passes release gates and verify it at the public URL.", "acceptance_impact": "Adds immutable release identity, rollback and live proof."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Geographic comparison of places currently eligible for the user's search.",
+    "current_decision": "Which visible place best fits based on location, verified value and core metadata.",
+    "next_action": "Select a marker or card, inspect the synchronized place summary, then open the place or return to the full list.",
+    "deferred_complexity": ["Full place detail, booking rules, package details and supplier contact are revealed after place selection."],
+    "preserved_depth": ["World filters, date and guest state, list sorting, selected place, back/reload behavior, error recovery and map attribution remain reachable."]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/preflight/v637-premium-map-experience.json",
+    "lesson_bundle_ids": ["ADIR-WEB-005", "ADIR-WEB-006", "ADIR-MOBILE-001", "ADIR-VISUAL-001", "ADIR-CONSISTENCY-001", "ADIR-INTENT-001", "ADIR-SEO-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor", "VII content and operations owner", "VII release operator"],
+  "natural_destination": "Public VII search and discovery routes on vii.spaplus.co for vacation, events, spa, hourly rooms, attractions and trails in four locales.",
+  "facts": [
+    {"claim": "VII already has a shared Leaflet map component with clustering, overlapping-marker expansion, map/list view controls and selected-place cards.", "evidence": "app/components/listing-map.tsx in the active release checkout."},
+    {"claim": "VII project truth requires the list, completions, map, counts and availability seal to use the same eligibility definition.", "evidence": "VII_FEEDBACK_STANDARD.md line 46."},
+    {"claim": "Public place-detail maps remain passive saved snapshots until explicit activation.", "evidence": "VII_FEEDBACK_STANDARD.md line 110."},
+    {"claim": "Current world adapters do not use one consistent price-marker model.", "evidence": "ListingMap, DiscoveryMap and TrailMap adapters in app/components/listing-map.tsx."}
+  ],
+  "assumptions": [
+    {"claim": "Event result objects expose a trustworthy public price in at least some cases.", "validation": "Trace the event adapter from accepted source data to the visible list card and compare real fixtures before rendering map price."},
+    {"claim": "Discovery priceLabel values are display-safe and belong to the current result state.", "validation": "Inspect source construction and add provenance tests for spa, hourly and attractions."},
+    {"claim": "Trails do not have a verified comparable price source.", "validation": "Inspect trail data and UI contracts; retain semantic route/group markers unless a real price is proven."}
+  ],
+  "in_scope": [
+    "Shared map shell, marker, cluster, selected-place card and list/map controls",
+    "Verified price display across every world whose accepted result has a real price",
+    "Explicit semantic fallback where no price exists",
+    "Viewport search, initial camera, pan, zoom, clustering, overlap handling and active selection",
+    "Desktop, mobile and short-height responsive behavior",
+    "Hebrew, English, Russian and French localization and direction",
+    "Loading, empty, error, image fallback and tile fallback states",
+    "Dedicated map QA, affected regression, publish, rollback identity and public verification"
+  ],
+  "out_of_scope": [
+    "Changing supplier prices, availability or source-of-truth ownership",
+    "Replacing the approved passive place-detail snapshot policy",
+    "A full legal accessibility audit",
+    "Unrelated SEO, CMS or platform migration work"
+  ],
+  "invariants": [
+    "No price, availability, review or distance is invented.",
+    "Map, list and counts use the same accepted eligible result pool.",
+    "Current filters, dates, guests, sorting and clean URLs survive map/list transitions, reload and back.",
+    "Map attribution and licensed tile sources remain visible.",
+    "Place-detail live maps still load only after explicit user action.",
+    "Existing place links, phone, WhatsApp and booking actions keep their current destination and analytics semantics."
+  ],
+  "affected_family": ["vacation results route at /search", "event results route at /events/search", "spa discovery route at /spas", "hourly-room discovery route at /hourly", "attraction discovery route at /attractions", "trail discovery route at /trails", "shared listing map components and controls", "Hebrew, English, Russian and French locales", "desktop, mobile and short-height viewports"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Every public world that has a map uses the shared premium map shell and controls.", "source": "User request: בכל העולמות."},
+    {"id": "REQ-2", "statement": "A map marker shows a localized verified price when the same result has a real display price; otherwise it shows a semantic non-price marker.", "source": "User request plus VII price-truth rules."},
+    {"id": "REQ-3", "statement": "Map markers, list cards, visible counts and selected-place data stay synchronized through filter, pan, zoom and viewport-search changes.", "source": "VII_FEEDBACK_STANDARD.md lines 46 and 133."},
+    {"id": "REQ-4", "statement": "Initial camera, clusters, overlapping markers, active marker and selected-place card remain usable for single, multiple and dense results.", "source": "Map experience skill and user quality target."},
+    {"id": "REQ-5", "statement": "The map/list experience works on desktop, 390px mobile and short-height screens without hidden controls, overflow or trapped scroll.", "source": "User quality target and accepted mobile standards."},
+    {"id": "REQ-6", "statement": "All map UI is correctly localized and directionally laid out in Hebrew, English, Russian and French.", "source": "VII multilingual product scope."},
+    {"id": "REQ-7", "statement": "The map has useful loading, empty, missing-image, tile-error and retry/fallback states.", "source": "Release quality requirement."},
+    {"id": "REQ-8", "statement": "Map/list view, marker selection and viewport refresh remain observable through existing analytics without collecting new personal data.", "source": "VII analytics and product evidence requirement."},
+    {"id": "REQ-9", "statement": "The exact verified candidate is published once with rollback identity and public production evidence.", "source": "User request: תשיק אותה בסוף."},
+    {"id": "REQ-10", "statement": "Dedicated automated map QA covers all affected worlds, languages, viewports and interaction states and is wired into QQQAAA.", "source": "User request: עליה תשים בדיקות QA מכל הבחינות."}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-5"], "kind": "success", "setup": "Representative results exist in each of the six worlds.", "action": "Open map view on desktop, mobile and short-height viewports.", "observable_result": "The shared map shell, map/list controls and result count are visible and usable in every world."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "A result exposes a verified price for the active query.", "action": "Compare its list card and map marker.", "observable_result": "Both display the same localized amount and qualifier."},
+    {"id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "empty", "setup": "A result has no verified price.", "action": "Render it on the map.", "observable_result": "The marker remains selectable with a semantic icon or value and displays no fabricated amount."},
+    {"id": "AC-4", "requirement_ids": ["REQ-3", "REQ-8"], "kind": "persistence", "setup": "A filtered map view has a selected place.", "action": "Pan, zoom, apply search-this-area, switch to list, reload and use back.", "observable_result": "The intended filter/result state persists, counts match the eligible IDs, and map interactions are recorded once."},
+    {"id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Fixtures include one place, dense nearby places and identical coordinates.", "action": "Zoom, open clusters and select each place.", "observable_result": "Every place can be reached and the active marker and selected card always identify the same place."},
+    {"id": "AC-6", "requirement_ids": ["REQ-5"], "kind": "recovery", "setup": "Map view is open on mobile and then viewport height or width changes.", "action": "Rotate/resize, close the selected card and return to list.", "observable_result": "No primary control is hidden, safe areas remain clear, and page scrolling is restored."},
+    {"id": "AC-7", "requirement_ids": ["REQ-6"], "kind": "success", "setup": "Each supported locale is selected.", "action": "Open the map, select a marker and use map controls.", "observable_result": "Text, number formatting, direction and control placement are correct with no Hebrew leakage or clipping."},
+    {"id": "AC-8", "requirement_ids": ["REQ-7"], "kind": "failure", "setup": "Tile/image loading is unavailable or result data is empty.", "action": "Open or retry the map.", "observable_result": "The UI remains understandable, offers a useful fallback/retry, and never shows a broken image or blank trapped surface."},
+    {"id": "AC-9", "requirement_ids": ["REQ-9"], "kind": "rollback", "setup": "All candidate gates pass and the prior deployment identity is recorded.", "action": "Publish the exact commit and verify production.", "observable_result": "The public URL serves the candidate behavior and a known prior release remains the rollback target."},
+    {"id": "AC-10", "requirement_ids": ["REQ-10"], "kind": "success", "setup": "The dedicated map suite is installed.", "action": "Run it directly and through QQQAAA.", "observable_result": "The same world/locale/viewport matrix runs in both paths and any geometry, value or interaction failure blocks the release."},
+    {"id": "AC-11", "requirement_ids": ["REQ-7"], "kind": "retry", "setup": "A recoverable map resource failure occurred.", "action": "Use the provided retry or switch map style once.", "observable_result": "A successful retry restores the map without duplicating controls, events or selected state."}
+  ],
+  "open_questions": [
+    {"question": "Which non-vacation data fields are verified price sources rather than descriptive text?", "blocking": false, "resolution": "Trace each adapter to the accepted list-card source before implementation; unsupported fields fall back to non-price markers."}
+  ],
+  "authorization_boundary": "Source, test, deployment and public verification for the map project are authorized. Supplier truth, paid services, unrelated content and legal compliance claims remain outside scope.",
+  "ready_for_implementation": true
+}

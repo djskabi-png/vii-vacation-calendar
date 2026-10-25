@@ -412,7 +412,7 @@ test("map markers use the rich synchronized place card instead of legacy text to
   assert.doesNotMatch(source, /\.on\("mouseover", \(\) => setSelectedId/);
   assert.doesNotMatch(source, /\.on\("focus", \(\) => setSelectedId/);
   assert.doesNotMatch(source, /title: entry\.name|title: clustered \?/);
-  assert.match(source, /marker\.on\("click", \(\) => selectPlace/);
+  assert.match(source, /marker\.on\("click", \(event\) => \{[\s\S]*selectPlace\(place\.id\)/);
   assert.match(source, /const initialSelectedId = single \?/);
   assert.match(source, /tile\.openstreetmap\.org/);
   assert.match(source, /aria-live="polite"/);
@@ -695,7 +695,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
   assert.match(map, /listing\.bedrooms/);
-  assert.match(map, /typeof listing\.price === "number"/);
+  assert.match(map, /validMapPrice\(listing\.price\)/);
+  assert.match(map, /priceById\?\.\[listing\.slug\]/);
   assert.match(data, /readVerifiedCount\(item\.location/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);

@@ -12,6 +12,34 @@ export type PhoneClickDetails = {
   placement: string;
 };
 
+export type MapInteractionDetails = {
+  action: "open" | "close" | "marker_select" | "search_area";
+  world: "vacation" | "events" | "spa" | "hourly" | "activities";
+  resultCount: number;
+  placeId?: string;
+};
+
+// Map measurement is deliberately anonymous. It records only the product
+// action and result context, never coordinates, typed locations or contact
+// details. The internal event helps QA; analytics receives it only after the
+// visitor has granted the full cookie choice.
+export function trackMapInteraction(details: MapInteractionDetails) {
+  if (typeof window === "undefined") return;
+  const eventDetails = {
+    event: "vii_map_interaction",
+    map_action: details.action,
+    world: details.world,
+    result_count: details.resultCount,
+    ...(details.placeId ? { place_id: details.placeId } : {}),
+    page_path: `${window.location.pathname}${window.location.search}`,
+  };
+  window.dispatchEvent(new CustomEvent("vii:map-interaction", { detail: eventDetails }));
+  if (window.localStorage.getItem("vii-cookie-choice") === "all") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(eventDetails);
+  }
+}
+
 // A tel-link click is intent, not a completed call or a phone reveal. Keep the
 // supplier's virtual-number routing intact and emit nothing merely on render.
 export function trackPhoneClick(details: PhoneClickDetails) {

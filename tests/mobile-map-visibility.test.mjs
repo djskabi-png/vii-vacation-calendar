@@ -5,7 +5,7 @@ import fs from "node:fs";
 const guard = fs.readFileSync(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
 const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("mobile map FAB visibility follows the results region and preserves active maps", () => {
+test("mobile map FAB remains available throughout result pages and preserves active maps", () => {
   assert.match(guard, /data-map-results-visible/);
   assert.match(guard, /IntersectionObserver/);
   assert.match(guard, /MutationObserver/);
@@ -13,7 +13,9 @@ test("mobile map FAB visibility follows the results region and preserves active 
   assert.match(guard, /\.results-list, \.trail-explorer/);
   assert.match(guard, /\.attraction-explorer, \.world-map-results/);
   assert.match(guard, /observer\.unobserve\(region\)/);
-  assert.match(css, /body:not\(\[data-map-results-visible\]\) \.mobile-map-fab:not\(\.active\)/);
+  assert.doesNotMatch(css, /body:not\(\[data-map-results-visible\]\) \.mobile-map-fab:not\(\.active\)/);
+  assert.doesNotMatch(css, /body\[data-world-editorial-reading\] \.mobile-map-fab/);
+  assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\)[\s\S]*\.mobile-map-fab/);
 });
 
 test("regional availability cards never have the normal-results map FAB covering them", () => {

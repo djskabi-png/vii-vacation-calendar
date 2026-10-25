@@ -5,6 +5,7 @@ import type { ComponentType } from "react";
 import type { Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
+import type { MapPriceQuote } from "../lib/map-price";
 
 const MAP_ASSET_RECOVERY_KEY = "vii:map-asset-recovery";
 const MAP_ASSET_RECOVERY_WINDOW_MS = 60_000;
@@ -52,6 +53,7 @@ export const DeferredListingMap = dynamic(
   single?: boolean;
   autoLoad?: boolean;
   detailQuery?: string;
+  priceById?: Record<string, MapPriceQuote>;
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;

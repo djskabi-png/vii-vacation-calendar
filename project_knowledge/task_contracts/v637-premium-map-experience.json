@@ -1,0 +1,221 @@
+{
+  "schema_version": 2,
+  "task_id": "v637-premium-map-experience",
+  "project": "VII",
+  "task_type": "premium-shared-map-experience",
+  "goal": "Publish a trustworthy premium shared map experience across every public VII world",
+  "created_at": "2026-10-25T04:04:47.113594Z",
+  "updated_at": "2026-10-25T06:35:00.000000Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f2ccfc1a5fa85ea56805bfe952dc8ca3cc45d425114c7fa6a6a2f311e9d6cf56"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "57c549619e5d3152badf26d6da6765ddde4ee7bb61130eb60f6d3b7d71e79161"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v627-smart-sliders\\project_knowledge\\preflight\\v637-premium-map-experience.json",
+      "sha256": "2ecfe49f30e6673849542e7966dc7dcd691a2f7e542d03dfe819683f0f1b20c9"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v627-smart-sliders\\project_knowledge\\preflight\\v637-premium-map-experience.json",
+    "sha256": "2ecfe49f30e6673849542e7966dc7dcd691a2f7e542d03dfe819683f0f1b20c9",
+    "predicted_rejection_count": 7,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 7,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "title": "ריסון חזותי וקצב ריווח מדוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-INTENT-001",
+      "title": "ניסוח קצר מתורגם לכוונה תפעולית",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "title": "כל אתר יוצא עם תשתית קידום ומדידה מלאה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Publish a trustworthy premium shared map experience across every public VII world",
+      "acceptance_check": "The exact public release passes the six-world four-locale three-viewport map QA matrix with verified-price provenance, synchronized map/list state and rollback evidence",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v627-smart-sliders\\project_knowledge\\preflight\\v637-premium-map-experience.json validated with sha256 2ecfe49f30e6673849542e7966dc7dcd691a2f7e542d03dfe819683f0f1b20c9"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-25T04:04:47.113594Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the shared price-marker resolver and responsive selected-place card work for one verified-price record and one missing-price record.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "18 focused map contract tests passed, including verified-price and missing-price marker semantics",
+        "Candidate visual matrix passed 8 of 8 cases across he/en/ru/fr on desktop and mobile: qa-reports/v637-map-candidate-visual/map-experience-report.json",
+        "Selected-place cards, no-overflow geometry and marker activation were exercised in browser screenshots"
+      ],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-VISUAL-001",
+      "source": "lesson:ADIR-VISUAL-001",
+      "statement": "כל ממשק משתמש בהיררכיה נקייה ובקצב ריווח מדוד, ללא כותרות כפולות, טקסטי מילוי, קווים ללא תפקיד, מסגרות בתוך מסגרות, שטחים ריקים ללא סיבה או תוכן ובקרים הצמודים לגבולות.",
+      "acceptance_check": "שער הראיות נכשל ללא אסימוני ריווח, מדידות של מעברים סמוכים, צילום עמוד מלא במחשב ובנייד, סריקת תוכן כפול ומלאי מסגרות וקווים שעברו בדיקה עצמאית.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-INTENT-001",
+      "source": "lesson:ADIR-INTENT-001",
+      "statement": "מילים קצרות ותלויות הקשר של אדיר, לרבות תמשיך, הכול, מושלם, פשוט, אותו דבר ואחרי בדיקה, מתורגמות לפני ביצוע למטרה המשתמעת, למשפחה המושפעת, לסיבות ההחזרה הצפויות ולראיות הנדרשות. אין לחקות את קולו ואין להסיק הרשאה חדשה.",
+      "acceptance_check": "מאמת חוזה הקבלה נכשל כאשר חסרים בקשה מילולית, תוצאה משתמעת, סיבות החזרה או כלל תרגום עם השפעה על הראיה. מבחן מלא עובר ומבחן ללא intent_model נחסם.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SEO-001",
+      "source": "lesson:ADIR-SEO-001",
+      "statement": "כל אתר ציבורי כולל כברירת מחדל SEO, GEO, נתונים מובנים, robots, sitemap, canonical, תוכנית מדידה, מילון אירועים, שכבת נתונים, ניהול תגיות והסכמה שנבדקו בגרסה החיה.",
+      "acceptance_check": "שער השחרור נכשל אם חסרה אחת ממשפחות הקידום או המדידה, אם קיימת סתירה באינדוקס, אם נתונים מובנים אינם תואמים לתוכן, אם אירוע לא נראה בדיבוג ובזמן אמת, או אם נשלח מידע אישי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:master-plan",
+      "source": "project_guidance",
+      "statement": "VII_PLATFORM_MASTER_PLAN.md is loaded and its current implementation-truth distinctions remain enforced",
+      "acceptance_check": "VII_PLATFORM_MASTER_PLAN.md is loaded and its current implementation-truth distinctions remain enforced",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:feedback-standard",
+      "source": "project_guidance",
+      "statement": "VII_FEEDBACK_STANDARD.md map, price, mobile and shared-pool decisions are reflected in acceptance",
+      "acceptance_check": "VII_FEEDBACK_STANDARD.md map, price, mobile and shared-pool decisions are reflected in acceptance",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

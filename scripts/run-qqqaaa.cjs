@@ -15,6 +15,7 @@ const suites = [
   ["availability-matrix", ["audit:availability"]],
   ["feature-icon-geometry", ["qa:icon-geometry"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],
+  ["map-experience", ["qa:map"]],
   ["sitewide-release", ["qa:site"]],
   ["public-production-matrix", ["qa:production"]],
 ];
