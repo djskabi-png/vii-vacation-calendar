@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFileSync} from 'node:fs';
-import {parseStayCalendar,stayCalendarDay,assessCalendarStay,supplierStayCalendar,enrichStayCalendarPrices} from '../app/lib/vii-stay-calendar.ts';
+import {parseStayCalendar,stayCalendarDay,assessCalendarStay,supplierStayCalendar,enrichStayCalendarPrices,stayCalendarContractVariants,SupplierCalendarError} from '../app/lib/vii-stay-calendar.ts';
 
 const from='2026-10-23',till='2026-10-28',siteID=2566;
 const day=(date,minNights=1,availableUnits=[1],closedArrival=false)=>({date,minNights,availableUnits,availableUnitCount:availableUnits.length,closedArrival});
@@ -46,10 +46,25 @@ test('strict projection rejects malformed, duplicate and cross-context calendar 
  }
  const r=raw();r.private='secret';r.rooms[0].private='secret';assert.ok(!JSON.stringify(parseStayCalendar(r,siteID,from,till)).includes('secret'));
 });
+test('official equivalent supplier scalar variants normalize without weakening inventory checks',()=>{
+ const r=raw();r.siteID=String(siteID);r.rooms[0].roomID='4378';
+ for(const d of r.rooms[0].dates){d.availableUnitCount=String(d.availableUnitCount);d.minimumNights=String(d.minNights);delete d.minNights;d.closedToArrival=d.closedArrival?1:0;delete d.closedArrival;d.availableUnits=d.availableUnits.map(String);}
+ const c=parseStayCalendar(r,siteID,from,till);
+ assert.equal(c.rooms[0].roomID,4378);assert.equal(c.rooms[0].dates[0].minNights,3);assert.equal(c.rooms[0].dates[2].closedArrival,true);
+ assert.deepEqual(stayCalendarContractVariants(c),['boolean_flags','closed_arrival_alias','minimum_nights_alias','numeric_strings']);
+ const impossible=raw();delete impossible.rooms[0].dates[5].availableUnits;
+ assert.deepEqual(parseStayCalendar(impossible,siteID,from,till).rooms[0].dates[5].availableUnits,[]);
+ const unsafe=raw();delete unsafe.rooms[0].dates[0].availableUnits;
+ assert.throws(()=>parseStayCalendar(unsafe,siteID,from,till),error=>error instanceof SupplierCalendarError&&error.diagnostic==='schema_day_rules');
+});
 test('calendar supplier request is bounded, no-store, fixed-origin and unpublished-safe',async()=>{
  const calls=[];const c=await supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),fetchImpl:async(url,init)=>{calls.push({url,init});return Response.json(raw());}});
  assert.equal(c.siteID,2566);assert.equal(calls.length,1);assert.match(calls[0].url,/^https:\/\/bizonline.co.il\/api\/ai\/vii\/vacations\/2566\/calendar\?/);assert.equal(calls[0].init.cache,'no-store');assert.equal(calls[0].init.redirect,'error');
  for(const invalid of [{siteID:7},{till:'2027-10-25'},{from:'2026-02-30'}])await assert.rejects(supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),...invalid,fetchImpl:async()=>{throw Error('must not call');}}),/invalid_calendar/);
+});
+test('supplier calendar preserves safe upstream failure diagnostics',async()=>{
+ await assert.rejects(supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),fetchImpl:async()=>Response.json({error_code:'booking_not_supported'},{status:409})}),error=>error instanceof SupplierCalendarError&&error.diagnostic==='supplier_http_409_booking_not_supported'&&error.upstreamStatus===409);
+ await assert.rejects(supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),fetchImpl:async()=>new Response('{',{status:200})}),error=>error instanceof SupplierCalendarError&&error.diagnostic==='supplier_invalid_json');
 });
 test('real calendar plumbing is explicit and authoritative totals survive to checkout',()=>{
  const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');

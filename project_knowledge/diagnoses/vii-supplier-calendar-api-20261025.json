@@ -1,0 +1,74 @@
+{
+  "status": "investigating",
+  "symptom": "The public VII stay-calendar endpoint returns HTTP 503 supplier_unavailable for published vacation sites 2004 and 2566, while the exact stay-quote path for site 2004 and room 3422 returns a valid available quote.",
+  "expected_behavior": "For a published vacation whose availability is managed online, the calendar returns authoritative nightly room inventory, minimum-night and arrival-closure data; exact stay quote remains authoritative before booking.",
+  "environment": "VII public release v658 at vii.spaplus.co on 2026-10-25, supplier API version documented as 1.1 at bizonline.co.il/api/ai/vii/Vii-Frontend.html.",
+  "reproduction": {
+    "steps": [
+      "GET public stay-calendar for site 2004 from 2026-10-25 through 2026-11-24 with two guests.",
+      "GET the same public stay-calendar request for site 2566.",
+      "POST an exact one-night stay quote for site 2004, room 3422 and two guests."
+    ],
+    "evidence": "Both calendar requests returned HTTP 503; the quote returned HTTP 200 with available status, total 1400, one night, roomIDs [3422] and onlineBooking true."
+  },
+  "observations": [
+    {
+      "observation": "The official current documentation still defines GET vacations/{siteID}/calendar with from, till and optional roomID and returns rooms[].dates[] with availableUnitCount, availableUnits, minNights and closedArrival.",
+      "evidence": "Official Vii Frontend API page fetched successfully on 2026-10-25."
+    },
+    {
+      "observation": "The local adapter calls that documented GET path but collapses upstream non-2xx, transport errors and strict parser failures into the same public supplier_unavailable response.",
+      "evidence": "app/lib/vii-stay-calendar.ts and app/api/vii/stay-calendar/route.ts at commit 0d299ce."
+    },
+    {
+      "observation": "The supplier token, publication inventory and exact vacancy path are functional for the same site and date family.",
+      "evidence": "Public stay-quote succeeded for site 2004 and room 3422 while the calendar request failed."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The supplier calendar returns HTTP success with a legal response shape that the local strict parser rejects.",
+      "prediction": "A sanitized diagnostic will show upstream HTTP 200 and identify a response-field representation mismatch.",
+      "discriminating_test": "Capture upstream status, content type, top-level keys and field-type summary without credentials or private data.",
+      "result": "Pending diagnostic release.",
+      "status": "untested"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The calendar request receives a non-2xx provider response because the request contract or per-site calendar capability differs from the exact vacancy path.",
+      "prediction": "A sanitized diagnostic will show a non-2xx upstream status and safe provider error classification for both sites.",
+      "discriminating_test": "Record upstream status and provider error_code for the documented calendar request, then compare with the working vacancy request.",
+      "result": "Pending diagnostic release.",
+      "status": "untested"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Shared authentication, publication lookup or network access is failing before the supplier calendar is reached.",
+      "prediction": "The exact quote and calendar would fail together for the same site and request window.",
+      "discriminating_test": "Compare same-release public calendar and quote results for site 2004.",
+      "result": "Rejected provisionally because stay-quote succeeded with the same token source and publication inventory.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": null,
+  "fix": {
+    "change": "Pending discriminating evidence.",
+    "evidence": "No fix claimed yet."
+  },
+  "affected_family": [
+    "vacation supplier calendar adapter",
+    "stay quote minimum-night fallback",
+    "business calendar display",
+    "last-minute exact-room validation",
+    "calendar regression tests"
+  ],
+  "regression_checks": [],
+  "confidence": "low",
+  "remaining_unknowns": [
+    "Upstream calendar HTTP status for sites 2004 and 2566.",
+    "Exact safe response-shape mismatch if upstream status is 200.",
+    "Whether calendar capability is independently configurable from vacancy capability."
+  ],
+  "authorization_boundary": "Read-only supplier documentation and public probes are allowed. A bounded diagnostic and repair may be published under the user's existing explicit authorization, but no supplier write, booking, payment, lead, message or secret exposure is allowed."
+}

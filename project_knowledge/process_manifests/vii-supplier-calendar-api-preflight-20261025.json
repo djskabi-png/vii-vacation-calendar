@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-supplier-calendar-api-20261025",
+  "project": "VII",
+  "task_type": "supplier-api-root-cause-and-production-repair",
+  "requested_outcome": "Re-audit the complete official VII supplier API contract, prove why the public stay-calendar path returns supplier_unavailable while exact stay quotes succeed, implement the smallest truthful repair, publish it, and verify the exact production flow before resuming Professor.",
+  "natural_destination": "https://vii.spaplus.co/api/vii/stay-calendar",
+  "authorization_boundary": "Read the official supplier documentation and public endpoints, inspect and change the VII adapter, run bounded tests, publish the repair under the existing publication authorization, and verify production. Do not create bookings, payments, leads, messages, supplier writes, credential copies or unbounded retries.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A local parser test cannot prove the supplier integration works in production.",
+      "acceptance_impact": "Require a production response with real calendar data for two published sites plus quote-path regression evidence."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The repair affects a live supplier adapter and must be published as one immutable candidate with rollback evidence.",
+      "acceptance_impact": "Require exact commit, build, tests, deployed version and post-publication endpoint checks before completion."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The API already contained the data but the implementation kept calling the wrong shape or rejected a valid supplier response.",
+      "prevention": "Compare every documented vacation availability path and field to the adapter, then capture a sanitized upstream classification before changing parsing.",
+      "acceptance_check": "The diagnosis distinguishes HTTP/auth/path failure from response-shape rejection and names the exact mismatched field or request."
+    },
+    {
+      "rejection": "Only Raphael is fixed while another published vacation still fails.",
+      "prevention": "Treat the supplier calendar adapter as a shared family and verify Raphael plus an independent published site.",
+      "acceptance_check": "Both site 2004 and site 2566 return a validated calendar or an accurately classified provider capability result."
+    },
+    {
+      "rejection": "Calendar data appears but minimum nights, price or unit continuity is wrong.",
+      "prevention": "Preserve authoritative room IDs, free physical unit IDs, arrival closures, minimum nights and exact quote totals; never synthesize missing values.",
+      "acceptance_check": "Contract tests cover minimum-night, closed-arrival, unavailable-unit, multi-room and exact-quote behavior."
+    },
+    {
+      "rejection": "The repair hides supplier errors behind a generic success or stale invented calendar.",
+      "prevention": "Keep fail-closed validation and return a truthful degraded state when the provider lacks calendar capability.",
+      "acceptance_check": "Malformed, unauthorized and unsupported responses remain rejected with safe public errors and no fabricated availability."
+    },
+    {
+      "rejection": "Code was changed but the public site still runs the old adapter.",
+      "prevention": "Publish one clean candidate and test the exact public API and business calendar after deployment.",
+      "acceptance_check": "The public endpoint response and visible calendar are checked on the deployed version, with rollback identity recorded."
+    }
+  ],
+  "affected_family": [
+    "official VII supplier API documentation and vacation endpoint inventory",
+    "supplier token and fixed-origin adapter",
+    "vacation calendar request and response parser",
+    "minimum-night and closed-arrival rules",
+    "calendar price enrichment",
+    "exact stay quote and last-minute room validation",
+    "business-page date picker and retry/degraded states",
+    "QQQAAA supplier calendar regression coverage",
+    "production release and rollback evidence"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Official Vii Frontend API documentation",
+        "source": "https://bizonline.co.il/api/ai/vii/Vii-Frontend.html"
+      },
+      {
+        "label": "VII platform master plan",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted feedback standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "A sanitized diagnostic identifies whether the upstream failure is transport, capability, request contract or response-shape validation for both sample sites.",
+    "checks": [
+      "Official docs and local adapter endpoint, method, parameters and response fields are compared.",
+      "Public stay quote remains successful for Raphael while the calendar failure is reproduced.",
+      "At least two competing hypotheses have discriminating evidence before the parser or route changes."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can one supplier room or date with a legal alternate representation still crash the whole calendar?",
+      "Can an unsupported site be mislabeled as a provider outage?",
+      "Can the repaired calendar disagree with the exact vacancy quote for the same room and stay?",
+      "Can a partial response be treated as complete or produce invented availability, minimum nights or price?",
+      "Did the deployment preserve booking, search, last-minute and unrelated supplier paths?"
+    ],
+    "natural_destination_evidence": "Exact public stay-calendar and stay-quote endpoints plus the public business calendar for Raphael and an independent vacation listing after deployment.",
+    "affected_family_evidence": "Supplier contract tests, malformed-response tests, live two-site probes, business calendar inspection and QQQAAA/release checks."
+  },
+  "effectiveness": {
+    "baseline": "Public release v658 returns HTTP 503 supplier_unavailable from stay-calendar for site 2004 and site 2566, while the exact Raphael stay quote returns HTTP 200 with total 1400 ILS for room 3422.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "The exact cause is proven, the adapter handles the official contract without weakening validation, and two public calendars plus the related quote path pass on one verified production release."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

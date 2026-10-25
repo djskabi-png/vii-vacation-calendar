@@ -4,8 +4,36 @@ export type StayCalendarDay = { date: string; availableUnitCount: number; availa
 export type StayCalendarPrice = { date: string; total: number; nights: number };
 export type StayCalendar = { siteID: number; from: string; till: string; rooms: { roomID: number; dates: StayCalendarDay[] }[]; prices: StayCalendarPrice[] };
 export type StayRuleResult = { allowed: boolean; reason: "min_nights" | "closed_to_arrival" | "not_available" | "calendar_unknown" | null; minimumNights?: number; roomIDs: number[] };
+export class SupplierCalendarError extends Error {
+  readonly diagnostic: string;
+  readonly upstreamStatus?: number;
+  constructor(diagnostic: string, upstreamStatus?: number) {
+    super(`invalid_supplier_calendar:${diagnostic}`);
+    this.name = "SupplierCalendarError";
+    this.diagnostic = diagnostic;
+    this.upstreamStatus = upstreamStatus;
+  }
+}
 const record = (v: unknown): Record<string, unknown> => v !== null && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : {};
 const integer = (v: unknown, min = 0): v is number => Number.isSafeInteger(v) && (v as number) >= min;
+const supplierInteger = (value: unknown, min = 0) => {
+  if (integer(value, min)) return value;
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    const parsed = Number(value);
+    if (integer(parsed, min)) return parsed;
+  }
+  return undefined;
+};
+const supplierBoolean = (value: unknown) => value === true || value === 1 || value === "1"
+  ? true
+  : value === false || value === 0 || value === "0"
+    ? false
+    : undefined;
+const contractVariantSymbol = Symbol("supplier-calendar-contract-variants");
+type CalendarWithVariants = StayCalendar & { [contractVariantSymbol]?: string[] };
+export function stayCalendarContractVariants(calendar: StayCalendar) {
+  return [...((calendar as CalendarWithVariants)[contractVariantSymbol] ?? [])];
+}
 const dayIndexes = new WeakMap<StayCalendar["rooms"][number], Map<string, StayCalendarDay>>();
 const priceIndexes = new WeakMap<StayCalendar, Map<string, StayCalendarPrice>>();
 function dayIndex(room: StayCalendar["rooms"][number]) {
@@ -18,21 +46,42 @@ function dayIndex(room: StayCalendar["rooms"][number]) {
 // Do not apply another date's arrival closure/minimum to an in-progress stay.
 export function parseStayCalendar(value: unknown, siteID: number, from: string, till: string): StayCalendar {
   const data = record(value);
-  if (data.siteID !== siteID || data.from !== from || data.till !== till || !Array.isArray(data.rooms) || data.rooms.length > 500) throw Error("invalid_supplier_calendar");
+  const variants = new Set<string>();
+  const responseSiteID = supplierInteger(data.siteID, 1);
+  if (typeof data.siteID === "string" && responseSiteID !== undefined) variants.add("numeric_strings");
+  if (responseSiteID !== siteID) throw new SupplierCalendarError("schema_site_id");
+  if (data.from !== from || data.till !== till) throw new SupplierCalendarError("schema_date_context");
+  if (!Array.isArray(data.rooms) || data.rooms.length > 500) throw new SupplierCalendarError("schema_rooms");
   const ids = new Set<number>();
   const rooms = data.rooms.map((value) => {
     const room = record(value);
-    if (!integer(room.roomID, 1) || ids.has(room.roomID) || !Array.isArray(room.dates) || room.dates.length > 366) throw Error("invalid_supplier_calendar");
-    ids.add(room.roomID);
+    const roomID = supplierInteger(room.roomID, 1);
+    if (typeof room.roomID === "string" && roomID !== undefined) variants.add("numeric_strings");
+    if (roomID === undefined || ids.has(roomID) || !Array.isArray(room.dates) || room.dates.length > 366) throw new SupplierCalendarError("schema_room");
+    ids.add(roomID);
     const dates = new Set<string>();
-    return { roomID: room.roomID, dates: room.dates.map((value): StayCalendarDay => {
+    return { roomID, dates: room.dates.map((value): StayCalendarDay => {
       const day = record(value);
-      if (typeof day.date !== "string" || !validDate(day.date) || day.date < from || day.date > till || dates.has(day.date)
-        || !integer(day.minNights) || typeof day.closedArrival !== "boolean" || !integer(day.availableUnitCount)
-        || !Array.isArray(day.availableUnits) || day.availableUnits.some((id) => !integer(id, 1))
-        || new Set(day.availableUnits).size !== day.availableUnits.length || day.availableUnits.length !== day.availableUnitCount) throw Error("invalid_supplier_calendar");
+      if (typeof day.date !== "string" || !validDate(day.date) || day.date < from || day.date > till || dates.has(day.date)) throw new SupplierCalendarError("schema_day_date");
+      const availableUnitCount = supplierInteger(day.availableUnitCount);
+      const rawMinimum = day.minNights ?? day.minimumNights;
+      const minNights = supplierInteger(rawMinimum);
+      const rawClosedArrival = day.closedArrival ?? day.closedToArrival;
+      const closedArrival = supplierBoolean(rawClosedArrival);
+      if (day.minNights === undefined && day.minimumNights !== undefined) variants.add("minimum_nights_alias");
+      if (day.closedArrival === undefined && day.closedToArrival !== undefined) variants.add("closed_arrival_alias");
+      if (typeof rawMinimum === "string" || typeof day.availableUnitCount === "string") variants.add("numeric_strings");
+      if (typeof rawClosedArrival !== "boolean" && closedArrival !== undefined) variants.add("boolean_flags");
+      const rawAvailableUnits = day.availableUnits ?? (availableUnitCount === 0 ? [] : undefined);
+      if (day.availableUnits === undefined && availableUnitCount === 0) variants.add("empty_units_omitted");
+      if (availableUnitCount === undefined || minNights === undefined || closedArrival === undefined || !Array.isArray(rawAvailableUnits)) throw new SupplierCalendarError("schema_day_rules");
+      const availableUnits = rawAvailableUnits.map((id) => supplierInteger(id, 1));
+      if (rawAvailableUnits.some((id) => typeof id === "string")) variants.add("numeric_strings");
+      if (availableUnits.some((id) => id === undefined)) throw new SupplierCalendarError("schema_available_units");
+      const normalizedAvailableUnits = availableUnits as number[];
+      if (new Set(normalizedAvailableUnits).size !== normalizedAvailableUnits.length || normalizedAvailableUnits.length !== availableUnitCount) throw new SupplierCalendarError("schema_available_units");
       dates.add(day.date);
-      return { date: day.date, availableUnitCount: day.availableUnitCount, availableUnits: day.availableUnits, minNights: day.minNights, closedArrival: day.closedArrival };
+      return { date: day.date, availableUnitCount, availableUnits: normalizedAvailableUnits, minNights, closedArrival };
     }) };
   });
   const priceDates = new Set<string>();
@@ -40,11 +89,13 @@ export function parseStayCalendar(value: unknown, siteID: number, from: string, 
     const price = record(value);
     if (typeof price.date !== "string" || !validDate(price.date) || price.date < from || price.date > till || priceDates.has(price.date)
       || typeof price.total !== "number" || !Number.isFinite(price.total) || price.total <= 0
-      || !integer(price.nights, 1) || price.nights > 30) throw Error("invalid_supplier_calendar");
+      || !integer(price.nights, 1) || price.nights > 30) throw new SupplierCalendarError("schema_prices");
     priceDates.add(price.date);
     return { date: price.date, total: price.total, nights: price.nights };
   });
-  return { siteID, from, till, rooms, prices };
+  const calendar: CalendarWithVariants = { siteID, from, till, rooms, prices };
+  Object.defineProperty(calendar, contractVariantSymbol, { value: [...variants].sort(), enumerable: false });
+  return calendar;
 }
 
 export function stayCalendarDay(calendar: StayCalendar, date: string) {
@@ -140,12 +191,27 @@ export function assessCalendarStay(calendar: StayCalendar, from: string, till: s
 export async function supplierStayCalendar(options: { siteID: number; from: string; till: string; token: string; publishedIds: ReadonlySet<number>; fetchImpl?: typeof fetch }) {
   const { siteID, from, till, token, publishedIds } = options;
   if (!integer(siteID, 1) || !publishedIds.has(siteID) || !validDate(from) || !validDate(till) || daysBetween(from, till) < 0 || daysBetween(from, till) > 365) throw Error("invalid_calendar");
-  if (!token) throw Error("supplier_unavailable");
-  const response = await (options.fetchImpl ?? fetch)(`https://bizonline.co.il/api/ai/vii/vacations/${siteID}/calendar?${new URLSearchParams({ from, till })}`, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000),
-  });
-  if (!response.ok) throw Error("supplier_unavailable");
+  if (!token) throw new SupplierCalendarError("missing_supplier_token");
+  let response: Response;
+  try {
+    response = await (options.fetchImpl ?? fetch)(`https://bizonline.co.il/api/ai/vii/vacations/${siteID}/calendar?${new URLSearchParams({ from, till })}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000),
+    });
+  } catch (error) {
+    throw new SupplierCalendarError(error instanceof DOMException && error.name === "TimeoutError" ? "supplier_timeout" : "supplier_transport");
+  }
+  if (!response.ok) {
+    let providerCode = "";
+    try {
+      const body = record(await response.clone().json());
+      if (typeof body.error_code === "string" && /^[a-z0-9_]{1,64}$/.test(body.error_code)) providerCode = `_${body.error_code}`;
+    } catch { /* Upstream errors are allowed to have an empty or non-JSON body. */ }
+    throw new SupplierCalendarError(`supplier_http_${response.status}${providerCode}`, response.status);
+  }
   const body = await response.text();
-  if (body.length > 5_000_000) throw Error("invalid_supplier_calendar");
-  return parseStayCalendar(JSON.parse(body), siteID, from, till);
+  if (body.length > 5_000_000) throw new SupplierCalendarError("supplier_payload_too_large");
+  let value: unknown;
+  try { value = JSON.parse(body); }
+  catch { throw new SupplierCalendarError("supplier_invalid_json"); }
+  return parseStayCalendar(value, siteID, from, till);
 }
