@@ -8,6 +8,7 @@ import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions }
 import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
 import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
 import { mergeBusinessPerformanceRows } from "../../../lib/business-performance-rows.ts";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   if (url.searchParams.get("mode") === "run-history") {
     try {
-      const database = await bizConversionDatabase();
+      const database = await requiredRuntimeDatabase("biz_report_history_unavailable");
       return Response.json({ runHistory: await readBizReportRuns(database, 20) }, { headers });
     } catch {
       return Response.json({ error: "biz_report_history_unavailable" }, { status: 503, headers });
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
     if (source !== null && source !== "whatsapp" && source !== "maskyoo" && source !== "form") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (converted !== null && converted !== "yes" && converted !== "no") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     try {
-      const database = await bizConversionDatabase();
+      const database = await requiredRuntimeDatabase("business_conversion_report_unavailable");
       const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
       const report = await cachedAdminReport({ db: database, family: "business-conversions", parameters: {
         world: target.world, siteID: target.siteID, from, till, source: source || "all", converted: converted || "all", includeContacts,
@@ -90,7 +91,7 @@ export async function GET(request: Request) {
   const since = `${from}T00:00:00.000Z`;
   const until = nextDay(till);
   try {
-    const cacheDb = await bizConversionDatabase();
+    const cacheDb = await requiredRuntimeDatabase("business_performance_database_unavailable");
     const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
     const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
       freshForMs: historical ? 7 * 86400_000 : 2 * 60_000, forceRefresh, loader: async () => {
@@ -120,16 +121,19 @@ export async function GET(request: Request) {
     for (const row of rows) row.reviews = reviewMap.get(String(row.placeId)) || 0;
     return { rows };
     }});
-    const database = cacheDb;
+    const database = await bizConversionDatabase().catch((error) => {
+      console.warn("biz_conversion_cache_unavailable", { error: error instanceof Error ? error.name : "unknown" });
+      return null;
+    });
     const [cached, runHistory] = await Promise.all([
-      loadCachedBizConversions(database, from, till).catch((error) => {
+      database ? loadCachedBizConversions(database, from, till).catch((error) => {
         console.warn("biz_conversion_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
         return [];
-      }),
-      readBizReportRuns(database, 20).catch((error) => {
+      }) : Promise.resolve([]),
+      database ? readBizReportRuns(database, 20).catch((error) => {
         console.warn("biz_report_history_read_failed", { error: error instanceof Error ? error.name : "unknown" });
         return [];
-      }),
+      }) : Promise.resolve([]),
     ]);
     const bizSnapshots = Object.fromEntries(cached.map((item) => {
       const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";

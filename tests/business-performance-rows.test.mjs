@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mergeBusinessPerformanceRows } from "../app/lib/business-performance-rows.ts";
+import { readFile } from "node:fs/promises";
 
 test("business selector receives one canonical row when singular and plural world aliases coexist", () => {
   const rows = mergeBusinessPerformanceRows(
@@ -19,4 +20,12 @@ test("different place ids remain separate", () => {
     { placeId: "vacation-117", placeName: "ב", world: "vacation" },
   ]);
   assert.deepEqual(rows.map((row) => row.placeId).sort(), ["vacation-116", "vacation-117"]);
+});
+
+test("business performance report does not depend on Biz snapshot schema initialization", async () => {
+  const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(source, /requiredRuntimeDatabase\("business_performance_database_unavailable"\)/);
+  assert.match(source, /await bizConversionDatabase\(\)\.catch/);
+  assert.match(source, /database \? loadCachedBizConversions/);
+  assert.doesNotMatch(source, /const cacheDb = await bizConversionDatabase\(\);/);
 });
