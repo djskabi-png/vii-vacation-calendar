@@ -3081,7 +3081,10 @@ h3 { font-size: 1.18rem; }
 .search-box-shell { position: relative; border: 0; background: transparent; box-shadow: none; }
 .home-hero:has(.search-option-backdrop),
 .results-search:has(.search-option-backdrop),
-.world-hero:has(.search-option-backdrop) { z-index: 1500; }
+.world-hero:has(.search-option-backdrop),
+.discovery-world-hero:has(.search-option-backdrop),
+.spa-discovery-hero:has(.search-option-backdrop),
+.events-hero:has(.search-option-backdrop) { z-index: 1500; }
 .search-box-shell:has(.search-option-backdrop) { z-index: 1500; }
 .home-hero:has(.search-box-shell.mobile-expanded),
 .results-search:has(.search-box-shell.mobile-expanded),
@@ -4752,7 +4755,10 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .search-submit { min-height: 56px; }
   .home-hero:has(.search-option-backdrop),
   .results-search:has(.search-option-backdrop),
-  .world-hero:has(.search-option-backdrop) { z-index: 1500; }
+  .world-hero:has(.search-option-backdrop),
+  .discovery-world-hero:has(.search-option-backdrop),
+  .spa-discovery-hero:has(.search-option-backdrop),
+  .events-hero:has(.search-option-backdrop) { z-index: 1500; }
   .search-box-shell:has(.search-option-backdrop) { z-index: 1500; }
   .search-option-backdrop { position: fixed; z-index: 4; inset: 0; display: block; border: 0; background: rgba(2,25,32,.38); }
   .search-popover { position: fixed; z-index: 30; inset-inline: 14px; top: auto; bottom: max(14px, env(safe-area-inset-bottom, 0px)); min-width: 0; max-height: calc(100dvh - 28px); overflow-y: auto; overscroll-behavior: contain; }
@@ -9980,10 +9986,10 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
     position: fixed;
     z-index: 30;
     top: 50%;
-    right: auto;
     bottom: auto;
+    inset-inline: auto;
+    right: auto;
     left: 50%;
-    inset-inline-start: auto;
     width: min(780px, calc(100vw - 48px));
     max-height: min(740px, calc(100dvh - 48px));
     transform: translate(-50%, -50%);
