@@ -138,6 +138,11 @@ test("the runtime checks durable retry work every 10 minutes", async () => {
   assert.match(config, /crons: \["\*\/10 \* \* \* \*"\]/);
 });
 
+test("public vacation routes select the vacations heartbeat for both route spellings", async () => {
+  const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
+  assert.match(worker, /\(\?:vacations\?\|business\)/);
+});
+
 test("an expired running retry is closed without blindly repeating an uncertain supplier pull", async () => {
   const db = await database();
   try {
