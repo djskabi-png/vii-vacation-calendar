@@ -5025,7 +5025,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .property-gallery button.property-gallery__image.is-active { display: block; }
   .property-gallery img { object-fit: contain; background: #edf5f5; }
   .property-gallery button.property-gallery__mobile-arrow { position: absolute; z-index: 4; top: calc((100% - 40px) / 2); width: 42px; height: 42px; display: grid; place-items: center; padding: 0; color: #113e48; border: 1px solid rgba(255,255,255,.78); border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 8px 22px rgba(0,35,43,.2); backdrop-filter: blur(10px); transform: translateY(-50%); }
-  .property-gallery button.property-gallery__mobile-arrow span { position: static; padding: 0; color: inherit; background: transparent; font-size: 2rem; font-weight: 500; line-height: 1; transform: translateY(-1px); }
+  .property-gallery button.property-gallery__mobile-arrow span { position: static; padding: 0; color: inherit; background: transparent; font-size: 1.65rem; font-weight: 600; line-height: .82; transform: translateY(-1px); }
   [dir="ltr"] .property-gallery button.property-gallery__mobile-arrow span { transform: translateY(-1px) scaleX(-1); }
   .property-gallery__mobile-arrow--previous { inset-inline-start: 10px; }
   .property-gallery__mobile-arrow--next { inset-inline-end: 10px; }
@@ -6696,7 +6696,7 @@ input[type="checkbox"],input[type="radio"] { min-width:24px; min-height:24px; }
 .trail-explorer { scroll-margin-top: 100px; }
 .trail-filters { position: relative; z-index: 25; display: grid; grid-template-columns: 1.5fr repeat(3,1fr); gap: 10px; padding: 14px; border: 1px solid #d6e7e8; border-radius: 20px; background: #f7fbfb; box-shadow: 0 12px 30px rgba(4,61,70,.05); }
 .trail-filters label { display: grid; gap: 7px; }.trail-filters label span { color: #526f75; font-size: .76rem; font-weight: 800; }
-.trail-filters input, .trail-filters select { width: 100%; min-height: 52px; padding-inline: 15px; border: 1px solid #c9dcdf; border-radius: 14px; background: #fff; color: var(--ink); font: inherit; }
+.trail-filters input, .trail-filters select { width: 100%; min-height: 52px; padding: 8px 15px; border: 1px solid #c9dcdf; border-radius: 14px; background: #fff; color: var(--ink); font: inherit; line-height: 1.35; }
 .trail-multi-select { position: relative; align-self: end; }
 .trail-multi-select > summary { min-height: 52px; padding: 8px 14px; display: grid; align-content: center; gap: 4px; border: 1px solid #c9dcdf; border-radius: 14px; background: #fff; cursor: pointer; list-style: none; }
 .trail-multi-select > summary::-webkit-details-marker { display: none; }
@@ -7008,7 +7008,10 @@ input[type="checkbox"],input[type="radio"] { min-width:24px; min-height:24px; }
     pointer-events: auto;
     isolation: isolate;
   }
-  .mobile-map-fab::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
+  /* The control itself already meets the 44px touch target. Keeping an
+     oversized pseudo-element here expands scroll geometry beyond its frame
+     and makes spacing/overflow checks report a clipped control. */
+  .mobile-map-fab::before { content: none; }
   .mobile-map-fab .map-button__desktop-label { display: none; }
   .mobile-map-fab .map-button__mobile-label { display: inline; font-size: .86rem; font-weight: 800; line-height: 1; }
   .mobile-map-fab svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
@@ -10198,10 +10201,12 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 }
 .property-title__actions--contact .property-whatsapp-action {
   min-height: 44px;
-  padding-inline: 12px;
+  padding: 6px 12px;
   border: 1px solid rgba(8,117,83,.12);
   border-radius: 14px;
   background: #f1faf6;
+  line-height: 1.15;
+  white-space: normal;
 }
 .property-title__actions--contact .property-whatsapp-action:hover {
   border-color: rgba(8,117,83,.2);

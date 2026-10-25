@@ -23,6 +23,7 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
   assert.match(gallery, /property-gallery__mobile-dots/);
   assert.match(gallery, /aria-live="polite"/);
   assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow/);
+  assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow span \{[^}]*font-size: 1\.65rem;[^}]*line-height: \.82;/);
   assert.match(css, /\.property-gallery__mobile-dots i\.is-active/);
 });
 

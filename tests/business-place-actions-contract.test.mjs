@@ -26,6 +26,11 @@ test("the contact row does not look like one enclosing button", () => {
   assert.match(contactRail, /\.property-title__actions--contact \{[\s\S]*gap: 8px;[\s\S]*padding: 0;[\s\S]*border: 0;[\s\S]*background: transparent;[\s\S]*box-shadow: none;/);
   assert.match(contactRail, /\.property-title__actions--contact > button,[\s\S]*border: 1px solid rgba\(18,50,61,\.1\);[\s\S]*border-radius: 14px;[\s\S]*background: #fff;/);
   assert.match(contactRail, /\.property-title__actions--contact \.property-whatsapp-action \{[\s\S]*background: #f1faf6;/);
+  assert.match(contactRail, /\.property-title__actions--contact \.property-whatsapp-action \{[\s\S]*padding: 6px 12px;[\s\S]*line-height: 1\.15;[\s\S]*white-space: normal;/);
+});
+
+test("trail search controls preserve vertical breathing room", () => {
+  assert.match(css, /\.trail-filters input, \.trail-filters select \{[^}]*padding: 8px 15px;[^}]*line-height: 1\.35;/);
 });
 
 test("phone share and WhatsApp controls remain wired", () => {
