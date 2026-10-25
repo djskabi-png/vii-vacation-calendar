@@ -1,8 +1,8 @@
 {
-  "status": "investigating",
+  "status": "fixed",
   "symptom": "The public VII stay-calendar endpoint returns HTTP 503 supplier_unavailable for published vacation sites 2004 and 2566, while the exact stay-quote path for site 2004 and room 3422 returns a valid available quote.",
   "expected_behavior": "For a published vacation whose availability is managed online, the calendar returns authoritative nightly room inventory, minimum-night and arrival-closure data; exact stay quote remains authoritative before booking.",
-  "environment": "VII public release v658 at vii.spaplus.co on 2026-10-25, supplier API version documented as 1.1 at bizonline.co.il/api/ai/vii/Vii-Frontend.html.",
+  "environment": "VII public releases v658 through v660 at vii.spaplus.co on 2026-10-25, supplier API version documented as 1.1 at bizonline.co.il/api/ai/vii/Vii-Frontend.html.",
   "reproduction": {
     "steps": [
       "GET public stay-calendar for site 2004 from 2026-10-25 through 2026-11-24 with two guests.",
@@ -23,6 +23,14 @@
     {
       "observation": "The supplier token, publication inventory and exact vacancy path are functional for the same site and date family.",
       "evidence": "Public stay-quote succeeded for site 2004 and room 3422 while the calendar request failed."
+    },
+    {
+      "observation": "v659 classified both calendar failures as supplier_transport before any Response was received; runtime duration was 831 ms for site 2004 and 1200 ms for site 2566, excluding the 20-second timeout path.",
+      "evidence": "Production request IDs ab3025983cc36eb5f2ac8269aa7bb025 and 19a812b460e83bbdc2b5df49437b2910."
+    },
+    {
+      "observation": "The calendar adapter alone used redirect:error while the working supplier calls followed redirects. Changing only that behavior to redirect:follow made both public calendars return HTTP 200.",
+      "evidence": "v660 production probes returned full 31-day calendars for sites 2004 and 2566, including minNights and closedArrival; the exact quote remained HTTP 200 and total 1400."
     }
   ],
   "hypotheses": [
@@ -31,16 +39,16 @@
       "mechanism": "The supplier calendar returns HTTP success with a legal response shape that the local strict parser rejects.",
       "prediction": "A sanitized diagnostic will show upstream HTTP 200 and identify a response-field representation mismatch.",
       "discriminating_test": "Capture upstream status, content type, top-level keys and field-type summary without credentials or private data.",
-      "result": "Pending diagnostic release.",
-      "status": "untested"
+      "result": "Rejected: v659 failed before a Response object or parser execution.",
+      "status": "rejected"
     },
     {
       "id": "H2",
       "mechanism": "The calendar request receives a non-2xx provider response because the request contract or per-site calendar capability differs from the exact vacancy path.",
       "prediction": "A sanitized diagnostic will show a non-2xx upstream status and safe provider error classification for both sites.",
       "discriminating_test": "Record upstream status and provider error_code for the documented calendar request, then compare with the working vacancy request.",
-      "result": "Pending diagnostic release.",
-      "status": "untested"
+      "result": "Rejected: no upstream HTTP response was delivered to the adapter in v659.",
+      "status": "rejected"
     },
     {
       "id": "H3",
@@ -49,12 +57,20 @@
       "discriminating_test": "Compare same-release public calendar and quote results for site 2004.",
       "result": "Rejected provisionally because stay-quote succeeded with the same token source and publication inventory.",
       "status": "rejected"
+    },
+    {
+      "id": "H4",
+      "mechanism": "The calendar adapter's redirect:error policy turns the supplier calendar's infrastructure redirect into an immediate fetch exception, unlike the working supplier calls.",
+      "prediction": "Following the redirect will produce an authoritative HTTP response without changing endpoint, authentication or request data.",
+      "discriminating_test": "Change only redirect handling, publish once, and repeat both calendars plus the unchanged exact quote.",
+      "result": "Supported: both calendars changed from supplier_transport to HTTP 200 with authoritative 31-day data, and the exact quote remained available at 1400.",
+      "status": "supported"
     }
   ],
-  "root_cause_hypothesis_id": null,
+  "root_cause_hypothesis_id": "H4",
   "fix": {
-    "change": "Pending discriminating evidence.",
-    "evidence": "No fix claimed yet."
+    "change": "Follow the documented supplier calendar redirect like the other working VII supplier requests, while preserving fixed origin, Bearer authentication, timeout, strict schema validation and safe diagnostics.",
+    "evidence": "Public v660 returned HTTP 200 calendars for sites 2004 and 2566; site 2566 returned one room and 31 dated records with minNights and closedArrival; exact quote site 2004 room 3422 returned HTTP 200, available, one night and total 1400."
   },
   "affected_family": [
     "vacation supplier calendar adapter",
@@ -63,12 +79,15 @@
     "last-minute exact-room validation",
     "calendar regression tests"
   ],
-  "regression_checks": [],
-  "confidence": "low",
-  "remaining_unknowns": [
-    "Upstream calendar HTTP status for sites 2004 and 2566.",
-    "Exact safe response-shape mismatch if upstream status is 200.",
-    "Whether calendar capability is independently configurable from vacancy capability."
+  "regression_checks": [
+    "Focused stay-calendar suite passed 13 of 13.",
+    "Production build passed.",
+    "Full suite passed 1651 of 1651.",
+    "Public site 2004 calendar returned HTTP 200 with authoritative inventory and minimum-night data.",
+    "Public site 2566 calendar returned HTTP 200 with one room and 31 dates.",
+    "Public site 2004 room 3422 quote remained HTTP 200, available and 1400."
   ],
+  "confidence": "high",
+  "remaining_unknowns": [],
   "authorization_boundary": "Read-only supplier documentation and public probes are allowed. A bounded diagnostic and repair may be published under the user's existing explicit authorization, but no supplier write, booking, payment, lead, message or secret exposure is allowed."
 }
