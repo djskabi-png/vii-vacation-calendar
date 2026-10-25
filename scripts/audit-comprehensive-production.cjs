@@ -345,6 +345,16 @@ async function verifyResultsMap(page) {
   return state;
 }
 
+async function disabledWorldRedirect(page, path, world) {
+  return page.evaluate(({ expectedPath, worldId }) => {
+    const normalized = location.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+    const expected = expectedPath.split("?")[0];
+    if (normalized === expected) return false;
+    const availabilityKey = worldId === "vacations" ? "vacation" : worldId === "activities" ? "attractions" : worldId;
+    return document.documentElement.innerHTML.includes(`${availabilityKey}\\\":false`);
+  }, { expectedPath: path, worldId: world });
+}
+
 async function verifyPlace(page, path, expectations) {
   const base = await assertNaturalPage(page, path);
   const location = page.locator("#location,#event-map").first();
@@ -411,6 +421,7 @@ async function runViewport(browser, viewport) {
   for (const [world, path] of mapRoutes) {
     await browserCase(`map-${world}-${viewport.id}`, path, async (page) => {
       await assertNaturalPage(page, path);
+      if (await disabledWorldRedirect(page, path, world)) return { disabledWorldRedirect: page.url() };
       return { ...(await verifyResultsMap(page)), ...(await verifyImages(page)) };
     });
   }
