@@ -93,3 +93,12 @@ test("non-Hebrew CMS content cannot publish while supplier or editorial fields s
     content: { ...base, summary: "טיוטה שעדיין דורשת תרגום" } }), "drafts remain editable until an approved translation exists");
 });
 
+test("event detail pages never reuse an untranslated Hebrew supplier name as a non-Hebrew fallback", async () => {
+  const client = await readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(client, /latinBusinessAlias\(place\.name\) \|\| place\.name/);
+  assert.match(client, /latinBusinessAlias\(place\.name\) \|\| eventContentCopy\.name/);
+  const localization = await readFile(new URL("../app/i18n/localized-event-place.ts", import.meta.url), "utf8");
+  assert.match(localization, /features: localizedBusinessList/);
+  assert.match(localization, /description: localizedBusinessText/);
+});
+

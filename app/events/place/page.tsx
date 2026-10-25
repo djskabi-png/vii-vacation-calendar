@@ -14,6 +14,7 @@ import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { providerProfiles } from "../../data/world-data";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 import { serverLocalePath, serverPublicCopy } from "../../i18n/server-public-copy";
+import { localizedEventPlace } from "../../i18n/localized-event-place";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
@@ -40,9 +41,10 @@ const resolvePlace = cache(async (id?: string) => {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const place = await resolvePlace((await searchParams).id);
   const canonical = await serverLocalePath(eventPlaceHref(place));
-  const { translate } = await serverPublicCopy();
-  const title = translate(place.name);
-  const description = translate(place.description);
+  const { language, translate } = await serverPublicCopy();
+  const localized = localizedEventPlace(place, language, translate);
+  const title = localized.name;
+  const description = localized.description;
   return {
     title,
     description,
@@ -63,13 +65,15 @@ export default async function Page({ searchParams }: Props) {
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   const supplierDetail = acceptedDetail || undefined;
   const relatedPlaces = nearbyRecommendations(places, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items;
+  const { language, translate } = await serverPublicCopy();
+  const localized = localizedEventPlace(place, language, translate);
   return <>
-    <StructuredData data={eventVenueSchema(place)} />
+    <StructuredData data={eventVenueSchema(localized)} />
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "אירועים", path: "/events/" },
       ...eventBreadcrumbsForLocation(place.area, place.location),
-      { name: place.name, path: eventPlaceHref(place) },
+      { name: localized.name, path: eventPlaceHref(place) },
     ])} />
     <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={relatedPlaces} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
   </>;
