@@ -31,6 +31,13 @@ test("PWA controls cover install, iOS guidance, update and offline states in all
   assert.match(experience, /role="dialog" aria-modal="true"/);
 });
 
+test("first service-worker control never reloads an active public flow", () => {
+  const experience = source("../app/components/pwa-experience.tsx");
+  assert.match(experience, /let hadController = Boolean\(navigator\.serviceWorker\.controller\)/);
+  assert.match(experience, /if \(!hadController\) \{[\s\S]*hadController = true;[\s\S]*return;/);
+  assert.match(experience, /if \(!refreshing\) \{ refreshing = true; location\.reload\(\); \}/);
+});
+
 test("the global footer always keeps a truthful install app entry point", () => {
   const experience = source("../app/components/pwa-experience.tsx");
   const footer = source("../app/components/site-footer.tsx");

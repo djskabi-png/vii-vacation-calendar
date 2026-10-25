@@ -45,7 +45,18 @@ export function PwaExperience() {
       };
     }
     let refreshing = false;
-    const controlled = () => { if (!refreshing) { refreshing = true; location.reload(); } };
+    let hadController = Boolean(navigator.serviceWorker.controller);
+    const controlled = () => {
+      // The first worker that takes control of a fresh browser must not reload
+      // the page underneath an open gallery, map, form or filter. A later
+      // controller change is an actual app update and may safely activate the
+      // new release after the visitor explicitly accepted it.
+      if (!hadController) {
+        hadController = true;
+        return;
+      }
+      if (!refreshing) { refreshing = true; location.reload(); }
+    };
     navigator.serviceWorker.addEventListener("controllerchange", controlled);
     void navigator.serviceWorker.register("/sw.js", { scope: "/" }).then((registration) => {
       if (registration.waiting) publish({ update: registration.waiting });
