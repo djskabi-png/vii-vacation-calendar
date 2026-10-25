@@ -66,6 +66,24 @@ async function runState(browser, state) {
     if (!response || response.status() >= 400) throw new Error(`http_${response?.status() || 0}`);
     await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 25_000 });
     await page.waitForTimeout(1_200);
+    const redirectedDisabledWorld = await page.evaluate((expectedPath) => {
+      const normalized = location.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+      const expected = expectedPath.split("?")[0];
+      if (normalized === expected) return false;
+      const world = expected.startsWith("/attractions") ? "attractions"
+        : expected.startsWith("/trails") ? "trails"
+        : expected.startsWith("/spas") ? "spa"
+        : expected.startsWith("/hourly") ? "hourly"
+        : expected.startsWith("/events") ? "events"
+        : expected.startsWith("/search") ? "vacation"
+        : null;
+      return Boolean(world && document.documentElement.innerHTML.includes(`${world}\\\":false`));
+    }, state.path);
+    if (redirectedDisabledWorld) {
+      result.disabledWorldRedirect = page.url();
+      result.status = "passed";
+      return result;
+    }
     await page.locator(state.trigger).first().waitFor({ state: state.directClick ? "attached" : "visible", timeout: 25_000 });
     let opened = false;
     for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {

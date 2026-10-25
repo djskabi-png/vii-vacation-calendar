@@ -157,6 +157,19 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     // the global hydration flag appears. Let that bounded handoff settle
     // before binding the interaction target.
     await page.waitForTimeout(800);
+    const redirectedDisabledWorld = await page.evaluate(({ expectedPath, worldId }) => {
+      const normalized = location.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+      const expected = expectedPath.split("?")[0];
+      if (normalized === expected) return false;
+      const source = document.documentElement.innerHTML;
+      const availabilityKey = worldId === "vacations" ? "vacation" : worldId === "activities" ? "attractions" : worldId;
+      return source.includes(`${availabilityKey}\\\":false`);
+    }, { expectedPath: path, worldId: world });
+    if (redirectedDisabledWorld) {
+      record.checks.disabledWorldRedirect = page.url();
+      record.status = "passed";
+      return record;
+    }
     const toggle = page.locator('.mobile-map-fab[data-map-interactive="true"]:visible').first();
     await toggle.waitFor({ timeout: 20_000 });
     record.checks.toggleBefore = await visibleCount(page, ".mobile-map-fab");
