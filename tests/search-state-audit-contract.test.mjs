@@ -19,7 +19,13 @@ test("the release audit covers every search entry point and responsive transitio
   assert.match(audit, /largestUnexplainedEmptyBand/);
   assert.match(audit, /no-visible-results-state/);
   assert.match(audit, /excessive-empty-band/);
+  assert.match(audit, /const unexplainedGap =/);
   assert.match(audit, /page\.screenshot/);
+  assert.match(audit, /function bounded\(/);
+  assert.match(audit, /function stablePageOperation\(/);
+  assert.match(audit, /Execution context was destroyed/);
+  assert.match(audit, /after-navigation/);
+  assert.match(audit, /page-close/);
   assert.match(audit, /\["events", "\/events\/search"\]/);
   assert.match(audit, /\["hourly", "\/hourly"\]/);
 });

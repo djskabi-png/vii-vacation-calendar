@@ -15,6 +15,9 @@ test("QQQAAA has one durable aggregate package entry point", () => {
   assert.match(runner, /report\.suites\.every\(\(suite\) => suite\.status === "passed"\)/);
   assert.match(runner, /process\.platform === "win32" \? "cmd\.exe" : "pnpm"/);
   assert.match(runner, /launchError:/);
+  assert.match(runner, /stdio: "inherit"/);
+  assert.match(runner, /await new Promise/);
+  assert.doesNotMatch(runner, /spawnSync/);
 });
 
 test("QQQAAA retains every broad VII suite and the approved exclusions", () => {

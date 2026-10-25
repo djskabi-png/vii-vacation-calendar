@@ -36,6 +36,27 @@ const labels = {
   closeGuests: "\u05e1\u05d2\u05d9\u05e8\u05ea \u05d1\u05d7\u05d9\u05e8\u05ea \u05d4\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd",
 };
 
+function bounded(label, operation, timeoutMs = 15000) {
+  let timeout;
+  return Promise.race([
+    operation,
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error(`${label}-timeout-${timeoutMs}ms`)), timeoutMs);
+    }),
+  ]).finally(() => clearTimeout(timeout));
+}
+
+async function stablePageOperation(label, page, operation, timeoutMs = 15000) {
+  try {
+    return await bounded(label, operation(), timeoutMs);
+  } catch (error) {
+    if (!/Execution context was destroyed|navigation|Target page, context or browser has been closed/i.test(error.message)) throw error;
+    await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(300);
+    return bounded(`${label}-after-navigation`, operation(), timeoutMs);
+  }
+}
+
 async function inspect(page) {
   return page.evaluate((searchLabel) => {
     const root = document.documentElement;
@@ -113,8 +134,9 @@ async function focusResultsViewport(page, routeName) {
 function visualFailures(state, { requireVisible = true } = {}) {
   const failures = [];
   if (state.meaningfulElements === 0) failures.push("missing-results-state");
-  if (requireVisible && state.visibleMeaningfulElements === 0) failures.push("no-visible-results-state");
-  if (requireVisible && state.visibleMeaningfulElements === 0 && state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
+  const unexplainedGap = state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25;
+  if (requireVisible && state.visibleMeaningfulElements === 0 && (state.meaningfulElements === 0 || unexplainedGap)) failures.push("no-visible-results-state");
+  if (requireVisible && state.visibleMeaningfulElements === 0 && unexplainedGap) failures.push("excessive-empty-band");
   return failures;
 }
 
@@ -183,10 +205,10 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       if (name === "home") {
         await page.waitForFunction(() => document.querySelector("#home-live-deals-results")?.getAttribute("aria-busy") === "false", undefined, { timeout: 30000 });
       }
-      let state = await inspect(page);
+      let state = await stablePageOperation(`${name}:inspect-mobile`, page, () => inspect(page));
       report.checks.push({ name: "mobile-fresh", state, failures: failuresFor(state, { requireUnlocked: true }) });
-      await focusResultsViewport(page, name);
-      const mobileVisual = await inspectVisibleContent(page, name);
+      await stablePageOperation(`${name}:focus-results`, page, () => focusResultsViewport(page, name));
+      const mobileVisual = await stablePageOperation(`${name}:inspect-visible-content`, page, () => inspectVisibleContent(page, name));
       report.checks.push({ name: "mobile-visual-content", state: mobileVisual, failures: visualFailures(mobileVisual, { requireVisible: name !== "home" }) });
 
       if (screenshotDirectory) {
@@ -206,14 +228,14 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       if (await guestTrigger.isVisible().catch(() => false)) {
         await guestTrigger.click();
         await page.waitForTimeout(150);
-        state = await inspect(page);
+        state = await stablePageOperation(`${name}:inspect-guests-open`, page, () => inspect(page));
         report.checks.push({ name: "guests-open", state, failures: failuresFor(state, { requireExpanded: true, requireSearch: true }) });
 
         const contextualClose = page.locator(`button[aria-label="${labels.closeGuests}"]`).first();
         if (await contextualClose.isVisible().catch(() => false)) {
           await contextualClose.click();
           await page.waitForTimeout(150);
-          state = await inspect(page);
+          state = await stablePageOperation(`${name}:inspect-guests-close`, page, () => inspect(page));
           report.checks.push({ name: "guests-close-x", state, failures: failuresFor(state, { requireExpanded: true, requireSearch: true }) });
         } else {
           report.checks.push({ name: "guests-close-x", failures: ["contextual-close-not-visible"] });
@@ -223,13 +245,13 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         await page.waitForTimeout(100);
         await guestTrigger.click();
         await page.waitForTimeout(150);
-        state = await inspect(page);
+        state = await stablePageOperation(`${name}:inspect-guests-toggle`, page, () => inspect(page));
         report.checks.push({ name: "guests-toggle-close", state, failures: failuresFor(state, { requireExpanded: true, requireSearch: true }) });
       }
 
       await page.setViewportSize({ width: 1440, height: 1000 });
       await page.waitForTimeout(400);
-      state = await inspect(page);
+      state = await stablePageOperation(`${name}:inspect-desktop`, page, () => inspect(page));
       report.checks.push({ name: "desktop-after-mobile", state, failures: failuresFor(state, { requireUnlocked: true }) });
       if (screenshotDirectory) {
         const screenshot = `${screenshotDirectory}/${name}-desktop-after-mobile-v${version}.png`;
@@ -237,7 +259,7 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         report.checks.at(-1).screenshot = screenshot;
       }
 
-      const horizontalRails = await inspectHorizontalRails(page);
+      const horizontalRails = await stablePageOperation(`${name}:inspect-horizontal-rails`, page, () => inspectHorizontalRails(page));
       report.checks.push({
         name: "desktop-horizontal-rails",
         state: horizontalRails,
@@ -253,12 +275,12 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       if (name === "vacation-results" || name === "vacation-region") {
         await page.waitForFunction(() => Boolean(document.querySelector(".stay-card,.empty-state")), undefined, { timeout: 30000 });
       }
-      state = await inspect(page);
+      state = await stablePageOperation(`${name}:inspect-desktop-reload`, page, () => inspect(page));
       report.checks.push({ name: "desktop-reload", state, failures: failuresFor(state, { requireUnlocked: true }) });
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.waitForTimeout(300);
-      state = await inspect(page);
+      state = await stablePageOperation(`${name}:inspect-mobile-return`, page, () => inspect(page));
       report.checks.push({ name: "mobile-return", state, failures: failuresFor(state, { requireUnlocked: true }) });
       if (screenshotDirectory) {
         const screenshot = `${screenshotDirectory}/${name}-mobile-return-v${version}.png`;
@@ -271,11 +293,13 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
     }
 
     reports.push(report);
-    await page.close();
+    await bounded(`${name}:page-close`, page.close(), 10000).catch((error) => {
+      report.checks.push({ name: "cleanup", failures: [error.message] });
+    });
     console.log(`[search-audit] finish ${name}`);
   }
 
-  await browser.close();
+  await bounded("browser-close", browser.close(), 10000);
   const failures = reports.flatMap((report) => report.checks.flatMap((check) => check.failures.map((failure) => `${report.name}:${check.name}:${failure}`)));
   const report = { baseUrl, version, passed: failures.length === 0, failures, reports };
   if (reportFile) writeFileSync(reportFile, `${JSON.stringify(report, null, 2)}\n`);
