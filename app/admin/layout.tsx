@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { resolveAdminAccess } from "../lib/admin-grants.ts";
 import { adminLanding, adminRouteAllowed } from "../lib/admin-permissions.ts";
-import { readSession } from "../lib/google-auth.ts";
+import { readAdminSession } from "../lib/google-auth.ts";
 import AdminCommandBar from "./admin-command-bar";
 import AdminNav from "./admin-nav";
 import AdminAccessProvider from "./admin-access-context.tsx";
@@ -21,11 +21,12 @@ function requestFromHeaders(requestHeaders: Headers, pathname: string) {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const requestHeaders = await headers();
   const pathname = requestHeaders.get("x-vii-pathname") || "/admin";
+  if (pathname === "/admin/login") return <>{children}</>;
   const request = requestFromHeaders(requestHeaders, pathname);
-  const session = await readSession(request).catch(() => null);
-  if (!session) redirect(`/api/auth/google?returnTo=${encodeURIComponent(pathname)}`);
+  const session = await readAdminSession(request).catch(() => null);
+  if (!session) redirect(`/admin/login?returnTo=${encodeURIComponent(pathname)}`);
   const access = await resolveAdminAccess(session.email, undefined, session.sub);
-  if (!access) redirect("/account?authError=admin_forbidden");
+  if (!access) redirect("/admin/login?authError=admin_forbidden");
   if (!adminRouteAllowed(access, pathname)) redirect(adminLanding(access));
   return <div className={styles.shell}><AdminNav access={access} /><div className={styles.workspace}><AdminCommandBar access={access} /><AdminAccessProvider access={access}>{children}</AdminAccessProvider></div></div>;
 }

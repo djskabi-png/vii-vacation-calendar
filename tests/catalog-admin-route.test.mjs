@@ -33,7 +33,7 @@ test("signed-in non-admin users cannot read or trigger diagnostic catalog runs",
   try {
     const token = await createSignedValue({ sub: "visitor", name: "Visitor", email: "visitor@example.test",
       provider: "google", exp: Math.floor(Date.now() / 1000) + 60 });
-    const headers = { Cookie: `vii_session=${encodeURIComponent(token)}`, Origin: origin, "Content-Type": "application/json" };
+    const headers = { Cookie: `vii_admin_session=${encodeURIComponent(token)}`, Origin: origin, "Content-Type": "application/json" };
     for (const response of [await GET(new Request(`${origin}/api/admin/catalog-sync`, { headers })),
       await POST(new Request(`${origin}/api/admin/catalog-sync`, { method: "POST", headers, body: JSON.stringify({ world: "spa" }) }))]) {
       assert.equal(response.status, 403);
@@ -56,7 +56,7 @@ test("catalog administration blocks cross-origin and invalid manual actions befo
   try {
     const token = await createSignedValue({ sub: "owner", name: "Owner", email: "owner@example.test",
       provider: "google", exp: Math.floor(Date.now() / 1000) + 60 });
-    const headers = { Cookie: `vii_session=${encodeURIComponent(token)}`, "Content-Type": "application/json" };
+    const headers = { Cookie: `vii_admin_session=${encodeURIComponent(token)}`, "Content-Type": "application/json" };
     assert.equal((await POST(new Request(`${origin}/api/admin/catalog-sync`, {
       method: "POST", headers: { ...headers, Origin: "https://other.example" },
       body: JSON.stringify({ world: "spa" }),

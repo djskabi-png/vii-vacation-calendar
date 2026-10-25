@@ -120,7 +120,7 @@ test("promotion administration rejects anonymous reads and cross-origin writes",
     const session = await createSignedValue({ sub: "admin", name: "Admin", email: "admin@vii.co.il",
       provider: "google", exp: Math.floor(Date.now() / 1000) + 3600 });
     const crossOrigin = await POST(new Request("https://vii.example/api/admin/discovery-promotions", {
-      method: "POST", headers: { cookie: `vii_session=${session}`, origin: "https://other.example" },
+      method: "POST", headers: { cookie: `vii_admin_session=${session}`, origin: "https://other.example" },
       body: JSON.stringify(input()),
     }));
     assert.equal(crossOrigin.status, 403);

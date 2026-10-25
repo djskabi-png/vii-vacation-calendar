@@ -28,7 +28,7 @@ for (const path of pages) {
       rows.push({ route, warm, elapsedMs, bytes: bytes.byteLength, cache, layer: response.headers.get('X-VII-Cache-Layer') });
     }
     const pending = [];
-    const privateResponse = await worker.fetch(new Request(`https://vii.spaplus.co${route}`, { headers: { ...headers, Cookie: 'vii_session=invalid-probe' } }), env, { waitUntil(p) { pending.push(p); }, passThroughOnException() {} });
+    const privateResponse = await worker.fetch(new Request(`https://vii.spaplus.co${route}`, { headers: { ...headers, Cookie: 'vii_customer_session=invalid-probe' } }), env, { waitUntil(p) { pending.push(p); }, passThroughOnException() {} });
     assert.equal(privateResponse.headers.get('X-VII-Page-Cache'), null);
     assert.equal(privateResponse.headers.get('X-VII-Navigation-Cache'), null);
     await privateResponse.arrayBuffer(); await Promise.all(pending);

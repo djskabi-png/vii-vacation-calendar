@@ -28,7 +28,7 @@ test("admin overview denies a signed-in account outside the admin allowlist", as
   try {
     const token = await createSignedValue({ sub: "visitor", name: "Visitor", email: "visitor@example.test",
       provider: "google", exp: Math.floor(Date.now() / 1000) + 60 });
-    const response = await GET(new Request(endpoint, { headers: { Cookie: `vii_session=${encodeURIComponent(token)}` } }));
+    const response = await GET(new Request(endpoint, { headers: { Cookie: `vii_admin_session=${encodeURIComponent(token)}` } }));
     assert.equal(response.status, 403);
     assert.deepEqual(await response.json(), { error: "forbidden" });
   } finally {

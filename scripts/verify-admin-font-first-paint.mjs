@@ -26,7 +26,7 @@ const evidence = [];
 
 for (const viewport of [{ name: "desktop", width: 1280, height: 800 }, { name: "mobile", width: 390, height: 844 }]) {
   const fallbackContext = await browser.newContext({ viewport });
-  await fallbackContext.addCookies([{ name: "vii_session", value: token, url: baseUrl }]);
+  await fallbackContext.addCookies([{ name: "vii_admin_session", value: token, url: baseUrl }]);
   await fallbackContext.route("**/fonts/heebo/*.woff2", (route) => route.abort("failed"));
   const fallbackPage = await fallbackContext.newPage();
   await fallbackPage.goto(`${baseUrl}/admin/catalog-sync`, { waitUntil: "domcontentloaded" });
@@ -47,7 +47,7 @@ for (const viewport of [{ name: "desktop", width: 1280, height: 800 }, { name: "
   await fallbackContext.close();
 
   const context = await browser.newContext({ viewport });
-  await context.addCookies([{ name: "vii_session", value: token, url: baseUrl }]);
+  await context.addCookies([{ name: "vii_admin_session", value: token, url: baseUrl }]);
 
   for (const cacheState of ["cold", "warm"]) {
     const page = await context.newPage();

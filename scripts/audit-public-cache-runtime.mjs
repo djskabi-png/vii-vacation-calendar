@@ -24,7 +24,7 @@ for(const path of ['/spas','/spas.rsc?_rsc','/en/spas','/api/catalog?world=spa&v
   const navigation=path.includes('.rsc');const data=path.startsWith('/api/');
   const headers={Accept:data?'application/json':navigation?'text/x-component':'text/html'};if(navigation)headers.RSC='1';
   const ctx=context();
-  const response=await worker.fetch(new Request('https://vii.spaplus.co'+path,{headers:{...headers,Cookie:'vii_session=invalid-probe'}}),env,ctx);
+  const response=await worker.fetch(new Request('https://vii.spaplus.co'+path,{headers:{...headers,Cookie:'vii_customer_session=invalid-probe'}}),env,ctx);
   await response.arrayBuffer();await ctx.settle();
   assert.equal(response.headers.get('X-VII-Cache-Fill'),null);
   assert.equal(response.headers.get('X-VII-Cache-Layer'),null);

@@ -25,7 +25,7 @@ test("browser edge cookies retain public caching, sessions and unknown cookies b
   for (const Cookie of ["__cf_bm=one", "__cf_bm=two; cf_clearance=passed", "_cfuvid=x; __cflb=y"]) {
     assert.equal((await policy("/spas", { Cookie }, "same"))?.key, bare.key);
   }
-  for (const Cookie of ["vii_session=valid", "__cf_bm=x; vii_session=valid", "vii_oauth_nonce=x", "unknown=value", "malformed"]) {
+  for (const Cookie of ["vii_customer_session=valid", "vii_admin_session=valid", "vii_session=legacy", "__cf_bm=x; vii_customer_session=valid", "vii_customer_oauth_nonce=x", "vii_admin_oauth_nonce=x", "unknown=value", "malformed"]) {
     assert.equal(await policy("/spas", { Cookie }), null);
   }
   assert.equal(await policy("/spas", { Authorization: "Bearer x" }), null);
@@ -109,7 +109,7 @@ test("expired objects, errors, private responses, unsupported Vary and wrong MIM
   assert.equal(await readPublicCache(expired, { UPLOADS: uploads }), null);
   for (const response of [
     new Response("error", { status: 503, headers: { "Content-Type": "text/html" } }),
-    new Response("private", { headers: { "Content-Type": "text/html", "Set-Cookie": "vii_session=private" } }),
+    new Response("private", { headers: { "Content-Type": "text/html", "Set-Cookie": "vii_customer_session=private" } }),
     new Response("variant", { headers: { "Content-Type": "text/html", Vary: "Cookie" } }),
     new Response("flight", { headers: { "Content-Type": "text/x-component" } }),
   ]) {

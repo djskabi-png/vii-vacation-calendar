@@ -1,0 +1,93 @@
+{
+  "goal": "Administrator authentication and customer authentication operate as separate identities, and each login surface displays the approved VII logo reliably.",
+  "intent_model": {
+    "literal_request": "Separate admin access from customer access, keep /admin unrelated to the customer account, and fix the missing login logo.",
+    "implied_outcome": "Two independent, secure and visually branded login flows that can coexist without leaking session state or sending administrators through customer screens.",
+    "likely_rejections": [
+      "Only the wording changed while both roles still share one cookie.",
+      "Admin logout clears the customer account or redirects to /account.",
+      "The logo file exists but still flashes broken in the actual dialog.",
+      "One role can still authorize the other role's route or API."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "צריך הפרדה ביניהם",
+        "operational_meaning": "Separate storage, authorization, entry, failure and logout boundaries, not merely visual labels.",
+        "acceptance_impact": "Cross-role negative tests are mandatory."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The person sees either a clearly branded customer login or a clearly branded administrator login, never both.",
+    "current_decision": "Choose the Google account for the role-specific flow.",
+    "next_action": "Return to the requested customer page or authorized administrator destination.",
+    "deferred_complexity": ["permission management after administrator identity is established"],
+    "preserved_depth": ["customer profile and form autofill remains available", "authenticated guest review submission remains available", "administrator module permissions remain enforced", "administrator permission audit records remain available", "customer and administrator logout remain independent"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-admin-customer-auth-separation-20261025.json",
+    "lesson_bundle_ids": ["ADIR-ADMIN-001", "ADIR-MEDIA-001", "ADIR-QA-001", "ADIR-MIND-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["public customer", "authorized VII administrator", "unauthorized Google account"],
+  "natural_destination": "Public customer sign-in dialog and /admin administrator sign-in flow",
+  "facts": [
+    {
+      "claim": "Current code uses the same vii_session cookie for public account APIs and administrator authorization.",
+      "evidence": "app/lib/google-auth.ts, app/lib/admin-session.ts and app/api/auth/session/route.ts"
+    },
+    {
+      "claim": "The public AccountAccessProvider currently wraps admin routes.",
+      "evidence": "app/layout.tsx"
+    },
+    {
+      "claim": "The approved logo asset exists and returns a valid PNG publicly.",
+      "evidence": "public/vii-logo.png and HTTP 200 from https://vii.spaplus.co/vii-logo.png"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The broken logo state is caused by on-demand modal loading rather than a missing or corrupt asset.",
+      "validation": "Compare direct asset decode with cold and warm modal rendering after preload/eager loading."
+    }
+  ],
+  "in_scope": [
+    "distinct customer and administrator session cookies",
+    "distinct OAuth nonce and callback audience handling",
+    "dedicated administrator login and logout/session APIs",
+    "public account provider excluded from admin routes",
+    "approved VII logo preloaded and rendered eagerly on both login surfaces",
+    "regression tests for role boundaries and public account features"
+  ],
+  "out_of_scope": ["changing administrator permissions", "changing Google OAuth credentials", "redesigning the admin dashboard", "accessibility audit", "typography audit"],
+  "invariants": [
+    "Existing admin module permissions remain unchanged.",
+    "Public customer profile, review and autofill behavior remains available.",
+    "Analytics continues to classify a real admin session as internal traffic.",
+    "The approved VII logo asset and brand copy remain unchanged."
+  ],
+  "affected_family": ["Google OAuth start and signed callback state", "customer and administrator HttpOnly session cookies", "customer and administrator logout endpoints", "server-rendered administrator layout gate", "public customer AccountAccessProvider", "internal traffic analytics classification", "authenticated guest review APIs", "desktop customer and administrator login surfaces", "mobile customer and administrator login surfaces"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Customer and administrator sessions are stored and authorized independently.", "source": "User request"},
+    {"id": "REQ-2", "statement": "Every administrator entry, failure and logout remains in the administrator flow.", "source": "User request"},
+    {"id": "REQ-3", "statement": "The approved VII logo displays without a broken-image state on both login surfaces.", "source": "User screenshot and VII feedback standard"},
+    {"id": "REQ-4", "statement": "Existing public customer and administrator capabilities outside the separation remain intact.", "source": "Project invariants"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "permission", "setup": "Only a customer session cookie exists.", "action": "Open an administrator page and API.", "observable_result": "The admin flow requests administrator authentication and the API denies access."},
+    {"id": "AC-2", "requirement_ids": ["REQ-1"], "kind": "permission", "setup": "Only an administrator session cookie exists.", "action": "Read the public customer session API and public account state.", "observable_result": "No customer account is returned or persisted."},
+    {"id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "recovery", "setup": "Administrator OAuth is cancelled, invalid or forbidden.", "action": "Return from Google or fail authorization.", "observable_result": "A dedicated administrator login/error surface appears, not /account."},
+    {"id": "AC-3B", "requirement_ids": ["REQ-2"], "kind": "failure", "setup": "An invalid, expired or cross-audience OAuth state reaches the callback.", "action": "The callback validates its signed audience and nonce.", "observable_result": "No session cookie is created and the correct role-specific error surface is shown."},
+    {"id": "AC-4", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "Both role sessions exist.", "action": "Log out from one role and reload both surfaces.", "observable_result": "Only the selected role is logged out; the other role remains unchanged."},
+    {"id": "AC-5", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Cold and warm desktop and mobile page loads.", "action": "Open customer and administrator login surfaces.", "observable_result": "The exact approved VII logo is decoded and visible with no broken placeholder."},
+    {"id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Existing test and build environment.", "action": "Run focused authentication tests, the related regression suite and a production build.", "observable_result": "Customer profile/review/autofill and admin permission tests pass without changing permission rules."},
+    {"id": "AC-7", "requirement_ids": ["REQ-1", "REQ-2", "REQ-3", "REQ-4"], "kind": "rollback", "setup": "A release candidate is ready.", "action": "Record the exact baseline and candidate identities.", "observable_result": "One-step rollback to v657 remains available before any authorized publication."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation and verification are authorized. Production publication is not yet authorized by this message.",
+  "ready_for_implementation": true
+}

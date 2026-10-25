@@ -19,9 +19,9 @@ test("administration shell exposes command search, growth center and mobile-safe
   assert.match(navigation, /\/admin\/growth/);
   assert.match(commandBar, /Ctrl K/);
   assert.match(commandBar, /חיפוש כלי, דוח או פעולה/);
-  assert.match(commandBar, /\/api\/auth\/logout/);
+  assert.match(commandBar, /\/api\/auth\/admin\/logout/);
   assert.match(commandBar, /method: "POST"/);
-  assert.match(commandBar, /window\.location\.replace\("\/account\?loggedOut=1"\)/);
+  assert.match(commandBar, /window\.location\.replace\("\/admin\/login\?loggedOut=1"\)/);
   assert.match(commandBar, /aria-busy=\{logoutState === "loading"\}/);
   assert.match(commandBar, /role="alert"/);
   assert.match(commandBar, /pageshow/);

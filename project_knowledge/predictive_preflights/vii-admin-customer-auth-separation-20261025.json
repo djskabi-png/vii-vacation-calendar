@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-customer-auth-separation-20261025",
+  "project": "VII",
+  "task_type": "authentication-repair",
+  "requested_outcome": "Separate administrator authentication from public customer authentication and render the approved VII logo reliably in both sign-in surfaces.",
+  "natural_destination": "https://vii.spaplus.co/admin and the public VII customer sign-in dialog",
+  "authorization_boundary": "Diagnose and implement code and tests. Production publication requires explicit approval after verification.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "The administration system must enforce a distinct role-scoped entry path and deny customer identity from administrator surfaces.",
+      "acceptance_impact": "Requires separate persisted session cookies, separate logout/session checks, authorized and unauthorized route tests, and reload evidence."
+    },
+    {
+      "lesson_id": "ADIR-MEDIA-001",
+      "reason": "The reported sign-in dialog shows a broken approved brand logo.",
+      "acceptance_impact": "Requires the exact approved VII asset to decode on customer and administrator sign-in surfaces without a broken-image state."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared authentication component affects multiple routes and roles.",
+      "acceptance_impact": "Requires regression across public customer session, administrator session, logout, callback failure, and refresh behavior."
+    },
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The short correction implies an end-to-end identity boundary rather than a cosmetic label change.",
+      "acceptance_impact": "Requires diagnosis at the cookie and provider boundary and visible proof at each natural destination."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "Any later production release must preserve the current public baseline and rollback identity.",
+      "acceptance_impact": "Requires an exact clean commit, one release, live route verification, and rollback evidence before a publication claim."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Administrator Google login still creates a customer account session or customer UI state.",
+      "prevention": "Use distinct signed cookies and omit the public account provider from every admin route.",
+      "acceptance_check": "An admin cookie is invisible to /api/auth/session and a customer cookie is rejected by the admin gate."
+    },
+    {
+      "rejection": "Entering /admin redirects to the customer account page on failure or logout.",
+      "prevention": "Add a dedicated administrator login surface and administrator-only logout/session endpoints.",
+      "acceptance_check": "Anonymous, failed, logged-out and forbidden admin states stay in the administrator entry flow."
+    },
+    {
+      "rejection": "The logo still flashes as broken or is missing on one sign-in surface.",
+      "prevention": "Preload the approved logo and use eager synchronous decoding on both login surfaces.",
+      "acceptance_check": "Cold and warm dialog opens show a decoded VII logo in desktop and mobile layouts."
+    },
+    {
+      "rejection": "The fix logs out or breaks existing customer reviews and profile autofill.",
+      "prevention": "Keep public APIs on the customer cookie and cover account, review and logout flows with regression tests.",
+      "acceptance_check": "Customer session, review authorization, autofill and customer logout tests pass unchanged."
+    }
+  ],
+  "affected_family": [
+    "public customer account provider and dialog",
+    "administrator layout and administrator login page",
+    "Google OAuth start, callback, nonce and failure routes",
+    "customer and administrator session/logout APIs",
+    "administrator authorization gate",
+    "analytics internal-traffic classification",
+    "customer reviews and profile autofill",
+    "desktop and mobile login surfaces"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted authentication and branding behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#מותג-שיתוף-והתחברות"
+      },
+      {
+        "label": "User supplied screenshot of the broken public login logo",
+        "source": "codex-clipboard-2b89c4a8-09e8-430a-96fc-a2cbad5732de.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After cookie and provider separation tests pass, before styling and broad regression.",
+    "checks": [
+      "customer and administrator cookies cannot authorize each other's APIs",
+      "root layout no longer mounts the public account provider on admin paths",
+      "administrator entry and logout remain inside the admin flow"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a customer-only cookie open any administrator route or API?",
+      "Can an administrator-only cookie appear as a logged-in customer on the public site?",
+      "Does failed or cancelled administrator OAuth land on a customer surface?",
+      "Can the approved logo produce a broken-image state on cold mobile or desktop open?"
+    ],
+    "natural_destination_evidence": "Live administrator entry and public login dialog checked after the exact candidate is deployed.",
+    "affected_family_evidence": "Automated tests for both cookie families, OAuth states, logout, analytics classification, customer reviews, and responsive visual checks."
+  },
+  "effectiveness": {
+    "baseline": "Current production uses one vii_session cookie for customers and administrators, mounts AccountAccessProvider on admin routes, and the reported customer dialog displayed a broken logo.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero cross-role session acceptance, zero customer-surface redirects in the admin flow, and zero broken logo states in the tested matrix."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

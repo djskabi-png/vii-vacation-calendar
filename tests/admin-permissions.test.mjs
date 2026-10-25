@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { adminModules, adminRouteAllowed, parseAdminPermissions } from '../app/lib/admin-permissions.ts';
 import { adminGrantSchema, ensureAdminGrantSchema, parseAdminGrantChange, saveAdminGrant, readAdminGrant, readAdminGrantDashboard, resolveAdminAccess } from '../app/lib/admin-grants.ts';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
-import { createSignedValue, SESSION_COOKIE } from '../app/lib/google-auth.ts';
+import { ADMIN_SESSION_COOKIE, createSignedValue } from '../app/lib/google-auth.ts';
 
 const origin = 'https://vii.spaplus.co';
 const secret = 'test-only-admin-permission-secret-longer-than-32-characters';
@@ -26,7 +26,7 @@ function configure() {process.env.VII_ADMIN_EMAILS='owner@example.test,second-ow
 const change = (overrides={}) => parseAdminGrantChange({email:'editor@example.test',name:'Test Editor',permissions:{content:'view'},active:true,manageUsers:false,version:0,confirmed:true,...overrides});
 async function signed(email,path,method='GET') {
   const value=await createSignedValue({sub:`google:${email}`,email,name:'Test',provider:'google',exp:Math.floor(Date.now()/1000)+600},secret);
-  return new Request(origin+path,{method,headers:{cookie:`${SESSION_COOKIE}=${encodeURIComponent(value)}`,origin}});
+  return new Request(origin+path,{method,headers:{cookie:`${ADMIN_SESSION_COOKIE}=${encodeURIComponent(value)}`,origin}});
 }
 
 test('scope parser rejects unknown modules and escalation while every business domain supports view or edit',()=>{

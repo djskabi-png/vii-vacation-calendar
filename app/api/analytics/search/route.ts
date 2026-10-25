@@ -1,11 +1,11 @@
-import { readSession } from "../../../lib/google-auth.ts";
+import { readAdminSession } from "../../../lib/google-auth.ts";
 import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { parseSearchDemandEvent, saveSearchEvent, searchAnalyticsDatabase } from "../../../lib/search-analytics.ts";
 
 const noStore = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 async function administrator(request: Request) {
-  const session = await readSession(request).catch(() => null);
+  const session = await readAdminSession(request).catch(() => null);
   return !!session && isAdminEmail(session.email);
 }
 

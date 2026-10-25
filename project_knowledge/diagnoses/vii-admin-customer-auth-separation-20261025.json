@@ -1,0 +1,42 @@
+{
+  "status": "fixed",
+  "symptom": "Administrator access shares visible and persisted identity with the public customer account, while the public sign-in dialog can show a broken VII logo.",
+  "expected_behavior": "Administrator and customer identities, entry routes, session state and logout are independent, and both login surfaces show the approved VII logo.",
+  "environment": "VII public production v657 and source commit 784845b6e1e3b92cb10d70c4e93a167791fd8911 on 2026-10-25.",
+  "reproduction": {
+    "steps": [
+      "Inspect the shared OAuth callback and cookie readers used by public and admin routes.",
+      "Inspect the root layout provider tree for /admin.",
+      "Inspect the user-supplied public login screenshot and verify the logo asset directly."
+    ],
+    "evidence": "app/lib/google-auth.ts uses vii_session for all identities; app/layout.tsx mounts AccountAccessProvider for admin; supplied screenshot shows a broken image while /vii-logo.png returns HTTP 200 with a valid PNG signature."
+  },
+  "observations": [
+    {"observation": "Public /api/auth/session and authorizedAdminSession both call readSession.", "evidence": "app/api/auth/session/route.ts and app/lib/admin-session.ts"},
+    {"observation": "The single callback always writes SESSION_COOKIE regardless of the requested destination.", "evidence": "app/api/auth/google/callback/route.ts"},
+    {"observation": "The public account provider runs on admin routes and synchronizes that shared session into public local storage.", "evidence": "app/layout.tsx and app/components/account-access.tsx"},
+    {"observation": "The logo file is present, valid and publicly returns HTTP 200.", "evidence": "public/vii-logo.png and direct production HTTP response"}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "One shared cookie and provider boundary makes an administrator session indistinguishable from a public customer session.", "prediction": "The same signed cookie is accepted by both public and admin session readers, and admin rendering invokes the public session API.", "discriminating_test": "Trace cookie constants, readers, callback writes and provider placement.", "result": "Confirmed: both roles use vii_session/readSession and AccountAccessProvider wraps /admin.", "status": "supported"},
+    {"id": "H2", "mechanism": "The approved logo asset is missing or corrupt.", "prediction": "Direct asset fetch or PNG signature validation fails.", "discriminating_test": "Fetch /vii-logo.png and inspect file signature and hash.", "result": "Rejected: HTTP 200, image/png, 4861 bytes and a valid PNG signature match the repository asset.", "status": "rejected"},
+    {"id": "H3", "mechanism": "The modal mounts the logo only on demand without preload/eager decoding, allowing a broken or fallback frame during cold open.", "prediction": "The component has no preload and uses an on-demand Image element while the asset itself remains valid.", "discriminating_test": "Inspect head preload declarations and modal image loading behavior.", "result": "Confirmed in source: no logo preload exists and the modal image mounts only after open.", "status": "supported"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change": "Introduced independent customer and administrator session and nonce cookies, signed OAuth audience boundaries, separate session and logout endpoints, a dedicated administrator login page, public-provider exclusion from admin routes, and eager logo preload/decoding.", "evidence": "Build passed; 25 focused checks passed; the full 1643-test suite had one obsolete redirect expectation which was corrected and re-run successfully; ESLint passed on all changed authentication surfaces; local browser verification decoded the approved logo at 1280x976 on the administrator page and 160x122 in the customer dialog."},
+  "affected_family": ["public customer session API and AccountAccessProvider", "administrator server layout and authorizedAdminSession gate", "Google OAuth start, signed audience, nonce and callback", "customer and administrator logout endpoints", "internal traffic analytics classification", "authenticated guest review GET and POST routes", "desktop and mobile customer login branding", "desktop and mobile administrator login branding"],
+  "regression_checks": [
+    {"check": "Customer cookie rejected by administrator server gate", "status": "passed", "evidence": "tests/admin-server-gate.test.mjs"},
+    {"check": "Administrator cookie excluded from public customer session reader", "status": "passed", "evidence": "tests/auth-audience-separation.test.mjs"},
+    {"check": "Customer and administrator logout clear only their own active cookie plus the retired legacy cookie", "status": "passed", "evidence": "tests/logout-route.test.mjs"},
+    {"check": "Cross-audience return targets normalize to /account or /admin", "status": "passed", "evidence": "tests/auth-audience-separation.test.mjs"},
+    {"check": "Administrator entry routes to /admin/login and never to the customer account", "status": "passed", "evidence": "tests/launch-seo.test.mjs and local browser verification"},
+    {"check": "Public account autofill and review session routes remain bound to the customer cookie", "status": "passed", "evidence": "focused account checks and app/api/reviews/route.ts"},
+    {"check": "Administrator analytics classification remains bound to the administrator cookie", "status": "passed", "evidence": "app/api/analytics/search/route.ts and app/api/analytics/business/route.ts"},
+    {"check": "Approved repository logo decodes on both local login surfaces", "status": "passed", "evidence": "local browser naturalWidth/naturalHeight evidence"},
+    {"check": "Full production build and changed-file lint", "status": "passed", "evidence": "pnpm build and targeted pnpm exec eslint"}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact production behavior remains unverified because this candidate has not been published and publication was not authorized in the current request."],
+  "authorization_boundary": "Diagnosis and code repair are authorized; production publication requires explicit approval."
+}

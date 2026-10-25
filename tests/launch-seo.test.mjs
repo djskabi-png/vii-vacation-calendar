@@ -41,7 +41,7 @@ test("temporary host stays out of the index and primary host gets its own canoni
   for (const path of ["/admin", "/admin/search-pages", "/admin/catalog-sync", "/admin/redirects"]) {
     const admin = await render(`https://vii.spaplus.co${path}`);
     assert.ok([302, 303, 307, 308].includes(admin.status), `${path} returned ${admin.status}`);
-    assert.match(admin.headers.get("location") || "", /^https:\/\/vii\.spaplus\.co\/api\/auth\/google\?returnTo=/);
+    assert.equal(admin.headers.get("location"), `https://vii.spaplus.co/admin/login?returnTo=${encodeURIComponent(path)}`);
     const body = await admin.text();
     assert.doesNotMatch(body, /מרכזי העבודה|מרכז קידום|קטלוגים וספקים/);
   }

@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { adminUsersHandler } from '../app/lib/admin-users-handler.ts';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
 import { ensureAdminGrantSchema } from '../app/lib/admin-grants.ts';
-import { createSignedValue, SESSION_COOKIE } from '../app/lib/google-auth.ts';
+import { ADMIN_SESSION_COOKIE, createSignedValue } from '../app/lib/google-auth.ts';
 const require=createRequire(import.meta.url),dependency=createRequire(require.resolve('wrangler'));
 const {Miniflare}=dependency('miniflare');
 const {build}=createRequire(require.resolve('vite'))('esbuild');
@@ -31,7 +31,7 @@ const server=createServer(async(req,res)=>{
   if(req.url?.split('?')[0]==='/api/admin/users'){
     try{
       const parts=[];for await(const chunk of req)parts.push(chunk);
-      const request=new Request('http://127.0.0.1:4416/api/admin/users',{method:req.method,headers:{...req.headers,cookie:`${SESSION_COOKIE}=${encodeURIComponent(cookie)}`},...(req.method==='POST'?{body:Buffer.concat(parts)}:{})});
+      const request=new Request('http://127.0.0.1:4416/api/admin/users',{method:req.method,headers:{...req.headers,cookie:`${ADMIN_SESSION_COOKIE}=${encodeURIComponent(cookie)}`},...(req.method==='POST'?{body:Buffer.concat(parts)}:{})});
       const response=await (req.method==='POST'?handlers.POST(request):handlers.GET(request));res.writeHead(response.status,Object.fromEntries(response.headers));res.end(await response.text());
     }catch{res.writeHead(503);res.end('{"error":"synthetic_fixture_failure"}');}return;
   }

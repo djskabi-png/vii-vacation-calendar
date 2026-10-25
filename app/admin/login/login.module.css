@@ -1,0 +1,16 @@
+.page { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 20% 10%, rgba(23, 159, 166, .2), transparent 35%), linear-gradient(145deg, #062f38, #0a4850); }
+.card { width: min(100%, 480px); display: grid; justify-items: center; gap: 16px; padding: 38px; border: 1px solid rgba(255,255,255,.7); border-radius: 28px; background: #fff; box-shadow: 0 28px 80px rgba(0, 23, 29, .34); text-align: center; }
+.logo { width: auto; height: 76px; object-fit: contain; }
+.identity { display: inline-flex; align-items: center; gap: 8px; color: #087e8b; font-weight: 800; }
+.card h1 { margin: 0; color: #0b3841; font-size: clamp(1.75rem, 5vw, 2.35rem); line-height: 1.12; }
+.card > p { max-width: 36ch; margin: 0; color: #587078; line-height: 1.7; }
+.login { width: 100%; min-height: 54px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 18px; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #087e8b, #126da4); box-shadow: 0 12px 26px rgba(8,126,139,.25); font-weight: 850; text-decoration: none; }
+.publicLink { color: #0b6672; font-weight: 750; text-underline-offset: 4px; }
+.success, .error { width: 100%; padding: 12px 14px; border-radius: 14px; line-height: 1.55; }
+.success { color: #176442; background: #edf9f3; border: 1px solid #bce8d0; }
+.error { color: #9c302d; background: #fff2f0; border: 1px solid #f2c5c1; }
+@media (max-width: 560px) {
+  .page { align-items: end; padding: 12px; }
+  .card { padding: 30px 20px calc(26px + env(safe-area-inset-bottom)); border-radius: 24px; }
+  .logo { height: 66px; }
+}

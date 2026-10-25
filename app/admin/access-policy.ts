@@ -43,5 +43,5 @@ export function adminRouteAllowed(access: AdminAccess, path: string, method = "G
 
 export function adminLanding(access: AdminAccess) {
   if (access.manageUsers) return "/admin/users";
-  return adminModules.find((item) => adminRouteAllowed(access, item.pages[0]))?.pages[0] || "/account?authError=admin_forbidden";
+  return adminModules.find((item) => adminRouteAllowed(access, item.pages[0]))?.pages[0] || "/admin/login?authError=admin_forbidden";
 }

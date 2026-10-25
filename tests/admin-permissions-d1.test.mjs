@@ -4,13 +4,13 @@ import { createRequire } from 'node:module';
 import { adminUsersHandler } from '../app/lib/admin-users-handler.ts';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
 import { adminGrantSchema, ensureAdminGrantSchema, resolveAdminAccess, readAdminGrant } from '../app/lib/admin-grants.ts';
-import { createSignedValue, SESSION_COOKIE } from '../app/lib/google-auth.ts';
+import { ADMIN_SESSION_COOKIE, createSignedValue } from '../app/lib/google-auth.ts';
 const require=createRequire(import.meta.url),dependency=createRequire(require.resolve('wrangler'));
 const {Miniflare}=dependency('miniflare');
 const origin='https://synthetic.example.test',secret='synthetic-only-access-session-secret-at-least-32';
 async function request(email,method='GET',body,requestOrigin=origin,subject=`google:${email}`){
   const token=await createSignedValue({email,sub:subject,name:'Synthetic QA',provider:'google',exp:Math.floor(Date.now()/1000)+600},secret);
-  return new Request(origin+'/api/admin/users',{method,headers:{cookie:`${SESSION_COOKIE}=${encodeURIComponent(token)}`,...(requestOrigin?{origin:requestOrigin}:{}),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  return new Request(origin+'/api/admin/users',{method,headers:{cookie:`${ADMIN_SESSION_COOKIE}=${encodeURIComponent(token)}`,...(requestOrigin?{origin:requestOrigin}:{}),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
 }
 test('actual D1 users handler persists grant/audit, pins Google identity, enforces origin and revokes existing sessions',{timeout:30000},async()=>{
   process.env.VII_ADMIN_EMAILS='owner@example.test,second-owner@example.test';delete process.env.VII_ADMIN_EMAILS_EXTRA;process.env.VII_ACCESS_MANAGER_EMAILS='owner@example.test,second-owner@example.test';process.env.VII_AUTH_SECRET=secret;

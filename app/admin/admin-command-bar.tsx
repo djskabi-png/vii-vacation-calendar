@@ -57,9 +57,9 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
   useEffect(() => {
     const verifyRestoredSession = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
-      void fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
+      void fetch("/api/auth/admin/session", { credentials: "same-origin", cache: "no-store" })
         .then((response) => response.ok ? response.json() : null)
-        .then((payload) => { if (!payload?.account) window.location.replace("/account?loggedOut=1"); })
+        .then((payload) => { if (!payload?.account) window.location.replace("/admin/login?loggedOut=1"); })
         .catch(() => undefined);
     };
     window.addEventListener("pageshow", verifyRestoredSession);
@@ -70,9 +70,9 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
     if (logoutState === "loading") return;
     setLogoutState("loading");
     try {
-      const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      const response = await fetch("/api/auth/admin/logout", { method: "POST", credentials: "same-origin", cache: "no-store" });
       if (!response.ok) throw new Error("logout_failed");
-      window.location.replace("/account?loggedOut=1");
+      window.location.replace("/admin/login?loggedOut=1");
     } catch {
       setLogoutState("error");
     }

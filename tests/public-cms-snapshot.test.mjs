@@ -60,7 +60,7 @@ test('existing signed admin boundary still denies visitor/expired, allows eligib
   populateCmsFixture(f);
   for(const [email,seconds,status] of [['visitor@example.test',60,403],['owner@example.test',-60,403],['owner@example.test',60,200]]){
    const token=await createSignedValue({sub:'synthetic',name:'Synthetic',email,provider:'google',exp:Math.floor(Date.now()/1000)+seconds});
-   const request=new Request(endpoint,{headers:{Cookie:`vii_session=${encodeURIComponent(token)}`}});
+   const request=new Request(endpoint,{headers:{Cookie:`vii_admin_session=${encodeURIComponent(token)}`}});
    const response=await publicCmsSnapshotResponse(request,{authorized:async r=>!!await authorizedAdminSession(r,['owner@example.test']),database:async()=>f.db});
    assert.equal(response.status,status);if(status===200)verifyPublicCmsSnapshot(await response.text());
   }

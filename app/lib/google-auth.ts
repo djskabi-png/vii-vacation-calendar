@@ -1,5 +1,16 @@
-export const SESSION_COOKIE = "vii_session";
-export const OAUTH_NONCE_COOKIE = "vii_oauth_nonce";
+export type AuthAudience = "customer" | "admin";
+
+export const CUSTOMER_SESSION_COOKIE = "vii_customer_session";
+export const ADMIN_SESSION_COOKIE = "vii_admin_session";
+export const LEGACY_SESSION_COOKIE = "vii_session";
+export const CUSTOMER_OAUTH_NONCE_COOKIE = "vii_customer_oauth_nonce";
+export const ADMIN_OAUTH_NONCE_COOKIE = "vii_admin_oauth_nonce";
+
+// Kept as a source-compatible alias for public account code. New code should
+// name the audience explicitly so an administrator can never become a
+// customer merely by visiting a public page.
+export const SESSION_COOKIE = CUSTOMER_SESSION_COOKIE;
+export const OAUTH_NONCE_COOKIE = CUSTOMER_OAUTH_NONCE_COOKIE;
 
 export type AuthenticatedAccount = { sub: string; name: string; email: string; picture?: string; provider: "google" };
 const encoder = new TextEncoder();
@@ -28,13 +39,34 @@ function safeEqual(left: string, right: string) {
   return mismatch === 0;
 }
 
-export function safeReturnTo(value: string | null) {
-  if (!value?.startsWith("/") || value.startsWith("//")) return "/account";
+export function safeReturnTo(value: string | null, audience: AuthAudience = "customer") {
+  const fallback = audience === "admin" ? "/admin" : "/account";
+  if (!value?.startsWith("/") || value.startsWith("//")) return fallback;
   try {
     const url = new URL(value, "https://vii.local");
-    if (url.origin !== "https://vii.local" || url.pathname.startsWith("/api/auth/")) return "/account";
+    if (url.origin !== "https://vii.local" || url.pathname.startsWith("/api/auth/")) return fallback;
+    const adminPath = url.pathname === "/admin" || url.pathname.startsWith("/admin/");
+    if (audience === "admin" ? !adminPath : adminPath) return fallback;
     return `${url.pathname}${url.search}${url.hash}`;
-  } catch { return "/account"; }
+  } catch { return fallback; }
+}
+
+export function authAudience(value: string | null, requested: string | null): AuthAudience {
+  if (requested === "admin") return "admin";
+  if (requested === "customer") return "customer";
+  if (!value?.startsWith("/") || value.startsWith("//")) return "customer";
+  try {
+    const url = new URL(value, "https://vii.local");
+    return url.origin === "https://vii.local" && (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) ? "admin" : "customer";
+  } catch { return "customer"; }
+}
+
+export function sessionCookieFor(audience: AuthAudience) {
+  return audience === "admin" ? ADMIN_SESSION_COOKIE : CUSTOMER_SESSION_COOKIE;
+}
+
+export function nonceCookieFor(audience: AuthAudience) {
+  return audience === "admin" ? ADMIN_OAUTH_NONCE_COOKIE : CUSTOMER_OAUTH_NONCE_COOKIE;
 }
 
 export function authSecret() {
@@ -67,7 +99,11 @@ export function secureCookie(name: string, value: string, maxAge: number) {
 
 export function clearCookie(name: string) { return `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`; }
 
-export async function readSession(request: Request) {
-  const session = await readSignedValue<AuthenticatedAccount & { exp: number }>(cookieValue(request, SESSION_COOKIE));
+async function readAudienceSession(request: Request, audience: AuthAudience) {
+  const session = await readSignedValue<AuthenticatedAccount & { exp: number }>(cookieValue(request, sessionCookieFor(audience)));
   return session && session.exp > Math.floor(Date.now() / 1000) ? session : null;
 }
+
+export function readCustomerSession(request: Request) { return readAudienceSession(request, "customer"); }
+export function readAdminSession(request: Request) { return readAudienceSession(request, "admin"); }
+export const readSession = readCustomerSession;
