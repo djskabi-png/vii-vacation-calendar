@@ -1,0 +1,32 @@
+{
+  "observed_error": "The local Sites connector returned project_not_found for the known VII project, and the alternate Git remote required credentials not available to the task.",
+  "category": "authentication",
+  "diagnosis": "The local Sites connector was attached to a workspace that did not own the VII Site. The dedicated authorized VII publication conversation remained available in the in-app browser.",
+  "authorization_boundary": "Publish the already authorized VII candidate only, without changing permissions, data, environment, schedules, domains or secrets.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "unavailable",
+      "evidence": "Sites list omitted project appgprj_6a71ccdca27481918bf04dd329d3eb21 and direct get returned project_not_found."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The dedicated Publish VII Release conversation opened in the in-app browser and deployed the saved v661 Site version."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "unavailable",
+      "evidence": "The configured Sites Git remote could not obtain credentials in the task session; GitHub source push succeeded but is not the production deployment route."
+    },
+    {
+      "kind": "official_connection",
+      "status": "not_applicable",
+      "evidence": "Recovery succeeded through the existing authorized VII publication conversation, so no reconnection was required."
+    }
+  ],
+  "outcome": "recovered",
+  "ready_work_remaining": false,
+  "verified_result": "VII v661 deployment appgdep_6ade03b696708191a2c7aea62843ae51 reached succeeded and the public admin login route returned HTTP 200."
+}

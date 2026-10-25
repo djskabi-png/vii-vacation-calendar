@@ -1,0 +1,27 @@
+{
+  "release": "v661",
+  "status": "succeeded",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_538fb50137848191a1aff4000582af26",
+  "deployment_id": "appgdep_6ade03b696708191a2c7aea62843ae51",
+  "source_commit": "03688236c4289ccb57291b2c2e71a6c873a4cf50",
+  "managed_commit": "c54bf9fceb08025b1f32013904397b9277136365",
+  "tree": "61fb4c25f5a7d0a7bdbcd66f2220ea268eab0c88",
+  "environment_revision": 29,
+  "public_url": "https://vii.spaplus.co/",
+  "verified_route": "https://vii.spaplus.co/admin/login?authError=admin_forbidden&returnTo=%2Fadmin%2Fusers",
+  "verified_route_status": 200,
+  "published_at_israel": "2026-10-25T15:31:49+02:00",
+  "recovery": {
+    "first_deployment_id": "appgdep_6ade02de15a48191ab79b294165f7db5",
+    "first_state": "failed",
+    "first_error": "Cloudflare Sandbox status 500: Container port connection closed unexpectedly",
+    "retry_policy": "One clean recovery deployment of the same saved version, with no new version and no further retry.",
+    "final_state": "succeeded"
+  },
+  "rollback": {
+    "release": "v660",
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_cbfc0f7c1b608191a1c52f03e144d7b8",
+    "deployment_id": "appgdep_6addfddc0f6481918d3f06a248d34c6e",
+    "source_commit": "18515c51747c6c94a0be459cda474abfb9822c70"
+  }
+}
