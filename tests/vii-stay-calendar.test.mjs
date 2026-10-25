@@ -59,7 +59,7 @@ test('official equivalent supplier scalar variants normalize without weakening i
 });
 test('calendar supplier request is bounded, no-store, fixed-origin and unpublished-safe',async()=>{
  const calls=[];const c=await supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),fetchImpl:async(url,init)=>{calls.push({url,init});return Response.json(raw());}});
- assert.equal(c.siteID,2566);assert.equal(calls.length,1);assert.match(calls[0].url,/^https:\/\/bizonline.co.il\/api\/ai\/vii\/vacations\/2566\/calendar\?/);assert.equal(calls[0].init.cache,'no-store');assert.equal(calls[0].init.redirect,'error');
+ assert.equal(c.siteID,2566);assert.equal(calls.length,1);assert.match(calls[0].url,/^https:\/\/bizonline.co.il\/api\/ai\/vii\/vacations\/2566\/calendar\?/);assert.equal(calls[0].init.cache,'no-store');assert.equal(calls[0].init.redirect,'follow');
  for(const invalid of [{siteID:7},{till:'2027-10-25'},{from:'2026-02-30'}])await assert.rejects(supplierStayCalendar({siteID,from,till,token:'test',publishedIds:new Set([siteID]),...invalid,fetchImpl:async()=>{throw Error('must not call');}}),/invalid_calendar/);
 });
 test('supplier calendar preserves safe upstream failure diagnostics',async()=>{

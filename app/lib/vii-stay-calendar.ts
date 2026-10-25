@@ -195,7 +195,10 @@ export async function supplierStayCalendar(options: { siteID: number; from: stri
   let response: Response;
   try {
     response = await (options.fetchImpl ?? fetch)(`https://bizonline.co.il/api/ai/vii/vacations/${siteID}/calendar?${new URLSearchParams({ from, till })}`, {
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000),
+      // The supplier's GET endpoints may issue an infrastructure redirect before
+      // returning JSON. Fetch strips Authorization on cross-origin redirects, while
+      // a same-origin redirect must be followed like the other working VII calls.
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(20_000),
     });
   } catch (error) {
     throw new SupplierCalendarError(error instanceof DOMException && error.name === "TimeoutError" ? "supplier_timeout" : "supplier_transport");
