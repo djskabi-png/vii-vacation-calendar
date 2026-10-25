@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { getPlaceAccessibility, VERIFIED_ACCESSIBILITY_FEATURE } from "../data/accessibility-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -11,10 +10,10 @@ export function ListingAccessibility({ slug, features, compact = false }: { slug
   const { translate } = useSiteLanguage();
   const detailsId = `accessibility-details-${slug}`;
   if (!information) return null;
-  if (compact) return <a className="place-accessibility-badge place-accessibility-badge--accessible" href="#accessibility" aria-label={`${translate(VERIFIED_ACCESSIBILITY_FEATURE)}: ${translate("למידע נוסף")}`}>
+  if (compact) return <span className="place-accessibility-badge place-accessibility-badge--accessible" aria-label={translate(VERIFIED_ACCESSIBILITY_FEATURE)}>
     <span>{translate(VERIFIED_ACCESSIBILITY_FEATURE)}</span>
     <small>{translate("למידע נוסף")}</small>
-  </a>;
+  </span>;
 
   return <section className={`place-accessibility place-accessibility--${information.status}`} id="accessibility">
       <button className="place-accessibility__summary" type="button" aria-expanded={isOpen} aria-controls={detailsId} onClick={() => setIsOpen((open) => !open)}>
@@ -29,7 +28,6 @@ export function ListingAccessibility({ slug, features, compact = false }: { slug
         {information.arrangements.length > 0 && <ul>{information.arrangements.map((arrangement) => <li key={arrangement}>{arrangement}</li>)}</ul>}
         <small>{information.sourceLabel}</small>
         <p className="place-accessibility__warning">לפני הזמנה מומלץ לאמת מול המקום את ההתאמות החשובות לכם.</p>
-        <Link href="/accessibility">נגישות האתר והסדרי השירות</Link>
       </div>
   </section>;
 }

@@ -5287,6 +5287,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-facts span { color: var(--ink-soft); font-size: .78rem; }
 .audience-chips { margin-top: 18px; }
 .property-about > p { color: var(--ink-soft); line-height: 1.85; }
+.property-about__toggle { display:none; }
 .property-highlights { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; margin-top: 24px; }
 .property-highlights article { min-width: 0; min-height: 128px; display: grid; align-content: center; justify-items: center; gap: 11px; padding: 15px 10px; border: 1px solid #d2e5e7; border-radius: 18px; background: linear-gradient(145deg,#fff,#f4fafb); text-align: center; }
 .property-highlights strong { max-width: 16ch; color: var(--ink-soft); font-size: .78rem; line-height: 1.45; }
@@ -5375,7 +5376,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__actions .button { text-decoration: none; }
 .room-card__image { padding: 0; border: 0; font: inherit; cursor: pointer; }
 .room-card__image:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
-.room-card__more { min-height: 44px; margin-inline-start: auto; padding: 9px 2px; border: 0; border-bottom: 1px solid #a7cfd4; color: var(--teal-dark); background: transparent; font: 800 .76rem/1.2 var(--font-sans); cursor: pointer; }
+.room-card__more { min-height: 44px; margin-inline-start: auto; padding: 9px 13px; border: 1px solid #a7cfd4; border-radius: 12px; color: var(--teal-dark); background: #f3fbfb; font: 800 .78rem/1.2 var(--font-sans); display:inline-flex; align-items:center; gap:7px; cursor: pointer; }
 .room-card__more:hover { border-color: var(--teal-dark); }
 .room-card__more:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; border-radius: 4px; }
 .room-card--inquiry { border-color: rgba(18, 106, 120, .16); box-shadow: 0 10px 30px rgba(0, 64, 77, .07); }
@@ -10246,10 +10247,21 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 
 /* The mobile contact dock stays close without adding a duplicate desktop CTA. */
 .floating-contact-actions {
-  display: none;
+  inset-inline-start: 22px;
+  bottom: 22px;
+  display: flex;
+  gap: 9px;
+  padding: 9px;
+  border: 1px solid rgba(10,92,101,.18);
+  border-radius: 18px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 16px 42px rgba(3,40,48,.2);
+  backdrop-filter: blur(14px);
   position: fixed;
   z-index: 80;
 }
+.floating-contact-actions > button,.floating-contact-actions > a { min-height:48px; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 17px; border:1px solid transparent; border-radius:12px; color:#fff; background:linear-gradient(135deg,#075f6b,#087e89); box-shadow:0 7px 16px rgba(5,91,102,.18); font:800 .86rem/1.2 var(--font-sans); text-decoration:none; cursor:pointer; }
+.floating-contact-actions .floating-contact-actions__whatsapp { border-color:#a9ddbd; color:#075b37; background:linear-gradient(135deg,#effbf4,#dcf5e6); }
 .back-to-top {
   position: fixed;
   z-index: 79;
@@ -10384,6 +10396,9 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
   .floating-contact-actions > :is(button,a):focus-visible { outline: 3px solid #f4b942; outline-offset: 2px; }
   .floating-contact-actions svg { width: 20px; height: 20px; flex: 0 0 20px; }
   .back-to-top { inset-inline-start: 12px; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
+  .property-about__description { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .property-about.is-expanded .property-about__description { display:block; overflow:visible; }
+  .property-about__toggle { display:inline-flex; min-height:44px; align-items:center; margin-top:6px; padding:6px 0; border:0; border-bottom:1px solid currentColor; color:var(--teal-dark); background:transparent; font:800 .82rem var(--font-sans); cursor:pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {

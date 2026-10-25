@@ -54,7 +54,8 @@ test("verified physical accessibility is recognized narrowly and shown before th
   assert.match(data, /"נגישות מלאה לנכים"/);
   assert.match(data, /verified\.has\(normalizeFeature\(feature\)\)/);
   assert.doesNotMatch(data, /includes\("נגיש"\)/);
-  assert.match(listing, /compact\).*href="#accessibility"/s);
+  assert.match(listing, /if \(compact\) return <span className="place-accessibility-badge/);
+  assert.doesNotMatch(listing, /href="#accessibility"/);
   assert.match(business, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{property\.slug\}[\s\S]*compact/);
   assert.match(event, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{place\.slug\}[\s\S]*compact/);
   assert.match(discovery, /ListingAccessibility slug=\{item\.id\} features=\{item\.features\} compact/);

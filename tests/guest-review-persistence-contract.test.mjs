@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("guest reviews use authenticated D1 and R2 persistence with pending moderation", async () => {
+test("guest reviews accept anonymous submissions into D1 and R2 with pending moderation", async () => {
   const [route, storage, studio, schema, hosting] = await Promise.all([
     read("app/api/reviews/route.ts"),
     read("app/lib/review-storage.ts"),
@@ -14,8 +14,8 @@ test("guest reviews use authenticated D1 and R2 persistence with pending moderat
   ]);
   assert.match(route, /readSession\(request\)/);
   assert.match(route, /review: null, authenticated: false/);
-  assert.match(route, /if \(!session\) return Response\.json/);
-  assert.match(route, /export async function POST\(request: Request\)[\s\S]*if \(!session\) return invalid\("כדי לשלוח חוות דעת ותמונות יש להתחבר עם גוגל", 401\)/);
+  assert.match(route, /const ownerId = session\?\.sub \|\| `guest:\$\{reviewId\}`/);
+  assert.doesNotMatch(route, /כדי לשלוח חוות דעת ותמונות יש להתחבר עם גוגל/);
   assert.match(route, /status: 201/);
   assert.match(route, /status = 'pending'|status, created_at/);
   assert.match(route, /MAX_PHOTOS = 8/);
@@ -26,6 +26,7 @@ test("guest reviews use authenticated D1 and R2 persistence with pending moderat
   assert.match(schema, /guestReviewFiles/);
   assert.deepEqual(JSON.parse(hosting), { project_id: "appgprj_6a71ccdca27481918bf04dd329d3eb21", d1: "DB", r2: "UPLOADS", capabilities: ["mcp"] });
   assert.doesNotMatch(studio, /localStorage/);
+  assert.doesNotMatch(studio, /api\/auth\/google/);
   assert.match(studio, /fetch\("\/api\/reviews"/);
   assert.match(studio, /aria-busy=\{submitting\}/);
   assert.match(studio, /name="photos"/);

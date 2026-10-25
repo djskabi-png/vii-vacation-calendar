@@ -638,7 +638,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.doesNotMatch(business, /property\.roomOptions\?\.length && !property\.sleepingArrangements/);
   assert.match(business, /room-card__facts/);
   assert.match(business, /className="room-card__more"/);
-  assert.match(business, />\{translate\("פרטי היחידה"\)\}<\/button>/);
+    assert.match(business, />\{translate\("כל פרטי היחידה"\)\}<\/button>/);
   assert.match(business, /<SleepingArrangements/);
   assert.match(unitDetails, /לכל תמונות היחידה/);
   assert.match(unitDetails, /עד \{room\.guests\} אורחים/);

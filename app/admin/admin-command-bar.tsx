@@ -80,7 +80,7 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
 
   return <>
     <header className={styles.commandBar} dir="rtl">
-      <div className={styles.commandIdentity}><span>VII Control</span><strong>{currentTitle(pathname)}</strong></div>
+      <div className={styles.commandIdentity}><span>V Control</span><strong>{currentTitle(pathname)}</strong></div>
       <button type="button" className={styles.commandSearch} onClick={() => setOpen(true)} aria-haspopup="dialog">
         <Search size={17} aria-hidden="true" /><span>חיפוש כלי, דוח או פעולה</span><kbd>Ctrl K</kbd>
       </button>

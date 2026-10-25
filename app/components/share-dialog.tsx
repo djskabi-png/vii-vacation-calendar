@@ -25,59 +25,59 @@ type ShareCopy = {
 const copy: Record<SiteLanguage, ShareCopy> = {
   he: {
     trigger: "שיתוף",
-    eyebrow: "משתפים דרך VII",
+    eyebrow: "משתפים דרך V",
     heading: "שיתוף המקום",
     description: "בחרו איך לשתף.",
-    preview: "מומלץ ב־VII",
+    preview: "מומלץ ב־V",
     copy: "העתקת קישור",
     copied: "הקישור הועתק",
     whatsapp: "וואטסאפ",
     facebook: "פייסבוק",
     email: "דואר אלקטרוני",
     close: "סגירת חלון השיתוף",
-    message: (title, kind) => kind === "article" ? `מצאתי ב־VII כתבה שכדאי לקרוא: ${title}` : kind === "event" ? `מצאתי ב־VII מקום לאירוע שיכול להתאים לנו: ${title}` : `מצאתי ב־VII מקום שיכול להתאים לנו: ${title}`,
+    message: (title, kind) => kind === "article" ? `מצאתי ב־V כתבה שכדאי לקרוא: ${title}` : kind === "event" ? `מצאתי ב־V מקום לאירוע שיכול להתאים לנו: ${title}` : `מצאתי ב־V מקום שיכול להתאים לנו: ${title}`,
   },
   en: {
     trigger: "Share",
-    eyebrow: "Share from VII",
+    eyebrow: "Share from V",
     heading: "Share this place",
     description: "Choose how to share.",
-    preview: "Recommended on VII",
+    preview: "Recommended on V",
     copy: "Copy link",
     copied: "Link copied",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
     email: "Email",
     close: "Close sharing window",
-    message: (title, kind) => kind === "article" ? `Worth reading: ${title}` : kind === "event" ? `I found an event venue: ${title}` : `I found this place on VII: ${title}`,
+    message: (title, kind) => kind === "article" ? `Worth reading: ${title}` : kind === "event" ? `I found an event venue: ${title}` : `I found this place on V: ${title}`,
   },
   ru: {
     trigger: "Поделиться",
-    eyebrow: "Поделиться с VII",
+    eyebrow: "Поделиться с V",
     heading: "Поделиться местом",
     description: "Выберите способ отправки.",
-    preview: "Рекомендовано на VII",
+    preview: "Рекомендовано на V",
     copy: "Копировать ссылку",
     copied: "Ссылка скопирована",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
     email: "Эл. почта",
     close: "Закрыть окно отправки",
-    message: (title, kind) => kind === "article" ? `Стоит прочитать: ${title}` : kind === "event" ? `Я нашёл площадку для мероприятия: ${title}` : `Я нашёл это место на VII: ${title}`,
+    message: (title, kind) => kind === "article" ? `Стоит прочитать: ${title}` : kind === "event" ? `Я нашёл площадку для мероприятия: ${title}` : `Я нашёл это место на V: ${title}`,
   },
   fr: {
     trigger: "Partager",
-    eyebrow: "Partager depuis VII",
+    eyebrow: "Partager depuis V",
     heading: "Partager ce lieu",
     description: "Choisissez comment le partager.",
-    preview: "Recommandé sur VII",
+    preview: "Recommandé sur V",
     copy: "Copier le lien",
     copied: "Lien copié",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
     email: "E-mail",
     close: "Fermer la fenêtre de partage",
-    message: (title, kind) => kind === "article" ? `À lire : ${title}` : kind === "event" ? `J'ai trouvé un lieu pour un événement : ${title}` : `J'ai trouvé ce lieu sur VII : ${title}`,
+    message: (title, kind) => kind === "article" ? `À lire : ${title}` : kind === "event" ? `J'ai trouvé un lieu pour un événement : ${title}` : `J'ai trouvé ce lieu sur V : ${title}`,
   },
 };
 
@@ -107,7 +107,7 @@ function SharePreviewImage({ image, title, imageAlt }: { image?: string; title: 
   const hasPhoto = Boolean(image?.trim()) && !photoFailed;
   return <span className={hasPhoto ? "share-dialog__image" : "share-dialog__logo"}>
     {hasPhoto ? <Image src={image!} width={240} height={180} unoptimized alt={imageAlt || title} title={imageAlt || title} onError={() => setPhotoFailed(true)} />
-      : logoFailed ? <span aria-label="VII">VII</span>
+      : logoFailed ? <span aria-label="V">V</span>
         : <Image src="/vii-logo.png" width={160} height={122} unoptimized alt="" title="" data-image-role="decorative" onError={() => setLogoFailed(true)} />}
   </span>;
 }

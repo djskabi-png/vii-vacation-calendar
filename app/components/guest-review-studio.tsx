@@ -155,10 +155,6 @@ export function GuestReviewStudio({
     try {
       const response = await fetch("/api/reviews", { method: "POST", body: values, credentials: "same-origin" });
       const payload = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        window.location.href = `/api/auth/google?return_to=${encodeURIComponent(`${window.location.pathname}${window.location.search}#reviews`)}`;
-        return;
-      }
       if (!response.ok) {
         setSubmitError(publicReviewError(payload.error, language, copy.genericError));
         return;

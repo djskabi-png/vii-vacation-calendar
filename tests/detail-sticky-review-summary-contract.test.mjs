@@ -40,6 +40,7 @@ test("mobile rating strip is placed directly after each rated gallery and stays 
 });
 
 test("business about section does not repeat the place name below the gallery", () => {
-  assert.match(business, /className="property-about"><h2>\{translate\("על המקום"\)\}<\/h2>/);
+  assert.match(business, /id="about" className=/);
+  assert.match(business, /<h2>\{translate\("על המקום"\)\}<\/h2>/);
   assert.doesNotMatch(business, /className="property-about"><h2>\{translate\("על"\)\} \{localizedPropertyName\}<\/h2>/);
 });

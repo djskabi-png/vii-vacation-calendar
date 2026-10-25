@@ -3,6 +3,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 export type QualitySeverity = "critical" | "high" | "medium" | "low";
 export type QualityStatus = "passed" | "failed" | "degraded" | "blocked";
 export type QualityContentKind = "html" | "xml" | "json" | "image";
+export type QualityRunLevel = "full" | "medium" | "regular";
 export type QualityCheck = {
   checkId: string;
   family: string;
@@ -168,8 +169,12 @@ async function registerChecks(db: D1Database, now: string) {
       check.cadenceMinutes, check.timeoutMs, check.expected, check.releaseBlocking ? 1 : 0, now)));
 }
 
-function checksDue(now: Date, trigger: "scheduled" | "manual") {
-  if (trigger === "manual") return [...qualityRegistry];
+function checksDue(now: Date, trigger: "scheduled" | "manual", level: QualityRunLevel = "full") {
+  if (trigger === "manual") {
+    if (level === "regular") return qualityRegistry.filter((check) => check.severity === "critical");
+    if (level === "medium") return qualityRegistry.filter((check) => check.severity === "critical" || check.severity === "high");
+    return [...qualityRegistry];
+  }
   const minute = Math.floor(now.getTime() / 60_000);
   return qualityRegistry.filter((check) => minute % check.cadenceMinutes === 0);
 }
@@ -230,7 +235,7 @@ async function deliverIncidentEmail(event: QualityIncidentEvent, env: QualityNot
   const configuration = emailConfiguration(env);
   if (!configuration.configured) return { status: "disabled", providerMessageId: null, reason: qualityNotificationProviderStatus(env) };
   const recovered = event.eventKind === "recovered";
-  const subject = recovered ? `[VII QA] נפתרה תקלה: ${event.check.checkId}` : `[VII QA] תקלה חדשה: ${event.check.checkId}`;
+  const subject = recovered ? `[V QA] נפתרה תקלה: ${event.check.checkId}` : `[V QA] תקלה חדשה: ${event.check.checkId}`;
   const dashboardUrl = new URL("/admin/quality", event.origin).toString();
   const text = [
     recovered ? "תקלה אוטומטית נפתרה בבדיקה חוזרת." : "בדיקת איכות אוטומטית זיהתה תקלה חדשה.",
@@ -302,14 +307,15 @@ async function reconcileIncident(db: D1Database, check: QualityCheck, result: { 
 
 export async function runQualityChecks(db: D1Database, options: {
   origin: string; trigger: "scheduled" | "manual"; scheduledAt?: Date; releaseId?: string; actor?: string; fetcher?: typeof fetch;
-  notificationEnv?: QualityNotificationEnvironment;
+  notificationEnv?: QualityNotificationEnvironment; level?: QualityRunLevel;
 }) {
   const nowDate = options.scheduledAt || new Date();
   const now = nowDate.toISOString();
   const runId = crypto.randomUUID();
+  const level = options.level || "full";
   const operationKey = options.trigger === "scheduled"
     ? `scheduled:${Math.floor(nowDate.getTime() / 300_000)}`
-    : `manual:${runId}`;
+    : `manual:${level}:${runId}`;
   const started = Date.now();
   await ensureQualitySchema(db);
   const staleBefore = new Date(nowDate.getTime() - RUN_STALE_AFTER_MS).toISOString();
@@ -317,9 +323,10 @@ export async function runQualityChecks(db: D1Database, options: {
     blocked_count=CASE WHEN blocked_count<1 THEN 1 ELSE blocked_count END
     WHERE status='running' AND started_at<?`).bind(now, RUN_STALE_AFTER_MS, staleBefore).run();
   await registerChecks(db, now);
-  const due = checksDue(nowDate, options.trigger);
+  const due = checksDue(nowDate, options.trigger, level);
+  const triggerKind = options.trigger === "manual" ? `manual_${level}` : options.trigger;
   await db.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor) VALUES (?,?,?,?,'running',?,?)
-    ON CONFLICT(operation_key) DO NOTHING`).bind(runId, operationKey, options.trigger, options.releaseId || null, now, options.actor || null).run();
+    ON CONFLICT(operation_key) DO NOTHING`).bind(runId, operationKey, triggerKind, options.releaseId || null, now, options.actor || null).run();
   const claimed = await db.prepare(`SELECT id,status FROM quality_runs WHERE operation_key=?`).bind(operationKey).first<{ id: string; status: string }>();
   if (!claimed || claimed.id !== runId) return { runId: claimed?.id || null, status: "skipped" as const, counts: null, checkCount: 0, startedAt: now, finishedAt: null };
   const counts = { passed: 0, failed: 0, degraded: 0, blocked: 0 };

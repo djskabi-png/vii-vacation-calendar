@@ -1,0 +1,103 @@
+{
+  "goal": "Deliver all 19 approved VII improvements as one safe, production-verified release without damaging approved design or behavior.",
+  "intent_model": {
+    "literal_request": "Execute the complete collected project, do not damage design or anything else, and contact Adir only after everything is live.",
+    "implied_outcome": "A coherent public and operational VII product where business details, units, galleries, contacts, reports and QQQAAA are accurate, usable and regression-protected.",
+    "likely_rejections": ["Partial implementation", "Local-only proof", "Numbers that do not reconcile", "A fix that damages another world or viewport", "Technical QA output that operators cannot understand"],
+    "interpretation_rules": [
+      {"phrase":"everything","operational_meaning":"The complete 19-item inventory and every shared affected family.","acceptance_impact":"No item can be omitted or represented by a sample only."},
+      {"phrase":"do not damage design or anything","operational_meaning":"Preserve every approved invariant outside the requested deltas.","acceptance_impact":"Before/after visual and functional regression is required."},
+      {"phrase":"contact me only when live","operational_meaning":"Continue autonomously through implementation, validation, publication and live verification.","acceptance_impact":"No final completion message before exact public evidence exists; only a genuine human-only blocker may interrupt."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Users see clear unit, availability and contact actions; operators see clear reports and QA meaning.",
+    "current_decision": "One obvious action or one sortable/reporting choice in each state.",
+    "next_action": "Complete the current booking, contact, moderation, report or QA action.",
+    "deferred_complexity": ["Raw API payloads", "professional QQQAAA diagnostics", "advanced report configuration"],
+    "preserved_depth": ["Expandable professional QA data", "full unit and availability detail", "advanced report filters and exports", "audit and rollback evidence"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-unified-19-workstreams-20261025.preflight.json",
+    "lesson_bundle_ids": ["VII-PROJECT-001","ADIR-QA-001","ADIR-DEPLOY-001","ADIR-DATA-001","ADIR-ADMIN-001","ADIR-CONTROL-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["public visitor", "Adir super-admin", "authorized employee", "QQQAAA operator"],
+  "natural_destination": "The published VII website and authenticated VII Control administration system.",
+  "facts": [
+    {"claim":"The public runtime is vii.spaplus.co and current project sources distinguish targets from verified production truth.","evidence":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+    {"claim":"WhatsApp must use an explicit supplier WhatsApp field and cannot be inferred from phone.","evidence":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md"},
+    {"claim":"QQQAAA explicitly excludes accessibility and typography checks under the current user instruction.","evidence":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}
+  ],
+  "assumptions": [
+    {"claim":"The current release worktree contains the complete approved production baseline through the prepared v664 candidate.","validation":"Compare branch, commit, build metadata and live release source before publication."},
+    {"claim":"Required supplier fields may already exist under alternate normalized or raw paths.","validation":"Inspect adapters, saved payload contracts and representative live/read-only API responses before declaring absence."}
+  ],
+  "in_scope": [
+    "All 19 collected requirements", "Cross-world shared component repair", "Biz and reporting reconciliation", "QQQAAA expansion", "Production publication and post-deploy verification"
+  ],
+  "out_of_scope": [
+    "Accessibility audit inside QQQAAA", "Actual calls, WhatsApp sends, leads, reviews or bookings", "AWS migration or infrastructure resumption", "Main-domain cutover", "Fabricated translations or supplier data"
+  ],
+  "invariants": [
+    "Approved visual language and hierarchy remain unchanged outside requested deltas.",
+    "Existing search, filters, selected dates, guests, pricing context and navigation remain intact.",
+    "Phone and WhatsApp stay separate and use their proper source fields.",
+    "No stale availability is presented as final availability.",
+    "No existing public content or capability disappears without an explicit requirement.",
+    "No real external conversion action is submitted during QA."
+  ],
+  "affected_family": [
+    "app/business and app/events/place business-detail templates",
+    "app/components unit, sleeping-arrangement and availability-calendar components",
+    "shared full-gallery and gallery-category components",
+    "shared direct-phone, WhatsAppLeadButton, FloatingContactActions and online-booking controls",
+    "public review submission APIs and administration moderation routes",
+    "app/admin/catalog-sync controls and shared form-control styling",
+    "app/admin/business-performance and Biz conversion/cache routes",
+    "app/admin/quality and scripts/run-qqqaaa.cjs",
+    "Hebrew, English, French and Russian routes using the changed components",
+    "desktop, 390px mobile, low-height, resize, reload and orientation states"
+  ],
+  "characteristics": {"stateful":true},
+  "requirements": [
+    {"id":"REQ-01","statement":"Show a separate complete unit card plus a distinct sleeping-arrangement explanation for every vacation suite/unit.","source":"User project items 1-3"},
+    {"id":"REQ-02","statement":"Map and display verified unit-level accommodation type data, or record the exact API gap.","source":"User project item 4"},
+    {"id":"REQ-03","statement":"Render supplier-defined gallery groups and names with correct membership and stable responsive behavior.","source":"User project item 5"},
+    {"id":"REQ-04","statement":"Clamp place description to 2-3 mobile lines with accessible expand/collapse and no contact overlap.","source":"User project item 6"},
+    {"id":"REQ-05","statement":"Group and order place attributes exactly by verified legacy/API taxonomy and suppress empty groups.","source":"User project item 7"},
+    {"id":"REQ-06","statement":"Allow public review submission without account login, queue VII reviews for moderation and preserve Biz automatic publication.","source":"User project item 8"},
+    {"id":"REQ-07","statement":"Keep verified place accessibility indicators in position without misleading statement or anchor links.","source":"User project item 9"},
+    {"id":"REQ-08","statement":"Use only explicit API WhatsApp numbers across all surfaces and hide unavailable WhatsApp actions.","source":"User project item 10"},
+    {"id":"REQ-09","statement":"Expose unit detail clearly and display total and available identical-unit counts in detail, sleeping and calendar states.","source":"User project item 11"},
+    {"id":"REQ-10","statement":"Replace visible VII brand shorthand with V without changing technical identifiers.","source":"User project item 12"},
+    {"id":"REQ-11","statement":"Unify Biz run progress counters around one persisted run identity and one monotonic source of truth.","source":"User project item 13"},
+    {"id":"REQ-12","statement":"Reconcile Biz WhatsApp and call totals, pagination, family mapping, date basis, deduplication and cache with authoritative data.","source":"User project item 14"},
+    {"id":"REQ-13","statement":"Present every QQQAAA event in plain Hebrew with impact and next action while retaining expandable professional evidence.","source":"User project item 15"},
+    {"id":"REQ-14","statement":"Modernize legacy-looking buttons, inputs, checkboxes, selects and related states across public and admin surfaces.","source":"User project item 16"},
+    {"id":"REQ-15","statement":"Show QQQAAA run level, progress, current simple-language check, counts, timing and professional detail.","source":"User project item 17"},
+    {"id":"REQ-16","statement":"Provide desktop and mobile floating phone/WhatsApp actions for vacation, event, hourly and supplier pages, and online-booking action for spa/attractions.","source":"User project item 18"},
+    {"id":"REQ-17","statement":"Make report headers sortable in both directions with correct data types, indicators, persistence, touch behavior and whole-result scope.","source":"User project item 19"},
+    {"id":"REQ-18","statement":"Add permanent QQQAAA prevention checks for every repaired family and the requested run presentation.","source":"User project-wide requirement"},
+    {"id":"REQ-19","statement":"Publish only the exact tested candidate and verify the exact public release without design regressions.","source":"Current explicit user instruction"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-01","requirement_ids":["REQ-01","REQ-02","REQ-03","REQ-04","REQ-05","REQ-09"],"kind":"success","setup":"Representative multi-unit vacation place with grouped galleries and amenities","action":"Open, inspect, expand, switch galleries and select dates on desktop and mobile","observable_result":"Every unit, sleeping arrangement, type, gallery, description, amenities and available/total count is correct and no content overlaps."},
+    {"id":"AC-02","requirement_ids":["REQ-06"],"kind":"persistence","setup":"Signed-out public visitor and authorized admin","action":"Submit a safe synthetic review payload without publication, then reload moderation","observable_result":"Submission requires no login, remains pending in admin after reload, and Biz-origin published state remains distinct; no public review is created during release QA."},
+    {"id":"AC-03","requirement_ids":["REQ-07","REQ-08","REQ-16"],"kind":"success","setup":"Representative pages with and without explicit WhatsApp, accessibility attribute and online booking","action":"Inspect floating and inline actions on desktop/mobile and exercise safe URL construction without sending","observable_result":"Only valid actions appear, use correct source fields, remain visible without overlap, and indicators are non-misleading."},
+    {"id":"AC-04","requirement_ids":["REQ-10","REQ-14"],"kind":"success","setup":"Public and admin component inventory","action":"Scan visible copy and render button/input/select/checkbox states","observable_result":"Visible brand shorthand is V, technical identifiers stay unchanged, and no legacy browser-default control remains in scope."},
+    {"id":"AC-05","requirement_ids":["REQ-11","REQ-12"],"kind":"persistence","setup":"One new Biz report run over a verified period","action":"Run, observe both progress surfaces, reload and compare summary/table/detail with authoritative response","observable_result":"One run identity, equal monotonic counters, complete pagination, stable cache and reconciled family totals are shown."},
+    {"id":"AC-06","requirement_ids":["REQ-13","REQ-15"],"kind":"success","setup":"Full, medium and regular safe QQQAAA runs with at least one representative finding fixture","action":"Start each level and inspect run/event/history states","observable_result":"Level, progress, current simple check, passed/failed/remaining counts, timing, human explanation, impact, next action and expandable professional fields are visible."},
+    {"id":"AC-07","requirement_ids":["REQ-17"],"kind":"persistence","setup":"Report with numeric, text, currency, rate and unavailable values plus active filters","action":"Sort each supported column in both directions, paginate, reload and export","observable_result":"Whole-result typed ordering, clear direction, stable filters and matching export persist."},
+    {"id":"AC-08","requirement_ids":["REQ-18"],"kind":"failure","setup":"Deliberately broken fixture for each new QQQAAA rule","action":"Run the relevant QA family","observable_result":"The new check fails with an actionable report and passes after restoration."},
+    {"id":"AC-09","requirement_ids":["REQ-19"],"kind":"rollback","setup":"Frozen release candidate and prior public version","action":"Publish once, verify exact version, critical routes and responsive states","observable_result":"Exact public artifact passes with a documented rollback identity and no high or critical issue."}
+  ],
+  "open_questions": [
+    {"question":"Do all requested unit classification, gallery grouping and identical inventory fields exist in the currently connected supplier contracts?","blocking":false,"resolution":"Audit every documented/raw supplier response and implement verified fields; record exact provider gap for unavailable fields without inventing data."}
+  ],
+  "authorization_boundary":"Implementation, safe read-only/synthetic testing and production publication are authorized. No real conversion, destructive production action, AWS work, main-domain cutover or fabricated supplier/content data.",
+  "ready_for_implementation":true
+}

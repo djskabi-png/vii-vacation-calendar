@@ -26,7 +26,7 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.match(dialog, /cleanShareUrl/);
   assert.match(dialog, /if \(id\) essential\.set\("id", id\)/);
   assert.match(dialog, /current\.hash = ""/);
-  assert.match(dialog, /מצאתי ב־VII מקום שיכול להתאים לנו/);
+  assert.match(dialog, /מצאתי ב־V מקום שיכול להתאים לנו/);
   assert.doesNotMatch(dialog, /<bdi>/);
   assert.match(dialog, /https:\/\/wa\.me\/\?text=/);
   assert.match(dialog, /facebook\.com\/sharer\/sharer\.php/);
@@ -62,7 +62,7 @@ test("sharing previews the actual entity cover, without the failing optimizer, a
   assert.match(article, /imageKind === "illustration"/);
   assert.match(dialog, /src=\{image!\}[\s\S]*?unoptimized[\s\S]*?onError=\{\(\) => setPhotoFailed\(true\)\}/);
   assert.match(dialog, /src="\/vii-logo\.png"[^>]*unoptimized[^>]*onError=\{\(\) => setLogoFailed\(true\)\}/);
-  assert.match(dialog, /logoFailed \? <span aria-label="VII">VII<\/span>/);
+  assert.match(dialog, /logoFailed \? <span aria-label="V">V<\/span>/);
   assert.match(dialog, /<SharePreviewImage key=\{image\}/);
   assert.match(css, /\.share-dialog__preview > \.share-dialog__logo img \{ object-fit: contain; \}/);
   assert.match(css, /\.share-dialog__preview strong \{[^}]*-webkit-line-clamp: 2/);

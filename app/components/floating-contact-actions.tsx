@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { DirectPhoneLink } from "./direct-phone-link";
+import { ShoppingBag } from "lucide-react";
 
 type Props = {
-  world: "vacation" | "events" | "hourly";
+  world: "vacation" | "events" | "hourly" | "providers" | "spa" | "activities";
   placeId: string;
   placeName: string;
   phone?: string;
@@ -14,9 +15,11 @@ type Props = {
   from?: string;
   till?: string;
   guests?: number;
+  onlineHref?: string;
+  onlineLabel?: string;
 };
 
-export function FloatingContactActions({ world, placeId, placeName, phone, whatsapp, serviceName, from, till, guests }: Props) {
+export function FloatingContactActions({ world, placeId, placeName, phone, whatsapp, serviceName, from, till, guests, onlineHref, onlineLabel = "הזמנה אונליין" }: Props) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     // Yield to the actual booking/contact area and footer instead of covering
@@ -24,9 +27,8 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     const targets = [...document.querySelectorAll<HTMLElement>("#event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .property-booking, .site-footer")];
     const intersections = new Set<Element>();
     const update = () => {
-      const compactViewport = window.matchMedia("(max-width: 767px)").matches;
       const blocked = intersections.size > 0;
-      setVisible(compactViewport && window.scrollY > 450 && !blocked);
+      setVisible(window.scrollY > 450 && !blocked);
     };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting ? intersections.add(entry.target) : intersections.delete(entry.target));
@@ -39,10 +41,11 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     return () => { observer.disconnect(); window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
   }, []);
   const callable = phone?.replace(/[^\d+]/g, "");
-  if ((!callable && !whatsapp) || !visible) return null;
+  if ((!callable && !whatsapp && !onlineHref) || !visible) return null;
 
   return <div className="floating-contact-actions" role="group" aria-label={`יצירת קשר עם ${placeName}`}>
     {callable ? <DirectPhoneLink phone={phone} placeName={placeName} tracking={{ placeId, placeName, world, placement: "floating_detail" }} /> : null}
     {whatsapp ? <WhatsAppLeadButton world={world} placeId={placeId} placeName={placeName} businessPhone={whatsapp} serviceName={serviceName} initialDate={from} initialTill={till} initialGuests={guests} buttonClassName="floating-contact-actions__whatsapp" /> : null}
+    {onlineHref ? <a className="floating-contact-actions__online" href={onlineHref}><ShoppingBag aria-hidden="true" />{onlineLabel}</a> : null}
   </div>;
 }

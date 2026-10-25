@@ -40,13 +40,14 @@ async function inspectAt(page, width) {
   });
 }
 
-test("floating phone and WhatsApp dock is hidden on desktop and polished at mobile widths", async (t) => {
+test("floating phone and WhatsApp dock is polished on desktop and mobile widths", async (t) => {
   if (!browserExecutable) return t.skip("No Chromium-family browser is available for rendered CSS verification");
   const browser = await chromium.launch({ headless: true, executablePath: browserExecutable });
   const page = await browser.newPage();
   try {
     const desktop = await inspectAt(page, 768);
-    assert.equal(desktop.display, "none");
+    assert.equal(desktop.display, "flex");
+    assert.ok(desktop.actions.every((action) => action.height >= 48));
 
     for (const width of [767, 390, 320]) {
       const mobile = await inspectAt(page, width);

@@ -31,7 +31,10 @@ type FailureRow = { errorCode: string; savedAt: string; retryAt: string };
 
 const pending = new Map<string, Promise<CachedBizConversion>>();
 const initialized = new WeakMap<object, Promise<void>>();
-const keyFor = (world: ConversionWorld, siteID: number, from: string, till: string) => `${world}:${siteID}:${from}:${till}:section`;
+// Versioned key: v2 intentionally represents every Biz portal. The previous
+// cache used domain=section and therefore showed only a small fraction of the
+// calls and WhatsApp conversations visible in the Biz report.
+const keyFor = (world: ConversionWorld, siteID: number, from: string, till: string) => `${world}:${siteID}:${from}:${till}:all-portals-v2`;
 
 async function ensureCache(db: D1Database) {
   const existing = initialized.get(db as object);
@@ -121,7 +124,7 @@ export async function loadCachedBizConversionFailures(db: D1Database, from: stri
   await ensureCache(db);
   const result = await db.prepare(`SELECT world, site_id AS siteID, error_code AS errorCode,
     saved_at AS savedAt, retry_at AS retryAt FROM vii_biz_conversion_failures_v1
-    WHERE from_day = ? AND till_day = ?`).bind(from, till).all<FailureRow & { world: string; siteID: number }>();
+    WHERE from_day = ? AND till_day = ? AND cache_key LIKE '%:all-portals-v2'`).bind(from, till).all<FailureRow & { world: string; siteID: number }>();
   return result.results.flatMap((row) => {
     const value = parsedFailure(row, now);
     return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
@@ -154,7 +157,7 @@ export async function loadCachedBizConversions(db: D1Database, from: string, til
   await ensureCache(db);
   const result = await db.prepare(`SELECT world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
     payload, saved_at AS savedAt, stale_after AS staleAfter
-    FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ?`)
+    FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ? AND cache_key LIKE '%:all-portals-v2'`)
     .bind(from, till).all<CacheRow>();
   return result.results.flatMap((row) => {
     const value = parsed(row, now);

@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Info } from "lucide-react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
@@ -148,6 +149,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const [galleryTopic, setGalleryTopic] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
@@ -398,7 +400,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section id="about" className="property-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p><div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
+            <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p className="property-about__description">{localizedDescription}</p>{localizedDescription.length > 190 ? <button className="property-about__toggle" type="button" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{aboutExpanded ? "הצגת פחות" : "המשך קריאה"}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
@@ -481,9 +483,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
                   {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
                   <div className="room-card__body">
-                    <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>{translate("פרטי היחידה")}</button></div>
+                    <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
                     {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div> : null}
-                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
+                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{room.quantity > 1 && roomAvailable ? <small>נמצאה זמינות בסוג הכולל {room.quantity} יחידות זהות. הכמות המדויקת תאושר בבחירה.</small> : null}{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${unitBookingQuery.toString()}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
                         : supplierSiteID && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>

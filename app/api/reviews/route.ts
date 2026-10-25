@@ -24,7 +24,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await readSession(request);
-  if (!session) return invalid("כדי לשלוח חוות דעת ותמונות יש להתחבר עם גוגל", 401);
 
   let data: FormData;
   try { data = await request.formData(); } catch { return invalid("לא הצלחנו לקרוא את הקבצים שנבחרו"); }
@@ -51,6 +50,8 @@ export async function POST(request: Request) {
   await ensureReviewSchema();
   const env = await reviewRuntimeEnv();
   const reviewId = crypto.randomUUID();
+  const ownerId = session?.sub || `guest:${reviewId}`;
+  const ownerEmail = session?.email || "";
   const now = new Date().toISOString();
   const bucket = await uploadsBucket();
   const storedKeys: string[] = [];
@@ -61,14 +62,14 @@ export async function POST(request: Request) {
       const fileId = crypto.randomUUID();
       const extension = file.name.includes(".") ? `.${safeSegment(file.name.split(".").pop() || "file")}` : "";
       const key = `guest-reviews/${safeSegment(subjectType)}/${safeSegment(subjectId)}/${reviewId}/${fileId}${extension}`;
-      await bucket.put(key, file.stream() as unknown as Parameters<typeof bucket.put>[1], { httpMetadata: { contentType: file.type }, customMetadata: { reviewId, kind, owner: session.sub } });
+      await bucket.put(key, file.stream() as unknown as Parameters<typeof bucket.put>[1], { httpMetadata: { contentType: file.type }, customMetadata: { reviewId, kind, owner: ownerId } });
       storedKeys.push(key);
       fileRows.push({ id: fileId, key, kind, file });
     }
     const statements = [env.DB.prepare(`INSERT INTO guest_reviews
       (id, subject_type, subject_id, place_name, user_id, user_email, author, visit_date, booking_reference, body, rating, status, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`)
-      .bind(reviewId, subjectType, subjectId, placeName, session.sub, session.email, author, visitDate, bookingReference, body, rating, now, now)];
+      .bind(reviewId, subjectType, subjectId, placeName, ownerId, ownerEmail, author, visitDate, bookingReference, body, rating, now, now)];
     for (const row of fileRows) statements.push(env.DB.prepare(`INSERT INTO guest_review_files
       (id, review_id, kind, object_key, original_name, content_type, byte_size, status, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`)

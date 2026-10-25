@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-unified-19-workstreams-20261025",
+  "project": "VII",
+  "task_type": "full-stack product implementation and production release",
+  "requested_outcome": "Implement all 19 approved public-site, administration, reporting and QQQAAA requirements without regressing the approved design, publish one complete candidate, and verify the exact public release.",
+  "natural_destination": "https://vii.spaplus.co and its authenticated administration system",
+  "authorization_boundary": "Code, data-mapping, tests and public publication are authorized by Adir. No real booking, lead, review, call, WhatsApp message, purchase, destructive data action, AWS resumption or domain cutover is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"VII-PROJECT-001","reason":"The work changes VII-specific business pages, units, galleries, contacts, reports and QQQAAA.","acceptance_impact":"Apply VII_PLATFORM_MASTER_PLAN and VII_FEEDBACK_STANDARD as product truth and test the full affected VII family."},
+    {"lesson_id":"ADIR-QA-001","reason":"Adir requested end-to-end completion and public verification.","acceptance_impact":"Map every one of the 19 requirements to exact public or operational evidence and block completion on any unverified item."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The task explicitly authorizes production publication.","acceptance_impact":"Freeze an exact candidate, preserve rollback identity, publish once, and verify the exact live version and critical routes."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Biz totals, progress counters, unit inventory and availability are visible metrics.","acceptance_impact":"Define source, formula, scope, period and reconciliation evidence for each changed metric."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The operational admin, reports and QA console are core deliverables.","acceptance_impact":"Verify loading, empty, success, failure, permissions, persistence, reload and natural operational reflection."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"The task changes buttons, sortable headers, floating actions and multiple visible controls.","acceptance_impact":"Exercise every changed control and expand a shared-component defect to the full family."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Equivalent components span all VII worlds and viewports.","acceptance_impact":"Keep structure and behavior aligned across worlds, desktop and mobile with documented exceptions only."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"Adir explicitly required that nothing else in the approved design be damaged.","acceptance_impact":"Record invariants before edits and reject any unrelated visual, copy, data or behavior change."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"One screenshot example is fixed while the same shared component remains broken in another world or viewport.","prevention":"Inventory all public and admin families that use each changed component and run family-wide regression.","acceptance_check":"Desktop and 390px evidence across vacations, events, hourly, spa, attractions and suppliers plus admin representatives."},
+    {"rejection":"Biz and availability numbers look polished but still disagree with the authoritative API or between panels.","prevention":"Trace the data pipeline, pagination, filters, deduplication and cache keys before changing display code.","acceptance_check":"Reconciliation fixtures and production reads show one run identity and explain every displayed total."},
+    {"rejection":"The release damages an approved layout, contact action, gallery or mobile state outside the requested delta.","prevention":"Freeze invariants and compare the complete affected family before and after.","acceptance_check":"Targeted-change regression evidence records unchanged hierarchy, content and behavior outside the delta."},
+    {"rejection":"QQQAAA still exposes technical codes without telling an operator what was checked and what to do.","prevention":"Add a plain-Hebrew presentation layer while retaining expandable professional evidence.","acceptance_check":"Live admin run shows level, progress, current check, simple explanation, impact, action and professional details."},
+    {"rejection":"Code and local tests pass but the public version does not contain the changes or has a new runtime failure.","prevention":"Publish the frozen tested artifact only and run post-deploy route, interaction, data and responsive checks.","acceptance_check":"Exact public version, deployment identity, direct URLs, screenshots and rollback are recorded."}
+  ],
+  "affected_family": [
+    "vacation, event, hourly, spa, attraction and supplier business-detail pages",
+    "unit cards, sleeping arrangement, calendar and availability inventory",
+    "gallery categories and mobile/desktop gallery states",
+    "phone, WhatsApp, online-booking and floating action families",
+    "reviews submission and moderation surfaces",
+    "admin business-performance and Biz conversion data pipeline",
+    "admin catalog sync controls and all native form/control families",
+    "admin QQQAAA summary, running state, event cards, history and schedules",
+    "Hebrew, English, French and Russian routes where shared components are used",
+    "desktop, 390px mobile, low-height, resize, reload and orientation states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII product decisions and current truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"Accepted VII page, contact, gallery, mobile and QQQAAA behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"User-approved 19-item project book","source":"current Codex task conversation, 25 October 2026"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After tracing the data contracts and completing one representative vacation detail, one admin report and one QQQAAA event slice before expanding shared components.",
+    "checks": [
+      "Representative unit inventory and gallery output uses real fields and preserves approved layout.",
+      "Representative Biz report totals and progress use one source of truth.",
+      "Representative QQQAAA event communicates plain Hebrew and retains professional details."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any of the 19 requirements still be found missing on the exact public version?",
+      "Can a shared control, contact action, gallery or report be broken in a second world, language or viewport?",
+      "Can any visible count disagree with its authoritative inventory, period, run or API source?",
+      "Can a mobile-to-desktop transition retain an overlay, scroll lock, overlap or hidden action?",
+      "Can an operator understand a QQQAAA event and its next action without reading technical identifiers?"
+    ],
+    "natural_destination_evidence": "Exact public and authenticated admin routes on the published version, including visible interactions, reload and persisted data.",
+    "affected_family_evidence": "Automated family matrix plus inspected desktop/mobile screenshots and live flows for every changed shared family."
+  },
+  "effectiveness": {
+    "baseline": "The user supplied 19 related deficiencies and explicitly reported repeated regressions across public and admin surfaces.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "All 19 requirements pass on one published version with zero unresolved critical or high regression findings."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

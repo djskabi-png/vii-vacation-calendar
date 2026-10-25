@@ -15,7 +15,8 @@ test("property data contract supports five CMS-selected highlights and grouped a
 });
 
 test("property page preserves description, highlights and full feature groups as separate components", () => {
-  assert.match(page, /<section id="about" className="property-about"><h2>\{translate\("על המקום"\)\}<\/h2><p>\{localizedDescription\}<\/p>/);
+  assert.match(page, /<section id="about" className=\{`property-about/);
+  assert.match(page, /<h2>\{translate\("על המקום"\)\}<\/h2><p className="property-about__description">\{localizedDescription\}<\/p>/);
   assert.match(page, /aria-label="הדברים הבולטים במקום"/);
   assert.match(page, /property-feature-groups/);
   assert.match(page, /modal-feature-groups/);
