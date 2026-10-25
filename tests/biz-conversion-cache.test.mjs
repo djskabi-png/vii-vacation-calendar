@@ -101,3 +101,49 @@ test("different businesses and ranges do not share a cache key", async () => {
   assert.equal(calls, 3);
   assert.equal(db.rows.size, 3);
 });
+
+test("a closed Biz period stays reusable for one week", async () => {
+  const db = new MemoryDatabase(); let calls = 0;
+  const firstNow = new Date("2026-10-25T08:00:00Z");
+  await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-09-01", till: "2026-09-30",
+    now: firstNow, fetcher: async () => { calls += 1; return { ...fixture(), from: "2026-09-01", till: "2026-09-30" }; } });
+  const later = await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-09-01", till: "2026-09-30",
+    now: new Date("2026-10-31T08:00:00Z"), fetcher: async () => { calls += 1; return { ...fixture(), from: "2026-09-01", till: "2026-09-30" }; } });
+  assert.equal(later.cache.status, "fresh");
+  assert.equal(later.cache.stale, false);
+  assert.equal(calls, 1);
+});
+
+test("a period containing today still expires and refreshes", async () => {
+  const db = new MemoryDatabase(); let calls = 0;
+  const fetcher = async () => { calls += 1; return fixture(); };
+  await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-25",
+    now: new Date("2026-10-25T08:00:00Z"), fetcher });
+  await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-25",
+    now: new Date("2026-10-25T08:31:00Z"), fetcher });
+  assert.equal(calls, 2);
+});
+
+test("an expired historical Biz snapshot opens immediately and refreshes in the background", async () => {
+  const db = new MemoryDatabase(); let calls = 0; const deferred = [];
+  let releaseRefresh;
+  const refreshGate = new Promise((resolve) => { releaseRefresh = resolve; });
+  const fetcher = async () => {
+    calls += 1;
+    if (calls > 1) await refreshGate;
+    return { ...fixture(), from: "2026-09-01", till: "2026-09-30" };
+  };
+  await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-09-01", till: "2026-09-30",
+    now: new Date("2026-10-01T08:00:00Z"), fetcher });
+  const result = await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-09-01", till: "2026-09-30",
+    now: new Date("2026-10-09T08:00:00Z"), deferRefresh: (operation) => deferred.push(operation), fetcher });
+  assert.equal(result.cache.status, "stale_fallback");
+  assert.equal(calls, 2);
+  assert.equal(deferred.length, 1);
+  releaseRefresh();
+  await deferred[0];
+  const refreshed = await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-09-01", till: "2026-09-30",
+    now: new Date("2026-10-09T08:01:00Z"), fetcher });
+  assert.equal(refreshed.cache.status, "fresh");
+  assert.equal(calls, 2);
+});

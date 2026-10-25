@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-report-cache-speed-20261025",
+  "project": "VII",
+  "task_type": "backend-performance",
+  "requested_outcome": "Make administration reports open and save quickly by persisting immutable historical Biz, call and WhatsApp data and refreshing only mutable periods.",
+  "natural_destination": "VII administration business-performance and lead reports",
+  "authorization_boundary": "Local code, tests and release candidate are authorized. Production publication remains a separate action unless explicitly authorized.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Caching must preserve exact metric semantics, date basis and source truth.",
+      "acceptance_impact": "Historical snapshots must return the same source-derived values and expose freshness rather than fabricate completeness."
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "The administration system is a daily operational product and saved state must survive reload.",
+      "acceptance_impact": "Cached reports persist in the server database, survive a new request and do not depend on browser memory."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A cache optimization can silently regress data correctness or refresh behavior.",
+      "acceptance_impact": "Tests cover cold, warm, immutable, mutable, forced refresh, failure fallback and affected report families."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The same historical Biz period is fetched from the supplier again and remains slow.",
+      "prevention": "Mark a range ending before today as immutable and reuse its saved snapshot unless an administrator explicitly forces refresh.",
+      "acceptance_check": "A second and later historical read makes zero supplier calls, including after the ordinary six-hour freshness window."
+    },
+    {
+      "rejection": "Only Biz is cached while WhatsApp, calls or the base report still recompute unnecessarily.",
+      "prevention": "Inventory all report sources and apply persistent historical cache policy to the shared report layer and local lead report.",
+      "acceptance_check": "Business performance, conversion detail and WhatsApp report tests prove persistent reuse for closed periods."
+    },
+    {
+      "rejection": "The cache serves an incomplete result as complete or never refreshes current-day data.",
+      "prevention": "Keep current-day ranges short-lived, preserve explicit force refresh and report cache metadata.",
+      "acceptance_check": "Mutable-period tests expire normally and stale-source failure falls back only to the last good saved result."
+    },
+    {
+      "rejection": "A large report still waits for all Biz businesses even when most are already saved.",
+      "prevention": "Load saved successes and saved failures before batching and submit only unresolved targets.",
+      "acceptance_check": "Batch selection and API tests show cached targets are not sent upstream again."
+    }
+  ],
+  "affected_family": [
+    "business performance aggregate report",
+    "Biz conversion summary and contact detail report",
+    "Maskyoo call conversion metrics",
+    "WhatsApp supplier conversion metrics",
+    "VII stored WhatsApp leads",
+    "report persistence and failure fallback",
+    "scheduled cache warming"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform and data truth",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "Accepted VII report behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After immutable historical cache policy and unit tests pass, before adding scheduled warming or UI changes.",
+    "checks": [
+      "Historical range remains fresh after ordinary TTL",
+      "Current-day range still expires",
+      "Forced refresh still reaches the supplier",
+      "Last-good fallback survives supplier failure"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a closed historical range trigger an unforced supplier request?",
+      "Can current-day data become permanently frozen?",
+      "Can a cache write or supplier failure erase the last good report?",
+      "Can two equivalent parameter objects create different report keys?",
+      "Can a report claim full coverage when targets failed?"
+    ],
+    "natural_destination_evidence": "Authenticated administration report on the exact release candidate, then the published version only after publication authorization.",
+    "affected_family_evidence": "Automated tests for report cache, Biz snapshots, report rows, WhatsApp leads and scheduler integration."
+  },
+  "effectiveness": {
+    "baseline": "Observed implementation uses a six-hour Biz snapshot TTL and revalidates historical exact ranges after expiry; an all-business pull can take many minutes.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Previously saved closed-period report reads perform no supplier calls and complete from D1 storage."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

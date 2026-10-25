@@ -63,3 +63,45 @@ test("report remains available when persistent cache write fails", async () => {
   assert.equal(result.cache.status, "bypassed");
   assert.equal(result.value.rows[0].placeId, "vacation-2");
 });
+
+test("immutable historical report is reused after its original freshness window", async () => {
+  const db = new Database(); let calls = 0;
+  await cachedAdminReport({ db, family: "business-performance", parameters: { from: "2026-09-01", till: "2026-09-30" },
+    freshForMs: 1, immutable: true, now: new Date("2026-10-01T08:00:00Z"), loader: async () => ({ calls: ++calls }) });
+  const later = await cachedAdminReport({ db, family: "business-performance", parameters: { from: "2026-09-01", till: "2026-09-30" },
+    freshForMs: 1, immutable: true, now: new Date("2027-10-01T08:00:00Z"), loader: async () => ({ calls: ++calls }) });
+  assert.equal(later.cache.status, "fresh");
+  assert.equal(later.value.calls, 1);
+  assert.equal(calls, 1);
+});
+
+test("explicit refresh can replace an immutable historical report", async () => {
+  const db = new Database();
+  const base = { db, family: "business-performance", parameters: { from: "2026-09-01", till: "2026-09-30" },
+    freshForMs: 1, immutable: true, now: new Date("2026-10-01T08:00:00Z") };
+  await cachedAdminReport({ ...base, loader: async () => ({ total: 10 }) });
+  const result = await cachedAdminReport({ ...base, forceRefresh: true, loader: async () => ({ total: 12 }) });
+  assert.equal(result.value.total, 12);
+  assert.equal(result.cache.status, "saved");
+});
+
+test("expired report can return immediately while one deferred refresh replaces it", async () => {
+  const db = new Database(); let calls = 0; const deferred = [];
+  let releaseRefresh;
+  const refreshGate = new Promise((resolve) => { releaseRefresh = resolve; });
+  const parameters = { from: "2026-09-01", till: "2026-09-30" };
+  await cachedAdminReport({ db, family: "business-conversions", parameters, freshForMs: 1,
+    now: new Date("2026-10-01T08:00:00Z"), loader: async () => ({ total: ++calls }) });
+  const result = await cachedAdminReport({ db, family: "business-conversions", parameters, freshForMs: 1,
+    now: new Date("2026-10-02T08:00:00Z"), deferRefresh: (operation) => deferred.push(operation),
+    loader: async () => { calls += 1; await refreshGate; return { total: calls }; } });
+  assert.equal(result.cache.status, "stale_fallback");
+  assert.equal(result.value.total, 1);
+  assert.equal(deferred.length, 1);
+  releaseRefresh();
+  await deferred[0];
+  const refreshed = await cachedAdminReport({ db, family: "business-conversions", parameters, freshForMs: 3600_000,
+    now: new Date("2026-10-02T08:00:00Z"), loader: async () => ({ total: ++calls }) });
+  assert.equal(refreshed.value.total, 2);
+  assert.equal(calls, 2);
+});

@@ -10,6 +10,8 @@ import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReport
 import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
 import { mergeBusinessPerformanceRows } from "../../../lib/business-performance-rows.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
+import { isClosedReportPeriod } from "../../../lib/report-date-policy.ts";
+import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -65,10 +67,12 @@ export async function GET(request: Request) {
     if (converted !== null && converted !== "yes" && converted !== "no") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     try {
       const database = await requiredRuntimeDatabase("business_conversion_report_unavailable");
-      const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
+      const historical = isClosedReportPeriod(till);
       const report = await cachedAdminReport({ db: database, family: "business-conversions", parameters: {
         world: target.world, siteID: target.siteID, from, till, source: source || "all", converted: converted || "all", includeContacts,
-      }, freshForMs: historical ? 6 * 60 * 60_000 : 2 * 60_000, forceRefresh: url.searchParams.get("refresh") === "1",
+      }, freshForMs: historical ? 7 * 86400_000 : 2 * 60_000,
+      deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
+      forceRefresh: url.searchParams.get("refresh") === "1",
       loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
         source: source || undefined, converted: converted || undefined, includeContacts }) });
       return Response.json({ conversions: report.value, reportCache: report.cache }, { headers });
@@ -93,9 +97,9 @@ export async function GET(request: Request) {
   const until = nextDay(till);
   try {
     const cacheDb = await requiredRuntimeDatabase("business_performance_database_unavailable");
-    const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
+    const historical = isClosedReportPeriod(till);
     const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
-      freshForMs: historical ? 7 * 86400_000 : 2 * 60_000, forceRefresh, loader: async () => {
+      freshForMs: historical ? 365 * 86400_000 : 2 * 60_000, immutable: historical, forceRefresh, loader: async () => {
     const [analyticsDb, operationsDb, inventory] = await Promise.all([businessAnalyticsDatabase(), operationsDatabase(), supportedInventory()]);
     const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
@@ -219,6 +223,7 @@ export async function POST(request: Request) {
           if (failure && !failure.cache.stale) return { placeId, error: failure.error, cache: failure.cache };
         }
         const result = await cachedBizConversions({ db: cacheDb, ...target, from, till, forceRefresh: body.forceRefresh === true,
+          deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
           fetcher: () => fetchViiConversions({ ...target, from, till, token, sectionOnly: true }) });
         return { placeId, conversions: result.conversions, cache: result.cache };
       } catch (error) {

@@ -39,6 +39,8 @@ export async function cachedAdminReport<T>(options: {
   parameters: Record<string, unknown>;
   freshForMs: number;
   staleForMs?: number;
+  immutable?: boolean;
+  deferRefresh?: (operation: Promise<void>) => void;
   forceRefresh?: boolean;
   loader: () => Promise<T>;
   now?: Date;
@@ -56,20 +58,26 @@ export async function cachedAdminReport<T>(options: {
     return { value, cache: { status: "bypassed", savedAt: now.toISOString(), stale: false } };
   }
   const parsed = (() => { try { return row ? JSON.parse(row.payload) as T : null; } catch { return null; } })();
-  if (parsed !== null && Date.parse(row!.freshUntil) > now.getTime() && !options.forceRefresh) {
+  if (parsed !== null && (options.immutable || Date.parse(row!.freshUntil) > now.getTime()) && !options.forceRefresh) {
     return { value: parsed, cache: { status: "fresh", savedAt: row!.savedAt, stale: false } };
   }
   const active = pending.get(cacheKey);
-  if (active) return active as Promise<{ value: T; cache: AdminReportCacheMeta }>;
-  const operation = (async () => {
+  if (active) {
+    if (parsed !== null && !options.forceRefresh && options.deferRefresh) {
+      options.deferRefresh(active.then(() => undefined).catch(() => undefined));
+      return { value: parsed, cache: { status: "stale_fallback", savedAt: row!.savedAt, stale: true } };
+    }
+    return active as Promise<{ value: T; cache: AdminReportCacheMeta }>;
+  }
+  const refresh = () => (async () => {
     try {
       const value = await options.loader();
       try {
         const payload = JSON.stringify(value);
         if (payload.length > 5_000_000) throw new Error("admin_report_cache_payload_too_large");
         const savedAt = now.toISOString();
-        const freshUntil = new Date(now.getTime() + options.freshForMs).toISOString();
-        const staleUntil = new Date(now.getTime() + (options.staleForMs ?? 30 * 86400_000)).toISOString();
+        const freshUntil = options.immutable ? "9999-12-31T23:59:59.999Z" : new Date(now.getTime() + options.freshForMs).toISOString();
+        const staleUntil = options.immutable ? "9999-12-31T23:59:59.999Z" : new Date(now.getTime() + (options.staleForMs ?? 30 * 86400_000)).toISOString();
         await options.db.prepare(`INSERT INTO vii_admin_report_cache_v1
           (cache_key, family, parameters, payload, saved_at, fresh_until, stale_until) VALUES (?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(cache_key) DO UPDATE SET payload = excluded.payload, saved_at = excluded.saved_at,
@@ -88,6 +96,13 @@ export async function cachedAdminReport<T>(options: {
       pending.delete(cacheKey);
     }
   })();
+  if (parsed !== null && !options.forceRefresh && options.deferRefresh) {
+    const operation = refresh();
+    pending.set(cacheKey, operation as Promise<{ value: unknown; cache: AdminReportCacheMeta }>);
+    options.deferRefresh(operation.then(() => undefined).catch(() => undefined));
+    return { value: parsed, cache: { status: "stale_fallback", savedAt: row!.savedAt, stale: true } };
+  }
+  const operation = refresh();
   pending.set(cacheKey, operation as Promise<{ value: unknown; cache: AdminReportCacheMeta }>);
   return operation;
 }

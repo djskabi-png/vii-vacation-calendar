@@ -1,8 +1,10 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { parseViiConversionSummary, type ConversionSummary, type ConversionWorld } from "./vii-conversions.ts";
+import { isClosedReportPeriod } from "./report-date-policy.ts";
 
-const FRESH_FOR_MS = 6 * 60 * 60 * 1000;
+const LIVE_FRESH_FOR_MS = 30 * 60 * 1000;
+const HISTORICAL_FRESH_FOR_MS = 7 * 86400_000;
 
 export type BizConversionCacheStatus = "saved" | "fresh" | "stale_fallback";
 export type CachedBizConversion = {
@@ -55,27 +57,28 @@ async function ensureCache(db: D1Database) {
   return initialization;
 }
 
-function parsed(row: CacheRow | null): CachedBizConversion | null {
+function parsed(row: CacheRow | null, now = new Date()): CachedBizConversion | null {
   if (!row) return null;
   try {
     const conversions = parseViiConversionSummary(JSON.parse(row.payload), { siteID: Number(row.siteID), from: row.fromDay, till: row.tillDay });
-    return { conversions, cache: { status: "fresh", savedAt: row.savedAt, stale: Date.parse(row.staleAfter) <= Date.now() } };
+    return { conversions, cache: { status: "fresh", savedAt: row.savedAt, stale: Date.parse(row.staleAfter) <= now.getTime() } };
   } catch {
     return null;
   }
 }
 
-async function readOne(db: D1Database, world: ConversionWorld, siteID: number, from: string, till: string) {
+async function readOne(db: D1Database, world: ConversionWorld, siteID: number, from: string, till: string, now = new Date()) {
   const row = await db.prepare(`SELECT world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
     payload, saved_at AS savedAt, stale_after AS staleAfter
     FROM vii_biz_conversion_snapshots_v1 WHERE cache_key = ?`)
     .bind(keyFor(world, siteID, from, till)).first<CacheRow>();
-  return parsed(row);
+  return parsed(row, now);
 }
 
 async function save(db: D1Database, world: ConversionWorld, from: string, till: string, conversions: ConversionSummary, now: Date) {
   const savedAt = now.toISOString();
-  const staleAfter = new Date(now.getTime() + FRESH_FOR_MS).toISOString();
+  const freshForMs = isClosedReportPeriod(till, now) ? HISTORICAL_FRESH_FOR_MS : LIVE_FRESH_FOR_MS;
+  const staleAfter = new Date(now.getTime() + freshForMs).toISOString();
   const aggregate: ConversionSummary = { ...conversions };
   delete aggregate.contacts;
   await db.batch([db.prepare(`INSERT INTO vii_biz_conversion_snapshots_v1
@@ -147,14 +150,14 @@ export async function bizConversionDatabase() {
   return db;
 }
 
-export async function loadCachedBizConversions(db: D1Database, from: string, till: string) {
+export async function loadCachedBizConversions(db: D1Database, from: string, till: string, now = new Date()) {
   await ensureCache(db);
   const result = await db.prepare(`SELECT world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
     payload, saved_at AS savedAt, stale_after AS staleAfter
     FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ?`)
     .bind(from, till).all<CacheRow>();
   return result.results.flatMap((row) => {
-    const value = parsed(row);
+    const value = parsed(row, now);
     return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
   });
 }
@@ -168,17 +171,25 @@ export async function cachedBizConversions(options: {
   forceRefresh?: boolean;
   fetcher: () => Promise<ConversionSummary>;
   now?: Date;
+  deferRefresh?: (operation: Promise<void>) => void;
 }): Promise<CachedBizConversion> {
   await ensureCache(options.db);
   const cacheKey = keyFor(options.world, options.siteID, options.from, options.till);
-  const existing = await readOne(options.db, options.world, options.siteID, options.from, options.till);
+  const now = options.now ?? new Date();
+  const existing = await readOne(options.db, options.world, options.siteID, options.from, options.till, now);
   if (existing && !existing.cache.stale && !options.forceRefresh) return existing;
   const active = pending.get(cacheKey);
-  if (active) return active;
-  const operation = (async () => {
+  if (active) {
+    if (existing && !options.forceRefresh && options.deferRefresh) {
+      options.deferRefresh(active.then(() => undefined).catch(() => undefined));
+      return { ...existing, cache: { ...existing.cache, status: "stale_fallback", stale: true } };
+    }
+    return active;
+  }
+  const refresh = () => (async () => {
     try {
       const conversions = await options.fetcher();
-      return await save(options.db, options.world, options.from, options.till, conversions, options.now ?? new Date());
+      return await save(options.db, options.world, options.from, options.till, conversions, now);
     } catch (error) {
       if (existing) return { ...existing, cache: { ...existing.cache, status: "stale_fallback" as const, stale: true } };
       throw error;
@@ -186,6 +197,13 @@ export async function cachedBizConversions(options: {
       pending.delete(cacheKey);
     }
   })();
+  if (existing && !options.forceRefresh && options.deferRefresh) {
+    const operation = refresh();
+    pending.set(cacheKey, operation);
+    options.deferRefresh(operation.then(() => undefined).catch(() => undefined));
+    return { ...existing, cache: { ...existing.cache, status: "stale_fallback", stale: true } };
+  }
+  const operation = refresh();
   pending.set(cacheKey, operation);
   return operation;
 }
