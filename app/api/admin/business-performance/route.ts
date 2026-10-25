@@ -56,12 +56,20 @@ export async function GET(request: Request) {
     const source = url.searchParams.get("source");
     const converted = url.searchParams.get("converted");
     const includeContacts = url.searchParams.get("details") === "1";
+    if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365) {
+      return Response.json({ error: "invalid_period" }, { status: 400, headers });
+    }
     if (source !== null && source !== "whatsapp" && source !== "maskyoo" && source !== "form") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (converted !== null && converted !== "yes" && converted !== "no") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     try {
-      const conversions = await fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
-        source: source || undefined, converted: converted || undefined, includeContacts });
-      return Response.json({ conversions }, { headers });
+      const database = await bizConversionDatabase();
+      const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
+      const report = await cachedAdminReport({ db: database, family: "business-conversions", parameters: {
+        world: target.world, siteID: target.siteID, from, till, source: source || "all", converted: converted || "all", includeContacts,
+      }, freshForMs: historical ? 6 * 60 * 60_000 : 2 * 60_000, forceRefresh: url.searchParams.get("refresh") === "1",
+      loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
+        source: source || undefined, converted: converted || undefined, includeContacts }) });
+      return Response.json({ conversions: report.value, reportCache: report.cache }, { headers });
     } catch (error) {
       if (error instanceof ViiConversionsError) {
         const status = error.code === "invalid_request" ? 400 : error.code === "not_supported" ? 404 : 503;
