@@ -81,10 +81,15 @@ test("bookable vacation uses one quick-book action while incomplete data keeps d
   assert.match(vacationHub, /state === "available-price"/);
 });
 
-test("last-minute online booking preserves the exact supplier room through checkout", () => {
+test("last-minute entry highlights its source room but rechecks the whole property before checkout", () => {
   assert.match(homeDeals, /deal\.roomID \? \{ roomID: String\(deal\.roomID\) \} : \{\}/);
   assert.match(businessPage, /initialRoomID=\{params\.roomID\}/);
-  assert.match(business, /preferredSupplierRoomID[\s\S]*useViiStayQuote\([\s\S]*preferredSupplierRoomID\)/);
+  assert.match(business, /highlightedSupplierRoomID[\s\S]*property page must re-evaluate the whole complex/);
+  assert.match(business, /useViiStayQuote\(supplierSiteID \? Number\(supplierSiteID\) : null, dateRange\.from, dateRange\.till, guests, supplierRooms\)/);
+  assert.match(business, /assessCalendarStay\(supplierCalendar\.calendar, dateRange\.from, dateRange\.till\)/);
+  assert.match(business, /supplierAvailableRoomIDs = supplierCalendarStay\?\.allowed \? supplierCalendarStay\.roomIDs/);
+  assert.match(business, /היחידה שממנה הגעתם · כל יחידות המתחם נבדקות/);
+  assert.doesNotMatch(business, /useViiStayQuote\([^\n]*highlightedSupplierRoomID/);
   assert.match(stayQuoteHook, /\.\.\.\(roomID \? \{ roomID \} : \{\}\)/);
   assert.match(booking, /useViiStayQuote\([\s\S]*props\.supplierRoomID\)/);
   assert.match(business, /onlineHref=\{activeWorld === "vacation" \? "#booking-summary"/);

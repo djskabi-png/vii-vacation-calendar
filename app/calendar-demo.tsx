@@ -218,7 +218,7 @@ function CalendarMonth({
   secondary?: boolean;
   locale: string;
   availabilityResolver?: (date: Date) => Availability;
-  priceResolver?: (date: Date) => number;
+  priceResolver?: (date: Date) => number | undefined;
   desktopVisible?: boolean;
   liveCalendar?: StayCalendar | null;
   illustrative?: boolean;
@@ -264,6 +264,8 @@ function CalendarMonth({
           const isEnd = key === checkOut;
           const inRange = Boolean(checkIn && checkOut && key > checkIn && key < checkOut);
 
+          const price = priceResolver?.(date);
+          const liveDay = liveCalendar ? stayCalendarDay(liveCalendar, key) : null;
           return (
             <button
               type="button"
@@ -277,11 +279,11 @@ function CalendarMonth({
               ].filter(Boolean).join(" ")}
               disabled={disabled}
               aria-pressed={isStart || isEnd}
-              aria-label={`${date.getDate()} ${monthLabel(month, locale)}, ${canBeCheckout ? "אפשרי כתאריך עזיבה" : state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}`}
+              aria-label={`${date.getDate()} ${monthLabel(month, locale)}, ${canBeCheckout ? "אפשרי כתאריך עזיבה" : state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}${price ? `, החל מ-${price.toLocaleString("he-IL")} שקלים ל-${liveDay?.priceNights || min} לילות` : ""}`}
               onClick={() => onChoose(date)}
             >
               <span className="demo-day-number">{date.getDate()}</span>
-              {priceResolver && state.kind !== "past" ? <span className="demo-day-price" dir="rtl">{priceResolver(date).toLocaleString("he-IL")} ₪</span> : null}
+              {price && state.kind !== "past" ? <span className="demo-day-price" dir="rtl">מ־{price.toLocaleString("he-IL")} ₪</span> : null}
               {mode === "business" && state.kind !== "past" && !state.unknown && (
                 <span className="demo-availability">
                   {canBeCheckout ? "עזיבה" : state.kind === "busy" ? "תפוס" : businessKind === "single" ? "פנוי" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}
@@ -328,7 +330,7 @@ export function CalendarDemo({
   maxGuests?: number;
   onGuestsChange?: (guests: number) => void;
   availabilityResolver?: (date: Date) => Availability;
-  priceResolver?: (date: Date) => number;
+  priceResolver?: (date: Date) => number | undefined;
   liveCalendar?: StayCalendar | null;
   calendarRequired?: boolean;
   calendarStatus?: "idle" | "loading" | "ready" | "error";

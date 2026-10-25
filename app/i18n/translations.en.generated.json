@@ -8485,5 +8485,10 @@
   "ספקים ב": "Providers in ",
   "עם מחיר מאומת": "with verified price",
   "המפה נטענת…": "Loading the map…",
-  "לשהייה": "For the stay"
+  "לשהייה": "For the stay",
+  "היחידה אינה פנויה בתאריכים שבחרתם": "This unit is unavailable for your selected dates",
+  "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות": "Your original unit · all property units are being checked",
+  ", החל מ-": ", from ",
+  "שקלים ל-": "ILS for ",
+  "מקומות פנויים": "available properties"
 }

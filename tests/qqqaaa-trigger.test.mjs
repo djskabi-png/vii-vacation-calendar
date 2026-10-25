@@ -35,3 +35,11 @@ test("QQQAAA has an explicit administrator and customer identity boundary gate",
   assert.match(packageJson.scripts["qa:auth-boundaries"], /account-frontend-contract\.test\.mjs/);
   assert.match(packageJson.scripts["qa:auth-boundaries"], /launch-seo\.test\.mjs/);
 });
+
+test("QQQAAA permanently guards the production repairs required before Professor", () => {
+  assert.match(runner, /pre-professor-production-repairs/);
+  const suite = packageJson.scripts["qa:pre-professor-repairs"];
+  for (const file of ["booking-mode-contract.test.mjs", "vii-stay-calendar.test.mjs", "last-minute-page.test.mjs", "geography-missing-map-points.test.mjs"]) {
+    assert.match(suite, new RegExp(file.replaceAll(".", "\\.")));
+  }
+});

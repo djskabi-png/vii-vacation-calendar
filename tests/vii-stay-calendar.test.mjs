@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFileSync} from 'node:fs';
-import {parseStayCalendar,stayCalendarDay,assessCalendarStay,supplierStayCalendar} from '../app/lib/vii-stay-calendar.ts';
+import {parseStayCalendar,stayCalendarDay,assessCalendarStay,supplierStayCalendar,enrichStayCalendarPrices} from '../app/lib/vii-stay-calendar.ts';
 
 const from='2026-10-23',till='2026-10-28',siteID=2566;
 const day=(date,minNights=1,availableUnits=[1],closedArrival=false)=>({date,minNights,availableUnits,availableUnitCount:availableUnits.length,closedArrival});
@@ -64,4 +64,26 @@ test('calendar failure does not dead-end selection because the stay quote revali
  assert.match(source,/calendarBlocked = calendarRequired && calendarStatus === "loading"/);
  assert.match(source,/הזמינות והמחיר ייבדקו מיד לאחר הבחירה/);
  assert.doesNotMatch(source,/calendarBlocked = calendarRequired && \(calendarStatus !== "ready"/);
+});
+test('calendar preserves validated supplier prices and rejects malformed price rows',()=>{
+ const value=raw();value.prices=[{date:from,total:2400,nights:3}];
+ const c=parseStayCalendar(value,siteID,from,till);
+ assert.deepEqual(c.prices,[{date:from,total:2400,nights:3}]);
+ assert.equal(stayCalendarDay(c,from).minimumStayTotal,2400);
+ assert.equal(stayCalendarDay(c,from).priceNights,3);
+ for(const price of [{date:from,total:0,nights:3},{date:from,total:2400,nights:0},{date:'2027-01-01',total:2400,nights:3}]){
+  const invalid=raw();invalid.prices=[price];assert.throws(()=>parseStayCalendar(invalid,siteID,from,till),/invalid_supplier_calendar/);
+ }
+});
+test('calendar price enrichment uses verified site search totals grouped by arrival minimum',async()=>{
+ const calls=[];
+ const c=parsed();
+ const enriched=await enrichStayCalendarPrices({calendar:c,guests:2,token:'test',fetchImpl:async(_url,init)=>{
+  const request=JSON.parse(init.body);calls.push(request);
+  return Response.json({sites:[{siteID,available:true,dates:[{from,total:request.nights===3?2400:9999},{from:'2026-10-24',total:7000}]}]});
+ }});
+ assert.ok(calls.some(call=>call.siteID===siteID&&call.nights===3&&call.rooms[0].adults===2));
+ assert.deepEqual(enriched.prices,[{date:from,total:2400,nights:3},{date:'2026-10-24',total:7000,nights:7}]);
+ const failed=await enrichStayCalendarPrices({calendar:c,guests:2,token:'test',fetchImpl:async()=>new Response('',{status:503})});
+ assert.deepEqual(failed.prices,[]);
 });

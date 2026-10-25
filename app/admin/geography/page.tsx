@@ -22,6 +22,7 @@ export default function GeographyAdminPage() {
   const [selectedKey, setSelectedKey] = useState("");
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState<NodeLevel | "all">("all");
+  const [missingCoordinatesOnly, setMissingCoordinatesOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState<"refresh" | "save" | null>(null);
   const [message, setMessage] = useState<{ kind: "error" | "success"; text: string } | null>(null);
@@ -47,8 +48,9 @@ export default function GeographyAdminPage() {
   const filtered = useMemo(() => {
     const term = query.trim().toLocaleLowerCase("he");
     return nodes.filter((node) => (level === "all" || node.level === level)
+      && (!missingCoordinatesOnly || node.level === "city" && (node.gpsLat === null || node.gpsLong === null))
       && (!term || [node.effectiveTitle, node.effectiveTitleEn, node.title, node.key, node.slug].some((value) => value.toLocaleLowerCase("he").includes(term))));
-  }, [level, nodes, query]);
+  }, [level, missingCoordinatesOnly, nodes, query]);
 
   function choose(node: GeographyNode) { setSelectedKey(node.key); setDraft({ ...node }); setMessage(null); }
 
@@ -89,6 +91,7 @@ export default function GeographyAdminPage() {
   }
 
   const counts = Object.fromEntries((["district", "area", "city"] as NodeLevel[]).map((item) => [item, nodes.filter((node) => node.level === item).length]));
+  const missingCoordinates = nodes.filter((node) => node.level === "city" && (node.gpsLat === null || node.gpsLong === null));
   const parent = draft?.parentKey ? nodes.find((node) => node.key === draft.parentKey) : null;
 
   return <main className={styles.page} dir="rtl">
@@ -99,12 +102,14 @@ export default function GeographyAdminPage() {
       <article><MapPinned size={19} /><span>מחוזות</span><strong>{counts.district || 0}</strong></article>
       <article><LocateFixed size={19} /><span>אזורים</span><strong>{counts.area || 0}</strong></article>
       <article><CloudDownload size={19} /><span>ערים ויישובים</span><strong>{counts.city || 0}</strong></article>
-      <article><LocateFixed size={19} /><span>עם נקודת מפה</span><strong>{nodes.filter((node) => node.level === "city" && node.gpsLat !== null && node.gpsLong !== null).length}</strong></article>
+      <article><LocateFixed size={19} /><span>יישובים עם נקודת מפה</span><strong>{nodes.filter((node) => node.level === "city" && node.gpsLat !== null && node.gpsLong !== null).length}</strong></article>
+      <article className={missingCoordinates.length ? styles.metricAttention : undefined}><MapPinned size={19} /><span>יישובים בלי נקודת מפה</span><strong>{missingCoordinates.length}</strong><button type="button" onClick={() => { setMissingCoordinatesOnly(true); setLevel("city"); setQuery(""); }}>הצגת הרשימה</button></article>
     </section>
     <section className={styles.controlCenter}>
       <aside className={styles.listPane}><div className={styles.filters}><label><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עיר או אזור" /></label><div>{(["all", "district", "area", "city"] as const).map((item) => <button type="button" key={item} aria-pressed={level === item} onClick={() => setLevel(item)}>{item === "all" ? "הכול" : levelNames[item]}</button>)}</div></div>
         <p className={styles.identityNote}>מזהי ספק נשמרים לפי רמה. לכן עיר ואזור יכולים לקבל אותו מספר בלי להתנגש.</p>
-        <div className={styles.nodeList}>{loading ? <p>טוענים את מפת האזורים...</p> : filtered.length ? filtered.map((node) => <button type="button" key={node.key} className={selectedKey === node.key ? styles.selected : ""} onClick={() => choose(node)}><span><b>{levelNames[node.level]}</b>{node.unassigned ? <em>ללא שיוך</em> : null}</span><strong>{node.effectiveTitle}</strong><small dir="ltr">{node.key}{node.slug ? ` · /${node.slug}` : ""}</small></button>) : <div className={styles.empty}><MapPinned size={28} /><strong>{nodes.length ? "לא נמצאו נתונים במסנן" : "עדיין לא נמשכו נתוני אזורים"}</strong><p>{nodes.length ? "שנו את החיפוש או המסנן." : "לחצו על רענון מה־API כדי להתחיל."}</p></div>}</div>
+        {missingCoordinatesOnly ? <div className={styles.activeIssueFilter}><span>מוצגים {filtered.length} יישובים שחסרה להם נקודת מפה מלאה</span><button type="button" onClick={() => setMissingCoordinatesOnly(false)}>ניקוי הסינון</button></div> : null}
+        <div className={styles.nodeList}>{loading ? <p>טוענים את מפת האזורים...</p> : filtered.length ? filtered.map((node) => <button type="button" key={node.key} className={selectedKey === node.key ? styles.selected : ""} onClick={() => choose(node)}><span><b>{levelNames[node.level]}</b>{node.level === "city" && (node.gpsLat === null || node.gpsLong === null) ? <i>חסרה נקודת מפה</i> : null}{node.unassigned ? <em>ללא שיוך</em> : null}</span><strong>{node.effectiveTitle}</strong><small dir="ltr">{node.key}{node.slug ? ` · /${node.slug}` : ""}</small></button>) : <div className={styles.empty}><MapPinned size={28} /><strong>{nodes.length ? "לא נמצאו נתונים במסנן" : "עדיין לא נמשכו נתוני אזורים"}</strong><p>{nodes.length ? "שנו את החיפוש או המסנן." : "לחצו על רענון מה־API כדי להתחיל."}</p></div>}</div>
       </aside>
       <div className={styles.editor}>{draft ? <>
         <header><div><span>{levelNames[draft.level]} · מזהה ספק {draft.supplierId}</span><h2>{draft.effectiveTitle}</h2><p>{parent ? `משויך אל ${parent.effectiveTitle}` : draft.unassigned ? "ממתין לשיוך ידני" : "רמה עליונה"}</p></div><span className={draft.visible ? styles.live : styles.hidden}>{draft.visible ? "מוצג באתר" : "מוסתר"}</span></header>

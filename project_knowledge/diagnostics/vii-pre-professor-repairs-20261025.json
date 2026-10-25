@@ -1,0 +1,31 @@
+{
+  "status": "fixed",
+  "symptom": "Last-minute deep links constrain the business flow to one incoming room, the calendar does not show minimum-stay price context, the permanent last-minute page hides the full collection in a rail, and geography administration exposes only aggregate coordinate counts.",
+  "expected_behavior": "All property units are evaluated, calendar rules and truthful prices are visible, every verified deal is listed, and every missing-coordinate town is actionable.",
+  "environment": "Candidate commit 48fed79619328590e0404edef27e4af6793c7a92 before production publication; production remains VII v657.",
+  "reproduction": { "steps": ["Open the supplied Raphael Bekerem deep link", "Open the vacation calendar", "Open /last-minute", "Open authenticated /admin/geography"], "evidence": "User screenshots and direct source inspection on 2026-10-25." },
+  "observations": [
+    { "observation": "client-page passes the incoming roomID into useViiStayQuote.", "evidence": "app/business/client-page.tsx lines 223-225." },
+    { "observation": "CalendarDemo receives live availability but only fictional listings receive a priceResolver.", "evidence": "app/business/client-page.tsx CalendarDemo props." },
+    { "observation": "The permanent page renders HomeLiveDeals in the same horizontal track used by the homepage.", "evidence": "app/last-minute/page.tsx and app/components/home-live-deals.tsx." },
+    { "observation": "The geography UI calculates the 1245/1221 metrics from city nodes and has no missing-coordinate filter.", "evidence": "app/admin/geography/page.tsx." }
+  ],
+  "hypotheses": [
+    { "id": "H1", "mechanism": "Shared components were reused without a destination-specific mode and the incoming roomID was treated as a hard query constraint.", "prediction": "The source will show a shared rail on /last-minute and pass preferredSupplierRoomID to the live quote.", "discriminating_test": "Inspect the actual props and request body.", "result": "Both behaviors are present.", "status": "supported" },
+    { "id": "H2", "mechanism": "The supplier APIs do not expose rules, prices or complete entities.", "prediction": "Official documentation would omit minNights, date totals, all room calendars and geography identities.", "discriminating_test": "Read the official supplier calendar, search and geography contracts.", "result": "The calendar exposes every room and minNights; search window exposes verified date totals; geography exposes every city identity. Only calendar-native per-day price is absent.", "status": "rejected" },
+    { "id": "H3", "mechanism": "The geography metrics represent businesses and the API omitted 24 business map points.", "prediction": "The count would be calculated from business catalog rows.", "discriminating_test": "Inspect the count source and data type.", "result": "Both numbers are calculated from city nodes, so the missing entities are towns, not businesses.", "status": "rejected" }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": { "change": "Added destination-specific complete-list and missing-point modes, removed the incoming room hard constraint from property-wide availability, and enriched calendar days from the documented search window without inventing values.", "evidence": "24/24 focused pre-Professor tests, production build, localization completeness, and 1649/1649 full regression tests passed on the candidate." },
+  "affected_family": ["HomeLiveDeals homepage and landing variants", "vacation business units and checkout", "calendar and supplier adapters", "geography admin", "QQQAAA and release"],
+  "regression_checks": [
+    { "check": "Focused pre-Professor repair suite", "status": "passed", "evidence": "qa:pre-professor-repairs passed 24 of 24 tests." },
+    { "check": "Production candidate build", "status": "passed", "evidence": "vinext production build completed and RSC manifests agreed." },
+    { "check": "Multilingual completeness", "status": "passed", "evidence": "localization-completeness passed 3 of 3 tests after adding the five new UI phrases." },
+    { "check": "Complete repository regression", "status": "passed", "evidence": "The full test family passed 1649 of 1649 tests." },
+    { "check": "Permanent QQQAAA coverage", "status": "passed", "evidence": "QQQAAA now includes the pre-professor-production-repairs suite covering all four defects." }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact production supplier availability and price data for Raphael Bekerem remains a post-deploy verification condition."],
+  "authorization_boundary": "Read supplier data and repair/publish VII only; no external data mutation or customer action."
+}

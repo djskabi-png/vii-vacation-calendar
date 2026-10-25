@@ -1,11 +1,13 @@
 import { daysBetween, validDate } from "./vii-live-search.ts";
 
 export type StayCalendarDay = { date: string; availableUnitCount: number; availableUnits: number[]; minNights: number; closedArrival: boolean };
-export type StayCalendar = { siteID: number; from: string; till: string; rooms: { roomID: number; dates: StayCalendarDay[] }[] };
+export type StayCalendarPrice = { date: string; total: number; nights: number };
+export type StayCalendar = { siteID: number; from: string; till: string; rooms: { roomID: number; dates: StayCalendarDay[] }[]; prices: StayCalendarPrice[] };
 export type StayRuleResult = { allowed: boolean; reason: "min_nights" | "closed_to_arrival" | "not_available" | "calendar_unknown" | null; minimumNights?: number; roomIDs: number[] };
 const record = (v: unknown): Record<string, unknown> => v !== null && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : {};
 const integer = (v: unknown, min = 0): v is number => Number.isSafeInteger(v) && (v as number) >= min;
 const dayIndexes = new WeakMap<StayCalendar["rooms"][number], Map<string, StayCalendarDay>>();
+const priceIndexes = new WeakMap<StayCalendar, Map<string, StayCalendarPrice>>();
 function dayIndex(room: StayCalendar["rooms"][number]) {
   let index = dayIndexes.get(room);
   if (!index) { index = new Map(room.dates.map((day) => [day.date, day])); dayIndexes.set(room, index); }
@@ -33,7 +35,16 @@ export function parseStayCalendar(value: unknown, siteID: number, from: string, 
       return { date: day.date, availableUnitCount: day.availableUnitCount, availableUnits: day.availableUnits, minNights: day.minNights, closedArrival: day.closedArrival };
     }) };
   });
-  return { siteID, from, till, rooms };
+  const priceDates = new Set<string>();
+  const prices = (Array.isArray(data.prices) ? data.prices : []).map((value): StayCalendarPrice => {
+    const price = record(value);
+    if (typeof price.date !== "string" || !validDate(price.date) || price.date < from || price.date > till || priceDates.has(price.date)
+      || typeof price.total !== "number" || !Number.isFinite(price.total) || price.total <= 0
+      || !integer(price.nights, 1) || price.nights > 30) throw Error("invalid_supplier_calendar");
+    priceDates.add(price.date);
+    return { date: price.date, total: price.total, nights: price.nights };
+  });
+  return { siteID, from, till, rooms, prices };
 }
 
 export function stayCalendarDay(calendar: StayCalendar, date: string) {
@@ -41,12 +52,60 @@ export function stayCalendarDay(calendar: StayCalendar, date: string) {
   const known = days.filter((day): day is StayCalendarDay => Boolean(day));
   const arrivals = known.filter((day) => day.availableUnitCount > 0 && !day.closedArrival && day.minNights > 0);
   const complete = known.length > 0 && known.length === calendar.rooms.length;
+  let priceIndex = priceIndexes.get(calendar);
+  if (!priceIndex) { priceIndex = new Map(calendar.prices.map((price) => [price.date, price])); priceIndexes.set(calendar, priceIndex); }
+  const price = priceIndex.get(date);
   return {
     known: complete,
     units: known.reduce((sum, day) => sum + day.availableUnitCount, 0),
     arrivalAllowed: complete && arrivals.length > 0,
     minimumNights: complete && arrivals.length ? Math.min(...arrivals.map((day) => day.minNights)) : undefined,
+    minimumStayTotal: price?.total,
+    priceNights: price?.nights,
   };
+}
+
+function addUtcDays(value: string, days: number) {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+export async function enrichStayCalendarPrices(options: {
+  calendar: StayCalendar;
+  guests: number;
+  token: string;
+  fetchImpl?: typeof fetch;
+}) {
+  const { calendar, guests, token } = options;
+  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 50 || !token) return calendar;
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const windowTill = addUtcDays(calendar.from, Math.min(62, daysBetween(calendar.from, calendar.till)));
+  const minimumByDate = new Map<string, number>();
+  for (let date = calendar.from; date <= windowTill; date = addUtcDays(date, 1)) {
+    const day = stayCalendarDay(calendar, date);
+    if (day.arrivalAllowed && day.minimumNights && day.minimumNights <= 30) minimumByDate.set(date, day.minimumNights);
+  }
+  const nightGroups = [...new Set(minimumByDate.values())].sort((a, b) => a - b).slice(0, 10);
+  const headers = { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" };
+  const results = await Promise.all(nightGroups.map(async (nights) => {
+    try {
+      const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/search", {
+        method: "POST", headers, cache: "no-store", signal: AbortSignal.timeout(20_000),
+        body: JSON.stringify({ window: { from: calendar.from, till: windowTill }, nights, rooms: [{ adults: guests }], siteID: calendar.siteID }),
+      });
+      if (!response.ok) return [] as StayCalendarPrice[];
+      const body = record(await response.json());
+      const site = Array.isArray(body.sites) ? body.sites.map(record).find((value) => value.siteID === calendar.siteID) : undefined;
+      if (!site || site.available !== true || !Array.isArray(site.dates)) return [] as StayCalendarPrice[];
+      return site.dates.flatMap((value): StayCalendarPrice[] => {
+        const row = record(value);
+        return typeof row.from === "string" && minimumByDate.get(row.from) === nights && typeof row.total === "number"
+          && Number.isFinite(row.total) && row.total > 0 ? [{ date: row.from, total: row.total, nights }] : [];
+      });
+    } catch { return [] as StayCalendarPrice[]; }
+  }));
+  return { ...calendar, prices: results.flat().sort((a, b) => a.date.localeCompare(b.date)) };
 }
 
 export function assessCalendarStay(calendar: StayCalendar, from: string, till: string, roomID?: number): StayRuleResult {

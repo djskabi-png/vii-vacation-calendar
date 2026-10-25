@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-pre-professor-repairs-20261025",
+  "project": "VII",
+  "task_type": "production-repair",
+  "requested_outcome": "Repair the last-minute property flow, restore useful calendar rules and prices, show every verified last-minute offer on its landing page, expose all towns missing map coordinates in administration, add regression coverage to QQQAAA, publish once, and verify the exact public release before beginning Professor.",
+  "natural_destination": "The public VII last-minute landing and vacation business pages, plus the authenticated VII geography administration.",
+  "authorization_boundary": "Code, tests, QQQAAA integration and public deployment are authorized. Supplier data may be read but not mutated; no bookings, leads or outbound messages may be created.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-WEB-001", "reason": "The old flow is the parity reference for units and calendar information.", "acceptance_impact": "The new flow must preserve useful verified unit, price and minimum-stay information rather than merely render a new layout." },
+    { "lesson_id": "ADIR-WEB-002", "reason": "The defects occur in interactive calendars, rails and admin filters.", "acceptance_impact": "Desktop, mobile, reload, retry and empty/error states are exercised across the affected family." },
+    { "lesson_id": "ADIR-DATA-001", "reason": "Availability, price, minimum nights and coordinate counts are visible data contracts.", "acceptance_impact": "Every visible value is reconciled with the supplier response or stored geography rows and no price is invented." },
+    { "lesson_id": "ADIR-QA-001", "reason": "The user explicitly rejected partial fixes and requires QQQAAA and live verification.", "acceptance_impact": "The exact deployed version must pass the complete affected journey and QQQAAA additions before completion." },
+    { "lesson_id": "ADIR-DEPLOY-001", "reason": "The user explicitly authorized a public release after all repairs.", "acceptance_impact": "One frozen candidate, known rollback identity and post-deploy public verification are mandatory." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "The selected room remains the only unit evaluated when entering from a last-minute card.", "prevention": "Use property-wide supplier search and calendar data for all units while retaining one verified booking unit only after selection.", "acceptance_check": "The Raphael Bekerem deep link evaluates all supplier room IDs and unit cards reflect property-wide availability." },
+    { "rejection": "The calendar shows colored dates but still omits minimum nights or a truthful price basis.", "prevention": "Render supplier minimum-night rules and enrich the initial window with verified search totals for the matching minimum stay.", "acceptance_check": "A real supplier calendar day exposes units, minimum nights and a verified minimum-stay total without fabricated nightly values." },
+    { "rejection": "The permanent last-minute page is still a narrow slider that hides most offers.", "prevention": "Give the landing a full responsive grid mode that renders every verified deal returned by the authoritative cache.", "acceptance_check": "The page contains one visible card per verified deal and no slice or carousel cap." },
+    { "rejection": "The 24 missing points are only a number and cannot be repaired.", "prevention": "Expose a direct missing-coordinate filter and clearly label the entities as towns, not businesses.", "acceptance_check": "The administration lists every city row missing either coordinate and each row opens in the existing editor." },
+    { "rejection": "Local checks pass but the public release is unchanged or another feature regresses.", "prevention": "Freeze one complete candidate, run focused and broad tests, deploy once, and retest the exact live version.", "acceptance_check": "Public release identity, live route behavior and rollback identity are recorded; QQQAAA includes all four regressions." }
+  ],
+  "affected_family": [
+    "public /last-minute landing in four languages",
+    "home last-minute slider and shared HomeLiveDeals component",
+    "vacation business deep links and unit cards",
+    "supplier stay calendar and quote API adapters",
+    "calendar desktop, mobile, loading, failure and retry states",
+    "authenticated /admin/geography counts, filters, save and reload",
+    "QQQAAA suite and release handoff",
+    "existing admin/customer authentication fixes awaiting the same release"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII accepted product behavior", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" },
+      { "label": "Official supplier API calendar and search contracts", "source": "https://bizonline.co.il/api/ai/vii/Vii-Frontend.html" },
+      { "label": "User-provided old Raphael Bekerem flow", "source": "https://www.vii.co.il/refael_bakerem" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the supplier adapters and first affected public/admin slices pass focused tests, before broad styling, QQQAAA and release work.",
+    "checks": [
+      "Property-wide room availability is no longer constrained by the incoming roomID.",
+      "Calendar enrichment uses documented supplier values only.",
+      "Last-minute grid and missing-coordinate admin filter render complete uncapped collections."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an incoming roomID still suppress another available unit?",
+      "Can an unavailable, closed-arrival or minimum-stay date display a misleading price?",
+      "Can the landing silently hide verified deals after the first viewport?",
+      "Does the geography count reconcile exactly with the filtered missing-coordinate rows after reload?",
+      "Did the release preserve the already completed authentication separation and all unrelated tests?"
+    ],
+    "natural_destination_evidence": "Fresh public desktop and mobile reads of /last-minute and the Raphael Bekerem business flow, plus an authenticated fresh read of /admin/geography.",
+    "affected_family_evidence": "Focused supplier/calendar/grid/geography tests, full tracked suite, QQQAAA, exact release identity and public post-deploy checks."
+  },
+  "effectiveness": {
+    "baseline": "Production v657 and candidate commit 48fed79 have the four reported gaps; earlier auth fixes are prepared but not public.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One consolidated release with zero unresolved high-severity findings in the four repaired flows and no repeat publication cycle."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

@@ -1,0 +1,59 @@
+{
+  "goal": "Complete and publish the four production repairs before starting Professor.",
+  "intent_model": {
+    "literal_request": "Fix everything before Professor.",
+    "implied_outcome": "Close every currently named customer and administrator defect in one stable release, add permanent regression checks, and prove the live result.",
+    "likely_rejections": ["Only the latest screenshot was fixed", "The page still hides valid results", "Data is displayed without supplier proof", "QQQAAA was not expanded", "The public site still runs the old version"],
+    "interpretation_rules": [{ "phrase": "everything before Professor", "operational_meaning": "Professor remains paused until the four named gaps and pending auth release are live and verified.", "acceptance_impact": "No Professor implementation or completion claim may begin before the release gate passes." }]
+  },
+  "cognitive_flow": {
+    "current_layer": "Visitors see complete verified offers and unit availability; operators see exactly which towns need coordinates.",
+    "current_decision": "Choose dates or the exact missing town to repair.",
+    "next_action": "Book/contact a verified unit or edit and save the selected town coordinates.",
+    "deferred_complexity": ["Professor AI", "supplier writeback", "new booking capabilities"],
+    "preserved_depth": ["all unit details", "supplier price and rules", "admin save/version/reload", "full QQQAAA and rollback evidence"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "C:/Users/Adir/Documents/vii.co.il/.release-v646-four-gaps/project_knowledge/predictive_preflights/vii-pre-professor-repairs-20261025.json",
+    "lesson_bundle_ids": ["ADIR-WEB-001", "ADIR-WEB-002", "ADIR-DATA-001", "ADIR-QA-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor", "VII administrator"],
+  "natural_destination": "Public VII last-minute and business pages and authenticated geography administration.",
+  "facts": [
+    { "claim": "The supplier calendar returns availability, minNights and closedArrival but not prices.", "evidence": "Official Vii Frontend API calendar contract read on 2026-10-25." },
+    { "claim": "The supplier search window returns every verified arrival total for one site and stay length.", "evidence": "Official Vii Frontend API search contract read on 2026-10-25." },
+    { "claim": "The current permanent last-minute page reuses the horizontal HomeLiveDeals rail.", "evidence": "app/last-minute/page.tsx and app/components/home-live-deals.tsx at commit 48fed79." },
+    { "claim": "The 1245 and 1221 geography metrics count cities and cities with coordinates, not businesses.", "evidence": "app/admin/geography/page.tsx at commit 48fed79." }
+  ],
+  "assumptions": [
+    { "claim": "A full grid is the intended meaning of seeing all last-minute places on the landing.", "validation": "Render every authoritative deal without slice/cap and verify the visible count equals the API payload." }
+  ],
+  "in_scope": ["property-wide unit checking", "calendar minimum stays and verified price basis", "uncapped last-minute landing", "missing-coordinate town list", "QQQAAA regression coverage", "single public release and live verification"],
+  "out_of_scope": ["accessibility audit", "typography audit", "Professor AI", "supplier data mutation", "real booking or lead submission"],
+  "invariants": ["No invented prices", "One exact verified room remains required for checkout", "Homepage slider remains a slider", "Admin authentication remains separate from customer authentication", "Existing saved geography edits and version conflicts remain intact"],
+  "affected_family": ["public /last-minute landing route", "shared HomeLiveDeals component", "vacation /business deep links", "supplier stay calendar and quote API routes", "shared CalendarDemo interaction", "authenticated /admin/geography route", "complete QQQAAA regression suite", "consolidated public v658 candidate"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "A last-minute business entry checks all units in the property for the selected dates and guests, while checkout uses only a verified exact room.", "source": "User correction and supplier API" },
+    { "id": "REQ-2", "statement": "The business calendar visibly exposes supplier minimum-night rules and a truthful verified price basis for its initial date window.", "source": "User correction and supplier API" },
+    { "id": "REQ-3", "statement": "The permanent last-minute page visibly renders every verified deal returned by its authoritative data source without a slider cap.", "source": "User correction" },
+    { "id": "REQ-4", "statement": "Geography administration shows and filters every town missing a complete map point and reconciles the count.", "source": "User correction and current admin semantics" },
+    { "id": "REQ-5", "statement": "All four defects have deterministic QQQAAA coverage and the complete candidate is published and verified live.", "source": "User publication authorization and VII release standard" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Open the supplied Raphael Bekerem URL with an incoming roomID.", "action": "Load the business and inspect all unit cards for the selected stay.", "observable_result": "Every supplier room is evaluated; the incoming room is context only and another available room is not hidden." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Open a supplier-backed vacation calendar.", "action": "Inspect available arrival days and select a range.", "observable_result": "The day exposes units, minimum nights and a supplier-verified minimum-stay total when available; range validation respects the same rule." },
+    { "id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "failure", "setup": "Supplier price enrichment fails while the calendar itself succeeds.", "action": "Open the calendar.", "observable_result": "Availability and minimum nights remain usable and no price is invented." },
+    { "id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "The home-deals API returns N verified tomorrow deals.", "action": "Open /last-minute on desktop and mobile.", "observable_result": "Exactly N distinct deal cards are reachable in a normal grid with no slice or hidden horizontal rail." },
+    { "id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "The geography store contains towns with a missing latitude or longitude.", "action": "Activate the missing-points control and open a row.", "observable_result": "The filtered count equals the rows, each town is named, and the existing coordinate editor opens." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "persistence", "setup": "An authorized administrator saves valid coordinates.", "action": "Reload and reactivate the missing-points filter.", "observable_result": "The saved town leaves the missing list and the metrics reconcile; unauthorized access stays denied." },
+    { "id": "AC-7", "requirement_ids": ["REQ-5"], "kind": "rollback", "setup": "The final candidate is frozen.", "action": "Run focused, full and QQQAAA checks, publish once and inspect the live release.", "observable_result": "The exact public version passes the affected flows and the previous public version remains a recorded rollback." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, tests and one production publication are authorized. No supplier writeback, real booking, lead or outbound message is authorized.",
+  "ready_for_implementation": true
+}
