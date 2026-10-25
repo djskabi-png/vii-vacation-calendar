@@ -40,7 +40,7 @@ test("unit cards keep only compact facts and place status and price above the ac
   assert.match(page, /localizedBusinessList\(room\.features, language, translate\)/);
   assert.doesNotMatch(page, /room\.features\.slice\(/);
   assert.match(page, /unavailableReason === "min_nights"/);
-  assert.match(page, /נדרשים לפחות \$\{effectiveVacationAvailability\.minimumNights\} לילות/);
+  assert.match(page, /נדרשים לפחות \$\{roomAvailability\.minimumNights\} לילות/);
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
   assert.doesNotMatch(page, /room-card__sleeping/);

@@ -26,7 +26,7 @@ import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { activateAwsDatabase, awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
-import { qualityHeartbeatWindow, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
+import { runQualityChecks } from "../app/lib/quality-platform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -170,14 +170,6 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-function catalogWorldForPublicPath(pathname: string) {
-  if (/^\/(?:[a-z]{2}\/)?events(?:\/|$)/.test(pathname)) return "events" as const;
-  if (/^\/(?:[a-z]{2}\/)?hourly(?:\/|$)/.test(pathname)) return "rooms" as const;
-  if (/^\/(?:[a-z]{2}\/)?spas?(?:\/|$)/.test(pathname)) return "spa" as const;
-  if (/^\/(?:[a-z]{2}\/)?(?:vacations?|business)(?:\/|$)/.test(pathname)) return "vacations" as const;
-  return undefined;
-}
-
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -243,30 +235,11 @@ const worker = {
     activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);
-    if (database && shouldStartQualityHeartbeat(request)) {
-      ctx.waitUntil(runSupplierCatalogScheduleTick(database, {
-        now: new Date(),
-        preferredWorld: catalogWorldForPublicPath(url.pathname),
-      }).then(({ scheduled, retries }) => {
-        for (const result of [...retries, ...scheduled]) if (result.status !== "accepted" && result.status !== "skipped") {
-          console.error("VII visitor catalog heartbeat did not publish", result.id, result.errorCode);
-        }
-      }).catch((error) => {
-        console.error("VII visitor catalog heartbeat unavailable", error);
-      }));
-    }
-    if (database && shouldStartQualityHeartbeat(request)) {
-      ctx.waitUntil(runQualityChecks(database, {
-        origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,
-        trigger: "scheduled",
-        scheduledAt: qualityHeartbeatWindow(),
-        releaseId: publicCacheBuild,
-        actor: "visitor-heartbeat",
-        notificationEnv: env,
-      }).catch((error) => {
-        console.error("VII visitor quality heartbeat unavailable", error);
-      }));
-    }
+    // Maintenance belongs to the scheduled handler above. Starting catalog
+    // synchronization and the sitewide QA runner from every customer HTML
+    // request made ordinary navigation pay for unrelated background work and
+    // could exhaust the Worker request budget. Public requests now render only
+    // their requested page; the scheduler remains the single durable owner.
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
     if (request.method === "GET" || request.method === "HEAD") {
       let managedOverride = false;

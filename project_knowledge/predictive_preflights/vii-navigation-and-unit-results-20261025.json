@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-navigation-and-unit-results-20261025",
+  "project": "VII",
+  "task_type": "production-repair",
+  "requested_outcome": "Stop recurring public navigation crashes, return a verified result for every eligible unit when dates are checked for a whole vacation property, add both regressions to QQQAAA, publish once and verify production.",
+  "natural_destination": "Public VII navigation, dated vacation business pages and QQQAAA.",
+  "authorization_boundary": "Code, read-only supplier checks, tests, QQQAAA integration and one production publication are authorized. No supplier mutation, booking, lead, message or payment is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-WEB-002","reason":"The defects are interactive navigation and dated unit states.","acceptance_impact":"Exercise loading, success, failure, retry, reload, desktop and mobile states."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Each unit availability and price is a visible data contract.","acceptance_impact":"Only supplier-verified unit results may be displayed and each result keeps its room ID."},
+    {"lesson_id":"ADIR-QA-001","reason":"The user requires a production fix and durable QQQAAA coverage.","acceptance_impact":"The exact public release and affected family must pass before completion."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The user explicitly authorized publication.","acceptance_impact":"Freeze one candidate, preserve the previous deployment as rollback and verify production."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The generic error page still appears after several navigations.","prevention":"Remove expensive QA and catalog jobs from customer HTML requests and retain them only on the scheduler; add one bounded stale-asset recovery.","acceptance_check":"Repeated public navigation does not launch background maintenance and representative routes remain usable."},
+    {"rejection":"Only the supplier-selected cheapest unit has a price while other suites remain unknown.","prevention":"Query and validate every eligible supplier room independently with bounded concurrency.","acceptance_check":"Every unit card receives its own available, unavailable or unverified result and exact room link."},
+    {"rejection":"A visual patch hides the symptom but the worker can still exceed limits.","prevention":"Test the worker source contract and scheduled path independently from the public request path.","acceptance_check":"Public fetch contains no maintenance trigger while scheduled keeps QA and catalog refresh."},
+    {"rejection":"The fix exists locally but not publicly or QQQAAA omits it.","prevention":"Add a dedicated regression suite to QQQAAA and verify the exact deployed build with rollback identity.","acceptance_check":"QQQAAA contains both checks and the exact public version passes them."}
+  ],
+  "affected_family": ["all anonymous HTML navigation", "scheduled QA and catalog refresh", "global error boundary and stale asset recovery", "supplier-backed vacation business pages", "all vacation unit cards", "stay quote API", "QQQAAA and release"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII platform plan","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},{"label":"VII accepted product behavior","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After worker maintenance isolation and per-unit supplier adapter tests pass, before broad QA and release.","checks":["Customer HTML requests no longer start QA or catalog jobs","Scheduled execution still owns both jobs","Per-unit results preserve exact room IDs and partial failures"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can one page view still start a sitewide QA run?","Can one failed room hide every other room?","Can a stale chunk cause an endless reload?","Can an unavailable room inherit another room's price?","Can QQQAAA pass without both regressions?"],"natural_destination_evidence":"Repeated public navigation and a dated multi-unit business page on the exact release.","affected_family_evidence":"Focused tests, build, full tests, QQQAAA and public desktop/mobile checks."},
+  "effectiveness": {"baseline":"Production v661 shows the generic route error during browsing and only one supplier-selected unit receives a full quote.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"No recurring navigation error in the tested route matrix and one truthful result for every eligible unit."},
+  "privacy":{"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start":true
+}

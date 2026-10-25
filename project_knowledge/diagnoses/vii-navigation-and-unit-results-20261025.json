@@ -1,0 +1,94 @@
+{
+  "status": "fixed",
+  "symptom": "While customers browse public VII pages, a full-page 'the page did not load fully' boundary can replace the requested page. On dated vacation-complex pages, only the supplier-selected cheapest unit receives a verified price while sibling suites show incomplete availability information.",
+  "expected_behavior": "Ordinary navigation must render only the requested page without starting unrelated maintenance. A dated whole-complex visit must keep every published unit visible and independently verify availability, restrictions, price and booking identity for every unit that can fit the selected party.",
+  "environment": "Reported on public vii.spaplus.co Sites version 661 on 2026-10-25 during repeated desktop and mobile navigation and on a dated multi-unit vacation detail page. Local repair candidate is branch release/v646-four-gaps after version 661 source commit 03688236c4289ccb57291b2c2e71a6c873a4cf50.",
+  "reproduction": {
+    "steps": [
+      "Navigate repeatedly among public home, search and business pages and observe the global error boundary reported by the user.",
+      "Open a multi-unit vacation property with from, till and guests parameters.",
+      "Inspect the suites and units section after the supplier responses settle."
+    ],
+    "evidence": "The supplied screenshots show the global error boundary during search navigation and one priced unit beside sibling units without a supplier-confirmed result. Source tracing showed every anonymous HTML request starting catalog synchronization and the complete quality runner, while the detail page consumed supplierStayQuote.roomIDs from only the cheapest search selection."
+  },
+  "observations": [
+    {
+      "observation": "Every anonymous HTML fetch that passed shouldStartQualityHeartbeat started both runSupplierCatalogScheduleTick and runQualityChecks through waitUntil.",
+      "evidence": "worker/index.ts before the repair; the same maintenance already has a dedicated scheduled handler."
+    },
+    {
+      "observation": "The previous room-card logic assigned the whole-property supplier quote only when its cheapest room ID matched a card and used the calendar only for broad availability of other rooms.",
+      "evidence": "app/business/client-page.tsx before the repair and the user-provided multi-unit screenshot."
+    },
+    {
+      "observation": "The exact supplier vacancy endpoint accepts a specific roomID and validates that same room, dates, party, total and booking capability.",
+      "evidence": "app/lib/vii-stay-quote.ts and tests/vii-stay-quote.test.mjs."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Visitor navigation incorrectly owns catalog synchronization and full QQQAAA execution, so ordinary page loads can exhaust the Cloudflare Worker resource budget and surface the global error boundary.",
+      "prediction": "The public fetch path contains both expensive pipelines even though scheduled() already owns them; removing them from fetch leaves scheduled maintenance intact and the build/navigation contracts valid.",
+      "discriminating_test": "Inspect the fetch and scheduled handlers separately, remove only visitor-triggered maintenance, and run the navigation regression plus the production build.",
+      "result": "Before repair fetch contained both pipelines. After repair fetch contains neither, scheduled() retains both owners, the focused regression passes and the production build completes.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "All reported global boundaries are only stale browser assets during a deployment.",
+      "prediction": "The failure should be limited to known chunk or RSC asset mismatch messages and source inspection should reveal no request-budget pressure on ordinary navigation.",
+      "discriminating_test": "Compare the observed generic recurring failure with the worker request path and classify known deployment asset errors separately.",
+      "result": "Known chunk/RSC mismatch is a possible secondary deployment-time case, but it does not explain the expensive maintenance attached to every HTML request. A one-shot cache recovery was added only for recognized asset errors, while generic errors remain visible and do not reload-loop.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The supplier exposes only one suite result for a whole complex.",
+      "prediction": "The accepted detail snapshot would contain only the selected room and the exact vacancy API would reject other room IDs.",
+      "discriminating_test": "Compare accepted roomOptions with the quote path and exercise supplierStayQuote using explicit room IDs.",
+      "result": "Accepted detail contains the sibling units and supplierStayQuote supports exact room IDs. The loss occurred in the frontend aggregation, which consumed only the cheapest search result.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Make scheduled() the sole owner of catalog and quality maintenance; add a bounded one-time recovery only for recognized release-asset mismatches; add a bounded-concurrency room-scoped quote endpoint and consume each exact room quote in its matching card and booking link.",
+    "evidence": "The production build passes, 50 focused affected-family tests pass, and the new QQQAAA suite asserts visitor isolation, bounded release recovery, complete room fan-out, failure isolation and exact booking room IDs."
+  },
+  "affected_family": [
+    "public home, search and business navigation",
+    "scheduled catalog refresh and QQQAAA ownership",
+    "global public error recovery",
+    "dated multi-unit vacation detail pages",
+    "room-specific prices, restrictions and booking links",
+    "last-minute deep links that identify one source room"
+  ],
+  "regression_checks": [
+    {
+      "check": "Production build includes the new API route and compiles all client and Worker changes.",
+      "status": "passed",
+      "evidence": "pnpm build completed and listed /api/vii/stay-unit-quotes."
+    },
+    {
+      "check": "Visitor fetch no longer starts maintenance while scheduled maintenance remains present.",
+      "status": "passed",
+      "evidence": "tests/navigation-unit-results-regression.test.mjs."
+    },
+    {
+      "check": "Every requested room produces an ordered result and one supplier failure remains isolated to that room.",
+      "status": "passed",
+      "evidence": "tests/navigation-unit-results-regression.test.mjs."
+    },
+    {
+      "check": "Existing quote validation, booking, PWA, cache and quality-platform contracts remain intact.",
+      "status": "passed",
+      "evidence": "50 of 50 focused tests passed."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Exact post-release production navigation and supplier responses must still be verified against the deployed version before completion is claimed."
+  ],
+  "authorization_boundary": "Repair, test, publish and verify the public VII code and QQQAAA coverage. No real booking, destructive data action, DNS change or unrelated product change."
+}

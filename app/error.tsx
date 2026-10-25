@@ -1,8 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 
-export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+const RECOVERY_KEY = "vii:release-asset-recovery";
+const RECOVERY_WINDOW_MS = 60_000;
+
+function isReleaseAssetMismatch(error: Error) {
+  return /ChunkLoadError|Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Failed to fetch RSC payload/i.test(error.message);
+}
+
+export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    if (!isReleaseAssetMismatch(error)) return;
+    const lastRecovery = Number(sessionStorage.getItem(RECOVERY_KEY) || 0);
+    if (Number.isFinite(lastRecovery) && Date.now() - lastRecovery <= RECOVERY_WINDOW_MS) return;
+    sessionStorage.setItem(RECOVERY_KEY, String(Date.now()));
+    void caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("vii-public-")).map((key) => caches.delete(key))))
+      .finally(() => location.reload());
+  }, [error]);
   const language = typeof document === "undefined" ? "he" : document.documentElement.lang.split("-")[0];
   const labels = {
     he: ["העמוד לא נטען במלואו", "המידע נשמר. אפשר לנסות לטעון שוב או לחזור לדף הבית.", "לטעון שוב", "לדף הבית"],

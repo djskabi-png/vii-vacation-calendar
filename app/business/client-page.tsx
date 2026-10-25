@@ -40,6 +40,7 @@ import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
+import { useViiUnitQuotes } from "../components/use-vii-unit-quotes";
 import { useViiStayCalendar } from "../components/use-vii-stay-calendar";
 import { assessCalendarStay, stayCalendarDay } from "../lib/vii-stay-calendar";
 import { vacationPartyForGuestCount } from "../lib/vacation-party";
@@ -228,6 +229,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   // search chooses the current bookable room; the calendar evaluates every
   // other unit for the same dates without assigning that room's price to it.
   const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests, supplierRooms);
+  const supplierUnitRoomIDs = useMemo(() => [...new Set((property.roomOptions || [])
+    .filter((room) => room.supplierRoomID && guests <= room.guests)
+    .map((room) => room.supplierRoomID!))], [guests, property.roomOptions]);
+  const supplierUnitQuotes = useViiUnitQuotes(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests, supplierRooms, supplierUnitRoomIDs);
   const supplierCalendarStay = useMemo(() => supplierCalendar.calendar && hasSelectedDates
     ? assessCalendarStay(supplierCalendar.calendar, dateRange.from, dateRange.till)
     : null, [dateRange.from, dateRange.till, hasSelectedDates, supplierCalendar.calendar]);
@@ -430,35 +435,32 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   // A place sold as one whole property has one live quote. Its
                   // editorial room entry is descriptive, not a separately priced
                   // inventory unit, so it must reuse that quote.
+                  const supplierUnitQuote = room.supplierRoomID ? supplierUnitQuotes.quotes[room.supplierRoomID] : undefined;
                   const roomAvailability = supplierSiteID
-                    ? supplierQuote.roomIDs?.includes(room.supplierRoomID || 0) ? effectiveVacationAvailability : undefined
+                    ? supplierUnitQuote?.quote || undefined
                     : property.scenario === "single" && usesLiveLegacyAvailability
                     ? effectiveVacationAvailability
                     : effectiveVacationAvailability?.units?.find((unit) => unit.index === roomIndex);
                   const roomAvailable = roomAvailability?.availability === "available" || supplierAvailableRoomIDs.includes(room.supplierRoomID || 0);
-                  const roomUnavailable = supplierSiteID && supplierCalendar.status === "ready" && hasSelectedDates
-                    ? !roomAvailable
+                  const roomUnavailable = supplierSiteID && supplierUnitQuote?.status === "ready"
+                    ? roomAvailability?.availability === "unavailable"
                     : roomAvailability?.availability === "unavailable";
                   const roomCapacity = roomAvailability && "maxGuests" in roomAvailability ? roomAvailability.maxGuests || room.guests : room.guests;
                   const roomFitsParty = guests <= roomCapacity;
                   const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
                   const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
                   const roomTotalPrice = (roomAvailability && "totalPrice" in roomAvailability ? roomAvailability.totalPrice : undefined) || (roomNightlyPrice && dateRange.from && dateRange.till ? roomNightlyPrice * Math.max(1, Math.round((Date.parse(`${dateRange.till}T12:00:00`) - Date.parse(`${dateRange.from}T12:00:00`)) / 86_400_000)) : 0);
-                  const minimumStayRestriction = effectiveVacationAvailability?.unavailableReason === "min_nights" && effectiveVacationAvailability.minimumNights
-                    ? `נדרשים לפחות ${effectiveVacationAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
+                  const minimumStayRestriction = roomAvailability?.unavailableReason === "min_nights" && roomAvailability.minimumNights
+                    ? `נדרשים לפחות ${roomAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
                     : "";
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
                   const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
-                    : supplierSiteID && (supplierQuote.status === "loading" || hasSelectedDates && supplierCalendar.status === "loading")
+                    : supplierSiteID && supplierUnitQuotes.status === "loading" && roomFitsParty
                       ? "מעדכנים זמינות ומחיר"
-                    : supplierSiteID && supplierCalendar.status === "ready" && hasSelectedDates && !roomAvailable
-                      ? "היחידה אינה פנויה בתאריכים שבחרתם"
-                    : supplierSiteID && supplierQuote.status === "ready" && minimumStayRestriction
+                    : supplierSiteID && supplierUnitQuote?.status === "ready" && minimumStayRestriction
                       ? minimumStayRestriction
-                    : supplierSiteID && supplierQuote.status === "ready" && !roomAvailable
-                      ? "לא התקבל אישור זמינות ליחידה זו"
-                    : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error"
+                    : supplierSiteID && supplierUnitQuote?.status === "error"
                       ? unitCopy.error
                       : roomAvailable && roomFitsParty
                         ? unitCopy.available
@@ -467,7 +469,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                           : roomAvailable
                             ? unitCopy.tooSmall
                             : roomUnavailable ? unitCopy.unavailable : unitCopy.error;
-                  const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && (!supplierSiteID || supplierQuote.onlineBooking && Boolean(verifiedSupplierRoomID));
+                  const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierUnitQuote?.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && (!supplierSiteID || supplierUnitQuote?.onlineBooking === true);
+                  const unitBookingQuery = new URLSearchParams(bookingQuery);
+                  if (supplierSiteID && room.supplierRoomID) {
+                    unitBookingQuery.set("roomID", String(room.supplierRoomID));
+                    unitBookingQuery.set("price", String(roomNightlyPrice));
+                  }
                   const localizedRoomName = safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`);
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
@@ -478,11 +485,11 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div> : null}
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
-                      ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
+                      ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${unitBookingQuery.toString()}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
                         : supplierSiteID && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
                         : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
                           : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
-                            : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error" ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>
+                            : (supplierSiteID ? supplierUnitQuote?.status === "error" : liveLegacyAvailability.status === "error") ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierUnitQuotes.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>
                               : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
                                 : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />
                                   : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}` : `${unitCopy.dates} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`}</button>
