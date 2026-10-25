@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cachedBizConversions, loadCachedBizConversions } from "../app/lib/biz-conversion-cache.ts";
+import { cachedBizConversions, loadCachedBizConversions, loadCachedBizConversionFailures,
+  readCachedBizConversionFailure, saveBizConversionFailure } from "../app/lib/biz-conversion-cache.ts";
 
 const bucket = { contacts: 3, identified: 3, converted: 2, rate: 66.7, customers: 2, orders: 2, revenue: 1900, medianDelay: 300 };
 const fixture = (created = "2026-10-25T08:00:00Z") => ({
@@ -17,13 +18,22 @@ class MemoryStatement {
       const [cacheKey, world, siteID, fromDay, tillDay, payload, supplierCreatedAt, savedAt, staleAfter] = this.params;
       this.db.rows.set(cacheKey, { world, siteID, fromDay, tillDay, payload, supplierCreatedAt, savedAt, staleAfter });
     }
+    if (/INSERT INTO vii_biz_conversion_failures_v1/.test(this.sql)) {
+      const [cacheKey, world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt] = this.params;
+      this.db.failures.set(cacheKey, { world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt });
+    }
+    if (/DELETE FROM vii_biz_conversion_failures_v1/.test(this.sql)) this.db.failures.delete(this.params[0]);
     return { success: true, meta: { changes: 1 } };
   }
   async first() {
+    if (/FROM vii_biz_conversion_failures_v1 WHERE cache_key = \?/.test(this.sql)) return this.db.failures.get(this.params[0]) || null;
     if (/WHERE cache_key = \?/.test(this.sql)) return this.db.rows.get(this.params[0]) || null;
     return null;
   }
   async all() {
+    if (/FROM vii_biz_conversion_failures_v1/.test(this.sql) && /WHERE from_day = \? AND till_day = \?/.test(this.sql)) {
+      return { success: true, results: [...this.db.failures.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]) };
+    }
     if (/WHERE from_day = \? AND till_day = \?/.test(this.sql)) {
       return { success: true, results: [...this.db.rows.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]) };
     }
@@ -33,9 +43,23 @@ class MemoryStatement {
 
 class MemoryDatabase {
   rows = new Map();
+  failures = new Map();
   prepare(sql) { return new MemoryStatement(this, sql); }
-  async batch(statements) { return Promise.all(statements.map((statement) => statement.all())); }
+  async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); }
 }
+
+test("supplier failures persist so reopening the same period does not retry a known failing target", async () => {
+  const db = new MemoryDatabase();
+  const saved = await saveBizConversionFailure(db, { world: "vacations", siteID: 99,
+    from: "2026-10-01", till: "2026-10-25", error: "not_supported", now: new Date("2026-10-25T10:00:00Z") });
+  assert.equal(saved.cache.status, "failure_cached");
+  const exact = await readCachedBizConversionFailure(db, "vacations", 99, "2026-10-01", "2026-10-25", new Date("2026-10-26T10:00:00Z"));
+  assert.equal(exact?.error, "not_supported");
+  assert.equal(exact?.cache.stale, false);
+  const reloaded = await loadCachedBizConversionFailures(db, "2026-10-01", "2026-10-25", new Date("2026-10-26T10:00:00Z"));
+  assert.equal(reloaded.length, 1);
+  assert.equal(reloaded[0].siteID, 99);
+});
 
 test("Biz conversion aggregates persist and an identical fresh pull does not call the supplier again", async () => {
   const db = new MemoryDatabase();

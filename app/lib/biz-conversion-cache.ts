@@ -10,6 +10,11 @@ export type CachedBizConversion = {
   cache: { status: BizConversionCacheStatus; savedAt: string; stale: boolean };
 };
 
+export type CachedBizConversionFailure = {
+  error: string;
+  cache: { status: "failure_cached"; savedAt: string; retryAt: string; stale: boolean };
+};
+
 type CacheRow = {
   world: string;
   siteID: number;
@@ -19,6 +24,8 @@ type CacheRow = {
   savedAt: string;
   staleAfter: string;
 };
+
+type FailureRow = { errorCode: string; savedAt: string; retryAt: string };
 
 const pending = new Map<string, Promise<CachedBizConversion>>();
 const initialized = new WeakMap<object, Promise<void>>();
@@ -34,6 +41,12 @@ async function ensureCache(db: D1Database) {
       supplier_created_at TEXT NOT NULL, saved_at TEXT NOT NULL, stale_after TEXT NOT NULL
     )`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_range ON vii_biz_conversion_snapshots_v1(from_day, till_day, world, site_id)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_failures_v1 (
+      cache_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
+      from_day TEXT NOT NULL, till_day TEXT NOT NULL, error_code TEXT NOT NULL,
+      saved_at TEXT NOT NULL, retry_at TEXT NOT NULL
+    )`),
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_failure_range ON vii_biz_conversion_failures_v1(from_day, till_day, world, site_id)"),
   ]).then(() => undefined).catch((error) => {
     initialized.delete(db as object);
     throw error;
@@ -65,15 +78,67 @@ async function save(db: D1Database, world: ConversionWorld, from: string, till: 
   const staleAfter = new Date(now.getTime() + FRESH_FOR_MS).toISOString();
   const aggregate: ConversionSummary = { ...conversions };
   delete aggregate.contacts;
-  await db.prepare(`INSERT INTO vii_biz_conversion_snapshots_v1
+  await db.batch([db.prepare(`INSERT INTO vii_biz_conversion_snapshots_v1
     (cache_key, world, site_id, from_day, till_day, payload, supplier_created_at, saved_at, stale_after)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(cache_key) DO UPDATE SET payload = excluded.payload,
       supplier_created_at = excluded.supplier_created_at, saved_at = excluded.saved_at,
       stale_after = excluded.stale_after`)
     .bind(keyFor(world, conversions.siteID, from, till), world, conversions.siteID, from, till,
-      JSON.stringify(aggregate), conversions.created, savedAt, staleAfter).run();
+      JSON.stringify(aggregate), conversions.created, savedAt, staleAfter),
+    db.prepare("DELETE FROM vii_biz_conversion_failures_v1 WHERE cache_key = ?")
+      .bind(keyFor(world, conversions.siteID, from, till)),
+  ]);
   return { conversions: aggregate, cache: { status: "saved" as const, savedAt, stale: false } };
+}
+
+function failureTtlMs(error: string) {
+  if (error === "not_supported") return 30 * 86400_000;
+  if (error === "invalid_request") return 86400_000;
+  if (error === "invalid_response") return 60 * 60_000;
+  return 6 * 60 * 60_000;
+}
+
+function parsedFailure(row: FailureRow | null, now = new Date()): CachedBizConversionFailure | null {
+  if (!row || !row.errorCode || !row.savedAt || !row.retryAt) return null;
+  return { error: row.errorCode, cache: { status: "failure_cached", savedAt: row.savedAt,
+    retryAt: row.retryAt, stale: Date.parse(row.retryAt) <= now.getTime() } };
+}
+
+export async function readCachedBizConversionFailure(db: D1Database, world: ConversionWorld, siteID: number,
+  from: string, till: string, now = new Date()) {
+  await ensureCache(db);
+  const row = await db.prepare(`SELECT error_code AS errorCode, saved_at AS savedAt, retry_at AS retryAt
+    FROM vii_biz_conversion_failures_v1 WHERE cache_key = ?`)
+    .bind(keyFor(world, siteID, from, till)).first<FailureRow>();
+  return parsedFailure(row, now);
+}
+
+export async function loadCachedBizConversionFailures(db: D1Database, from: string, till: string, now = new Date()) {
+  await ensureCache(db);
+  const result = await db.prepare(`SELECT world, site_id AS siteID, error_code AS errorCode,
+    saved_at AS savedAt, retry_at AS retryAt FROM vii_biz_conversion_failures_v1
+    WHERE from_day = ? AND till_day = ?`).bind(from, till).all<FailureRow & { world: string; siteID: number }>();
+  return result.results.flatMap((row) => {
+    const value = parsedFailure(row, now);
+    return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
+  });
+}
+
+export async function saveBizConversionFailure(db: D1Database, options: { world: ConversionWorld; siteID: number;
+  from: string; till: string; error: string; now?: Date }) {
+  await ensureCache(db);
+  const now = options.now ?? new Date();
+  const savedAt = now.toISOString();
+  const retryAt = new Date(now.getTime() + failureTtlMs(options.error)).toISOString();
+  await db.prepare(`INSERT INTO vii_biz_conversion_failures_v1
+    (cache_key, world, site_id, from_day, till_day, error_code, saved_at, retry_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(cache_key) DO UPDATE SET error_code = excluded.error_code,
+      saved_at = excluded.saved_at, retry_at = excluded.retry_at`)
+    .bind(keyFor(options.world, options.siteID, options.from, options.till), options.world, options.siteID,
+      options.from, options.till, options.error, savedAt, retryAt).run();
+  return { error: options.error, cache: { status: "failure_cached" as const, savedAt, retryAt, stale: false } };
 }
 
 export async function bizConversionDatabase() {

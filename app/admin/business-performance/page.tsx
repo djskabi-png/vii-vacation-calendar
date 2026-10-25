@@ -10,7 +10,7 @@ type ConversionBucket = { contacts: number; identified: number; converted: numbe
 type ConversionSource = "whatsapp" | "maskyoo" | "form";
 type ConversionContact = { source: ConversionSource; id: number; domainID: number | null; time: string; phone: string | null; details: { status?: string; duration?: number; date?: string | null; guests?: number }; order: { orderID: string; orderIDBySite: string | null; created: string; price: number } | null; delay: number | null; moreOrders: string[] };
 type Conversions = { siteID: number; from: string; till: string; created: string; count: number; summary: Record<"all" | ConversionSource, ConversionBucket>; clicks: { whatsapp: number; showphone: number; phone: number }; contacts?: ConversionContact[] };
-type BizCache = { status: "saved" | "fresh" | "stale_fallback"; savedAt: string; stale: boolean };
+type BizCache = { status: "saved" | "fresh" | "stale_fallback" | "failure_cached"; savedAt: string; stale: boolean; retryAt?: string };
 type BizSummary = { summary: Conversions["summary"]; clicks: Conversions["clicks"]; cache?: BizCache; error?: string };
 type BizBatchJob = { id: string; from: string; till: string; scope: string; forceRefresh: boolean; targets: Array<{ placeId: string; world: string }> };
 type BizReportRun = { jobId: string; actorEmail: string; from: string; till: string; scope: string; forceRefresh: boolean; total: number; processed: number; succeeded: number; failed: number; status: "running" | "completed" | "stopped"; startedAt: string; updatedAt: string };
@@ -116,8 +116,15 @@ export default function BusinessPerformance() {
   const startBizBatch = (forceRefresh = false) => {
     conversionBatchRequest.current?.abort();
     setBizBatchError("");
-    const unresolved = conversionRows.filter(({ placeId }) => !bizByPlace[placeId] || bizByPlace[placeId].error || bizByPlace[placeId].cache?.stale);
-    const targets = unresolved.length ? unresolved : conversionRows;
+    const unresolved = conversionRows.filter(({ placeId }) => {
+      const value = bizByPlace[placeId];
+      return !value || value.cache?.stale || (value.error && value.cache?.status !== "failure_cached");
+    });
+    const targets = forceRefresh ? conversionRows : unresolved;
+    if (!targets.length) {
+      setBizBatchProgress({ loaded: conversionRows.length, total: conversionRows.length, running: false, stopped: false });
+      return;
+    }
     setBizBatchJob({
       id: crypto.randomUUID(),
       from,
@@ -176,7 +183,8 @@ export default function BusinessPerformance() {
           const all = result.conversions?.summary.all;
           collected[result.placeId] = all && result.conversions
             ? { summary: result.conversions.summary, clicks: result.conversions.clicks, cache: result.cache }
-            : { summary: { all: emptyBucket(), whatsapp: emptyBucket(), maskyoo: emptyBucket(), form: emptyBucket() }, clicks: { whatsapp: 0, showphone: 0, phone: 0 }, error: result.error || "supplier_unavailable" };
+            : { summary: { all: emptyBucket(), whatsapp: emptyBucket(), maskyoo: emptyBucket(), form: emptyBucket() },
+              clicks: { whatsapp: 0, showphone: 0, phone: 0 }, error: result.error || "supplier_unavailable", cache: result.cache };
         }
         succeeded += payload.results.filter((result) => result.conversions).length;
         failed += payload.results.filter((result) => !result.conversions).length;
@@ -231,19 +239,19 @@ export default function BusinessPerformance() {
   const totals = useMemo(() => filtered.reduce((sum, row) => ({ impressions: sum.impressions + row.impressions, pageViews: sum.pageViews + row.pageViews, uniqueBrowsers: sum.uniqueBrowsers + row.uniqueBrowsers, phoneReveals: sum.phoneReveals + row.phoneReveals, phoneClicks: sum.phoneClicks + row.phoneClicks, whatsappLeads: sum.whatsappLeads + row.whatsappLeads, whatsappHandoffs: sum.whatsappHandoffs + row.whatsappHandoffs, bookingRequests: sum.bookingRequests + row.bookingRequests, viiBookings: sum.viiBookings + row.viiBookings, reviews: sum.reviews + row.reviews }), { impressions: 0, pageViews: 0, uniqueBrowsers: 0, phoneReveals: 0, phoneClicks: 0, whatsappLeads: 0, whatsappHandoffs: 0, bookingRequests: 0, viiBookings: 0, reviews: 0 }), [filtered]);
   const totalActions = totals.phoneClicks + totals.whatsappHandoffs + totals.bookingRequests;
   const reportConversionRows = useMemo(() => filtered.filter(conversionSupported), [filtered]);
-  const loadedBiz = useMemo(() => reportConversionRows.flatMap((row) => bizByPlace[row.placeId] && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId]] : []), [reportConversionRows, bizByPlace]);
+  const loadedBiz = useMemo(() => reportConversionRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId]] : []), [reportConversionRows, bizByPlace]);
   const staleBiz = useMemo(() => loadedBiz.filter((item) => item.cache?.stale), [loadedBiz]);
   const latestBizSave = useMemo(() => loadedBiz.map((item) => item.cache?.savedAt || "").filter(Boolean).sort().at(-1) || "", [loadedBiz]);
-  const bizTotals = useMemo(() => ({ all: sumBucket(loadedBiz.map((row) => row.summary.all)), whatsapp: sumBucket(loadedBiz.map((row) => row.summary.whatsapp)), maskyoo: sumBucket(loadedBiz.map((row) => row.summary.maskyoo)), form: sumBucket(loadedBiz.map((row) => row.summary.form)) }), [loadedBiz]);
+  const bizTotals = useMemo(() => ({ all: sumBucket(loadedBiz.map((row) => row.summary!.all)), whatsapp: sumBucket(loadedBiz.map((row) => row.summary!.whatsapp)), maskyoo: sumBucket(loadedBiz.map((row) => row.summary!.maskyoo)), form: sumBucket(loadedBiz.map((row) => row.summary!.form)) }), [loadedBiz]);
   const worldBreakdown = useMemo(() => (["vacations", "events", "spa", "rooms", "activities", "trails", "providers"] as const).map((scope) => {
     const allScopeRows = filtered.filter((row) => canonicalBusinessReportScope(row.world) === scope);
     const scopeRows = allScopeRows.filter(conversionSupported);
-    const summaries = scopeRows.flatMap((row) => bizByPlace[row.placeId] && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId].summary] : []);
+    const summaries = scopeRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId].summary!] : []);
     return { scope, businesses: allScopeRows.length, loaded: summaries.length, supported: scope === "vacations" || scope === "events" || scope === "rooms", all: sumBucket(summaries.map((item) => item.all)), whatsapp: sumBucket(summaries.map((item) => item.whatsapp)), maskyoo: sumBucket(summaries.map((item) => item.maskyoo)) };
   }), [filtered, bizByPlace]);
   function exportCsv() {
     const header = ["עסק", "עולם", "חשיפות", "כניסות", "דפדפנים ייחודיים", "חשיפות טלפון", "לחיצות טלפון", "לידי WhatsApp", "מעברים ל-WhatsApp", "בקשות הזמנה", "הזמנות מ-VII", "שיחות מסקיו", "פניות WhatsApp ב-Biz", "פניות שהומרו", "הזמנות מ-Biz", "הכנסות Biz", "חוות דעת", "כניסה מתוך חשיפה", "פעולה מתוך כניסה"];
-    const lines = filtered.map((row) => { const biz = bizByPlace[row.placeId]; return [row.placeName, worldLabels[row.world] || row.world, row.impressions, row.pageViews, row.uniqueBrowsers, row.phoneReveals, row.phoneClicks, row.whatsappLeads, row.whatsappHandoffs, row.bookingRequests, row.viiBookings, conversionSupported(row) ? biz?.error ? "לא זמין" : biz ? biz.summary.maskyoo.contacts : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz ? biz.summary.whatsapp.contacts : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz ? biz.summary.all.converted : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz ? biz.summary.all.orders : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz ? biz.summary.all.revenue : "לא נטען" : "לא נתמך", row.reviews, `${percent(row.pageViews, row.impressions)}%`, `${percent(actions(row), row.pageViews)}%`]; });
+    const lines = filtered.map((row) => { const biz = bizByPlace[row.placeId]; return [row.placeName, worldLabels[row.world] || row.world, row.impressions, row.pageViews, row.uniqueBrowsers, row.phoneReveals, row.phoneClicks, row.whatsappLeads, row.whatsappHandoffs, row.bookingRequests, row.viiBookings, conversionSupported(row) ? biz?.error ? "לא זמין" : biz?.summary ? biz.summary.maskyoo.contacts : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz?.summary ? biz.summary.whatsapp.contacts : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz?.summary ? biz.summary.all.converted : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz?.summary ? biz.summary.all.orders : "לא נטען" : "לא נתמך", conversionSupported(row) ? biz?.error ? "לא זמין" : biz?.summary ? biz.summary.all.revenue : "לא נטען" : "לא נתמך", row.reviews, `${percent(row.pageViews, row.impressions)}%`, `${percent(actions(row), row.pageViews)}%`]; });
     const csv = [header, ...lines].map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
     const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" })); link.download = `vii-business-performance-${from}-${till}.csv`; link.click(); URL.revokeObjectURL(link.href);
   }
