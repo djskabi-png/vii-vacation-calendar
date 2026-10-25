@@ -1,0 +1,30 @@
+{
+  "operation_id": "v646-map-provider-access-review-20261025",
+  "requirement_id": "access:map-provider",
+  "observed_error": "Production map snapshot diagnostics report providerConfigured=false; 305 of 305 snapshot records are unresolved with provider_not_configured.",
+  "category": "missing_external_provider_credential",
+  "diagnosis": "The snapshot worker and recovery flow are deployed, but the production environment has neither VII_MAPBOX_STATIC_TOKEN nor VII_MAPTILER_API_KEY.",
+  "authorization_boundary": "The task authorizes VII publication, but not inventing, purchasing, exposing or silently creating a third-party map credential.",
+  "routes_checked": [
+    {
+      "route": "project_configuration",
+      "result": "No static-map provider credential exists in the local VII configuration; the hosting manifest contains only the approved project, D1, R2 and capability bindings."
+    },
+    {
+      "route": "authenticated_production_session",
+      "result": "The existing authorized VII admin session exposed diagnostics and confirmed the missing provider, but contains no existing selectable credential."
+    },
+    {
+      "route": "sites_connector",
+      "result": "The current connector workspace could not resolve this Sites project, while the authorized release conversation remained usable for code deployment only."
+    },
+    {
+      "route": "official_provider_connection",
+      "result": "Production requires one owner-approved Mapbox static-images token or MapTiler API key, stored as a secret binding."
+    }
+  ],
+  "outcome": "human_required",
+  "ready_work_remaining": false,
+  "minimum_human_action": "Provide or select an existing licensed Mapbox or MapTiler credential for the VII production environment, without pasting the secret into chat.",
+  "resume_when": "VII_MAPBOX_STATIC_TOKEN or VII_MAPTILER_API_KEY is present in the production environment; then run reconciliation and verify representative cached-image endpoints."
+}

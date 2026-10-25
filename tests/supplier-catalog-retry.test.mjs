@@ -5,6 +5,7 @@ import test from "node:test";
 import { runCatalogPullWithRetryPlan, runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { claimDueCatalogRetries, readCatalogRetryJobs, scheduleCatalogRetry } from "../app/lib/supplier-catalog-retry.ts";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../app/lib/supplier-catalog-alerts.ts";
+import { supplierDetailRefreshLimit } from "../app/lib/supplier-catalog-runtime.ts";
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -105,6 +106,13 @@ test("a visitor heartbeat is not suppressed by unrelated retry backlog", async (
       { world: "spa", source: "scheduled" },
     ]);
   } finally { db.close(); }
+});
+
+test("automatic vacation refreshes use a bounded rotating detail batch", () => {
+  assert.equal(supplierDetailRefreshLimit("vacations", "scheduled"), 8);
+  assert.equal(supplierDetailRefreshLimit("vacations", "retry"), 8);
+  assert.equal(supplierDetailRefreshLimit("vacations", "manual"), undefined);
+  assert.equal(supplierDetailRefreshLimit("events", "scheduled"), undefined);
 });
 
 test("two failed retries exhaust the bounded retry budget and preserve an auditable record", async () => {

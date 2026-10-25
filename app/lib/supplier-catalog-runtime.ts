@@ -16,6 +16,13 @@ export function isCatalogWorld(value: unknown): value is SupplierCatalogWorld {
   return typeof value === "string" && catalogWorlds.includes(value as SupplierCatalogWorld);
 }
 
+export function supplierDetailRefreshLimit(world: SupplierCatalogWorld, source: "manual" | "scheduled" | "retry") {
+  // Vacation details are the largest supplier payload. Visitor and scheduled
+  // heartbeats rotate a bounded subset so they finish inside the Worker
+  // background lifetime; manual pulls keep the wider diagnostic batch.
+  return world === "vacations" && source !== "manual" ? 8 : undefined;
+}
+
 export function bundledCatalogBaseline(world: SupplierCatalogWorld): SupplierCatalogEntry[] {
   if (world === "spa") return spa.sites.map((summary) => ({ supplierId: summary.id, summary }));
   if (world === "rooms") return hourly.places.map((summary) => ({ supplierId: summary.supplierId, summary }));
@@ -43,7 +50,8 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
     : world === "rooms"
       ? createSergeyRoomsCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
-      : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl });
+      : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
+        detailRefreshLimit: supplierDetailRefreshLimit(world, source) });
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline,

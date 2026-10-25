@@ -14,8 +14,19 @@ const states = [
   { id: "events-filter", path: "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5", trigger: ".event-filter-toggle", open: ".filter-panel.open", close: ".filter-panel .filter-head button[aria-label='סגירת סינון']" },
   { id: "hourly-filter", path: "/hourly", trigger: ".hourly-filter-toggle", open: ".hourly-results__filters.open", close: ".hourly-filter-toggle" },
   { id: "spa-filter", path: "/spas", trigger: ".spa-results__filter-toggle", open: "#spa-result-filters", close: ".spa-results__filter-toggle" },
+  { id: "vacation-map", path: "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
+  { id: "events-map", path: "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
+  { id: "hourly-map", path: "/hourly", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
+  { id: "spa-map", path: "/spas", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
+  { id: "trails-map", path: "/trails", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
+  { id: "attractions-map", path: "/attractions", trigger: ".map-button[data-map-interactive='true']", open: ".map-results-experience", close: ".map-mobile-close", directClick: true },
   { id: "vacation-gallery", path: "/business?id=vacation-116", trigger: "[data-gallery-trigger]", open: ".story-gallery", close: ".story-gallery__close" },
+  { id: "events-gallery", path: "/events/place/event-2575", trigger: "[data-gallery-trigger]", open: ".story-gallery", close: ".story-gallery__close" },
+  { id: "hourly-gallery", path: "/discover/place/hourly-475", trigger: "[data-gallery-trigger]", open: ".story-gallery", close: ".story-gallery__close" },
+  { id: "spa-gallery", path: "/discover/place/spa-6", trigger: "[data-gallery-trigger]", open: ".story-gallery", close: ".story-gallery__close" },
 ];
+const requestedCases = new Set((process.env.QA_CASES || "").split(",").map((value) => value.trim()).filter(Boolean));
+if (requestedCases.size) states.splice(0, states.length, ...states.filter((state) => requestedCases.has(state.id)));
 const sizes = [
   { id: "mobile", width: 390, height: 844 },
   { id: "landscape", width: 844, height: 390 },
@@ -55,14 +66,17 @@ async function runState(browser, state) {
     if (!response || response.status() >= 400) throw new Error(`http_${response?.status() || 0}`);
     await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 25_000 });
     await page.waitForTimeout(1_200);
-    await page.locator(state.trigger).first().waitFor({ state: "visible", timeout: 25_000 });
+    await page.locator(state.trigger).first().waitFor({ state: state.directClick ? "attached" : "visible", timeout: 25_000 });
     let opened = false;
-    for (let attempt = 0; attempt < 2 && !opened; attempt += 1) {
-      await page.locator(state.trigger).first().click({ force: true });
+    for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
+      if (state.directClick) await page.evaluate((selector) => document.querySelector(selector)?.click(), state.trigger);
+      else await page.locator(state.trigger).first().click({ force: true });
       opened = await page.locator(state.open).first().waitFor({ state: "visible", timeout: 4_000 }).then(() => true).catch(() => false);
       if (!opened) await page.waitForTimeout(450);
     }
-    if (!opened) throw new Error("surface_did_not_open_after_two_current-document_clicks");
+    if (!opened) throw new Error("surface_did_not_open_after_three_current-document_clicks");
+    await page.waitForTimeout(650);
+    if (!(await geometry(page, state.open)).visible) throw new Error("surface_did_not_remain_open_after_settle");
     for (const size of sizes) {
       await page.setViewportSize(size);
       await page.waitForTimeout(350);
