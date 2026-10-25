@@ -474,7 +474,9 @@
                                "purpose": "local candidate map QA server",
                                "port": 41737,
                                "startedAt": "2026-10-25T06:37:00+02:00",
-                               "status": "running"
+                               "status": "stopped_verified",
+                               "stoppedAt": "2026-10-25T08:34:00+02:00",
+                               "verification": "Owned process tree 36240 -> 6120 -> 8200 -> 12240 stopped; TCP port 41737 has no listener and zero owned processes remain."
                            }
                        ],
     "before":  {
