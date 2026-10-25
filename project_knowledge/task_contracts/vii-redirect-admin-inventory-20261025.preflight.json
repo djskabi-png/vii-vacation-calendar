@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-redirect-admin-inventory-20261025",
+  "project": "VII",
+  "task_type": "admin data visibility and redirect lifecycle repair",
+  "requested_outcome": "The redirect administration shows the complete effective legacy and managed inventory and supports safe audited deletion.",
+  "natural_destination": "/admin/redirects",
+  "authorization_boundary": "Implement and verify a local candidate; do not publish without explicit authorization.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-ADMIN-001", "reason": "The defect is missing operational control and proof in administration.", "acceptance_impact": "Require complete inventory, persistence, reload, provenance and role-gated mutation evidence."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A redirect edit affects a public route family.", "acceptance_impact": "Require exact delete, edit, empty, unauthorized and runtime fallback regression checks."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "Only manually created database rows appear, while the thousands of deployed mappings remain hidden.", "prevention": "Merge the immutable legacy inventory with managed overrides before pagination.", "acceptance_check": "The administration total equals the full effective inventory and exposes its source."},
+    {"rejection": "A delete button removes the database override but silently restores the bundled redirect.", "prevention": "Persist a deleted tombstone that suppresses bundled fallback.", "acceptance_check": "Deleted legacy rows stay absent after reload and no longer redirect to their former target."},
+    {"rejection": "The list becomes unusable after rendering thousands of rows at once.", "prevention": "Use bounded server pagination plus query and state filters.", "acceptance_check": "The first page is bounded while total counts and search cover the complete inventory."}
+  ],
+  "affected_family": ["redirect admin page", "admin redirect API", "redirect database schema", "worker legacy fallback", "local proxy", "redirect audit events", "admin permissions"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "VII platform master plan redirect requirement", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "Merged inventory helper returns representative bundled, managed and deleted rows.", "checks": ["full count", "managed override precedence", "deleted tombstone exclusion"], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Can a bundled row disappear without falling back publicly?", "Can a viewer mutate or delete?", "Does search find an item outside the first page?", "Does edit still prevent redirect chains?"], "natural_destination_evidence": "The authenticated redirect screen must show totals, source, filters and delete controls after publication.", "affected_family_evidence": "Automated tests must cover API authorization, merged inventory, deletion persistence and worker fallback suppression."},
+  "effectiveness": {"baseline": "The admin reads at most 500 managed database rows while 3533 bundled legacy dispositions are not visible, and no delete API exists.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "Complete searchable effective inventory with bounded rendering and one safe audited delete flow."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

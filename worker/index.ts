@@ -19,7 +19,7 @@ import { warmEventDiscoveryCache } from "../app/lib/warm-event-discovery-cache.t
 import { bundledMapSnapshotCandidates } from "../app/lib/map-snapshot-catalog.ts";
 import { isWeeklyMapSnapshotWindow, reconcileMapSnapshots } from "../app/lib/map-snapshot-store.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
-import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
+import { redirectRecordForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
@@ -249,16 +249,18 @@ const worker = {
     }
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
     if (request.method === "GET" || request.method === "HEAD") {
+      let managedOverride = false;
       if (database && shouldCheckRedirect(url.pathname)) {
         try {
-          const managed = await redirectForUrl(database, url);
-          if (managed?.status === 301 && managed.target_path) return Response.redirect(new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin), 301);
-          if (managed?.status === 410) return goneResponse(request);
+          const managed = await redirectRecordForUrl(database, url);
+          managedOverride = Boolean(managed);
+          if (managed && !managed.deleted && managed.active && managed.status === 301 && managed.target_path) return Response.redirect(new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin), 301);
+          if (managed && !managed.deleted && managed.active && managed.status === 410) return goneResponse(request);
         } catch (error) {
           console.error("VII managed redirect lookup failed", error);
         }
       }
-      const legacy = legacyDisposition(url);
+      const legacy = managedOverride ? null : legacyDisposition(url);
       if (legacy?.status === 301) return Response.redirect(new URL(legacy.target, primary ? primaryOrigin : temporaryOrigin), 301);
       if (legacy?.status === 410 || (primary && shouldCheckRedirect(url.pathname) && looksLikeUninventoriedLegacyPath(url.pathname))) return goneResponse(request);
     }

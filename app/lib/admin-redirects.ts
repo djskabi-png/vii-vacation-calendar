@@ -1,7 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
-export type RedirectRecord = { source_path: string; target_path: string | null; status: 301 | 410; active: number; updated_at: string; updated_by: string };
+export type RedirectRecord = { source_path: string; target_path: string | null; status: 301 | 410; active: number; deleted: number; updated_at: string; updated_by: string };
 
 const protectedPrefixes = ["/api", "/admin", "/_next", "/_vinext", "/assets", "/favicon", "/robots", "/sitemap"];
 const currentRoutes = ["/", "/search", "/events", "/spas", "/hourly", "/business", "/booking", "/discover", "/providers", "/platform", "/guides", "/legal", "/accessibility", "/join", "/contact", "/favorites", "/account", "/activities", "/attractions", "/corporate", "/destinations", "/gift-card", "/questions", "/trails", "/handoff", "/villas", "/suite-complexes", "/luxury-suites", "/vacation-apartments", "/vacations"];
@@ -50,21 +50,43 @@ export async function redirectLookupDatabase(): Promise<D1Database> {
   return requiredRuntimeDatabase("redirects_database_unavailable");
 }
 
-export async function redirectsDatabase(): Promise<D1Database> {
-  const db = await redirectLookupDatabase();
+export async function ensureRedirectSchema(db: D1Database) {
   await db.batch([
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_redirects (source_path TEXT PRIMARY KEY NOT NULL, target_path TEXT, status INTEGER NOT NULL, active INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_redirects (source_path TEXT PRIMARY KEY NOT NULL, target_path TEXT, status INTEGER NOT NULL, active INTEGER NOT NULL DEFAULT 0, deleted INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_redirect_events (id TEXT PRIMARY KEY NOT NULL, source_path TEXT NOT NULL, old_value TEXT, new_value TEXT NOT NULL, at TEXT NOT NULL, actor TEXT NOT NULL)`),
   ]);
+  const columns = await db.prepare("PRAGMA table_info(vii_redirects)").all<{ name: string }>();
+  if (!columns.results.some((column) => column.name === "deleted")) {
+    try { await db.prepare("ALTER TABLE vii_redirects ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0").run(); }
+    catch {
+      const after = await db.prepare("PRAGMA table_info(vii_redirects)").all<{ name: string }>();
+      if (!after.results.some((column) => column.name === "deleted")) throw new Error("redirect_deleted_column_unavailable");
+    }
+  }
+}
+
+export async function redirectsDatabase(): Promise<D1Database> {
+  const db = await redirectLookupDatabase();
+  await ensureRedirectSchema(db);
   return db;
 }
 
 export async function redirectForPath(db: D1Database, path: string) {
-  return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE LOWER(source_path) = LOWER(?) AND active = 1").bind(path).first<RedirectRecord>();
+  return db.prepare("SELECT source_path, target_path, status, active, deleted, updated_at, updated_by FROM vii_redirects WHERE LOWER(source_path) = LOWER(?) AND active = 1 AND deleted = 0").bind(path).first<RedirectRecord>();
+}
+
+export async function redirectRecordForPath(db: D1Database, path: string) {
+  return db.prepare("SELECT source_path, target_path, status, active, deleted, updated_at, updated_by FROM vii_redirects WHERE LOWER(source_path) = LOWER(?)").bind(path).first<RedirectRecord>();
 }
 
 export async function redirectForUrl(db: D1Database, url: URL) {
   const exact = normalizeRedirectSource(`${url.pathname}${url.search}`);
   const path = normalizeRedirectSource(url.pathname);
   return await redirectForPath(db, exact) || (exact === path ? null : await redirectForPath(db, path));
+}
+
+export async function redirectRecordForUrl(db: D1Database, url: URL) {
+  const exact = normalizeRedirectSource(`${url.pathname}${url.search}`);
+  const path = normalizeRedirectSource(url.pathname);
+  return await redirectRecordForPath(db, exact) || (exact === path ? null : await redirectRecordForPath(db, path));
 }

@@ -1,0 +1,27 @@
+{
+  "goal": "Give administrators visible proof and complete control of VII URL redirects.",
+  "intent_model": {"literal_request": "All promised addresses and redirects are missing from administration, and an edited item has no delete action.", "implied_outcome": "The admin is the trustworthy operational view of every effective mapping, including provenance and safe lifecycle controls.", "likely_rejections": ["Only a sample is displayed.", "Delete reactivates a hidden bundled rule.", "The row disappears but returns after reload."], "interpretation_rules": [{"phrase": "כל הכתובות וההפניות", "operational_meaning": "Inventory every effective bundled and managed 301/410 mapping rather than database rows alone.", "acceptance_impact": "Require full counts, server-side search and source visibility."}]},
+  "cognitive_flow": {"current_layer": "Total mappings, active filters and the current page.", "current_decision": "Search, edit, deactivate or delete one mapping.", "next_action": "Save or confirm deletion and observe the persisted refreshed result.", "deferred_complexity": ["Audit event details remain stored for diagnostics."], "preserved_depth": ["Source, status, public state, updater and timestamp remain available."]},
+  "predictive_preflight": {"manifest_path": "project_knowledge/task_contracts/vii-redirect-admin-inventory-20261025.preflight.json", "lesson_bundle_ids": ["ADIR-ADMIN-001", "ADIR-QA-001"], "no_applicable_lessons_reason": null, "midpoint_requirement": "Merged inventory helper passes representative precedence tests.", "adversarial_requirement": "Delete suppression, permissions, pagination, search and redirect-chain behavior are attacked.", "effectiveness_requirement": "Measure visible total against inventory stats and verify bounded rows."},
+  "actors": ["authorized VII admin editor", "authorized VII admin viewer"],
+  "natural_destination": "/admin/redirects",
+  "facts": [{"claim": "The bundled inventory contains 3533 dispositions.", "evidence": "app/data/legacy-redirect-inventory.json stats."}, {"claim": "The current admin API selects only vii_redirects rows with a limit of 500.", "evidence": "app/api/admin/redirects/route.ts before repair."}, {"claim": "The current route exports GET and POST only.", "evidence": "app/api/admin/redirects/route.ts before repair."}],
+  "assumptions": [{"claim": "Deleting a legacy mapping should suppress its former target while preserving an audit record.", "validation": "Use an explicit deleted tombstone and verify worker fallback suppression."}],
+  "in_scope": ["merged effective redirect inventory", "complete totals and row provenance", "bounded server pagination and search", "editing existing redirect records", "safe audited redirect deletion", "runtime suppression of deleted bundled mappings"],
+  "out_of_scope": ["Production publication without explicit authorization", "Changing destination choices in the approved legacy inventory"],
+  "invariants": ["Active 301 and 410 behavior remains unchanged until edited", "Admin authorization and same-origin mutation checks remain", "Redirect-chain protection remains"],
+  "affected_family": ["redirect admin page", "redirect API", "redirect persistence", "worker routing", "proxy routing", "audit history"],
+  "characteristics": {"stateful": true},
+  "requirements": [{"id": "REQ-1", "statement": "Show the complete effective redirect inventory with totals and source.", "source": "User request"}, {"id": "REQ-2", "statement": "Allow an authorized editor to delete a mapping without hidden fallback restoration.", "source": "User request"}, {"id": "REQ-3", "statement": "Keep changes attributable and persistent across reload.", "source": "Project rules"}],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "The bundled inventory and managed database rows exist.", "action": "Open or search the redirect administration.", "observable_result": "The result and total are calculated from the merged effective inventory and each row identifies its source."},
+    {"id": "AC-2", "requirement_ids": ["REQ-1"], "kind": "empty", "setup": "A query matches no mapping.", "action": "Apply the query.", "observable_result": "A clear no-results state appears without claiming the inventory is empty."},
+    {"id": "AC-3", "requirement_ids": ["REQ-2", "REQ-3"], "kind": "persistence", "setup": "An editor selects a bundled mapping.", "action": "Confirm deletion and reload.", "observable_result": "The mapping stays deleted, the bundled fallback is suppressed and an audit event identifies the actor."},
+    {"id": "AC-4", "requirement_ids": ["REQ-2"], "kind": "permission", "setup": "A viewer or anonymous request attempts deletion.", "action": "Send the delete request.", "observable_result": "The mutation is denied and the mapping remains unchanged."},
+    {"id": "AC-5", "requirement_ids": ["REQ-2"], "kind": "failure", "setup": "Deletion persistence fails.", "action": "Confirm deletion.", "observable_result": "The UI reports failure and keeps the row visible."},
+    {"id": "AC-6", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "rollback", "setup": "The candidate is rolled back.", "action": "Load public legacy paths.", "observable_result": "Untouched bundled mappings retain their previous behavior."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local candidate implementation and verification only; deployment requires explicit instruction.",
+  "ready_for_implementation": true
+}

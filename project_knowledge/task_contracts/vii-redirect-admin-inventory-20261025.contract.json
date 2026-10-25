@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "taskId": "vii-redirect-admin-inventory-20261025",
+  "status": "verified_candidate",
+  "outcome": "The VII redirect administration exposes the complete effective legacy and managed inventory with proof, bounded search and safe audited deletion.",
+  "naturalDestination": "/admin/redirects",
+  "authorizationBoundary": "Candidate implementation and verification only; no production publication without explicit instruction.",
+  "lessonBundle": ["ADIR-ADMIN-001", "ADIR-QA-001"],
+  "preflight": "project_knowledge/task_contracts/vii-redirect-admin-inventory-20261025.preflight.json",
+  "affectedFamily": ["redirect admin page", "redirect API", "redirect persistence", "Worker fallback", "local proxy", "audit events"],
+  "requirements": [
+    {"id": "REQ-1", "source": "user_correction", "statement": "Show every effective address and redirect in administration, not only manually stored rows.", "status": "verified"},
+    {"id": "REQ-2", "source": "user_correction", "statement": "Provide a safe delete action for an edited redirect.", "status": "verified"},
+    {"id": "REQ-3", "source": "project_rule", "statement": "Persist and attribute edits and deletion without restoring hidden bundled fallback.", "status": "verified"}
+  ],
+  "evidence": {"focusedTests": "18 passed after build across redirect, SEO and permission families", "fullRegression": "1611 passed, 0 failed", "productionBuild": "passed", "inventory": "3533 bundled dispositions merged with managed overrides", "d1Migration": "actual D1 migration and tombstone persistence test passed"},
+  "notVerified": ["The candidate is not published.", "The authenticated production destination has not been visually exercised after publication."]
+}

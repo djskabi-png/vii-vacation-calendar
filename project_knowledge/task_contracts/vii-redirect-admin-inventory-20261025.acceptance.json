@@ -1,0 +1,14 @@
+{
+  "taskId": "vii-redirect-admin-inventory-20261025",
+  "status": "verified_candidate_not_published",
+  "verifiedAt": "2026-10-25T09:18:00+02:00",
+  "outcomes": [
+    {"requirement": "Complete effective inventory", "status": "passed", "evidence": "3533 bundled rows are merged with managed overrides before bounded pagination; search covers the full set."},
+    {"requirement": "Visible proof", "status": "passed", "evidence": "The admin candidate shows full totals, 301/410 totals, managed counts, source badges, updater and timestamp."},
+    {"requirement": "Safe deletion", "status": "passed", "evidence": "DELETE persists an actor-attributed tombstone and the Worker suppresses bundled fallback."},
+    {"requirement": "Permissions", "status": "passed", "evidence": "Central admin permission tests and anonymous DELETE denial passed."},
+    {"requirement": "Persistence", "status": "passed", "evidence": "Actual D1 schema upgrade and tombstone reload test passed."}
+  ],
+  "checks": {"focused": "18/18", "full": "1611/1611", "build": "passed", "resourceHygiene": "verified with no owned processes remaining"},
+  "publication": "not_published"
+}
