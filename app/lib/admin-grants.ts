@@ -59,11 +59,15 @@ export async function resolveAdminAccess(email: string, database = adminGrantDat
       const now = new Date().toISOString();
       const before = decode(row);
       const after = { ...before, identityBound: true, version: before.version + 1, updatedAt: now, updatedBy: normalized };
+      const identityAuditId = `identity_bound:${normalized}:${after.version}`;
       await db.batch([
         db.prepare("UPDATE vii_admin_grants SET google_sub = ?, version = version + 1, updated_at = ?, updated_by = ? WHERE email = ? AND google_sub IS NULL AND active = 1 AND version = ?")
           .bind(googleSubject, now, normalized, normalized, before.version),
-        db.prepare("INSERT INTO vii_admin_grant_audit(id,email,action,before_json,after_json,actor,created_at) SELECT ?,?,?,?,?,?,? WHERE changes() = 1")
-          .bind(crypto.randomUUID(), normalized, "identity_bound", JSON.stringify(before), JSON.stringify(after), normalized, now),
+        db.prepare(`INSERT OR IGNORE INTO vii_admin_grant_audit(id,email,action,before_json,after_json,actor,created_at)
+          SELECT ?,?,?,?,?,?,? WHERE EXISTS (
+            SELECT 1 FROM vii_admin_grants WHERE email = ? AND google_sub = ? AND active = 1 AND version = ?
+          )`).bind(identityAuditId, normalized, "identity_bound", JSON.stringify(before), JSON.stringify(after), normalized, now,
+            normalized, googleSubject, after.version),
       ]);
       row = await db.prepare("SELECT * FROM vii_admin_grants WHERE email = ?").bind(normalized).first<GrantRow>();
     }

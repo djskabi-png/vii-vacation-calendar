@@ -31,6 +31,11 @@ test('actual D1 users handler persists grant/audit, pins Google identity, enforc
     const session=await request(change.email);
     assert.equal((await handlers.GET(session.clone())).status,403);
     const bound=await readAdminGrant(db,change.email);assert.equal(bound.identityBound,true);assert.equal(bound.version,2);
+    const identityAudit=await db.prepare("SELECT id FROM vii_admin_grant_audit WHERE action='identity_bound'").first();
+    assert.equal(identityAudit.id,`identity_bound:${change.email}:2`);
+    assert.equal((await handlers.GET(session.clone())).status,403);
+    const identityAuditCount=await db.prepare("SELECT COUNT(*) AS total FROM vii_admin_grant_audit WHERE action='identity_bound'").first();
+    assert.equal(identityAuditCount.total,1);
     assert.equal((await handlers.GET(await request(change.email,'GET',undefined,origin,'a-different-google-sub'))).status,403);
     const fresh=await (await handlers.GET(await request('second-owner@example.test'))).json();assert.equal(fresh.audit.length,2);assert.ok(fresh.audit.some(a=>a.id===receipt.auditId));
     assert.equal((await handlers.POST(await request('owner@example.test','POST',change))).status,409);
@@ -39,4 +44,11 @@ test('actual D1 users handler persists grant/audit, pins Google identity, enforc
     assert.equal((await handlers.GET(await request(change.email,'GET',undefined,origin,'a-different-google-sub'))).status,403);
     const audit=await db.prepare('SELECT action FROM vii_admin_grant_audit ORDER BY created_at').all();assert.deepEqual(audit.results.map(r=>r.action),['grant','identity_bound','revoke']);
   }finally{await mf.dispose();}
+});
+
+test('first Google login binding uses SQL portable to D1 and Aurora',async()=>{
+  const source=await import('node:fs/promises').then(fs=>fs.readFile(new URL('../app/lib/admin-grants.ts',import.meta.url),'utf8'));
+  assert.doesNotMatch(source,/\bchanges\s*\(\s*\)/i);
+  assert.match(source,/INSERT OR IGNORE INTO vii_admin_grant_audit/);
+  assert.match(source,/WHERE EXISTS\s*\(\s*SELECT 1 FROM vii_admin_grants WHERE email = \? AND google_sub = \?/s);
 });
