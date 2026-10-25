@@ -14,6 +14,16 @@ test("open map switches its scroll lock in both responsive directions", () => {
   assert.match(hook, /event\.defaultPrevented/);
 });
 
+test("desktop map opening reveals the map and closing returns to the original position", () => {
+  const hook = read("app/components/map-view-state.ts");
+  assert.match(hook, /querySelector<HTMLElement>\("\.map-results-experience"\)\?\.scrollIntoView/);
+  assert.match(hook, /scrollIntoView\(\{ block: "start", behavior \}\)/);
+  assert.match(hook, /prefers-reduced-motion: reduce/);
+  assert.match(hook, /setIsMapOpen\(true\);\s*revealDesktopMap\(\)/);
+  assert.match(hook, /window\.scrollTo\(0, scrollPosition\.current\)/);
+  assert.match(read("app/globals.css"), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
+});
+
 test("map canvas resizes without resetting the user's camera", () => {
   const map = read("app/components/listing-map.tsx");
   const resize = map.slice(map.indexOf("resizeObserver = new ResizeObserver"), map.indexOf("resizeObserver.observe(container)"));

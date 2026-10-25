@@ -5262,7 +5262,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .vii-map-marker-wrap.is-cluster .vii-map-marker::after { border-color: rgba(255,255,255,.96); background: #178fb8; }
 .vii-map-marker-wrap.is-cluster:hover .vii-map-marker,.vii-map-marker-wrap.is-cluster:focus .vii-map-marker { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(11,100,126,.36); }
 
-.map-results-experience { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: #f8fbfc; box-shadow: 0 18px 48px rgba(0,55,65,.1); }
+.map-results-experience { min-width: 0; overflow: hidden; scroll-margin-top: 92px; border: 1px solid var(--line); border-radius: 24px; background: #f8fbfc; box-shadow: 0 18px 48px rgba(0,55,65,.1); }
 .map-results-canvas { grid-area: map; min-width: 0; }
 .map-results-canvas .listing-map-shell { height: 640px; }
 .map-results-canvas .listing-map-shell { border: 0; border-radius: 0; }

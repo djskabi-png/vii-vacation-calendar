@@ -43,6 +43,17 @@ function hasFreshOpenIntent() {
   return false;
 }
 
+function revealDesktopMap() {
+  if (typeof window === "undefined" || !window.matchMedia("(min-width: 821px)").matches) return;
+
+  const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>(".map-results-experience")?.scrollIntoView({ block: "start", behavior });
+    });
+  });
+}
+
 export function useMapViewState() {
   const [mapOpen, setIsMapOpen] = useState(false);
   const [mapInteractive, setMapInteractive] = useState(false);
@@ -94,9 +105,7 @@ export function useMapViewState() {
       lockPage();
     }
     setIsMapOpen(true);
-    if (typeof window !== "undefined" && !lockedStyles.current) {
-      window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition.current));
-    }
+    revealDesktopMap();
   }, [lockPage]);
 
   const closeMap = useCallback(() => {
@@ -121,6 +130,7 @@ export function useMapViewState() {
     if (hasFreshOpenIntent()) {
       setIsMapOpen(true);
       if (window.matchMedia("(max-width: 820px)").matches) lockPage();
+      else revealDesktopMap();
     }
     setMapInteractive(true);
     return () => unlockPage();
