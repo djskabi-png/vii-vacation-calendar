@@ -35,6 +35,18 @@ test("the desktop map control toggles back to the list", () => {
   assert.match(consumers[0], /if \(mapOpen\) closeResultsMap\(\); else openResultsMap\(\)/);
 });
 
+test("the map control cannot accept a disposable pre-hydration click", () => {
+  assert.match(hook, /const \[mapInteractive, setMapInteractive\] = useState\(false\)/);
+  assert.match(hook, /setMapInteractive\(true\)/);
+  assert.match(hook, /sessionStorage\.setItem\(MAP_INTENT_KEY/);
+  assert.match(hook, /intent\.route === currentRouteKey\(\)/);
+  assert.match(hook, /setIsMapOpen\(true\)/);
+  for (const source of consumers) {
+    assert.match(source, /data-map-interactive=\{mapInteractive\}/);
+    assert.match(source, /disabled=\{!mapInteractive\}/);
+  }
+});
+
 test("map controls and markers use the site typography", () => {
   assert.match(styles, /\.listing-map-shell[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.match(styles, /\.vii-map-marker[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);

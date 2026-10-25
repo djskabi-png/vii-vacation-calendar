@@ -106,13 +106,18 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 25_000 });
     const cookie = page.locator(".cookie-card .button.subtle").first();
     if (await cookie.count()) await cookie.click({ force: true });
-    const toggle = page.locator(".mobile-map-fab:visible").first();
+    const toggle = page.locator('.mobile-map-fab[data-map-interactive="true"]:visible').first();
     await toggle.waitFor({ timeout: 20_000 });
     record.checks.toggleBefore = await visibleCount(page, ".mobile-map-fab");
     await toggle.scrollIntoViewIfNeeded();
     await toggle.hover().catch(() => undefined);
     await page.waitForTimeout(300);
-    await page.locator(".mobile-map-fab:visible").first().click({ force: true, timeout: 10_000 });
+    await page.locator('.mobile-map-fab[data-map-interactive="true"]:visible').first().click({ force: true, timeout: 10_000 });
+    await page.waitForFunction(() => {
+      const button = document.querySelector(".mobile-map-fab");
+      return button?.getAttribute("aria-pressed") === "true" || Boolean(document.querySelector(".map-results-experience"));
+    }, null, { timeout: 5_000 });
+    record.checks.firstClickAccepted = true;
     await page.locator(".listing-map.is-ready").waitFor({ timeout: 35_000 });
     await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 15_000 });
     record.open = await snapshot(page);
@@ -158,7 +163,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
       await close.waitFor({ timeout: 8_000 });
       await close.click({ force: true });
     } else {
-      await page.locator(".mobile-map-fab.active,.map-mobile-close").first().click({ force: true });
+      await page.locator(".mobile-map-fab.active:visible, .map-mobile-close:visible").first().click({ force: true });
     }
     await page.waitForFunction(() => !document.querySelector(".map-results-experience"), null, { timeout: 10_000 });
     record.checks.toggleAfter = await visibleCount(page, ".mobile-map-fab");

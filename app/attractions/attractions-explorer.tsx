@@ -33,7 +33,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const requestedSort = searchParams.get("sort") || "recommended";
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
-  const { mapOpen, openMap, closeMap } = useMapViewState();
+  const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
 
@@ -123,7 +123,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
     {resultItems.length > filtered.length && <NearbySearchNotice regionalOnly />}
     <div className="trail-results-head attraction-results-head">
       <div><strong>{displayed.length === 1 ? "חוויה אחת מתאימה" : `${displayed.length} חוויות מתאימות`}</strong><span>הספק, הזמינות והמחיר מוצגים רק לאחר אימות.</span></div>
-      <div className="trail-results-head__actions"><ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />{resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
+      <div className="trail-results-head__actions"><ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />{resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
     </div>
     {resultItems.length
       ? mapOpen

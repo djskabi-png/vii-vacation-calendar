@@ -55,7 +55,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: twoHourPrice, rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2 }), []);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
-  const { mapOpen, openMap, closeMap } = useMapViewState();
+  const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("hourly");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
@@ -174,7 +174,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
           <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />
           <ResultsViewToggle value={viewMode} onChange={setViewMode} />
           <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>סינון{features.length ? ` (${features.length})` : ""}</button>
-          {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+          {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
         </div>
       </div>
       <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>

@@ -11,8 +11,41 @@ type LockedPageStyles = {
   htmlScrollBehavior: string;
 };
 
+const MAP_INTENT_KEY = "vii-map-view-intent-v1";
+const MAP_INTENT_TTL_MS = 2 * 60_000;
+
+function currentRouteKey() {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
+function rememberOpenIntent() {
+  try {
+    window.sessionStorage.setItem(MAP_INTENT_KEY, JSON.stringify({ route: currentRouteKey(), expiresAt: Date.now() + MAP_INTENT_TTL_MS }));
+  } catch {
+    // Session storage is an enhancement. The map remains usable without it.
+  }
+}
+
+function clearOpenIntent() {
+  try { window.sessionStorage.removeItem(MAP_INTENT_KEY); } catch { /* no-op */ }
+}
+
+function hasFreshOpenIntent() {
+  try {
+    const raw = window.sessionStorage.getItem(MAP_INTENT_KEY);
+    if (!raw) return false;
+    const intent = JSON.parse(raw) as { route?: string; expiresAt?: number };
+    if (intent.route === currentRouteKey() && Number(intent.expiresAt) > Date.now()) return true;
+    clearOpenIntent();
+  } catch {
+    clearOpenIntent();
+  }
+  return false;
+}
+
 export function useMapViewState() {
   const [mapOpen, setIsMapOpen] = useState(false);
+  const [mapInteractive, setMapInteractive] = useState(false);
   const scrollPosition = useRef(0);
   const lockedStyles = useRef<LockedPageStyles | null>(null);
 
@@ -55,6 +88,7 @@ export function useMapViewState() {
   }, []);
 
   const openMap = useCallback(() => {
+    if (typeof window !== "undefined") rememberOpenIntent();
     if (typeof window !== "undefined") scrollPosition.current = window.scrollY;
     if (typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches && !lockedStyles.current) {
       lockPage();
@@ -66,6 +100,7 @@ export function useMapViewState() {
   }, [lockPage]);
 
   const closeMap = useCallback(() => {
+    if (typeof window !== "undefined") clearOpenIntent();
     setIsMapOpen(false);
     if (typeof window !== "undefined" && lockedStyles.current) window.requestAnimationFrame(unlockPage);
     else if (typeof window !== "undefined") window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition.current));
@@ -82,7 +117,14 @@ export function useMapViewState() {
     else closeMap();
   }, [closeMap, mapOpen, openMap]);
 
-  useEffect(() => () => unlockPage(), [unlockPage]);
+  useEffect(() => {
+    if (hasFreshOpenIntent()) {
+      setIsMapOpen(true);
+      if (window.matchMedia("(max-width: 820px)").matches) lockPage();
+    }
+    setMapInteractive(true);
+    return () => unlockPage();
+  }, [lockPage, unlockPage]);
 
   useEffect(() => {
     if (!mapOpen) return;
@@ -109,5 +151,5 @@ export function useMapViewState() {
     return () => desktop.removeEventListener("change", releaseMobileLock);
   }, [mapOpen, unlockPage, lockPage]);
 
-  return { mapOpen, openMap, closeMap, toggleMap, setMapOpen };
+  return { mapOpen, mapInteractive, openMap, closeMap, toggleMap, setMapOpen };
 }
