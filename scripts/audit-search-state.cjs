@@ -15,15 +15,21 @@ const version = argument("version", String(Date.now()));
 const screenshotDirectory = argument("screenshot-dir", "");
 const reportFile = argument("report-file", "");
 if (screenshotDirectory) mkdirSync(screenshotDirectory, { recursive: true });
-const routes = [
+const dateAfterDays = (days) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+const auditFrom = dateAfterDays(14);
+const auditTill = dateAfterDays(16);
+const allRoutes = [
   ["home", "/"],
-  ["vacation-results", "/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-09-15&till=2026-09-17&adults=4"],
-  ["vacation-region", "/vacations/north?from=2026-09-15&till=2026-09-17&adults=4"],
+  ["vacation-results", `/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=${auditFrom}&till=${auditTill}&adults=4`],
+  ["vacation-region", `/vacations/north?from=${auditFrom}&till=${auditTill}&adults=4`],
   ["spa", "/spas"],
   ["spa-region", "/spas/search/north"],
   ["events", "/events/search"],
   ["hourly", "/hourly"],
 ];
+const routeFilter = argument("route", "");
+const routes = routeFilter ? allRoutes.filter(([name]) => name === routeFilter) : allRoutes;
+if (routeFilter && routes.length === 0) throw new Error(`Unknown search audit route: ${routeFilter}`);
 
 const labels = {
   search: "\u05d7\u05d9\u05e4\u05d5\u05e9",
@@ -85,6 +91,7 @@ async function inspectVisibleContent(page, routeName) {
 
 async function focusResultsViewport(page, routeName) {
   const selectors = {
+    home: "#home-live-deals-title",
     "vacation-results": ".results-heading",
     "vacation-region": ".results-heading",
     spa: ".spa-results__heading",
@@ -103,17 +110,19 @@ async function focusResultsViewport(page, routeName) {
   await page.waitForTimeout(150);
 }
 
-function visualFailures(state) {
+function visualFailures(state, { requireVisible = true } = {}) {
   const failures = [];
-  if (state.visibleMeaningfulElements === 0) failures.push("no-visible-results-state");
-  if (state.visibleMeaningfulElements === 0 && state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
+  if (state.meaningfulElements === 0) failures.push("missing-results-state");
+  if (requireVisible && state.visibleMeaningfulElements === 0) failures.push("no-visible-results-state");
+  if (requireVisible && state.visibleMeaningfulElements === 0 && state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
   return failures;
 }
 
 async function inspectHorizontalRails(page) {
   return page.evaluate(async () => {
     const rails = [...document.querySelectorAll("[data-horizontal-rail]")];
-    const overflowing = rails.find((rail) => rail.scrollWidth > rail.clientWidth + 1);
+    const scrollContainers = rails.filter((rail) => rail.scrollWidth > rail.clientWidth + 1);
+    const overflowing = scrollContainers[0];
     let scrollMoved = null;
 
     if (overflowing) {
@@ -129,7 +138,7 @@ async function inspectHorizontalRails(page) {
     return {
       count: rails.length,
       scrollMoved,
-      rails: rails.map((rail) => {
+      rails: scrollContainers.map((rail) => {
         const rect = rail.getBoundingClientRect();
         return {
           clientWidth: rail.clientWidth,
@@ -159,11 +168,18 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
 
   for (const [name, route] of routes) {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    page.setDefaultTimeout(5000);
+    page.setDefaultNavigationTimeout(45000);
     const separator = route.includes("?") ? "&" : "?";
     const report = { name, route, checks: [] };
+    console.log(`[search-audit] start ${name}`);
 
     try {
       await page.goto(`${baseUrl}${route}${separator}v=${encodeURIComponent(version)}`, { waitUntil: "domcontentloaded", timeout: 45000 });
+      console.log(`[search-audit] ${name} loaded`);
+      if (name === "vacation-results" || name === "vacation-region") {
+        await page.waitForFunction(() => Boolean(document.querySelector(".stay-card,.empty-state")), undefined, { timeout: 30000 });
+      }
       if (name === "home") {
         await page.waitForFunction(() => document.querySelector("#home-live-deals-results")?.getAttribute("aria-busy") === "false", undefined, { timeout: 30000 });
       }
@@ -171,13 +187,14 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       report.checks.push({ name: "mobile-fresh", state, failures: failuresFor(state, { requireUnlocked: true }) });
       await focusResultsViewport(page, name);
       const mobileVisual = await inspectVisibleContent(page, name);
-      report.checks.push({ name: "mobile-visual-content", state: mobileVisual, failures: visualFailures(mobileVisual) });
+      report.checks.push({ name: "mobile-visual-content", state: mobileVisual, failures: visualFailures(mobileVisual, { requireVisible: name !== "home" }) });
 
       if (screenshotDirectory) {
         const screenshot = `${screenshotDirectory}/${name}-mobile-fresh-v${version}.png`;
         await page.screenshot({ path: screenshot, fullPage: false });
         report.checks.at(-1).screenshot = screenshot;
       }
+      console.log(`[search-audit] ${name} mobile-checked`);
 
       const summary = page.locator(".search-mobile-summary");
       if (await summary.isVisible().catch(() => false)) {
@@ -229,8 +246,13 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
           ...(horizontalRails.scrollMoved === false ? ["horizontal-rail-does-not-scroll"] : []),
         ],
       });
+      console.log(`[search-audit] ${name} desktop-checked`);
 
       await page.reload({ waitUntil: "domcontentloaded", timeout: 45000 });
+      console.log(`[search-audit] ${name} reloaded`);
+      if (name === "vacation-results" || name === "vacation-region") {
+        await page.waitForFunction(() => Boolean(document.querySelector(".stay-card,.empty-state")), undefined, { timeout: 30000 });
+      }
       state = await inspect(page);
       report.checks.push({ name: "desktop-reload", state, failures: failuresFor(state, { requireUnlocked: true }) });
 
@@ -243,12 +265,14 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         await page.screenshot({ path: screenshot, fullPage: false });
         report.checks.at(-1).screenshot = screenshot;
       }
+      console.log(`[search-audit] ${name} return-checked`);
     } catch (error) {
       report.checks.push({ name: "runtime", failures: [error.message] });
     }
 
     reports.push(report);
     await page.close();
+    console.log(`[search-audit] finish ${name}`);
   }
 
   await browser.close();

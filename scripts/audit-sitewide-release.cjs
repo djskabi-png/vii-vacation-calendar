@@ -32,10 +32,11 @@ function runPackageScript(name, script) {
   return run(name, pnpm, [script], { shell: process.platform === "win32" });
 }
 
+const searchRoutes = ["home", "vacation-results", "vacation-region", "spa", "spa-region", "events", "hourly"];
 const ok = [
   runPackageScript("build-and-source-tests", "test"),
   run("shared-header-first-action-matrix", process.execPath, ["scripts/audit-header-first-click.cjs", "--base-url", baseUrl]),
-  run("search-and-responsive-state-matrix", process.execPath, ["scripts/audit-search-state.cjs", "--base-url", baseUrl]),
+  ...searchRoutes.map((route) => run(`search-and-responsive-state-${route}`, process.execPath, ["scripts/audit-search-state.cjs", "--base-url", baseUrl, "--route", route])),
   run("public-seo-and-structured-data", process.execPath, ["scripts/audit-public-seo.mjs", baseUrl]),
 ].every(Boolean);
 

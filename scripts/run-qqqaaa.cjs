@@ -20,10 +20,12 @@ const suites = [
 const report = { schemaVersion: 1, trigger: "QQQAAA", startedAt, baseUrl: process.env.BASE_URL || "https://vii.spaplus.co", exclusions: ["accessibility", "typography"], suites: [] };
 for (const [id, args] of suites) {
   const started = Date.now();
-  const result = spawnSync(process.platform === "win32" ? "pnpm.cmd" : "pnpm", args, { cwd: process.cwd(), env: { ...process.env, QA_OUTPUT_DIR: join(outputDir, id) }, encoding: "utf8", stdio: ["inherit", "pipe", "pipe"] });
+  const command = process.platform === "win32" ? "cmd.exe" : "pnpm";
+  const commandArgs = process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...args] : args;
+  const result = spawnSync(command, commandArgs, { cwd: process.cwd(), env: { ...process.env, QA_OUTPUT_DIR: join(outputDir, id) }, encoding: "utf8", stdio: ["inherit", "pipe", "pipe"] });
   process.stdout.write(result.stdout || "");
   process.stderr.write(result.stderr || "");
-  report.suites.push({ id, status: result.status === 0 ? "passed" : "failed", exitCode: result.status, durationMs: Date.now() - started });
+  report.suites.push({ id, status: result.status === 0 ? "passed" : "failed", exitCode: result.status, launchError: result.error ? { code: result.error.code || null, message: result.error.message } : null, durationMs: Date.now() - started });
 }
 report.finishedAt = new Date().toISOString();
 report.status = report.suites.length === suites.length && report.suites.every((suite) => suite.status === "passed") ? "passed" : "failed";

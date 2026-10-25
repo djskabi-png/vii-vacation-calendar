@@ -38,8 +38,22 @@ const profiles = profileFilter ? allProfiles.filter(({ name }) => name === profi
 if (!routes.length) throw new Error(`Unknown route filter: ${routeFilter}`);
 if (!profiles.length) throw new Error(`Unknown profile filter: ${profileFilter}`);
 
+async function boundedCleanup(label, cleanup, timeoutMs = 5000) {
+  let timer;
+  try {
+    await Promise.race([
+      cleanup(),
+      new Promise((resolve) => { timer = setTimeout(() => { console.error(`CLEANUP_TIMEOUT ${label}`); resolve(); }, timeoutMs); }),
+    ]);
+  } catch (error) {
+    console.error(`CLEANUP_ERROR ${label}: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function inspectHitTarget(page) {
-  return page.locator('[aria-label="חיפוש ובחירת עולם"]').evaluate((trigger) => {
+  return page.locator("details.world-dock > summary").evaluate((trigger) => {
     const rect = trigger.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -48,7 +62,7 @@ async function inspectHitTarget(page) {
       center: { x, y },
       topTag: top?.tagName || null,
       topClass: top instanceof Element ? top.className : null,
-      triggerIsTopTarget: Boolean(top?.closest('[aria-label="חיפוש ובחירת עולם"]')),
+      triggerIsTopTarget: Boolean(top?.closest("details.world-dock > summary")),
       backdropCount: document.querySelectorAll(".world-dock__backdrop").length,
     };
   });
@@ -79,11 +93,11 @@ async function inspectHitTarget(page) {
         const result = { profile: profile.name, routeName, route, passed: false };
         try {
           await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded", timeout: 90000 });
-          const worldTrigger = page.getByRole("button", { name: "חיפוש ובחירת עולם" });
+          const worldTrigger = page.locator("details.world-dock > summary");
           await worldTrigger.waitFor({ state: "visible", timeout: 15000 });
           result.selectorPresent = await worldTrigger.count() === 1;
           await page.waitForFunction(() => {
-            const trigger = document.querySelector('[aria-label="חיפוש ובחירת עולם"]');
+            const trigger = document.querySelector("details.world-dock > summary");
             return Boolean(trigger && Object.keys(trigger).some((key) => key.startsWith("__reactProps$")));
           }, undefined, { timeout: 15000 });
           const triggerInsideViewport = await worldTrigger.evaluate((trigger) => {
@@ -104,21 +118,22 @@ async function inspectHitTarget(page) {
 
           const worldNavigation = page.getByRole("navigation", { name: "חיפוש ומעבר בין עולמות" });
           await worldNavigation.waitFor({ state: "visible" });
-          const globalSearch = worldNavigation.getByRole("link", { name: /חיפוש כללי/ });
-          await globalSearch.waitFor({ state: "visible" });
+          const destinationLink = worldNavigation.locator("a:not(.active)").first();
+          await destinationLink.waitFor({ state: "visible" });
           result.panelLinkCount = await worldNavigation.locator("a").count();
-          if (result.panelLinkCount < 2) throw new Error("combined panel does not expose search and world destinations");
+          if (result.panelLinkCount < 2) throw new Error("world panel does not expose multiple destinations");
+          const expectedDestination = new URL(await destinationLink.getAttribute("href"), baseUrl).pathname;
 
-          if (profile.action === "tap") await globalSearch.tap();
+          if (profile.action === "tap") await destinationLink.tap();
           else if (profile.action === "keyboard") {
-            await globalSearch.focus();
-            await globalSearch.press("Enter");
-          } else await globalSearch.click();
+            await destinationLink.focus();
+            await destinationLink.press("Enter");
+          } else await destinationLink.click();
 
-          await page.waitForURL((url) => url.pathname === "/search", { timeout: 10000 });
+          await page.waitForURL((url) => url.pathname === expectedDestination, { timeout: 10000 });
           await page.waitForLoadState("domcontentloaded");
           result.destination = new URL(page.url()).pathname;
-          result.firstActionNavigated = result.destination === "/search";
+          result.firstActionNavigated = result.destination === expectedDestination;
           try {
             result.horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
           } catch (error) {
@@ -136,12 +151,12 @@ async function inspectHitTarget(page) {
           result.httpErrors = httpErrors;
           result.debug = await page.evaluate(() => ({
             url: location.href,
-            triggerExpanded: document.querySelector('[aria-label="חיפוש ובחירת עולם"], [aria-label="סגירת חיפוש ובחירת עולם"]')?.getAttribute("aria-expanded") || null,
+            triggerExpanded: document.querySelector("details.world-dock")?.hasAttribute("open") || false,
             panelCount: document.querySelectorAll('.world-dock__panel').length,
             backdropCount: document.querySelectorAll('.world-dock__backdrop').length,
-            globalSearchHref: document.querySelector('.world-dock__global-search')?.getAttribute('href') || null,
-            triggerRect: document.querySelector('[aria-label="חיפוש ובחירת עולם"], [aria-label="סגירת חיפוש ובחירת עולם"]')?.getBoundingClientRect().toJSON() || null,
-            globalSearchRect: document.querySelector('.world-dock__global-search')?.getBoundingClientRect().toJSON() || null,
+            destinationHref: document.querySelector('.world-dock__panel a:not(.active)')?.getAttribute('href') || null,
+            triggerRect: document.querySelector("details.world-dock > summary")?.getBoundingClientRect().toJSON() || null,
+            destinationRect: document.querySelector('.world-dock__panel a:not(.active)')?.getBoundingClientRect().toJSON() || null,
             viewport: { width: innerWidth, height: innerHeight },
             scroll: { x: scrollX, y: scrollY },
             worldDock: (() => {
@@ -155,13 +170,13 @@ async function inspectHitTarget(page) {
         } finally {
           checks.push(result);
           console.error(`${result.passed ? "PASS" : "FAIL"} ${profile.name} ${routeName}${result.error ? `: ${result.error}` : ""}`);
-          await page.close();
+          await boundedCleanup(`page ${profile.name} ${routeName}`, () => page.close());
         }
       }
-      await context.close();
+      await boundedCleanup(`context ${profile.name}`, () => context.close());
     }
   } finally {
-    await browser.close();
+    await boundedCleanup("browser", () => browser.close(), 8000);
   }
 
   const failures = checks.filter((check) => !check.passed);

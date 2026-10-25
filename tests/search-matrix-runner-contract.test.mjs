@@ -23,4 +23,11 @@ test("the matrix covers every search world and critical responsive search state"
   assert.match(audit, /search-action-not-visible/);
   assert.match(audit, /argument\("report-file"/);
   assert.match(audit, /writeFileSync\(reportFile/);
+  assert.match(audit, /page\.setDefaultTimeout\(5000\)/);
+  assert.match(audit, /\[search-audit\] start/);
+  assert.match(audit, /\[search-audit\] finish/);
+  assert.match(audit, /argument\("route", ""\)/);
+  assert.match(audit, /Unknown search audit route/);
+  assert.match(audit, /home: "#home-live-deals-title"/);
+  assert.match(audit, /const scrollContainers = rails\.filter/);
 });
