@@ -9,6 +9,7 @@ const startedAt = new Date().toISOString();
 const outputDir = process.env.QA_OUTPUT_DIR || join(process.cwd(), "qa-reports", "qqqaaa");
 mkdirSync(outputDir, { recursive: true });
 const suites = [
+  ["admin-customer-auth-boundaries", ["qa:auth-boundaries"]],
   ["production-build-and-all-tests", ["test"]],
   ["regression-guard-matrix", ["qa:regression-guards"]],
   ["search-state", ["audit:search"]],

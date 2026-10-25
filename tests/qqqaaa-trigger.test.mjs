@@ -21,8 +21,17 @@ test("QQQAAA has one durable aggregate package entry point", () => {
 });
 
 test("QQQAAA retains every broad VII suite and the approved exclusions", () => {
-  for (const suite of ["test", "qa:regression-guards", "audit:search", "audit:availability", "qa:icon-geometry", "qa:overlay-geometry", "qa:map", "qa:locales", "qa:responsive-transitions", "qa:site", "qa:production"]) {
+  for (const suite of ["qa:auth-boundaries", "test", "qa:regression-guards", "audit:search", "audit:availability", "qa:icon-geometry", "qa:overlay-geometry", "qa:map", "qa:locales", "qa:responsive-transitions", "qa:site", "qa:production"]) {
     assert.match(runner, new RegExp(suite.replaceAll(":", "\\:")));
   }
   assert.match(runner, /exclusions: \["accessibility", "typography"\]/);
+});
+
+test("QQQAAA has an explicit administrator and customer identity boundary gate", () => {
+  assert.match(runner, /admin-customer-auth-boundaries/);
+  assert.match(packageJson.scripts["qa:auth-boundaries"], /auth-audience-separation\.test\.mjs/);
+  assert.match(packageJson.scripts["qa:auth-boundaries"], /admin-server-gate\.test\.mjs/);
+  assert.match(packageJson.scripts["qa:auth-boundaries"], /logout-route\.test\.mjs/);
+  assert.match(packageJson.scripts["qa:auth-boundaries"], /account-frontend-contract\.test\.mjs/);
+  assert.match(packageJson.scripts["qa:auth-boundaries"], /launch-seo\.test\.mjs/);
 });

@@ -20,6 +20,7 @@
     "qa:overlay-geometry": "node scripts/audit-overlay-geometry.cjs",
     "qa:responsive-transitions": "node scripts/audit-responsive-transitions.cjs",
     "qa:map": "node scripts/audit-map-experience.cjs",
+    "qa:auth-boundaries": "node --test tests/auth-audience-separation.test.mjs tests/admin-server-gate.test.mjs tests/logout-route.test.mjs tests/account-frontend-contract.test.mjs tests/admin-command-center.test.mjs tests/admin-permissions.test.mjs tests/launch-seo.test.mjs",
     "qa:qqqaaa": "node scripts/run-qqqaaa.cjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
     "db:generate": "drizzle-kit generate"
