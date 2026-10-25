@@ -30,6 +30,8 @@ export type Listing = {
   audiences: string[];
   badges: string[];
   cardNote?: string;
+  /** Optional supplier-authored sentence shown as an additive card caption. */
+  previewText?: string;
   lat?: number;
   lng?: number;
   scenario: "single" | "multi";

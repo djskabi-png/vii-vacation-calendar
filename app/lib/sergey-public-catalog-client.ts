@@ -96,6 +96,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const contact = record(raw.contact);
   const phone = supplierContactNumber(contact.phone);
   const whatsapp = supplierContactNumber(contact.whatsapp);
+  const previewText = plainText(raw.preview_text);
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   const policy = record(raw.policy);
   const detail = {
@@ -104,6 +105,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     features: sergeyAmenityLabels(raw.shared_amenities, amenityIndex),
     featureGroups: sergeyAmenityGroups(raw.shared_amenities, amenityIndex),
     summary: supplierDisplayDescription({ description: plainText(raw.summary), name, location: text(city?.title), area }),
+    ...(previewText ? { previewText } : {}),
     policy: { checkIn: text(policy.checkIn), checkOut: text(policy.checkOut),
       checkOutSat: text(policy.checkOutSat), remarks: plainText(policy.remarks) },
     rooms: rooms.map((room) => {
@@ -163,6 +165,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     ...(world === "vacations" && highlights.length ? { highlights: highlights.slice(0, 5).map((label) => ({ label, icon: "default" })) } : {}),
     audiences: [],
     badges: [],
+    ...(previewText ? { previewText } : {}),
     ...coordinates(raw.gps),
     scenario: units > 1 ? "multi" : "single",
     ...(score ? { score } : {}),
@@ -260,6 +263,11 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             // undated browse price.
             entries[index] = normalizePlace(world, id, {
               ...detail,
+              // The list is the authoritative card contract and may be
+              // deployed ahead of a cached detail payload. It also carries
+              // an explicit null when the supplier removes the sentence.
+              preview_text: Object.hasOwn(active[index], "preview_text")
+                ? active[index].preview_text : detail.preview_text,
               ...startingPriceFields(active[index]),
             }, cities, areas, amenityIndex);
           } catch (error) {

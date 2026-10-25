@@ -412,6 +412,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
             {!quickBookingReady && !promotional && property.demoOperations?.fictional ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--card" /> : null}
           </div>
         </div>
+        {property.previewText?.trim() ? <p className="stay-card__preview-text">{property.previewText.trim()}</p> : null}
       </div>
     </article>
   );

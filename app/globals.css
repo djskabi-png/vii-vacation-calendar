@@ -3324,6 +3324,7 @@ h3 { font-size: 1.18rem; }
 .stay-card__badges span { padding: 5px 9px; border-radius: 30px; background: rgba(4,51,62,.82); color: white; font-size: .72rem; }
 .stay-card__public-note { position: absolute; z-index: 3; right: 14px; bottom: 13px; max-width: calc(100% - 86px); padding: 7px 10px; border-radius: 999px; color: #fff; background: rgba(3,39,48,.78); backdrop-filter: blur(8px); font-size: .72rem; font-weight: 850; }
 .stay-card__body { padding: 19px; }
+.stay-card__preview-text { position: relative; z-index: 2; margin: 16px 0 0; padding: 10px 14px; border: 1px solid rgba(8,126,139,.2); border-radius: 999px; color: var(--teal-dark); background: linear-gradient(135deg,rgba(236,249,248,.96),rgba(255,251,244,.96)); font-size: .86rem; font-weight: 760; line-height: 1.45; text-align: center; overflow-wrap: anywhere; }
 .sample-listing-disclosure { display: inline-flex; width: fit-content; margin-top: 9px; padding: 5px 10px; border: 1px solid #cfe1e4; border-radius: 999px; color: #547078; background: #f7fbfb; font: 750 .72rem/1.3 var(--font-sans); }
 .sample-listing-disclosure--card { margin: 0 0 10px; }
 .stay-card__title { display: flex; justify-content: space-between; gap: 12px; }

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-preview-text-card-20261025",
+  "project": "VII",
+  "task_type": "supplier API card enrichment and production release",
+  "requested_outcome": "Preserve the optional Biz preview_text field from vacation list and detail responses and show it as a compact additive caption beneath the matching place card without changing existing card content or layout when the field is absent.",
+  "natural_destination": "https://vii.spaplus.co vacation discovery cards, with שקד באופק as the production proof case",
+  "authorization_boundary": "Code, tests, catalog mapping and public publication are authorized. No supplier data mutation, real lead, booking, message, destructive data action or unrelated redesign is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"VII-PROJECT-001","reason":"The change consumes a new VII supplier contract field and affects public vacation cards.","acceptance_impact":"Use the VII master plan and feedback standard, preserve supplier truth, and verify the whole vacation-card family."},
+    {"lesson_id":"ADIR-WEB-001","reason":"Adir explicitly requires this to be additive and not damage the approved card design.","acceptance_impact":"Freeze every existing card element and reject any replacement, overlap, empty reserved gap or broken action."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Vacation cards appear in several discovery surfaces and responsive widths.","acceptance_impact":"Verify a shared implementation on desktop, mobile and representative card surfaces."},
+    {"lesson_id":"ADIR-WEB-006","reason":"The requested outcome is a public visible release.","acceptance_impact":"Require exact deployed-version evidence plus inspected desktop and mobile proof."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"preview_text appears only on one route because another card path drops the field.","prevention":"Carry the field through both list and detail normalization and the shared public catalog summary.","acceptance_check":"List and detail fixtures retain the field and all PropertyCard consumers receive the same optional property."},
+    {"rejection":"Cards without preview_text gain an empty strip or changed height.","prevention":"Render only a trimmed non-empty value and apply no placeholder or minimum height.","acceptance_check":"A paired card without the field has no caption node and no reserved caption spacing."},
+    {"rejection":"The new sentence covers the photo, controls or existing details instead of being an additive caption below the card square.","prevention":"Place a dedicated non-interactive row after the existing card body and before no existing content; preserve all current hierarchy and actions.","acceptance_check":"Desktop and mobile screenshots show the caption beneath existing card content with no overlap and all controls intact."},
+    {"rejection":"The code passes locally but שקד באופק still lacks the phrase in production.","prevention":"Refresh the accepted catalog generation after release and verify the exact public card and source field.","acceptance_check":"The public exact release visibly shows מקום עם לב ונשמה for שקד באופק and a control card without a phrase remains unchanged."}
+  ],
+  "affected_family": [
+    "Biz vacation list response normalization",
+    "Biz vacation detail response normalization",
+    "accepted and bundled vacation catalog summary projections",
+    "shared PropertyCard on search, home, regional, holiday and last-minute discovery surfaces",
+    "desktop and 390px mobile card layouts",
+    "cards with a phrase, without a phrase, and with a long two-line phrase"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Official Biz VII list contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#list"},
+      {"label":"Official Biz VII detail contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#site"},
+      {"label":"VII project decisions","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"Accepted VII visible-product standard","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the official field is retained by one list fixture, one detail fixture and one representative PropertyCard render, before full regression and publication.",
+    "checks": [
+      "A non-empty preview_text survives list and detail normalization unchanged as plain trimmed text.",
+      "The representative card renders the sentence once below the existing card content.",
+      "The same card without preview_text has no caption element and no empty space."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the supplier field be lost during a partial refresh that reuses old detail data?",
+      "Can HTML, whitespace or a very long supplier sentence break the card?",
+      "Can any existing click, favorite, gallery, contact or price control be covered or moved into the wrong layer?",
+      "Can a card without the field still reserve space?",
+      "Can the exact public Shaked BaOfek card fail to show the text even though local fixtures pass?"
+    ],
+    "natural_destination_evidence": "Exact public release opened on desktop and mobile, showing שקד באופק with מקום עם לב ונשמה and a control card without a caption gap.",
+    "affected_family_evidence": "Automated normalization and render tests plus representative public search/home/region card inspection."
+  },
+  "effectiveness": {
+    "baseline": "The new official API field is documented but absent from the current VII data model and public cards.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One additive implementation is visible on the exact public supplier card with zero regression in existing card layout or actions."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

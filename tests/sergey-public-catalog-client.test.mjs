@@ -49,6 +49,22 @@ test("normalizes the full place gallery, rooms, reviews and explicit WhatsApp fi
   assert.equal(Object.hasOwn(summary, "available"), false);
 });
 
+test("preserves optional supplier preview text in both catalog summary and place detail", async () => {
+  const result = await client({ preview_text: "  מקום עם לב ונשמה  " }).fetchCandidate("vacations");
+  assert.equal(result.entries[0].summary.previewText, "מקום עם לב ונשמה");
+  assert.equal(result.entries[0].detail.previewText, "מקום עם לב ונשמה");
+  const empty = await client({ preview_text: "   " }).fetchCandidate("vacations");
+  assert.equal(Object.hasOwn(empty.entries[0].summary, "previewText"), false);
+  assert.equal(Object.hasOwn(empty.entries[0].detail, "previewText"), false);
+});
+
+test("updates preview text from the list during a bounded refresh that reuses old detail", async () => {
+  const previous = (await client({ preview_text: "טקסט ישן" }).fetchCandidate("vacations")).entries;
+  const refreshed = await client({}, false, { siteName: "מתחם בדיקה", location: { cityID: 1 }, preview_text: "מקום עם לב ונשמה", galleries: [{ pictures: ["/gallery/list.jpg"] }] })
+    .fetchCandidate("vacations", previous);
+  assert.equal(refreshed.entries[0].summary.previewText, "מקום עם לב ונשמה");
+});
+
 test("resolves shared and room amenity IDs through the official types contract", async () => {
   const result = await client({
     shared_amenities: [{ id: 101, description: "" }],

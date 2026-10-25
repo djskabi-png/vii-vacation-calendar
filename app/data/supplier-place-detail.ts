@@ -23,6 +23,7 @@ export type SupplierPlaceDetail = {
   images: string[];
   galleryGroups?: Array<{ title: string; images: string[] }>;
   summary: string;
+  previewText?: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
   rooms: Array<{ id?: number; name: string; quantity: number; guests: number; maxAdults?: number; maxKids?: number; showKidsAndAdults?: boolean; basisGuests?: number; roomType?: string; bedrooms: number; area?: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
@@ -99,6 +100,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       images,
       galleryGroups: sergeyPlaceGalleryGroups(detail.galleries),
       summary: supplierDisplayDescription({ description: plain(detail.summary), name: typeof detail.name === "string" ? detail.name : listing.name, location: typeof city.title === "string" ? city.title : listing.location, area: typeof area.title === "string" ? area.title : listing.area }),
+      ...(plain(detail.preview_text) ? { previewText: plain(detail.preview_text) } : {}),
       policy: {
         checkIn: typeof policy.checkIn === "string" ? policy.checkIn : "",
         checkOut: typeof policy.checkOut === "string" ? policy.checkOut : "",

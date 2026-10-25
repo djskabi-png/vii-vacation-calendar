@@ -1,0 +1,189 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-preview-text-card-20261025",
+  "project": "VII",
+  "task_type": "supplier API card enrichment and production release",
+  "goal": "Preserve optional preview_text from Biz list and detail responses and display it as an additive caption beneath the matching vacation card without changing cards when absent",
+  "created_at": "2026-10-25T18:12:41.516142Z",
+  "updated_at": "2026-10-25T18:14:04.580702Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f2ccfc1a5fa85ea56805bfe952dc8ca3cc45d425114c7fa6a6a2f311e9d6cf56"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "57c549619e5d3152badf26d6da6765ddde4ee7bb61130eb60f6d3b7d71e79161"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\preflight\\vii-preview-text-card-20261025.json",
+      "sha256": "2fdd68a4065bbac8a747924a27d52f06e3923f487bf8e1ea3a89649ddfbdcd49"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\preflight\\vii-preview-text-card-20261025.json",
+    "sha256": "2fdd68a4065bbac8a747924a27d52f06e3923f487bf8e1ea3a89649ddfbdcd49",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 6,
+    "lesson_bundle_count": 4,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    },
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Preserve optional preview_text from Biz list and detail responses and display it as an additive caption beneath the matching vacation card without changing cards when absent",
+      "acceptance_check": "Official fixtures retain preview_text, shared cards render it once only when non-empty, full regression passes, and the exact public Shaked BaOfek card visibly shows the phrase on desktop and mobile",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\preflight\\vii-preview-text-card-20261025.json validated with sha256 2fdd68a4065bbac8a747924a27d52f06e3923f487bf8e1ea3a89649ddfbdcd49"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-25T18:12:41.516104Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the official field is retained by one list fixture, one detail fixture and one representative PropertyCard render, before full regression and publication.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "18/18 targeted tests passed: list and detail retention, bounded refresh, optional rendering, no absolute overlay, and existing vacation card contract."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-25T18:14:04.580699Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:preserve-card",
+      "source": "project_guidance",
+      "statement": "Do not replace or redesign any existing card element; preserve gallery, favorite, name, location, details, pricing, contact actions and links",
+      "acceptance_check": "Do not replace or redesign any existing card element; preserve gallery, favorite, name, location, details, pricing, contact actions and links",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:family-matrix",
+      "source": "project_guidance",
+      "statement": "Verify all shared vacation-card surfaces and both mobile and desktop",
+      "acceptance_check": "Verify all shared vacation-card surfaces and both mobile and desktop",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-25T18:14:04.580680Z",
+      "evidence": [
+        "18/18 targeted tests passed: list and detail retention, bounded refresh, optional rendering, no absolute overlay, and existing vacation card contract."
+      ],
+      "findings": [
+        "The missing field was caused by the supplier normalizer omitting preview_text; it is now retained as trimmed plain text in summary and detail and rendered only when non-empty."
+      ]
+    }
+  }
+}
