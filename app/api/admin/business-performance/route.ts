@@ -95,8 +95,7 @@ export async function GET(request: Request) {
     const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
       freshForMs: historical ? 7 * 86400_000 : 2 * 60_000, forceRefresh, loader: async () => {
     const [analyticsDb, operationsDb, inventory] = await Promise.all([businessAnalyticsDatabase(), operationsDatabase(), supportedInventory()]);
-    const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName,
-      CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' WHEN 'attractions' THEN 'activities' ELSE world END AS world,
+    const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
       SUM(CASE WHEN name = 'phone_reveal' THEN 1 ELSE 0 END) AS phoneReveals,
@@ -106,16 +105,14 @@ export async function GET(request: Request) {
       SUM(CASE WHEN name = 'booking_request' THEN 1 ELSE 0 END) AS bookingRequests,
       COUNT(DISTINCT session_id) AS uniqueBrowsers
       FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0
-      GROUP BY place_id, CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' WHEN 'attractions' THEN 'activities' ELSE world END
+      GROUP BY place_id, world
       ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>() : { results: [] as Record<string, unknown>[] };
     const bookings = basis === "arrival"
-      ? await operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName,
-          CASE a.world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE a.world END AS world, COUNT(*) AS viiBookings
+      ? await operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName, a.world, COUNT(*) AS viiBookings
           FROM vii_booking_audit a JOIN vii_booking_context c ON c.id = a.id
-          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, CASE a.world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE a.world END`).bind(from, till).all<Record<string, unknown>>()
-      : await operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName,
-          CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE world END AS world, COUNT(*) AS viiBookings
-          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE world END`).bind(since, until).all<Record<string, unknown>>();
+          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, a.world`).bind(from, till).all<Record<string, unknown>>()
+      : await operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world, COUNT(*) AS viiBookings
+          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, world`).bind(since, until).all<Record<string, unknown>>();
     const reviews = basis === "created" ? await operationsDb.prepare(`SELECT subject_id AS placeId, COUNT(*) AS reviews
       FROM guest_reviews WHERE created_at >= ? AND created_at < ? GROUP BY subject_id`).bind(since, until).all<{ placeId: string; reviews: number }>() : { results: [] as { placeId: string; reviews: number }[] };
     const rows = mergeBusinessPerformanceRows(inventory, analytics.results, bookings.results);

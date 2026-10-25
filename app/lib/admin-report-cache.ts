@@ -1,7 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 
 export type AdminReportCacheMeta = {
-  status: "saved" | "fresh" | "stale_fallback";
+  status: "saved" | "fresh" | "stale_fallback" | "bypassed";
   savedAt: string;
   stale: boolean;
 };
@@ -43,12 +43,18 @@ export async function cachedAdminReport<T>(options: {
   loader: () => Promise<T>;
   now?: Date;
 }): Promise<{ value: T; cache: AdminReportCacheMeta }> {
-  await ensureSchema(options.db);
   const parameters = stable(options.parameters);
   const cacheKey = `${options.family}:${parameters}`;
-  const row = await options.db.prepare(`SELECT payload, saved_at AS savedAt, fresh_until AS freshUntil, stale_until AS staleUntil
-    FROM vii_admin_report_cache_v1 WHERE cache_key = ?`).bind(cacheKey).first<CacheRow>();
   const now = options.now ?? new Date();
+  let row: CacheRow | null = null;
+  try {
+    await ensureSchema(options.db);
+    row = await options.db.prepare(`SELECT payload, saved_at AS savedAt, fresh_until AS freshUntil, stale_until AS staleUntil
+      FROM vii_admin_report_cache_v1 WHERE cache_key = ?`).bind(cacheKey).first<CacheRow>();
+  } catch {
+    const value = await options.loader();
+    return { value, cache: { status: "bypassed", savedAt: now.toISOString(), stale: false } };
+  }
   const parsed = (() => { try { return row ? JSON.parse(row.payload) as T : null; } catch { return null; } })();
   if (parsed !== null && Date.parse(row!.freshUntil) > now.getTime() && !options.forceRefresh) {
     return { value: parsed, cache: { status: "fresh", savedAt: row!.savedAt, stale: false } };
@@ -58,17 +64,21 @@ export async function cachedAdminReport<T>(options: {
   const operation = (async () => {
     try {
       const value = await options.loader();
-      const payload = JSON.stringify(value);
-      if (payload.length > 5_000_000) throw new Error("admin_report_cache_payload_too_large");
-      const savedAt = now.toISOString();
-      const freshUntil = new Date(now.getTime() + options.freshForMs).toISOString();
-      const staleUntil = new Date(now.getTime() + (options.staleForMs ?? 30 * 86400_000)).toISOString();
-      await options.db.prepare(`INSERT INTO vii_admin_report_cache_v1
-        (cache_key, family, parameters, payload, saved_at, fresh_until, stale_until) VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(cache_key) DO UPDATE SET payload = excluded.payload, saved_at = excluded.saved_at,
-          fresh_until = excluded.fresh_until, stale_until = excluded.stale_until`)
-        .bind(cacheKey, options.family, parameters, payload, savedAt, freshUntil, staleUntil).run();
-      return { value, cache: { status: "saved" as const, savedAt, stale: false } };
+      try {
+        const payload = JSON.stringify(value);
+        if (payload.length > 5_000_000) throw new Error("admin_report_cache_payload_too_large");
+        const savedAt = now.toISOString();
+        const freshUntil = new Date(now.getTime() + options.freshForMs).toISOString();
+        const staleUntil = new Date(now.getTime() + (options.staleForMs ?? 30 * 86400_000)).toISOString();
+        await options.db.prepare(`INSERT INTO vii_admin_report_cache_v1
+          (cache_key, family, parameters, payload, saved_at, fresh_until, stale_until) VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(cache_key) DO UPDATE SET payload = excluded.payload, saved_at = excluded.saved_at,
+            fresh_until = excluded.fresh_until, stale_until = excluded.stale_until`)
+          .bind(cacheKey, options.family, parameters, payload, savedAt, freshUntil, staleUntil).run();
+        return { value, cache: { status: "saved" as const, savedAt, stale: false } };
+      } catch {
+        return { value, cache: { status: "bypassed" as const, savedAt: now.toISOString(), stale: false } };
+      }
     } catch (error) {
       if (parsed !== null && Date.parse(row!.staleUntil) > now.getTime()) {
         return { value: parsed, cache: { status: "stale_fallback" as const, savedAt: row!.savedAt, stale: true } };
