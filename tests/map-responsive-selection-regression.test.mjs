@@ -68,6 +68,17 @@ test("panning preserves marker DOM and readiness follows initial layout", () => 
   assert.match(map, /layoutReady = true;\s*if \(tilesReady\) setMapReady\(true\)/);
 });
 
+test("late price and review data refresh markers without rebuilding Leaflet", () => {
+  const map = read("app/components/listing-map.tsx");
+  assert.match(map, /const placesGeometrySignature = incomingPlaces\.map/);
+  assert.match(map, /const currentPlaces = placesRef\.current;[\s\S]*?currentPlaces\.forEach/);
+  assert.match(map, /renderMarkersRef\.current = renderMarkers/);
+  assert.match(map, /renderMarkersRef\.current\?\.\(\);[\s\S]*?\[placesSignature\]/);
+  const mainEffectDependencies = map.match(/\}, \[enabled, interactive, ([^\]]+)\]\);/)?.[1] ?? "";
+  assert.match(mainEffectDependencies, /placesGeometrySignature/);
+  assert.doesNotMatch(mainEffectDependencies, /(^|,\s*)places(,|$)/);
+});
+
 test("regional map copy is localized and topic filters survive its place-card link", () => {
   const map = read("app/components/listing-map.tsx");
   assert.match(map, /const \{ language \} = useSiteLanguage\(\)/);

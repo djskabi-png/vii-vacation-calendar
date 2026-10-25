@@ -64,24 +64,36 @@ async function snapshot(page) {
       viewport: { width: innerWidth, height: innerHeight },
       shell: rect ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height } : null,
       horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      bodyOverflow: getComputedStyle(document.body).overflow,
+      bodyOverflow: document.body ? getComputedStyle(document.body).overflow : "document-transition",
     };
   });
 }
 
 async function selectMarker(page) {
+  const clickViewportMarker = async (selector) => {
+    const candidates = page.locator(selector);
+    const count = Math.min(await candidates.count(), 40);
+    const viewport = page.viewportSize();
+    for (let index = 0; index < count; index += 1) {
+      const candidate = candidates.nth(index);
+      const box = await candidate.boundingBox();
+      if (!box || !viewport) continue;
+      const centerX = box.x + box.width / 2;
+      const centerY = box.y + box.height / 2;
+      if (centerX < 0 || centerX > viewport.width || centerY < 0 || centerY > viewport.height) continue;
+      await candidate.click({ force: true, timeout: 8_000 });
+      return true;
+    }
+    return false;
+  };
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    const marker = page.locator(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible").first();
-    if (await marker.count()) {
-      await marker.click({ force: true, timeout: 8_000 });
+    if (await clickViewportMarker(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible")) {
       const selected = await page.locator(".map-selection-card:visible").waitFor({ timeout: 2_500 }).then(() => true).catch(() => false);
       if (selected) return;
       await page.waitForTimeout(300);
       continue;
     }
-    const cluster = page.locator(".vii-map-marker-wrap.is-cluster:visible").first();
-    if (!await cluster.count()) break;
-    await cluster.click({ force: true, timeout: 8_000 });
+    if (!await clickViewportMarker(".vii-map-marker-wrap.is-cluster:visible")) break;
     await page.waitForTimeout(500);
   }
   throw new Error("no_selectable_marker_after_cluster_expansion");
@@ -106,13 +118,14 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 25_000 });
     const cookie = page.locator(".cookie-card .button.subtle").first();
     if (await cookie.count()) await cookie.click({ force: true });
+    // Locale middleware can complete a same-URL document replacement after
+    // the global hydration flag appears. Let that bounded handoff settle
+    // before binding the interaction target.
+    await page.waitForTimeout(800);
     const toggle = page.locator('.mobile-map-fab[data-map-interactive="true"]:visible').first();
     await toggle.waitFor({ timeout: 20_000 });
     record.checks.toggleBefore = await visibleCount(page, ".mobile-map-fab");
-    await toggle.scrollIntoViewIfNeeded();
-    await toggle.hover().catch(() => undefined);
-    await page.waitForTimeout(300);
-    await page.locator('.mobile-map-fab[data-map-interactive="true"]:visible').first().click({ force: true, timeout: 10_000 });
+    await toggle.click({ force: true, timeout: 10_000 });
     await page.waitForFunction(() => {
       const button = document.querySelector(".mobile-map-fab");
       return button?.getAttribute("aria-pressed") === "true" || Boolean(document.querySelector(".map-results-experience"));
@@ -120,6 +133,11 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     record.checks.firstClickAccepted = true;
     await page.locator(".listing-map.is-ready").waitFor({ timeout: 35_000 });
     await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 15_000 });
+    // A locale route can finish a same-URL document handoff just after the
+    // first hydrated frame. Sample only after the retained map is stable.
+    await page.waitForTimeout(650);
+    await page.locator(".listing-map.is-ready").waitFor({ timeout: 10_000 });
+    await page.waitForFunction(() => Boolean(document.body) && document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 10_000 });
     record.open = await snapshot(page);
     if (!record.open.ready || !record.open.tiles || !record.open.markers || !record.open.summary) throw new Error(`incomplete_map:${JSON.stringify(record.open)}`);
     if (record.open.horizontalOverflow > 2) throw new Error(`horizontal_overflow_${record.open.horizontalOverflow}`);
@@ -129,7 +147,15 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     }
     await page.screenshot({ path: join(outputDir, `${id}-map-open.png`), fullPage: false });
     if (world === "vacations" && language === "he" && viewportId === "desktop") {
-      await page.locator(".leaflet-control-zoom-in:visible").click({ force: true });
+      // Wait until the map's initial fit/resize suppression has settled, then
+      // choose a zoom control that can definitely change the viewport.
+      await page.waitForTimeout(450);
+      const zoomIn = page.locator(".leaflet-control-zoom-in:visible").first();
+      const zoomInClass = await zoomIn.getAttribute("class");
+      const zoomControl = zoomInClass?.includes("leaflet-disabled")
+        ? page.locator(".leaflet-control-zoom-out:visible").first()
+        : zoomIn;
+      await zoomControl.click({ force: true });
       await page.locator(".map-search-area:visible").waitFor({ timeout: 8_000 });
       record.checks.searchAreaAfterViewportChange = await visibleCount(page, ".map-search-area");
       await page.locator(".map-search-area:visible").click({ force: true });

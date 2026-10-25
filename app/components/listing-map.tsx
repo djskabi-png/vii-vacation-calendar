@@ -111,8 +111,19 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     place.precision ?? "",
     place.illustrativeImage ? "1" : "0",
   ].join(":")).join("|");
+  // Only a changed set of coordinates requires a new Leaflet instance. Price,
+  // review and label data often arrive after the map opens; those updates must
+  // refresh markers in place so the camera, focus and first tap are preserved.
+  const placesGeometrySignature = incomingPlaces.map((place) => [
+    place.id,
+    place.lat,
+    place.lng,
+    place.precision ?? "",
+  ].join(":")).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const places = useMemo(() => incomingPlaces, [placesSignature]);
+  const placesRef = useRef(places);
+  placesRef.current = places;
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
     ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area", priced: "with verified price", review: "reviews" }
@@ -141,6 +152,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const activePreviewMarker = useRef<import("leaflet").Marker | null>(null);
+  const renderMarkersRef = useRef<(() => void) | null>(null);
   const visibleCountCallback = useRef(onVisibleCountChange);
   const visiblePlaceIdsCallback = useRef(onVisiblePlaceIdsChange);
   const activePlaceCallback = useRef(onActivePlaceChange);
@@ -219,13 +231,14 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   }, [places, selectedId]);
 
   const selectPlace = useCallback((id: string) => {
-    const place = places.find((entry) => entry.id === id);
+    const currentPlaces = placesRef.current;
+    const place = currentPlaces.find((entry) => entry.id === id);
     if (!place) return;
     selectedIdRef.current = id;
     setSelectedId(id);
     activePlaceCallback.current?.(id);
-    trackMapInteraction({ action: "marker_select", world: tone, resultCount: places.length, placeId: id });
-  }, [places, tone]);
+    trackMapInteraction({ action: "marker_select", world: tone, resultCount: currentPlaces.length, placeId: id });
+  }, [tone]);
 
   const closeSelectedPlace = useCallback(() => {
     const marker = markerInstances.current.get(selectedIdRef.current);
@@ -490,11 +503,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       const renderMarkers = () => {
         markerLayer.clearLayers();
         markerRegistry.clear();
+        const currentPlaces = placesRef.current;
         const zoom = map.getZoom();
         const threshold = zoom < 8 ? 76 : zoom < 10 ? 52 : zoom < 12 ? 32 : 18;
         const clusters: Array<{ entries: MapPlace[]; point: import("leaflet").Point }> = [];
 
-        places.forEach((place) => {
+        currentPlaces.forEach((place) => {
           const point = map.latLngToContainerPoint([place.lat, place.lng]);
           const cluster = single ? undefined : clusters.find((entry) => entry.point.distanceTo(point) < threshold);
           if (cluster) {
@@ -584,10 +598,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           activeMarker.setZIndexOffset(1000);
         }
       };
+      renderMarkersRef.current = renderMarkers;
 
       const visiblePlaceIds = () => {
         const currentBounds = map.getBounds().pad(0.04);
-        return places.filter((place) => currentBounds.contains([place.lat, place.lng])).map((place) => place.id);
+        return placesRef.current.filter((place) => currentBounds.contains([place.lat, place.lng])).map((place) => place.id);
       };
       const reportVisiblePlaces = (prompt = false) => {
         const ids = visiblePlaceIds();
@@ -599,10 +614,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         }
       };
 
+      const initialPlaces = placesRef.current;
       const focusPlaces = initialPlaceIds?.length
-        ? places.filter((place) => initialPlaceIds.includes(place.id))
-        : places;
-      const targetPlaces = focusPlaces.length ? focusPlaces : places;
+        ? initialPlaces.filter((place) => initialPlaceIds.includes(place.id))
+        : initialPlaces;
+      const targetPlaces = focusPlaces.length ? focusPlaces : initialPlaces;
       const bounds = L.latLngBounds(targetPlaces.map((place) => [place.lat, place.lng] as [number, number]));
       const focusInitialPlaces = () => {
         const compactViewport = container.clientWidth <= 640;
@@ -679,6 +695,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       activePreviewMarker.current?.remove();
       activePreviewMarker.current = null;
       markerRegistry.clear();
+      renderMarkersRef.current = null;
       createdMap?.off();
       createdMap?.remove();
       if (mapInstance.current === createdMap) mapInstance.current = null;
@@ -686,7 +703,13 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   // focusKey already represents every initial ID. Array identity alone is not
   // an instruction to rebuild the map during a marker hover or keyboard focus.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, interactive, places, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
+  }, [enabled, interactive, placesGeometrySignature, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
+
+  useEffect(() => {
+    // Presentation-only data can arrive after the map has opened. Redraw the
+    // current marker layer without replacing the map or changing its camera.
+    renderMarkersRef.current?.();
+  }, [placesSignature]);
 
   if (!preview) return null;
 
