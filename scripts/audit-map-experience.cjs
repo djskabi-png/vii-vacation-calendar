@@ -26,6 +26,7 @@ const viewports = [
 const languages = ["he", "en", "ru", "fr"];
 const requestedWorlds = new Set((process.env.MAP_WORLDS || routes.map(([world]) => world).join(",")).split(",").filter(Boolean));
 const requestedViewports = new Set((process.env.MAP_VIEWPORTS || viewports.map(([id]) => id).join(",")).split(",").filter(Boolean));
+const requestedLanguages = new Set((process.env.MAP_LANGUAGES || languages.join(",")).split(",").filter(Boolean));
 
 function localized(path, language) {
   if (language === "he") return path;
@@ -34,15 +35,25 @@ function localized(path, language) {
 }
 
 async function visibleCount(page, selector) {
-  return page.locator(selector).evaluateAll((nodes) => nodes.filter((node) => {
-    const rect = node.getBoundingClientRect();
-    const style = getComputedStyle(node);
-    return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-  }).length);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await page.locator(selector).evaluateAll((nodes) => nodes.filter((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      }).length);
+    } catch (error) {
+      if (attempt || !String(error).includes("Execution context was destroyed")) throw error;
+      await page.waitForLoadState("domcontentloaded", { timeout: 10_000 });
+      await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 20_000 });
+    }
+  }
 }
 
 async function snapshot(page) {
-  return page.evaluate(() => {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await page.evaluate(() => {
     const visible = (selector) => [...document.querySelectorAll(selector)].filter((node) => {
       const rect = node.getBoundingClientRect();
       const style = getComputedStyle(node);
@@ -66,11 +77,30 @@ async function snapshot(page) {
       horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       bodyOverflow: document.body ? getComputedStyle(document.body).overflow : "document-transition",
     };
-  });
+      });
+    } catch (error) {
+      if (attempt || !String(error).includes("Execution context was destroyed")) throw error;
+      await page.waitForLoadState("domcontentloaded", { timeout: 10_000 });
+      await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 20_000 });
+    }
+  }
+}
+
+async function waitForStableMap(page, timeoutMs = 15_000) {
+  const deadline = Date.now() + timeoutMs;
+  let consecutiveReadySamples = 0;
+  while (Date.now() < deadline) {
+    const state = await snapshot(page);
+    if (state.ready && state.tiles && state.markers && state.summary) consecutiveReadySamples += 1;
+    else consecutiveReadySamples = 0;
+    if (consecutiveReadySamples >= 3) return state;
+    await page.waitForTimeout(180);
+  }
+  throw new Error(`map_did_not_stabilize:${JSON.stringify(await snapshot(page))}`);
 }
 
 async function selectMarker(page) {
-  const clickViewportMarker = async (selector) => {
+  const clickViewportMarkers = async (selector, waitForSelection) => {
     const candidates = page.locator(selector);
     const count = Math.min(await candidates.count(), 40);
     const viewport = page.viewportSize();
@@ -81,20 +111,25 @@ async function selectMarker(page) {
       const centerX = box.x + box.width / 2;
       const centerY = box.y + box.height / 2;
       if (centerX < 0 || centerX > viewport.width || centerY < 0 || centerY > viewport.height) continue;
-      await candidate.click({ force: true, timeout: 8_000 });
-      return true;
+      const hitTestable = await candidate.evaluate((node, point) => {
+        const hit = document.elementFromPoint(point.x, point.y);
+        return Boolean(hit && (node === hit || node.contains(hit)));
+      }, { x: centerX, y: centerY });
+      if (!hitTestable) continue;
+      // Use a real pointer at the currently rendered center. A forced locator
+      // click can target a marker hidden below a map control and report a false
+      // product failure that a user could never reproduce.
+      await page.mouse.click(centerX, centerY);
+      if (!waitForSelection) return true;
+      const selected = await page.locator(".map-selection-card:visible").waitFor({ timeout: 1_800 }).then(() => true).catch(() => false);
+      if (selected) return true;
     }
     return false;
   };
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    if (await clickViewportMarker(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible")) {
-      const selected = await page.locator(".map-selection-card:visible").waitFor({ timeout: 2_500 }).then(() => true).catch(() => false);
-      if (selected) return;
-      await page.waitForTimeout(300);
-      continue;
-    }
-    if (!await clickViewportMarker(".vii-map-marker-wrap.is-cluster:visible")) break;
-    await page.waitForTimeout(500);
+    if (await clickViewportMarkers(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible", true)) return;
+    if (!await clickViewportMarkers(".vii-map-marker-wrap.is-cluster:visible", false)) break;
+    await page.waitForTimeout(700);
   }
   throw new Error("no_selectable_marker_after_cluster_expansion");
 }
@@ -136,9 +171,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     // A locale route can finish a same-URL document handoff just after the
     // first hydrated frame. Sample only after the retained map is stable.
     await page.waitForTimeout(650);
-    await page.locator(".listing-map.is-ready").waitFor({ timeout: 10_000 });
-    await page.waitForFunction(() => Boolean(document.body) && document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 10_000 });
-    record.open = await snapshot(page);
+    record.open = await waitForStableMap(page);
     if (!record.open.ready || !record.open.tiles || !record.open.markers || !record.open.summary) throw new Error(`incomplete_map:${JSON.stringify(record.open)}`);
     if (record.open.horizontalOverflow > 2) throw new Error(`horizontal_overflow_${record.open.horizontalOverflow}`);
     if (viewportId !== "desktop") {
@@ -156,7 +189,23 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
         ? page.locator(".leaflet-control-zoom-out:visible").first()
         : zoomIn;
       await zoomControl.click({ force: true });
-      await page.locator(".map-search-area:visible").waitFor({ timeout: 8_000 });
+      let searchAreaVisible = await page.locator(".map-search-area:visible").waitFor({ timeout: 3_500 }).then(() => true).catch(() => false);
+      if (!searchAreaVisible) {
+        // A catalog refresh can make the first zoom control stale between the
+        // class read and the pointer action. A real drag is a distinct viewport
+        // change and verifies the same user-facing search-this-area contract.
+        const mapBox = await page.locator(".listing-map:visible").boundingBox();
+        if (mapBox) {
+          const startX = mapBox.x + mapBox.width * 0.62;
+          const startY = mapBox.y + mapBox.height * 0.56;
+          await page.mouse.move(startX, startY);
+          await page.mouse.down();
+          await page.mouse.move(startX - 72, startY, { steps: 8 });
+          await page.mouse.up();
+        }
+        searchAreaVisible = await page.locator(".map-search-area:visible").waitFor({ timeout: 5_000 }).then(() => true).catch(() => false);
+      }
+      if (!searchAreaVisible) throw new Error("search_this_area_not_offered_after_two_distinct_viewport_changes");
       record.checks.searchAreaAfterViewportChange = await visibleCount(page, ".map-search-area");
       await page.locator(".map-search-area:visible").click({ force: true });
       await page.locator(".listing-map.is-ready").waitFor({ timeout: 10_000 });
@@ -211,7 +260,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
   const fullLocales = process.env.MAP_FULL_LOCALES === "1";
   const cases = [];
   for (const [world, path] of routes.filter(([world]) => requestedWorlds.has(world))) for (const [viewportId, viewport] of viewports.filter(([id]) => requestedViewports.has(id))) {
-    const caseLanguages = fullLocales || world === "vacations" ? languages : ["he"];
+    const caseLanguages = (fullLocales || world === "vacations" ? languages : ["he"]).filter((language) => requestedLanguages.has(language));
     for (const language of caseLanguages) cases.push({ world, path, language, viewportId, viewport });
   }
   const browser = await chromium.launch({ headless: true, ...(systemChrome ? { executablePath: systemChrome } : {}) });
