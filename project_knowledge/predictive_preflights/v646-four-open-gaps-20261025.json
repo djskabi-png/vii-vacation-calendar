@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "task_id": "v646-four-open-gaps",
+  "project": "VII public platform",
+  "task_type": "production completion and release",
+  "requested_outcome": "Close and publish the four remaining gaps for approved localization, stored map snapshots, unattended catalog freshness and responsive state transitions.",
+  "natural_destination": "https://vii.spaplus.co plus the authenticated VII administration",
+  "authorization_boundary": "Implementation, verification and production publication are authorized by Adir in this request. Invented translations, unlicensed map capture and unrelated infrastructure work are forbidden.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-WEB-CMS-001", "reason": "CMS language publication must be controlled rather than silently leaking source content.", "acceptance_impact": "Non-Hebrew CMS publications fail closed while drafts remain editable." },
+    { "lesson_id": "ADIR-COPY-001", "reason": "A language page must contain audience-native approved text.", "acceptance_impact": "Representative English, French and Russian routes are checked for Hebrew leakage and no translation is synthesized." },
+    { "lesson_id": "ADIR-QA-001", "reason": "Code and tests are not production completion.", "acceptance_impact": "The exact public release, admin diagnostics, map images, catalog timestamps and responsive flows must be observed after publication." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "Hebrew still appears in a foreign-language supplier or CMS field.", "prevention": "Reject unapproved localized CMS publications and suppress unapproved supplier values.", "acceptance_check": "Multilingual public audit passes representative routes in en, fr and ru." },
+    { "rejection": "Map snapshots still return warming or missing.", "prevention": "Clear stale retry locks when provider configuration changes and add an authorized forced reconciliation with diagnostics.", "acceptance_check": "Representative public snapshot endpoints return 200 image responses and the admin dashboard reports configured provider and ready records." },
+    { "rejection": "A delayed cron misses a supplier world.", "prevention": "Add deterministic missed-slot recovery in the ten-minute scheduler while preserving bounded retries and idempotent run IDs.", "acceptance_check": "Unit tests cover exact slots, delayed recovery, retries and safety rejection; production freshness shows all four worlds." },
+    { "rejection": "A gallery, map or filter breaks after rotation or breakpoint changes.", "prevention": "Run a stateful Playwright matrix through mobile, landscape, tablet, desktop and back to mobile across affected templates.", "acceptance_check": "No state disappears, overflows, escapes the viewport or leaves a stale lock after close." }
+  ],
+  "affected_family": ["supplier text", "CMS publication", "English routes", "French routes", "Russian routes", "map snapshots", "catalog scheduler", "vacation search", "event search", "hourly search", "spa search", "business galleries", "all-world maps"],
+  "family_inventory_complete": true,
+  "approved_precedents": { "sources": [
+    { "label": "VII platform master plan", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+    { "label": "VII accepted feedback standard", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" }
+  ], "no_precedent_reason": null },
+  "midpoint_gate": { "required": true, "trigger": "After root-cause patches and before freezing the release candidate", "checks": ["Build succeeds", "all unit tests pass", "local/public baseline transition runner produces deterministic evidence"], "not_required_reason": null },
+  "adversarial_close": {
+    "attack_questions": ["Can an untranslated CMS draft become public?", "Can a newly configured map provider remain blocked by yesterday's retry?", "Can a delayed cron miss a world forever?", "Can an open overlay survive a mobile-desktop-mobile transition with stale body locks?"],
+    "natural_destination_evidence": "Public release identity plus direct public and authenticated admin observations",
+    "affected_family_evidence": "Multilingual, map, catalog and responsive reports from the frozen release"
+  },
+  "effectiveness": { "baseline": "v645 has four documented uncertified gaps", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "All four requirements have public evidence with no unresolved blocker." },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

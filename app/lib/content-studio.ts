@@ -34,6 +34,14 @@ export type ContentCreate = { type: ContentType; key: string; world: string; loc
 
 const asciiSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const safePath = /^\/(?!\/)(?!admin(?:\/|$)|api(?:\/|$))[A-Za-z0-9._~!$&'()*+,;=:@%/?#-]*$/;
+const hebrewText = /[\u0590-\u05ff]/;
+
+export function editorialLocaleApproved(content: EditorialContent, locale: ContentLocale) {
+  if (locale === "he") return true;
+  const values = [content.title, content.summary, content.body, content.metaTitle, content.metaDescription, content.imageAlt,
+    ...content.links.flatMap((link) => [link.label, link.group]), ...Object.values(content.attributes)];
+  return values.every((value) => !hebrewText.test(value));
+}
 
 function clean(value: unknown, max: number) {
   return typeof value === "string" ? value.normalize("NFC").replace(/\r\n/g, "\n").trim().slice(0, max) : "";
@@ -203,11 +211,13 @@ export function parseContentChange(value: unknown) {
   if (typeof row.id !== "string" || !/^[a-z]+:[A-Za-z0-9._-]+:(?:he|en|ru|fr)$/.test(row.id) || !Number.isSafeInteger(row.expectedVersion)
     || !content || !contentStatuses.includes(row.status as ContentStatus)) return null;
   const status = row.status as ContentStatus; const scheduled = typeof row.scheduledAt === "string" && row.scheduledAt ? new Date(row.scheduledAt) : null;
+  const locale = row.id.split(":").at(-1) as ContentLocale;
   if (status === "scheduled" && (!scheduled || !Number.isFinite(scheduled.getTime()) || scheduled.getTime() <= Date.now())) return null;
   const chromeItem = row.id.startsWith("navigation:") || row.id.startsWith("footer:");
   const homepageItem = row.id.startsWith("homepage:");
   if (["published", "scheduled"].includes(status) && ((chromeItem ? content.links.length < 1 : !homepageItem && content.summary.length < 20)
     || (content.indexable && (!content.metaTitle || content.metaDescription.length < 30)))) return null;
+  if (["published", "scheduled"].includes(status) && !editorialLocaleApproved(content, locale)) return null;
   const required: Record<string, string[]> = {
     trails: ["mainArea", "region", "nature", "duration", "difficulty", "officialSource", "sourceName", "mapQuery"],
     providers: ["location", "area", "features", "image", "sourceName"], attractions: ["location", "area", "features", "image", "sourceName"],
@@ -250,7 +260,9 @@ export async function readPublishedContent(db: D1Database, type: ContentType, ke
       WHEN i.status = 'scheduled' AND i.scheduled_at <= ? THEN i.version ELSE i.published_version END
     WHERE i.id = ? AND i.status <> 'archived' LIMIT 1`)
     .bind(now, id).first<{ contentJson: string; version: number }>();
-  return row ? { content: JSON.parse(row.contentJson) as EditorialContent, version: row.version } : null;
+  if (!row) return null;
+  const content = JSON.parse(row.contentJson) as EditorialContent;
+  return editorialLocaleApproved(content, locale) ? { content, version: row.version } : null;
 }
 
 export async function readPublishedContentBatch(db: D1Database, type: ContentType, keys: readonly string[], locale: ContentLocale = "he") {
@@ -260,7 +272,8 @@ export async function readPublishedContentBatch(db: D1Database, type: ContentTyp
     JOIN vii_content_versions v ON v.item_id = i.id AND v.version = CASE
       WHEN i.status = 'scheduled' AND i.scheduled_at <= ? THEN i.version ELSE i.published_version END
     WHERE i.id IN (${placeholders}) AND i.status <> 'archived'`).bind(now, ...ids).all<{ itemId: string; contentJson: string }>();
-  return new Map(rows.results.map((row) => [row.itemId.split(":").slice(1, -1).join(":"), JSON.parse(row.contentJson) as EditorialContent]));
+  return new Map(rows.results.flatMap((row) => { const content = JSON.parse(row.contentJson) as EditorialContent;
+    return editorialLocaleApproved(content, locale) ? [[row.itemId.split(":").slice(1, -1).join(":"), content] as const] : []; }));
 }
 
 export async function readPublishedItems(db: D1Database, type: ContentType, locale: ContentLocale = "he") {
@@ -270,5 +283,6 @@ export async function readPublishedItems(db: D1Database, type: ContentType, loca
       WHEN i.status = 'scheduled' AND i.scheduled_at <= ? THEN i.version ELSE i.published_version END
     WHERE i.content_type = ? AND i.locale = ? AND i.status <> 'archived' ORDER BY i.entity_key`)
     .bind(now, type, locale).all<{ entityKey: string; contentJson: string }>();
-  return rows.results.map((row) => ({ key: row.entityKey, content: JSON.parse(row.contentJson) as EditorialContent }));
+  return rows.results.flatMap((row) => { const content = JSON.parse(row.contentJson) as EditorialContent;
+    return editorialLocaleApproved(content, locale) ? [{ key: row.entityKey, content }] : []; });
 }

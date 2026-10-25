@@ -103,3 +103,14 @@ test("provider requests and weekly Israel-time window are deterministic", () => 
   assert.equal(isWeeklyMapSnapshotWindow(new Date("2026-10-26T01:45:00.000Z")), true);
   assert.equal(isWeeklyMapSnapshotWindow(new Date("2026-10-26T01:55:00.000Z")), false);
 });
+
+test("provider changes and authorized forced reconciliation can recover failed snapshots immediately", async () => {
+  const store = await read("app/lib/map-snapshot-store.ts");
+  assert.match(store, /retry_after=CASE WHEN vii_map_snapshots_v1\.source_hash<>excluded\.source_hash THEN NULL/);
+  assert.match(store, /last_error=CASE WHEN vii_map_snapshots_v1\.source_hash<>excluded\.source_hash THEN NULL/);
+  assert.match(store, /!options\.force && Number\.isFinite\(retryAt\)/);
+  const route = await read("app/api/admin/map-snapshots/route.ts");
+  assert.match(route, /authorizedAdminSession/);
+  assert.match(route, /force: true/);
+  assert.match(route, /providerConfigured/);
+});

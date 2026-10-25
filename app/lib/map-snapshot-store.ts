@@ -147,6 +147,8 @@ async function upsertCandidate(db: D1Database, candidate: MapSnapshotCandidate, 
     ON CONFLICT(entity_key) DO UPDATE SET place_name=excluded.place_name, latitude=excluded.latitude,
       longitude=excluded.longitude, precision=excluded.precision, zoom=excluded.zoom, checked_at=excluded.checked_at,
       status=CASE WHEN vii_map_snapshots_v1.source_hash<>excluded.source_hash THEN 'stale' ELSE vii_map_snapshots_v1.status END,
+      retry_after=CASE WHEN vii_map_snapshots_v1.source_hash<>excluded.source_hash THEN NULL ELSE vii_map_snapshots_v1.retry_after END,
+      last_error=CASE WHEN vii_map_snapshots_v1.source_hash<>excluded.source_hash THEN NULL ELSE vii_map_snapshots_v1.last_error END,
       source_hash=excluded.source_hash`)
     .bind(entityKey, candidate.world, candidate.placeId, candidate.name, candidate.lat, candidate.lng, candidate.precision, candidate.zoom, sourceHash, nowIso).run();
 }
@@ -168,6 +170,7 @@ export async function reconcileMapSnapshots(options: {
   now?: Date;
   limit?: number;
   fetcher?: typeof fetch;
+  force?: boolean;
 }): Promise<MapSnapshotReconcileResult> {
   const { db, bucket, env } = options;
   const now = options.now ?? new Date();
@@ -189,7 +192,7 @@ export async function reconcileMapSnapshots(options: {
     const retryAt = record?.retryAfter ? Date.parse(record.retryAfter) : 0;
     const leasedUntil = record?.leaseUntil ? Date.parse(record.leaseUntil) : 0;
     if (record?.status === "ready" && record.sourceHash === sourceHash && record.objectKey) { result.skipped += 1; continue; }
-    if (Number.isFinite(retryAt) && retryAt > now.getTime()) { result.skipped += 1; continue; }
+    if (!options.force && Number.isFinite(retryAt) && retryAt > now.getTime()) { result.skipped += 1; continue; }
     if (Number.isFinite(leasedUntil) && leasedUntil > now.getTime()) { result.skipped += 1; continue; }
     if (attempted >= limit) { result.skipped += 1; continue; }
     attempted += 1;
@@ -241,4 +244,23 @@ export async function readMapSnapshot(db: D1Database, world: string, placeId: st
     object_key AS objectKey, content_type AS contentType, provider, attribution, generated_at AS generatedAt,
     checked_at AS checkedAt, last_error AS lastError FROM vii_map_snapshots_v1 WHERE entity_key=?`)
     .bind(mapSnapshotEntityKey(world, placeId)).first<MapSnapshotRecord>();
+}
+
+export async function readMapSnapshotDashboard(db: D1Database) {
+  await ensureMapSnapshotSchema(db);
+  const [totals, worlds, failures] = await Promise.all([
+    db.prepare(`SELECT COUNT(*) AS total,
+      SUM(CASE WHEN status='ready' AND object_key IS NOT NULL THEN 1 ELSE 0 END) AS ready,
+      SUM(CASE WHEN status='processing' THEN 1 ELSE 0 END) AS processing,
+      SUM(CASE WHEN status IN ('failed','missing','stale') OR object_key IS NULL THEN 1 ELSE 0 END) AS unresolved,
+      MAX(generated_at) AS lastGeneratedAt, MAX(checked_at) AS lastCheckedAt FROM vii_map_snapshots_v1`).first<Record<string, unknown>>(),
+    db.prepare(`SELECT world, COUNT(*) AS total,
+      SUM(CASE WHEN status='ready' AND object_key IS NOT NULL THEN 1 ELSE 0 END) AS ready,
+      SUM(CASE WHEN status IN ('failed','missing','stale') OR object_key IS NULL THEN 1 ELSE 0 END) AS unresolved
+      FROM vii_map_snapshots_v1 GROUP BY world ORDER BY world`).all<Record<string, unknown>>(),
+    db.prepare(`SELECT entity_key AS entityKey, world, place_id AS placeId, status, last_error AS lastError,
+      checked_at AS checkedAt, retry_after AS retryAfter FROM vii_map_snapshots_v1
+      WHERE status<>'ready' OR object_key IS NULL ORDER BY checked_at DESC LIMIT 100`).all<Record<string, unknown>>(),
+  ]);
+  return { totals, worlds: worlds.results, failures: failures.results };
 }

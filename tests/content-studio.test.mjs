@@ -82,3 +82,14 @@ test("navigation publishes links without fake article copy and original items st
   } finally { db.close(); }
 });
 
+test("non-Hebrew CMS content cannot publish while supplier or editorial fields still contain Hebrew", () => {
+  const base = { title: "Spa in Paris", summary: "A complete approved description for visitors in France.", body: "Approved body.",
+    metaTitle: "Spa in Paris | VII", metaDescription: "A complete approved metadata description for this public page.", slug: "spa-paris",
+    imageAlt: "Spa room", indexable: true, links: [], attributes: {} };
+  assert.ok(parseContentChange({ id: "spa:paris:fr", expectedVersion: 1, status: "published", action: "publish", scheduledAt: null, content: base }));
+  assert.equal(parseContentChange({ id: "spa:paris:fr", expectedVersion: 1, status: "published", action: "publish", scheduledAt: null,
+    content: { ...base, summary: "Texte approuvé עם שארית עברית" } }), null);
+  assert.ok(parseContentChange({ id: "spa:paris:fr", expectedVersion: 1, status: "draft", action: "save", scheduledAt: null,
+    content: { ...base, summary: "טיוטה שעדיין דורשת תרגום" } }), "drafts remain editable until an approved translation exists");
+});
+

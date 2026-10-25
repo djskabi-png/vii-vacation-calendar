@@ -1,6 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { scheduledCatalogRunId, scheduledCatalogWorld } from "./supplier-catalog-schedule.ts";
-import { syncSupplierCatalogWorld } from "./supplier-catalog-runtime.ts";
+import { catalogPullSlot, scheduledCatalogRunId, scheduledCatalogWorld } from "./supplier-catalog-schedule.ts";
+import { catalogWorlds, syncSupplierCatalogWorld } from "./supplier-catalog-runtime.ts";
 import { CATALOG_MAX_RETRIES, CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries,
   claimDueCatalogRetries, finishCatalogRetry, scheduleCatalogRetry } from "./supplier-catalog-retry.ts";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
@@ -22,7 +22,7 @@ function after(date: Date, milliseconds: number) {
 }
 
 async function settleInitial(db: D1Database, rootRunId: string, result: SyncResult, now: string) {
-  if (result.status === "accepted" || result.status === "rejected") {
+  if (result.status === "accepted" || result.status === "rejected" || result.status === "skipped") {
     await cancelPendingCatalogRetries(db, rootRunId, now, result.status, result.id, result.errorCode);
   }
 }
@@ -82,9 +82,14 @@ export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; 
 export async function runSupplierCatalogScheduleTick(db: D1Database, input: { now?: Date; sync?: Sync } = {}) {
   const now = input.now || new Date();
   const retries = await runDueCatalogRetries(db, { now, sync: input.sync });
-  const world = scheduledCatalogWorld(now);
-  if (!world) return { primary: null, retries };
-  const runId = scheduledCatalogRunId(now, world);
-  const primary = await runCatalogPullWithRetryPlan(db, { world, source: "scheduled", runId, now, sync: input.sync });
-  return { primary, retries };
+  const exactWorld = scheduledCatalogWorld(now);
+  const recoveryWorld = !exactWorld && !retries.length ? catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length] : null;
+  const recoverySlot = recoveryWorld ? catalogPullSlot(now, recoveryWorld) : null;
+  const due = exactWorld ? [{ world: exactWorld, runId: scheduledCatalogRunId(now, exactWorld) }]
+    : recoveryWorld && recoverySlot ? [{ world: recoveryWorld, runId: recoverySlot.id }] : [];
+  const scheduled: SyncResult[] = [];
+  for (const item of due) scheduled.push(await runCatalogPullWithRetryPlan(db, {
+    world: item.world, source: "scheduled", runId: item.runId, now, sync: input.sync,
+  }));
+  return { primary: scheduled.find((result) => result.status !== "skipped") || scheduled[0] || null, scheduled, retries };
 }

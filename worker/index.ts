@@ -221,8 +221,8 @@ const worker = {
         console.error("VII weekly map snapshot reconciliation unavailable", error);
       }));
     }
-    ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
-      for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
+    ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ scheduled, retries }) => {
+      for (const result of [...retries, ...scheduled]) if (result.status !== "accepted" && result.status !== "skipped") {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }
     }));

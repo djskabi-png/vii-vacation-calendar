@@ -48,20 +48,35 @@ test("a temporary supplier failure retries after 10 minutes and once more after 
 });
 
 test("safety rejection is never retried automatically", async () => {
-  const db = await database(); let calls = 0;
-  const sync = async (_world, _source, runId) => { calls += 1; return { status: "rejected", id: runId, errorCode: "catalog_removal_requires_review" }; };
+  const db = await database(); const calls = [];
+  const sync = async (world, source, runId) => { calls.push({ world, source, runId }); return { status: "rejected", id: runId, errorCode: "catalog_removal_requires_review" }; };
   try {
     await runSupplierCatalogScheduleTick(db, { now: new Date("2026-10-14T10:30:00Z"), sync });
     await runSupplierCatalogScheduleTick(db, { now: new Date("2026-10-14T10:40:00Z"), sync });
-    assert.equal(calls, 1);
+    assert.equal(calls.filter((call) => call.world === "spa").length, 1, "the rejected Spa slot must not be retried");
+    assert.equal(calls.some((call) => call.world !== "spa"), true, "an unrelated missed-slot recovery may still run");
     const jobs = await readCatalogRetryJobs(db);
-    assert.equal(jobs.length, 1);
-    assert.equal(jobs[0].status, "cancelled");
-    assert.equal(jobs[0].resultStatus, "rejected");
+    const spaJobs = jobs.filter((job) => job.world === "spa");
+    assert.equal(spaJobs.length, 1);
+    assert.equal(spaJobs[0].status, "cancelled");
+    assert.equal(spaJobs[0].resultStatus, "rejected");
     const alerts = await readCatalogAlerts(db);
-    assert.equal(alerts.length, 1);
-    assert.equal(alerts[0].kind, "review_required");
-    assert.equal(alerts[0].severity, "warning");
+    const spaAlerts = alerts.filter((alert) => alert.world === "spa");
+    assert.equal(spaAlerts.length, 1);
+    assert.equal(spaAlerts[0].kind, "review_required");
+    assert.equal(spaAlerts[0].severity, "warning");
+  } finally { db.close(); }
+});
+
+test("a delayed ten-minute tick recovers one latest supplier slot without caller-selected dates", async () => {
+  const db = await database(); const calls = [];
+  const sync = async (world, source, runId) => { calls.push({ world, source, runId }); return { status: "accepted", id: runId }; };
+  try {
+    const result = await runSupplierCatalogScheduleTick(db, { now: new Date("2026-10-14T10:40:00Z"), sync });
+    assert.equal(result.scheduled.length, 1);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].source, "scheduled");
+    assert.match(calls[0].runId, /^mcp_20261014_/);
   } finally { db.close(); }
 });
 
