@@ -87,7 +87,7 @@ export async function runSupplierCatalogScheduleTick(db: D1Database, input: {
   const now = input.now || new Date();
   const retries = await runDueCatalogRetries(db, { now, sync: input.sync });
   const exactWorld = scheduledCatalogWorld(now);
-  const recoveryWorld = !exactWorld && !retries.length
+  const recoveryWorld = !exactWorld && (input.preferredWorld || !retries.length)
     ? input.preferredWorld || catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length]
     : null;
   const recoverySlot = recoveryWorld ? catalogPullSlot(now, recoveryWorld) : null;

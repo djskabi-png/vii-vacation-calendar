@@ -91,6 +91,22 @@ test("a visitor heartbeat recovers its requested world without waiting for that 
   } finally { db.close(); }
 });
 
+test("a visitor heartbeat is not suppressed by unrelated retry backlog", async () => {
+  const db = await database(); const calls = [];
+  const sync = async (world, source, runId) => { calls.push({ world, source, runId }); return { status: "accepted", id: runId }; };
+  try {
+    await scheduleCatalogRetry(db, { rootRunId: "old_vacations_failure", world: "vacations", attempt: 1,
+      dueAt: "2026-10-14T10:30:00.000Z", createdAt: "2026-10-14T10:20:00.000Z" });
+    await runSupplierCatalogScheduleTick(db, {
+      now: new Date("2026-10-14T10:40:00Z"), preferredWorld: "spa", sync,
+    });
+    assert.deepEqual(calls.map(({ world, source }) => ({ world, source })), [
+      { world: "vacations", source: "retry" },
+      { world: "spa", source: "scheduled" },
+    ]);
+  } finally { db.close(); }
+});
+
 test("two failed retries exhaust the bounded retry budget and preserve an auditable record", async () => {
   const db = await database();
   const sync = async (_world, _source, runId) => ({ status: "failed", id: runId, errorCode: "supplier_sync_failed" });
