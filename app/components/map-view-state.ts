@@ -43,13 +43,11 @@ function hasFreshOpenIntent() {
   return false;
 }
 
-function revealDesktopMap() {
-  if (typeof window === "undefined" || !window.matchMedia("(min-width: 821px)").matches) return;
-
-  const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-  window.requestAnimationFrame(() => {
-    document.querySelector<HTMLElement>(".map-results-experience")?.scrollIntoView({ block: "start", behavior });
-  });
+function scrollDesktopMapIntoView(behavior: ScrollBehavior) {
+  const target = document.querySelector<HTMLElement>(".map-results-experience");
+  if (!target) return;
+  const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - 92);
+  window.scrollTo({ top, behavior });
 }
 
 export function useMapViewState() {
@@ -134,9 +132,19 @@ export function useMapViewState() {
 
   useEffect(() => {
     // The results shell is conditionally rendered. Reveal it only after React
-    // has committed the open map, otherwise the first desktop click can leave
-    // the map below the fold even though its toggle is already active.
-    if (mapOpen) revealDesktopMap();
+    // has committed the open map. A bounded pair of follow-up alignments also
+    // absorbs late result-count and filter layout changes without following or
+    // fighting a visitor after the opening transition has settled.
+    if (!mapOpen || !window.matchMedia("(min-width: 821px)").matches) return;
+    const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    const frame = window.requestAnimationFrame(() => scrollDesktopMapIntoView(behavior));
+    const settleTimer = window.setTimeout(() => scrollDesktopMapIntoView("auto"), 180);
+    const lateLayoutTimer = window.setTimeout(() => scrollDesktopMapIntoView("auto"), 620);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(lateLayoutTimer);
+    };
   }, [mapOpen]);
 
   useEffect(() => {

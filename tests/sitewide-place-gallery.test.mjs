@@ -78,7 +78,8 @@ test("equivalent parent renders cannot recreate the map during marker hover or s
   assert.doesNotMatch(map, /JSON\.stringify\(incomingPlaces\)/);
   assert.match(map, /const places = useMemo\(\(\) => incomingPlaces, \[placesSignature\]\)/);
   assert.doesNotMatch(map, /\[enabled, places, selectPlace,[^\]]*initialPlaceIds/);
-  assert.match(map, /focusKey, cardCopy\.openCluster/);
+  assert.doesNotMatch(map, /focusKey, cardCopy\.openCluster/);
+  assert.match(map, /renderMarkersRef\.current\?\.\(\);[\s\S]*?\[placesSignature\]/);
 });
 
 test("all marker variants activate through Enter and Space without repeating selection", () => {

@@ -111,15 +111,6 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     place.precision ?? "",
     place.illustrativeImage ? "1" : "0",
   ].join(":")).join("|");
-  // Only a changed set of coordinates requires a new Leaflet instance. Price,
-  // review and label data often arrive after the map opens; those updates must
-  // refresh markers in place so the camera, focus and first tap are preserved.
-  const placesGeometrySignature = incomingPlaces.map((place) => [
-    place.id,
-    place.lat,
-    place.lng,
-    place.precision ?? "",
-  ].join(":")).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const places = useMemo(() => incomingPlaces, [placesSignature]);
   const placesRef = useRef(places);
@@ -177,7 +168,6 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
   const pricedPlaceCount = places.filter((place) => place.markerKind === "price").length;
-  const focusKey = initialPlaceIds?.join("|") ?? "";
 
   const activateMap = useCallback(() => {
     setInteractive(true);
@@ -705,14 +695,17 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       createdMap?.remove();
       if (mapInstance.current === createdMap) mapInstance.current = null;
     };
-  // focusKey already represents every initial ID. Array identity alone is not
-  // an instruction to rebuild the map during a marker hover or keyboard focus.
+  // Result streams can grow from a fast partial catalog into the complete
+  // inventory. Marker reconciliation below reads placesRef, so neither a new
+  // coordinate set nor a longer focus list is an instruction to tear down the
+  // live Leaflet instance, reset its camera or discard the user's selection.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, interactive, placesGeometrySignature, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
+  }, [enabled, interactive, selectPlace, single, tone, language, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
 
   useEffect(() => {
-    // Presentation-only data can arrive after the map has opened. Redraw the
-    // current marker layer without replacing the map or changing its camera.
+    // Catalog, coordinate and presentation data can arrive after the map has
+    // opened. Reconcile the current marker layer without replacing the map or
+    // changing its camera.
     renderMarkersRef.current?.();
   }, [placesSignature]);
 

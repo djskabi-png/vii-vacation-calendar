@@ -16,10 +16,10 @@ test("open map switches its scroll lock in both responsive directions", () => {
 
 test("desktop map opening reveals the map and closing returns to the original position", () => {
   const hook = read("app/components/map-view-state.ts");
-  assert.match(hook, /querySelector<HTMLElement>\("\.map-results-experience"\)\?\.scrollIntoView/);
-  assert.match(hook, /scrollIntoView\(\{ block: "start", behavior \}\)/);
+  assert.match(hook, /querySelector<HTMLElement>\("\.map-results-experience"\)/);
+  assert.match(hook, /window\.scrollTo\(\{ top, behavior \}\)/);
   assert.match(hook, /prefers-reduced-motion: reduce/);
-  assert.match(hook, /if \(mapOpen\) revealDesktopMap\(\)/);
+  assert.match(hook, /setTimeout\(\(\) => scrollDesktopMapIntoView\("auto"\), 620\)/);
   assert.match(hook, /window\.scrollTo\(0, scrollPosition\.current\)/);
   assert.match(read("app/globals.css"), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
 });
@@ -86,13 +86,12 @@ test("panning preserves marker DOM and readiness follows initial layout", () => 
 
 test("late price and review data refresh markers without rebuilding Leaflet", () => {
   const map = read("app/components/listing-map.tsx");
-  assert.match(map, /const placesGeometrySignature = incomingPlaces\.map/);
   assert.match(map, /const currentPlaces = placesRef\.current;[\s\S]*?currentPlaces\.forEach/);
   assert.match(map, /renderMarkersRef\.current = renderMarkers/);
   assert.match(map, /renderMarkersRef\.current\?\.\(\);[\s\S]*?\[placesSignature\]/);
   const mainEffectDependencies = map.match(/\}, \[enabled, interactive, ([^\]]+)\]\);/)?.[1] ?? "";
-  assert.match(mainEffectDependencies, /placesGeometrySignature/);
   assert.doesNotMatch(mainEffectDependencies, /(^|,\s*)places(,|$)/);
+  assert.doesNotMatch(mainEffectDependencies, /placesGeometrySignature|focusKey/);
 });
 
 test("regional map copy is localized and topic filters survive its place-card link", () => {
