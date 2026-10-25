@@ -71,8 +71,12 @@
 .place-preview-card--contact { display: flex; flex-direction: column; }
 .place-preview-card--contact > .place-preview-card__media { flex: 0 0 auto; }
 .place-preview-card--contact > .place-preview-card__body { flex: 1; min-width: 0; }
+.place-preview-card__contact { container-type: inline-size; }
 .place-preview-card__contact { margin-top: auto; padding: 0 14px 14px; min-width: 0; width: 100%; }
 .place-preview-card__contact:not(:has(.preview-card-contact-row)) { display: none; }
+@container (max-width: 220px) {
+  .preview-card-contact-row { grid-template-columns: minmax(0,1fr); }
+}
 .catalog-starting-price { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 5px; max-width: 100%; color: var(--ink); font: inherit; }
 .catalog-starting-price small { font-size: .78rem; }
 .catalog-starting-price bdi { font-size: .95rem; font-weight: 800; }

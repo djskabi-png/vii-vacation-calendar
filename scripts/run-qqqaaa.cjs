@@ -17,6 +17,7 @@ const suites = [
   ["search-state", ["audit:search"]],
   ["availability-matrix", ["audit:availability"]],
   ["feature-icon-geometry", ["qa:icon-geometry"]],
+  ["header-control-spacing", ["qa:spacing"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],
   ["map-experience", ["qa:map"]],
   ["multilingual-production", ["qa:locales"]],

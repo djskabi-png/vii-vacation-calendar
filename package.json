@@ -24,6 +24,7 @@
     "qa:pre-professor-repairs": "node --test tests/booking-mode-contract.test.mjs tests/vii-stay-calendar.test.mjs tests/last-minute-page.test.mjs tests/geography-missing-map-points.test.mjs",
     "qa:navigation-unit-results": "node --test tests/navigation-unit-results-regression.test.mjs",
     "qa:qqqaaa": "node scripts/run-qqqaaa.cjs",
+    "qa:spacing": "node scripts/audit-header-spacing.cjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
     "db:generate": "drizzle-kit generate"
   },
