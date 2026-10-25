@@ -20,7 +20,7 @@ export function supplierDetailRefreshLimit(world: SupplierCatalogWorld, source: 
   // Vacation details are the largest supplier payload. Visitor and scheduled
   // heartbeats rotate a bounded subset so they finish inside the Worker
   // background lifetime; manual pulls keep the wider diagnostic batch.
-  return world === "vacations" && source !== "manual" ? 8 : undefined;
+  return world === "vacations" && source !== "manual" ? 2 : undefined;
 }
 
 export function bundledCatalogBaseline(world: SupplierCatalogWorld): SupplierCatalogEntry[] {
