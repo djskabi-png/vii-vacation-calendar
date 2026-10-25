@@ -87,7 +87,7 @@ test("a visitor heartbeat recovers its requested world without waiting for that 
     await runSupplierCatalogScheduleTick(db, {
       now: new Date("2026-10-14T10:40:00Z"), preferredWorld: "spa", sync,
     });
-    assert.deepEqual(calls, [{ world: "spa", source: "scheduled", runId: "mcp_20261014_spa_1330" }]);
+    assert.deepEqual(calls, [{ world: "spa", source: "scheduled", runId: "mcp_20261014_spa_1330_heartbeat_1791974" }]);
   } finally { db.close(); }
 });
 

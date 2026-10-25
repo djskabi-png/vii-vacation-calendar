@@ -91,8 +91,10 @@ export async function runSupplierCatalogScheduleTick(db: D1Database, input: {
     ? input.preferredWorld || catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length]
     : null;
   const recoverySlot = recoveryWorld ? catalogPullSlot(now, recoveryWorld) : null;
+  const heartbeatWindow = Math.floor(now.getTime() / 600_000);
   const due = exactWorld ? [{ world: exactWorld, runId: scheduledCatalogRunId(now, exactWorld) }]
-    : recoveryWorld && recoverySlot ? [{ world: recoveryWorld, runId: recoverySlot.id }] : [];
+    : recoveryWorld && recoverySlot ? [{ world: recoveryWorld,
+      runId: input.preferredWorld ? `${recoverySlot.id}_heartbeat_${heartbeatWindow}` : recoverySlot.id }] : [];
   const scheduled: SyncResult[] = [];
   for (const item of due) scheduled.push(await runCatalogPullWithRetryPlan(db, {
     world: item.world, source: "scheduled", runId: item.runId, now, sync: input.sync,
