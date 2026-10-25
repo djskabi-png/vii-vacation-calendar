@@ -4,6 +4,7 @@ import { ensureReviewSchema } from "../../../lib/review-storage.ts";
 import { whatsappLeadDatabase } from "../../../lib/whatsapp-lead-storage.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -68,6 +69,8 @@ export async function GET(request: Request) {
     const db = await operationsDatabase();
     await Promise.allSettled([ensureReviewSchema(), whatsappLeadDatabase()]);
     const since = new Date(Date.now() - 30 * 86400_000).toISOString();
+    const report = await cachedAdminReport({ db, family: "admin-overview", parameters: { periodDays: 30 }, freshForMs: 60_000,
+      forceRefresh: new URL(request.url).searchParams.get("refresh") === "1", loader: async () => {
     const [bookings, reviews, whatsappLeads, catalog, activity, search, business] = await Promise.all([
       count(db, "vii_booking_audit").catch(() => null),
       count(db, "guest_reviews").catch(() => null),
@@ -75,8 +78,7 @@ export async function GET(request: Request) {
       readSupplierCatalogDashboard(db).catch(() => null), readActivities(db),
       readSearchSummary(db, since).catch(() => null), readBusinessSummary(db, since).catch(() => null),
     ]);
-    return Response.json({
-      account: { name: session.name, email: session.email },
+    return {
       totals: { bookings, reviews, whatsappLeads },
       periodDays: 30,
       search,
@@ -84,7 +86,9 @@ export async function GET(request: Request) {
       catalog: catalog?.states.map((state) => ({ world: state.world, activeCount: state.activeCount, acceptedAt: state.acceptedAt })) ?? null,
       recentActivity: activity,
       generatedAt: new Date().toISOString(),
-    }, { headers });
+    };
+    }});
+    return Response.json({ account: { name: session.name, email: session.email }, ...report.value, reportCache: report.cache }, { headers });
   } catch (error) {
     console.error("VII admin overview unavailable", error);
     return Response.json({ error: "overview_unavailable" }, { status: 503, headers });

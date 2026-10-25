@@ -1,0 +1,14 @@
+{
+  "task": "Make admin reports persistently fast, remove duplicate businesses, verify and publish",
+  "source": "Adir, 2026-10-25",
+  "authorized": ["code changes", "database cache schema creation", "production publication"],
+  "acceptance": [
+    "Historical aggregate report ranges are reused from persistent server cache",
+    "Current data has a short freshness window and manual forced refresh remains possible",
+    "Last good aggregate is available during a temporary loader failure",
+    "A business appears once even when source rows use singular and plural world aliases",
+    "Targeted tests, full suite, production build and public smoke verification pass"
+  ],
+  "excluded": ["accessibility audit", "typography audit", "caching raw contact ledgers"],
+  "lessons": ["ADIR-ADMIN-001", "ADIR-QA-001"]
+}

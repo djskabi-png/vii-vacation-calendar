@@ -6,6 +6,8 @@ import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions } from "../../../lib/biz-conversion-cache.ts";
 import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
+import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
+import { mergeBusinessPerformanceRows } from "../../../lib/business-performance-rows.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -73,14 +75,20 @@ export async function GET(request: Request) {
   const from = url.searchParams.get("from") || "";
   const till = url.searchParams.get("till") || "";
   const basis = url.searchParams.get("basis") === "arrival" ? "arrival" : "created";
+  const forceRefresh = url.searchParams.get("refresh") === "1";
   if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers });
   }
   const since = `${from}T00:00:00.000Z`;
   const until = nextDay(till);
   try {
+    const cacheDb = await bizConversionDatabase();
+    const historical = Date.parse(`${till}T23:59:59Z`) < Date.now() - 86400_000;
+    const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
+      freshForMs: historical ? 7 * 86400_000 : 2 * 60_000, forceRefresh, loader: async () => {
     const [analyticsDb, operationsDb, inventory] = await Promise.all([businessAnalyticsDatabase(), operationsDatabase(), supportedInventory()]);
-    const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
+    const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName,
+      CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' WHEN 'attractions' THEN 'activities' ELSE world END AS world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
       SUM(CASE WHEN name = 'phone_reveal' THEN 1 ELSE 0 END) AS phoneReveals,
@@ -90,23 +98,24 @@ export async function GET(request: Request) {
       SUM(CASE WHEN name = 'booking_request' THEN 1 ELSE 0 END) AS bookingRequests,
       COUNT(DISTINCT session_id) AS uniqueBrowsers
       FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0
-      GROUP BY place_id, world ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>() : { results: [] as Record<string, unknown>[] };
+      GROUP BY place_id, CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' WHEN 'attractions' THEN 'activities' ELSE world END
+      ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>() : { results: [] as Record<string, unknown>[] };
     const bookings = basis === "arrival"
-      ? await operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName, a.world, COUNT(*) AS viiBookings
+      ? await operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName,
+          CASE a.world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE a.world END AS world, COUNT(*) AS viiBookings
           FROM vii_booking_audit a JOIN vii_booking_context c ON c.id = a.id
-          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, a.world`).bind(from, till).all<Record<string, unknown>>()
-      : await operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world, COUNT(*) AS viiBookings
-          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, world`).bind(since, until).all<Record<string, unknown>>();
+          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, CASE a.world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE a.world END`).bind(from, till).all<Record<string, unknown>>()
+      : await operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName,
+          CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE world END AS world, COUNT(*) AS viiBookings
+          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, CASE world WHEN 'vacation' THEN 'vacations' WHEN 'event' THEN 'events' WHEN 'hourly' THEN 'rooms' WHEN 'room' THEN 'rooms' ELSE world END`).bind(since, until).all<Record<string, unknown>>();
     const reviews = basis === "created" ? await operationsDb.prepare(`SELECT subject_id AS placeId, COUNT(*) AS reviews
       FROM guest_reviews WHERE created_at >= ? AND created_at < ? GROUP BY subject_id`).bind(since, until).all<{ placeId: string; reviews: number }>() : { results: [] as { placeId: string; reviews: number }[] };
-    const rows = new Map<string, Record<string, unknown>>();
-    const base = { impressions: 0, pageViews: 0, phoneReveals: 0, phoneClicks: 0, whatsappLeads: 0, whatsappHandoffs: 0, bookingRequests: 0, uniqueBrowsers: 0, viiBookings: 0, reviews: 0 };
-    for (const row of inventory) rows.set(`${row.world}:${row.placeId}`, { ...base, ...row });
-    for (const row of analytics.results) rows.set(`${row.world}:${row.placeId}`, { ...base, ...row });
-    for (const row of bookings.results) { const key = `${row.world}:${row.placeId}`; rows.set(key, { ...base, ...(rows.get(key) || {}), ...row }); }
+    const rows = mergeBusinessPerformanceRows(inventory, analytics.results, bookings.results);
     const reviewMap = new Map(reviews.results.map((row) => [row.placeId, Number(row.reviews || 0)]));
-    for (const row of rows.values()) row.reviews = reviewMap.get(String(row.placeId)) || 0;
-    const database = await bizConversionDatabase();
+    for (const row of rows) row.reviews = reviewMap.get(String(row.placeId)) || 0;
+    return { rows };
+    }});
+    const database = cacheDb;
     const [cached, runHistory] = await Promise.all([
       loadCachedBizConversions(database, from, till).catch((error) => {
         console.warn("biz_conversion_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
@@ -121,7 +130,7 @@ export async function GET(request: Request) {
       const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
       return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
     }));
-    return Response.json({ basis, from, till, rows: [...rows.values()], bizSnapshots, runHistory }, { headers });
+    return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });

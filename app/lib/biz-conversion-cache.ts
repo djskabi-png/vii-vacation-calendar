@@ -115,7 +115,7 @@ export async function cachedBizConversions(options: {
       const conversions = await options.fetcher();
       return await save(options.db, options.world, options.from, options.till, conversions, options.now ?? new Date());
     } catch (error) {
-      if (existing) return { ...existing, cache: { ...existing.cache, status: "stale_fallback", stale: true } };
+      if (existing) return { ...existing, cache: { ...existing.cache, status: "stale_fallback" as const, stale: true } };
       throw error;
     } finally {
       pending.delete(cacheKey);

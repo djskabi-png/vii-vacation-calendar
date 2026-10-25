@@ -1,0 +1,12 @@
+{
+  "predicted_rejections": [
+    "The duplicate is hidden in the UI but remains in totals",
+    "The cache is only browser memory and disappears on reload",
+    "Historical ranges are recalculated despite having been loaded before",
+    "A stale result is presented without cache status",
+    "The code passes locally but is not the public release"
+  ],
+  "affected_family": ["business performance", "Biz snapshots", "search analytics", "admin overview", "business selector"],
+  "midpoint": "unit tests for canonical row merging and persistent cache behavior",
+  "close": "full regression, production build, deploy identity, public admin/API smoke evidence"
+}
