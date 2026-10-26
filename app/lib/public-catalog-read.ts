@@ -2,6 +2,7 @@ import sergey from "../data/sergey-public-catalog.json" with { type: "json" };
 import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import sergeyDetails from "../data/sergey-place-details.json" with { type: "json" };
+import acceptedRuntimeCatalog from "../data/accepted-runtime-catalog-state.json" with { type: "json" };
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
@@ -17,7 +18,12 @@ const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise
 function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "spa") return spa.sites;
   if (world === "rooms") return hourly.places;
-  return sergey.places.filter((place) => place.world === world);
+  const accepted = acceptedRuntimeCatalog.worlds[world];
+  const activeIds = new Set(accepted.ids);
+  const base = sergey.places.filter((place) => place.world === world && activeIds.has(place.supplierId));
+  const identities = new Set(base.map((entry) => catalogIdentity(world, entry)));
+  const additions = accepted.additions.filter((entry) => !identities.has(catalogIdentity(world, entry)));
+  return [...base, ...additions];
 }
 
 /**

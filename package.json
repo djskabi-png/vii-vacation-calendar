@@ -20,6 +20,7 @@
     "qa:overlay-geometry": "node scripts/audit-overlay-geometry.cjs",
     "qa:responsive-transitions": "node scripts/audit-responsive-transitions.cjs",
     "qa:map": "node scripts/audit-map-experience.cjs",
+    "qa:catalog-fallback": "node scripts/audit-catalog-fallback-parity.mjs",
     "qa:auth-boundaries": "node --test tests/auth-audience-separation.test.mjs tests/admin-server-gate.test.mjs tests/logout-route.test.mjs tests/account-frontend-contract.test.mjs tests/admin-command-center.test.mjs tests/admin-permissions.test.mjs tests/launch-seo.test.mjs",
     "qa:pre-professor-repairs": "node --test tests/booking-mode-contract.test.mjs tests/vii-stay-calendar.test.mjs tests/last-minute-page.test.mjs tests/geography-missing-map-points.test.mjs",
     "qa:navigation-unit-results": "node --test tests/navigation-unit-results-regression.test.mjs",

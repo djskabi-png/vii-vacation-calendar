@@ -17,6 +17,7 @@ const suites = [
   ["regression-guard-matrix", ["qa:regression-guards"]],
   ["search-state", ["audit:search"]],
   ["availability-matrix", ["audit:availability"]],
+  ["catalog-fallback-parity", ["qa:catalog-fallback"]],
   ["feature-icon-geometry", ["qa:icon-geometry"]],
   ["header-control-spacing", ["qa:spacing"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
+const acceptedCatalogState = JSON.parse(await readFile(new URL("../app/data/accepted-runtime-catalog-state.json", import.meta.url)));
 const legacy = JSON.parse(await readFile(new URL("../app/data/verified-catalog.json", import.meta.url)));
 const { default: worker } = await import("../dist/server/index.js");
 const render = (path) => worker.fetch(new Request(`https://vii.spaplus.co${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
@@ -47,7 +48,7 @@ test("event attendance requests do not exclude places using lodging unit capacit
   const normal = await (await render("/events/search")).text();
   const large = await (await render("/events/search?guests=1000&type=unverified&eventType=unverified")).text();
   const cards = (html) => new Set([...html.matchAll(/href="\/events\/place\/(event-\d+)"/g)].map((match) => match[1])).size;
-  assert.equal(cards(normal), catalog.places.filter((place) => place.world === "events").length);
+  assert.equal(cards(normal), acceptedCatalogState.worlds.events.ids.length);
   assert.equal(cards(large), cards(normal));
 });
 
