@@ -74,6 +74,14 @@ test("aggregate diagnostics identify the exact malformed field without exposing 
   (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "summary.all.medianDelay" && !error.message.includes("not-a-number"));
 });
 
+test("fractional median delay values are accepted by the official Biz number contract", async () => {
+  const response = fixture();
+  response.summary.all.medianDelay = 91800.5;
+  const result = await fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret",
+    fetchImpl: async () => Response.json(response) });
+  assert.equal(result.summary.all.medianDelay, 91800.5);
+});
+
 test("unsupported and unavailable provider states remain distinct", async () => {
   await assert.rejects(fetchViiConversions({ world: "rooms", siteID: 475, from: "2026-10-01", till: "2026-10-22", token: "secret", fetchImpl: async () => new Response("", { status: 404 }) }), { code: "not_supported", status: 404 });
   await assert.rejects(fetchViiConversions({ world: "events", siteID: 42, from: "2026-10-01", till: "2026-10-22", token: "secret", fetchImpl: async () => new Response("", { status: 503 }) }), { code: "supplier_unavailable", status: 503 });

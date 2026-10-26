@@ -90,7 +90,7 @@ function bucket(value: unknown): ConversionBucket | null {
   if (![row.contacts, row.identified, row.converted, row.customers, row.orders].every(integer)
     || !nonNegative(row.revenue)
     || !(row.rate === null || (nonNegative(row.rate) && Number(row.rate) <= 100))
-    || !(row.medianDelay === null || integer(row.medianDelay))) return null;
+    || !(row.medianDelay === null || nonNegative(row.medianDelay))) return null;
   return {
     contacts: Number(row.contacts), identified: Number(row.identified), converted: Number(row.converted),
     rate: row.rate === null ? null : Number(row.rate), customers: Number(row.customers),
@@ -107,7 +107,7 @@ function invalidBucketField(value: unknown, prefix: string) {
   if (!integer(row.orders)) return `${prefix}.orders`;
   if (!nonNegative(row.revenue)) return `${prefix}.revenue`;
   if (!(row.rate === null || (nonNegative(row.rate) && Number(row.rate) <= 100))) return `${prefix}.rate`;
-  if (!(row.medianDelay === null || integer(row.medianDelay))) return `${prefix}.medianDelay`;
+  if (!(row.medianDelay === null || nonNegative(row.medianDelay))) return `${prefix}.medianDelay`;
   return null;
 }
 
