@@ -29,3 +29,15 @@ test("business performance report does not depend on Biz snapshot schema initial
   assert.match(source, /database \? loadCachedBizConversions/);
   assert.doesNotMatch(source, /const cacheDb = await bizConversionDatabase\(\);/);
 });
+
+test("Biz reporting deduplicates one supplier that appears in several worlds", async () => {
+  const page = await readFile(new URL("../app/admin/business-performance/page.tsx", import.meta.url), "utf8");
+  const route = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(page, /function uniqueConversionBusinesses/);
+  assert.match(page, /uniqueConversionBusinesses\(supportedRows\.filter/);
+  assert.match(page, /uniqueConversionBusinesses\(filtered\.filter\(conversionSupported\)\)/);
+  assert.match(route, /function uniqueConversionRows/);
+  assert.match(route, /const supportedRows = uniqueConversionRows\(report\.value\.rows\)/);
+  assert.match(route, /if \(requestedTargets\.length !== body\.targets\.length\)/);
+  assert.match(route, /const targets = uniqueConversionRows\(requestedTargets\)/);
+});

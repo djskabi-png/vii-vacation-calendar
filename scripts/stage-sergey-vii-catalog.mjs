@@ -59,6 +59,7 @@ async function main() {
   }
 
   const [locations, ...worldLists] = await Promise.all([get("/locations"), ...WORLDS.map((world) => get(`/${world}`))]);
+  const worldTypes = Object.fromEntries(await Promise.all(WORLDS.map(async (world) => [world, await get(`/${world}/types`)])));
   if (!Array.isArray(locations.cities) || !Array.isArray(locations.areas)) throw new Error("Invalid location lookup");
   const previousCatalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
   const previous = Object.fromEntries(WORLDS.map((world) => [world, previousCatalog.places.filter((place) => place.world === world).length]));
@@ -116,7 +117,7 @@ async function main() {
     throw new Error(`Import rejected: ${JSON.stringify(failures.slice(0, 6))}`);
   }
 
-  const raw = { fetchedAt: new Date().toISOString(), locations, lists: Object.fromEntries(WORLDS.map((world, index) => [world, worldLists[index]])), details: records.map(({ world, supplierId, raw }) => ({ world, supplierId, raw })) };
+  const raw = { fetchedAt: new Date().toISOString(), locations, types: worldTypes, lists: Object.fromEntries(WORLDS.map((world, index) => [world, worldLists[index]])), details: records.map(({ world, supplierId, raw }) => ({ world, supplierId, raw })) };
   const rawBytes = gzipSync(Buffer.from(JSON.stringify(raw)));
   const normalized = records.map(({ raw: _raw, ...record }) => record);
   const manifest = {

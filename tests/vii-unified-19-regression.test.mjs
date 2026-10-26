@@ -25,12 +25,28 @@ test("unit, sleeping, taxonomy and identical inventory remain separate and verif
   assert.match(calendar, /יחידות פנויות בטווח שנבחר/);
 });
 
+test("the staged fallback preserves the supplier taxonomy used by live refreshes", async () => {
+  const [stage, build, amenities] = await Promise.all([
+    read("scripts/stage-sergey-vii-catalog.mjs"),
+    read("scripts/build-sergey-public-catalog.mjs"),
+    read("app/lib/sergey-amenities.ts"),
+  ]);
+  assert.match(stage, /get\(`\/\$\{world\}\/types`\)/);
+  assert.match(stage, /types: worldTypes/);
+  assert.match(build, /buildSergeyAmenityIndex\(source\.types\?\.\[world\]/);
+  assert.match(build, /roomType: sergeyRoomType\(room\.roomType/);
+  assert.match(build, /featureGroups: sergeyAmenityGroups\(raw\.shared_amenities/);
+  assert.match(build, /\.\.\.sergeyAmenityGroups\(room\.amenities/);
+  assert.match(amenities, /return \[\.\.\.groups\]\.map/);
+});
+
 test("supplier gallery names and membership remain authoritative and shareable", async () => {
-  const [gallery, selection, hook, page] = await Promise.all([
+  const [gallery, selection, hook, page, bundledDetails] = await Promise.all([
     read("app/components/gallery-experience.tsx"),
     read("app/components/gallery-selection.ts"),
     read("app/components/use-gallery-deep-link.ts"),
     read("app/business/client-page.tsx"),
+    read("app/data/sergey-place-details.json").then(JSON.parse),
   ]);
   assert.match(gallery, /property\.galleryGroups\?\.length/);
   assert.match(gallery, /group\.title/);
@@ -40,6 +56,22 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(selection, /if \(topic\) return items\.filter/);
   assert.match(hook, /params\.set\("topic", topic\)/);
   assert.match(page, /openGallery\("units", unitGalleryStart, room\.name\)/);
+  const ara = bundledDetails.details["vacation-2705"];
+  assert.deepEqual(ara.galleryGroups.map((group) => group.title), [
+    "גלריה כללית",
+    "פנים הסוויטות",
+    "מתחם הבריכה והחצר לכל סוויטה",
+    "מתחם הבר המשותף",
+  ]);
+});
+
+test("older accepted detail rows inherit newly supported gallery presentation fields", async () => {
+  const { mergeBundledDetail } = await import("../app/lib/public-catalog-read.ts");
+  const accepted = { name: "מתחם", galleryGroups: [], rooms: [{ id: 7, name: "סוויטה", images: [] }] };
+  const bundled = { galleryGroups: [{ title: "מתחם הבריכה", images: ["/pool.jpg"] }], rooms: [{ id: 7, name: "סוויטה", images: ["/suite.jpg"] }] };
+  const merged = mergeBundledDetail(accepted, bundled);
+  assert.deepEqual(merged.galleryGroups, bundled.galleryGroups);
+  assert.deepEqual(merged.rooms[0].images, ["/suite.jpg"]);
 });
 
 test("a unit deep-link keeps a supplier-named gallery after media deduplication", async () => {
@@ -67,6 +99,14 @@ test("public review, accessibility and contact sources preserve their approved b
   assert.match(floating, /DirectPhoneLink/);
   assert.match(floating, /WhatsAppLeadButton/);
   assert.match(floating, /floating-contact-actions__online/);
+  assert.doesNotMatch(floating, /window\.scrollY\s*>/);
+  assert.doesNotMatch(floating, /\.property-booking/);
+  assert.match(floating, /property-title__actions--contact/);
+  const operations = await read("app/api/admin/operations/route.ts");
+  assert.match(operations, /FROM guest_reviews/);
+  assert.match(operations, /author, rating, status, created_at/);
+  const english = await read("app/i18n/translations.en.generated.json");
+  assert.doesNotMatch(english, /Vii/);
 });
 
 test("Biz reporting uses one server run identity, truthful coverage and typed persistent sorting", async () => {

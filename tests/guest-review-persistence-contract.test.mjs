@@ -5,12 +5,14 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("guest reviews accept anonymous submissions into D1 and R2 with pending moderation", async () => {
-  const [route, storage, studio, schema, hosting] = await Promise.all([
+  const [route, storage, studio, schema, hosting, operationsRoute, operationsPage] = await Promise.all([
     read("app/api/reviews/route.ts"),
     read("app/lib/review-storage.ts"),
     read("app/components/guest-review-studio.tsx"),
     read("db/schema.ts"),
     read(".openai/hosting.json"),
+    read("app/api/admin/operations/route.ts"),
+    read("app/admin/operations/page.tsx"),
   ]);
   assert.match(route, /readSession\(request\)/);
   assert.match(route, /review: null, authenticated: false/);
@@ -30,6 +32,12 @@ test("guest reviews accept anonymous submissions into D1 and R2 with pending mod
   assert.match(studio, /fetch\("\/api\/reviews"/);
   assert.match(studio, /aria-busy=\{submitting\}/);
   assert.match(studio, /name="photos"/);
+  assert.match(operationsRoute, /export async function PATCH/);
+  assert.match(operationsRoute, /UPDATE guest_reviews SET status = \?, updated_at = \?/);
+  assert.match(operationsRoute, /UPDATE guest_review_files SET status = \?/);
+  assert.match(operationsPage, /moderateReview/);
+  assert.match(operationsPage, /> אישור</);
+  assert.match(operationsPage, /> דחייה</);
 });
 
 test("the shared header keeps one worlds trigger and restores accessibility while mobile removes the redundant gift shortcut", async () => {

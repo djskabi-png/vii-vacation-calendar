@@ -1,7 +1,7 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { businessAnalyticsDatabase } from "../../../lib/business-analytics.ts";
 import { operationsDatabase } from "../../../lib/operations-audit.ts";
-import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
+import { conversionTarget, fetchViiConversions, ViiConversionsError, type ConversionWorld } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions, loadCachedBizConversionFailures,
@@ -18,6 +18,19 @@ const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number
 const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + 1); return date.toISOString(); };
 
 type InventoryPlace = { supplierId?: number; id?: string; name?: string; title?: string };
+
+function uniqueConversionRows<T extends { placeId: unknown; world: unknown }>(rows: T[]) {
+  const unique = new Map<number, T>();
+  const priority = (world: ConversionWorld) => world === "vacations" ? 0 : world === "events" ? 1 : 2;
+  for (const row of rows) {
+    const target = conversionTarget(String(row.placeId), String(row.world));
+    if (!target) continue;
+    const current = unique.get(target.siteID);
+    const currentTarget = current ? conversionTarget(String(current.placeId), String(current.world)) : null;
+    if (!current || !currentTarget || priority(target.world) < priority(currentTarget.world)) unique.set(target.siteID, row);
+  }
+  return [...unique.values()];
+}
 
 async function supportedInventory() {
   const [vacations, events, rooms, spa] = await Promise.all([
@@ -152,7 +165,7 @@ export async function GET(request: Request) {
       const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
       return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
     }));
-    const supportedRows = report.value.rows.filter((row) => conversionTarget(String(row.placeId), String(row.world)));
+    const supportedRows = uniqueConversionRows(report.value.rows);
     const completedRun = runHistory.find((run) => run.from === from && run.till === till && run.scope === "all"
       && run.status === "completed" && run.processed === run.total && run.total === supportedRows.length);
     const inferredFailures = completedRun ? Object.fromEntries(supportedRows.flatMap((row) => {
@@ -206,12 +219,13 @@ export async function POST(request: Request) {
     || (body?.forceRefresh !== undefined && typeof body.forceRefresh !== "boolean")) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   }
-  const targets = (body.targets as BatchTarget[]).flatMap((row) => {
+  const requestedTargets = (body.targets as BatchTarget[]).flatMap((row) => {
     if (!row || typeof row.placeId !== "string" || typeof row.world !== "string") return [];
     const target = conversionTarget(row.placeId, row.world);
     return target ? [{ placeId: row.placeId, world: row.world, target }] : [];
   });
-  if (targets.length !== body.targets.length) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
+  if (requestedTargets.length !== body.targets.length) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
+  const targets = uniqueConversionRows(requestedTargets);
   const token = await supplierToken().catch(() => "");
   const cacheDb = await bizConversionDatabase().catch(() => null);
   if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });

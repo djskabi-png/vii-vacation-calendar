@@ -151,11 +151,60 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
     if (!db) return bundledDetail;
     const snapshot = await readSupplierCatalogDetailSnapshot(db, world, supplierId);
     if (!snapshot?.activeRunId) return bundledDetail;
-    return (snapshot.detail as T | null) || null;
+    return mergeBundledDetail(snapshot.detail, bundledDetail) as T | null;
   } catch {
     console.warn(`public_catalog_detail_fallback:${world}`);
     return bundledDetail;
   }
+}
+
+function nonEmptyArray(value: unknown): unknown[] | undefined {
+  return Array.isArray(value) && value.length ? value : undefined;
+}
+
+/**
+ * Accepted runtime rows can predate a newly supported public field. Keep the
+ * accepted row authoritative, but hydrate missing presentation contracts from
+ * the matching immutable bundled snapshot until that supplier is refreshed.
+ * This avoids showing a generic gallery merely because an older accepted row
+ * has not reached its bounded refresh window yet.
+ */
+export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown): unknown {
+  // Once a generation is accepted, a missing entity is an authoritative
+  // removal. Never resurrect it from the bundled snapshot. The bundle may
+  // only hydrate presentation fields on an accepted object.
+  if (acceptedValue == null) return null;
+  if (typeof acceptedValue !== "object" || Array.isArray(acceptedValue)) return acceptedValue;
+  if (!bundledValue || typeof bundledValue !== "object" || Array.isArray(bundledValue)) return acceptedValue;
+  const accepted = acceptedValue as Record<string, unknown>;
+  const bundled = bundledValue as Record<string, unknown>;
+  const acceptedRooms = Array.isArray(accepted.rooms) ? accepted.rooms as Record<string, unknown>[] : [];
+  const bundledRooms = Array.isArray(bundled.rooms) ? bundled.rooms as Record<string, unknown>[] : [];
+  const rooms = acceptedRooms.map((room, index) => {
+    const fallback = bundledRooms.find((candidate) => Number(candidate.id) > 0 && Number(candidate.id) === Number(room.id))
+      || bundledRooms.find((candidate) => typeof candidate.name === "string" && candidate.name === room.name)
+      || bundledRooms[index];
+    if (!fallback) return room;
+    return {
+      ...fallback,
+      ...room,
+      images: nonEmptyArray(room.images) || fallback.images || [],
+      featureGroups: nonEmptyArray(room.featureGroups) || fallback.featureGroups || [],
+      features: nonEmptyArray(room.features) || fallback.features || [],
+    };
+  });
+  const merged: Record<string, unknown> = {
+    ...bundled,
+    ...accepted,
+  };
+  const galleryGroups = nonEmptyArray(accepted.galleryGroups) || nonEmptyArray(bundled.galleryGroups);
+  const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
+  const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);
+  if (galleryGroups) merged.galleryGroups = galleryGroups;
+  if (featureGroups) merged.featureGroups = featureGroups;
+  if (features) merged.features = features;
+  if (rooms.length || bundledRooms.length) merged.rooms = rooms.length ? rooms : bundledRooms;
+  return merged;
 }
 
 export async function publicCatalogReviewPreviews<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {

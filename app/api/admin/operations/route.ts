@@ -50,3 +50,26 @@ export async function GET(request: Request) {
     return Response.json({ error: "report_unavailable" }, { status: 503, headers });
   }
 }
+
+export async function PATCH(request: Request) {
+  const session = await authorizedAdminSession(request).catch(() => null);
+  if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  let payload: { id?: unknown; status?: unknown };
+  try { payload = await request.json(); } catch { return Response.json({ error: "invalid_request" }, { status: 400, headers }); }
+  const id = typeof payload.id === "string" ? payload.id.trim() : "";
+  const status = payload.status === "approved" || payload.status === "rejected" ? payload.status : "";
+  if (!/^[a-zA-Z0-9-]{8,80}$/.test(id) || !status) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  try {
+    const db = await operationsDatabase();
+    await ensureReviewSchema();
+    const now = new Date().toISOString();
+    await db.batch([
+      db.prepare("UPDATE guest_reviews SET status = ?, updated_at = ? WHERE id = ? AND status = 'pending'").bind(status, now, id),
+      db.prepare("UPDATE guest_review_files SET status = ? WHERE review_id = ? AND status = 'pending'").bind(status, id),
+    ]);
+    return Response.json({ success: true, id, status, updatedAt: now }, { headers });
+  } catch (error) {
+    console.error("V review moderation unavailable", error);
+    return Response.json({ error: "moderation_unavailable" }, { status: 503, headers });
+  }
+}

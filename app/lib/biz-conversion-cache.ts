@@ -18,6 +18,7 @@ export type CachedBizConversionFailure = {
 };
 
 type CacheRow = {
+  cacheKey?: string;
   world: string;
   siteID: number;
   fromDay: string;
@@ -27,9 +28,9 @@ type CacheRow = {
   staleAfter: string;
 };
 
-type FailureRow = { errorCode: string; savedAt: string; retryAt: string };
-type CoverageRow = { world: string; siteID: number; supplierCreatedAt: string; savedAt: string; staleAfter: string };
-type ContactRow = { world: string; siteID: number; source: "whatsapp" | "maskyoo" | "form"; identified: number;
+type FailureRow = { cacheKey?: string; errorCode: string; savedAt: string; retryAt: string };
+type CoverageRow = { coverageKey?: string; world: string; siteID: number; supplierCreatedAt: string; savedAt: string; staleAfter: string };
+type ContactRow = { contactKey?: string; world: string; siteID: number; source: "whatsapp" | "maskyoo" | "form"; identified: number;
   orderID: string | null; orderPrice: number; customerKey: string | null; delay: number | null };
 
 const pending = new Map<string, Promise<CachedBizConversion>>();
@@ -38,6 +39,22 @@ const initialized = new WeakMap<object, Promise<void>>();
 // cache used domain=section and therefore showed only a small fraction of the
 // calls and WhatsApp conversations visible in the Biz report.
 const keyFor = (world: ConversionWorld, siteID: number, from: string, till: string) => `${world}:${siteID}:${from}:${till}:all-portals-v2`;
+const HEAVY_PAGE_SIZE = 100;
+const LIGHT_PAGE_SIZE = 500;
+
+async function pagedRows<T>(load: (cursor: string) => Promise<{ results: T[] }>, key: (row: T) => string | undefined) {
+  const rows: T[] = [];
+  let cursor = "";
+  for (;;) {
+    const page = await load(cursor);
+    rows.push(...page.results);
+    if (!page.results.length) break;
+    const next = key(page.results[page.results.length - 1]);
+    if (!next || next <= cursor) break;
+    cursor = next;
+  }
+  return rows;
+}
 
 async function ensureCache(db: D1Database) {
   const existing = initialized.get(db as object);
@@ -159,20 +176,24 @@ function derivedBucket(rows: ContactRow[]) {
 }
 
 async function loadCoveredBizConversions(db: D1Database, from: string, till: string, excluded: Set<string>, now: Date) {
-  const coverage = await db.prepare(`SELECT world, site_id AS siteID, supplier_created_at AS supplierCreatedAt,
-    saved_at AS savedAt, stale_after AS staleAfter FROM vii_biz_conversion_coverage_v1
-    WHERE from_day <= ? AND till_day >= ? ORDER BY saved_at DESC`).bind(from, till).all<CoverageRow>();
+  const coverageRows = await pagedRows<CoverageRow>((cursor) => db.prepare(`SELECT coverage_key AS coverageKey,
+    world, site_id AS siteID, supplier_created_at AS supplierCreatedAt, saved_at AS savedAt,
+    stale_after AS staleAfter FROM vii_biz_conversion_coverage_v1
+    WHERE from_day <= ? AND till_day >= ? AND coverage_key > ?
+    ORDER BY coverage_key LIMIT ?`).bind(from, till, cursor, LIGHT_PAGE_SIZE).all<CoverageRow>(), (row) => row.coverageKey);
   const selected = new Map<string, CoverageRow>();
-  for (const row of coverage.results) {
+  for (const row of coverageRows.sort((a, b) => b.savedAt.localeCompare(a.savedAt))) {
     const key = `${row.world}:${Number(row.siteID)}`;
     if (!excluded.has(key) && !selected.has(key)) selected.set(key, row);
   }
   if (!selected.size) return [];
-  const events = await db.prepare(`SELECT world, site_id AS siteID, source, identified, order_id AS orderID,
+  const events = await pagedRows<ContactRow>((cursor) => db.prepare(`SELECT contact_key AS contactKey,
+    world, site_id AS siteID, source, identified, order_id AS orderID,
     order_price AS orderPrice, customer_key AS customerKey, delay FROM vii_biz_conversion_contacts_v1
-    WHERE contact_day >= ? AND contact_day <= ?`).bind(from, till).all<ContactRow>();
+    WHERE contact_day >= ? AND contact_day <= ? AND contact_key > ?
+    ORDER BY contact_key LIMIT ?`).bind(from, till, cursor, LIGHT_PAGE_SIZE).all<ContactRow>(), (row) => row.contactKey);
   const bySite = new Map<string, ContactRow[]>();
-  for (const row of events.results) {
+  for (const row of events) {
     const key = `${row.world}:${Number(row.siteID)}`;
     if (!selected.has(key)) continue;
     const current = bySite.get(key) || [];
@@ -216,10 +237,12 @@ export async function readCachedBizConversionFailure(db: D1Database, world: Conv
 
 export async function loadCachedBizConversionFailures(db: D1Database, from: string, till: string, now = new Date()) {
   await ensureCache(db);
-  const result = await db.prepare(`SELECT world, site_id AS siteID, error_code AS errorCode,
-    saved_at AS savedAt, retry_at AS retryAt FROM vii_biz_conversion_failures_v1
-    WHERE from_day = ? AND till_day = ? AND cache_key LIKE '%:all-portals-v2'`).bind(from, till).all<FailureRow & { world: string; siteID: number }>();
-  return result.results.flatMap((row) => {
+  const rows = await pagedRows<FailureRow & { world: string; siteID: number }>((cursor) => db.prepare(`SELECT cache_key AS cacheKey,
+    world, site_id AS siteID, error_code AS errorCode, saved_at AS savedAt, retry_at AS retryAt
+    FROM vii_biz_conversion_failures_v1 WHERE from_day = ? AND till_day = ?
+      AND cache_key LIKE '%:all-portals-v2' AND cache_key > ?
+    ORDER BY cache_key LIMIT ?`).bind(from, till, cursor, LIGHT_PAGE_SIZE).all<FailureRow & { world: string; siteID: number }>(), (row) => row.cacheKey);
+  return rows.flatMap((row) => {
     const value = parsedFailure(row, now);
     return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
   });
@@ -249,11 +272,15 @@ export async function bizConversionDatabase() {
 
 export async function loadCachedBizConversions(db: D1Database, from: string, till: string, now = new Date()) {
   await ensureCache(db);
-  const result = await db.prepare(`SELECT world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
+  // D1 may cap a response before every large JSON payload fits. Keyset pagination is
+  // mandatory here: a partial page silently understated calls, WhatsApp and orders.
+  const rows = await pagedRows<CacheRow>((cursor) => db.prepare(`SELECT cache_key AS cacheKey,
+    world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
     payload, saved_at AS savedAt, stale_after AS staleAfter
-    FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ? AND cache_key LIKE '%:all-portals-v2'`)
-    .bind(from, till).all<CacheRow>();
-  const exact = result.results.flatMap((row) => {
+    FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ?
+      AND cache_key LIKE '%:all-portals-v2' AND cache_key > ?
+    ORDER BY cache_key LIMIT ?`).bind(from, till, cursor, HEAVY_PAGE_SIZE).all<CacheRow>(), (row) => row.cacheKey);
+  const exact = rows.flatMap((row) => {
     const value = parsed(row, now);
     return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
   });

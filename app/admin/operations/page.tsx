@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Check, RefreshCw, X } from "lucide-react";
 
 type Booking = { id: string; world: string; placeId: string; placeName: string; destination: string;
   status: string; supplierId: string | null; createdAt: string; updatedAt: string };
@@ -26,6 +26,7 @@ export default function OperationsPage() {
   const [error, setError] = useState("");
   const [forbidden, setForbidden] = useState(false);
   const [query, setQuery] = useState("");
+  const [moderating, setModerating] = useState("");
   const refresh = useCallback(async (offset = 0, search = "") => {
     setLoading(true);
     setError("");
@@ -46,6 +47,16 @@ export default function OperationsPage() {
     const timer = window.setTimeout(() => void refresh(0, ""), 0);
     return () => window.clearTimeout(timer);
   }, [refresh]);
+  const moderateReview = useCallback(async (id: string, status: "approved" | "rejected") => {
+    setModerating(id);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/operations", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
+      if (!response.ok) throw new Error(response.status === 403 ? "אין הרשאה לעדכון חוות הדעת." : "לא הצלחנו לעדכן את חוות הדעת.");
+      setReport((current) => current ? { ...current, reviews: current.reviews.map((review) => review.id === id ? { ...review, status } : review) } : current);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "לא הצלחנו לעדכן את חוות הדעת."); }
+    finally { setModerating(""); }
+  }, []);
 
   return <main dir="rtl" style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 20px", minHeight: "80vh" }}>
     <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
@@ -80,11 +91,11 @@ export default function OperationsPage() {
       <section aria-labelledby="reviews-title" style={{ marginTop: 32 }}><h2 id="reviews-title">חוות דעת שנשלחו ל-V</h2>
         <p>מצב הביקורת כאן הוא מצב השמירה והטיפול ב-V. אין ביומן הזה אישור מסירה לספק.</p>
         <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}><thead><tr>
-          {['נוצרה', 'מזהה', 'מקום', 'כותב', 'דירוג', 'מצב ב-V'].map((label) => <th key={label} scope="col" style={cell}>{label}</th>)}
+          {['נוצרה', 'מזהה', 'מקום', 'כותב', 'דירוג', 'מצב ב-V', 'טיפול'].map((label) => <th key={label} scope="col" style={cell}>{label}</th>)}
         </tr></thead><tbody>{report.reviews.map((item) => <tr key={item.id}>
           <td style={cell}>{date(item.createdAt)}</td><td style={cell}><code dir="ltr">{item.id}</code></td>
           <td style={cell}>{item.placeName}</td><td style={cell}>{item.author}</td><td style={cell}>{item.rating}/5</td>
-          <td style={cell}>{statusText[item.status] || item.status}</td>
+          <td style={cell}>{statusText[item.status] || item.status}</td><td style={cell}>{item.status === "pending" ? <span style={{ display: "inline-flex", gap: 8 }}><button type="button" disabled={moderating === item.id} onClick={() => void moderateReview(item.id, "approved")}><Check size={16} aria-hidden="true" /> אישור</button><button type="button" disabled={moderating === item.id} onClick={() => void moderateReview(item.id, "rejected")}><X size={16} aria-hidden="true" /> דחייה</button></span> : "טופל"}</td>
         </tr>)}</tbody></table></div>
         {!report.reviews.length ? <p>לא נמצאו חוות דעת.</p> : null}
       </section>

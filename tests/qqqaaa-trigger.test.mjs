@@ -44,6 +44,11 @@ test("QQQAAA permanently guards the production repairs required before Professor
   }
 });
 
+test("QQQAAA observes supplier gallery names and every floating action family in production", () => {
+  assert.match(runner, /vii-unified-19-public/);
+  assert.match(packageJson.scripts["qa:vii-unified-19-public"], /audit-unified-19-public/);
+});
+
 test("QQQAAA guards stable navigation and complete room-scoped dated results", () => {
   assert.match(runner, /navigation-and-unit-results/);
   assert.match(packageJson.scripts["qa:navigation-unit-results"], /navigation-unit-results-regression\.test\.mjs/);

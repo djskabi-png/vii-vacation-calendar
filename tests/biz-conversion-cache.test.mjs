@@ -16,19 +16,19 @@ class MemoryStatement {
   async run() {
     if (/INSERT INTO vii_biz_conversion_snapshots_v1/.test(this.sql)) {
       const [cacheKey, world, siteID, fromDay, tillDay, payload, supplierCreatedAt, savedAt, staleAfter] = this.params;
-      this.db.rows.set(cacheKey, { world, siteID, fromDay, tillDay, payload, supplierCreatedAt, savedAt, staleAfter });
+      this.db.rows.set(cacheKey, { cacheKey, world, siteID, fromDay, tillDay, payload, supplierCreatedAt, savedAt, staleAfter });
     }
     if (/INSERT INTO vii_biz_conversion_failures_v1/.test(this.sql)) {
       const [cacheKey, world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt] = this.params;
-      this.db.failures.set(cacheKey, { world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt });
+      this.db.failures.set(cacheKey, { cacheKey, world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt });
     }
     if (/INSERT INTO vii_biz_conversion_coverage_v1/.test(this.sql)) {
       const [coverageKey, world, siteID, fromDay, tillDay, supplierCreatedAt, savedAt, staleAfter] = this.params;
-      this.db.coverage.set(coverageKey, { world, siteID, fromDay, tillDay, supplierCreatedAt, savedAt, staleAfter });
+      this.db.coverage.set(coverageKey, { coverageKey, world, siteID, fromDay, tillDay, supplierCreatedAt, savedAt, staleAfter });
     }
     if (/INSERT INTO vii_biz_conversion_contacts_v1/.test(this.sql)) {
       const [contactKey, world, siteID, source, contactID, contactDay, identified, orderID, orderPrice, customerKey, delay] = this.params;
-      this.db.contacts.set(contactKey, { world, siteID, source, contactID, contactDay, identified, orderID, orderPrice, customerKey, delay });
+      this.db.contacts.set(contactKey, { contactKey, world, siteID, source, contactID, contactDay, identified, orderID, orderPrice, customerKey, delay });
     }
     if (/DELETE FROM vii_biz_conversion_failures_v1/.test(this.sql)) this.db.failures.delete(this.params[0]);
     return { success: true, meta: { changes: 1 } };
@@ -39,17 +39,24 @@ class MemoryStatement {
     return null;
   }
   async all() {
+    const page = (rows, key, cursorIndex, limitIndex) => rows.filter((row) => String(row[key]) > String(this.params[cursorIndex] || ""))
+      .sort((a, b) => String(a[key]).localeCompare(String(b[key])))
+      .slice(0, Number(this.params[limitIndex] || rows.length));
     if (/FROM vii_biz_conversion_failures_v1/.test(this.sql) && /WHERE from_day = \? AND till_day = \?/.test(this.sql)) {
-      return { success: true, results: [...this.db.failures.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]) };
+      const rows = [...this.db.failures.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]);
+      return { success: true, results: /cache_key > \?/.test(this.sql) ? page(rows, "cacheKey", 2, 3) : rows };
     }
     if (/WHERE from_day = \? AND till_day = \?/.test(this.sql)) {
-      return { success: true, results: [...this.db.rows.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]) };
+      const rows = [...this.db.rows.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]);
+      return { success: true, results: /cache_key > \?/.test(this.sql) ? page(rows, "cacheKey", 2, 3) : rows };
     }
     if (/FROM vii_biz_conversion_coverage_v1/.test(this.sql)) {
-      return { success: true, results: [...this.db.coverage.values()].filter((row) => row.fromDay <= this.params[0] && row.tillDay >= this.params[1]) };
+      const rows = [...this.db.coverage.values()].filter((row) => row.fromDay <= this.params[0] && row.tillDay >= this.params[1]);
+      return { success: true, results: /coverage_key > \?/.test(this.sql) ? page(rows, "coverageKey", 2, 3) : rows };
     }
     if (/FROM vii_biz_conversion_contacts_v1/.test(this.sql)) {
-      return { success: true, results: [...this.db.contacts.values()].filter((row) => row.contactDay >= this.params[0] && row.contactDay <= this.params[1]) };
+      const rows = [...this.db.contacts.values()].filter((row) => row.contactDay >= this.params[0] && row.contactDay <= this.params[1]);
+      return { success: true, results: /contact_key > \?/.test(this.sql) ? page(rows, "contactKey", 2, 3) : rows };
     }
     return { success: true, results: [] };
   }
@@ -111,6 +118,19 @@ test("Biz conversion aggregates persist and an identical fresh pull does not cal
   const reloaded = await loadCachedBizConversions(db, "2026-10-01", "2026-10-25");
   assert.equal(reloaded.length, 1);
   assert.equal(reloaded[0].siteID, 2566);
+});
+
+test("large cached Biz reports are read across every D1 page", async () => {
+  const db = new MemoryDatabase();
+  for (let siteID = 1; siteID <= 620; siteID += 1) {
+    const cacheKey = `vacations:${String(siteID).padStart(4, "0")}:2026-10-25:2026-10-25:all-portals-v2`;
+    const value = { ...fixture(), siteID, from: "2026-10-25", till: "2026-10-25" };
+    db.rows.set(cacheKey, { cacheKey, world: "vacations", siteID, fromDay: value.from, tillDay: value.till,
+      payload: JSON.stringify(value), savedAt: "2026-10-26T12:00:00Z", staleAfter: "2026-11-02T12:00:00Z" });
+  }
+  const reloaded = await loadCachedBizConversions(db, "2026-10-25", "2026-10-25", new Date("2026-10-26T13:00:00Z"));
+  assert.equal(reloaded.length, 620);
+  assert.equal(reloaded.reduce((sum, row) => sum + row.conversions.summary.maskyoo.contacts, 0), 1860);
 });
 
 test("forced refresh updates the snapshot and an upstream failure preserves the last good value", async () => {

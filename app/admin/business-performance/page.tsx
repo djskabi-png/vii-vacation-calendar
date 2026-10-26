@@ -27,6 +27,18 @@ const isoDay = (date: Date) => date.toLocaleDateString("en-CA", { timeZone: "Asi
 const monthStart = (day: string) => `${day.slice(0, 7)}-01`;
 const previousMonth = (day: string) => { const date = new Date(`${monthStart(day)}T12:00:00Z`); date.setUTCMonth(date.getUTCMonth() - 1); const from = date.toISOString().slice(0, 7) + "-01"; date.setUTCMonth(date.getUTCMonth() + 1); date.setUTCDate(0); return { from, till: date.toISOString().slice(0, 10) }; };
 const conversionSupported = (row: Row) => /^(vacation|event|events|hourly|room|rooms)-\d+$/.test(row.placeId) && ["vacation", "vacations", "events", "hourly", "room", "rooms"].includes(row.world);
+const conversionBusinessId = (row: Row) => row.placeId.match(/(\d+)$/)?.[1] || `${row.world}:${row.placeId}`;
+const conversionWorldPriority = (row: Row) => canonicalBusinessReportScope(row.world) === "vacations" ? 0
+  : canonicalBusinessReportScope(row.world) === "events" ? 1 : 2;
+function uniqueConversionBusinesses(rows: Row[]) {
+  const unique = new Map<string, Row>();
+  for (const row of rows) {
+    const key = conversionBusinessId(row);
+    const current = unique.get(key);
+    if (!current || conversionWorldPriority(row) < conversionWorldPriority(current)) unique.set(key, row);
+  }
+  return [...unique.values()];
+}
 const sortKeys = new Set<SortKey>(["placeName", "impressions", "pageViews", "uniqueBrowsers", "phoneClicks", "whatsappHandoffs", "maskyoo", "bizWhatsapp", "bookingRequests", "viiBookings", "bizOrders", "bizRevenue", "reviews", "actions", "entryRate", "actionRate"]);
 const reportViewKey = "vii-admin-business-performance-view-v1";
 const emptyBucket = (): ConversionBucket => ({ contacts: 0, identified: 0, converted: 0, rate: null, customers: 0, orders: 0, revenue: 0, medianDelay: null });
@@ -124,7 +136,7 @@ export default function BusinessPerformance() {
     return () => window.clearTimeout(timer);
   }, [load]);
   const supportedRows = useMemo(() => rows.filter(conversionSupported).sort((a, b) => a.placeName.localeCompare(b.placeName, "he")), [rows]);
-  const conversionRows = useMemo(() => supportedRows.filter((row) => world === "all" || canonicalBusinessReportScope(row.world) === world), [supportedRows, world]);
+  const conversionRows = useMemo(() => uniqueConversionBusinesses(supportedRows.filter((row) => world === "all" || canonicalBusinessReportScope(row.world) === world)), [supportedRows, world]);
   const conversionFamilySupported = world === "all" || world === "vacations" || world === "events" || world === "rooms";
   const selectedRow = conversionRows.find((row) => row.placeId === selectedPlaceId) || null;
   useEffect(() => {
@@ -265,7 +277,7 @@ export default function BusinessPerformance() {
   const chooseSort = (key: SortKey) => { if (sort === key) setSortDirection((value) => value === "desc" ? "asc" : "desc"); else { setSort(key); setSortDirection("desc"); } };
   const totals = useMemo(() => filtered.reduce((sum, row) => ({ impressions: sum.impressions + row.impressions, pageViews: sum.pageViews + row.pageViews, uniqueBrowsers: sum.uniqueBrowsers + row.uniqueBrowsers, phoneReveals: sum.phoneReveals + row.phoneReveals, phoneClicks: sum.phoneClicks + row.phoneClicks, whatsappLeads: sum.whatsappLeads + row.whatsappLeads, whatsappHandoffs: sum.whatsappHandoffs + row.whatsappHandoffs, bookingRequests: sum.bookingRequests + row.bookingRequests, viiBookings: sum.viiBookings + row.viiBookings, reviews: sum.reviews + row.reviews }), { impressions: 0, pageViews: 0, uniqueBrowsers: 0, phoneReveals: 0, phoneClicks: 0, whatsappLeads: 0, whatsappHandoffs: 0, bookingRequests: 0, viiBookings: 0, reviews: 0 }), [filtered]);
   const totalActions = totals.phoneClicks + totals.whatsappHandoffs + totals.bookingRequests;
-  const reportConversionRows = useMemo(() => filtered.filter(conversionSupported), [filtered]);
+  const reportConversionRows = useMemo(() => uniqueConversionBusinesses(filtered.filter(conversionSupported)), [filtered]);
   const loadedBiz = useMemo(() => reportConversionRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId]] : []), [reportConversionRows, bizByPlace]);
   const staleBiz = useMemo(() => loadedBiz.filter((item) => item.cache?.stale), [loadedBiz]);
   const bizCoverageComplete = reportConversionRows.length > 0 && loadedBiz.length === reportConversionRows.length;

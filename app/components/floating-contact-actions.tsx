@@ -22,13 +22,14 @@ type Props = {
 export function FloatingContactActions({ world, placeId, placeName, phone, whatsapp, serviceName, from, till, guests, onlineHref, onlineLabel = "הזמנה אונליין" }: Props) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    // Yield to the actual booking/contact area and footer instead of covering
-    // their fields, prices or primary actions on a small viewport.
-    const targets = [...document.querySelectorAll<HTMLElement>("#event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .property-booking, .site-footer")];
+    // Keep the dock available once the equivalent inline action leaves view.
+    // Do not treat a sticky booking card as a blocker: on desktop it can stay
+    // visible for the whole page and used to suppress the dock permanently.
+    const targets = [...document.querySelectorAll<HTMLElement>(".property-title__actions--contact, .discovery-detail__actions, #event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .provider-final-cta, .depth-final-cta, .site-footer")];
     const intersections = new Set<Element>();
     const update = () => {
       const blocked = intersections.size > 0;
-      setVisible(window.scrollY > 450 && !blocked);
+      setVisible(!blocked);
     };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting ? intersections.add(entry.target) : intersections.delete(entry.target));

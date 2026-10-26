@@ -25,7 +25,9 @@ test("floating actions work on desktop and mobile and yield to critical sections
   for (const target of ["#event-booking", "#booking-summary", "#hourly-options", "#hourly-contact", "#reviews", ".site-footer"]) assert.ok(floating.includes(target));
   assert.match(floating, /observer\.disconnect\(\)/);
   assert.match(floating, /const blocked = intersections\.size > 0/);
-  assert.match(floating, /setVisible\(window\.scrollY > 450 && !blocked\)/);
+  assert.match(floating, /setVisible\(!blocked\)/);
+  assert.doesNotMatch(floating, /window\.scrollY > 450/);
+  assert.doesNotMatch(floating, /\.property-booking/);
   assert.match(guard, /data-public-footer-visible/);
   assert.match(css, /body\[data-public-footer-visible\] :is\(\.mobile-map-fab,\.floating-contact-actions\)/);
   assert.match(globals, /\.floating-contact-actions\s*\{[\s\S]*?display:\s*flex;/);

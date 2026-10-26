@@ -10,6 +10,7 @@ const outputDir = process.env.QA_OUTPUT_DIR || join(process.cwd(), "qa-reports",
 mkdirSync(outputDir, { recursive: true });
 const suites = [
   ["vii-unified-19", ["qa:vii-unified-19"]],
+  ["vii-unified-19-public", ["qa:vii-unified-19-public"]],
   ["navigation-and-unit-results", ["qa:navigation-unit-results"]],
   ["admin-customer-auth-boundaries", ["qa:auth-boundaries"]],
   ["pre-professor-production-repairs", ["qa:pre-professor-repairs"]],
