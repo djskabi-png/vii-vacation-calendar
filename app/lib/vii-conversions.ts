@@ -52,12 +52,14 @@ export type ConversionContact = {
 export class ViiConversionsError extends Error {
   readonly code: string;
   readonly status: number | null;
+  readonly diagnostic: string | null;
 
-  constructor(code: string, status: number | null) {
+  constructor(code: string, status: number | null, diagnostic: string | null = null) {
     super(`VII conversions: ${code}`);
     this.name = "ViiConversionsError";
     this.code = code;
     this.status = status;
+    this.diagnostic = diagnostic;
   }
 }
 
@@ -151,15 +153,25 @@ function sanitized(raw: unknown, expected: { siteID: number; from: string; till:
   const maskyoo = bucket(sourceSummary.maskyoo);
   const form = bucket(sourceSummary.form);
   const sourceClicks = object(value.clicks);
-  if (value.siteID !== expected.siteID || value.from !== expected.from || value.till !== expected.till
-    || typeof value.created !== "string" || !value.created
-    || !(value.domainID === null || Number.isSafeInteger(value.domainID)) || !integer(value.count)
-    || !all || !whatsapp || !maskyoo || !form
-    || !integer(sourceClicks.whatsapp) || !integer(sourceClicks.showphone) || !integer(sourceClicks.phone)) {
-    throw new ViiConversionsError("invalid_response", null);
-  }
+  const invalidField = value.siteID !== expected.siteID ? "siteID"
+    : value.from !== expected.from ? "from"
+    : value.till !== expected.till ? "till"
+    : typeof value.created !== "string" || !value.created ? "created"
+    : !(value.domainID === null || Number.isSafeInteger(value.domainID)) ? "domainID"
+    : !integer(value.count) ? "count"
+    : !all ? "summary.all"
+    : !whatsapp ? "summary.whatsapp"
+    : !maskyoo ? "summary.maskyoo"
+    : !form ? "summary.form"
+    : !integer(sourceClicks.whatsapp) ? "clicks.whatsapp"
+    : !integer(sourceClicks.showphone) ? "clicks.showphone"
+    : !integer(sourceClicks.phone) ? "clicks.phone"
+    : null;
+  if (invalidField) throw new ViiConversionsError("invalid_response", null, invalidField);
   const contacts = includeContacts ? Array.isArray(value.contacts) ? value.contacts.map(contact) : null : undefined;
-  if (includeContacts && (!contacts || contacts.some((item) => !item) || contacts.length !== Number(value.count))) throw new ViiConversionsError("invalid_response", null);
+  if (includeContacts && (!contacts || contacts.some((item) => !item) || contacts.length !== Number(value.count))) {
+    throw new ViiConversionsError("invalid_response", null, !contacts ? "contacts" : contacts.some((item) => !item) ? "contacts.item" : "contacts.count");
+  }
   return {
     siteID: expected.siteID, from: expected.from, till: expected.till,
     domainID: value.domainID === null ? null : Number(value.domainID), created: value.created,

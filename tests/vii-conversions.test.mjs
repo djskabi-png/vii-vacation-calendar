@@ -56,14 +56,14 @@ test("authorized detail mode returns minimized contact and order evidence", asyn
 test("detail mode rejects malformed contacts instead of leaking raw provider rows", async () => {
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret", includeContacts: true,
     fetchImpl: async () => Response.json({ ...detailedFixture(), contacts: [{ source: "maskyoo", id: 1, phone: "050-0000000", details: { status: "ANSWER", duration: -1 } }] }) }),
-  (error) => error instanceof ViiConversionsError && error.code === "invalid_response");
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "contacts.item");
 });
 
 test("invalid ranges and malformed provider data fail closed without token disclosure", async () => {
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 1, from: "2026-10-22", till: "2026-10-01", token: "secret" }), { code: "invalid_request" });
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret",
     fetchImpl: async () => Response.json({ ...fixture(), contacts: [], summary: {} }) }),
-  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && !error.message.includes("secret"));
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "summary.all" && !error.message.includes("secret"));
 });
 
 test("unsupported and unavailable provider states remain distinct", async () => {

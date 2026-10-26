@@ -80,7 +80,7 @@ export async function GET(request: Request) {
       if (error instanceof ViiConversionsError) {
         const status = error.code === "invalid_request" ? 400 : error.code === "not_supported" ? 404 : 503;
         console.warn("vii_conversions_failed", { code: error.code, upstreamStatus: error.status, world: target.world, siteID: target.siteID });
-        return Response.json({ error: error.code, upstreamStatus: error.status }, { status, headers });
+        return Response.json({ error: error.code, upstreamStatus: error.status, diagnostic: error.diagnostic }, { status, headers });
       }
       return Response.json({ error: "supplier_unavailable" }, { status: 503, headers });
     }
