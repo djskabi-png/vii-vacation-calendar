@@ -118,7 +118,7 @@ export function parseProfessorIntent(question: string, places: ProfessorPlace[],
   const placeMatch = matchProfessorPlace(normalized, places);
   const requested = requestedMetrics(normalized);
   const world = placeMatch.place?.world || WORLD_TERMS.find(([, pattern]) => pattern.test(normalized))?.[0] || null;
-  const comparison = /לעומת|בהשוואה|מול\s+(?:התקופה|החודש|השבוע)|שינוי|עלה|ירד/.test(normalized);
+  const comparison = /לעומת|השוו|בהשוואה|מול\s+(?:התקופה|החודש|השבוע)|הבדל|שינוי|עלה|ירד/.test(normalized);
   const asksCause = /למה|מה\s+הסיבה|מדוע/.test(normalized);
   const explicitlyNamesBusiness = /(?:לעסק|עבור\s+עסק|של\s+העסק)\s+\S+/.test(normalized);
   const missingBusiness = explicitlyNamesBusiness && !placeMatch.place && !placeMatch.ambiguous.length;

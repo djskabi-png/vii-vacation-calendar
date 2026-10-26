@@ -79,3 +79,13 @@ test("Professor marks a metric-free follow-up so the engine can preserve the pre
   assert.equal(intent.explicitMetrics, false);
   assert.ok(intent.compareRange);
 });
+
+test("the public comparison suggestion always requests the equivalent previous period", () => {
+  const intent = parseProfessorIntent("השווה את כל הנופש החודש לתקופה הקודמת", places, now);
+  assert.equal(intent.world, "vacations");
+  assert.deepEqual(intent.compareRange, {
+    from: "2026-09-05",
+    till: "2026-09-30",
+    label: "התקופה הקודמת, 2026-09-05 עד 2026-09-30",
+  });
+});
