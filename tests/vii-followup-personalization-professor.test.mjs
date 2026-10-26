@@ -36,7 +36,11 @@ test("professor is an explicit permissioned module with quota, history and no in
   assert.match(engine, /daily_limit INTEGER NOT NULL DEFAULT 20/);
   assert.match(engine, /status = 'success'/);
   assert.match(engine, /נתוני Biz לטווח הזה עדיין לא נשמרו במטמון/);
+  assert.match(engine, /parseProfessorIntent/);
+  assert.match(engine, /מסד V ומטמון Biz בלבד/);
+  assert.match(engine, /ProfessorQuestionError/);
   assert.match(route, /resolveAdminAccess/);
+  assert.match(route, /ProfessorQuestionError/);
   assert.match(route, /manageUsers/);
   assert.match(route, /quota_exceeded/);
   assert.match(read("../app/admin/professor/page.tsx"), /ניהול מכסות פרופסור/);

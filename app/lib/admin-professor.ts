@@ -1,13 +1,22 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
+import { parseProfessorIntent, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
 
-type Place = { placeId: string; name: string; world: "vacations" | "events" | "rooms" | "spa"; siteID: number | null };
+type MetricValues = {
+  impressions: number; pageViews: number; phone: number; whatsapp: number; viiBookings: number;
+  bizCalls: number | null; bizWhatsapp: number | null; bizOrders: number | null; bizRevenue: number | null;
+};
 type ProfessorAnswer = {
-  answer: string; range: { from: string; till: string; label: string }; place: Place | null;
-  metrics: { phone: number; whatsapp: number; viiBookings: number; bizOrders: number | null; bizRevenue: number | null };
+  answer: string; range: ProfessorRange; compareRange: ProfessorRange | null; place: ProfessorPlace | null; world: ProfessorWorld | null;
+  metrics: MetricValues; comparison: Partial<Record<ProfessorMetric, number | null>> | null;
+  plan: { scope: string; metrics: ProfessorMetric[]; source: string }; ranking: Array<{ name: string; value: number }>;
   freshness: { internal: string; biz: string | null; coverage: string }; reportHref: string;
 };
+
+export class ProfessorQuestionError extends Error {
+  constructor(readonly code: "clarification_required" | "unsupported_question", message: string) { super(message); this.name = "ProfessorQuestionError"; }
+}
 
 const schema = [
   `CREATE TABLE IF NOT EXISTS vii_professor_quota_v1 (email TEXT PRIMARY KEY NOT NULL, daily_limit INTEGER NOT NULL DEFAULT 20, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL)`,
@@ -16,54 +25,119 @@ const schema = [
 ];
 
 export async function ensureProfessorSchema(db: D1Database) { await db.batch(schema.map((sql) => db.prepare(sql))); }
-const clean = (value: string) => value.normalize("NFKC").replace(/[\u0591-\u05C7]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim().toLowerCase();
 const day = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
-function rangeFor(question: string, now = new Date()) {
-  const israelToday = day(now); const current = new Date(`${israelToday}T12:00:00Z`);
-  if (/חודש\s+שעבר/.test(question)) { const start = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth() - 1, 1, 12)); const end = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), 0, 12)); return { from: day(start), till: day(end), label: "החודש הקודם" }; }
-  const recent = question.match(/(?:אחרונים|האחרונים)\s*(\d{1,3})\s*(?:יום|ימים)/) || question.match(/(\d{1,3})\s*(?:יום|ימים)\s*(?:אחרונים|האחרונים)/);
-  if (recent) { const count = Math.min(365, Math.max(1, Number(recent[1]))); const start = new Date(current); start.setUTCDate(start.getUTCDate() - count + 1); return { from: day(start), till: israelToday, label: `${count} הימים האחרונים` }; }
-  if (/היום/.test(question)) return { from: israelToday, till: israelToday, label: "היום" };
-  return { from: `${israelToday.slice(0, 7)}-01`, till: israelToday, label: "החודש הנוכחי עד היום" };
-}
+const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + 1); return date.toISOString(); };
+const WORLD_LABEL: Record<ProfessorWorld, string> = { vacations: "כל הנופש", events: "כל האירועים", rooms: "כל החדרים לפי שעה", spa: "כל הספא" };
+const WORLD_DB: Record<ProfessorWorld, string[]> = { vacations: ["vacation", "vacations"], events: ["event", "events"], rooms: ["hourly", "room", "rooms"], spa: ["spa"] };
+const METRIC_LABEL: Record<ProfessorMetric, string> = {
+  impressions: "חשיפות", pageViews: "כניסות לעמודים", phone: "פעולות טלפון ב־V", whatsapp: "פניות WhatsApp ב־V",
+  viiBookings: "בקשות הזמנה מ־V", bizCalls: "שיחות Maskyoo", bizWhatsapp: "שיחות WhatsApp ב־Biz", bizOrders: "הזמנות Biz", bizRevenue: "הכנסות Biz",
+};
 
-async function inventory(): Promise<Place[]> {
+async function inventory(): Promise<ProfessorPlace[]> {
   const [vacations, events, rooms, spa] = await Promise.all(["vacations", "events", "rooms", "spa"].map((world) => publicCatalogSummaries<Record<string, unknown>>(world)));
   return [[vacations, "vacations", "vacation"], [events, "events", "event"], [rooms, "rooms", "hourly"], [spa, "spa", "spa"]].flatMap(([rows, world, prefix]) => (rows as Record<string, unknown>[]).flatMap((row) => {
     const siteID = Number(row.supplierId || (typeof row.id === "string" ? row.id.match(/\d+$/)?.[0] : row.id));
     const name = String(row.name || row.title || "").trim(); if (!name) return [];
-    return [{ placeId: Number.isSafeInteger(siteID) && siteID > 0 ? `${prefix}-${siteID}` : String(row.id || ""), name, world: world as Place["world"], siteID: Number.isSafeInteger(siteID) && siteID > 0 ? siteID : null }];
+    return [{ placeId: Number.isSafeInteger(siteID) && siteID > 0 ? `${prefix}-${siteID}` : String(row.id || ""), name, world: world as ProfessorWorld, siteID: Number.isSafeInteger(siteID) && siteID > 0 ? siteID : null }];
   }));
 }
 
-function findPlace(question: string, places: Place[]) {
-  const query = clean(question); return places.filter((place) => query.includes(clean(place.name))).sort((a, b) => b.name.length - a.name.length)[0] || null;
+function scopeWhere(intent: ProfessorIntent, alias = "") {
+  const column = (name: string) => `${alias}${name}`;
+  if (intent.place) return { sql: ` AND ${column("place_id")} = ?`, values: [intent.place.placeId] as unknown[] };
+  if (intent.world) { const worlds = WORLD_DB[intent.world]; return { sql: ` AND ${column("world")} IN (${worlds.map(() => "?").join(",")})`, values: worlds as unknown[] }; }
+  return { sql: "", values: [] as unknown[] };
 }
+
+async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent) {
+  const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere(intent);
+  const internal = await db.prepare(`SELECT
+    SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
+    SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
+    SUM(CASE WHEN name IN ('phone_reveal','phone_click') THEN 1 ELSE 0 END) AS phone,
+    SUM(CASE WHEN name IN ('whatsapp_lead','whatsapp_handoff') THEN 1 ELSE 0 END) AS whatsapp
+    FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0${scope.sql}`)
+    .bind(since, until, ...scope.values).first<{ impressions: number; pageViews: number; phone: number; whatsapp: number }>();
+  const bookingScope = scopeWhere(intent);
+  const bookings = await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${bookingScope.sql}`)
+    .bind(since, until, ...bookingScope.values).first<{ total: number }>();
+  const cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
+  const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
+  const bizSupported = intent.world !== "spa" && (!intent.place || intent.place.world !== "spa");
+  const hasBiz = bizSupported && selected.length > 0;
+  const sum = (pick: (row: typeof selected[number]) => number) => selected.reduce((total, row) => total + pick(row), 0);
+  const metrics: MetricValues = {
+    impressions: Number(internal?.impressions || 0), pageViews: Number(internal?.pageViews || 0), phone: Number(internal?.phone || 0), whatsapp: Number(internal?.whatsapp || 0), viiBookings: Number(bookings?.total || 0),
+    bizCalls: hasBiz ? sum((row) => row.conversions.summary.maskyoo.contacts) : null,
+    bizWhatsapp: hasBiz ? sum((row) => row.conversions.summary.whatsapp.contacts) : null,
+    bizOrders: hasBiz ? sum((row) => row.conversions.summary.all.orders) : null,
+    bizRevenue: hasBiz ? sum((row) => row.conversions.summary.all.revenue) : null,
+  };
+  return { metrics, bizSavedAt: selected.map((row) => row.cache.savedAt).sort().at(-1) || null, bizRows: selected.length, bizSupported };
+}
+
+async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorIntent) {
+  if (!intent.ranking) return [];
+  const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere({ ...intent, place: null });
+  const requested = intent.metrics[0];
+  const eventNames: Partial<Record<ProfessorMetric, string[]>> = { impressions: ["impression"], pageViews: ["page_view"], phone: ["phone_reveal", "phone_click"], whatsapp: ["whatsapp_lead", "whatsapp_handoff"] };
+  const names = eventNames[requested]; if (!names?.length) return [];
+  const rows = await db.prepare(`SELECT MAX(place_name) AS name, COUNT(*) AS value FROM vii_business_events
+    WHERE created_at >= ? AND created_at < ? AND internal = 0${scope.sql} AND name IN (${names.map(() => "?").join(",")})
+    GROUP BY place_id ORDER BY value DESC, name ASC LIMIT 5`).bind(since, until, ...scope.values, ...names).all<{ name: string; value: number }>();
+  return rows.results.map((row) => ({ name: row.name, value: Number(row.value || 0) }));
+}
+
+function scopeLabel(intent: ProfessorIntent) { return intent.place?.name || (intent.world ? WORLD_LABEL[intent.world] : "כל העסקים"); }
+function metricValue(metrics: MetricValues, metric: ProfessorMetric) { return metrics[metric]; }
+function formatMetric(metric: ProfessorMetric, value: number | null) {
+  if (value === null) return `${METRIC_LABEL[metric]}: לא נשמר במטמון לטווח הזה`;
+  return `${METRIC_LABEL[metric]}: ${value.toLocaleString("he-IL")}${metric === "bizRevenue" ? " ₪" : ""}`;
+}
+function answerText(intent: ProfessorIntent, current: MetricValues, comparison: MetricValues | null, ranked: Array<{ name: string; value: number }>) {
+  const requested = intent.metrics.map((metric) => formatMetric(metric, metricValue(current, metric)));
+  const comparisonText = comparison ? intent.metrics.flatMap((metric) => {
+    const value = metricValue(current, metric); const previous = metricValue(comparison, metric);
+    if (value === null || previous === null) return [];
+    const delta = value - previous; const direction = delta > 0 ? "עלייה" : delta < 0 ? "ירידה" : "ללא שינוי";
+    return `${METRIC_LABEL[metric]}: ${direction}${delta ? ` של ${Math.abs(delta).toLocaleString("he-IL")}` : ""}`;
+  }).join("; ") : "";
+  const rankingText = ranked.length ? ` המובילים לפי ${METRIC_LABEL[intent.metrics[0]]}: ${ranked.map((row, index) => `${index + 1}. ${row.name}, ${row.value.toLocaleString("he-IL")}`).join("; ")}.` : "";
+  return `היי אדיר, ${intent.range.label} עבור ${scopeLabel(intent)}. ${requested.join("; ")}.${comparisonText ? ` בהשוואה לתקופה הקודמת: ${comparisonText}.` : ""}${rankingText}`;
+}
+
 export async function professorQuota(db: D1Database, email: string) {
   await ensureProfessorSchema(db); const normalized = email.trim().toLowerCase();
   const row = await db.prepare("SELECT daily_limit AS dailyLimit FROM vii_professor_quota_v1 WHERE email = ?").bind(normalized).first<{ dailyLimit: number }>();
-  const start = `${day(new Date())}T00:00:00`;
-  const used = await db.prepare("SELECT COUNT(*) AS total FROM vii_professor_questions_v1 WHERE email = ? AND status = 'success' AND created_at >= ?").bind(normalized, start).first<{ total: number }>();
+  const start = `${day(new Date())}T00:00:00`; const used = await db.prepare("SELECT COUNT(*) AS total FROM vii_professor_questions_v1 WHERE email = ? AND status = 'success' AND created_at >= ?").bind(normalized, start).first<{ total: number }>();
   const limit = Math.max(0, Math.min(500, Number(row?.dailyLimit ?? 20))); return { limit, used: Number(used?.total || 0), remaining: Math.max(0, limit - Number(used?.total || 0)) };
 }
 export async function saveProfessorQuota(db: D1Database, email: string, limit: number, actor: string) {
   await ensureProfessorSchema(db); const value = Math.max(0, Math.min(500, Math.trunc(limit))); const now = new Date().toISOString();
   await db.prepare(`INSERT INTO vii_professor_quota_v1(email,daily_limit,updated_at,updated_by) VALUES(?,?,?,?) ON CONFLICT(email) DO UPDATE SET daily_limit=excluded.daily_limit,updated_at=excluded.updated_at,updated_by=excluded.updated_by`).bind(email.trim().toLowerCase(), value, now, actor.trim().toLowerCase()).run(); return value;
 }
+
 export async function answerProfessor(db: D1Database, email: string, question: string): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
-  const range = rangeFor(clean(normalizedQuestion)); const places = await inventory(); const place = findPlace(normalizedQuestion, places);
-  const since = `${range.from}T00:00:00.000Z`; const untilDate = new Date(`${range.till}T00:00:00.000Z`); untilDate.setUTCDate(untilDate.getUTCDate() + 1); const until = untilDate.toISOString();
-  const where = place ? " AND place_id = ?" : ""; const binds = place ? [since, until, place.placeId] : [since, until];
-  const internal = await db.prepare(`SELECT SUM(CASE WHEN name IN ('phone_reveal','phone_click') THEN 1 ELSE 0 END) AS phone, SUM(CASE WHEN name IN ('whatsapp_lead','whatsapp_handoff') THEN 1 ELSE 0 END) AS whatsapp FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0${where}`).bind(...binds).first<{ phone: number; whatsapp: number }>();
-  const bookings = await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${where}`).bind(...binds).first<{ total: number }>();
-  const cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []); const biz = place?.siteID ? cached.find((row) => row.siteID === place.siteID && row.world === place.world) : null;
-  const allBiz = place ? biz ? [biz] : [] : cached; const bizOrders = allBiz.length ? allBiz.reduce((sum, row) => sum + row.conversions.summary.all.orders, 0) : null; const bizRevenue = allBiz.length ? allBiz.reduce((sum, row) => sum + row.conversions.summary.all.revenue, 0) : null;
-  const phone = Number(internal?.phone || 0); const whatsapp = Number(internal?.whatsapp || 0); const viiBookings = Number(bookings?.total || 0);
-  const subject = place ? `ל${place.name}` : "לכל העסקים"; const bizSentence = bizOrders === null ? "נתוני Biz לטווח הזה עדיין לא נשמרו במטמון, ולכן לא הצגתי מספר משוער." : `${bizOrders.toLocaleString("he-IL")} הזמנות Biz בסכום ${Number(bizRevenue || 0).toLocaleString("he-IL")} ₪`;
-  const answer = `היי, ${range.label} ${subject} נמדדו ${phone.toLocaleString("he-IL")} פעולות טלפון, ${whatsapp.toLocaleString("he-IL")} פעולות WhatsApp ו־${viiBookings.toLocaleString("he-IL")} בקשות הזמנה מ־V. ${bizSentence}`;
-  const result: ProfessorAnswer = { answer, range, place, metrics: { phone, whatsapp, viiBookings, bizOrders, bizRevenue }, freshness: { internal: new Date().toISOString(), biz: allBiz.map((row) => row.cache.savedAt).sort().at(-1) || null, coverage: bizOrders === null ? "נתוני V מלאים; Biz אינו שמור לטווח" : "נתוני V ו־Biz שמורים" }, reportHref: `/admin/business-performance?from=${range.from}&till=${range.till}${place ? `&business=${encodeURIComponent(place.placeId)}` : ""}` };
+  const places = await inventory(); const parsed = parseProfessorIntent(normalizedQuestion, places);
+  if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
+  if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
+  const intent: ProfessorIntent = parsed;
+  const current = await metricSnapshot(db, intent.range, intent);
+  const previous = intent.compareRange ? await metricSnapshot(db, intent.compareRange, intent) : null;
+  const ranked = await ranking(db, intent.range, intent);
+  const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric, metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
+  const bizRequested = intent.metrics.some((metric) => metric.startsWith("biz"));
+  const coverage = !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows ? `נתוני V ו־Biz שמורים, כיסוי Biz ל־${current.bizRows} עסקים` : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
+  const result: ProfessorAnswer = {
+    answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,
+    place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
+    plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: "מסד V ומטמון Biz בלבד" },
+    freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage },
+    reportHref: `/admin/business-performance?from=${intent.range.from}&till=${intent.range.till}${intent.place ? `&business=${encodeURIComponent(intent.place.placeId)}` : intent.world ? `&scope=${intent.world}` : ""}`,
+  };
   await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), email.trim().toLowerCase(), normalizedQuestion, JSON.stringify(result), "success", Date.now() - started, new Date().toISOString()).run();
   return result;
 }
