@@ -54,3 +54,9 @@ test("plain Hebrew calls means Biz Maskyoo calls instead of an all-metrics fallb
   const intent = parseProfessorIntent("כמה שיחות היו החודש לכולם?", places, now);
   assert.deepEqual(intent.metrics, ["bizCalls"]);
 });
+
+test("natural ranking question about calls ranks Biz Maskyoo calls", () => {
+  const intent = parseProfessorIntent("למי היו הכי הרבה שיחות החודש?", places, now);
+  assert.deepEqual(intent.metrics, ["bizCalls"]);
+  assert.equal(intent.ranking, true);
+});
