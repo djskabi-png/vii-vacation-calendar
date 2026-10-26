@@ -11,7 +11,7 @@ type ProfessorAnswer = {
   answer: string; range: ProfessorRange; compareRange: ProfessorRange | null; place: ProfessorPlace | null; world: ProfessorWorld | null;
   metrics: MetricValues; comparison: Partial<Record<ProfessorMetric, number | null>> | null;
   plan: { scope: string; metrics: ProfessorMetric[]; source: string }; ranking: Array<{ name: string; value: number }>;
-  freshness: { internal: string; biz: string | null; coverage: string }; reportHref: string;
+  freshness: { internal: string; biz: string | null; coverage: string; bizRange?: ProfessorRange | null }; reportHref: string;
 };
 
 export class ProfessorQuestionError extends Error {
@@ -62,7 +62,17 @@ async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: Pro
   const bookingScope = scopeWhere(intent);
   const bookings = await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${bookingScope.sql}`)
     .bind(since, until, ...bookingScope.values).first<{ total: number }>();
-  const cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
+  let bizRange = range;
+  let cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
+  if (!cached.length) {
+    const today = day(new Date());
+    const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    const closedTill = day(yesterday);
+    if (range.from <= closedTill && range.till >= today) {
+      bizRange = { from: range.from, till: closedTill, label: `${range.from} עד ${closedTill}` };
+      cached = await loadCachedBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
+    }
+  }
   const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
   const bizSupported = intent.world !== "spa" && (!intent.place || intent.place.world !== "spa");
   const hasBiz = bizSupported && selected.length > 0;
@@ -74,15 +84,33 @@ async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: Pro
     bizOrders: hasBiz ? sum((row) => row.conversions.summary.all.orders) : null,
     bizRevenue: hasBiz ? sum((row) => row.conversions.summary.all.revenue) : null,
   };
-  return { metrics, bizSavedAt: selected.map((row) => row.cache.savedAt).sort().at(-1) || null, bizRows: selected.length, bizSupported };
+  return { metrics, bizSavedAt: selected.map((row) => row.cache.savedAt).sort().at(-1) || null, bizRows: selected.length,
+    bizSupported, bizRange: selected.length ? bizRange : null };
 }
 
-async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorIntent) {
+async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
   if (!intent.ranking) return [];
   const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere({ ...intent, place: null });
   const requested = intent.metrics[0];
   const eventNames: Partial<Record<ProfessorMetric, string[]>> = { impressions: ["impression"], pageViews: ["page_view"], phone: ["phone_reveal", "phone_click"], whatsapp: ["whatsapp_lead", "whatsapp_handoff"] };
-  const names = eventNames[requested]; if (!names?.length) return [];
+  const names = eventNames[requested];
+  if (!names?.length && ["bizCalls", "bizWhatsapp", "bizOrders", "bizRevenue"].includes(requested)) {
+    let cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
+    if (!cached.length) {
+      const today = day(new Date()); const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+      const closedTill = day(yesterday);
+      if (range.from <= closedTill && range.till >= today) cached = await loadCachedBizConversions(db, range.from, closedTill).catch(() => []);
+    }
+    const allowedWorlds = intent.world && intent.world !== "spa" ? new Set(WORLD_DB[intent.world]) : null;
+    const labelByKey = new Map(places.filter((place) => place.siteID).map((place) => [`${place.world}:${place.siteID}`, place.name]));
+    const pick = (row: typeof cached[number]) => requested === "bizCalls" ? row.conversions.summary.maskyoo.contacts
+      : requested === "bizWhatsapp" ? row.conversions.summary.whatsapp.contacts
+        : requested === "bizOrders" ? row.conversions.summary.all.orders : row.conversions.summary.all.revenue;
+    return cached.filter((row) => !allowedWorlds || allowedWorlds.has(row.world)).map((row) => ({
+      name: labelByKey.get(`${row.world}:${row.siteID}`) || `${row.world}-${row.siteID}`, value: pick(row),
+    })).sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, "he")).slice(0, 5);
+  }
+  if (!names?.length) return [];
   const rows = await db.prepare(`SELECT MAX(place_name) AS name, COUNT(*) AS value FROM vii_business_events
     WHERE created_at >= ? AND created_at < ? AND internal = 0${scope.sql} AND name IN (${names.map(() => "?").join(",")})
     GROUP BY place_id ORDER BY value DESC, name ASC LIMIT 5`).bind(since, until, ...scope.values, ...names).all<{ name: string; value: number }>();
@@ -127,15 +155,18 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   const intent: ProfessorIntent = parsed;
   const current = await metricSnapshot(db, intent.range, intent);
   const previous = intent.compareRange ? await metricSnapshot(db, intent.compareRange, intent) : null;
-  const ranked = await ranking(db, intent.range, intent);
+  const ranked = await ranking(db, intent.range, intent, places);
   const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric, metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
   const bizRequested = intent.metrics.some((metric) => metric.startsWith("biz"));
-  const coverage = !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows ? `נתוני V ו־Biz שמורים, כיסוי Biz ל־${current.bizRows} עסקים` : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
+  const partialBizRange = current.bizRange && (current.bizRange.from !== intent.range.from || current.bizRange.till !== intent.range.till);
+  const coverage = !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows
+    ? `נתוני V ו־Biz שמורים, כיסוי Biz ל־${current.bizRows} עסקים${partialBizRange ? ` עד ${current.bizRange?.till}` : ""}`
+    : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
   const result: ProfessorAnswer = {
     answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,
     place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
     plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: "מסד V ומטמון Biz בלבד" },
-    freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage },
+    freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage, bizRange: current.bizRange },
     reportHref: `/admin/business-performance?from=${intent.range.from}&till=${intent.range.till}${intent.place ? `&business=${encodeURIComponent(intent.place.placeId)}` : intent.world ? `&scope=${intent.world}` : ""}`,
   };
   await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), email.trim().toLowerCase(), normalizedQuestion, JSON.stringify(result), "success", Date.now() - started, new Date().toISOString()).run();

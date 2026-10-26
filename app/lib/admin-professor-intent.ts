@@ -65,7 +65,7 @@ function requestedMetrics(question: string): ProfessorMetric[] {
   if (/טלפונים?|לחיצ(?:ה|ות)\s+(?:על\s+)?(?:מספר|טלפון)|גילוי\s+מספר/.test(question)) add("phone", "bizCalls");
   if (/וואטסאפ|whatsapp|הודעות?/.test(question)) add("whatsapp", "bizWhatsapp");
   if (/בקשות?\s+הזמנה|הזמנות?\s+(?:מ|של)[־-]?v\b/.test(question)) add("viiBookings");
-  if (/שיחות?\s+(?:מ|של)?\s*מסקיו|מסקיו/.test(question)) add("bizCalls");
+  if (/שיחות?\s+(?:מ|של)?\s*מסקיו|מסקיו|(?:כמה|כל|סך)?\s*שיחות?(?:\s+היו|\s+נכנסו|\s+קיבלנו|\s+לכולם|$)/.test(question)) add("bizCalls");
   if (/הזמנות?\s*(?:מ|של)?\s*biz|הזמנות?\s*(?:מ|של)?\s*ביז|הכנסות?|מחזור|סכום/.test(question)) add("bizOrders", "bizRevenue");
   return metrics.length ? metrics : ["phone", "whatsapp", "viiBookings", "bizCalls", "bizWhatsapp", "bizOrders", "bizRevenue"];
 }

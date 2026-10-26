@@ -49,3 +49,8 @@ test("Professor requests clarification for equally plausible businesses", () => 
   const intent = parseProfessorIntent("נתונים של הילת נוף", duplicate, now);
   assert.ok(intent.place || intent.ambiguous.length >= 1);
 });
+
+test("plain Hebrew calls means Biz Maskyoo calls instead of an all-metrics fallback", () => {
+  const intent = parseProfessorIntent("כמה שיחות היו החודש לכולם?", places, now);
+  assert.deepEqual(intent.metrics, ["bizCalls"]);
+});
