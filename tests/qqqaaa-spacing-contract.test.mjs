@@ -25,6 +25,8 @@ test("QQQAAA measures framed-control spacing across site families, four language
   assert.match(audit, /spa-place/);
   assert.match(audit, /inspectSiteControls/);
   assert.match(audit, /framed-control-spacing/);
+  assert.match(audit, /clipToOverflowAncestors/);
+  assert.match(audit, /\["hidden", "clip", "auto", "scroll"\]\.includes\(style\.overflowX\)/);
   assert.match(audit, /labelStartGap < 8/);
   assert.match(audit, /iconEndGap < 8/);
   assert.match(audit, /labelIconGap < 4/);

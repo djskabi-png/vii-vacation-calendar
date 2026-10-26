@@ -81,6 +81,27 @@ async function inspectSiteControls(page) {
     const textRect = (element) => {
       const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
       const rects = [];
+      const clipToOverflowAncestors = (sourceRect, parent) => {
+        let left = sourceRect.left;
+        let right = sourceRect.right;
+        let top = sourceRect.top;
+        let bottom = sourceRect.bottom;
+        let current = parent;
+        while (current && current !== element.parentElement) {
+          const style = getComputedStyle(current);
+          const bounds = current.getBoundingClientRect();
+          if (["hidden", "clip", "auto", "scroll"].includes(style.overflowX)) {
+            left = Math.max(left, bounds.left);
+            right = Math.min(right, bounds.right);
+          }
+          if (["hidden", "clip", "auto", "scroll"].includes(style.overflowY)) {
+            top = Math.max(top, bounds.top);
+            bottom = Math.min(bottom, bounds.bottom);
+          }
+          current = current.parentElement;
+        }
+        return right > left && bottom > top ? { left, right, top, bottom } : null;
+      };
       let node;
       while ((node = walker.nextNode())) {
         if (!node.textContent?.trim()) continue;
@@ -92,7 +113,11 @@ async function inspectSiteControls(page) {
         }
         const range = document.createRange();
         range.selectNodeContents(node);
-        for (const rect of range.getClientRects()) if (rect.width > 0 && rect.height > 0) rects.push(rect);
+        for (const rect of range.getClientRects()) {
+          if (rect.width <= 0 || rect.height <= 0) continue;
+          const clipped = clipToOverflowAncestors(rect, parent);
+          if (clipped) rects.push(clipped);
+        }
       }
       if (!rects.length && (element instanceof HTMLInputElement || element instanceof HTMLSelectElement)) {
         const rect = element.getBoundingClientRect();
