@@ -10,6 +10,7 @@ type MetricValues = {
 type ProfessorAnswer = {
   answer: string; range: ProfessorRange; compareRange: ProfessorRange | null; place: ProfessorPlace | null; world: ProfessorWorld | null;
   metrics: MetricValues; comparison: Partial<Record<ProfessorMetric, number | null>> | null;
+  insights: Array<{ kind: "up" | "down" | "neutral" | "conversion" | "warning"; title: string; detail: string }>;
   plan: { scope: string; metrics: ProfessorMetric[]; source: string }; ranking: Array<{ name: string; value: number }>;
   freshness: { internal: string; biz: string | null; coverage: string; bizRange?: ProfessorRange | null }; reportHref: string;
 };
@@ -135,6 +136,30 @@ function answerText(intent: ProfessorIntent, current: MetricValues, comparison: 
   return `היי אדיר, ${intent.range.label} עבור ${scopeLabel(intent)}. ${requested.join("; ")}.${comparisonText ? ` בהשוואה לתקופה הקודמת: ${comparisonText}.` : ""}${rankingText}`;
 }
 
+function buildInsights(intent: ProfessorIntent, current: MetricValues, comparison: MetricValues | null) {
+  const insights: ProfessorAnswer["insights"] = [];
+  if (comparison) intent.metrics.forEach((metric) => {
+    const value = metricValue(current, metric); const previous = metricValue(comparison, metric);
+    if (value === null || previous === null) return;
+    const delta = value - previous; const percent = previous === 0 ? null : Math.round(delta / previous * 100);
+    insights.push({ kind: delta > 0 ? "up" : delta < 0 ? "down" : "neutral", title: METRIC_LABEL[metric], detail: delta === 0
+      ? "ללא שינוי מול התקופה הקודמת"
+      : `${delta > 0 ? "עלייה" : "ירידה"} של ${Math.abs(delta).toLocaleString("he-IL")}${percent === null ? "" : ` (${Math.abs(percent).toLocaleString("he-IL")}%)`} מול התקופה הקודמת` });
+  });
+  const contacts = (current.bizCalls || 0) + (current.bizWhatsapp || 0);
+  if (contacts > 0 && current.bizOrders && current.bizOrders > 0) insights.unshift({ kind: "conversion", title: "יחס קשר להזמנה", detail: `הזמנה אחת לכל ${Math.max(1, Math.round(contacts / current.bizOrders)).toLocaleString("he-IL")} אנשי קשר שנשמרו ב־Biz` });
+  const unavailable = intent.metrics.filter((metric) => metricValue(current, metric) === null);
+  if (unavailable.length) insights.push({ kind: "warning", title: "כיסוי נתונים חלקי", detail: `${unavailable.map((metric) => METRIC_LABEL[metric]).join(", ")} לא נשמרו לטווח הזה ולכן לא חושבו` });
+  return insights.slice(0, 5);
+}
+
+async function previousProfessorContext(db: D1Database, email: string) {
+  const row = await db.prepare("SELECT answer_json AS answerJson FROM vii_professor_questions_v1 WHERE email = ? AND status = 'success' ORDER BY created_at DESC LIMIT 1")
+    .bind(email.trim().toLowerCase()).first<{ answerJson: string }>();
+  if (!row?.answerJson) return null;
+  try { return JSON.parse(row.answerJson) as ProfessorAnswer; } catch { return null; }
+}
+
 export async function professorQuota(db: D1Database, email: string) {
   await ensureProfessorSchema(db); const normalized = email.trim().toLowerCase();
   const row = await db.prepare("SELECT daily_limit AS dailyLimit FROM vii_professor_quota_v1 WHERE email = ?").bind(normalized).first<{ dailyLimit: number }>();
@@ -152,7 +177,14 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   const places = await inventory(); const parsed = parseProfessorIntent(normalizedQuestion, places);
   if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
   if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
-  const intent: ProfessorIntent = parsed;
+  const isFollowUp = /^(?:ומה|ומה לגבי|ואיך|אותו|אותה|ובחודש|ובשבוע|לעומת|בהשוואה)/.test(normalizedQuestion);
+  const context = isFollowUp ? await previousProfessorContext(db, email) : null;
+  const intent: ProfessorIntent = context ? {
+    ...parsed,
+    place: parsed.place || context.place,
+    world: parsed.place?.world || parsed.world || context.world,
+    metrics: parsed.explicitMetrics ? parsed.metrics : context.plan.metrics,
+  } : parsed;
   const current = await metricSnapshot(db, intent.range, intent);
   const previous = intent.compareRange ? await metricSnapshot(db, intent.compareRange, intent) : null;
   const ranked = await ranking(db, intent.range, intent, places);
@@ -165,6 +197,7 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   const result: ProfessorAnswer = {
     answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,
     place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
+    insights: buildInsights(intent, current.metrics, previous?.metrics || null),
     plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: "מסד V ומטמון Biz בלבד" },
     freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage, bizRange: current.bizRange },
     reportHref: `/admin/business-performance?from=${intent.range.from}&till=${intent.range.till}${intent.place ? `&business=${encodeURIComponent(intent.place.placeId)}` : intent.world ? `&scope=${intent.world}` : ""}`,

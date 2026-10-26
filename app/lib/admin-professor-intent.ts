@@ -8,6 +8,7 @@ export type ProfessorIntent = {
   place: ProfessorPlace | null;
   world: ProfessorWorld | null;
   metrics: ProfessorMetric[];
+  explicitMetrics: boolean;
   ranking: boolean;
   unsupportedReason: string | null;
 };
@@ -57,7 +58,7 @@ export function previousProfessorRange(range: ProfessorRange): ProfessorRange {
   return { from, till, label: `התקופה הקודמת, ${displayRange(from, till)}` };
 }
 
-function requestedMetrics(question: string): ProfessorMetric[] {
+function requestedMetrics(question: string): { metrics: ProfessorMetric[]; explicit: boolean } {
   const metrics: ProfessorMetric[] = [];
   const add = (...items: ProfessorMetric[]) => items.forEach((item) => { if (!metrics.includes(item)) metrics.push(item); });
   if (/חשיפות?/.test(question)) add("impressions");
@@ -66,17 +67,40 @@ function requestedMetrics(question: string): ProfessorMetric[] {
   if (/וואטסאפ|whatsapp|הודעות?/.test(question)) add("whatsapp", "bizWhatsapp");
   if (/בקשות?\s+הזמנה|הזמנות?\s+(?:מ|של)[־-]?v\b/.test(question)) add("viiBookings");
   if (/שיחות?|מסקיו/.test(question)) add("bizCalls");
-  if (/הזמנות?\s*(?:מ|של)?\s*biz|הזמנות?\s*(?:מ|של)?\s*ביז|הכנסות?|מחזור|סכום/.test(question)) add("bizOrders", "bizRevenue");
-  return metrics.length ? metrics : ["phone", "whatsapp", "viiBookings", "bizCalls", "bizWhatsapp", "bizOrders", "bizRevenue"];
+  if (/הזמנ(?:ה|ות)\s*(?:מ|של)?\s*biz|הזמנ(?:ה|ות)\s*(?:מ|של)?\s*ביז|הכנסות?|מחזור|סכום/.test(question)) add("bizOrders", "bizRevenue");
+  if (/מכל\s+כמה|יחס\s+המרה|אחוז\s+המרה|המרות?/.test(question)) {
+    if (/שיחות?|טלפונים?|מסקיו/.test(question)) add("bizCalls");
+    if (/וואטסאפ|whatsapp|הודעות?/.test(question)) add("bizWhatsapp");
+    add("bizOrders");
+  }
+  return { metrics: metrics.length ? metrics : ["phone", "whatsapp", "viiBookings", "bizCalls", "bizWhatsapp", "bizOrders", "bizRevenue"], explicit: metrics.length > 0 };
 }
 
 function tokens(value: string) { return cleanProfessorText(value).split(" ").filter((part) => part.length > 1); }
+function editDistance(a: string, b: string) {
+  const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let row = 1; row <= a.length; row += 1) {
+    const current = [row];
+    for (let column = 1; column <= b.length; column += 1) current[column] = Math.min(
+      current[column - 1] + 1,
+      previous[column] + 1,
+      previous[column - 1] + (a[row - 1] === b[column - 1] ? 0 : 1),
+    );
+    previous.splice(0, previous.length, ...current);
+  }
+  return previous[b.length];
+}
+function tokenMatches(queryToken: string, nameToken: string) {
+  if (queryToken === nameToken) return true;
+  if (nameToken.length < 4 || Math.abs(queryToken.length - nameToken.length) > 1) return false;
+  return editDistance(queryToken, nameToken) <= 1;
+}
 function placeScore(query: string, place: ProfessorPlace) {
   const name = cleanProfessorText(place.name); if (!name) return 0;
   if (query.includes(name)) return 1;
   const queryTokens = new Set(tokens(query)); const nameTokens = tokens(name);
   if (!nameTokens.length) return 0;
-  const matched = nameTokens.filter((token) => queryTokens.has(token)).length;
+  const matched = nameTokens.filter((token) => [...queryTokens].some((queryToken) => tokenMatches(queryToken, token))).length;
   return matched / nameTokens.length;
 }
 
@@ -92,6 +116,7 @@ export function matchProfessorPlace(question: string, places: ProfessorPlace[]) 
 export function parseProfessorIntent(question: string, places: ProfessorPlace[], now = new Date()): ProfessorIntent & { ambiguous: ProfessorPlace[] } {
   const normalized = cleanProfessorText(question); const range = professorRange(question, now);
   const placeMatch = matchProfessorPlace(normalized, places);
+  const requested = requestedMetrics(normalized);
   const world = placeMatch.place?.world || WORLD_TERMS.find(([, pattern]) => pattern.test(normalized))?.[0] || null;
   const comparison = /לעומת|בהשוואה|מול\s+(?:התקופה|החודש|השבוע)|שינוי|עלה|ירד/.test(normalized);
   const asksCause = /למה|מה\s+הסיבה|מדוע/.test(normalized);
@@ -102,7 +127,8 @@ export function parseProfessorIntent(question: string, places: ProfessorPlace[],
     compareRange: comparison ? previousProfessorRange(range) : null,
     place: placeMatch.place,
     world,
-    metrics: requestedMetrics(normalized),
+    metrics: requested.metrics,
+    explicitMetrics: requested.explicit,
     ranking: /מי\s+(?:הכי|מוביל)|הכי\s+(?:הרבה|גבוה)|עסקים?\s+מובילים|טופ\s*\d*/.test(normalized),
     unsupportedReason: asksCause
       ? "אני יכול למדוד שינוי, אבל הנתונים אינם מוכיחים את הסיבה. אפשר לשאול מה עלה או ירד לעומת התקופה הקודמת."

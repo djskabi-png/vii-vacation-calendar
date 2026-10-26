@@ -60,3 +60,22 @@ test("natural ranking question about calls ranks Biz Maskyoo calls", () => {
   assert.deepEqual(intent.metrics, ["bizCalls"]);
   assert.equal(intent.ranking, true);
 });
+
+test("Professor safely recognizes a one-letter business typo", () => {
+  const intent = parseProfessorIntent("תן לי כניסות להילת הנוףף החודש", places, now);
+  assert.equal(intent.place?.placeId, "vacation-11");
+  assert.deepEqual(intent.metrics, ["pageViews"]);
+});
+
+test("Professor conversion questions include the outcome and do not infer a ratio from calls alone", () => {
+  const intent = parseProfessorIntent("מכל כמה שיחות נוצרת הזמנה בביז החודש?", places, now);
+  assert.ok(intent.metrics.includes("bizCalls"));
+  assert.ok(intent.metrics.includes("bizOrders"));
+  assert.equal(intent.explicitMetrics, true);
+});
+
+test("Professor marks a metric-free follow-up so the engine can preserve the previous context", () => {
+  const intent = parseProfessorIntent("ומה לעומת החודש הקודם?", places, now);
+  assert.equal(intent.explicitMetrics, false);
+  assert.ok(intent.compareRange);
+});
