@@ -4904,7 +4904,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .world-dock__panel { width: calc(100vw - 24px); }
   .world-breadcrumbs { padding-block: 8px; }
   .special-search-rail { padding: 14px 0; }
-  .special-search-summary { min-height: 60px; padding: 7px 12px; border-radius: 16px; }
+  .special-search-summary { min-height: 60px; padding: 7px 18px; border-radius: 16px; }
   .special-search-summary > b { min-height: 44px; padding-inline: 14px; border-radius: 13px; font-size: .78rem; }
   .special-search-panel { margin-top: 8px; padding: 10px; border-radius: 16px; }
   .special-search-local { min-height: 54px; padding: 8px 10px; }

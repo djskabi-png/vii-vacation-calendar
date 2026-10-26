@@ -54,5 +54,5 @@ test("special world search opens in place before offering an explicit local-filt
   assert.match(source, /className="special-search-local" href=\{`#\$\{targetId\}`\}/);
   assert.match(styles, /\.special-search-panel/);
   assert.match(styles, /\.special-search-disclosure > summary:focus-visible/);
-  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.special-search-summary \{ min-height: 60px; padding: 7px 12px;/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.special-search-summary \{ min-height: 60px; padding: 7px 18px;/);
 });
