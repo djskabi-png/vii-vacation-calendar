@@ -56,7 +56,15 @@ test("authorized detail mode returns minimized contact and order evidence", asyn
 test("detail mode rejects malformed contacts instead of leaking raw provider rows", async () => {
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret", includeContacts: true,
     fetchImpl: async () => Response.json({ ...detailedFixture(), contacts: [{ source: "maskyoo", id: 1, phone: "050-0000000", details: { status: "ANSWER", duration: -1 } }] }) }),
-  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "contacts.item");
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "contacts.item.domainID");
+});
+
+test("contact diagnostics identify only the malformed field and never its private value", async () => {
+  const response = detailedFixture();
+  response.contacts[1].phone = { private: "050-9999999" };
+  await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret", includeContacts: true,
+    fetchImpl: async () => Response.json(response) }),
+  (error) => error instanceof ViiConversionsError && error.diagnostic === "contacts.item.phone" && !error.message.includes("050-9999999"));
 });
 
 test("invalid ranges and malformed provider data fail closed without token disclosure", async () => {

@@ -125,6 +125,43 @@ function order(value: unknown): ConversionOrder | null | undefined {
   return { orderID, orderIDBySite, created: String(row.created), price: Number(row.price) };
 }
 
+function invalidOrderField(value: unknown, prefix: string) {
+  if (value === null) return null;
+  const row = object(value);
+  const orderID = typeof row.orderID === "string" || typeof row.orderID === "number" ? String(row.orderID) : "";
+  const orderIDBySite = row.orderIDBySite === null ? null : typeof row.orderIDBySite === "string" || typeof row.orderIDBySite === "number" ? String(row.orderIDBySite) : undefined;
+  if (!orderID || orderID.length > 100) return `${prefix}.orderID`;
+  if (orderIDBySite === undefined || (orderIDBySite !== null && orderIDBySite.length > 100)) return `${prefix}.orderIDBySite`;
+  if (!shortText(row.created, 50)) return `${prefix}.created`;
+  if (!nonNegative(row.price)) return `${prefix}.price`;
+  return null;
+}
+
+function invalidContactField(value: unknown) {
+  const row = object(value);
+  if (!(row.source === "whatsapp" || row.source === "maskyoo" || row.source === "form")) return "contacts.item.source";
+  if (!Number.isSafeInteger(row.id) || Number(row.id) < 0) return "contacts.item.id";
+  if (!(row.domainID === null || Number.isSafeInteger(row.domainID))) return "contacts.item.domainID";
+  if (!shortText(row.time, 50)) return "contacts.item.time";
+  if (!(row.phone === null || (typeof row.phone === "string" && row.phone.length <= 40))) return "contacts.item.phone";
+  if (!(row.email === null || (typeof row.email === "string" && row.email.length <= 254))) return "contacts.item.email";
+  if (!(row.delay === null || integer(row.delay))) return "contacts.item.delay";
+  if (!Array.isArray(row.moreOrders)) return "contacts.item.moreOrders";
+  const orderField = invalidOrderField(row.order, "contacts.item.order");
+  if (orderField) return orderField;
+  const moreOrders = row.moreOrders.map((id) => typeof id === "string" || typeof id === "number" ? String(id) : "");
+  if (moreOrders.some((id) => !id || id.length > 100)) return "contacts.item.moreOrders.item";
+  const rawDetails = object(row.details);
+  if (row.source === "maskyoo") {
+    if (!shortText(rawDetails.status, 40)) return "contacts.item.details.status";
+    if (!integer(rawDetails.duration)) return "contacts.item.details.duration";
+  } else if (row.source === "whatsapp") {
+    if (!(rawDetails.date === null || (typeof rawDetails.date === "string" && (/^\d{4}-\d{2}-\d{2}$/.test(rawDetails.date) || rawDetails.date === "")))) return "contacts.item.details.date";
+    if (!(rawDetails.guests === undefined || integer(rawDetails.guests))) return "contacts.item.details.guests";
+  }
+  return "contacts.item";
+}
+
 function contact(value: unknown): ConversionContact | null {
   const row = object(value);
   if (!(row.source === "whatsapp" || row.source === "maskyoo" || row.source === "form") || !Number.isSafeInteger(row.id) || Number(row.id) < 0
@@ -183,7 +220,8 @@ function sanitized(raw: unknown, expected: { siteID: number; from: string; till:
   if (invalidField) throw new ViiConversionsError("invalid_response", null, invalidField);
   const contacts = includeContacts ? Array.isArray(value.contacts) ? value.contacts.map(contact) : null : undefined;
   if (includeContacts && (!contacts || contacts.some((item) => !item) || contacts.length !== Number(value.count))) {
-    throw new ViiConversionsError("invalid_response", null, !contacts ? "contacts" : contacts.some((item) => !item) ? "contacts.item" : "contacts.count");
+    const invalidIndex = contacts?.findIndex((item) => !item) ?? -1;
+    throw new ViiConversionsError("invalid_response", null, !contacts ? "contacts" : invalidIndex >= 0 ? invalidContactField((value.contacts as unknown[])[invalidIndex]) : "contacts.count");
   }
   return {
     siteID: expected.siteID, from: expected.from, till: expected.till,
