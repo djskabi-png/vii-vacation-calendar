@@ -178,7 +178,7 @@ export async function POST(request: Request) {
   if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
   const body = await request.json().catch(() => null) as { action?: unknown; jobId?: unknown; from?: unknown; till?: unknown;
-    scope?: unknown; total?: unknown; processedBefore?: unknown; succeededBefore?: unknown; failedBefore?: unknown;
+    scope?: unknown; total?: unknown; processedBefore?: unknown; succeededBefore?: unknown; unsupportedBefore?: unknown; failedBefore?: unknown;
     targets?: unknown; forceRefresh?: unknown } | null;
   const jobId = typeof body?.jobId === "string" ? body.jobId : "";
   const validJobId = /^[0-9a-f]{8}-[0-9a-f-]{27,40}$/i.test(jobId);
@@ -195,11 +195,13 @@ export async function POST(request: Request) {
   const total = Number(body?.total);
   const processedBefore = Number(body?.processedBefore);
   const succeededBefore = Number(body?.succeededBefore);
+  const unsupportedBefore = Number(body?.unsupportedBefore);
   const failedBefore = Number(body?.failedBefore);
   if (!validJobId || !validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365
     || !/^(all|vacations|events|rooms)$/.test(scope) || !Number.isSafeInteger(total) || total < 1 || total > 5000
     || !Number.isSafeInteger(processedBefore) || processedBefore < 0 || !Number.isSafeInteger(succeededBefore) || succeededBefore < 0
-    || !Number.isSafeInteger(failedBefore) || failedBefore < 0 || succeededBefore + failedBefore !== processedBefore
+    || !Number.isSafeInteger(unsupportedBefore) || unsupportedBefore < 0 || !Number.isSafeInteger(failedBefore) || failedBefore < 0
+    || succeededBefore + unsupportedBefore + failedBefore !== processedBefore
     || !Array.isArray(body?.targets) || body.targets.length < 1 || body.targets.length > 12 || processedBefore + body.targets.length > total
     || (body?.forceRefresh !== undefined && typeof body.forceRefresh !== "boolean")) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
@@ -233,11 +235,13 @@ export async function POST(request: Request) {
       }
     }));
   results.push(...settled);
-  const failedInBatch = settled.filter((item) => item.error).length;
+  const unsupportedInBatch = settled.filter((item) => item.error === "not_supported").length;
+  const failedInBatch = settled.filter((item) => item.error && item.error !== "not_supported").length;
   const processed = processedBefore + settled.length;
-  const succeeded = succeededBefore + settled.length - failedInBatch;
+  const succeeded = succeededBefore + settled.length - unsupportedInBatch - failedInBatch;
+  const unsupported = unsupportedBefore + unsupportedInBatch;
   const failed = failedBefore + failedInBatch;
   const status = processed >= total ? "completed" : "running";
-  await updateBizReportRun(cacheDb, { jobId, actorEmail: session.email, processed, succeeded, failed, status });
-  return Response.json({ from, till, results, run: { jobId, processed, succeeded, failed, total, status } }, { headers });
+  await updateBizReportRun(cacheDb, { jobId, actorEmail: session.email, processed, succeeded, unsupported, failed, status });
+  return Response.json({ from, till, results, run: { jobId, processed, succeeded, unsupported, failed, total, status } }, { headers });
 }

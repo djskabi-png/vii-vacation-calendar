@@ -63,7 +63,15 @@ test("invalid ranges and malformed provider data fail closed without token discl
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 1, from: "2026-10-22", till: "2026-10-01", token: "secret" }), { code: "invalid_request" });
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret",
     fetchImpl: async () => Response.json({ ...fixture(), contacts: [], summary: {} }) }),
-  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "summary.all" && !error.message.includes("secret"));
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "summary.all.contacts" && !error.message.includes("secret"));
+});
+
+test("aggregate diagnostics identify the exact malformed field without exposing its value", async () => {
+  const response = fixture();
+  response.summary.all.medianDelay = "not-a-number";
+  await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret",
+    fetchImpl: async () => Response.json(response) }),
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response" && error.diagnostic === "summary.all.medianDelay" && !error.message.includes("not-a-number"));
 });
 
 test("unsupported and unavailable provider states remain distinct", async () => {

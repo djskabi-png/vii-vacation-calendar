@@ -98,6 +98,19 @@ function bucket(value: unknown): ConversionBucket | null {
   };
 }
 
+function invalidBucketField(value: unknown, prefix: string) {
+  const row = object(value);
+  if (!integer(row.contacts)) return `${prefix}.contacts`;
+  if (!integer(row.identified)) return `${prefix}.identified`;
+  if (!integer(row.converted)) return `${prefix}.converted`;
+  if (!integer(row.customers)) return `${prefix}.customers`;
+  if (!integer(row.orders)) return `${prefix}.orders`;
+  if (!nonNegative(row.revenue)) return `${prefix}.revenue`;
+  if (!(row.rate === null || (nonNegative(row.rate) && Number(row.rate) <= 100))) return `${prefix}.rate`;
+  if (!(row.medianDelay === null || integer(row.medianDelay))) return `${prefix}.medianDelay`;
+  return null;
+}
+
 function shortText(value: unknown, maximum: number) {
   return typeof value === "string" && value.length <= maximum ? value : null;
 }
@@ -159,10 +172,10 @@ function sanitized(raw: unknown, expected: { siteID: number; from: string; till:
     : typeof value.created !== "string" || !value.created ? "created"
     : !(value.domainID === null || Number.isSafeInteger(value.domainID)) ? "domainID"
     : !integer(value.count) ? "count"
-    : !all ? "summary.all"
-    : !whatsapp ? "summary.whatsapp"
-    : !maskyoo ? "summary.maskyoo"
-    : !form ? "summary.form"
+    : !all ? invalidBucketField(sourceSummary.all, "summary.all") || "summary.all"
+    : !whatsapp ? invalidBucketField(sourceSummary.whatsapp, "summary.whatsapp") || "summary.whatsapp"
+    : !maskyoo ? invalidBucketField(sourceSummary.maskyoo, "summary.maskyoo") || "summary.maskyoo"
+    : !form ? invalidBucketField(sourceSummary.form, "summary.form") || "summary.form"
     : !integer(sourceClicks.whatsapp) ? "clicks.whatsapp"
     : !integer(sourceClicks.showphone) ? "clicks.showphone"
     : !integer(sourceClicks.phone) ? "clicks.phone"

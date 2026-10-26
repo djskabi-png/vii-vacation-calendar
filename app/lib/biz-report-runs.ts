@@ -11,6 +11,7 @@ export type BizReportRun = {
   total: number;
   processed: number;
   succeeded: number;
+  unsupported: number;
   failed: number;
   status: BizReportRunStatus;
   startedAt: string;
@@ -22,7 +23,8 @@ const initialized = new WeakMap<object, Promise<void>>();
 export async function ensureBizReportRunSchema(db: D1Database) {
   const existing = initialized.get(db as object);
   if (existing) return existing;
-  const operation = db.batch([
+  const operation = (async () => {
+    await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_report_runs_v1 (
       job_id TEXT PRIMARY KEY NOT NULL, actor_email TEXT NOT NULL,
       from_day TEXT NOT NULL, till_day TEXT NOT NULL, scope TEXT NOT NULL,
@@ -33,26 +35,30 @@ export async function ensureBizReportRunSchema(db: D1Database) {
     )`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_report_runs_actor_time ON vii_biz_report_runs_v1(actor_email, started_at)"),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_report_runs_time ON vii_biz_report_runs_v1(started_at)"),
-  ]).then(() => undefined).catch((error) => { initialized.delete(db as object); throw error; });
+    ]);
+    await db.prepare("ALTER TABLE vii_biz_report_runs_v1 ADD COLUMN unsupported_count INTEGER NOT NULL DEFAULT 0").run().catch((error) => {
+      if (!(error instanceof Error) || !/duplicate column name/i.test(error.message)) throw error;
+    });
+  })().catch((error) => { initialized.delete(db as object); throw error; });
   initialized.set(db as object, operation);
   return operation;
 }
 
 type RunRow = {
   jobId: string; actorEmail: string; from: string; till: string; scope: string;
-  forceRefresh: number; total: number; processed: number; succeeded: number;
+  forceRefresh: number; total: number; processed: number; succeeded: number; unsupported: number;
   failed: number; status: BizReportRunStatus; startedAt: string; updatedAt: string;
 };
 
 const decode = (row: RunRow): BizReportRun => ({ ...row, forceRefresh: Number(row.forceRefresh) === 1,
-  total: Number(row.total), processed: Number(row.processed), succeeded: Number(row.succeeded), failed: Number(row.failed) });
+  total: Number(row.total), processed: Number(row.processed), succeeded: Number(row.succeeded), unsupported: Number(row.unsupported || 0), failed: Number(row.failed) });
 
 export async function readBizReportRuns(db: D1Database, limit = 20) {
   await ensureBizReportRunSchema(db);
   const bounded = Math.max(1, Math.min(100, Math.floor(limit)));
   const rows = await db.prepare(`SELECT job_id AS jobId, actor_email AS actorEmail,
     from_day AS "from", till_day AS till, scope, force_refresh AS forceRefresh,
-    total, processed, succeeded, failed_count AS failed, status,
+    total, processed, succeeded, unsupported_count AS unsupported, failed_count AS failed, status,
     started_at AS startedAt, updated_at AS updatedAt
     FROM vii_biz_report_runs_v1 ORDER BY started_at DESC, job_id DESC LIMIT ?`)
     .bind(bounded).all<RunRow>();
@@ -75,14 +81,14 @@ export async function startBizReportRun(db: D1Database, input: {
 }
 
 export async function updateBizReportRun(db: D1Database, input: {
-  jobId: string; actorEmail: string; processed: number; succeeded: number; failed: number;
+  jobId: string; actorEmail: string; processed: number; succeeded: number; unsupported: number; failed: number;
   status: BizReportRunStatus; now?: Date;
 }) {
   const now = (input.now ?? new Date()).toISOString();
-  await db.prepare(`UPDATE vii_biz_report_runs_v1 SET processed = ?, succeeded = ?,
+  await db.prepare(`UPDATE vii_biz_report_runs_v1 SET processed = ?, succeeded = ?, unsupported_count = ?,
     failed_count = ?, status = ?, updated_at = ?
     WHERE job_id = ? AND actor_email = ? AND status = 'running' AND processed <= ?`)
-    .bind(input.processed, input.succeeded, input.failed, input.status, now,
+    .bind(input.processed, input.succeeded, input.unsupported, input.failed, input.status, now,
       input.jobId, input.actorEmail.trim().toLowerCase(), input.processed).run();
 }
 
