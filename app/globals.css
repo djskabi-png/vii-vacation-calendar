@@ -4904,7 +4904,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .world-dock__panel { width: calc(100vw - 24px); }
   .world-breadcrumbs { padding-block: 8px; }
   .special-search-rail { padding: 14px 0; }
-  .special-search-summary { min-height: 60px; padding: 7px 8px 7px 12px; border-radius: 16px; }
+  .special-search-summary { min-height: 60px; padding: 7px 12px; border-radius: 16px; }
   .special-search-summary > b { min-height: 44px; padding-inline: 14px; border-radius: 13px; font-size: .78rem; }
   .special-search-panel { margin-top: 8px; padding: 10px; border-radius: 16px; }
   .special-search-local { min-height: 54px; padding: 8px 10px; }
@@ -10207,6 +10207,12 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   background: #f1faf6;
   line-height: 1.15;
   white-space: normal;
+}
+@media (min-width: 761px) {
+  .property-title__actions--contact .property-whatsapp-action {
+    min-height: 48px;
+    padding-block: 8px;
+  }
 }
 .property-title__actions--contact .property-whatsapp-action:hover {
   border-color: rgba(8,117,83,.2);
