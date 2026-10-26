@@ -14,7 +14,19 @@ test("personal highlights expose exactly 24 choices and default to 16", () => {
   assert.match(board, /expanded \? 16 : 8/);
   assert.match(board, /סגירת שורות 3 ו־4/);
   assert.match(board, /הזמנה מכל כמה שיחות/);
-  assert.match(board, /הסדר נשמר לחשבון המחובר/);
+  assert.match(board, /כל שינוי נשמר אוטומטית לחשבון המחובר/);
+  assert.match(board, /draggable data-highlight-sort-id/);
+  assert.match(board, /GripVertical/);
+  assert.match(board, /onPointerDown/);
+  assert.match(board, /onDragStart/);
+  assert.doesNotMatch(board, /ChevronLeft|ChevronRight/);
+  assert.match(board, /דופק ההמרות/);
+  assert.match(board, /data\.biz\?\.orders/);
+  const css = read("../app/admin/admin.module.css");
+  assert.match(css, /touch-action:none/);
+  assert.match(css, /data-dragging=true/);
+  assert.match(css, /\.conversionPulse/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
 });
 
 test("professor is an explicit permissioned module with quota, history and no invented Biz values", () => {
