@@ -12,6 +12,7 @@ import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
+const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise<unknown[]> }>();
 
 function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "spa") return spa.sites;
@@ -66,23 +67,35 @@ function catalogIdentity(world: SupplierCatalogWorld, value: unknown) {
 export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWorld, supplierIds: readonly number[]): Promise<T[]> {
   const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 8);
   if (!ids.length) return [];
+  const cacheKey = `${world}:${ids.slice().sort((a, b) => a - b).join(",")}`;
+  const cached = selectedCatalogCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return await cached.items as T[];
   const fallbackEntries = bundled(world).filter(value => {
     const row = value as { id?: unknown; supplierId?: unknown };
     return ids.includes(Number(world === "spa" ? row.id : row.supplierId));
   });
-  let entries = fallbackEntries;
+  const items = (async () => {
+    let entries = fallbackEntries;
+    try {
+      const db = await runtimeCatalogDatabase();
+      const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
+      entries = selected ?? fallbackEntries;
+    } catch {
+      // The bundled data is the last accepted generation. Keep public place
+      // pages available if the runtime catalog is temporarily saturated.
+      console.warn(`public_catalog_selected_fallback:${world}`);
+    }
+    // Card photos do not depend on text overlays. Keep the normal publication
+    // projection (including spa review policy), without a full-world DB read.
+    return await publicSummaries(world, entries);
+  })();
+  selectedCatalogCache.set(cacheKey, { expiresAt: Date.now() + 5 * 60_000, items });
   try {
-    const db = await runtimeCatalogDatabase();
-    const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
-    entries = selected ?? fallbackEntries;
-  } catch {
-    // The bundled data is the last accepted generation. Keep public place
-    // pages available if the runtime catalog is temporarily saturated.
-    console.warn(`public_catalog_selected_fallback:${world}`);
+    return await items as T[];
+  } catch (error) {
+    if (selectedCatalogCache.get(cacheKey)?.items === items) selectedCatalogCache.delete(cacheKey);
+    throw error;
   }
-  // Card photos do not depend on text overlays. Keep the normal publication
-  // projection (including spa review policy), without a full-world DB read.
-  return await publicSummaries(world, entries) as T[];
 }
 
 function contentTypeForWorld(world: SupplierCatalogWorld): ContentType {

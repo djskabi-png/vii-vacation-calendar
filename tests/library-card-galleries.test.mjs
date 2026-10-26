@@ -47,9 +47,20 @@ test('selected summaries use one generation-pinned bounded query and never load 
   assert.deepEqual(await readSupplierCatalogSelectedSummaries(db,'vacations',[11,11,12,-1]),[{slug:'vacation-11',images:['/a.jpg']}]);
   assert.equal(queries.length,1);assert.deepEqual(queries[0].params,[11,12,'vacations']);assert.match(queries[0].sql,/e\.run_id = s\.active_run_id/);
   for(const [activeRunId,expected] of [[null,null],['generation1',[]]]){
-    const empty={prepare(){return{bind(){return{all:async()=>({results:[{activeRunId,summaryJson:null}]})};}};}};
+    const empty={prepare(sql){return{bind(){return{all:async()=>({results:sql.includes('FROM supplier_catalog_entries\n    WHERE')?[]:[{activeRunId,summaryJson:null}]})};}};}};
     assert.deepEqual(await readSupplierCatalogSelectedSummaries(empty,'spa',[1]),expected);
   }
+});
+
+test('selected summaries retry the same accepted generation when a burst read loses its joined row',async()=>{
+  const queries=[];
+  const db={prepare(sql){return{bind(...params){queries.push({sql,params});return{all:async()=>sql.includes('FROM supplier_catalog_entries\n    WHERE')
+    ?({results:[{summaryJson:'{"slug":"vacation-1117","name":"סוויטות M"}'}]})
+    :({results:[{activeRunId:'generation-burst',summaryJson:null}]})};}};}};
+  assert.deepEqual(await readSupplierCatalogSelectedSummaries(db,'vacations',[1117]),[{slug:'vacation-1117',name:'סוויטות M'}]);
+  assert.equal(queries.length,2);
+  assert.deepEqual(queries[1].params,['generation-burst','vacations',1117]);
+  assert.doesNotMatch(queries[1].sql,/detail_json/);
 });
 
 test('saved and viewed UI shares gallery without rewriting local history or adding requests elsewhere',async()=>{

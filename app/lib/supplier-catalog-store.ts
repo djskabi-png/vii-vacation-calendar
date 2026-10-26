@@ -345,7 +345,18 @@ export async function readSupplierCatalogSelectedSummaries(db: D1Database, world
       ON e.run_id = s.active_run_id AND e.world = s.world AND e.supplier_id IN (${ids.map(() => "?").join(",")})
     WHERE s.world = ?`).bind(...ids, world).all<{ activeRunId: string | null; summaryJson: string | null }>();
   if (!rows.results[0]?.activeRunId) return null;
-  return rows.results.flatMap(row => row.summaryJson ? [JSON.parse(row.summaryJson)] : []);
+  const summaries = rows.results.flatMap(row => row.summaryJson ? [JSON.parse(row.summaryJson)] : []);
+  if (summaries.length || !ids.length) return summaries;
+
+  // D1 can occasionally expose the small state row before the matching entry
+  // to a read replica during a burst. A second, generation-pinned lookup uses
+  // a different query plan and keeps a real missing supplier distinct from a
+  // missing active generation. This is deliberately bounded to one retry.
+  const activeRunId = rows.results[0].activeRunId;
+  const retry = await db.prepare(`SELECT summary_json AS summaryJson FROM supplier_catalog_entries
+    WHERE run_id = ? AND world = ? AND supplier_id IN (${ids.map(() => "?").join(",")})`)
+    .bind(activeRunId, world, ...ids).all<{ summaryJson: string }>();
+  return retry.results.map(row => JSON.parse(row.summaryJson));
 }
 
 export async function readSupplierCatalogDashboard(db: D1Database) {
