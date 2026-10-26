@@ -85,16 +85,17 @@ export default async function Page({ searchParams }: Props) {
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
   const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
+  const fallbackAttractions = discoveryItems.filter((item) => item.world === "activities");
   const [property, properties, acceptedDetail, trailInventory, spaSites, attractions] = await Promise.all([
     resolveProperty(params.id),
     loadProperties(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
-    managedTrails(trails),
+    managedTrails(trails).catch(() => trails),
     bundledPublicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
       console.warn("nearby_spa_catalog_unavailable");
       return [] as SpaPlusSite[];
     }),
-    managedDiscoveryItems(discoveryItems.filter((item) => item.world === "activities"), "attractions"),
+    managedDiscoveryItems(fallbackAttractions, "attractions").catch(() => fallbackAttractions),
   ]);
   if (!property) notFound();
   // Public pages render from the accepted platform snapshot. Supplier refreshes

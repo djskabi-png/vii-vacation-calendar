@@ -258,3 +258,16 @@ test("homepage destination cards acknowledge the click and warm only on intent",
   assert.match(loading, /aria-busy="true"/);
   assert.match(loading, /title: "מכינים לכם את המקומות באזור"/);
 });
+
+test("public business reads fail soft to the accepted bundled snapshot under runtime saturation", async () => {
+  const [catalog, business] = await Promise.all([
+    readFile(new URL("app/lib/public-catalog-read.ts", root), "utf8"),
+    readFile(new URL("app/business/page.tsx", root), "utf8"),
+  ]);
+  assert.match(catalog, /public_catalog_selected_fallback/);
+  assert.match(catalog, /entries = selected \?\? fallbackEntries/);
+  assert.match(catalog, /public_catalog_detail_fallback/);
+  assert.match(catalog, /return bundledDetail/);
+  assert.match(business, /managedTrails\(trails\)\.catch\(\(\) => trails\)/);
+  assert.match(business, /managedDiscoveryItems\(fallbackAttractions, "attractions"\)\.catch\(\(\) => fallbackAttractions\)/);
+});

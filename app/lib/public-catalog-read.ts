@@ -66,12 +66,20 @@ function catalogIdentity(world: SupplierCatalogWorld, value: unknown) {
 export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWorld, supplierIds: readonly number[]): Promise<T[]> {
   const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 8);
   if (!ids.length) return [];
-  const db = await runtimeCatalogDatabase();
-  const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
-  const entries = selected ?? bundled(world).filter(value => {
+  const fallbackEntries = bundled(world).filter(value => {
     const row = value as { id?: unknown; supplierId?: unknown };
     return ids.includes(Number(world === "spa" ? row.id : row.supplierId));
   });
+  let entries = fallbackEntries;
+  try {
+    const db = await runtimeCatalogDatabase();
+    const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
+    entries = selected ?? fallbackEntries;
+  } catch {
+    // The bundled data is the last accepted generation. Keep public place
+    // pages available if the runtime catalog is temporarily saturated.
+    console.warn(`public_catalog_selected_fallback:${world}`);
+  }
   // Card photos do not depend on text overlays. Keep the normal publication
   // projection (including spa review policy), without a full-world DB read.
   return await publicSummaries(world, entries) as T[];
@@ -117,13 +125,18 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
 }
 
 export async function publicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
-  const db = await runtimeCatalogDatabase();
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   const bundledDetail = (sergeyDetails.details as unknown as Record<string, T>)[slug] || null;
-  if (!db) return bundledDetail;
-  const snapshot = await readSupplierCatalogDetailSnapshot(db, world, supplierId);
-  if (!snapshot?.activeRunId) return bundledDetail;
-  return (snapshot.detail as T | null) || null;
+  try {
+    const db = await runtimeCatalogDatabase();
+    if (!db) return bundledDetail;
+    const snapshot = await readSupplierCatalogDetailSnapshot(db, world, supplierId);
+    if (!snapshot?.activeRunId) return bundledDetail;
+    return (snapshot.detail as T | null) || null;
+  } catch {
+    console.warn(`public_catalog_detail_fallback:${world}`);
+    return bundledDetail;
+  }
 }
 
 export async function publicCatalogReviewPreviews<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
