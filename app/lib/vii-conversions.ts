@@ -41,6 +41,8 @@ export type ConversionContact = {
   domainID: number | null;
   time: string;
   phone: string | null;
+  /** Server-only matching aid. It is deliberately non-enumerable and never serialized to the browser. */
+  internalEmail?: string | null;
   details: { status?: string; duration?: number; date?: string | null; guests?: number };
   order: ConversionOrder | null;
   delay: number | null;
@@ -113,6 +115,7 @@ function contact(value: unknown): ConversionContact | null {
   if (!(row.source === "whatsapp" || row.source === "maskyoo" || row.source === "form") || !Number.isSafeInteger(row.id) || Number(row.id) < 0
     || !(row.domainID === null || Number.isSafeInteger(row.domainID)) || !shortText(row.time, 50)
     || !(row.phone === null || (typeof row.phone === "string" && row.phone.length <= 40))
+    || !(row.email === null || (typeof row.email === "string" && row.email.length <= 254))
     || !(row.delay === null || integer(row.delay)) || !Array.isArray(row.moreOrders)) return null;
   const matchedOrder = order(row.order);
   if (matchedOrder === undefined) return null;
@@ -131,10 +134,13 @@ function contact(value: unknown): ConversionContact | null {
     details.date = rawDetails.date === "" ? null : rawDetails.date as string | null;
     if (rawDetails.guests !== undefined) details.guests = Number(rawDetails.guests);
   }
-  return {
+  const result: ConversionContact = {
     source: row.source, id: Number(row.id), domainID: row.domainID === null ? null : Number(row.domainID), time: String(row.time),
-    phone: row.phone === null ? null : String(row.phone), details, order: matchedOrder, delay: row.delay === null ? null : Number(row.delay), moreOrders,
+    phone: row.phone === null ? null : String(row.phone), details, order: matchedOrder,
+    delay: row.delay === null ? null : Number(row.delay), moreOrders,
   };
+  Object.defineProperty(result, "internalEmail", { value: row.email === null ? null : String(row.email), enumerable: false });
+  return result;
 }
 
 function sanitized(raw: unknown, expected: { siteID: number; from: string; till: string }, includeContacts: boolean): ConversionSummary {

@@ -22,6 +22,14 @@ class MemoryStatement {
       const [cacheKey, world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt] = this.params;
       this.db.failures.set(cacheKey, { world, siteID, fromDay, tillDay, errorCode, savedAt, retryAt });
     }
+    if (/INSERT INTO vii_biz_conversion_coverage_v1/.test(this.sql)) {
+      const [coverageKey, world, siteID, fromDay, tillDay, supplierCreatedAt, savedAt, staleAfter] = this.params;
+      this.db.coverage.set(coverageKey, { world, siteID, fromDay, tillDay, supplierCreatedAt, savedAt, staleAfter });
+    }
+    if (/INSERT INTO vii_biz_conversion_contacts_v1/.test(this.sql)) {
+      const [contactKey, world, siteID, source, contactID, contactDay, identified, orderID, orderPrice, customerKey, delay] = this.params;
+      this.db.contacts.set(contactKey, { world, siteID, source, contactID, contactDay, identified, orderID, orderPrice, customerKey, delay });
+    }
     if (/DELETE FROM vii_biz_conversion_failures_v1/.test(this.sql)) this.db.failures.delete(this.params[0]);
     return { success: true, meta: { changes: 1 } };
   }
@@ -37,6 +45,12 @@ class MemoryStatement {
     if (/WHERE from_day = \? AND till_day = \?/.test(this.sql)) {
       return { success: true, results: [...this.db.rows.values()].filter((row) => row.fromDay === this.params[0] && row.tillDay === this.params[1]) };
     }
+    if (/FROM vii_biz_conversion_coverage_v1/.test(this.sql)) {
+      return { success: true, results: [...this.db.coverage.values()].filter((row) => row.fromDay <= this.params[0] && row.tillDay >= this.params[1]) };
+    }
+    if (/FROM vii_biz_conversion_contacts_v1/.test(this.sql)) {
+      return { success: true, results: [...this.db.contacts.values()].filter((row) => row.contactDay >= this.params[0] && row.contactDay <= this.params[1]) };
+    }
     return { success: true, results: [] };
   }
 }
@@ -44,9 +58,30 @@ class MemoryStatement {
 class MemoryDatabase {
   rows = new Map();
   failures = new Map();
+  coverage = new Map();
+  contacts = new Map();
   prepare(sql) { return new MemoryStatement(this, sql); }
   async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); }
 }
+
+test("a completed broad pull answers a narrower historical report from persisted contacts", async () => {
+  const db = new MemoryDatabase();
+  const contacts = [
+    { source: "maskyoo", id: 1, domainID: 6, time: "2026-09-03 08:00:00", phone: "050-1000000", internalEmail: null,
+      details: { status: "ANSWER", duration: 40 }, order: { orderID: "101", orderIDBySite: "A1", created: "2026-09-04 09:00:00", price: 700 }, delay: 90000, moreOrders: [] },
+    { source: "whatsapp", id: 2, domainID: 6, time: "2026-10-03 08:00:00", phone: "050-2000000", internalEmail: null,
+      details: { date: null, guests: 2 }, order: null, delay: null, moreOrders: [] },
+  ];
+  await cachedBizConversions({ db, world: "vacations", siteID: 2566, from: "2026-07-01", till: "2026-10-25",
+    now: new Date("2026-10-25T08:00:00Z"), fetcher: async () => ({ ...fixture(), from: "2026-07-01", till: "2026-10-25",
+      count: contacts.length, contacts }) });
+  const september = await loadCachedBizConversions(db, "2026-09-01", "2026-09-30", new Date("2026-10-25T09:00:00Z"));
+  assert.equal(september.length, 1);
+  assert.equal(september[0].conversions.summary.all.contacts, 1);
+  assert.equal(september[0].conversions.summary.maskyoo.orders, 1);
+  assert.equal(september[0].conversions.summary.all.revenue, 700);
+  assert.equal(september[0].conversions.summary.whatsapp.contacts, 0);
+});
 
 test("supplier failures persist so reopening the same period does not retry a known failing target", async () => {
   const db = new MemoryDatabase();

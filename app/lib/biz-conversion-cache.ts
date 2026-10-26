@@ -28,6 +28,9 @@ type CacheRow = {
 };
 
 type FailureRow = { errorCode: string; savedAt: string; retryAt: string };
+type CoverageRow = { world: string; siteID: number; supplierCreatedAt: string; savedAt: string; staleAfter: string };
+type ContactRow = { world: string; siteID: number; source: "whatsapp" | "maskyoo" | "form"; identified: number;
+  orderID: string | null; orderPrice: number; customerKey: string | null; delay: number | null };
 
 const pending = new Map<string, Promise<CachedBizConversion>>();
 const initialized = new WeakMap<object, Promise<void>>();
@@ -52,6 +55,19 @@ async function ensureCache(db: D1Database) {
       saved_at TEXT NOT NULL, retry_at TEXT NOT NULL
     )`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_failure_range ON vii_biz_conversion_failures_v1(from_day, till_day, world, site_id)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_coverage_v1 (
+      coverage_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
+      from_day TEXT NOT NULL, till_day TEXT NOT NULL, supplier_created_at TEXT NOT NULL,
+      saved_at TEXT NOT NULL, stale_after TEXT NOT NULL
+    )`),
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_coverage_range ON vii_biz_conversion_coverage_v1(from_day, till_day, world, site_id)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_contacts_v1 (
+      contact_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
+      source TEXT NOT NULL, contact_id INTEGER NOT NULL, contact_day TEXT NOT NULL,
+      identified INTEGER NOT NULL, order_id TEXT, order_price REAL NOT NULL,
+      customer_key TEXT, delay INTEGER, supplier_created_at TEXT NOT NULL, saved_at TEXT NOT NULL
+    )`),
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_contacts_range ON vii_biz_conversion_contacts_v1(contact_day, world, site_id)"),
   ]).then(() => undefined).catch((error) => {
     initialized.delete(db as object);
     throw error;
@@ -82,8 +98,10 @@ async function save(db: D1Database, world: ConversionWorld, from: string, till: 
   const savedAt = now.toISOString();
   const freshForMs = isClosedReportPeriod(till, now) ? HISTORICAL_FRESH_FOR_MS : LIVE_FRESH_FOR_MS;
   const staleAfter = new Date(now.getTime() + freshForMs).toISOString();
+  const contacts = conversions.contacts || [];
   const aggregate: ConversionSummary = { ...conversions };
   delete aggregate.contacts;
+  const coverageKey = `${world}:${conversions.siteID}:${from}:${till}`;
   await db.batch([db.prepare(`INSERT INTO vii_biz_conversion_snapshots_v1
     (cache_key, world, site_id, from_day, till_day, payload, supplier_created_at, saved_at, stale_after)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -94,8 +112,84 @@ async function save(db: D1Database, world: ConversionWorld, from: string, till: 
       JSON.stringify(aggregate), conversions.created, savedAt, staleAfter),
     db.prepare("DELETE FROM vii_biz_conversion_failures_v1 WHERE cache_key = ?")
       .bind(keyFor(world, conversions.siteID, from, till)),
+    db.prepare(`INSERT INTO vii_biz_conversion_coverage_v1
+      (coverage_key, world, site_id, from_day, till_day, supplier_created_at, saved_at, stale_after)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(coverage_key) DO UPDATE SET supplier_created_at = excluded.supplier_created_at,
+        saved_at = excluded.saved_at, stale_after = excluded.stale_after`)
+      .bind(coverageKey, world, conversions.siteID, from, till, conversions.created, savedAt, staleAfter),
   ]);
+  for (let offset = 0; offset < contacts.length; offset += 80) {
+    await db.batch(await Promise.all(contacts.slice(offset, offset + 80).map(async (contact) => {
+      const identity = (contact.phone || contact.internalEmail || "").replace(/\s+/g, "").toLowerCase();
+      const customerKey = identity ? Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(identity))))
+        .map((byte) => byte.toString(16).padStart(2, "0")).join("") : null;
+      return db.prepare(`INSERT INTO vii_biz_conversion_contacts_v1
+        (contact_key, world, site_id, source, contact_id, contact_day, identified, order_id, order_price,
+          customer_key, delay, supplier_created_at, saved_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(contact_key) DO UPDATE SET contact_day = excluded.contact_day, identified = excluded.identified,
+          order_id = excluded.order_id, order_price = excluded.order_price, customer_key = excluded.customer_key,
+          delay = excluded.delay, supplier_created_at = excluded.supplier_created_at, saved_at = excluded.saved_at`)
+        .bind(`${world}:${conversions.siteID}:${contact.source}:${contact.id}`, world, conversions.siteID, contact.source,
+          contact.id, contact.time.slice(0, 10), contact.phone || contact.internalEmail ? 1 : 0, contact.order?.orderID || null,
+          contact.order?.price || 0, customerKey, contact.delay, conversions.created, savedAt);
+    })));
+  }
   return { conversions: aggregate, cache: { status: "saved" as const, savedAt, stale: false } };
+}
+
+function median(values: number[]) {
+  if (!values.length) return null;
+  values.sort((a, b) => a - b);
+  const middle = Math.floor(values.length / 2);
+  return values.length % 2 ? values[middle] : Math.round((values[middle - 1] + values[middle]) / 2);
+}
+
+function derivedBucket(rows: ContactRow[]) {
+  const contacts = rows.length;
+  const converted = rows.filter((row) => row.orderID !== null);
+  const orders = new Map<string, number>();
+  for (const row of converted) if (row.orderID) orders.set(row.orderID, Math.max(orders.get(row.orderID) || 0, row.orderPrice));
+  return { contacts, identified: rows.filter((row) => row.identified === 1).length, converted: converted.length,
+    rate: contacts ? Math.round(converted.length / contacts * 1000) / 10 : null,
+    customers: new Set(converted.map((row) => row.customerKey || row.orderID).filter(Boolean)).size,
+    orders: orders.size, revenue: [...orders.values()].reduce((sum, price) => sum + price, 0),
+    medianDelay: median(converted.flatMap((row) => row.delay === null ? [] : [row.delay])) };
+}
+
+async function loadCoveredBizConversions(db: D1Database, from: string, till: string, excluded: Set<string>, now: Date) {
+  const coverage = await db.prepare(`SELECT world, site_id AS siteID, supplier_created_at AS supplierCreatedAt,
+    saved_at AS savedAt, stale_after AS staleAfter FROM vii_biz_conversion_coverage_v1
+    WHERE from_day <= ? AND till_day >= ? ORDER BY saved_at DESC`).bind(from, till).all<CoverageRow>();
+  const selected = new Map<string, CoverageRow>();
+  for (const row of coverage.results) {
+    const key = `${row.world}:${Number(row.siteID)}`;
+    if (!excluded.has(key) && !selected.has(key)) selected.set(key, row);
+  }
+  if (!selected.size) return [];
+  const events = await db.prepare(`SELECT world, site_id AS siteID, source, identified, order_id AS orderID,
+    order_price AS orderPrice, customer_key AS customerKey, delay FROM vii_biz_conversion_contacts_v1
+    WHERE contact_day >= ? AND contact_day <= ?`).bind(from, till).all<ContactRow>();
+  const bySite = new Map<string, ContactRow[]>();
+  for (const row of events.results) {
+    const key = `${row.world}:${Number(row.siteID)}`;
+    if (!selected.has(key)) continue;
+    const current = bySite.get(key) || [];
+    current.push({ ...row, siteID: Number(row.siteID), identified: Number(row.identified), orderPrice: Number(row.orderPrice || 0),
+      delay: row.delay === null ? null : Number(row.delay) });
+    bySite.set(key, current);
+  }
+  return [...selected.entries()].map(([key, coverageRow]) => {
+    const rows = bySite.get(key) || [];
+    const all = derivedBucket(rows);
+    const bucket = (source: ContactRow["source"]) => derivedBucket(rows.filter((row) => row.source === source));
+    return { world: coverageRow.world as ConversionWorld, siteID: Number(coverageRow.siteID),
+      conversions: { siteID: Number(coverageRow.siteID), from, till, domainID: null, created: coverageRow.supplierCreatedAt,
+        count: rows.length, summary: { all, whatsapp: bucket("whatsapp"), maskyoo: bucket("maskyoo"), form: bucket("form") },
+        clicks: { whatsapp: 0, showphone: 0, phone: 0 } },
+      cache: { status: "fresh" as const, savedAt: coverageRow.savedAt, stale: Date.parse(coverageRow.staleAfter) <= now.getTime() } };
+  });
 }
 
 function failureTtlMs(error: string) {
@@ -159,10 +253,12 @@ export async function loadCachedBizConversions(db: D1Database, from: string, til
     payload, saved_at AS savedAt, stale_after AS staleAfter
     FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ? AND cache_key LIKE '%:all-portals-v2'`)
     .bind(from, till).all<CacheRow>();
-  return result.results.flatMap((row) => {
+  const exact = result.results.flatMap((row) => {
     const value = parsed(row, now);
     return value ? [{ world: row.world as ConversionWorld, siteID: Number(row.siteID), ...value }] : [];
   });
+  const excluded = new Set(exact.map((row) => `${row.world}:${row.siteID}`));
+  return [...exact, ...await loadCoveredBizConversions(db, from, till, excluded, now)];
 }
 
 export async function cachedBizConversions(options: {
