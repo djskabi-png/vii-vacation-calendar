@@ -143,8 +143,9 @@ function invalidContactField(value: unknown) {
   if (!Number.isSafeInteger(row.id) || Number(row.id) < 0) return "contacts.item.id";
   if (!(row.domainID === null || Number.isSafeInteger(row.domainID))) return "contacts.item.domainID";
   if (!shortText(row.time, 50)) return "contacts.item.time";
-  if (!(row.phone === null || (typeof row.phone === "string" && row.phone.length <= 40))) return "contacts.item.phone";
-  if (!(row.email === null || (typeof row.email === "string" && row.email.length <= 254))) return "contacts.item.email";
+  if (!(row.phone == null || (typeof row.phone === "string" && row.phone.length <= 40)
+    || (Number.isSafeInteger(row.phone) && Number(row.phone) >= 0))) return "contacts.item.phone";
+  if (!(row.email == null || (typeof row.email === "string" && row.email.length <= 254))) return "contacts.item.email";
   if (!(row.delay === null || integer(row.delay))) return "contacts.item.delay";
   if (!Array.isArray(row.moreOrders)) return "contacts.item.moreOrders";
   const orderField = invalidOrderField(row.order, "contacts.item.order");
@@ -166,8 +167,9 @@ function contact(value: unknown): ConversionContact | null {
   const row = object(value);
   if (!(row.source === "whatsapp" || row.source === "maskyoo" || row.source === "form") || !Number.isSafeInteger(row.id) || Number(row.id) < 0
     || !(row.domainID === null || Number.isSafeInteger(row.domainID)) || !shortText(row.time, 50)
-    || !(row.phone === null || (typeof row.phone === "string" && row.phone.length <= 40))
-    || !(row.email === null || (typeof row.email === "string" && row.email.length <= 254))
+    || !(row.phone == null || (typeof row.phone === "string" && row.phone.length <= 40)
+      || (Number.isSafeInteger(row.phone) && Number(row.phone) >= 0))
+    || !(row.email == null || (typeof row.email === "string" && row.email.length <= 254))
     || !(row.delay === null || integer(row.delay)) || !Array.isArray(row.moreOrders)) return null;
   const matchedOrder = order(row.order);
   if (matchedOrder === undefined) return null;
@@ -188,10 +190,10 @@ function contact(value: unknown): ConversionContact | null {
   }
   const result: ConversionContact = {
     source: row.source, id: Number(row.id), domainID: row.domainID === null ? null : Number(row.domainID), time: String(row.time),
-    phone: row.phone === null ? null : String(row.phone), details, order: matchedOrder,
+    phone: row.phone == null ? null : String(row.phone), details, order: matchedOrder,
     delay: row.delay === null ? null : Number(row.delay), moreOrders,
   };
-  Object.defineProperty(result, "internalEmail", { value: row.email === null ? null : String(row.email), enumerable: false });
+  Object.defineProperty(result, "internalEmail", { value: row.email == null ? null : String(row.email), enumerable: false });
   return result;
 }
 

@@ -67,6 +67,16 @@ test("contact diagnostics identify only the malformed field and never its privat
   (error) => error instanceof ViiConversionsError && error.diagnostic === "contacts.item.phone" && !error.message.includes("050-9999999"));
 });
 
+test("numeric and omitted Biz contact phones normalize without losing report rows", async () => {
+  const response = detailedFixture();
+  response.contacts[0].phone = 501111111;
+  delete response.contacts[1].phone;
+  const result = await fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret", includeContacts: true,
+    fetchImpl: async () => Response.json(response) });
+  assert.equal(result.contacts[0].phone, "501111111");
+  assert.equal(result.contacts[1].phone, null);
+});
+
 test("invalid ranges and malformed provider data fail closed without token disclosure", async () => {
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 1, from: "2026-10-22", till: "2026-10-01", token: "secret" }), { code: "invalid_request" });
   await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret",
