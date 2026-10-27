@@ -218,7 +218,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           event.preventDefault();
           chooseHoliday(holidays[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}><strong>{item.name}</strong></button>)}
+        }}><strong>{translate(item.name)}</strong></button>)}
       </div> : null}
       <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}

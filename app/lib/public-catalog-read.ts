@@ -20,10 +20,10 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "rooms") return hourly.places;
   const accepted = acceptedRuntimeCatalog.worlds[world];
   const activeIds = new Set(accepted.ids);
-  const base = sergey.places.filter((place) => place.world === world && activeIds.has(place.supplierId));
-  const identities = new Set(base.map((entry) => catalogIdentity(world, entry)));
-  const additions = accepted.additions.filter((entry) => !identities.has(catalogIdentity(world, entry)));
-  return [...base, ...additions];
+  // The canonical bundled catalog now contains every active public supplier.
+  // Historical additions remain in the snapshot only as audit history and
+  // must not resurrect suppliers withdrawn from the accepted generation.
+  return sergey.places.filter((place) => place.world === world && activeIds.has(place.supplierId));
 }
 
 /**

@@ -79,8 +79,8 @@ async function inspectVisibleContent(page, routeName) {
     const viewportHeight = window.innerHeight;
     const selectorsByRoute = {
       home: [".home-live-deals__card", ".home-live-deals__empty", ".home-slider__item"],
-      "vacation-results": [".stay-card", ".empty-state"],
-      "vacation-region": [".stay-card", ".empty-state"],
+      "vacation-results": [".stay-card", ".empty-state", ".online-booking-filter-notice[role='alert'][aria-busy='false']"],
+      "vacation-region": [".stay-card", ".empty-state", ".online-booking-filter-notice[role='alert'][aria-busy='false']"],
       spa: [".discovery-card", ".spa-results__empty"],
       "spa-region": [".discovery-card", ".spa-results__empty"],
       events: [".event-list > article", ".empty-state"],
@@ -200,7 +200,11 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       await page.goto(`${baseUrl}${route}${separator}v=${encodeURIComponent(version)}`, { waitUntil: "domcontentloaded", timeout: 45000 });
       console.log(`[search-audit] ${name} loaded`);
       if (name === "vacation-results" || name === "vacation-region") {
-        await page.waitForFunction(() => Boolean(document.querySelector(".stay-card,.empty-state")), undefined, { timeout: 30000 });
+        await page.waitForFunction(
+          () => Boolean(document.querySelector(".stay-card,.empty-state,.online-booking-filter-notice[role='alert'][aria-busy='false']")),
+          undefined,
+          { timeout: 30000 },
+        );
       }
       if (name === "home") {
         await page.waitForFunction(() => document.querySelector("#home-live-deals-results")?.getAttribute("aria-busy") === "false", undefined, { timeout: 30000 });
@@ -273,7 +277,11 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       await page.reload({ waitUntil: "domcontentloaded", timeout: 45000 });
       console.log(`[search-audit] ${name} reloaded`);
       if (name === "vacation-results" || name === "vacation-region") {
-        await page.waitForFunction(() => Boolean(document.querySelector(".stay-card,.empty-state")), undefined, { timeout: 30000 });
+        await page.waitForFunction(
+          () => Boolean(document.querySelector(".stay-card,.empty-state,.online-booking-filter-notice[role='alert'][aria-busy='false']")),
+          undefined,
+          { timeout: 30000 },
+        );
       }
       state = await stablePageOperation(`${name}:inspect-desktop-reload`, page, () => inspect(page));
       report.checks.push({ name: "desktop-reload", state, failures: failuresFor(state, { requireUnlocked: true }) });

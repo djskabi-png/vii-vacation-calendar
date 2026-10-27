@@ -57,6 +57,6 @@ test("content studio owns homepage period tabs and supplier holiday presentation
   assert.doesNotMatch(admin, /updateHomePeriodVisibility/);
   assert.match(component, /result\.display\?\.periods/);
   assert.match(component, /selectedHoliday\.from/);
-  assert.match(component, /<strong>\{item\.name\}<\/strong><\/button>/);
+  assert.match(component, /<strong>\{translate\(item\.name\)\}<\/strong><\/button>/);
   assert.doesNotMatch(component, /<strong>\{item\.name\}<\/strong><small>/);
 });

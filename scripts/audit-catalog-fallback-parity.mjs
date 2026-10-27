@@ -19,10 +19,11 @@ for (const world of ["vacations", "events"]) {
   const state = accepted.worlds[world];
   assert.ok(state && Array.isArray(state.ids) && Array.isArray(state.additions), `${world}: accepted snapshot state missing`);
   const activeIds = new Set(state.ids.map(Number));
-  const fallbackIds = new Set([
-    ...catalog.places.filter((entry) => entry.world === world && activeIds.has(Number(entry.supplierId))).map((entry) => Number(entry.supplierId)),
-    ...state.additions.map((entry) => Number(entry.supplierId)),
-  ]);
+  const fallbackIds = new Set(
+    catalog.places
+      .filter((entry) => entry.world === world && activeIds.has(Number(entry.supplierId)))
+      .map((entry) => Number(entry.supplierId)),
+  );
   const liveIds = payload.entries.map((entry) => Number(entry.supplierId));
   const missing = liveIds.filter((id) => Number.isSafeInteger(id) && !fallbackIds.has(id));
   const liveIdSet = new Set(liveIds);
