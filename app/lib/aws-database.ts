@@ -194,6 +194,26 @@ class RemoteD1Database {
 const adapters = new WeakMap<object, D1Database>();
 const remoteAdapters = new WeakSet<object>();
 const fallbackBindings = new WeakMap<object, D1Database>();
+// The Worker entry and the Vinext application may bundle this module more than
+// once. Module-local WeakMaps cannot identify an adapter created by the other
+// bundle, so carry non-enumerable metadata on the adapter itself. Symbol.for
+// keeps the identity stable across both module instances in the same isolate.
+const remoteAdapterMarker = Symbol.for("vii.awsDatabase.remoteAdapter");
+const d1FallbackMarker = Symbol.for("vii.awsDatabase.d1Fallback");
+
+type TaggedRemoteDatabase = D1Database & {
+  [remoteAdapterMarker]?: true;
+  [d1FallbackMarker]?: D1Database;
+};
+
+function isRemoteAdapter(database: D1Database | undefined): database is TaggedRemoteDatabase {
+  return Boolean(database && (remoteAdapters.has(database as object)
+    || (database as TaggedRemoteDatabase)[remoteAdapterMarker] === true));
+}
+
+function taggedFallback(database: TaggedRemoteDatabase) {
+  return fallbackBindings.get(database as object) || database[d1FallbackMarker];
+}
 
 export function databaseForEnv(env: AwsDatabaseEnv): D1Database {
   if (!configured(env)) return env.DB;
@@ -201,22 +221,26 @@ export function databaseForEnv(env: AwsDatabaseEnv): D1Database {
   // activateAwsDatabase replaced DB with the Aurora adapter. Never wrap that
   // adapter again: doing so loses the original D1 fallback and turns a bridge
   // outage into a false cloudflare-d1 cache failure.
-  if (remoteAdapters.has(env.DB as object)) return env.DB;
+  if (isRemoteAdapter(env.DB)) return env.DB;
   const existing = adapters.get(env as object);
   if (existing) return existing;
   const adapter = new RemoteD1Database(env) as unknown as D1Database;
   adapters.set(env as object, adapter);
   remoteAdapters.add(adapter as object);
   fallbackBindings.set(adapter as object, env.DB);
+  Object.defineProperties(adapter as object, {
+    [remoteAdapterMarker]: { value: true, enumerable: false },
+    [d1FallbackMarker]: { value: env.DB, enumerable: false },
+  });
   return adapter;
 }
 
 export function d1FallbackForRuntimeEnv(env: Partial<AwsDatabaseEnv>): D1Database | undefined {
   let database = env.DB;
   const seen = new Set<object>();
-  while (database && remoteAdapters.has(database as object) && !seen.has(database as object)) {
+  while (isRemoteAdapter(database) && !seen.has(database as object)) {
     seen.add(database as object);
-    database = fallbackBindings.get(database as object);
+    database = taggedFallback(database);
   }
   return database;
 }

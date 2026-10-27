@@ -61,3 +61,21 @@ test("admin reporting unwraps an Aurora adapter exposed through a fresh Worker E
     assert.equal(calls, 2);
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test("admin reporting unwraps an Aurora adapter created by a separate bundle instance", async () => {
+  const fallback = d1();
+  const remoteAdapterMarker = Symbol.for("vii.awsDatabase.remoteAdapter");
+  const d1FallbackMarker = Symbol.for("vii.awsDatabase.d1Fallback");
+  const foreignAdapter = {
+    [remoteAdapterMarker]: true,
+    [d1FallbackMarker]: fallback,
+    prepare() {
+      return { async first() { throw new Error("VII AWS database bridge returned 500"); } };
+    },
+  };
+  const result = await reportingDatabaseForEnv({ DB: foreignAdapter, VII_AWS_DB_MODE: "primary",
+    VII_AWS_DB_ENDPOINT: "https://bridge.example.test", VII_AWS_DB_TOKEN: "secret" });
+  assert.equal(result.database, fallback);
+  assert.equal(result.origin, "cloudflare-d1");
+  assert.equal(result.degraded, true);
+});

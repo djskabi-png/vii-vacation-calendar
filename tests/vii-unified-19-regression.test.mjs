@@ -189,6 +189,7 @@ test("Biz report requests verify migrated cache schema without runtime DDL", asy
   assert.match(runtimeDatabase, /d1FallbackForRuntimeEnv/);
   assert.match(awsDatabase, /remoteAdapters/);
   assert.match(awsDatabase, /fallbackBindings/);
+  assert.match(awsDatabase, /Symbol\.for\("vii\.awsDatabase\.d1Fallback"\)/);
 });
 
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {
