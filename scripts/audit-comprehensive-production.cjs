@@ -312,6 +312,10 @@ async function verifyResultsMap(page) {
   await page.waitForFunction(() => document.querySelectorAll(".leaflet-tile").length > 0, null, { timeout: 20_000 });
   const state = await page.evaluate(() => ({ tiles: document.querySelectorAll(".leaflet-tile").length, markers: document.querySelectorAll(".vii-map-marker").length, selectedCards: document.querySelectorAll(".map-selection-card").length }));
   if (!state.markers) throw new Error("map_markers_missing");
+  // Inline desktop maps can open partly below the fold. Marker hit-testing is
+  // meaningful only after the canvas itself is in the viewport.
+  await page.locator(".listing-map-shell:visible").first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
   const clickViewportMarkers = async (selector, waitForSelection) => {
     const candidates = page.locator(selector);
     const count = Math.min(await candidates.count(), 40);
@@ -339,7 +343,10 @@ async function verifyResultsMap(page) {
   // but they are not selectable map results. Clicking one can make the audit
   // report a missing selection card even though the real map flow is healthy.
   // Expand dense clusters until a genuine result marker is available.
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  // A national cluster can contain several nested cluster levels. Four
+  // expansions were insufficient for some valid desktop spa/activity maps,
+  // so use the same bounded depth as the dedicated map audit.
+  for (let attempt = 0; attempt < 10; attempt += 1) {
     if (await clickViewportMarkers(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible", true)) break;
     if (!await clickViewportMarkers(".vii-map-marker-wrap.is-cluster:visible", false)) break;
     await page.waitForTimeout(900);

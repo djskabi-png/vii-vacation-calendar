@@ -100,6 +100,7 @@ async function waitForStableMap(page, timeoutMs = 15_000) {
 }
 
 async function selectMarker(page) {
+  const expansionTrace = [];
   const clickViewportMarkers = async (selector, waitForSelection) => {
     const candidates = page.locator(selector);
     const count = Math.min(await candidates.count(), 40);
@@ -126,12 +127,22 @@ async function selectMarker(page) {
     }
     return false;
   };
-  for (let attempt = 0; attempt < 4; attempt += 1) {
+  // Dense national catalogs can legitimately require more than four nested
+  // cluster expansions before Leaflet exposes an individual place marker.
+  // Keep this bounded, but follow the same cluster until a real selection is
+  // possible instead of reporting a false product failure mid-animation.
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    expansionTrace.push(await page.evaluate((attemptIndex) => ({
+      attempt: attemptIndex,
+      zoom: Number(document.querySelector(".listing-map")?.getAttribute("data-map-zoom") || 0),
+      clusters: document.querySelectorAll(".vii-map-marker-wrap.is-cluster").length,
+      places: document.querySelectorAll(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview)").length,
+    }), attempt));
     if (await clickViewportMarkers(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible", true)) return;
     if (!await clickViewportMarkers(".vii-map-marker-wrap.is-cluster:visible", false)) break;
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(900);
   }
-  throw new Error("no_selectable_marker_after_cluster_expansion");
+  throw new Error(`no_selectable_marker_after_cluster_expansion:${JSON.stringify(expansionTrace)}`);
 }
 
 async function runCase(browser, { world, path, language, viewportId, viewport }) {
@@ -225,6 +236,11 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
       await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 10_000 });
       await page.waitForTimeout(500);
     }
+    // Desktop maps open inline and may begin below the current fold. Bring the
+    // interactive canvas into the viewport before hit-testing markers, just as
+    // a real user must scroll to the map before choosing a place.
+    await page.locator(".listing-map-shell:visible").first().scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
     await selectMarker(page);
     const decision = page.locator(".map-selection-card__decision:visible");
     record.checks.selectedDecision = await decision.count();
