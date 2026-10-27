@@ -59,7 +59,12 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
     return withEditorialOverlays(world, await items, await overlays) as T[];
   } catch (error) {
     if (catalogCache.get(world)?.items === items) catalogCache.delete(world);
-    throw error;
+    // An accepted generation pointer can briefly outlive its materialized
+    // summary rows while the supplier refresh is being repaired. Public pages
+    // must keep serving the last immutable accepted build instead of replacing
+    // the whole world with the generic error surface.
+    console.warn(`public_catalog_summaries_fallback:${world}`);
+    return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   }
 }
 
@@ -162,6 +167,30 @@ function nonEmptyArray(value: unknown): unknown[] | undefined {
   return Array.isArray(value) && value.length ? value : undefined;
 }
 
+function galleryGroupTitle(value: unknown): string {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+  const title = (value as Record<string, unknown>).title;
+  return typeof title === "string" ? title.trim().replace(/\s+/g, " ") : "";
+}
+
+function mergedGalleryGroups(acceptedValue: unknown, bundledValue: unknown): unknown[] | undefined {
+  const accepted = nonEmptyArray(acceptedValue) || [];
+  const bundled = nonEmptyArray(bundledValue) || [];
+  if (!accepted.length) return bundled.length ? bundled : undefined;
+  if (!bundled.length) return accepted;
+  const bundledByTitle = new Map(bundled.map((group) => [galleryGroupTitle(group), group]).filter(([title]) => title));
+  const acceptedTitles = new Set(accepted.map(galleryGroupTitle).filter(Boolean));
+  // Keep runtime rows authoritative for a matching supplier title, but append
+  // newly supported supplier-defined groups from the immutable accepted build.
+  // This is a union by the supplier's title, never a generic regrouping.
+  return [
+    ...accepted.map((group) => bundledByTitle.get(galleryGroupTitle(group)) && !nonEmptyArray((group as Record<string, unknown>).images)
+      ? { ...(bundledByTitle.get(galleryGroupTitle(group)) as Record<string, unknown>), ...(group as Record<string, unknown>) }
+      : group),
+    ...bundled.filter((group) => !acceptedTitles.has(galleryGroupTitle(group))),
+  ];
+}
+
 /**
  * Accepted runtime rows can predate a newly supported public field. Keep the
  * accepted row authoritative, but hydrate missing presentation contracts from
@@ -197,7 +226,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     ...bundled,
     ...accepted,
   };
-  const galleryGroups = nonEmptyArray(accepted.galleryGroups) || nonEmptyArray(bundled.galleryGroups);
+  const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups);
   const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
   const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);
   if (galleryGroups) merged.galleryGroups = galleryGroups;

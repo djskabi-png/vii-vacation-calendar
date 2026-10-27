@@ -74,6 +74,22 @@ test("older accepted detail rows inherit newly supported gallery presentation fi
   assert.deepEqual(merged.rooms[0].images, ["/suite.jpg"]);
 });
 
+test("partially refreshed accepted detail rows keep every supplier gallery topic", async () => {
+  const { mergeBundledDetail } = await import("../app/lib/public-catalog-read.ts");
+  const accepted = { galleryGroups: [
+    { title: "גלריה כללית", images: ["/runtime.jpg"] },
+    { title: "מתחם הבריכה", images: ["/runtime-pool.jpg"] },
+  ] };
+  const bundled = { galleryGroups: [
+    { title: "גלריה כללית", images: ["/bundled.jpg"] },
+    { title: "פנים הסוויטות", images: ["/suite.jpg"] },
+    { title: "מתחם הבריכה", images: ["/bundled-pool.jpg"] },
+  ] };
+  const merged = mergeBundledDetail(accepted, bundled);
+  assert.deepEqual(merged.galleryGroups.map((group) => group.title), ["גלריה כללית", "מתחם הבריכה", "פנים הסוויטות"]);
+  assert.deepEqual(merged.galleryGroups[0].images, ["/runtime.jpg"]);
+});
+
 test("a unit deep-link keeps a supplier-named gallery after media deduplication", async () => {
   const { visibleGalleryItems } = await import("../app/components/gallery-selection.ts");
   const items = [

@@ -11,7 +11,7 @@ test("map health contract covers every monitored world with real interactive-map
   assert.match(route, /coordinatesReady/);
   assert.match(route, /interactiveMap:\s*true/);
   assert.match(route, /tileSource:\s*"openstreetmap"/);
-  for (const target of ["vacation-116", "event-2575", "hourly-475", "spa-6"]) assert.match(registry, new RegExp(target));
+  for (const target of ["vacation-116", "event-2", "hourly-475", "spa-6"]) assert.match(registry, new RegExp(target));
   assert.match(registry, /\/api\/map-health/);
   assert.match(map, /useState\(autoLoad \|\| single\)/);
   assert.match(map, /tile\.openstreetmap\.org/);

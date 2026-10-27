@@ -25,7 +25,7 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     // Keep the dock available once the equivalent inline action leaves view.
     // Do not treat a sticky booking card as a blocker: on desktop it can stay
     // visible for the whole page and used to suppress the dock permanently.
-    const targets = [...document.querySelectorAll<HTMLElement>(".property-title__actions--contact, .discovery-detail__actions, #event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .provider-final-cta, .depth-final-cta, .site-footer")];
+    const targets = [...document.querySelectorAll<HTMLElement>(".property-title__actions--contact, .discovery-detail__actions, #event-booking, #booking, #booking-summary, #hourly-contact, .provider-final-cta, .depth-final-cta")];
     const intersections = new Set<Element>();
     const update = () => {
       const blocked = intersections.size > 0;

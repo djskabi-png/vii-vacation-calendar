@@ -17,6 +17,19 @@ test("serves a clearly identified bundled catalog before runtime publication", a
   assert.equal(body.entries[0].summary.world, "vacations");
 });
 
+test("serves the accepted bundled event snapshot when an active run has no materialized rows", async () => {
+  const db = { prepare() { return {
+    bind() { return this; },
+    async first() { return { activeRunId: "incomplete-event-run", activeCount: 1, acceptedAt: "2026-10-27T00:00:00Z" }; },
+    async all() { return { results: [] }; },
+  }; } };
+  const response = await catalogResponse(request("world=events&view=search"), db);
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.source, "bundled-fallback");
+  assert.ok(body.entries.length > 0);
+});
+
 test("does not resurrect a removed place from the bundled fallback", async () => {
   const db = {
     prepare(sql) {

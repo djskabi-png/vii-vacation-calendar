@@ -22,7 +22,8 @@ test("full cards and compact depth cards retain bounded rail controls", () => {
 });
 
 test("floating actions work on desktop and mobile and yield to critical sections and overlays", () => {
-  for (const target of ["#event-booking", "#booking-summary", "#hourly-options", "#hourly-contact", "#reviews", ".site-footer"]) assert.ok(floating.includes(target));
+  for (const target of ["#event-booking", "#booking-summary", "#hourly-contact"]) assert.ok(floating.includes(target));
+  for (const unrelatedLargeSection of ["#hourly-options", "#reviews", ".site-footer"]) assert.ok(!floating.includes(unrelatedLargeSection));
   assert.match(floating, /observer\.disconnect\(\)/);
   assert.match(floating, /const blocked = intersections\.size > 0/);
   assert.match(floating, /setVisible\(!blocked\)/);

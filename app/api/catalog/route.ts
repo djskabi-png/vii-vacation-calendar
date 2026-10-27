@@ -116,7 +116,11 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
       }
     } catch (error) {
       console.error("VII runtime catalog unavailable", world);
-      return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore });
+      // Vacation, event and hourly bundles are immutable accepted snapshots.
+      // Keep search and public navigation alive when an active-run pointer is
+      // temporarily missing its materialized rows. Spa keeps its stricter
+      // projection and continues to fail closed on malformed runtime data.
+      if (world === "spa") return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore });
     }
   }
 

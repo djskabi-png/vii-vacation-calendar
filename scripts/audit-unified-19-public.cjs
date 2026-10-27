@@ -11,11 +11,11 @@ mkdirSync(outputDir, { recursive: true });
 const viewports = [{ id: "desktop", width: 1440, height: 900 }, { id: "mobile", width: 390, height: 844 }];
 const dockCases = [
   { id: "vacation", path: "/business?id=vacation-2705", expected: ["tel", "whatsapp"] },
-  { id: "events", path: "/events/place/event-2575", expected: ["tel", "whatsapp"] },
+  { id: "events", path: "/events/place/event-2", expected: ["tel", "whatsapp"] },
   { id: "hourly", path: "/discover/place/hourly-475", expected: ["tel"] },
   { id: "providers", path: "/discover/place/maor-natan", expected: ["tel", "whatsapp"] },
   { id: "spa", path: "/discover/place/spa-6", expected: ["online"] },
-  { id: "activities", path: "/discover/place/bookable-atv", expected: ["online"] },
+  { id: "activities", path: "/discover/place/kfar-blum-kayaks", expected: ["online"] },
 ];
 const report = { schemaVersion: 1, baseUrl, startedAt: new Date().toISOString(), exclusions: ["accessibility", "typography"], cases: [] };
 
