@@ -55,6 +55,7 @@ export async function GET(request: Request) {
     const [display, db] = await Promise.all([displayPromise, runtimeCatalogDatabase()]);
     const requestedPeriod = period as HomeDealPeriod;
     const dates = homeDealDates(requestedPeriod, now);
+    let snapshotReadFailed = !db;
     let snapshot: { period: HomeDealPeriod; dates: typeof dates; cached: Awaited<ReturnType<typeof readCachedDiscovery<CachedHomeDeals>>> } | null = null;
     try {
       const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
           && (value as { deals: unknown[] }).deals.length > 0,
       });
       snapshot = { period: requestedPeriod, dates, cached };
-    } catch { /* The requested tab remains visible while its own snapshot refreshes. */ }
+    } catch { snapshotReadFailed = true; }
     const [names, publicSiteIds] = await Promise.all([namesPromise, publicSiteIdsPromise]);
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
     const curatedSource = snapshot ? await applyCuration(snapshot.cached.value.deals, requestedPeriod) : [];
@@ -71,9 +72,9 @@ export async function GET(request: Request) {
       && publicSummaryIds.has(deal.siteID)
       && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
     let selectedSnapshot = snapshot && preparedDeals.length ? { ...snapshot, deals: preparedDeals } : null;
-    if (!selectedSnapshot && !db) {
+    if (!selectedSnapshot && snapshotReadFailed) {
       // The durable snapshot normally keeps visitors off the provider path.
-      // If snapshot storage itself is unavailable, do one bounded live read so
+      // If snapshot storage itself is unavailable or its read fails, do one bounded live read so
       // the complete last-minute rail does not collapse to an empty state.
       const recovered = await refreshVacationDiscoveryPeriod(null, requestedPeriod, guests, now);
       const recoveredDeals = (await applyCuration(recovered.value.deals, requestedPeriod)).filter(deal => publicSiteIds.has(deal.siteID)

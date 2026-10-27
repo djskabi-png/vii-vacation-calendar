@@ -29,6 +29,24 @@ test('actual vacation route only reads scheduled snapshots, re-filters withdrawn
  ids=new Set([12]);const withdrawn=await(await get(query('מרכז'))).json();assert.ok(withdrawn.deals.every(deal=>deal.siteID!==11));
  await get(query('מרכז',6));assert.equal(reads,4);
 });
+test('vacation route performs one bounded live recovery when a configured snapshot database cannot be read',async()=>{
+ const dates=homeDealDates('tomorrow');let recoveries=0;
+ const recovered={cache:{status:'refreshed',checkedAt:new Date().toISOString()},value:{dates,checkedAt:new Date().toISOString(),deals:[{siteID:11,total:900,priceGuests:2,from:dates.from,till:dates.till}]}};
+ const get=route('vii/home-deals','GET',{
+  readCachedDiscovery:async()=>{throw new Error('snapshot_read_failed')},homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+  runtimeCatalogDatabase:async()=>({prepare(){throw new Error('snapshot_read_failed')}}),publishedSupplierIds:async()=>new Set([11]),
+  publicCatalogSummaries:async()=>[{supplierId:11,name:'Recovered',area:'מרכז'}],
+  readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
+  refreshVacationDiscoveryPeriod:async()=>{recoveries++;return recovered},runtimeDatabase:async()=>null,
+  curateHomeDeals:async(_db,deals)=>deals,getRequestExecutionContext:()=>null,
+ });
+ const response=await get(new Request('https://example.test/?period=tomorrow&guests=2'));
+ assert.equal(response.status,200);
+ const payload=await response.json();
+ assert.equal(payload.availabilityStatus,'verified');
+ assert.deepEqual(payload.deals.map(deal=>deal.siteID),[11]);
+ assert.equal(recoveries,1,'snapshot failure may trigger only one bounded provider recovery');
+});
 test('detail and booking adapters never import discovery cache; event discovery is read-only and explicit',()=>{
  for(const path of ['app/lib/vii-confirm-home-deal.ts','app/api/vii/confirm-home-deal/route.ts','app/api/spa/availability/route.ts','app/lib/vii-live-search.ts']){
   const text=readFileSync(new URL(`../${path}`,import.meta.url),'utf8');assert.doesNotMatch(text,/cachedDiscovery|discoveryJson|discovery-offer-cache/);
