@@ -184,6 +184,11 @@ test("Biz report requests verify migrated cache schema without runtime DDL", asy
   const route = await read("app/api/admin/business-performance/route.ts");
   assert.match(route, /cacheDiagnostic/);
   assert.match(reportCache, /diagnostic/);
+  const runtimeDatabase = await read("app/lib/runtime-database.ts");
+  const awsDatabase = await read("app/lib/aws-database.ts");
+  assert.match(runtimeDatabase, /d1FallbackForRuntimeEnv/);
+  assert.match(awsDatabase, /remoteAdapters/);
+  assert.match(awsDatabase, /fallbackBindings/);
 });
 
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {

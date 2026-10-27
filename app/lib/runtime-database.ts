@@ -1,5 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { databaseForRuntimeEnv } from "./aws-database.ts";
+import { databaseForRuntimeEnv, d1FallbackForRuntimeEnv } from "./aws-database.ts";
 
 export async function runtimeDatabase(): Promise<D1Database | undefined> {
   const runtimeName = "cloudflare:workers";
@@ -34,16 +34,17 @@ type RuntimeDatabaseEnvironment = {
 export async function reportingDatabaseForEnv(env: RuntimeDatabaseEnvironment): Promise<ReportingDatabase> {
   const database = databaseForRuntimeEnv(env);
   if (!database) throw new Error("reporting_database_unavailable");
-  if (database === env.DB) return { database, origin: "cloudflare-d1", degraded: false };
+  const fallback = d1FallbackForRuntimeEnv(env);
+  if (database === fallback) return { database, origin: "cloudflare-d1", degraded: false };
   try {
     await database.prepare("SELECT 1 AS ok").first<{ ok: number }>();
     return { database, origin: "aws-aurora", degraded: false };
   } catch (error) {
-    if (!env.DB) throw error;
+    if (!fallback || fallback === database) throw error;
     console.error("reporting_database_using_d1_fallback", {
       reason: error instanceof Error ? error.message.slice(0, 160) : "unknown",
     });
-    return { database: env.DB, origin: "cloudflare-d1", degraded: true };
+    return { database: fallback, origin: "cloudflare-d1", degraded: true };
   }
 }
 

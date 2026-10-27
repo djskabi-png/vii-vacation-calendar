@@ -192,14 +192,33 @@ class RemoteD1Database {
 }
 
 const adapters = new WeakMap<object, D1Database>();
+const remoteAdapters = new WeakSet<object>();
+const fallbackBindings = new WeakMap<object, D1Database>();
 
 export function databaseForEnv(env: AwsDatabaseEnv): D1Database {
   if (!configured(env)) return env.DB;
+  // The Worker may expose the same binding through a fresh Env facade after
+  // activateAwsDatabase replaced DB with the Aurora adapter. Never wrap that
+  // adapter again: doing so loses the original D1 fallback and turns a bridge
+  // outage into a false cloudflare-d1 cache failure.
+  if (remoteAdapters.has(env.DB as object)) return env.DB;
   const existing = adapters.get(env as object);
   if (existing) return existing;
   const adapter = new RemoteD1Database(env) as unknown as D1Database;
   adapters.set(env as object, adapter);
+  remoteAdapters.add(adapter as object);
+  fallbackBindings.set(adapter as object, env.DB);
   return adapter;
+}
+
+export function d1FallbackForRuntimeEnv(env: Partial<AwsDatabaseEnv>): D1Database | undefined {
+  let database = env.DB;
+  const seen = new Set<object>();
+  while (database && remoteAdapters.has(database as object) && !seen.has(database as object)) {
+    seen.add(database as object);
+    database = fallbackBindings.get(database as object);
+  }
+  return database;
 }
 
 export function databaseForRuntimeEnv(env: Partial<AwsDatabaseEnv>): D1Database | undefined {
