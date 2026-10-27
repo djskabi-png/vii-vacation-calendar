@@ -18,8 +18,9 @@ test("supplier IDs use the bundled catalog only before the first accepted runtim
   assert.equal(active.has(389), false);
 });
 
-test("an incomplete or unavailable accepted generation never resurrects bundled IDs", async () => {
+test("an incomplete accepted generation fails closed while a database outage uses the release-tested bundle", async () => {
   await assert.rejects(publishedSupplierIds("events", fakeDb({ activeRunId: "accepted-1", activeCount: 2 }, [11])),
     /catalog_active_generation_incomplete/);
-  await assert.rejects(publishedSupplierIds("events", fakeDb(null, [], true)), /database_unavailable/);
+  const fallback = await publishedSupplierIds("events", fakeDb(null, [], true));
+  assert.ok(fallback.size > 0);
 });
