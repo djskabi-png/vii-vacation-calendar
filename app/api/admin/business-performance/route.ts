@@ -2,6 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
+import { readSupplierCatalogSummaries, type SupplierCatalogWorld } from "../../../lib/supplier-catalog-store.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions, loadCachedBizConversionFailures,
   readCachedBizConversionFailure, saveBizConversionFailure } from "../../../lib/biz-conversion-cache.ts";
 import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
@@ -10,6 +11,7 @@ import { mergeBusinessPerformanceRows } from "../../../lib/business-performance-
 import { reportingDatabase } from "../../../lib/runtime-database.ts";
 import { isClosedReportPeriod } from "../../../lib/report-date-policy.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
+import type { D1Database } from "../../../../types/cloudflare-runtime";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -41,12 +43,25 @@ function uniqueConversionRows<T extends { placeId: unknown; world: unknown }>(ro
   return [...unique.values()];
 }
 
-async function supportedInventory() {
+async function adminCatalogSummaries(db: D1Database, world: SupplierCatalogWorld) {
+  const active = await readSupplierCatalogSummaries(db, world).catch(() => null);
+  if (active?.entries.length) return active.entries.map(({ supplierId, summary }) => ({
+    ...(summary as InventoryPlace),
+    supplierId,
+  }));
+  // The reviewed public snapshot is a safe availability fallback, but it is
+  // intentionally filtered. A healthy admin report always uses the complete
+  // accepted supplier generation above, including businesses hidden from the
+  // public catalog, because Biz totals cover the whole managed portfolio.
+  return publicCatalogSummaries<InventoryPlace>(world);
+}
+
+async function supportedInventory(db: D1Database) {
   const [vacations, events, rooms, spa] = await Promise.all([
-    publicCatalogSummaries<InventoryPlace>("vacations"),
-    publicCatalogSummaries<InventoryPlace>("events"),
-    publicCatalogSummaries<InventoryPlace>("rooms"),
-    publicCatalogSummaries<InventoryPlace>("spa"),
+    adminCatalogSummaries(db, "vacations"),
+    adminCatalogSummaries(db, "events"),
+    adminCatalogSummaries(db, "rooms"),
+    adminCatalogSummaries(db, "spa"),
   ]);
   return [
     ...vacations.flatMap((place) => Number.isSafeInteger(place.supplierId) && Number(place.supplierId) > 0 ? [{ placeId: `vacation-${place.supplierId}`, placeName: place.name || `נופש ${place.supplierId}`, world: "vacations" }] : []),
@@ -135,11 +150,11 @@ export async function GET(request: Request) {
       return reporting.database;
     });
     const historical = isClosedReportPeriod(till);
-    const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
+    const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis, inventory: "accepted-generation-v2" },
       freshForMs: historical ? 365 * 86400_000 : 2 * 60_000, immutable: historical, forceRefresh, loader: async () => {
     const analyticsDb = cacheDb;
     const operationsDb = cacheDb;
-    const inventory = await supportedInventory();
+    const inventory = await supportedInventory(cacheDb);
     const analytics = basis === "created" ? await reportingRows(analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,

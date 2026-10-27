@@ -30,6 +30,14 @@ test("business performance report uses reporting failover before initializing de
   assert.doesNotMatch(source, /const cacheDb = await bizConversionDatabase\(\);/);
 });
 
+test("Biz portfolio inventory uses the complete accepted supplier generation", async () => {
+  const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(source, /readSupplierCatalogSummaries\(db, world\)/);
+  assert.match(source, /supportedInventory\(cacheDb\)/);
+  assert.match(source, /inventory: "accepted-generation-v2"/);
+  assert.match(source, /intentionally filtered/);
+});
+
 test("Biz reporting deduplicates one supplier that appears in several worlds", async () => {
   const page = await readFile(new URL("../app/admin/business-performance/page.tsx", import.meta.url), "utf8");
   const route = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");

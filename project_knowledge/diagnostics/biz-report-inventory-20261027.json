@@ -1,0 +1,64 @@
+{
+  "status": "diagnosed",
+  "symptom": "The production Biz report loaded 725 conversion-capable businesses and showed 481 Maskyoo calls and 319 WhatsApp contacts instead of the full managed portfolio and the authoritative Biz totals.",
+  "expected_behavior": "The admin report must inventory every business in the accepted supplier generation, while the public site continues to show only publicly eligible businesses.",
+  "environment": "VII production v707, 2026-10-27, report period 2026-10-25 through 2026-10-25, created-date basis.",
+  "reproduction": {
+    "steps": [
+      "Open /admin/business-performance in production v707.",
+      "Select 2026-10-25 for both dates and the created-date basis.",
+      "Inspect the report API response and compare its inventory with the catalog dashboard."
+    ],
+    "evidence": "The saved production response contains 884 report rows and 725 conversion targets, while the catalog dashboard previously exposed about 918 businesses and 760 conversion targets. Rooms contributed only 24 inventory rows instead of about 53."
+  },
+  "observations": [
+    {
+      "observation": "supportedInventory called publicCatalogSummaries for every world.",
+      "evidence": "app/api/admin/business-performance/route.ts in source commit a8074cb6565b4120519f8029082873bd63779d97"
+    },
+    {
+      "observation": "publicCatalogSummaries applies publicCatalogEntryAllowed before returning entries.",
+      "evidence": "app/lib/public-catalog-read.ts publicSummaries implementation"
+    },
+    {
+      "observation": "The accepted catalog store exposes the full active generation separately from the public projection.",
+      "evidence": "app/lib/supplier-catalog-store.ts readSupplierCatalogSummaries"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The admin report reuses the public filtered catalog and therefore omits managed suppliers that Biz includes.",
+      "prediction": "The report inventory will be smaller than the accepted generation, with the largest deficit in rooms.",
+      "discriminating_test": "Compare the production report inventory with the admin catalog counts and inspect the inventory source function.",
+      "result": "Observed 884 total rows and 24 room rows in the report versus about 918 total and 53 rooms in the catalog; the source uses publicCatalogSummaries.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The deficit is caused by exact duplicate supplier summaries being removed in the browser.",
+      "prediction": "Raw cached totals would be materially larger than the displayed totals.",
+      "discriminating_test": "Aggregate all 448 successful production snapshots before and after the current signature deduplication.",
+      "result": "The displayed 481 calls and 319 WhatsApp contacts equal the raw successful-snapshot sum; duplicate removal did not produce the deficit.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Read the complete accepted supplier generation for the admin report, retain the public projection only as a failure fallback, and version the immutable report-cache parameters so an old filtered inventory cannot survive the repair.",
+    "evidence": "Pending build, automated tests and production verification."
+  },
+  "affected_family": [
+    "Biz report inventory and coverage counters",
+    "Biz batch target selection",
+    "World-level Biz totals",
+    "Professor answers that depend on Biz report data",
+    "Historical report-cache persistence"
+  ],
+  "regression_checks": [],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The final Maskyoo and WhatsApp totals after loading the newly restored inventory have not yet been observed in production."
+  ],
+  "authorization_boundary": "Diagnosis, code repair, tests, authorized production publication and post-release verification for the active VII project."
+}
