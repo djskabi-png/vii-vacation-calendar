@@ -138,7 +138,16 @@ async function main() {
                 locationButton = page.locator(".search-box-shell.mobile-expanded .search-step--location .search-field").first();
               }
             }
-            await locationButton.waitFor({ state: "visible", timeout: 15000 });
+            const locationReady = await locationButton.waitFor({ state: "visible", timeout: 15000 }).then(() => true).catch(() => false);
+            if (!locationReady) {
+              // A long production hydration can replace the summary node after
+              // the first click. Reacquire it once and require the real expanded
+              // control to appear; a genuinely broken overlay still fails.
+              const settledSummary = page.locator(".search-mobile-summary:visible").first();
+              if (await settledSummary.count()) await settledSummary.click({ force: true });
+              locationButton = page.locator(".search-box-shell.mobile-expanded .search-step--location .search-field").first();
+              await locationButton.waitFor({ state: "visible", timeout: 8000 });
+            }
             await locationButton.click();
             const dialog = page.locator(".location-list[role='dialog']");
             if (!await dialog.isVisible().catch(() => false)) {

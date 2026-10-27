@@ -26,7 +26,21 @@ function routeFor(url) {
 }
 
 async function fetchAtBase(url, init = {}) {
-  return fetch(`${base}${routeFor(url)}`, { signal: AbortSignal.timeout(30_000), ...init });
+  const target = `${base}${routeFor(url)}`;
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      return await fetch(target, { signal: AbortSignal.timeout(30_000), ...init });
+    } catch (error) {
+      lastError = error;
+      const retryable = error instanceof Error && ["TimeoutError", "AbortError", "TypeError"].includes(error.name);
+      if (!retryable || attempt === 2) throw error;
+      // One bounded, isolated retry protects the full sitemap audit from a
+      // single transient edge/network timeout without accepting bad content.
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
+  throw lastError;
 }
 
 const indexResponse = await fetchAtBase("/sitemap.xml");

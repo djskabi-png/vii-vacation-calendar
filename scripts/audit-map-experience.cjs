@@ -231,15 +231,15 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     record.selected = await snapshot(page);
     if (world === "vacations" && language === "he" && viewportId === "mobile") {
       await page.setViewportSize({ width: 844, height: 390 });
-      await page.waitForTimeout(450);
-      const rotated = await snapshot(page);
+      // Rotation triggers a real Leaflet resize and can briefly replace the
+      // ready frame. Judge the settled experience, not that transition frame.
+      const rotated = await waitForStableMap(page);
       record.checks.rotation = rotated;
       if (!rotated.ready || rotated.horizontalOverflow > 2 || !rotated.selectedCards || !rotated.shell || rotated.shell.width < 700 || rotated.shell.height < 300) {
         throw new Error(`rotation_geometry_failed:${JSON.stringify(rotated)}`);
       }
       await page.setViewportSize(viewport);
-      await page.waitForTimeout(450);
-      const restored = await snapshot(page);
+      const restored = await waitForStableMap(page);
       record.checks.rotationRestored = restored;
       if (!restored.ready || restored.horizontalOverflow > 2 || !restored.shell || restored.shell.width < viewport.width - 4 || restored.shell.height < viewport.height - 4) {
         throw new Error(`rotation_restore_failed:${JSON.stringify(restored)}`);
