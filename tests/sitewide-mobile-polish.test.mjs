@@ -35,6 +35,8 @@ test("floating actions work on desktop and mobile and yield to critical sections
   assert.match(globals, /@media \(max-width: 767px\)[\s\S]*?\.floating-contact-actions\s*\{[\s\S]*?display:\s*grid;[\s\S]*?grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(globals, /width:\s*min\(calc\(100vw - 24px\),420px\)/);
   assert.match(globals, /bottom:\s*max\(12px,env\(safe-area-inset-bottom,0px\)\)/);
+  assert.match(globals, /\.floating-contact-actions > button,[\s\S]*?white-space:\s*normal;/);
+  assert.match(globals, /\.floating-contact-actions > :is\(button,a\) > span\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?text-wrap:\s*balance;/);
   assert.match(globals, /\.floating-contact-actions > :only-child\s*\{\s*grid-column:\s*1 \/ -1;/);
   assert.match(globals, /\.whatsapp-lead-layer[^)]*\) \.floating-contact-actions/);
   assert.match(css, /\.site-page > \.back-to-top\s*\{ position:static/);

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { DeferredListingMap, preloadListingMap } from "../../components/deferred-listing-map";
 import { ModernSelect } from "../../components/modern-select";
 import { StructuredData } from "../../components/structured-data";
-import { collectionSchema } from "../../lib/seo";
+import { breadcrumbSchema, collectionSchema } from "../../lib/seo";
 import { SupplierCapacityNotice } from "../../components/supplier-capacity-notice";
 import { UnavailablePlaceNotice } from "../../components/unavailable-place-notice";
 import { PageShell } from "../../components/page-shell";
@@ -58,6 +58,13 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
+  const breadcrumbNames = language === "he"
+    ? { home: "ראשי", events: "אירועים", results: "מקומות לאירועים" }
+    : language === "en"
+      ? { home: "Home", events: "Events", results: "Event venues" }
+      : language === "ru"
+        ? { home: "Главная", events: "Мероприятия", results: "Площадки для мероприятий" }
+        : { home: "Accueil", events: "Événements", results: "Lieux événementiels" };
   const documentSeed = useDocumentSeed();
   const managedGeography = useManagedGeography();
   const liveCopy = eventLiveCopy[language];
@@ -281,7 +288,14 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   return (
     <PageShell variant="events">
       <main id="main-content" className="results-page events-results-page">
-        {!initialArea ? <StructuredData data={collectionSchema("מקומות לאירועים בישראל", "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.", "/events/search", filtered.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} /> : null}
+        {!initialArea ? <>
+          <StructuredData data={breadcrumbSchema([
+            { name: breadcrumbNames.home, path: localizedPath("/", language) },
+            { name: breadcrumbNames.events, path: localizedPath("/events", language) },
+            { name: breadcrumbNames.results, path: localizedPath("/events/search", language) },
+          ])} />
+          <StructuredData data={collectionSchema("מקומות לאירועים בישראל", "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.", localizedPath("/events/search", language), filtered.map((place) => ({ name: place.name, path: localizedPath(eventPlaceHref(place), language), image: place.image })))} />
+        </> : null}
         <UnavailablePlaceNotice world="events" />
         {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}

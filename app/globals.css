@@ -10401,9 +10401,14 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
     font: 800 clamp(.78rem,3.4vw,.9rem)/1.2 var(--font-sans);
     text-align: center;
     text-decoration: none;
-    white-space: nowrap;
+    white-space: normal;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+  .floating-contact-actions > :is(button,a) > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
   .floating-contact-actions > :only-child { grid-column: 1 / -1; }
   .floating-contact-actions .floating-contact-actions__whatsapp {

@@ -12,6 +12,8 @@ test("the public SEO audit descends from the sitemap index into every child URL"
   assert.match(source, /const childSitemaps = xmlUrls\(sitemapIndex\)/);
   assert.match(source, /const allUrls = sitemapDocuments\.flatMap\(\(document\) => document\.urls\)/);
   assert.match(source, /duplicateUrls/);
+  assert.match(source, /expectedHreflang/, "the audit requires the page's own approved language without inventing unapproved translations");
+  assert.match(source, /\/trails\\\/explore\\\//, "trail collections and individual trips must be checked against different schema contracts");
   assert.match(source, /hreflang x-default חסר/);
   assert.match(source, /request_failed:/, "one slow page must be reported without aborting the complete crawl");
   assert.match(source, /sitemapFailures/, "one slow child sitemap must be reported without hiding the rest of the crawl");

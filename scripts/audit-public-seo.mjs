@@ -93,10 +93,11 @@ async function inspect(path) {
   if (!canonical) errors.push("canonical חסר");
   if (canonicalHref && routeFor(canonicalHref) !== route) errors.push(`canonical לא עצמי: ${canonicalHref}`);
   if (htmlLanguage !== expectedLocale) errors.push(`lang=${htmlLanguage || "missing"}, expected=${expectedLocale}`);
-  for (const locale of supportedLocales) {
-    const hreflang = locale === "he" ? "he-IL" : locale;
-    if (!alternates.some((entry) => entry.locale === hreflang)) errors.push(`hreflang ${hreflang} חסר`);
-  }
+  // A page must advertise its own approved language and an x-default. Content
+  // pages may intentionally omit languages whose supplier/CMS translation is
+  // not approved; requiring every locale would reward fabricated translations.
+  const expectedHreflang = expectedLocale === "he" ? "he-IL" : expectedLocale;
+  if (!alternates.some((entry) => entry.locale === expectedHreflang)) errors.push(`hreflang ${expectedHreflang} חסר`);
   if (!alternates.some((entry) => entry.locale === "x-default")) errors.push("hreflang x-default חסר");
   if (!/^\/(?:en|ru|fr)?$/.test(route) && !visibleBreadcrumb) errors.push("פירורים נראים חסרים");
   if (!/^\/(?:en|ru|fr)?$/.test(route) && !schemaTypes.includes("BreadcrumbList")) errors.push("סכמת פירורים חסרה");
@@ -105,7 +106,8 @@ async function inspect(path) {
   if (localeFreeRoute.startsWith("/business?") && !schemaTypes.some((type) => ["LodgingBusiness", "Hotel", "VacationRental"].includes(type))) errors.push("סכמת מקום אירוח חסרה");
   if (localeFreeRoute.startsWith("/events/place?") && !schemaTypes.includes("EventVenue")) errors.push("סכמת מתחם אירועים חסרה");
   if (localeFreeRoute.startsWith("/guides/") && localeFreeRoute !== "/guides/" && !schemaTypes.includes("Article")) errors.push("סכמת כתבה חסרה");
-  if (localeFreeRoute.startsWith("/trails/") && localeFreeRoute !== "/trails/" && !schemaTypes.includes("TouristTrip")) errors.push("סכמת מסלול חסרה");
+  if (/^\/trails\/explore\/[^/?]+$/.test(localeFreeRoute) && (!schemaTypes.includes("CollectionPage") || !schemaTypes.includes("ItemList"))) errors.push("סכמת אוסף מסלולים חסרה");
+  if (/^\/trails\/(?!explore\/)[^/?]+$/.test(localeFreeRoute) && !schemaTypes.includes("TouristTrip")) errors.push("סכמת מסלול חסרה");
   if (breadcrumb && breadcrumb.itemListElement.some((item, index) => item.position !== index + 1 || !item.name || !item.item?.startsWith("http"))) errors.push("סכמת פירורים לא תקינה");
   return { path: route, errors, names, canonical: canonicalHref, language: htmlLanguage };
 }

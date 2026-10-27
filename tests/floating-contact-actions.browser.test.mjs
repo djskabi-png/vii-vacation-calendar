@@ -18,10 +18,13 @@ const markup = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="ut
 <a class="direct-phone-link" href="tel:0551234567"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7A2 2 0 0 1 22 16.9z"/></svg><bdi dir="ltr">055-1234567</bdi></a>
 <button class="floating-contact-actions__whatsapp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg><span>פנייה בוואטסאפ</span></button>
 </div></body></html>`;
+const russianMarkup = markup
+  .replace('lang="he" dir="rtl"', 'lang="ru" dir="ltr"')
+  .replace("פנייה בוואטסאפ", "Запрос в WhatsApp");
 
-async function inspectAt(page, width) {
+async function inspectAt(page, width, html = markup) {
   await page.setViewportSize({ width, height: 844 });
-  await page.setContent(markup, { waitUntil: "domcontentloaded" });
+  await page.setContent(html, { waitUntil: "domcontentloaded" });
   return page.locator(".floating-contact-actions").evaluate((dock) => {
     const rect = dock.getBoundingClientRect();
     const actions = [...dock.children].map((child) => {
@@ -59,6 +62,19 @@ test("floating phone and WhatsApp dock is polished on desktop and mobile widths"
       assert.ok(mobile.actions.every((action) => action.height >= 54));
       assert.ok(Math.abs(mobile.actions[0].width - mobile.actions[1].width) < 1);
       assert.ok(mobile.actions.every((action) => /Rubik|Heebo|Assistant/.test(action.fontFamily)));
+    }
+
+    for (const width of [390, 360, 320]) {
+      await inspectAt(page, width, russianMarkup);
+      const gaps = await page.locator(".floating-contact-actions__whatsapp").evaluate((button) => {
+        const frame = button.getBoundingClientRect();
+        const span = button.querySelector("span");
+        if (!span) return { left: 0, right: 0, inside: false };
+        const content = span.getBoundingClientRect();
+        return { left: content.left - frame.left, right: frame.right - content.right, inside: content.left >= frame.left && content.right <= frame.right };
+      });
+      assert.equal(gaps.inside, true);
+      assert.ok(gaps.left >= 6 && gaps.right >= 6, `Russian WhatsApp label needs symmetric breathing room at ${width}px: ${JSON.stringify(gaps)}`);
     }
 
     await inspectAt(page, 390);
