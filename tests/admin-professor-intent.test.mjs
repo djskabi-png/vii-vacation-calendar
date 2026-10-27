@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { parseProfessorIntent, professorRange } from "../app/lib/admin-professor-intent.ts";
+import { metricSnapshot } from "../app/lib/admin-professor.ts";
 
 const now = new Date("2026-10-26T12:00:00Z");
 const places = [
@@ -8,6 +9,24 @@ const places = [
   { placeId: "event-22", name: "הילת האירועים", world: "events", siteID: 22 },
   { placeId: "hourly-33", name: "סוויטת הכרמל", world: "rooms", siteID: 33 },
 ];
+
+test("a Biz-only Professor question never touches unrelated V event or booking tables", async () => {
+  const bucket = (contacts, orders = 0, revenue = 0) => ({ contacts, identified: contacts, converted: orders,
+    rate: null, customers: orders, orders, revenue, medianDelay: null });
+  const db = { prepare() { throw new Error("unrelated V query must not run"); } };
+  const intent = parseProfessorIntent("כמה שיחות היו החודש", places, now);
+  const snapshot = await metricSnapshot(db, intent.range, intent, { loadBizConversions: async () => [{
+    world: "vacations", siteID: 11,
+    conversions: { siteID: 11, from: intent.range.from, till: intent.range.till, domainID: null,
+      created: "2026-10-26T12:00:00.000Z", count: 37,
+      summary: { all: bucket(37, 3, 4200), maskyoo: bucket(37, 3, 4200), whatsapp: bucket(0), form: bucket(0) },
+      clicks: { whatsapp: 0, showphone: 0, phone: 0 } },
+    cache: { status: "fresh", savedAt: "2026-10-26T12:00:00.000Z", stale: false },
+  }] });
+  assert.equal(snapshot.metrics.bizCalls, 37);
+  assert.equal(snapshot.metrics.bizWhatsapp, 0);
+  assert.equal(snapshot.bizRows, 1);
+});
 
 test("Professor understands a named business and only the requested verified metrics", () => {
   const intent = parseProfessorIntent("תן לי נתונים של החודש להילת הנוף: כמה טלפונים, וואטסאפ והזמנות Biz", places, now);
@@ -48,6 +67,7 @@ test("Professor requests clarification for equally plausible businesses", () => 
   const duplicate = [...places, { placeId: "vacation-44", name: "הילת נוף", world: "vacations", siteID: 44 }];
   const intent = parseProfessorIntent("נתונים של הילת נוף", duplicate, now);
   assert.ok(intent.place || intent.ambiguous.length >= 1);
+  assert.ok(intent.ambiguous.every((place) => typeof place.name === "string" && place.name.length > 0));
 });
 
 test("plain Hebrew calls means Biz Maskyoo calls instead of an all-metrics fallback", () => {

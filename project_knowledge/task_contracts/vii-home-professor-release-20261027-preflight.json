@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-professor-release-20261027",
+  "project": "VII",
+  "task_type": "production repair and verified release",
+  "requested_outcome": "Repair both homepage availability rails and Professor verified answers, retain interactive data-backed charts, run the complete QQQAAA family, publish one frozen candidate and verify it in production.",
+  "natural_destination": "https://vii.spaplus.co/ and https://vii.spaplus.co/admin/professor",
+  "authorization_boundary": "Code, tests, one production publication and production verification are authorized. Do not alter supplier data, permissions, secrets, DNS or unrelated user files.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-LEARN-003","reason":"A resumed long-running VII task must not inherit unverified completion claims.","acceptance_impact":"Every requested outcome remains pending until exact evidence exists."},
+    {"lesson_id":"ADIR-MIND-001","reason":"The visible error must be translated into a complete operational result.","acceptance_impact":"Verify the homepage and Professor at their public destinations."},
+    {"lesson_id":"ADIR-QA-001","reason":"Both fixes affect shared production paths and require regression evidence.","acceptance_impact":"Run targeted tests, full QQQAAA, and post-release production checks."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The user explicitly requires publication without losing prior work.","acceptance_impact":"Freeze source and tree, keep rollback identity, deploy once, then verify HTTP and live behavior."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Professor and its charts are daily admin operations, not decorative UI.","acceptance_impact":"Answers must use verified data, expose freshness, survive reload, and keep permissions and quotas."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The homepage rails still end in the retry error shown in the screenshot.","prevention":"Restore the bounded cache-bypassing GET retry and add a public two-rail audit gate.","acceptance_check":"Both public rail containers finish without terminal error and contain verified cards."},
+    {"rejection":"Professor still returns a generic failure for a simple calls question.","prevention":"Make data-source access selective so a Biz-only question cannot be failed by unrelated V tables.","acceptance_check":"The exact public question returns a numeric or explicitly unavailable verified Biz result, not a generic error."},
+    {"rejection":"Charts look interactive but use invented or stale values.","prevention":"Render charts only from the returned answer metrics and display coverage and saved time.","acceptance_check":"Public chart values match the answer payload and view buttons switch visible data."},
+    {"rejection":"A new release breaks another world or mobile state.","prevention":"Run QQQAAA with the new Professor and rail regression tests included.","acceptance_check":"All mandatory suites pass on the frozen candidate and public matrix passes after release."},
+    {"rejection":"Publication is claimed from code or build evidence only.","prevention":"Verify the exact deployed version in the public homepage and authenticated admin.","acceptance_check":"Record version, deployment, source, tree, rollback, HTTP 200 and live UI evidence."}
+  ],
+  "affected_family": ["homepage near-date availability rail", "homepage holiday availability rail", "discovery request retry policy", "public homepage rail audit", "Professor intent and data-source routing", "Professor quota and question history", "Professor interactive verified-data charts", "desktop homepage and admin states", "mobile homepage and admin states", "production release and rollback identity"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII accepted feedback standard","source":"project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"VII platform master plan","source":"project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After root-cause fixes and targeted tests, before freezing the release candidate.","checks":["Reproduce the old Professor failure in production","Prove Biz-only source isolation in a unit test","Prove both rails with the public audit"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can either rail still finish in a terminal error after reload?","Can a Biz-only question still touch V event or booking tables?","Do the chart values come only from the returned verified answer?","Did the exact deployed artifact pass the affected family after publication?"],"natural_destination_evidence":"Live homepage rail state and authenticated live Professor response after publication.","affected_family_evidence":"QQQAAA report, targeted regression tests and post-release route matrix."},
+  "effectiveness": {"baseline":"Public v708 reproduced a generic Professor failure and the supplied screenshot captured terminal errors in both homepage availability rails.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"One frozen publication whose homepage rails and exact Professor question work publicly without regressing the QQQAAA family."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

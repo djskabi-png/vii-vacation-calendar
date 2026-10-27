@@ -16,7 +16,8 @@ type ProfessorAnswer = {
 };
 
 export class ProfessorQuestionError extends Error {
-  constructor(readonly code: "clarification_required" | "unsupported_question", message: string) { super(message); this.name = "ProfessorQuestionError"; }
+  readonly code: "clarification_required" | "unsupported_question";
+  constructor(code: "clarification_required" | "unsupported_question", message: string) { super(message); this.code = code; this.name = "ProfessorQuestionError"; }
 }
 
 const schema = [
@@ -36,12 +37,18 @@ const METRIC_LABEL: Record<ProfessorMetric, string> = {
 };
 
 async function inventory(): Promise<ProfessorPlace[]> {
-  const [vacations, events, rooms, spa] = await Promise.all(["vacations", "events", "rooms", "spa"].map((world) => publicCatalogSummaries<Record<string, unknown>>(world)));
-  return [[vacations, "vacations", "vacation"], [events, "events", "event"], [rooms, "rooms", "hourly"], [spa, "spa", "spa"]].flatMap(([rows, world, prefix]) => (rows as Record<string, unknown>[]).flatMap((row) => {
+  const worlds = ["vacations", "events", "rooms", "spa"] as const;
+  const results = await Promise.allSettled(worlds.map((world) => publicCatalogSummaries<Record<string, unknown>>(world)));
+  return results.flatMap((result, index) => {
+    if (result.status !== "fulfilled") return [];
+    const world = worlds[index];
+    const prefix = world === "vacations" ? "vacation" : world === "events" ? "event" : world === "rooms" ? "hourly" : "spa";
+    return result.value.flatMap((row) => {
     const siteID = Number(row.supplierId || (typeof row.id === "string" ? row.id.match(/\d+$/)?.[0] : row.id));
     const name = String(row.name || row.title || "").trim(); if (!name) return [];
-    return [{ placeId: Number.isSafeInteger(siteID) && siteID > 0 ? `${prefix}-${siteID}` : String(row.id || ""), name, world: world as ProfessorWorld, siteID: Number.isSafeInteger(siteID) && siteID > 0 ? siteID : null }];
-  }));
+    return [{ placeId: Number.isSafeInteger(siteID) && siteID > 0 ? `${prefix}-${siteID}` : String(row.id || ""), name, world, siteID: Number.isSafeInteger(siteID) && siteID > 0 ? siteID : null }];
+    });
+  });
 }
 
 function scopeWhere(intent: ProfessorIntent, alias = "") {
@@ -51,31 +58,37 @@ function scopeWhere(intent: ProfessorIntent, alias = "") {
   return { sql: "", values: [] as unknown[] };
 }
 
-async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent) {
+export async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, dependencies: {
+  loadBizConversions?: typeof loadCachedBizConversions;
+} = {}) {
   const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere(intent);
-  const internal = await db.prepare(`SELECT
+  const needsInternal = intent.metrics.some((metric) => ["impressions", "pageViews", "phone", "whatsapp"].includes(metric));
+  const needsBookings = intent.metrics.includes("viiBookings");
+  const needsBiz = intent.metrics.some((metric) => metric.startsWith("biz"));
+  const internal = needsInternal ? await db.prepare(`SELECT
     SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
     SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
     SUM(CASE WHEN name IN ('phone_reveal','phone_click') THEN 1 ELSE 0 END) AS phone,
     SUM(CASE WHEN name IN ('whatsapp_lead','whatsapp_handoff') THEN 1 ELSE 0 END) AS whatsapp
     FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0${scope.sql}`)
-    .bind(since, until, ...scope.values).first<{ impressions: number; pageViews: number; phone: number; whatsapp: number }>();
+    .bind(since, until, ...scope.values).first<{ impressions: number; pageViews: number; phone: number; whatsapp: number }>() : null;
   const bookingScope = scopeWhere(intent);
-  const bookings = await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${bookingScope.sql}`)
-    .bind(since, until, ...bookingScope.values).first<{ total: number }>();
+  const bookings = needsBookings ? await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${bookingScope.sql}`)
+    .bind(since, until, ...bookingScope.values).first<{ total: number }>() : null;
   let bizRange = range;
-  let cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
-  if (!cached.length) {
+  const loadBizConversions = dependencies.loadBizConversions ?? loadCachedBizConversions;
+  let cached = needsBiz ? await loadBizConversions(db, range.from, range.till).catch(() => []) : [];
+  if (needsBiz && !cached.length) {
     const today = day(new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const closedTill = day(yesterday);
     if (range.from <= closedTill && range.till >= today) {
       bizRange = { from: range.from, till: closedTill, label: `${range.from} עד ${closedTill}` };
-      cached = await loadCachedBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
+      cached = await loadBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
     }
   }
   const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
-  const bizSupported = intent.world !== "spa" && (!intent.place || intent.place.world !== "spa");
+  const bizSupported = needsBiz && intent.world !== "spa" && (!intent.place || intent.place.world !== "spa");
   const hasBiz = bizSupported && selected.length > 0;
   const sum = (pick: (row: typeof selected[number]) => number) => selected.reduce((total, row) => total + pick(row), 0);
   const metrics: MetricValues = {

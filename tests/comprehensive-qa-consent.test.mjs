@@ -19,9 +19,14 @@ test("locale QA starts with a deterministic essential-only consent state", () =>
 test("map QA observes the live map and clicks a topmost marker wrapper", () => {
   assert.match(source, /waitForSelector\("\.listing-map"/);
   assert.doesNotMatch(source, /waitForSelector\("\.leaflet-container"/);
-  assert.match(source, /document\.elementFromPoint\(x, y\)/);
+  assert.match(source, /document\.elementFromPoint\(point\.x, point\.y\)/);
   assert.match(source, /\.vii-map-marker-wrap\.is-cluster/);
-  assert.match(source, /page\.mouse\.click\(markerBox\.x, markerBox\.y\)/);
+  assert.match(source, /\.vii-map-marker-wrap:not\(\.is-cluster\):not\(\.is-hover-preview\)/);
+  assert.match(source, /Math\.min\(await candidates\.count\(\), 40\)/);
+  assert.match(source, /for \(let index = 0; index < count; index \+= 1\)/);
+  assert.match(source, /candidate\.boundingBox\(\)/);
+  assert.match(source, /waitFor\(\{ timeout: 1_800 \}\)/);
+  assert.match(source, /page\.mouse\.click\(x, y\)/);
   assert.match(source, /page\.locator\("\.map-mobile-close:visible"\)/);
   assert.match(source, /waitForSelector\("\.map-preview-card,\.listing-map-shell"/);
   assert.match(source, /waitForFunction\(\(\) => location\.pathname === "\/search"/);

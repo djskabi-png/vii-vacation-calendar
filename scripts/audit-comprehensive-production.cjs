@@ -312,30 +312,37 @@ async function verifyResultsMap(page) {
   await page.waitForFunction(() => document.querySelectorAll(".leaflet-tile").length > 0, null, { timeout: 20_000 });
   const state = await page.evaluate(() => ({ tiles: document.querySelectorAll(".leaflet-tile").length, markers: document.querySelectorAll(".vii-map-marker").length, selectedCards: document.querySelectorAll(".map-selection-card").length }));
   if (!state.markers) throw new Error("map_markers_missing");
-  const clickableBox = (selector) => page.locator(selector).evaluateAll((elements) => {
-    const index = elements.findIndex((candidate) => {
-      const box = candidate.getBoundingClientRect();
-      if (!box.width || !box.height || box.bottom <= 0 || box.top >= innerHeight || box.right <= 0 || box.left >= innerWidth) return false;
-      const x = Math.max(0, Math.min(innerWidth - 1, box.left + box.width / 2));
-      const y = Math.max(0, Math.min(innerHeight - 1, box.top + box.height / 2));
-      const topmost = document.elementFromPoint(x, y);
-      return Boolean(topmost && (topmost === candidate || candidate.contains(topmost)));
-    });
-    if (index < 0) return null;
-    const element = elements[index];
-    const box = element.getBoundingClientRect();
-    return { index, x: box.left + box.width / 2, y: box.top + box.height / 2 };
-  });
-  for (let attempt = 0; attempt < 6; attempt += 1) {
-    const markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
-    if (markerBox) {
-      await page.mouse.click(markerBox.x, markerBox.y);
-      await page.waitForTimeout(700);
-      if (await page.locator(".map-selection-card:visible").count()) break;
+  const clickViewportMarkers = async (selector, waitForSelection) => {
+    const candidates = page.locator(selector);
+    const count = Math.min(await candidates.count(), 40);
+    const viewport = page.viewportSize();
+    for (let index = 0; index < count; index += 1) {
+      const candidate = candidates.nth(index);
+      const box = await candidate.boundingBox();
+      if (!box || !viewport) continue;
+      const x = box.x + box.width / 2;
+      const y = box.y + box.height / 2;
+      if (x < 0 || x > viewport.width || y < 0 || y > viewport.height) continue;
+      const hitTestable = await candidate.evaluate((node, point) => {
+        const hit = document.elementFromPoint(point.x, point.y);
+        return Boolean(hit && (node === hit || node.contains(hit)));
+      }, { x, y });
+      if (!hitTestable) continue;
+      await page.mouse.click(x, y);
+      if (!waitForSelection) return true;
+      const selected = await page.locator(".map-selection-card:visible").waitFor({ timeout: 1_800 }).then(() => true).catch(() => false);
+      if (selected) return true;
     }
-    const clusterBox = await clickableBox(".vii-map-marker-wrap.is-cluster");
-    if (clusterBox) await page.mouse.click(clusterBox.x, clusterBox.y);
-    await page.waitForTimeout(clusterBox ? 900 : 500);
+    return false;
+  };
+  // Hover-preview markers mirror a result card while the pointer is over it,
+  // but they are not selectable map results. Clicking one can make the audit
+  // report a missing selection card even though the real map flow is healthy.
+  // Expand dense clusters until a genuine result marker is available.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (await clickViewportMarkers(".vii-map-marker-wrap:not(.is-cluster):not(.is-hover-preview):visible", true)) break;
+    if (!await clickViewportMarkers(".vii-map-marker-wrap.is-cluster:visible", false)) break;
+    await page.waitForTimeout(900);
   }
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 10_000 });
   state.selectedCards = await page.locator(".map-selection-card").count();

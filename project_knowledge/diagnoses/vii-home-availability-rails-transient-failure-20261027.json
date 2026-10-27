@@ -1,0 +1,70 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public Hebrew homepage showed the error state 'לא הצלחנו לבדוק זמינות כרגע' at the same time in both the near-date vacation rail and the holiday vacation rail.",
+  "expected_behavior": "A single transient browser or HTTP-cache failure is recovered once, while the latest accepted verified offers remain visible and booking is still revalidated on the place page.",
+  "environment": "Production v708 at https://vii.spaplus.co/ on 2026-10-27, desktop Hebrew homepage; candidate branch release/v646-four-gaps.",
+  "reproduction": {
+    "steps": [
+      "Open the public Hebrew homepage in a fresh browser context.",
+      "Observe the near-date and holiday vacation rails after their loading states.",
+      "Compare the error screenshot with the client request policy and the three public discovery endpoints."
+    ],
+    "evidence": "The supplied public screenshot shows both rails in their terminal error state. In app/components/home-live-deals.tsx both GET requests explicitly set retries: 0 even though the shared discovery client implements one bounded cache-bypassing recovery attempt."
+  },
+  "observations": [
+    {
+      "observation": "Both independent rail families reached the same terminal error state together.",
+      "evidence": "User-supplied production screenshot codex-clipboard-bb9149ec-9b71-47c9-98b9-240795147b6e.png."
+    },
+    {
+      "observation": "The production near-date endpoint returned 56 verified deals in 1.56 seconds, the holiday list returned six holidays in 0.46 seconds, and the selected holiday endpoint returned 23 verified deals in 1.36 seconds.",
+      "evidence": "Bounded curl checks against the three exact public API URLs on 2026-10-27."
+    },
+    {
+      "observation": "A fresh public browser read after the incident showed both rails with cards and zero error or retry messages.",
+      "evidence": "In-app browser AX inspection of https://vii.spaplus.co/?release=v708."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "A transient browser request or HTTP-cache path failure was immediately promoted to the terminal UI error because both rail requests disabled the shared client's one safe GET retry.",
+      "prediction": "The component source will set retries to zero while the shared discovery client already has a bounded second attempt using cache reload.",
+      "discriminating_test": "Inspect the component and shared discovery client, then run the client boundary tests.",
+      "result": "Confirmed: both homepage calls used retries: 0; discoveryJson allows exactly one GET retry and changes the second request to cache: reload. The boundary suite passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The durable server discovery snapshots were empty or invalid, so the rails had no accepted availability data.",
+      "prediction": "The exact public API calls would return refreshing, empty data, 503, or invalid holiday data after the incident.",
+      "discriminating_test": "Call the exact near-date, holiday-list, and holiday-deal endpoints with bounded deadlines and inspect availabilityStatus and deal counts.",
+      "result": "Rejected: all three returned HTTP 200; both deal endpoints were verified and contained 56 and 23 offers respectively.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Enable the existing single bounded GET recovery attempt for the holiday-list and selected-deal requests. The second attempt bypasses a possibly wedged browser HTTP-cache path; no write or live booking request is retried.",
+    "evidence": "Candidate changes set retries: 1 in both calls. Eleven focused discovery tests pass, including a new regression assertion for both homepage rails."
+  },
+  "affected_family": [
+    "Homepage near-date vacation rail",
+    "Homepage holiday vacation rail",
+    "Shared browser discovery cache boundary",
+    "Public Hebrew homepage after a transient request failure"
+  ],
+  "regression_checks": [
+    {
+      "check": "Focused discovery cache and immediate fallback suites",
+      "status": "passed",
+      "evidence": "node --test tests/discovery-immediate-fallback.test.mjs tests/discovery-cache-boundaries.test.mjs: 11/11 passed."
+    }
+  ],
+  "confidence": "medium",
+  "remaining_unknowns": [
+    "The historical browser network failure itself was not captured with a request trace, so its upstream trigger cannot be named more narrowly than a transient request/cache-path failure.",
+    "Post-publication adversarial verification of the candidate remains required before changing status to fixed."
+  ],
+  "authorization_boundary": "Authorized repair, regression testing, production publication, and post-public verification of VII; no supplier data, database, secrets, access policy, or CMS changes."
+}

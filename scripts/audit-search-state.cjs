@@ -78,7 +78,7 @@ async function inspectVisibleContent(page, routeName) {
   return page.evaluate((name) => {
     const viewportHeight = window.innerHeight;
     const selectorsByRoute = {
-      home: [".home-live-deals__card", ".home-live-deals__empty", ".home-slider__item"],
+      home: [".home-live-deals__item", ".home-live-deals__status", ".home-slider__item"],
       "vacation-results": [".stay-card", ".empty-state", ".online-booking-filter-notice[role='alert'][aria-busy='false']"],
       "vacation-region": [".stay-card", ".empty-state", ".online-booking-filter-notice[role='alert'][aria-busy='false']"],
       spa: [".discovery-card", ".spa-results__empty"],
@@ -108,6 +108,24 @@ async function inspectVisibleContent(page, routeName) {
       viewportHeight,
     };
   }, routeName);
+}
+
+async function inspectHomeAvailabilityRails(page) {
+  return page.evaluate(() => {
+    const ids = ["home-live-deals-results", "home-holiday-deals-results"];
+    return ids.map((id) => {
+      const root = document.getElementById(id);
+      const status = root?.querySelector(".home-live-deals__status")?.textContent?.trim() || "";
+      return {
+        id,
+        exists: Boolean(root),
+        busy: root?.getAttribute("aria-busy") === "true",
+        cards: root?.querySelectorAll(".home-live-deals__item").length || 0,
+        terminalError: /לא הצלחנו|could not be checked|Не удалось|indisponible/i.test(status),
+        status,
+      };
+    });
+  });
 }
 
 async function focusResultsViewport(page, routeName) {
@@ -207,7 +225,21 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         );
       }
       if (name === "home") {
-        await page.waitForFunction(() => document.querySelector("#home-live-deals-results")?.getAttribute("aria-busy") === "false", undefined, { timeout: 30000 });
+        await page.waitForFunction(() => ["home-live-deals-results", "home-holiday-deals-results"].every((id) => {
+          const root = document.getElementById(id);
+          return root && root.getAttribute("aria-busy") === "false";
+        }), undefined, { timeout: 30000 });
+        const rails = await inspectHomeAvailabilityRails(page);
+        report.checks.push({
+          name: "home-availability-rails",
+          state: rails,
+          failures: rails.flatMap((rail) => [
+            ...(!rail.exists ? [`${rail.id}:missing`] : []),
+            ...(rail.busy ? [`${rail.id}:still-loading`] : []),
+            ...(rail.terminalError ? [`${rail.id}:terminal-error`] : []),
+            ...(rail.cards < 1 ? [`${rail.id}:no-verified-cards`] : []),
+          ]),
+        });
       }
       let state = await stablePageOperation(`${name}:inspect-mobile`, page, () => inspect(page));
       report.checks.push({ name: "mobile-fresh", state, failures: failuresFor(state, { requireUnlocked: true }) });

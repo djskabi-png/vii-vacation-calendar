@@ -110,7 +110,7 @@ export function matchProfessorPlace(question: string, places: ProfessorPlace[]) 
     .sort((a, b) => b.score - a.score || b.place.name.length - a.place.name.length);
   if (!scored.length) return { place: null, ambiguous: [] as ProfessorPlace[] };
   const best = scored[0]; const tied = scored.filter((item) => item.score === best.score && cleanProfessorText(item.place.name) !== cleanProfessorText(best.place.name));
-  return tied.length ? { place: null, ambiguous: [best.place, ...tied].slice(0, 5) } : { place: best.place, ambiguous: [] as ProfessorPlace[] };
+  return tied.length ? { place: null, ambiguous: [best.place, ...tied.map((item) => item.place)].slice(0, 5) } : { place: best.place, ambiguous: [] as ProfessorPlace[] };
 }
 
 export function parseProfessorIntent(question: string, places: ProfessorPlace[], now = new Date()): ProfessorIntent & { ambiguous: ProfessorPlace[] } {

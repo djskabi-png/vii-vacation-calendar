@@ -119,7 +119,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
-    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 0 })
+    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 1 })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         // The API and CMS both cap the public rail, but a browser can still
@@ -146,7 +146,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
-    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v1`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, timeoutMs: 5_000, retries: 0,
+    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v1`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, timeoutMs: 5_000, retries: 1,
       shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" })
       .then((result) => {
         if (controller.signal.aborted) return;

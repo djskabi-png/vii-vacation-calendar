@@ -1,0 +1,212 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-home-professor-release-20261027",
+  "project": "VII",
+  "task_type": "production repair and verified release",
+  "goal": "Repair both homepage availability rails and Professor verified answers, retain interactive charts, run QQQAAA, publish one frozen candidate and verify production.",
+  "created_at": "2026-10-27T13:02:24.311184Z",
+  "updated_at": "2026-10-27T13:02:36.990004Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f2ccfc1a5fa85ea56805bfe952dc8ca3cc45d425114c7fa6a6a2f311e9d6cf56"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "57c549619e5d3152badf26d6da6765ddde4ee7bb61130eb60f6d3b7d71e79161"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\task_contracts\\vii-home-professor-release-20261027-preflight.json",
+      "sha256": "29ebdcc3fba5f3033e45b312dcdc3ebfa13579297986fd42c9d8721868440b88"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\task_contracts\\vii-home-professor-release-20261027-preflight.json",
+    "sha256": "29ebdcc3fba5f3033e45b312dcdc3ebfa13579297986fd42c9d8721868440b88",
+    "predicted_rejection_count": 5,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 5,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-LEARN-003",
+      "title": "כל משימה טוענת את הלקחים של אדיר ונחסמת ללא ראיות",
+      "scope": "account_rule_and_shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "title": "כל משימה מפעילה את לולאת ההחלטה של אדיר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "title": "מערכת ניהול היא מוצר תפעולי מלא",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Repair both homepage availability rails and Professor verified answers, retain interactive charts, run QQQAAA, publish one frozen candidate and verify production.",
+      "acceptance_check": "Both live homepage rails render verified cards; the exact Professor calls question returns verified data and charts; the frozen release passes QQQAAA and post-deploy checks.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v646-four-gaps\\project_knowledge\\task_contracts\\vii-home-professor-release-20261027-preflight.json validated with sha256 29ebdcc3fba5f3033e45b312dcdc3ebfa13579297986fd42c9d8721868440b88"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-27T13:02:24.311184Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After root-cause fixes and targeted tests, before freezing the release candidate.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Public v708 reproduced the exact Professor generic error for כמה שיחות היו החודש. Unit test now proves a Biz-only question returns 37 cached calls while a fake database throws on any unrelated V query. Existing live home audit report qa-reports/home-rails-audit-v708.json passed both rail containers."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-27T13:02:36.990004Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-LEARN-003",
+      "source": "lesson:ADIR-LEARN-003",
+      "statement": "בכל משימה ובכל פרויקט יש לטעון מראש את צורת העבודה, הבדיקות והלקחים המאושרים הרלוונטיים של אדיר, ולהימנע מהכרזת השלמה עד שכל דרישה ולקח קיבלו ראיה שעברה או חסימה מדויקת.",
+      "acceptance_check": "משימת מבחן אמיתית טוענת את הלקח לפי מזהה, שומרת גיבובי מקור, ממפה כל דרישה לראיה ומסתיימת במצב VERIFIED גם כאשר הווים כבויים במכוון ואין אירוע סינתטי. עותק מכוון עם דרישה ממתינה או מקור שהשתנה חייב להיכשל במצב NOT_VERIFIED. מניפסט לולאה מתקדם ותחום חייב לעבור, בעוד כשל זהה שלישי, ניסיון חדש מעל תוצאה לא ודאית, מועד סיום חסר או חריגה מתקרת ניסיונות חייבים להיחסם.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MIND-001",
+      "source": "lesson:ADIR-MIND-001",
+      "statement": "לפני עבודה מהותית המבצע מתרגם את הבקשה לתוצאה המלאה, חוזה מה אדיר צפוי לבדוק, מאמת אמת והרשאה, ובונה בדיקות קבלה וראיה גלויה במקום שבו התוצאה אמורה לעבוד.",
+      "acceptance_check": "A new representative version-two task contract cannot start without a valid matching predictive manifest, rejects a missing or oversized lesson bundle and private feedback storage, creates midpoint, adversarial and effectiveness requirements, detects manifest tampering and blocks completion while any predictive check is pending. A complete real contract must return VERIFIED, while an existing version-one contract must remain finishable.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-ADMIN-001",
+      "source": "lesson:ADIR-ADMIN-001",
+      "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
+      "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:home-rails",
+      "source": "project_guidance",
+      "statement": "Both homepage availability rails recover from a transient request and pass public audit.",
+      "acceptance_check": "Both homepage availability rails recover from a transient request and pass public audit.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:professor",
+      "source": "project_guidance",
+      "statement": "Biz-only questions do not depend on unrelated V tables and render verified output.",
+      "acceptance_check": "Biz-only questions do not depend on unrelated V tables and render verified output.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:release",
+      "source": "project_guidance",
+      "statement": "One frozen artifact is published with rollback and live verification.",
+      "acceptance_check": "One frozen artifact is published with rollback and live verification.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-27T13:02:36.990004Z",
+      "evidence": [
+        "Public v708 reproduced the exact Professor generic error for כמה שיחות היו החודש. Unit test now proves a Biz-only question returns 37 cached calls while a fake database throws on any unrelated V query. Existing live home audit report qa-reports/home-rails-audit-v708.json passed both rail containers."
+      ],
+      "findings": [
+        "Professor coupled every question to internal events and booking audit queries; homepage components disabled the shared bounded cache-bypassing retry."
+      ]
+    }
+  }
+}

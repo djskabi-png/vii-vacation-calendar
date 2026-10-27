@@ -1,0 +1,27 @@
+{
+  "status": "diagnosed",
+  "symptom": "The authenticated production Professor returned a generic verified-data failure for the simple Hebrew question 'כמה שיחות היו החודש'.",
+  "expected_behavior": "Professor recognizes the question as Biz Maskyoo calls for the current month and returns the stored verified count, or explicitly says that the Biz range is not stored, without inventing a value.",
+  "environment": "Production v708 at https://vii.spaplus.co/admin/professor on 2026-10-27 and candidate branch release/v646-four-gaps.",
+  "reproduction": {
+    "steps": ["Open the authenticated production Professor page.", "Enter כמה שיחות היו החודש.", "Submit once and observe the response."],
+    "evidence": "The live page reproduced the generic error 'לא הצלחתי להשיב על בסיס נתונים מאומתים כרגע. לא הוצג מספר משוער.' while the intent unit test classified the question as the single bizCalls metric."
+  },
+  "observations": [
+    {"observation":"Intent parsing correctly selects only bizCalls.","evidence":"tests/admin-professor-intent.test.mjs passes the exact Hebrew question with metrics equal to ['bizCalls']."},
+    {"observation":"Before the fix, every metric snapshot queried vii_business_events and vii_booking_audit before reading Biz cache, even when neither source was requested.","evidence":"Pre-fix app/lib/admin-professor.ts metricSnapshot implementation."},
+    {"observation":"The same production page can load quota and history, so authentication and the Professor schema are available.","evidence":"Authenticated live Professor page displayed 20 remaining questions and an empty history before the failing submission."}
+  ],
+  "hypotheses": [
+    {"id":"H1","mechanism":"A Biz-only question was coupled to unrelated V event and booking queries; a failure in either unrelated source aborted the whole answer before the already-defensive Biz cache path could respond.","prediction":"A test database that throws on any V query will fail before the change and will still return cached Biz calls after source-selective routing is implemented.","discriminating_test":"Run metricSnapshot for the exact bizCalls intent with a database that throws on prepare and an injected verified Biz cache row.","result":"Supported: after source-selective routing, the snapshot returns 37 Biz calls, zero unrelated database prepares occur, and the regression test passes.","status":"supported"},
+    {"id":"H2","mechanism":"Professor misunderstood the Hebrew question and requested the wrong metrics.","prediction":"The parsed intent would contain V phone events or the all-metrics fallback.","discriminating_test":"Parse the exact production question with the deterministic intent engine.","result":"Rejected: the parsed metric list is exactly ['bizCalls'].","status":"rejected"},
+    {"id":"H3","mechanism":"The admin session or daily quota blocked the request.","prediction":"The page would fail to load quota/history or would show the quota-specific message.","discriminating_test":"Inspect the authenticated page before submission and the visible error after submission.","result":"Rejected as the observed mechanism: quota loaded as 20 remaining and the page showed the generic server failure, not forbidden or quota exhausted.","status":"rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change":"Route each Professor question only to the data sources required by its requested metrics. Make catalog inventory tolerant of one unavailable world, repair ambiguous-place objects, and use stable answer fields for visualization identity.","evidence":"New regression test proves a Biz-only query cannot touch unrelated V tables; the focused Professor suite passes 21/21."},
+  "affected_family": ["Professor Hebrew intent routing", "Professor Biz calls questions", "Professor data-source isolation", "Professor answer history", "Professor verified-data visualization"],
+  "regression_checks": [{"check":"Focused Professor intent, visualization and product contract suites","status":"passed","evidence":"node --test tests/admin-professor-intent.test.mjs tests/admin-professor-visualization.test.mjs tests/vii-followup-personalization-professor.test.mjs: 21/21 passed."}],
+  "confidence": "high",
+  "remaining_unknowns": ["The production worker exception text is intentionally not exposed to the browser. Exact post-publication success for the frozen candidate remains required before changing status to fixed."],
+  "authorization_boundary": "Authorized code repair, tests, one production publication and post-public verification; no supplier data, permissions, secrets, DNS or unrelated database changes."
+}
