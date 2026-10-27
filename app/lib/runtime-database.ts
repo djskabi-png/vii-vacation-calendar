@@ -54,6 +54,21 @@ export async function reportingDatabase(): Promise<ReportingDatabase> {
   return reportingDatabaseForEnv((runtime.env ?? {}) as unknown as RuntimeDatabaseEnvironment);
 }
 
+/**
+ * Small derived administration features such as Professor quota and question
+ * history live in the bound D1 database. They must not depend on the Aurora
+ * bridge: a reporting outage must not erase the answer UI, consume an
+ * uncertain quota write or prevent a verified read from being returned.
+ */
+export async function runtimeD1Database(): Promise<D1Database> {
+  const runtimeName = "cloudflare:workers";
+  const runtime = await import(/* @vite-ignore */ runtimeName);
+  const env = (runtime.env ?? {}) as unknown as RuntimeDatabaseEnvironment;
+  const database = d1FallbackForRuntimeEnv(env);
+  if (!database) throw new Error("d1_database_unavailable");
+  return database;
+}
+
 export async function requiredRuntimeDatabase(errorCode: string): Promise<D1Database> {
   const database = await runtimeDatabase();
   if (!database) throw new Error(errorCode);

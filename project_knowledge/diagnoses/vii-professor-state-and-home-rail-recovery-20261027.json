@@ -1,0 +1,92 @@
+{
+  "status": "diagnosed",
+  "symptom": "Production v711 returned the same generic failure for both a Biz-only Professor question and an internal page-view question, while a cold homepage could leave both vacation availability rails in a terminal retry state.",
+  "expected_behavior": "Professor returns only verified stored data, persists a successful question and decrements quota once. Both homepage availability rails keep recovering from a bounded cold or transient refresh and render verified cards without requiring a visitor click.",
+  "environment": "Production v711 and release/v646-four-gaps candidate on 2026-10-27",
+  "reproduction": {
+    "steps": [
+      "Open the authenticated production Professor and ask כמה שיחות היו החודש.",
+      "Ask כמה כניסות היו החודש.",
+      "Open a cold production homepage and observe the near-date and holiday availability rails until settled."
+    ],
+    "evidence": "Both unrelated Professor questions returned the same verified-data failure with unchanged quota and no history row. The user supplied a production screenshot with both homepage rails stopped at the manual retry state, while direct warm API reads later returned verified offers."
+  },
+  "observations": [
+    {
+      "observation": "Professor state writes and report reads shared one Aurora-backed database object.",
+      "evidence": "app/api/admin/professor/route.ts passed requiredRuntimeDatabase to quota, history, report queries and the final history INSERT."
+    },
+    {
+      "observation": "Two questions with different report sources failed after the authenticated page itself loaded.",
+      "evidence": "The exact Biz-calls and internal-page-view questions both reached the same generic catch path, quota stayed 20/20 and history stayed empty."
+    },
+    {
+      "observation": "The homepage APIs recover and return verified cards, but the client stopped automatic recovery after one refreshing response.",
+      "evidence": "Direct production reads of home-deals, home-holidays and home-holiday-deals returned HTTP 200; pre-fix HomeLiveDeals changed to terminal error when automaticRetries reached one."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "A failure in the shared Aurora-backed Professor state path, especially the final history write, suppresses an otherwise valid answer from any report source.",
+      "prediction": "Separating quota/history into the bound D1 state store while retaining a reporting database with read-only fallback will allow answers to return and persist even when the reporting bridge is degraded.",
+      "discriminating_test": "Exercise two unrelated metrics, verify quota/history use a different database boundary, and require a post-deploy answer plus persisted history after reload.",
+      "result": "Supported by the shared failure boundary and focused database-boundary tests; final production confirmation remains required.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Both Hebrew questions are parsed incorrectly.",
+      "prediction": "Intent tests would select an unsupported or unrelated metric.",
+      "discriminating_test": "Parse the exact questions with the deterministic Professor intent engine.",
+      "result": "Rejected: the questions select bizCalls and pageViews respectively.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Homepage supplier availability is permanently unavailable.",
+      "prediction": "Direct endpoint reads would remain failed or empty after the cold request.",
+      "discriminating_test": "Read all three production homepage availability endpoints after the observed failure.",
+      "result": "Rejected: all returned HTTP 200 and verified deals; the remaining defect is client recovery from the cold path.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Keep Professor quota and question history in the bound D1 state store, route report reads through the reporting database with read-only D1 fallback, and give both homepage vacation rails four bounded automatic recovery intervals for refreshing responses and transient transport failures.",
+    "evidence": "The 55-test focused repair suite passes, including explicit Professor database-boundary checks and cold/transient homepage recovery guards."
+  },
+  "affected_family": [
+    "Professor quota",
+    "Professor question history",
+    "Professor Biz metrics",
+    "Professor internal V metrics",
+    "Professor comparisons and rankings",
+    "homepage near-date availability rail",
+    "homepage holiday availability rail",
+    "QQQAAA pre-Professor repair suite"
+  ],
+  "regression_checks": [
+    {
+      "check": "Focused Professor, availability, calendar, booking and visualization suite",
+      "status": "passed",
+      "evidence": "pnpm qa:pre-professor-repairs passed 55 of 55 tests."
+    },
+    {
+      "check": "Exact authenticated Professor answer, quota decrement and history persistence",
+      "status": "pending",
+      "evidence": "Required on the frozen production candidate after publication."
+    },
+    {
+      "check": "Cold desktop and mobile homepage render both verified availability rails without manual retry",
+      "status": "pending",
+      "evidence": "Required on the frozen production candidate after publication."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The production worker intentionally does not expose its raw database exception.",
+    "The exact final mechanism is not closed until the same public authenticated questions and a cold homepage pass after deployment."
+  ],
+  "authorization_boundary": "Authorized code repair, tests, one frozen production publication and public verification. No supplier data, canonical business records, permissions, secrets, DNS or environment settings are changed."
+}

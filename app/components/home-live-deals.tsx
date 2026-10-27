@@ -25,6 +25,8 @@ import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 
 type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
+const automaticRecoveryDelays = [1_250, 2_500, 5_000, 8_000] as const;
+
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
   en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", whatsapp: "WhatsApp", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
@@ -146,6 +148,14 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+    const recover = () => {
+      const attempts = automaticRetries.current.get(selectionKey) || 0;
+      const delay = automaticRecoveryDelays[attempts];
+      if (delay === undefined) { setState(accepted ? "ready" : "error"); return; }
+      automaticRetries.current.set(selectionKey, attempts + 1);
+      setState(accepted ? "ready" : "loading");
+      retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);
+    };
     discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v1`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, timeoutMs: 5_000, retries: 1,
       shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" })
       .then((result) => {
@@ -159,12 +169,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           } else if (!result.display.periods.some((item) => item.id === period)) { setPeriod(result.display.defaultPeriod); return; }
         }
         if (result.availabilityStatus === "refreshing" && result.deals.length === 0) {
-          const attempts = automaticRetries.current.get(selectionKey) || 0;
-          if (attempts >= 1) setState(accepted ? "ready" : "error");
-          else {
-            automaticRetries.current.set(selectionKey, attempts + 1);
-            retryTimer = setTimeout(() => setDealRetry((value) => value + 1), 1_500);
-          }
+          recover();
           return;
         }
         automaticRetries.current.delete(selectionKey);
@@ -172,7 +177,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         setData(result);
         setState("ready");
       })
-      .catch((error) => { if (error?.name !== "AbortError") setState(accepted ? "ready" : "error"); });
+      .catch((error) => { if (error?.name !== "AbortError") recover(); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
   }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 

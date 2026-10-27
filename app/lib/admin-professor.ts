@@ -228,7 +228,7 @@ export async function saveProfessorQuota(db: D1Database, email: string, limit: n
   await db.prepare(`INSERT INTO vii_professor_quota_v1(email,daily_limit,updated_at,updated_by) VALUES(?,?,?,?) ON CONFLICT(email) DO UPDATE SET daily_limit=excluded.daily_limit,updated_at=excluded.updated_at,updated_by=excluded.updated_by`).bind(email.trim().toLowerCase(), value, now, actor.trim().toLowerCase()).run(); return value;
 }
 
-export async function answerProfessor(db: D1Database, email: string, question: string): Promise<ProfessorAnswer> {
+export async function answerProfessor(db: D1Database, email: string, question: string, reportingDb: D1Database = db): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
   const places = professorNeedsInventory(normalizedQuestion) ? await inventory() : []; const parsed = parseProfessorIntent(normalizedQuestion, places);
@@ -242,9 +242,21 @@ export async function answerProfessor(db: D1Database, email: string, question: s
     world: parsed.place?.world || parsed.world || context.world,
     metrics: parsed.explicitMetrics ? parsed.metrics : context.plan.metrics,
   } : parsed;
-  const current = await metricSnapshot(db, intent.range, intent);
-  const previous = intent.compareRange ? await metricSnapshot(db, intent.compareRange, intent) : null;
-  const ranked = await ranking(db, intent.range, intent, places);
+  const readSnapshot = async (range: ProfessorRange) => {
+    try { return await metricSnapshot(reportingDb, range, intent); }
+    catch (error) {
+      if (reportingDb === db) throw error;
+      return metricSnapshot(db, range, intent);
+    }
+  };
+  const current = await readSnapshot(intent.range);
+  const previous = intent.compareRange ? await readSnapshot(intent.compareRange) : null;
+  let ranked: Array<{ name: string; value: number }> = [];
+  try { ranked = await ranking(reportingDb, intent.range, intent, places); }
+  catch (error) {
+    if (reportingDb === db) throw error;
+    ranked = await ranking(db, intent.range, intent, places);
+  }
   const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric, metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
   const bizRequested = intent.metrics.some((metric) => metric.startsWith("biz"));
   const partialBizRange = current.bizRange && (current.bizRange.from !== intent.range.from || current.bizRange.till !== intent.range.till);

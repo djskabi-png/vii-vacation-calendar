@@ -5,7 +5,7 @@
   "task_type": "production repair and verified release",
   "goal": "Repair both homepage availability rails and Professor verified answers, retain interactive charts, run QQQAAA, publish one frozen candidate and verify production.",
   "created_at": "2026-10-27T13:02:24.311184Z",
-  "updated_at": "2026-10-27T13:02:36.990004Z",
+  "updated_at": "2026-10-27T15:44:20.437509Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -194,6 +194,55 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "access:sites-release-v709",
+      "source": "access_obstacle",
+      "statement": "Diagnose the uncertain Sites release-chat result before any retry",
+      "acceptance_check": "Inspect the owning Sites routes and verify an existing version or deployment, or prove no write occurred before one materially different authorized release attempt",
+      "status": "passed",
+      "evidence": [
+        "Recovered through the authenticated owning Sites release chat after verifying no original write occurred; v709 succeeded once with recorded Version and Deployment IDs and public HTTP 200."
+      ],
+      "reason": null,
+      "access_recovery": {
+        "observed_error": "The official release chat returned an unknown result before any model or Sites tool action was visible; the direct Sites connector also opened a different workspace where the VII project was not found.",
+        "category": "capability",
+        "diagnosis": "The first route result was uncertain at the chat UI layer and the direct connector was bound to the wrong workspace, not evidence that the owning VII Site was inaccessible.",
+        "authorization_boundary": "Publish the user-authorized frozen VII candidate only, preserving PUBLIC, environment revision 29 and all existing bindings without data or permission changes.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "The direct Sites connector did not resolve the owning VII project, so it was not used for a write."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "The existing authenticated in-app release chat named Publish VII Release exposed the prior VII release history and completed the authorized v709 publication."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "The local repository verified the source commit and tree, but deployment remained assigned to the official Sites route."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "The owning Site settings and the official release chat were verified before one materially different release attempt. v709 reached succeeded with Version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_084333a324a481918d11b9f0e3f8cee4 and Deployment appgdep_6ae0bb3ba6288191bb42b0876f76ebe2."
+          }
+        ],
+        "outcome": "recovered",
+        "ready_work_remaining": true,
+        "verified_result": "v709 was published exactly once through the owning official Sites route, reached succeeded, and https://vii.spaplus.co/ returned HTTP 200.",
+        "minimum_human_action": null,
+        "resume_when": null
+      },
+      "updated_at": "2026-10-27T15:23:40.252198Z"
     }
   ],
   "verification_status": "in_progress",
@@ -208,5 +257,7 @@
         "Professor coupled every question to internal events and booking audit queries; homepage components disabled the shared bounded cache-bypassing retry."
       ]
     }
-  }
+  },
+  "last_freshness_check_at": "2026-10-27T15:44:20.437509Z",
+  "last_freshness_check_errors": []
 }
