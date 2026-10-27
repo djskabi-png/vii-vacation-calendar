@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseProfessorIntent, professorRange } from "../app/lib/admin-professor-intent.ts";
+import { parseProfessorIntent, professorNeedsInventory, professorRange } from "../app/lib/admin-professor-intent.ts";
 import { metricSnapshot } from "../app/lib/admin-professor.ts";
 
 const now = new Date("2026-10-26T12:00:00Z");
@@ -26,6 +26,29 @@ test("a Biz-only Professor question never touches unrelated V event or booking t
   assert.equal(snapshot.metrics.bizCalls, 37);
   assert.equal(snapshot.metrics.bizWhatsapp, 0);
   assert.equal(snapshot.bizRows, 1);
+});
+
+test("generic Professor questions skip the full supplier inventory while named-business questions load it", () => {
+  assert.equal(professorNeedsInventory("כמה שיחות היו החודש"), false);
+  assert.equal(professorNeedsInventory("למי היו הכי הרבה שיחות החודש"), true);
+  assert.equal(professorNeedsInventory("תן לי נתונים של החודש להילת הנוף"), true);
+  assert.equal(professorNeedsInventory("כמה הזמנות היו לעסק הילת הנוף"), true);
+});
+
+test("Professor answers a cached Biz-only question from aggregate cache tables without loading every supplier payload", async () => {
+  const db = { prepare(sql) {
+    return { bind() { return { async first() {
+      if (sql.includes("vii_biz_conversion_coverage_v1")) return { businesses: 459, savedAt: "2026-10-26T16:17:40.000Z" };
+      if (sql.includes("SUM(CASE WHEN source = 'maskyoo'")) return { calls: 584, whatsapp: 316 };
+      if (sql.includes("SELECT COUNT(*) AS orders")) return { orders: 41, revenue: 125000 };
+      throw new Error(`unexpected query: ${sql}`);
+    } }; } };
+  } };
+  const intent = parseProfessorIntent("כמה שיחות היו החודש", [], now);
+  const snapshot = await metricSnapshot(db, intent.range, intent);
+  assert.equal(snapshot.metrics.bizCalls, 584);
+  assert.equal(snapshot.bizRows, 459);
+  assert.equal(snapshot.bizSavedAt, "2026-10-26T16:17:40.000Z");
 });
 
 test("Professor understands a named business and only the requested verified metrics", () => {

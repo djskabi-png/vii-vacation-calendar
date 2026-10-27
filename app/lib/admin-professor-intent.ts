@@ -136,3 +136,11 @@ export function parseProfessorIntent(question: string, places: ProfessorPlace[],
     ambiguous: placeMatch.ambiguous,
   };
 }
+
+export function professorNeedsInventory(question: string) {
+  const normalized = cleanProfessorText(question);
+  return /מי\s+(?:הכי|מוביל)|הכי\s+(?:הרבה|גבוה)|עסקים?\s+מובילים|טופ\s*\d*/u.test(normalized)
+    || /(?:לעסק|עבור\s+עסק)\s+/u.test(normalized)
+    || /(?:^|\s)ל(?!כולם(?:\s|$)|כל(?:\s|$)|מי(?:\s|$)|מה(?:\s|$)|תקופה(?:\s|$)|חודש(?:\s|$)|שבוע(?:\s|$)|שנה(?:\s|$))[\p{L}]{3,}/u.test(normalized)
+    || /של\s+(?!החודש(?:\s|$)|השבוע(?:\s|$)|השנה(?:\s|$)|כל(?:\s|$)|העסק(?:\s|$))[\p{L}]{2,}/u.test(normalized);
+}

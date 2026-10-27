@@ -1,7 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
-import { parseProfessorIntent, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
+import { parseProfessorIntent, professorNeedsInventory, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
 
 type MetricValues = {
   impressions: number; pageViews: number; phone: number; whatsapp: number; viiBookings: number;
@@ -58,6 +58,33 @@ function scopeWhere(intent: ProfessorIntent, alias = "") {
   return { sql: "", values: [] as unknown[] };
 }
 
+function bizScopeWhere(intent: ProfessorIntent, alias = "") {
+  const column = (name: string) => `${alias}${name}`;
+  if (intent.place?.siteID) return { sql: ` AND ${column("world")} = ? AND ${column("site_id")} = ?`, values: [intent.place.world, intent.place.siteID] as unknown[] };
+  if (intent.world && intent.world !== "spa") { const worlds = WORLD_DB[intent.world]; return { sql: ` AND ${column("world")} IN (${worlds.map(() => "?").join(",")})`, values: worlds as unknown[] }; }
+  return { sql: "", values: [] as unknown[] };
+}
+
+async function fastCachedBizTotals(db: D1Database, range: ProfessorRange, intent: ProfessorIntent) {
+  if (intent.world === "spa" || intent.place?.world === "spa") return null;
+  const scope = bizScopeWhere(intent);
+  const coverage = await db.prepare(`SELECT COUNT(DISTINCT world || ':' || site_id) AS businesses, MAX(saved_at) AS savedAt
+    FROM vii_biz_conversion_coverage_v1 WHERE from_day <= ? AND till_day >= ?${scope.sql}`)
+    .bind(range.from, range.till, ...scope.values).first<{ businesses: number; savedAt: string | null }>();
+  if (!Number(coverage?.businesses || 0)) return null;
+  const contacts = await db.prepare(`SELECT
+    SUM(CASE WHEN source = 'maskyoo' THEN 1 ELSE 0 END) AS calls,
+    SUM(CASE WHEN source = 'whatsapp' THEN 1 ELSE 0 END) AS whatsapp
+    FROM vii_biz_conversion_contacts_v1 WHERE contact_day >= ? AND contact_day <= ?${scope.sql}`)
+    .bind(range.from, range.till, ...scope.values).first<{ calls: number; whatsapp: number }>();
+  const orders = await db.prepare(`SELECT COUNT(*) AS orders, COALESCE(SUM(price), 0) AS revenue FROM (
+    SELECT world, site_id, order_id, MAX(order_price) AS price FROM vii_biz_conversion_contacts_v1
+    WHERE contact_day >= ? AND contact_day <= ? AND order_id IS NOT NULL${scope.sql} GROUP BY world, site_id, order_id
+  )`).bind(range.from, range.till, ...scope.values).first<{ orders: number; revenue: number }>();
+  return { calls: Number(contacts?.calls || 0), whatsapp: Number(contacts?.whatsapp || 0), orders: Number(orders?.orders || 0),
+    revenue: Number(orders?.revenue || 0), businesses: Number(coverage?.businesses || 0), savedAt: coverage?.savedAt || null };
+}
+
 export async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, dependencies: {
   loadBizConversions?: typeof loadCachedBizConversions;
 } = {}) {
@@ -77,29 +104,31 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
     .bind(since, until, ...bookingScope.values).first<{ total: number }>() : null;
   let bizRange = range;
   const loadBizConversions = dependencies.loadBizConversions ?? loadCachedBizConversions;
-  let cached = needsBiz ? await loadBizConversions(db, range.from, range.till).catch(() => []) : [];
+  let fastBiz = needsBiz && !dependencies.loadBizConversions ? await fastCachedBizTotals(db, range, intent).catch(() => null) : null;
+  let cached = needsBiz && !fastBiz ? await loadBizConversions(db, range.from, range.till).catch(() => []) : [];
   if (needsBiz && !cached.length) {
     const today = day(new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const closedTill = day(yesterday);
     if (range.from <= closedTill && range.till >= today) {
       bizRange = { from: range.from, till: closedTill, label: `${range.from} עד ${closedTill}` };
-      cached = await loadBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
+      fastBiz = !dependencies.loadBizConversions ? await fastCachedBizTotals(db, bizRange, intent).catch(() => null) : null;
+      cached = fastBiz ? [] : await loadBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
     }
   }
   const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
   const bizSupported = needsBiz && intent.world !== "spa" && (!intent.place || intent.place.world !== "spa");
-  const hasBiz = bizSupported && selected.length > 0;
+  const hasBiz = bizSupported && (Boolean(fastBiz) || selected.length > 0);
   const sum = (pick: (row: typeof selected[number]) => number) => selected.reduce((total, row) => total + pick(row), 0);
   const metrics: MetricValues = {
     impressions: Number(internal?.impressions || 0), pageViews: Number(internal?.pageViews || 0), phone: Number(internal?.phone || 0), whatsapp: Number(internal?.whatsapp || 0), viiBookings: Number(bookings?.total || 0),
-    bizCalls: hasBiz ? sum((row) => row.conversions.summary.maskyoo.contacts) : null,
-    bizWhatsapp: hasBiz ? sum((row) => row.conversions.summary.whatsapp.contacts) : null,
-    bizOrders: hasBiz ? sum((row) => row.conversions.summary.all.orders) : null,
-    bizRevenue: hasBiz ? sum((row) => row.conversions.summary.all.revenue) : null,
+    bizCalls: hasBiz ? fastBiz?.calls ?? sum((row) => row.conversions.summary.maskyoo.contacts) : null,
+    bizWhatsapp: hasBiz ? fastBiz?.whatsapp ?? sum((row) => row.conversions.summary.whatsapp.contacts) : null,
+    bizOrders: hasBiz ? fastBiz?.orders ?? sum((row) => row.conversions.summary.all.orders) : null,
+    bizRevenue: hasBiz ? fastBiz?.revenue ?? sum((row) => row.conversions.summary.all.revenue) : null,
   };
-  return { metrics, bizSavedAt: selected.map((row) => row.cache.savedAt).sort().at(-1) || null, bizRows: selected.length,
-    bizSupported, bizRange: selected.length ? bizRange : null };
+  return { metrics, bizSavedAt: fastBiz?.savedAt || selected.map((row) => row.cache.savedAt).sort().at(-1) || null,
+    bizRows: fastBiz?.businesses || selected.length, bizSupported, bizRange: hasBiz ? bizRange : null };
 }
 
 async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
@@ -187,7 +216,7 @@ export async function saveProfessorQuota(db: D1Database, email: string, limit: n
 export async function answerProfessor(db: D1Database, email: string, question: string): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
-  const places = await inventory(); const parsed = parseProfessorIntent(normalizedQuestion, places);
+  const places = professorNeedsInventory(normalizedQuestion) ? await inventory() : []; const parsed = parseProfessorIntent(normalizedQuestion, places);
   if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
   if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
   const isFollowUp = /^(?:ומה|ומה לגבי|ואיך|אותו|אותה|ובחודש|ובשבוע|לעומת|בהשוואה)/.test(normalizedQuestion);
