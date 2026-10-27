@@ -25,6 +25,17 @@ test("accepted dated deal snapshots keep undated online discovery non-empty duri
   ], clock), { "vacation-57": { checkedAt: clock - 1_000 } });
 });
 
+test("accepted dated search snapshots also recover explicit online booking capability", () => {
+  const clock = Date.UTC(2026, 9, 20, 12);
+  assert.deepEqual(observedOnlineCapabilities([
+    { checked_at: clock - 1_000, payload: JSON.stringify({ results: [
+      { siteID: 71, available: true, onlineBooking: true, total: 1200 },
+      { siteID: 72, available: true, onlineBooking: false, total: 900 },
+      { siteID: 73, available: true, total: 800 },
+    ] }) },
+  ], clock), { "vacation-71": { checkedAt: clock - 1_000 } });
+});
+
 test("undated filter accepts persisted capability but never relaxes dated selection", () => {
   const discovery = { undated: true, capability: { checkedAt: Date.now() } };
   assert.equal(matchesVacationOnlineBooking(true, undefined, null, discovery), true);

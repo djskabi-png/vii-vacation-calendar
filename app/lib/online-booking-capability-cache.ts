@@ -17,9 +17,15 @@ export function observedOnlineCapabilities(rows: readonly ObservedCapabilityRow[
       || row.checked_at > now || now - row.checked_at >= CAPABILITY_MAX_AGE_MS) continue;
     let value: Record<string, unknown>;
     try { value = record(JSON.parse(row.payload)); } catch { continue; }
-    // Home-deal snapshots contain only supplier-confirmed available stays. The
-    // booking flag is copied verbatim from that successful provider response.
-    for (const candidate of Array.isArray(value.deals) ? value.deals : []) {
+    // Both near-date rails (`deals`) and dated discovery (`results`) contain
+    // supplier-confirmed responses. The booking flag is copied verbatim from
+    // those accepted provider payloads; no capability is inferred from price
+    // or availability alone.
+    const candidates = [
+      ...(Array.isArray(value.deals) ? value.deals : []),
+      ...(Array.isArray(value.results) ? value.results : []),
+    ];
+    for (const candidate of candidates) {
       const deal = record(candidate);
       if (deal.onlineBooking !== true || !Number.isSafeInteger(deal.siteID) || Number(deal.siteID) < 1) continue;
       const slug = `vacation-${Number(deal.siteID)}`;
