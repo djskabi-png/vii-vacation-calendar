@@ -274,10 +274,18 @@ async function catalogDetails<T>(world: "vacations" | "events", supplierIds: rea
     const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
     return [supplierId, ((sergeyDetails.details as unknown as Record<string, T>)[slug] || null) as T | null];
   }));
-  const db = await runtimeCatalogDatabase();
-  if (!db) return fallback;
-  const state = await readSupplierCatalogState(db, world);
-  if (!state?.activeRunId) return fallback;
-  const details = await (reviewsOnly ? readSupplierCatalogReviewDetails(db, world, ids) : readSupplierCatalogDetails(db, world, ids));
-  return new Map(ids.map((supplierId) => [supplierId, (details.get(supplierId) as T | null) || null]));
+  try {
+    const db = await runtimeCatalogDatabase();
+    if (!db) return fallback;
+    const state = await readSupplierCatalogState(db, world);
+    if (!state?.activeRunId) return fallback;
+    const details = await (reviewsOnly ? readSupplierCatalogReviewDetails(db, world, ids) : readSupplierCatalogDetails(db, world, ids));
+    return new Map(ids.map((supplierId) => [supplierId, (details.get(supplierId) as T | null) || null]));
+  } catch {
+    // Detail enrichment is presentation data, not publication authority. The
+    // immutable accepted build must remain usable when the runtime snapshot
+    // store is temporarily unavailable, just like the single-detail route.
+    console.warn(`public_catalog_details_fallback:${world}`);
+    return fallback;
+  }
 }
