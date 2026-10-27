@@ -44,6 +44,20 @@ function sumBucket(rows: ConversionBucket[]) {
   return { ...total, rate: total.contacts ? Math.round(total.converted / total.contacts * 1000) / 10 : null };
 }
 
+const bizSummarySignature = (placeId: string, item: BizSummary) => {
+  const siteID = placeId.match(/\d+$/)?.[0] || placeId;
+  return `${siteID}:${JSON.stringify({ summary: item.summary, clicks: item.clicks })}`;
+};
+
+function uniqueBizSummaries(rows: Array<{ placeId: string; item: BizSummary }>) {
+  const unique = new Map<string, BizSummary>();
+  for (const row of rows) {
+    const signature = bizSummarySignature(row.placeId, row.item);
+    if (!unique.has(signature)) unique.set(signature, row.item);
+  }
+  return [...unique.values()];
+}
+
 function delay(seconds: number | null) {
   if (seconds === null) return "אין עדיין";
   if (seconds < 3600) return `${Math.round(seconds / 60)} דקות`;
@@ -276,16 +290,19 @@ export default function BusinessPerformance() {
   const totals = useMemo(() => filtered.reduce((sum, row) => ({ impressions: sum.impressions + row.impressions, pageViews: sum.pageViews + row.pageViews, uniqueBrowsers: sum.uniqueBrowsers + row.uniqueBrowsers, phoneReveals: sum.phoneReveals + row.phoneReveals, phoneClicks: sum.phoneClicks + row.phoneClicks, whatsappLeads: sum.whatsappLeads + row.whatsappLeads, whatsappHandoffs: sum.whatsappHandoffs + row.whatsappHandoffs, bookingRequests: sum.bookingRequests + row.bookingRequests, viiBookings: sum.viiBookings + row.viiBookings, reviews: sum.reviews + row.reviews }), { impressions: 0, pageViews: 0, uniqueBrowsers: 0, phoneReveals: 0, phoneClicks: 0, whatsappLeads: 0, whatsappHandoffs: 0, bookingRequests: 0, viiBookings: 0, reviews: 0 }), [filtered]);
   const totalActions = totals.phoneClicks + totals.whatsappHandoffs + totals.bookingRequests;
   const reportConversionRows = useMemo(() => uniqueConversionBusinesses(filtered.filter(conversionSupported)), [filtered]);
-  const loadedBiz = useMemo(() => reportConversionRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId]] : []), [reportConversionRows, bizByPlace]);
+  const loadedBizRows = useMemo(() => reportConversionRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [{ placeId: row.placeId, item: bizByPlace[row.placeId] }] : []), [reportConversionRows, bizByPlace]);
+  const loadedBiz = useMemo(() => loadedBizRows.map((row) => row.item), [loadedBizRows]);
+  const uniqueLoadedBiz = useMemo(() => uniqueBizSummaries(loadedBizRows), [loadedBizRows]);
   const staleBiz = useMemo(() => loadedBiz.filter((item) => item.cache?.stale), [loadedBiz]);
   const bizCoverageComplete = reportConversionRows.length > 0 && loadedBiz.length === reportConversionRows.length;
   const latestBizSave = useMemo(() => loadedBiz.map((item) => item.cache?.savedAt || "").filter(Boolean).sort().at(-1) || "", [loadedBiz]);
-  const bizTotals = useMemo(() => ({ all: sumBucket(loadedBiz.map((row) => row.summary!.all)), whatsapp: sumBucket(loadedBiz.map((row) => row.summary!.whatsapp)), maskyoo: sumBucket(loadedBiz.map((row) => row.summary!.maskyoo)), form: sumBucket(loadedBiz.map((row) => row.summary!.form)) }), [loadedBiz]);
+  const bizTotals = useMemo(() => ({ all: sumBucket(uniqueLoadedBiz.map((row) => row.summary!.all)), whatsapp: sumBucket(uniqueLoadedBiz.map((row) => row.summary!.whatsapp)), maskyoo: sumBucket(uniqueLoadedBiz.map((row) => row.summary!.maskyoo)), form: sumBucket(uniqueLoadedBiz.map((row) => row.summary!.form)) }), [uniqueLoadedBiz]);
   const worldBreakdown = useMemo(() => (["vacations", "events", "spa", "rooms", "activities", "trails", "providers"] as const).map((scope) => {
     const allScopeRows = filtered.filter((row) => canonicalBusinessReportScope(row.world) === scope);
     const scopeRows = allScopeRows.filter(conversionSupported);
-    const summaries = scopeRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [bizByPlace[row.placeId].summary!] : []);
-    return { scope, businesses: allScopeRows.length, loaded: summaries.length, supported: scope === "vacations" || scope === "events" || scope === "rooms", all: sumBucket(summaries.map((item) => item.all)), whatsapp: sumBucket(summaries.map((item) => item.whatsapp)), maskyoo: sumBucket(summaries.map((item) => item.maskyoo)) };
+    const loaded = scopeRows.flatMap((row) => bizByPlace[row.placeId]?.summary && !bizByPlace[row.placeId].error ? [{ placeId: row.placeId, item: bizByPlace[row.placeId] }] : []);
+    const summaries = uniqueBizSummaries(loaded).map((item) => item.summary!);
+    return { scope, businesses: allScopeRows.length, loaded: loaded.length, supported: scope === "vacations" || scope === "events" || scope === "rooms", all: sumBucket(summaries.map((item) => item.all)), whatsapp: sumBucket(summaries.map((item) => item.whatsapp)), maskyoo: sumBucket(summaries.map((item) => item.maskyoo)) };
   }), [filtered, bizByPlace]);
   function exportCsv() {
     const header = ["עסק", "עולם", "חשיפות", "כניסות", "דפדפנים ייחודיים", "חשיפות טלפון", "לחיצות טלפון", "לידי WhatsApp", "מעברים ל-WhatsApp", "בקשות הזמנה", "הזמנות מ-V", "שיחות מסקיו", "פניות WhatsApp ב-Biz", "פניות שהומרו", "הזמנות מ-Biz", "הכנסות Biz", "חוות דעת", "כניסה מתוך חשיפה", "פעולה מתוך כניסה"];

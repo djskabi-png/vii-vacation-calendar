@@ -151,8 +151,9 @@ test("Biz reporting uses one server run identity, truthful coverage and typed pe
   assert.match(route, /updateBizReportRun/);
   const migration = await read("drizzle/0011_strong_roland_deschain.sql");
   assert.match(migration, /`job_id` text PRIMARY KEY NOT NULL/);
-  assert.match(cache, /section-v3/);
-  assert.match(route, /sectionOnly:\s*true/);
+  assert.match(cache, /all-portals-v2/);
+  assert.doesNotMatch(route, /sectionOnly:\s*true/);
+  assert.match(page, /uniqueBizSummaries/);
   assert.match(route, /`\$\{target\.world\}:\$\{target\.siteID\}`/);
 });
 

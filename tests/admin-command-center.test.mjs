@@ -52,7 +52,8 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(route, /name = 'whatsapp_handoff'/);
   assert.match(route, /export async function POST/);
   assert.match(route, /Promise\.all\(targets\.map/);
-  assert.match(route, /sectionOnly: true/);
+  assert.doesNotMatch(route, /sectionOnly:\s*true/);
+  assert.match(page, /uniqueBizSummaries/);
   assert.match(route, /includeContacts/);
   assert.match(route, /supportedInventory/);
   assert.match(route, /publicCatalogSummaries/);

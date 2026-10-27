@@ -22,7 +22,7 @@ test('world openings retain H1, intro, search, breadcrumbs and truthful imagery 
 test('search-depth keeps useful SEO, FAQs, reviews and semantic related links without production labels',()=>{
  const source=read('app/components/search-after-results.tsx');
  assert.doesNotMatch(source,/<span className="eyebrow">\{(?:content|discovery)\.eyebrow\}<\/span>|<p>\{discovery\.intro\}<\/p>/);
- for(const text of ['faqSchema(content.faqs)','content.paragraphs.map','content.faqs.map','reviews.map','discovery.title','regionLinks','cityLinks','typeLinks','smartLinks','trailLinks','providerLinks'])assert.ok(source.includes(text),text);
+ for(const text of ['faqSchema(localizedContent.faqs)','content.paragraphs.map(translate)','content.faqs.map','localizedContent.paragraphs.map','localizedContent.faqs.map','reviews.map','discovery.title','regionLinks','cityLinks','typeLinks','smartLinks','trailLinks','providerLinks'])assert.ok(source.includes(text),text);
  assert.doesNotMatch(source,/image-context-label|Illustrative image|תמונת המחשה/);
 });
 test('declutter keeps article facts and trail safety while removing editorial production labels',()=>{

@@ -98,7 +98,7 @@ export async function GET(request: Request) {
       }, freshForMs: historical ? 7 * 86400_000 : 2 * 60_000,
       deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
       forceRefresh: url.searchParams.get("refresh") === "1",
-      loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
+      loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(),
         source: source || undefined, converted: converted || undefined, includeContacts }) });
       return Response.json({ conversions: report.value, reportCache: report.cache,
         databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
@@ -273,7 +273,7 @@ export async function POST(request: Request) {
         }
         const result = await cachedBizConversions({ db: cacheDb, ...target, from, till, forceRefresh: body.forceRefresh === true,
           deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
-          fetcher: () => fetchViiConversions({ ...target, from, till, token, sectionOnly: true, includeContacts: true }) });
+          fetcher: () => fetchViiConversions({ ...target, from, till, token, includeContacts: true }) });
         return { placeId, conversions: result.conversions, cache: result.cache };
       } catch (error) {
         const code = error instanceof ViiConversionsError ? error.code : "supplier_unavailable";

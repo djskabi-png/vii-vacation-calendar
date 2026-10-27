@@ -25,7 +25,10 @@ test("the shared content includes guide, verified review context, FAQ schema and
   assert.match(component, /search-depth__reviews/);
   assert.match(component, /reviews\.map/);
   assert.match(component, /דירוגים ממקומות שמופיעים בתוצאות/);
-  assert.match(component, /faqSchema\(content\.faqs\)/);
+  assert.match(component, /faqSchema\(localizedContent\.faqs\)/);
+  assert.match(component, /paragraphs: content\.paragraphs\.map\(translate\)/);
+  assert.match(component, /reviewCriteria: content\.reviewCriteria\.map\(translate\)/);
+  assert.match(component, /question: translate\(item\.question\), answer: translate\(item\.answer\)/);
   assert.match(component, /search-depth__related/);
   assert.match(component, /DiscoveryRail/);
   assert.match(component, /destinationOptions/);

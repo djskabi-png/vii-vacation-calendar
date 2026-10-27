@@ -436,6 +436,12 @@ export function SearchAfterResults({
   const effectiveInventory = world === "spa" ? inventory.filter(item => spaSearchRegions.some(region => region.label === item.area)) : inventory;
   const searchParams = useSearchParams();
   const content = contentByWorld[world === "trails" ? "activities" : world];
+  const localizedContent = {
+    title: translate(content.title),
+    paragraphs: content.paragraphs.map(translate),
+    reviewCriteria: content.reviewCriteria.map(translate),
+    faqs: content.faqs.map((item) => ({ question: translate(item.question), answer: translate(item.answer) })),
+  };
   const locationParam = depthLocationParam(world);
   const resolvedLocation = searchParams.get(locationParam) || location || baseParams[locationParam];
   const discovery = discoveryCopy[language];
@@ -489,24 +495,24 @@ export function SearchAfterResults({
     }).slice(0, 8)
     .map((provider) => ({ label: localizedEntity(provider.name, discovery.providers), href: localizedPath(`/discover/place/${provider.id}`, language), meta: language === "he" ? provider.meta : localizedEntity(provider.area), image: provider.image })) : [];
 
-  return <section className={`search-depth search-depth--${world}`} aria-label={`מידע נוסף לתכנון${locationLabel}`}>
-    {!hideGuideAndFaq && !discoveryOnly ? <StructuredData data={faqSchema(content.faqs)} /> : null}
+  return <section className={`search-depth search-depth--${world}`} aria-label={`${translate("מידע נוסף לתכנון")}${locationLabel}`}>
+    {!hideGuideAndFaq && !discoveryOnly ? <StructuredData data={faqSchema(localizedContent.faqs)} /> : null}
     <div className="shell search-depth__inner">
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__guide" aria-labelledby={`search-guide-${world}`}>
 
-        <h2 id={`search-guide-${world}`}>{content.title}{locationLabel}</h2>
-        <div>{content.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+        <h2 id={`search-guide-${world}`}>{localizedContent.title}{locationLabel}</h2>
+        <div>{localizedContent.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
       </section> : null}
 
       {!discoveryOnly ? <section className="search-depth__reviews" aria-labelledby={`search-reviews-${world}`}>
         <div className="search-depth__section-head"><h2 id={`search-reviews-${world}`}>{reviews.length ? reviewCopy.ratedTitle : reviewCopy.checklistTitle}</h2><p>{reviews.length ? reviewCopy.ratedBody : reviewCopy.checklistBody}</p></div>
-        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context ? translate(review.context) : reviewCopy.context}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{reviewCopy.published(review.reviews)}</p> : <p>{reviewCopy.full}</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
+        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context ? translate(review.context) : reviewCopy.context}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{reviewCopy.published(review.reviews)}</p> : <p>{reviewCopy.full}</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{localizedContent.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
       </section> : null}
 
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>
 
-        <h2 id={`search-faq-${world}`}>שאלות נפוצות</h2>
-        <div>{content.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
+        <h2 id={`search-faq-${world}`}>{translate("שאלות נפוצות")}</h2>
+        <div>{localizedContent.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
       </section> : null}
 
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>

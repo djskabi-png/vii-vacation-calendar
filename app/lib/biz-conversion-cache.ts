@@ -35,10 +35,10 @@ type ContactRow = { contactKey?: string; world: string; siteID: number; source: 
 
 const pending = new Map<string, Promise<CachedBizConversion>>();
 const initialized = new WeakMap<object, Promise<void>>();
-// Versioned key: v2 intentionally represents every Biz portal. The previous
-// cache used domain=section and therefore showed only a small fraction of the
-// calls and WhatsApp conversations visible in the Biz report.
-const SNAPSHOT_SCOPE = "section-v3";
+// The Biz report is portal-wide by default. Keep that exact supplier scope:
+// domain=section contains only VII-originated contacts and is therefore not the
+// business's full Maskyoo/WhatsApp history. Existing v2 snapshots remain valid.
+const SNAPSHOT_SCOPE = "all-portals-v2";
 const keyFor = (world: ConversionWorld, siteID: number, from: string, till: string) => `${world}:${siteID}:${from}:${till}:${SNAPSHOT_SCOPE}`;
 const HEAVY_PAGE_SIZE = 100;
 const LIGHT_PAGE_SIZE = 500;
@@ -224,7 +224,7 @@ export async function loadCachedBizConversionFailures(db: D1Database, from: stri
   const rows = await pagedRows<FailureRow & { world: string; siteID: number }>((cursor) => db.prepare(`SELECT cache_key AS cacheKey,
     world, site_id AS siteID, error_code AS errorCode, saved_at AS savedAt, retry_at AS retryAt
     FROM vii_biz_conversion_failures_v1 WHERE from_day = ? AND till_day = ?
-      AND cache_key LIKE '%:section-v3' AND cache_key > ?
+      AND cache_key LIKE '%:all-portals-v2' AND cache_key > ?
     ORDER BY cache_key LIMIT ?`).bind(from, till, cursor, LIGHT_PAGE_SIZE).all<FailureRow & { world: string; siteID: number }>(), (row) => row.cacheKey);
   return rows.flatMap((row) => {
     const value = parsedFailure(row, now);
@@ -262,7 +262,7 @@ export async function loadCachedBizConversions(db: D1Database, from: string, til
     world, site_id AS siteID, from_day AS fromDay, till_day AS tillDay,
     payload, saved_at AS savedAt, stale_after AS staleAfter
     FROM vii_biz_conversion_snapshots_v1 WHERE from_day = ? AND till_day = ?
-      AND cache_key LIKE '%:section-v3' AND cache_key > ?
+      AND cache_key LIKE '%:all-portals-v2' AND cache_key > ?
     ORDER BY cache_key LIMIT ?`).bind(from, till, cursor, HEAVY_PAGE_SIZE).all<CacheRow>(), (row) => row.cacheKey);
   const exact = rows.flatMap((row) => {
     const value = parsed(row, now);
