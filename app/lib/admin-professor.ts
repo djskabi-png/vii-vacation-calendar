@@ -103,17 +103,17 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
   const bookings = needsBookings ? await db.prepare(`SELECT COUNT(*) AS total FROM vii_booking_audit WHERE created_at >= ? AND created_at < ?${bookingScope.sql}`)
     .bind(since, until, ...bookingScope.values).first<{ total: number }>() : null;
   let bizRange = range;
-  const loadBizConversions = dependencies.loadBizConversions ?? loadCachedBizConversions;
-  let fastBiz = needsBiz && !dependencies.loadBizConversions ? await fastCachedBizTotals(db, range, intent).catch(() => null) : null;
-  let cached = needsBiz && !fastBiz ? await loadBizConversions(db, range.from, range.till).catch(() => []) : [];
-  if (needsBiz && !cached.length) {
+  const injectedBizLoader = dependencies.loadBizConversions;
+  let fastBiz = needsBiz && !injectedBizLoader ? await fastCachedBizTotals(db, range, intent).catch(() => null) : null;
+  let cached = needsBiz && injectedBizLoader ? await injectedBizLoader(db, range.from, range.till).catch(() => []) : [];
+  if (needsBiz && !fastBiz && !cached.length) {
     const today = day(new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const closedTill = day(yesterday);
     if (range.from <= closedTill && range.till >= today) {
       bizRange = { from: range.from, till: closedTill, label: `${range.from} עד ${closedTill}` };
-      fastBiz = !dependencies.loadBizConversions ? await fastCachedBizTotals(db, bizRange, intent).catch(() => null) : null;
-      cached = fastBiz ? [] : await loadBizConversions(db, bizRange.from, bizRange.till).catch(() => []);
+      fastBiz = !injectedBizLoader ? await fastCachedBizTotals(db, bizRange, intent).catch(() => null) : null;
+      cached = injectedBizLoader ? await injectedBizLoader(db, bizRange.from, bizRange.till).catch(() => []) : [];
     }
   }
   const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
@@ -138,20 +138,35 @@ async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorI
   const eventNames: Partial<Record<ProfessorMetric, string[]>> = { impressions: ["impression"], pageViews: ["page_view"], phone: ["phone_reveal", "phone_click"], whatsapp: ["whatsapp_lead", "whatsapp_handoff"] };
   const names = eventNames[requested];
   if (!names?.length && ["bizCalls", "bizWhatsapp", "bizOrders", "bizRevenue"].includes(requested)) {
-    let cached = await loadCachedBizConversions(db, range.from, range.till).catch(() => []);
-    if (!cached.length) {
+    if (intent.world === "spa") return [];
+    const allowedWorlds = intent.world ? WORLD_DB[intent.world] : [];
+    const worldWhere = allowedWorlds.length ? ` AND world IN (${allowedWorlds.map(() => "?").join(",")})` : "";
+    const params: unknown[] = [range.from, range.till, ...allowedWorlds];
+    const aggregate = requested === "bizRevenue"
+      ? `SELECT world, site_id AS siteID, COALESCE(SUM(price), 0) AS value FROM (
+          SELECT world, site_id, order_id, MAX(order_price) AS price FROM vii_biz_conversion_contacts_v1
+          WHERE contact_day >= ? AND contact_day <= ? AND order_id IS NOT NULL${worldWhere}
+          GROUP BY world, site_id, order_id
+        ) GROUP BY world, site_id ORDER BY value DESC LIMIT 5`
+      : `SELECT world, site_id AS siteID, ${requested === "bizCalls"
+        ? "SUM(CASE WHEN source = 'maskyoo' THEN 1 ELSE 0 END)"
+        : requested === "bizWhatsapp"
+          ? "SUM(CASE WHEN source = 'whatsapp' THEN 1 ELSE 0 END)"
+          : "COUNT(DISTINCT order_id)"} AS value
+        FROM vii_biz_conversion_contacts_v1
+        WHERE contact_day >= ? AND contact_day <= ?${requested === "bizOrders" ? " AND order_id IS NOT NULL" : ""}${worldWhere}
+        GROUP BY world, site_id ORDER BY value DESC LIMIT 5`;
+    let rows = await db.prepare(aggregate).bind(...params).all<{ world: ProfessorWorld; siteID: number; value: number }>().catch(() => ({ results: [] }));
+    if (!rows.results.length) {
       const today = day(new Date()); const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
       const closedTill = day(yesterday);
-      if (range.from <= closedTill && range.till >= today) cached = await loadCachedBizConversions(db, range.from, closedTill).catch(() => []);
+      if (range.from <= closedTill && range.till >= today) rows = await db.prepare(aggregate).bind(range.from, closedTill, ...allowedWorlds)
+        .all<{ world: ProfessorWorld; siteID: number; value: number }>().catch(() => ({ results: [] }));
     }
-    const allowedWorlds = intent.world && intent.world !== "spa" ? new Set(WORLD_DB[intent.world]) : null;
     const labelByKey = new Map(places.filter((place) => place.siteID).map((place) => [`${place.world}:${place.siteID}`, place.name]));
-    const pick = (row: typeof cached[number]) => requested === "bizCalls" ? row.conversions.summary.maskyoo.contacts
-      : requested === "bizWhatsapp" ? row.conversions.summary.whatsapp.contacts
-        : requested === "bizOrders" ? row.conversions.summary.all.orders : row.conversions.summary.all.revenue;
-    return cached.filter((row) => !allowedWorlds || allowedWorlds.has(row.world)).map((row) => ({
-      name: labelByKey.get(`${row.world}:${row.siteID}`) || `${row.world}-${row.siteID}`, value: pick(row),
-    })).sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, "he")).slice(0, 5);
+    return rows.results.map((row) => ({
+      name: labelByKey.get(`${row.world}:${row.siteID}`) || `${row.world}-${row.siteID}`, value: Number(row.value || 0),
+    }));
   }
   if (!names?.length) return [];
   const rows = await db.prepare(`SELECT MAX(place_name) AS name, COUNT(*) AS value FROM vii_business_events

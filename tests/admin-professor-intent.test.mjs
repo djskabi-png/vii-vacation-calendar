@@ -51,6 +51,26 @@ test("Professor answers a cached Biz-only question from aggregate cache tables w
   assert.equal(snapshot.bizSavedAt, "2026-10-26T16:17:40.000Z");
 });
 
+test("Professor falls back to the last closed Biz day without scanning every cached supplier payload", async () => {
+  const seen = [];
+  const db = { prepare(sql) {
+    return { bind(...params) { seen.push({ sql, params }); return { async first() {
+      if (sql.includes("vii_biz_conversion_coverage_v1")) return params[1] === "2026-10-26"
+        ? { businesses: 459, savedAt: "2026-10-25T16:17:40.000Z" }
+        : { businesses: 0, savedAt: null };
+      if (sql.includes("SUM(CASE WHEN source = 'maskyoo'")) return { calls: 584, whatsapp: 316 };
+      if (sql.includes("SELECT COUNT(*) AS orders")) return { orders: 41, revenue: 125000 };
+      throw new Error(`unexpected query: ${sql}`);
+    } }; } };
+  } };
+  const intent = parseProfessorIntent("כמה שיחות היו החודש", [], new Date("2026-10-27T12:00:00Z"));
+  const snapshot = await metricSnapshot(db, intent.range, intent);
+  assert.equal(snapshot.metrics.bizCalls, 584);
+  assert.equal(snapshot.bizRange?.till, "2026-10-26");
+  assert.equal(snapshot.bizRows, 459);
+  assert.ok(seen.every(({ sql }) => !sql.includes("vii_biz_conversion_snapshots_v1")));
+});
+
 test("Professor understands a named business and only the requested verified metrics", () => {
   const intent = parseProfessorIntent("תן לי נתונים של החודש להילת הנוף: כמה טלפונים, וואטסאפ והזמנות Biz", places, now);
   assert.equal(intent.place?.placeId, "vacation-11");
