@@ -126,9 +126,11 @@ export async function GET(request: Request) {
   try {
     const reporting = await reportingDatabase();
     let cacheReady = true;
+    let cacheDiagnostic: string | null = null;
     const cacheDb = await bizConversionDatabase(reporting.database).catch((error) => {
       if (!reporting.degraded) throw error;
       cacheReady = false;
+      cacheDiagnostic = error instanceof Error ? error.message.slice(0, 240) : "biz_conversion_cache_unavailable";
       console.warn("biz_conversion_cache_schema_unavailable", {
         reason: error instanceof Error ? error.message.slice(0, 160) : "unknown",
       });
@@ -207,7 +209,8 @@ export async function GET(request: Request) {
     })) : {};
     const bizSnapshots = { ...inferredFailures, ...failureSnapshots, ...successSnapshots };
     return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory,
-      databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady }, { headers });
+      databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady,
+      ...(cacheDiagnostic ? { cacheDiagnostic } : {}) }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });

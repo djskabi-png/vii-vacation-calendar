@@ -181,6 +181,9 @@ test("Biz report requests verify migrated cache schema without runtime DDL", asy
   assert.match(cache, /SELECT cache_key FROM vii_biz_conversion_snapshots_v1 LIMIT 1/);
   assert.match(reportCache, /SELECT cache_key FROM vii_admin_report_cache_v1 LIMIT 1/);
   assert.match(runs, /SELECT unsupported_count FROM vii_biz_report_runs_v1 LIMIT 1/);
+  const route = await read("app/api/admin/business-performance/route.ts");
+  assert.match(route, /cacheDiagnostic/);
+  assert.match(reportCache, /diagnostic/);
 });
 
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {

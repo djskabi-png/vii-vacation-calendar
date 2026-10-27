@@ -55,6 +55,7 @@ test("report remains available when persistent cache setup fails", async () => {
   const result = await cachedAdminReport({ db, family: "business-performance", parameters: { from: "2026-10-25" },
     freshForMs: 60_000, loader: async () => ({ rows: [{ placeId: "vacation-1" }] }) });
   assert.equal(result.cache.status, "bypassed");
+  assert.equal(result.cache.diagnostic, "cache unavailable");
   assert.equal(result.value.rows[0].placeId, "vacation-1");
 });
 
@@ -64,6 +65,7 @@ test("report remains available when persistent cache write fails", async () => {
   const result = await cachedAdminReport({ db, family: "business-performance", parameters: { from: "2026-10-24" },
     freshForMs: 60_000, loader: async () => ({ rows: [{ placeId: "vacation-2" }] }) });
   assert.equal(result.cache.status, "bypassed");
+  assert.equal(result.cache.diagnostic, "write failed");
   assert.equal(result.value.rows[0].placeId, "vacation-2");
 });
 
