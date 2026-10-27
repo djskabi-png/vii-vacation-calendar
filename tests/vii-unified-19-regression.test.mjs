@@ -149,7 +149,8 @@ test("Biz reporting uses one server run identity, truthful coverage and typed pe
   assert.match(page, /aria-sort=/);
   assert.match(page, /left === null \? 1 : -1/);
   assert.match(route, /updateBizReportRun/);
-  assert.match(runs, /job_id TEXT PRIMARY KEY/);
+  const migration = await read("drizzle/0011_strong_roland_deschain.sql");
+  assert.match(migration, /`job_id` text PRIMARY KEY NOT NULL/);
   assert.match(cache, /all-portals-v2/);
   assert.doesNotMatch(route, /sectionOnly:\s*true/);
 });
@@ -165,6 +166,21 @@ test("the deployed migration provisions every Biz report cache table without rep
     "vii_biz_report_runs_v1",
   ]) assert.ok(migration.includes(`CREATE TABLE IF NOT EXISTS \`${table}\``), `missing additive migration for ${table}`);
   assert.doesNotMatch(migration, /CREATE TABLE(?: IF NOT EXISTS)? `vii_map_snapshots_v1`/);
+});
+
+test("Biz report requests verify migrated cache schema without runtime DDL", async () => {
+  const [cache, reportCache, runs] = await Promise.all([
+    read("app/lib/biz-conversion-cache.ts"),
+    read("app/lib/admin-report-cache.ts"),
+    read("app/lib/biz-report-runs.ts"),
+  ]);
+  for (const source of [cache, reportCache, runs]) {
+    assert.doesNotMatch(source, /CREATE TABLE IF NOT EXISTS/);
+    assert.doesNotMatch(source, /db\.prepare\(["'`]ALTER TABLE/);
+  }
+  assert.match(cache, /SELECT cache_key FROM vii_biz_conversion_snapshots_v1 LIMIT 1/);
+  assert.match(reportCache, /SELECT cache_key FROM vii_admin_report_cache_v1 LIMIT 1/);
+  assert.match(runs, /SELECT unsupported_count FROM vii_biz_report_runs_v1 LIMIT 1/);
 });
 
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {

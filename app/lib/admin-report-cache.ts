@@ -22,13 +22,10 @@ function stable(value: unknown): string {
 async function ensureSchema(db: D1Database) {
   const existing = initialized.get(db as object);
   if (existing) return existing;
-  const operation = db.batch([
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_admin_report_cache_v1 (
-      cache_key TEXT PRIMARY KEY NOT NULL, family TEXT NOT NULL, parameters TEXT NOT NULL,
-      payload TEXT NOT NULL, saved_at TEXT NOT NULL, fresh_until TEXT NOT NULL, stale_until TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_admin_report_cache_family ON vii_admin_report_cache_v1(family, saved_at)"),
-  ]).then(() => undefined).catch((error) => { initialized.delete(db as object); throw error; });
+  // Deployment migrations own the table. A read-only readiness probe avoids
+  // runtime DDL while still surfacing an incomplete deployment immediately.
+  const operation = db.prepare("SELECT cache_key FROM vii_admin_report_cache_v1 LIMIT 1").all()
+    .then(() => undefined).catch((error) => { initialized.delete(db as object); throw error; });
   initialized.set(db as object, operation);
   return operation;
 }

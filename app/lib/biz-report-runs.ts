@@ -23,23 +23,10 @@ const initialized = new WeakMap<object, Promise<void>>();
 export async function ensureBizReportRunSchema(db: D1Database) {
   const existing = initialized.get(db as object);
   if (existing) return existing;
-  const operation = (async () => {
-    await db.batch([
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_report_runs_v1 (
-      job_id TEXT PRIMARY KEY NOT NULL, actor_email TEXT NOT NULL,
-      from_day TEXT NOT NULL, till_day TEXT NOT NULL, scope TEXT NOT NULL,
-      force_refresh INTEGER NOT NULL DEFAULT 0, total INTEGER NOT NULL,
-      processed INTEGER NOT NULL DEFAULT 0, succeeded INTEGER NOT NULL DEFAULT 0,
-      failed_count INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL,
-      started_at TEXT NOT NULL, updated_at TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_report_runs_actor_time ON vii_biz_report_runs_v1(actor_email, started_at)"),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_report_runs_time ON vii_biz_report_runs_v1(started_at)"),
-    ]);
-    await db.prepare("ALTER TABLE vii_biz_report_runs_v1 ADD COLUMN unsupported_count INTEGER NOT NULL DEFAULT 0").run().catch((error) => {
-      if (!(error instanceof Error) || !/duplicate column name/i.test(error.message)) throw error;
-    });
-  })().catch((error) => { initialized.delete(db as object); throw error; });
+  // The migration provisions every column. Probing unsupported_count also
+  // detects an older deployment without attempting a schema mutation during a read.
+  const operation = db.prepare("SELECT unsupported_count FROM vii_biz_report_runs_v1 LIMIT 1").all()
+    .then(() => undefined).catch((error) => { initialized.delete(db as object); throw error; });
   initialized.set(db as object, operation);
   return operation;
 }

@@ -6,7 +6,10 @@ class Statement {
   constructor(db, sql, params = []) { this.db = db; this.sql = sql; this.params = params; }
   bind(...params) { return new Statement(this.db, this.sql, params); }
   async first() { return this.db.rows.get(this.params[0]) || null; }
-  async all() { return { success: true, results: [] }; }
+  async all() {
+    if (this.db.failSetup && /SELECT cache_key FROM vii_admin_report_cache_v1 LIMIT 1/.test(this.sql)) throw new Error("cache unavailable");
+    return { success: true, results: [] };
+  }
   async run() {
     if (this.db.failWrite && /INSERT INTO vii_admin_report_cache_v1/.test(this.sql)) throw new Error("write failed");
     if (/INSERT INTO vii_admin_report_cache_v1/.test(this.sql)) {
@@ -48,7 +51,7 @@ test("forced refresh replaces data and failed refresh returns the last good repo
 
 test("report remains available when persistent cache setup fails", async () => {
   const db = new Database();
-  db.batch = async () => { throw new Error("cache unavailable"); };
+  db.failSetup = true;
   const result = await cachedAdminReport({ db, family: "business-performance", parameters: { from: "2026-10-25" },
     freshForMs: 60_000, loader: async () => ({ rows: [{ placeId: "vacation-1" }] }) });
   assert.equal(result.cache.status, "bypassed");

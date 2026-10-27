@@ -59,32 +59,15 @@ async function pagedRows<T>(load: (cursor: string) => Promise<{ results: T[] }>,
 async function ensureCache(db: D1Database) {
   const existing = initialized.get(db as object);
   if (existing) return existing;
-  const initialization = db.batch([
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_snapshots_v1 (
-      cache_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
-      from_day TEXT NOT NULL, till_day TEXT NOT NULL, payload TEXT NOT NULL,
-      supplier_created_at TEXT NOT NULL, saved_at TEXT NOT NULL, stale_after TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_range ON vii_biz_conversion_snapshots_v1(from_day, till_day, world, site_id)"),
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_failures_v1 (
-      cache_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
-      from_day TEXT NOT NULL, till_day TEXT NOT NULL, error_code TEXT NOT NULL,
-      saved_at TEXT NOT NULL, retry_at TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_failure_range ON vii_biz_conversion_failures_v1(from_day, till_day, world, site_id)"),
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_coverage_v1 (
-      coverage_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
-      from_day TEXT NOT NULL, till_day TEXT NOT NULL, supplier_created_at TEXT NOT NULL,
-      saved_at TEXT NOT NULL, stale_after TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_coverage_range ON vii_biz_conversion_coverage_v1(from_day, till_day, world, site_id)"),
-    db.prepare(`CREATE TABLE IF NOT EXISTS vii_biz_conversion_contacts_v1 (
-      contact_key TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, site_id INTEGER NOT NULL,
-      source TEXT NOT NULL, contact_id INTEGER NOT NULL, contact_day TEXT NOT NULL,
-      identified INTEGER NOT NULL, order_id TEXT, order_price REAL NOT NULL,
-      customer_key TEXT, delay INTEGER, supplier_created_at TEXT NOT NULL, saved_at TEXT NOT NULL
-    )`),
-    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_biz_conversion_contacts_range ON vii_biz_conversion_contacts_v1(contact_day, world, site_id)"),
+  // Schema is owned by Drizzle migrations. Production D1 may reject DDL from a
+  // request handler even when the migrated tables already exist, which made a
+  // healthy cache report cacheReady=false. Read the required columns instead:
+  // this is side-effect free and still fails closed when a migration is missing.
+  const initialization = Promise.all([
+    db.prepare("SELECT cache_key FROM vii_biz_conversion_snapshots_v1 LIMIT 1").all(),
+    db.prepare("SELECT cache_key FROM vii_biz_conversion_failures_v1 LIMIT 1").all(),
+    db.prepare("SELECT coverage_key FROM vii_biz_conversion_coverage_v1 LIMIT 1").all(),
+    db.prepare("SELECT contact_key FROM vii_biz_conversion_contacts_v1 LIMIT 1").all(),
   ]).then(() => undefined).catch((error) => {
     initialized.delete(db as object);
     throw error;
