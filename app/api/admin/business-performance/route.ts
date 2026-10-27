@@ -125,7 +125,15 @@ export async function GET(request: Request) {
   const until = nextDay(till);
   try {
     const reporting = await reportingDatabase();
-    const cacheDb = await bizConversionDatabase(reporting.database);
+    let cacheReady = true;
+    const cacheDb = await bizConversionDatabase(reporting.database).catch((error) => {
+      if (!reporting.degraded) throw error;
+      cacheReady = false;
+      console.warn("biz_conversion_cache_schema_unavailable", {
+        reason: error instanceof Error ? error.message.slice(0, 160) : "unknown",
+      });
+      return reporting.database;
+    });
     const historical = isClosedReportPeriod(till);
     const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
       freshForMs: historical ? 365 * 86400_000 : 2 * 60_000, immutable: historical, forceRefresh, loader: async () => {
@@ -199,7 +207,7 @@ export async function GET(request: Request) {
     })) : {};
     const bizSnapshots = { ...inferredFailures, ...failureSnapshots, ...successSnapshots };
     return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory,
-      databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
+      databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });
