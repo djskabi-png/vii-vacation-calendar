@@ -53,6 +53,7 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(gallery, /group\.images\.map/);
   assert.match(gallery, /topicTabs\.map/);
   assert.match(gallery, /mobileTourAll/);
+  assert.match(gallery, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
   assert.match(selection, /if \(topic\) return items\.filter/);
   assert.match(hook, /params\.set\("topic", topic\)/);
   assert.match(page, /openGallery\("units", unitGalleryStart, room\.name\)/);
@@ -63,6 +64,13 @@ test("supplier gallery names and membership remain authoritative and shareable",
     "מתחם הבריכה והחצר לכל סוויטה",
     "מתחם הבר המשותף",
   ]);
+});
+
+test("catalog state read failures reach the immutable accepted fallback", async () => {
+  const source = await read("app/lib/public-catalog-read.ts");
+  assert.match(source, /try\s*\{\s*state = await readSupplierCatalogState\(db, world\)/);
+  assert.match(source, /public_catalog_state_fallback:\$\{world\}/);
+  assert.match(source, /return withEditorialOverlays\(world, await publicSummaries\(world, bundled\(world\)\), await overlays\)/);
 });
 
 test("older accepted detail rows inherit newly supported gallery presentation fields", async () => {

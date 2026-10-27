@@ -44,7 +44,17 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
   // Editorial content is independent of supplier generation. Start both reads
   // together, without caching manual edits or binding hundreds of IDs to SQL.
   const overlays = readPublishedItems(db, contentTypeForWorld(world)).catch(() => []);
-  const state = await readSupplierCatalogState(db, world);
+  let state;
+  try {
+    state = await readSupplierCatalogState(db, world);
+  } catch {
+    // The active-generation pointer is an optimization, not permission to
+    // replace a complete accepted world with the global error surface. This
+    // read can fail before the summary-row fallback below is reached, so keep
+    // the immutable accepted build available at this boundary as well.
+    console.warn(`public_catalog_state_fallback:${world}`);
+    return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
+  }
   if (!state?.activeRunId) return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   const cached = catalogCache.get(world);
   if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return withEditorialOverlays(world, await cached.items, await overlays) as T[];

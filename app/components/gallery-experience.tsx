@@ -36,8 +36,12 @@ const tabLabels: Record<GalleryTab, string> = {
 function uniqueItems(items: GalleryItem[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    if (seen.has(item.src)) return false;
-    seen.add(item.src);
+    // A supplier may intentionally place one photograph in more than one
+    // named gallery. De-duplicate only inside the same supplier topic so a
+    // shared image cannot erase an entire topic tab.
+    const identity = `${item.category}\u0000${item.topic}\u0000${item.src}`;
+    if (seen.has(identity)) return false;
+    seen.add(identity);
     return true;
   });
 }
