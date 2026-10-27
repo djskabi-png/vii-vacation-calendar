@@ -1,11 +1,11 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { operationsDatabase } from "../../../lib/operations-audit.ts";
 import { ensureReviewSchema } from "../../../lib/review-storage.ts";
 import { whatsappLeadDatabase } from "../../../lib/whatsapp-lead-storage.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
 import { loadCachedBizConversions } from "../../../lib/biz-conversion-cache.ts";
+import { reportingDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -67,7 +67,8 @@ export async function GET(request: Request) {
     return Response.json({ error: "forbidden" }, { status: 403, headers });
   }
   try {
-    const db = await operationsDatabase();
+    const reporting = await reportingDatabase();
+    const db = reporting.database;
     await Promise.allSettled([ensureReviewSchema(), whatsappLeadDatabase()]);
     const since = new Date(Date.now() - 30 * 86400_000).toISOString();
     const today = new Date().toISOString().slice(0, 10);
@@ -99,7 +100,8 @@ export async function GET(request: Request) {
       generatedAt: new Date().toISOString(),
     };
     }});
-    return Response.json({ account: { name: session.name, email: session.email }, ...report.value, reportCache: report.cache }, { headers });
+    return Response.json({ account: { name: session.name, email: session.email }, ...report.value, reportCache: report.cache,
+      databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
   } catch (error) {
     console.error("VII admin overview unavailable", error);
     return Response.json({ error: "overview_unavailable" }, { status: 503, headers });

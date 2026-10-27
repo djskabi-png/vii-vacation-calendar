@@ -264,8 +264,8 @@ export async function saveBizConversionFailure(db: D1Database, options: { world:
   return { error: options.error, cache: { status: "failure_cached" as const, savedAt, retryAt, stale: false } };
 }
 
-export async function bizConversionDatabase() {
-  const db = await requiredRuntimeDatabase("biz_conversion_cache_unavailable");
+export async function bizConversionDatabase(database?: D1Database) {
+  const db = database ?? await requiredRuntimeDatabase("biz_conversion_cache_unavailable");
   await ensureCache(db);
   return db;
 }

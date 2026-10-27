@@ -1,6 +1,4 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { businessAnalyticsDatabase } from "../../../lib/business-analytics.ts";
-import { operationsDatabase } from "../../../lib/operations-audit.ts";
 import { conversionTarget, fetchViiConversions, ViiConversionsError, type ConversionWorld } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
@@ -9,7 +7,7 @@ import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions, 
 import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
 import { cachedAdminReport } from "../../../lib/admin-report-cache.ts";
 import { mergeBusinessPerformanceRows } from "../../../lib/business-performance-rows.ts";
-import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
+import { reportingDatabase } from "../../../lib/runtime-database.ts";
 import { isClosedReportPeriod } from "../../../lib/report-date-policy.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
@@ -59,8 +57,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   if (url.searchParams.get("mode") === "run-history") {
     try {
-      const database = await requiredRuntimeDatabase("biz_report_history_unavailable");
-      return Response.json({ runHistory: await readBizReportRuns(database, 20) }, { headers });
+      const reporting = await reportingDatabase();
+      const database = await bizConversionDatabase(reporting.database);
+      return Response.json({ runHistory: await readBizReportRuns(database, 20),
+        databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
     } catch {
       return Response.json({ error: "biz_report_history_unavailable" }, { status: 503, headers });
     }
@@ -79,7 +79,8 @@ export async function GET(request: Request) {
     if (source !== null && source !== "whatsapp" && source !== "maskyoo" && source !== "form") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (converted !== null && converted !== "yes" && converted !== "no") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     try {
-      const database = await requiredRuntimeDatabase("business_conversion_report_unavailable");
+      const reporting = await reportingDatabase();
+      const database = await bizConversionDatabase(reporting.database);
       const historical = isClosedReportPeriod(till);
       const report = await cachedAdminReport({ db: database, family: "business-conversions", parameters: {
         world: target.world, siteID: target.siteID, from, till, source: source || "all", converted: converted || "all", includeContacts,
@@ -88,7 +89,8 @@ export async function GET(request: Request) {
       forceRefresh: url.searchParams.get("refresh") === "1",
       loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(),
         source: source || undefined, converted: converted || undefined, includeContacts }) });
-      return Response.json({ conversions: report.value, reportCache: report.cache }, { headers });
+      return Response.json({ conversions: report.value, reportCache: report.cache,
+        databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
     } catch (error) {
       if (error instanceof ViiConversionsError) {
         const status = error.code === "invalid_request" ? 400 : error.code === "not_supported" ? 404 : 503;
@@ -109,11 +111,14 @@ export async function GET(request: Request) {
   const since = `${from}T00:00:00.000Z`;
   const until = nextDay(till);
   try {
-    const cacheDb = await requiredRuntimeDatabase("business_performance_database_unavailable");
+    const reporting = await reportingDatabase();
+    const cacheDb = await bizConversionDatabase(reporting.database);
     const historical = isClosedReportPeriod(till);
     const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis },
       freshForMs: historical ? 365 * 86400_000 : 2 * 60_000, immutable: historical, forceRefresh, loader: async () => {
-    const [analyticsDb, operationsDb, inventory] = await Promise.all([businessAnalyticsDatabase(), operationsDatabase(), supportedInventory()]);
+    const analyticsDb = cacheDb;
+    const operationsDb = cacheDb;
+    const inventory = await supportedInventory();
     const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
@@ -139,7 +144,7 @@ export async function GET(request: Request) {
     for (const row of rows) row.reviews = reviewMap.get(String(row.placeId)) || 0;
     return { rows };
     }});
-    const database = await bizConversionDatabase().catch((error) => {
+    const database = await bizConversionDatabase(cacheDb).catch((error) => {
       console.warn("biz_conversion_cache_unavailable", { error: error instanceof Error ? error.name : "unknown" });
       return null;
     });
@@ -165,7 +170,7 @@ export async function GET(request: Request) {
       const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
       return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
     }));
-    const supportedRows = uniqueConversionRows(report.value.rows);
+    const supportedRows = uniqueConversionRows(report.value.rows as Array<Record<string, unknown> & { placeId: unknown; world: unknown }>);
     const completedRun = runHistory.find((run) => run.from === from && run.till === till && run.scope === "all"
       && run.status === "completed" && run.processed === run.total && run.total === supportedRows.length);
     const inferredFailures = completedRun ? Object.fromEntries(supportedRows.flatMap((row) => {
@@ -177,7 +182,8 @@ export async function GET(request: Request) {
         stale: Date.parse(retryAt) <= Date.now() } }]];
     })) : {};
     const bizSnapshots = { ...inferredFailures, ...failureSnapshots, ...successSnapshots };
-    return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory }, { headers });
+    return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory,
+      databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });
@@ -197,7 +203,8 @@ export async function POST(request: Request) {
   const validJobId = /^[0-9a-f]{8}-[0-9a-f-]{27,40}$/i.test(jobId);
   if (body?.action === "stop") {
     if (!validJobId) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const cacheDb = await bizConversionDatabase().catch(() => null);
+    const reporting = await reportingDatabase().catch(() => null);
+    const cacheDb = reporting ? await bizConversionDatabase(reporting.database).catch(() => null) : null;
     if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });
     await stopBizReportRun(cacheDb, jobId, session.email);
     return Response.json({ ok: true }, { headers });
@@ -227,7 +234,8 @@ export async function POST(request: Request) {
   if (requestedTargets.length !== body.targets.length) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
   const targets = uniqueConversionRows(requestedTargets);
   const token = await supplierToken().catch(() => "");
-  const cacheDb = await bizConversionDatabase().catch(() => null);
+  const reporting = await reportingDatabase().catch(() => null);
+  const cacheDb = reporting ? await bizConversionDatabase(reporting.database).catch(() => null) : null;
   if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });
   await startBizReportRun(cacheDb, { jobId, actorEmail: session.email, from, till, scope,
     forceRefresh: body.forceRefresh === true, total });
@@ -257,5 +265,6 @@ export async function POST(request: Request) {
   const failed = failedBefore + failedInBatch;
   const status = processed >= total ? "completed" : "running";
   await updateBizReportRun(cacheDb, { jobId, actorEmail: session.email, processed, succeeded, unsupported, failed, status });
-  return Response.json({ from, till, results, run: { jobId, processed, succeeded, unsupported, failed, total, status } }, { headers });
+  return Response.json({ from, till, results, run: { jobId, processed, succeeded, unsupported, failed, total, status },
+    databaseOrigin: reporting?.origin, degraded: reporting?.degraded ?? false }, { headers });
 }

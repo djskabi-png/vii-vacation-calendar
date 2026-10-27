@@ -1,0 +1,107 @@
+{
+  "status": "diagnosed",
+  "symptom": "ממשקי הניהול התלויים במסד הנתונים החזירו שגיאות זמינות בציבורי, ובפרט דוח הביצועים החזיר business_performance_unavailable במקום נתונים.",
+  "expected_behavior": "מנהלים מורשים יקבלו את דוחות הקריאה בתוך שניות. כשל בגשר Aurora לא ישבית דוחות ונתונים נגזרים, אך גם לא יגרום לכתיבה למסד גיבוי של הזמנות, הרשאות או מידע קנוני.",
+  "environment": "VII production v696 and local release/v646-four-gaps candidate on 2026-10-27",
+  "reproduction": {
+    "steps": [
+      "כניסה מורשית למערכת הניהול ופתיחת דוח הביצועים",
+      "קריאה ל-/api/admin/business-performance, /api/admin/overview, /api/admin/backend-readiness ו-/api/admin/users",
+      "קריאת בדיקה ישירה ל-endpoint המוגדר ב-VII_AWS_DB_ENDPOINT ללא אסימון תקף"
+    ],
+    "evidence": "כל משפחת ממשקי המסד נכשלה. ה-endpoint החיצוני החזיר HTTP 500 לפני שהגיע למסלול האימות של ה-Lambda, שאמור להחזיר 404 לבקשה ללא אסימון."
+  },
+  "observations": [
+    {
+      "observation": "המשתנים VII_AWS_DB_ENDPOINT, VII_AWS_DB_MODE ו-VII_AWS_DB_TOKEN קיימים בפרויקט הציבורי וקיים binding פעיל למסד D1.",
+      "evidence": "נבדק במסך Settings של אתר VII המורשה. מצב המסד מוגדר primary וה-binding מוצג בפרויקט."
+    },
+    {
+      "observation": "ארבעה ממשקי ניהול בלתי תלויים נכשלו יחד.",
+      "evidence": "business-performance, overview, backend-readiness ו-users החזירו שגיאות זמינות, ולכן הכשל אינו שאילתת דוח יחידה."
+    },
+    {
+      "observation": "גשר ה-AWS החזיר HTTP 500 גם לבקשה שאמורה להיעצר באימות.",
+      "evidence": "קריאת POST ישירה ל-VII_AWS_DB_ENDPOINT החזירה Internal Server Error במקום תשובת invalid authorization של הקוד."
+    },
+    {
+      "observation": "עותק D1 המחובר ל-Sites קיים ומכיל את טבלאות הדוחות והאירועים.",
+      "evidence": "מסך Database הציג את vii_business_events, vii_admin_grants וטבלאות נוספות."
+    },
+    {
+      "observation": "מסלול הגיבוי החדש מוגבל לדוחות ולמטמונים נגזרים בלבד.",
+      "evidence": "reportingDatabase אינו משמש מסלולי הזמנה, הרשאות, פרסום ספקים או כתיבות קנוניות."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "אינטגרציית API Gateway או ההרשאה להפעלת Lambda של גשר Aurora אינה זמינה לפני הרצת קוד הגשר.",
+      "prediction": "בקשה ללא אסימון תקף תחזיר 500 כללי במקום תשובת האימות של ה-Lambda, וכל צרכני המסד הראשי ייכשלו יחד.",
+      "discriminating_test": "קריאה ישירה ל-endpoint והשוואה בין כמה ממשקי ניהול בלתי תלויים.",
+      "result": "התקבל 500 כללי וכל ארבעת הממשקים נכשלו.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "גרסת האתר איבדה את משתני הסביבה או את binding המסד.",
+      "prediction": "המשתנים או ה-binding לא יופיעו בהגדרות הפרויקט.",
+      "discriminating_test": "בדיקת Environment ו-Database במסך Sites המורשה.",
+      "result": "כל שלושת המשתנים וה-binding קיימים.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "שינוי schema או שאילתת SQL בדוח הביצועים בלבד גורמים לכשל.",
+      "prediction": "ממשקי overview, readiness ו-users שאינם מריצים את אותה שאילתה ימשיכו לעבוד.",
+      "discriminating_test": "בדיקת ארבעה ממשקי ניהול בעלי שאילתות שונות.",
+      "result": "כולם נכשלו ולכן אין מדובר בשאילתה יחידה.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "נוסף מסלול reportingDatabase שמנסה את Aurora, ובכשל משתמש בעותק D1 המחובר ל-Sites עבור קריאות דוח ומטמונים נגזרים בלבד. הממשק מסמן במפורש מצב degraded ומציג הסבר בעברית. כתיבות קנוניות והרשאות נשארות fail-closed.",
+    "evidence": "17 מתוך 17 בדיקות ממוקדות עברו, 62 מתוך 62 בדיקות פרויקט 19 הסעיפים עברו, והבנייה המקומית הושלמה. אימות ציבורי יבוצע רק לאחר פרסום המועמד."
+  },
+  "affected_family": [
+    "דוח ביצועים והמרות",
+    "דשבורד מערכת הניהול",
+    "מטא-נתוני מוכנות backend",
+    "היסטוריית ריצות ומטמון Biz",
+    "כל מסלול ניהול המשתמש בגשר Aurora"
+  ],
+  "regression_checks": [
+    {
+      "check": "גשר תקין נשאר מקור הדוחות הראשי",
+      "status": "passed",
+      "evidence": "בדיקה מדמה תשובת Aurora תקינה ומוודאת origin=aws-aurora ו-degraded=false."
+    },
+    {
+      "check": "כשל גשר מעביר דוחות בלבד ל-D1",
+      "status": "passed",
+      "evidence": "בדיקה מדמה HTTP 500 ומוודאת origin=cloudflare-d1 ו-degraded=true."
+    },
+    {
+      "check": "מסלול 19 הסעיפים כולל את מנגנון ההתאוששות",
+      "status": "passed",
+      "evidence": "qa:vii-unified-19 כולל כעת בדיקות fallback ומטא-נתוני מקור."
+    },
+    {
+      "check": "רגרסיית האתר המלאה לאחר השינוי",
+      "status": "passed",
+      "evidence": "pnpm test השלים בנייה מלאה ו-1714 מתוך 1714 בדיקות עברו לאחר עדכון חוזה הבדיקה למנגנון ההתאוששות."
+    },
+    {
+      "check": "אימות הדוח בציבורי וספירת Biz המחייבת",
+      "status": "pending",
+      "evidence": "יבוצע לאחר פרסום המועמד ובדיקת הטווח 25/10/2026."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "הסיבה המדויקת בתוך AWS לא ניתנת לצפייה ללא session מורשה ל-AWS, ולכן האינטגרציה החיצונית עצמה טרם תוקנה.",
+    "התאמת המספרים 316 פניות WhatsApp ו-584 שיחות תיבדק רק לאחר ריצה ציבורית מלאה."
+  ],
+  "authorization_boundary": "מורשה לתקן, לפרסם ולבדוק את VII. אין שינוי DB קנוני, secrets, environment, DNS, permissions או catalog. מסד D1 משמש רק לדוחות ולמטמונים נגזרים."
+}

@@ -22,10 +22,10 @@ test("different place ids remain separate", () => {
   assert.deepEqual(rows.map((row) => row.placeId).sort(), ["vacation-116", "vacation-117"]);
 });
 
-test("business performance report does not depend on Biz snapshot schema initialization", async () => {
+test("business performance report uses reporting failover before initializing derived Biz caches", async () => {
   const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
-  assert.match(source, /requiredRuntimeDatabase\("business_performance_database_unavailable"\)/);
-  assert.match(source, /await bizConversionDatabase\(\)\.catch/);
+  assert.match(source, /const reporting = await reportingDatabase\(\)/);
+  assert.match(source, /bizConversionDatabase\(reporting\.database\)/);
   assert.match(source, /database \? loadCachedBizConversions/);
   assert.doesNotMatch(source, /const cacheDb = await bizConversionDatabase\(\);/);
 });
@@ -37,7 +37,7 @@ test("Biz reporting deduplicates one supplier that appears in several worlds", a
   assert.match(page, /uniqueConversionBusinesses\(supportedRows\.filter/);
   assert.match(page, /uniqueConversionBusinesses\(filtered\.filter\(conversionSupported\)\)/);
   assert.match(route, /function uniqueConversionRows/);
-  assert.match(route, /const supportedRows = uniqueConversionRows\(report\.value\.rows\)/);
+  assert.match(route, /const supportedRows = uniqueConversionRows\(report\.value\.rows as/);
   assert.match(route, /if \(requestedTargets\.length !== body\.targets\.length\)/);
   assert.match(route, /const targets = uniqueConversionRows\(requestedTargets\)/);
 });
