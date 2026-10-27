@@ -154,6 +154,19 @@ test("Biz reporting uses one server run identity, truthful coverage and typed pe
   assert.doesNotMatch(route, /sectionOnly:\s*true/);
 });
 
+test("the deployed migration provisions every Biz report cache table without replaying older map schema", async () => {
+  const migration = await read("drizzle/0011_strong_roland_deschain.sql");
+  for (const table of [
+    "vii_admin_report_cache_v1",
+    "vii_biz_conversion_contacts_v1",
+    "vii_biz_conversion_coverage_v1",
+    "vii_biz_conversion_failures_v1",
+    "vii_biz_conversion_snapshots_v1",
+    "vii_biz_report_runs_v1",
+  ]) assert.ok(migration.includes(`CREATE TABLE IF NOT EXISTS \`${table}\``), `missing additive migration for ${table}`);
+  assert.doesNotMatch(migration, /CREATE TABLE(?: IF NOT EXISTS)? `vii_map_snapshots_v1`/);
+});
+
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {
   const [page, platform, runner] = await Promise.all([
     read("app/admin/quality/page.tsx"),

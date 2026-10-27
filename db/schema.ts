@@ -24,6 +24,62 @@ export const bizConversionSnapshots = sqliteTable("vii_biz_conversion_snapshots_
   index("idx_vii_biz_conversion_range").on(table.fromDay, table.tillDay, table.world, table.siteId),
 ]);
 
+export const bizConversionFailures = sqliteTable("vii_biz_conversion_failures_v1", {
+  cacheKey: text("cache_key").primaryKey().notNull(),
+  world: text("world").notNull(),
+  siteId: integer("site_id").notNull(),
+  fromDay: text("from_day").notNull(),
+  tillDay: text("till_day").notNull(),
+  errorCode: text("error_code").notNull(),
+  savedAt: text("saved_at").notNull(),
+  retryAt: text("retry_at").notNull(),
+}, (table) => [
+  index("idx_vii_biz_conversion_failure_range").on(table.fromDay, table.tillDay, table.world, table.siteId),
+]);
+
+export const bizConversionCoverage = sqliteTable("vii_biz_conversion_coverage_v1", {
+  coverageKey: text("coverage_key").primaryKey().notNull(),
+  world: text("world").notNull(),
+  siteId: integer("site_id").notNull(),
+  fromDay: text("from_day").notNull(),
+  tillDay: text("till_day").notNull(),
+  supplierCreatedAt: text("supplier_created_at").notNull(),
+  savedAt: text("saved_at").notNull(),
+  staleAfter: text("stale_after").notNull(),
+}, (table) => [
+  index("idx_vii_biz_conversion_coverage_range").on(table.fromDay, table.tillDay, table.world, table.siteId),
+]);
+
+export const bizConversionContacts = sqliteTable("vii_biz_conversion_contacts_v1", {
+  contactKey: text("contact_key").primaryKey().notNull(),
+  world: text("world").notNull(),
+  siteId: integer("site_id").notNull(),
+  source: text("source").notNull(),
+  contactId: integer("contact_id").notNull(),
+  contactDay: text("contact_day").notNull(),
+  identified: integer("identified").notNull(),
+  orderId: text("order_id"),
+  orderPrice: real("order_price").notNull(),
+  customerKey: text("customer_key"),
+  delay: integer("delay"),
+  supplierCreatedAt: text("supplier_created_at").notNull(),
+  savedAt: text("saved_at").notNull(),
+}, (table) => [
+  index("idx_vii_biz_conversion_contacts_range").on(table.contactDay, table.world, table.siteId),
+]);
+
+export const adminReportCache = sqliteTable("vii_admin_report_cache_v1", {
+  cacheKey: text("cache_key").primaryKey().notNull(),
+  family: text("family").notNull(),
+  parameters: text("parameters").notNull(),
+  payload: text("payload").notNull(),
+  savedAt: text("saved_at").notNull(),
+  freshUntil: text("fresh_until").notNull(),
+  staleUntil: text("stale_until").notNull(),
+}, (table) => [
+  index("idx_vii_admin_report_cache_family").on(table.family, table.savedAt),
+]);
+
 export const bizReportRuns = sqliteTable("vii_biz_report_runs_v1", {
   jobId: text("job_id").primaryKey().notNull(),
   actorEmail: text("actor_email").notNull(),
@@ -34,6 +90,7 @@ export const bizReportRuns = sqliteTable("vii_biz_report_runs_v1", {
   total: integer("total").notNull(),
   processed: integer("processed").notNull().default(0),
   succeeded: integer("succeeded").notNull().default(0),
+  unsupportedCount: integer("unsupported_count").notNull().default(0),
   failedCount: integer("failed_count").notNull().default(0),
   status: text("status").notNull(),
   startedAt: text("started_at").notNull(),

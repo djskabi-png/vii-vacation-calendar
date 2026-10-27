@@ -78,6 +78,13 @@
       "when": 1792550400000,
       "tag": "0010_map_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1793091247316,
+      "tag": "0011_strong_roland_deschain",
+      "breakpoints": true
     }
   ]
 }
