@@ -2,7 +2,7 @@
   "status": "diagnosed",
   "symptom": "Production v711 returned the same generic failure for both a Biz-only Professor question and an internal page-view question, while a cold homepage could leave both vacation availability rails in a terminal retry state.",
   "expected_behavior": "Professor returns only verified stored data, persists a successful question and decrements quota once. Both homepage availability rails keep recovering from a bounded cold or transient refresh and render verified cards without requiring a visitor click.",
-  "environment": "Production v711 and release/v646-four-gaps candidate on 2026-10-27",
+  "environment": "Production v711-v712 and release/v646-four-gaps candidate on 2026-10-27",
   "reproduction": {
     "steps": [
       "Open the authenticated production Professor and ask כמה שיחות היו החודש.",
@@ -23,15 +23,19 @@
     {
       "observation": "The homepage APIs recover and return verified cards, but the client stopped automatic recovery after one refreshing response.",
       "evidence": "Direct production reads of home-deals, home-holidays and home-holiday-deals returned HTTP 200; pre-fix HomeLiveDeals changed to terminal error when automaticRetries reached one."
+    },
+    {
+      "observation": "The v712 D1 state route returned the decremented quota and new history inside the request, but both disappeared after a document reload.",
+      "evidence": "Two authenticated public questions returned verified answers and reduced the displayed quota from 20 to 18; reloading the same production page restored 20/20 and an empty history."
     }
   ],
   "hypotheses": [
     {
       "id": "H1",
       "mechanism": "A failure in the shared Aurora-backed Professor state path, especially the final history write, suppresses an otherwise valid answer from any report source.",
-      "prediction": "Separating quota/history into the bound D1 state store while retaining a reporting database with read-only fallback will allow answers to return and persist even when the reporting bridge is degraded.",
-      "discriminating_test": "Exercise two unrelated metrics, verify quota/history use a different database boundary, and require a post-deploy answer plus persisted history after reload.",
-      "result": "Supported by the shared failure boundary and focused database-boundary tests; final production confirmation remains required.",
+      "prediction": "Keeping quota/history on one persistent primary database while retaining a separate reporting database with read-only fallback will allow answers to return without splitting or losing state.",
+      "discriminating_test": "Exercise two unrelated metrics, verify every quota/history read and write uses the same primary database, and require persisted quota and history after repeated production reloads.",
+      "result": "Supported: v712 proved report answers recover but the D1 state choice did not persist across reload; the revised candidate uses one primary state source and passes the full suite. Final production persistence confirmation remains required.",
       "status": "supported"
     },
     {
@@ -53,8 +57,8 @@
   ],
   "root_cause_hypothesis_id": "H1",
   "fix": {
-    "change": "Keep Professor quota and question history in the bound D1 state store, route report reads through the reporting database with read-only D1 fallback, and give both homepage vacation rails four bounded automatic recovery intervals for refreshing responses and transient transport failures.",
-    "evidence": "The 55-test focused repair suite passes, including explicit Professor database-boundary checks and cold/transient homepage recovery guards."
+    "change": "Keep every Professor quota and question-history read/write on one persistent primary database, route report reads separately through the reporting database with read-only fallback, and give both homepage vacation rails four bounded automatic recovery intervals for refreshing responses and transient transport failures.",
+    "evidence": "The 55-test focused repair suite and all 1730 repository tests pass, including explicit single-state-store Professor boundary checks and cold/transient homepage recovery guards. An independent simulated-Adir review also passed the revised no-split-brain boundary."
   },
   "affected_family": [
     "Professor quota",
@@ -75,18 +79,18 @@
     {
       "check": "Exact authenticated Professor answer, quota decrement and history persistence",
       "status": "pending",
-      "evidence": "Required on the frozen production candidate after publication."
+      "evidence": "v712 answered both authenticated questions correctly but failed persistence after reload. Required again on the revised frozen production candidate."
     },
     {
       "check": "Cold desktop and mobile homepage render both verified availability rails without manual retry",
-      "status": "pending",
-      "evidence": "Required on the frozen production candidate after publication."
+      "status": "passed",
+      "evidence": "Production v712 passed the automated desktop/mobile home audit with 20 cards in each rail, no terminal error and no overflow."
     }
   ],
   "confidence": "high",
   "remaining_unknowns": [
     "The production worker intentionally does not expose its raw database exception.",
-    "The exact final mechanism is not closed until the same public authenticated questions and a cold homepage pass after deployment."
+    "The exact final mechanism is not closed until the same public authenticated questions retain quota and history through reload on the revised deployment."
   ],
   "authorization_boundary": "Authorized code repair, tests, one frozen production publication and public verification. No supplier data, canonical business records, permissions, secrets, DNS or environment settings are changed."
 }
