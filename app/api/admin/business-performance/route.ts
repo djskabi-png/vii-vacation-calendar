@@ -1,5 +1,5 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { conversionTarget, fetchViiConversions, ViiConversionsError, type ConversionWorld } from "../../../lib/vii-conversions.ts";
+import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions, loadCachedBizConversionFailures,
@@ -31,14 +31,12 @@ async function reportingRows<T>(operation: Promise<{ results: T[] }>, degraded: 
 }
 
 function uniqueConversionRows<T extends { placeId: unknown; world: unknown }>(rows: T[]) {
-  const unique = new Map<number, T>();
-  const priority = (world: ConversionWorld) => world === "vacations" ? 0 : world === "events" ? 1 : 2;
+  const unique = new Map<string, T>();
   for (const row of rows) {
     const target = conversionTarget(String(row.placeId), String(row.world));
     if (!target) continue;
-    const current = unique.get(target.siteID);
-    const currentTarget = current ? conversionTarget(String(current.placeId), String(current.world)) : null;
-    if (!current || !currentTarget || priority(target.world) < priority(currentTarget.world)) unique.set(target.siteID, row);
+    const key = `${target.world}:${target.siteID}`;
+    if (!unique.has(key)) unique.set(key, row);
   }
   return [...unique.values()];
 }
@@ -100,7 +98,7 @@ export async function GET(request: Request) {
       }, freshForMs: historical ? 7 * 86400_000 : 2 * 60_000,
       deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
       forceRefresh: url.searchParams.get("refresh") === "1",
-      loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(),
+      loader: async () => fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
         source: source || undefined, converted: converted || undefined, includeContacts }) });
       return Response.json({ conversions: report.value, reportCache: report.cache,
         databaseOrigin: reporting.origin, degraded: reporting.degraded }, { headers });
@@ -275,7 +273,7 @@ export async function POST(request: Request) {
         }
         const result = await cachedBizConversions({ db: cacheDb, ...target, from, till, forceRefresh: body.forceRefresh === true,
           deferRefresh: (operation) => getRequestExecutionContext()?.waitUntil(operation),
-          fetcher: () => fetchViiConversions({ ...target, from, till, token, includeContacts: true }) });
+          fetcher: () => fetchViiConversions({ ...target, from, till, token, sectionOnly: true, includeContacts: true }) });
         return { placeId, conversions: result.conversions, cache: result.cache };
       } catch (error) {
         const code = error instanceof ViiConversionsError ? error.code : "supplier_unavailable";

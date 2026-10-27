@@ -123,7 +123,7 @@ test("Biz conversion aggregates persist and an identical fresh pull does not cal
 test("large cached Biz reports are read across every D1 page", async () => {
   const db = new MemoryDatabase();
   for (let siteID = 1; siteID <= 620; siteID += 1) {
-    const cacheKey = `vacations:${String(siteID).padStart(4, "0")}:2026-10-25:2026-10-25:all-portals-v2`;
+    const cacheKey = `vacations:${String(siteID).padStart(4, "0")}:2026-10-25:2026-10-25:section-v3`;
     const value = { ...fixture(), siteID, from: "2026-10-25", till: "2026-10-25" };
     db.rows.set(cacheKey, { cacheKey, world: "vacations", siteID, fromDay: value.from, tillDay: value.till,
       payload: JSON.stringify(value), savedAt: "2026-10-26T12:00:00Z", staleAfter: "2026-11-02T12:00:00Z" });

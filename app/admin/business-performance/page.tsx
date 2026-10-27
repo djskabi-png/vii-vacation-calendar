@@ -27,15 +27,11 @@ const isoDay = (date: Date) => date.toLocaleDateString("en-CA", { timeZone: "Asi
 const monthStart = (day: string) => `${day.slice(0, 7)}-01`;
 const previousMonth = (day: string) => { const date = new Date(`${monthStart(day)}T12:00:00Z`); date.setUTCMonth(date.getUTCMonth() - 1); const from = date.toISOString().slice(0, 7) + "-01"; date.setUTCMonth(date.getUTCMonth() + 1); date.setUTCDate(0); return { from, till: date.toISOString().slice(0, 10) }; };
 const conversionSupported = (row: Row) => /^(vacation|event|events|hourly|room|rooms)-\d+$/.test(row.placeId) && ["vacation", "vacations", "events", "hourly", "room", "rooms"].includes(row.world);
-const conversionBusinessId = (row: Row) => row.placeId.match(/(\d+)$/)?.[1] || `${row.world}:${row.placeId}`;
-const conversionWorldPriority = (row: Row) => canonicalBusinessReportScope(row.world) === "vacations" ? 0
-  : canonicalBusinessReportScope(row.world) === "events" ? 1 : 2;
 function uniqueConversionBusinesses(rows: Row[]) {
   const unique = new Map<string, Row>();
   for (const row of rows) {
-    const key = conversionBusinessId(row);
-    const current = unique.get(key);
-    if (!current || conversionWorldPriority(row) < conversionWorldPriority(current)) unique.set(key, row);
+    const key = `${canonicalBusinessReportScope(row.world)}:${row.placeId}`;
+    if (!unique.has(key)) unique.set(key, row);
   }
   return [...unique.values()];
 }
