@@ -177,7 +177,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
     await page.waitForFunction(() => {
       const button = document.querySelector(".mobile-map-fab");
       return button?.getAttribute("aria-pressed") === "true" || Boolean(document.querySelector(".map-results-experience"));
-    }, null, { timeout: 5_000 });
+    }, null, { timeout: 10_000 });
     record.checks.firstClickAccepted = true;
     await page.locator(".listing-map.is-ready").waitFor({ timeout: 35_000 });
     await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 15_000 });

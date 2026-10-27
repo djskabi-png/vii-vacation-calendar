@@ -1,6 +1,19 @@
 const base = (process.argv[2] || "http://127.0.0.1:4272").replace(/\/$/, "");
 const requestedLimit = Number(process.argv[3] || 0);
+const requestedRoutePattern = process.argv[4] ? new RegExp(process.argv[4]) : null;
 const supportedLocales = ["he", "en", "ru", "fr"];
+const vacationWorldNames = {
+  he: ["נופש"],
+  en: ["Stays"],
+  ru: ["Отдых"],
+  fr: ["Séjours"],
+};
+const placeWorldNames = {
+  he: ["נופש", "אירועים", "בתי ספא", "חדרים לפי שעה"],
+  en: ["Stays", "Events", "Spa", "Hourly stays"],
+  ru: ["Отдых", "Мероприятия", "Спа", "Почасовой отдых"],
+  fr: ["Séjours", "Événements", "Spa", "Séjours à l'heure"],
+};
 
 function xmlUrls(xml) {
   return [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
@@ -40,7 +53,10 @@ const sitemapFailures = sitemapDocuments.filter((document) => document.error)
 const allUrls = sitemapDocuments.flatMap((document) => document.urls);
 const duplicateUrls = allUrls.length - new Set(allUrls).size;
 const completeUrls = [...new Set(allUrls)];
-const urls = requestedLimit > 0 ? completeUrls.slice(0, requestedLimit) : completeUrls;
+const matchingUrls = requestedRoutePattern
+  ? completeUrls.filter((url) => requestedRoutePattern.test(routeFor(url)))
+  : completeUrls;
+const urls = requestedLimit > 0 ? matchingUrls.slice(0, requestedLimit) : matchingUrls;
 
 async function inspect(path) {
   const route = routeFor(path);
@@ -84,8 +100,8 @@ async function inspect(path) {
   if (!alternates.some((entry) => entry.locale === "x-default")) errors.push("hreflang x-default חסר");
   if (!/^\/(?:en|ru|fr)?$/.test(route) && !visibleBreadcrumb) errors.push("פירורים נראים חסרים");
   if (!/^\/(?:en|ru|fr)?$/.test(route) && !schemaTypes.includes("BreadcrumbList")) errors.push("סכמת פירורים חסרה");
-  if (vacationPath && !names.includes("נופש")) errors.push("היררכיית נופש חסרה בסכמה");
-  if (localeFreeRoute.startsWith("/business?") && !names.some((name) => ["נופש", "אירועים", "בתי ספא", "חדרים לפי שעה", "Stays", "Events", "Spa", "Hourly stays"].includes(name))) errors.push("עולם תוכן חסר בדף מקום");
+  if (vacationPath && !names.some((name) => vacationWorldNames[expectedLocale].includes(name))) errors.push("היררכיית נופש חסרה בסכמה");
+  if (localeFreeRoute.startsWith("/business?") && !names.some((name) => placeWorldNames[expectedLocale].includes(name))) errors.push("עולם תוכן חסר בדף מקום");
   if (localeFreeRoute.startsWith("/business?") && !schemaTypes.some((type) => ["LodgingBusiness", "Hotel", "VacationRental"].includes(type))) errors.push("סכמת מקום אירוח חסרה");
   if (localeFreeRoute.startsWith("/events/place?") && !schemaTypes.includes("EventVenue")) errors.push("סכמת מתחם אירועים חסרה");
   if (localeFreeRoute.startsWith("/guides/") && localeFreeRoute !== "/guides/" && !schemaTypes.includes("Article")) errors.push("סכמת כתבה חסרה");
@@ -106,6 +122,7 @@ const report = {
   sitemapUrls: completeUrls.length,
   audited: results.length,
   limited: requestedLimit > 0,
+  routePattern: requestedRoutePattern?.source || "",
   duplicateUrls,
   sitemapFailures,
   passed: results.length - failures.length,
