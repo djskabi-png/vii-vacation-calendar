@@ -25,7 +25,7 @@ import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
-import { activateAwsDatabase, awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
+import { awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
 import { runQualityChecks } from "../app/lib/quality-platform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
@@ -178,7 +178,6 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
-    activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const scheduledAt = new Date(controller.scheduledTime);
     ctx.waitUntil(runQualityChecks(database, {
@@ -232,7 +231,6 @@ const worker = {
     // Keep the public bundled-data paths testable locally while production
     // continues to receive the real Env object from Cloudflare.
     env = env || ({} as Env);
-    activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);
     // Maintenance belongs to the scheduled handler above. Starting catalog

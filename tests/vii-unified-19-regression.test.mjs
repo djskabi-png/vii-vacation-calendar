@@ -190,6 +190,8 @@ test("Biz report requests verify migrated cache schema without runtime DDL", asy
   assert.match(awsDatabase, /remoteAdapters/);
   assert.match(awsDatabase, /fallbackBindings/);
   assert.match(awsDatabase, /Symbol\.for\("vii\.awsDatabase\.d1Fallback"\)/);
+  const worker = await read("worker/index.ts");
+  assert.doesNotMatch(worker, /activateAwsDatabase/);
 });
 
 test("QQQAAA explains findings and exposes honest persisted progress", async () => {

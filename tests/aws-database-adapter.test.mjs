@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { databaseForEnv, awsDatabaseMode } from '../app/lib/aws-database.ts';
+import { databaseForEnv, awsDatabaseMode, activateAwsDatabase } from '../app/lib/aws-database.ts';
 
 test('AWS adapter preserves D1 read, write and mixed batch semantics without exposing the token', async () => {
   const originalFetch = globalThis.fetch;
@@ -40,6 +40,14 @@ test('AWS adapter leaves the original D1 binding active unless primary mode is c
   const fallback = {prepare(){}};
   assert.equal(databaseForEnv({DB:fallback,VII_AWS_DB_MODE:'primary'}),fallback);
   assert.equal(databaseForEnv({DB:fallback,VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token'}),fallback);
+});
+
+test('AWS activation never replaces the shared Cloudflare D1 binding', () => {
+  const fallback = {prepare(){}};
+  const env = {DB:fallback,VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'};
+  assert.equal(activateAwsDatabase(env),true);
+  assert.equal(env.DB,fallback);
+  assert.notEqual(databaseForEnv(env),fallback);
 });
 
 test('AWS adapter restores D1 camelCase aliases folded by Aurora PostgreSQL', async () => {

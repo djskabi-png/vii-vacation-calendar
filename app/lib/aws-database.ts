@@ -252,14 +252,13 @@ export function databaseForRuntimeEnv(env: Partial<AwsDatabaseEnv>): D1Database 
 
 export function activateAwsDatabase(env: AwsDatabaseEnv) {
   if (!configured(env)) return false;
-  const adapter = databaseForEnv(env);
-  try {
-    env.DB = adapter;
-  } catch {
-    // Some runtimes expose bindings through a read-only facade. The worker's
-    // own calls still use the adapter and the health route detects a mismatch.
-  }
-  return env.DB === adapter;
+  // Never replace a Cloudflare binding on the shared Env object. Vinext reads
+  // bindings again through cloudflare:workers and some runtimes proxy or clone
+  // the value between the Worker and application bundle. Mutating DB there can
+  // turn the Aurora adapter itself into the supposed D1 fallback. Callers use
+  // databaseForEnv(env) locally and keep the original D1 binding intact.
+  databaseForEnv(env);
+  return true;
 }
 
 export function awsDatabaseMode(env: Pick<AwsDatabaseEnv, "VII_AWS_DB_MODE">) {
