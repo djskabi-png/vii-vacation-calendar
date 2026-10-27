@@ -17,6 +17,19 @@ const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`)
 
 type InventoryPlace = { supplierId?: number; id?: string; name?: string; title?: string };
 
+async function reportingRows<T>(operation: Promise<{ results: T[] }>, degraded: boolean, source: string) {
+  try {
+    return await operation;
+  } catch (error) {
+    if (!degraded) throw error;
+    console.warn("reporting_d1_source_unavailable", {
+      source,
+      reason: error instanceof Error ? error.message.slice(0, 160) : "unknown",
+    });
+    return { results: [] as T[] };
+  }
+}
+
 function uniqueConversionRows<T extends { placeId: unknown; world: unknown }>(rows: T[]) {
   const unique = new Map<number, T>();
   const priority = (world: ConversionWorld) => world === "vacations" ? 0 : world === "events" ? 1 : 2;
@@ -119,7 +132,7 @@ export async function GET(request: Request) {
     const analyticsDb = cacheDb;
     const operationsDb = cacheDb;
     const inventory = await supportedInventory();
-    const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
+    const analytics = basis === "created" ? await reportingRows(analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
       SUM(CASE WHEN name = 'phone_reveal' THEN 1 ELSE 0 END) AS phoneReveals,
@@ -130,15 +143,18 @@ export async function GET(request: Request) {
       COUNT(DISTINCT session_id) AS uniqueBrowsers
       FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0
       GROUP BY place_id, world
-      ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>() : { results: [] as Record<string, unknown>[] };
+      ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>(), reporting.degraded, "vii_business_events")
+      : { results: [] as Record<string, unknown>[] };
     const bookings = basis === "arrival"
-      ? await operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName, a.world, COUNT(*) AS viiBookings
+      ? await reportingRows(operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName, a.world, COUNT(*) AS viiBookings
           FROM vii_booking_audit a JOIN vii_booking_context c ON c.id = a.id
-          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, a.world`).bind(from, till).all<Record<string, unknown>>()
-      : await operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world, COUNT(*) AS viiBookings
-          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, world`).bind(since, until).all<Record<string, unknown>>();
-    const reviews = basis === "created" ? await operationsDb.prepare(`SELECT subject_id AS placeId, COUNT(*) AS reviews
-      FROM guest_reviews WHERE created_at >= ? AND created_at < ? GROUP BY subject_id`).bind(since, until).all<{ placeId: string; reviews: number }>() : { results: [] as { placeId: string; reviews: number }[] };
+          WHERE c.arrival_date >= ? AND c.arrival_date <= ? GROUP BY a.place_id, a.world`).bind(from, till).all<Record<string, unknown>>(), reporting.degraded, "vii_booking_arrivals")
+      : await reportingRows(operationsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world, COUNT(*) AS viiBookings
+          FROM vii_booking_audit WHERE created_at >= ? AND created_at < ? GROUP BY place_id, world`).bind(since, until).all<Record<string, unknown>>(),
+        reporting.degraded, "vii_booking_audit");
+    const reviews = basis === "created" ? await reportingRows(operationsDb.prepare(`SELECT subject_id AS placeId, COUNT(*) AS reviews
+      FROM guest_reviews WHERE created_at >= ? AND created_at < ? GROUP BY subject_id`).bind(since, until).all<{ placeId: string; reviews: number }>(),
+      reporting.degraded, "guest_reviews") : { results: [] as { placeId: string; reviews: number }[] };
     const rows = mergeBusinessPerformanceRows(inventory, analytics.results, bookings.results);
     const reviewMap = new Map(reviews.results.map((row) => [row.placeId, Number(row.reviews || 0)]));
     for (const row of rows) row.reviews = reviewMap.get(String(row.placeId)) || 0;
