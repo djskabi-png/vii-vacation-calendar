@@ -70,7 +70,17 @@ export async function GET(request: Request) {
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
       && publicSummaryIds.has(deal.siteID)
       && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
-    const selectedSnapshot = snapshot && preparedDeals.length ? { ...snapshot, deals: preparedDeals } : null;
+    let selectedSnapshot = snapshot && preparedDeals.length ? { ...snapshot, deals: preparedDeals } : null;
+    if (!selectedSnapshot && !db) {
+      // The durable snapshot normally keeps visitors off the provider path.
+      // If snapshot storage itself is unavailable, do one bounded live read so
+      // the complete last-minute rail does not collapse to an empty state.
+      const recovered = await refreshVacationDiscoveryPeriod(null, requestedPeriod, guests, now);
+      const recoveredDeals = (await applyCuration(recovered.value.deals, requestedPeriod)).filter(deal => publicSiteIds.has(deal.siteID)
+        && publicSummaryIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from
+        && deal.till === dates.till && eligibleDealDate(deal.from, now));
+      if (recoveredDeals.length) selectedSnapshot = { period: requestedPeriod, dates, cached: recovered, deals: recoveredDeals };
+    }
     if (!selectedSnapshot) {
       const context = getRequestExecutionContext();
       if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));

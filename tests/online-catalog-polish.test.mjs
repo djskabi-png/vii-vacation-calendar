@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("undated online capability is provider-free, refreshed every half hour and never polled by the browser", async () => {
+test("undated online capability prefers the durable snapshot and has one explicit-flag live recovery without browser polling", async () => {
   const [route, capability, client, mcp] = await Promise.all([
     read("app/api/vii/online-capabilities/route.ts"),
     read("app/lib/online-booking-capability.ts"),
@@ -13,6 +13,9 @@ test("undated online capability is provider-free, refreshed every half hour and 
   ]);
   assert.match(route, /readCachedOnlineCapabilities/);
   assert.doesNotMatch(route, /cachedOnlineCapabilities\(await runtimeCatalogDatabase/);
+  assert.match(route, /try \{ return await readCachedOnlineCapabilities/);
+  assert.match(route, /onlineCapabilitiesFromSearch\(result, now\)/);
+  assert.match(route, /rooms: \[\{ adults: 2 \}\]/);
   assert.match(capability, /CAPABILITY_FRESH_MS = 30 \* 60_000/);
   assert.match(capability, /CAPABILITY_MAX_AGE_MS = 30 \* DAY_MS/);
   assert.doesNotMatch(client, /setInterval/);

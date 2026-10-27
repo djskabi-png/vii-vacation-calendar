@@ -1,0 +1,77 @@
+{
+  "status": "fixed_locally_pending_public_verification",
+  "symptom": "הסינון ניתן להזמין אונליין החזיר 503, ומסילת הרגע האחרון החזירה רשימה ריקה במצב refreshing, אף שחיפוש ספק חי ומתוארך החזיר תוצאות זמינות.",
+  "expected_behavior": "קריאת snapshot תקינה נשארת המסלול הראשי. כאשר אחסון ה-snapshot בלבד אינו זמין, בקשה ציבורית אחת מבצעת התאוששות חיה ומוגבלת, משתמשת רק בדגל onlineBooking מפורש ומחזירה רק את התקופה שהתבקשה.",
+  "environment": "VII production v691 and local release/v646-four-gaps candidate on 2026-10-27",
+  "observations": [
+    {
+      "observation": "קטלוג נופש ציבורי הוגש ממקור bundled-fallback, starting-prices החזיר 503 ו-home-deals החזיר refreshing ללא עסקאות.",
+      "evidence": "נבדק ישירות בנתיבי הייצור לפני התיקון."
+    },
+    {
+      "observation": "חיפוש ספק חי לאותם נתוני נופש הצליח והחזיר 336 תוצאות, מהן 58 זמינות ו-23 עם onlineBooking=true מפורש.",
+      "evidence": "POST ציבורי ל-/api/vii/live-search החזיר 200 ו-cache=refreshed."
+    },
+    {
+      "observation": "הכשל אינו מוסבר על ידי השבתת Biz או היעדר דגל היכולת.",
+      "evidence": "אותו ספק חי החזיר תוצאות ודגלים מפורשים באותה סביבת ייצור."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "מסלול אחסון ה-snapshot אינו זמין, בעוד מסלול הקריאה החיה מהספק זמין.",
+      "prediction": "נתיבי snapshot ייכשלו או יתרוקנו, אך live-search יחזיר תוצאות ודגלי יכולת מפורשים.",
+      "result": "התחזית התקיימה במלואה.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "הספק החיצוני מושבת או אינו מחזיר onlineBooking.",
+      "prediction": "גם live-search ייכשל או יחזיר תוצאות ללא דגלים מפורשים.",
+      "result": "live-search הצליח והחזיר 23 דגלי true מפורשים.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "שמות עמודות או bigint ב-AWS גורמים לפענוח שגוי של שורות היכולת.",
+      "prediction": "מתאם AWS לא ישמר aliases או מספרים בטוחים.",
+      "result": "המתאם משמר aliases מפורשים וממיר int8 בטוח למספר.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "נשמרה עדיפות מלאה ל-snapshot. רק כאשר מסד ה-snapshot אינו זמין מתבצעת קריאה חיה אחת: יכולת הזמנה נאספת רק מדגל onlineBooking בוליאני מפורש, והרגע האחרון מתאושש רק עבור התקופה המבוקשת ללא החלפת לשונית או המצאת זמינות.",
+    "evidence": "63 מתוך 63 בדיקות ממוקדות ו-1710 מתוך 1710 בדיקות האתר עברו, כולל build מלא ואפס כישלונות."
+  },
+  "affected_family": [
+    "סינון ניתן להזמין אונליין",
+    "סליידר הרגע האחרון",
+    "עמוד נופש ברגע האחרון",
+    "מצבי snapshot חסר או אחסון זמנית לא זמין"
+  ],
+  "regression_checks": [
+    {
+      "check": "זמינות או מחיר אינם הופכים בטעות עסק להזמנה אונליין",
+      "status": "passed",
+      "evidence": "הבדיקה מקבלת רק onlineBooking=true ודוחה תוצאה ללא דגל או עם false בלבד."
+    },
+    {
+      "check": "התאוששות הרגע האחרון אינה מחליפה את התקופה המבוקשת בתקופה אחרת",
+      "status": "passed",
+      "evidence": "בדיקת route מאמתת קריאה ל-tomorrow בלבד והחזרת requestedPeriod=tomorrow."
+    },
+    {
+      "check": "רגרסיה מלאה",
+      "status": "passed",
+      "evidence": "pnpm test: 1710 passed, 0 failed."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "הסיבה התשתיתית המדויקת לכך שאחסון ה-snapshot הציבורי אינו זמין עדיין דורשת תצפית ישירה על שירות המסד; התיקון אינו משנה מסד, schema או הרשאות.",
+    "נדרשת הוכחת production לאחר פרסום המועמד."
+  ],
+  "authorization_boundary": "מורשה לתקן, לפרסם ולבדוק את VII. אין שינוי DB, schema, data, secrets, environment, schedules, DNS, permissions, catalog, supplier data או CMS."
+}

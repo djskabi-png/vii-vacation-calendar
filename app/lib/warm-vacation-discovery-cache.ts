@@ -13,7 +13,7 @@ function hasDeals(value: unknown): value is Awaited<ReturnType<typeof getHomeDea
     && (value as { deals: unknown[] }).deals.length > 0;
 }
 
-export async function refreshVacationDiscoveryPeriod(db: D1Database, period: (typeof homeDealPeriods)[number]["id"], guests = 2, now = new Date()) {
+export async function refreshVacationDiscoveryPeriod(db: D1Database | null, period: (typeof homeDealPeriods)[number]["id"], guests = 2, now = new Date()) {
   const [places, publicSiteIds, token] = await Promise.all([
     publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
     publishedSupplierIds("vacations"),

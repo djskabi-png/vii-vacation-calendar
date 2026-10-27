@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityCandidateIds, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
+import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityCandidateIds, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities, onlineCapabilitiesFromSearch } from "../app/lib/online-booking-capability.ts";
 import { matchesVacationOnlineBooking } from "../app/lib/vacation-online-booking-filter.ts";
 import { onlineCapabilitiesResponse } from "../app/api/vii/online-capabilities/route.ts";
 import { observedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
@@ -34,6 +34,17 @@ test("accepted dated search snapshots also recover explicit online booking capab
       { siteID: 73, available: true, total: 800 },
     ] }) },
   ], clock), { "vacation-71": { checkedAt: clock - 1_000 } });
+});
+
+test("live recovery accepts only explicit supplier online-booking flags", () => {
+  assert.deepEqual(onlineCapabilitiesFromSearch({ results: [
+    { siteID: 71, available: true, onlineBooking: true, total: 1200 },
+    { siteID: 72, available: true, onlineBooking: false, total: 900 },
+    { siteID: 73, available: true, total: 800 },
+    { siteID: "74", onlineBooking: true },
+  ] }, now), { "vacation-71": { checkedAt: now } });
+  assert.throws(() => onlineCapabilitiesFromSearch({ results: [{ siteID: 71, available: true, total: 1200 }] }, now), /capabilities_unavailable/);
+  assert.throws(() => onlineCapabilitiesFromSearch({ results: [{ siteID: 71, onlineBooking: false }] }, now), /capabilities_unavailable/);
 });
 
 test("undated filter accepts persisted capability but never relaxes dated selection", () => {

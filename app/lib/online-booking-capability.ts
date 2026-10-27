@@ -4,6 +4,24 @@ export const CAPABILITY_FRESH_MS = 30 * 60_000;
 export const CAPABILITY_MAX_AGE_MS = 30 * DAY_MS;
 export type OnlineCapabilityMap = Record<string, { checkedAt: number }>;
 
+type ExplicitCapabilitySearch = { results?: unknown };
+
+/** Convert only explicit supplier capability flags from a live, dated search.
+ * Availability and price never imply that a place accepts online bookings. */
+export function onlineCapabilitiesFromSearch(value: ExplicitCapabilitySearch, now = Date.now()): OnlineCapabilityMap {
+  if (!Array.isArray(value?.results) || !value.results.length) throw new Error("capabilities_unavailable");
+  const result: OnlineCapabilityMap = {};
+  let explicitFlags = 0;
+  for (const item of value.results) {
+    const row = item && typeof item === "object" && !Array.isArray(item) ? item as Record<string, unknown> : {};
+    if (!Number.isSafeInteger(row.siteID) || Number(row.siteID) < 1 || typeof row.onlineBooking !== "boolean") continue;
+    explicitFlags++;
+    if (row.onlineBooking === true) result[`vacation-${Number(row.siteID)}`] = { checkedAt: now };
+  }
+  if (!explicitFlags || !Object.keys(result).length) throw new Error("capabilities_unavailable");
+  return result;
+}
+
 export function validOnlineCapabilities(value: unknown): value is OnlineCapabilityMap {
   return Boolean(value && typeof value === "object" && !Array.isArray(value)
     && Object.keys(value).length <= 10_000 && Object.entries(value).every(([slug, row]) =>
