@@ -22,6 +22,16 @@
 .event-result-card__title a:hover { color: var(--teal-dark, #076a76); }
 .event-result-card__title:focus-within { outline: 2px solid #087b89; outline-offset: 2px; }
 
+/* Spa package names are supplier-authored product names, not preview excerpts.
+   Keep the complete title visible even when the shared preview-card rhythm is active. */
+.spa-package-card .spa-package-card__body > h3 {
+  min-block-size: 0;
+  max-block-size: none;
+  overflow: visible;
+  display: block;
+  -webkit-line-clamp: unset;
+}
+
 /* Every event card has the same content slots, including the quote/status slot.
    Long descriptive prose and amenity lists remain on the full place page. */
 .event-list > .event-result-card > .event-result-card__body {
