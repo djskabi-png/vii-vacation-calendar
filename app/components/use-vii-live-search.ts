@@ -52,3 +52,40 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
   if (!key) return idle;
   return value?.key === key ? value.state : { ...idle, status: "loading" as const };
 }
+
+export function useViiFlexibleLiveSearch(candidates: Array<{ from: string; till: string }>, guests: number, rooms?: LiveSearchRoom[], retry = 0) {
+  const candidateKey = candidates.map((candidate) => `${candidate.from}|${candidate.till}`).join(",");
+  const roomKey = rooms?.map((room) => `${room.adults}-${room.children || 0}-${room.infants || 0}`).join(",") || "";
+  const key = candidateKey ? `vacations-flexible|${candidateKey}|${guests}|${roomKey}|${retry}` : "";
+  const [value, setValue] = useState<{ key: string; state: LiveSearchState } | null>(null);
+
+  useEffect(() => {
+    if (!key || !candidates.length) return;
+    const controller = new AbortController();
+    const first = candidates[0];
+    const lastTill = candidates.reduce((latest, candidate) => candidate.till > latest ? candidate.till : latest, first.till);
+    const init = {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ world: "vacations", from: first.from, till: lastTill, guests, rooms, candidates, discoverySearch: true }),
+      cache: "no-store" as const,
+      signal: controller.signal,
+    };
+    const request = discoveryJson("/api/vii/live-search", `vacations-flexible:${candidateKey}:${roomKey}`, init);
+    (request as Promise<{ cache?: { status: string }; checkedAt: string | null; results: LiveSearchResult[] }>).then((result) => {
+      if (!Array.isArray(result.results)) throw new Error("invalid_result");
+      if (!controller.signal.aborted) setValue({ key, state: {
+        status: "ready",
+        results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
+        checkedAt: result.checkedAt,
+        ...(result.cache ? { stale: result.cache.status === "stale" } : {}),
+      } });
+    }).catch(() => {
+      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, checkedAt: null } });
+    });
+    return () => controller.abort();
+  }, [candidateKey, candidates, guests, key, roomKey]);
+
+  if (!key) return idle;
+  return value?.key === key ? value.state : { ...idle, status: "loading" as const };
+}

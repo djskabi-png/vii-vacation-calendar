@@ -12,6 +12,7 @@ const suites = [
   ["vii-unified-19", ["qa:vii-unified-19"]],
   ["vii-unified-19-public", ["qa:vii-unified-19-public"]],
   ["navigation-and-unit-results", ["qa:navigation-unit-results"]],
+  ["flexible-online-search", ["qa:flexible-online-search"]],
   ["admin-customer-auth-boundaries", ["qa:auth-boundaries"]],
   ["pre-professor-production-repairs", ["qa:pre-professor-repairs"]],
   ["production-build-and-all-tests", ["test"]],

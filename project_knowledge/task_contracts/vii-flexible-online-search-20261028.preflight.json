@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-flexible-online-search-20261028",
+  "project": "VII",
+  "task_type": "production search defect repair",
+  "requested_outcome": "Flexible vacation searches must show every supplier-confirmed available online-bookable place for the selected region and date flexibility instead of an incorrect zero-result state.",
+  "natural_destination": "https://vii.spaplus.co/search with a flexible November 2026 stay, North region and online-booking filter",
+  "authorization_boundary": "Code, tests and the already-authorized production publication are in scope. Supplier data, database schema, secrets, permissions and unrelated design remain unchanged.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "The defect is a disagreement between dates, filter state, result count and supplier availability.",
+      "acceptance_impact": "The URL, flexible dates, region, online filter, result count and cards must describe the same supplier-confirmed state."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Availability and online-booking labels are factual supplier claims.",
+      "acceptance_impact": "A result may appear only with matching supplier dates, availability, price and online-booking evidence."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The repair touches a shared vacation search flow and needs regression coverage.",
+      "acceptance_impact": "Exact dated, flexible dated, undated and error states must be covered without weakening filters."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The requested outcome must be visible on production.",
+      "acceptance_impact": "The exact released version must be verified live with HTTP and browser evidence plus rollback identity."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The page still says the flexible dates are invalid and shows zero results.",
+      "prevention": "Treat flexible candidates as a real dated supplier search state and merge their live results.",
+      "acceptance_check": "The public North plus online-booking flexible search shows supplier-confirmed cards and no invalid-date message."
+    },
+    {
+      "rejection": "Places are shown but are not actually available or bookable for the displayed dates.",
+      "prevention": "Require available=true, onlineBooking=true, a positive price and exact matching candidate dates.",
+      "acceptance_check": "Every displayed online result maps to a live API record for the same from and till dates."
+    },
+    {
+      "rejection": "Only the example was fixed and exact-date or undated searches regressed.",
+      "prevention": "Keep exact and undated paths unchanged and add family regression tests.",
+      "acceptance_check": "Exact dated, flexible and undated search tests all pass."
+    },
+    {
+      "rejection": "Opening a flexible result drops the matched dates.",
+      "prevention": "Build each result link from its confirmed flexible quote.",
+      "acceptance_check": "A flexible result link includes the supplier-confirmed from, till, guests and room count."
+    }
+  ],
+  "affected_family": [
+    "vacation flexible search parameters",
+    "supplier live-search client hook",
+    "online-booking filter and notice",
+    "result count and nearby recovery",
+    "property-card availability and result links",
+    "desktop and 390px mobile search states",
+    "exact-date and undated regression paths"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted search state contract",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Supplier API exact-date availability response",
+        "source": "POST https://vii.spaplus.co/api/vii/live-search for 2026-11-05 through 2026-11-08"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first flexible supplier search hook and page-state integration are implemented",
+    "checks": [
+      "A focused test proves a known supplier result is retained with exact candidate dates",
+      "The invalid-date notice is no longer selected for a valid flexible request",
+      "Exact-date behavior remains unchanged"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a flexible request still produce an invalid-date notice?",
+      "Can a result pass the online filter without matching dates, price or onlineBooking evidence?",
+      "Can a result card lose its matched flexible dates when opened?",
+      "Did exact-date, undated, nearby or mobile states regress?"
+    ],
+    "natural_destination_evidence": "Production browser evidence for the North flexible online-booking search plus direct live API comparison.",
+    "affected_family_evidence": "Focused automated tests, full relevant search suite and desktop/mobile production inspection."
+  },
+  "effectiveness": {
+    "baseline": "Production currently shows 0 places and an invalid-date message although the supplier API returns multiple available online-bookable places for a candidate stay.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "At least one supplier-confirmed North result is visible for the reproduced request, with no false zero state and no regression in exact or undated search."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

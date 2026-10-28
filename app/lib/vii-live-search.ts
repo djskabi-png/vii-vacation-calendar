@@ -88,20 +88,29 @@ export async function liveSupplierSearch(options: {
   slot?: EventSlot;
   token: string;
   publishedIds: ReadonlySet<number>;
+  candidates?: Array<{ from: string; till: string }>;
   fetchImpl?: typeof fetch;
 }) {
   const { world, from, till, guests, publishedIds } = options;
   const days = daysBetween(from, till);
   const requestedRooms: LiveSearchRoom[] = options.rooms || [{ adults: guests }];
+  const candidates = world === "vacations" && Array.isArray(options.candidates) ? options.candidates : [];
+  const candidateNights = candidates.length ? daysBetween(candidates[0].from, candidates[0].till) : 0;
+  const candidateKeys = new Set(candidates.map((candidate) => `${candidate.from}|${candidate.till}`));
+  const candidatesValid = candidates.length === 0 || candidates.length <= 32
+    && candidates.every((candidate) => validDate(candidate.from) && validDate(candidate.till)
+      && daysBetween(candidate.from, candidate.till) === candidateNights)
+    && candidateNights >= 1 && candidateNights <= 30;
   if (!validDate(from) || !validDate(till) || !Number.isSafeInteger(guests) || guests < 1 || guests > 1000
     || (world === "vacations" && !validRooms(requestedRooms))
-    || (world === "vacations" ? days < 1 || days > 30 : days < 0 || days > 62)
+    || !candidatesValid
+    || (world === "vacations" ? candidates.length ? days < candidateNights || days > 62 : days < 1 || days > 30 : days < 0 || days > 62)
     || (options.slot !== undefined && options.slot !== "morning" && options.slot !== "evening")) {
     throw new Error("invalid_search");
   }
   if (!options.token) throw new Error("supplier_unavailable");
   const bodies: Record<string, unknown>[] = [];
-  if (world === "vacations") bodies.push({ from, nights: days, rooms: requestedRooms.map(({ adults, children, infants }) => ({ adults, ...(children ? { kids: children } : {}), ...(infants ? { infants } : {}) })) });
+  if (world === "vacations") bodies.push({ ...(candidates.length ? { window: { from, till }, nights: candidateNights } : { from, nights: days }), rooms: requestedRooms.map(({ adults, children, infants }) => ({ adults, ...(children ? { kids: children } : {}), ...(infants ? { infants } : {}) })) });
   else if (days === 0) bodies.push({ date: from, guests, ...(options.slot ? { slot: options.slot } : {}) });
   else {
     let cursor = Date.parse(`${from}T00:00:00Z`);
@@ -157,12 +166,18 @@ export async function liveSupplierSearch(options: {
       } satisfies LiveSearchResult];
     }
     const reportedAvailable = site.available === true ? true : site.available === false ? false : null;
-    const total = reportedAvailable && typeof site.minTotal === "number" && Number.isFinite(site.minTotal) && site.minTotal > 0 ? site.minTotal : null;
-    const resultFrom = cheapest.from;
-    const resultTill = cheapest.till;
-    const validStay = resultFrom === from && resultTill === till;
+    const alternatives = Array.isArray(site.alternatives) ? site.alternatives.map(object) : [];
+    const offeredStays = [cheapest, ...alternatives];
+    const selectedStay = candidates.length
+      ? candidates.map((candidate) => offeredStays.find((stay) => stay.from === candidate.from && stay.till === candidate.till)).find(Boolean) || {}
+      : cheapest;
+    const resultFrom = selectedStay.from;
+    const resultTill = selectedStay.till;
+    const selectedTotal = selectedStay.total ?? (selectedStay === cheapest ? site.minTotal : null);
+    const total = reportedAvailable && typeof selectedTotal === "number" && Number.isFinite(selectedTotal) && selectedTotal > 0 ? selectedTotal : null;
+    const validStay = candidates.length ? candidateKeys.has(`${resultFrom}|${resultTill}`) : resultFrom === from && resultTill === till;
     const available = reportedAvailable && (!validStay || total === null) ? null : reportedAvailable;
-    const selectedRooms = Array.isArray(cheapest.rooms) ? cheapest.rooms.map(object) : [];
+    const selectedRooms = Array.isArray(selectedStay.rooms) ? selectedStay.rooms.map(object) : [];
     const priceGuests = selectedRooms.length ? selectedRooms.reduce((sum, room) => {
       const roomID = Number(room.roomID);
       return sum + (roomBasis.get(Number(siteID))?.get(roomID) || 0);

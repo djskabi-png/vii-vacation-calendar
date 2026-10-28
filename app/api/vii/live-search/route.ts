@@ -22,6 +22,14 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
   const world = body.world;
+  const candidates = Array.isArray(body.candidates) ? body.candidates.filter((value): value is { from: string; till: string } => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+    const candidate = value as Record<string, unknown>;
+    return validDate(candidate.from) && validDate(candidate.till);
+  }) : [];
+  if (body.candidates !== undefined && (world !== "vacations" || candidates.length !== body.candidates.length || candidates.length < 1 || candidates.length > 32)) {
+    return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
+  }
   const datedDiscovery = body.discoverySearch === true && body.includePlaces !== true;
   const region = regionalAvailabilityRegion(typeof body.region === "string" ? body.region : null);
   if (body.region !== undefined && (!region || world !== "events" || body.includePlaces !== true)) return Response.json({ error: "invalid_region" }, { status: 400, headers: noStore });
@@ -47,6 +55,7 @@ export async function POST(request: Request) {
       till: body.till as string,
       guests: Number(body.guests),
       rooms: world === "vacations" && Array.isArray(body.rooms) ? body.rooms as Array<{ adults: number; children?: number }> : undefined,
+      candidates: world === "vacations" && candidates.length ? candidates : undefined,
       slot: world === "events" ? body.slot as "morning" | "evening" | undefined : undefined,
       token,
       publishedIds: publicIds,
@@ -58,7 +67,7 @@ export async function POST(request: Request) {
           .some((offer) => offer?.available === true && Number(offer.total) > 0 && Boolean(offer.slot)),
     }) : null;
     const dated = datedDiscovery ? await cachedDiscovery<LiveSearchPayload>({
-      key: ["dated-search", world, body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both"],
+      key: ["dated-search", world, body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both", candidates.length ? candidates : null],
       db: cacheDb,
       load,
       policy: { freshMs: 60_000, staleMs: 30 * 60_000 },

@@ -27,6 +27,12 @@ test("QQQAAA retains every broad VII suite and the approved exclusions", () => {
   assert.match(runner, /exclusions: \["accessibility", "typography"\]/);
 });
 
+test("QQQAAA permanently guards flexible online-booking searches", () => {
+  assert.match(runner, /flexible-online-search/);
+  assert.match(runner, /qa:flexible-online-search/);
+  assert.match(packageJson.scripts["qa:flexible-online-search"], /flexible-search-priority-contract\.test\.mjs/);
+});
+
 test("QQQAAA has an explicit administrator and customer identity boundary gate", () => {
   assert.match(runner, /admin-customer-auth-boundaries/);
   assert.match(packageJson.scripts["qa:auth-boundaries"], /auth-audience-separation\.test\.mjs/);

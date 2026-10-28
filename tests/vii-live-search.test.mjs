@@ -57,6 +57,31 @@ test("multi-room vacation search preserves room composition and marks the price 
   assert.equal(result.results[0].priceMode, "nightly_average");
 });
 
+test("flexible vacation search sends one provider window and keeps only an allowed candidate stay", async () => {
+  const calls = [];
+  const candidates = [
+    { from: "2026-11-05", till: "2026-11-08" },
+    { from: "2026-11-12", till: "2026-11-15" },
+  ];
+  const result = await liveSupplierSearch({
+    world: "vacations", from: "2026-11-05", till: "2026-11-15", guests: 2, candidates,
+    token: "test-token", publishedIds: new Set([11, 12]),
+    fetchImpl: async (url, init = {}) => {
+      if (url.endsWith("/vacations")) return Response.json({ places: [] });
+      calls.push(JSON.parse(init.body));
+      return Response.json({ sites: [
+        { siteID: 11, available: true, onlineBooking: true, minTotal: 1800, cheapest: { from: "2026-11-06", till: "2026-11-09", total: 1800 }, alternatives: [{ from: "2026-11-05", till: "2026-11-08", total: 2100 }] },
+        { siteID: 12, available: true, onlineBooking: true, minTotal: 1700, cheapest: { from: "2026-11-06", till: "2026-11-09", total: 1700 } },
+      ] });
+    },
+  });
+  assert.deepEqual(calls, [{ window: { from: "2026-11-05", till: "2026-11-15" }, nights: 3, rooms: [{ adults: 2 }] }]);
+  assert.deepEqual(result.results.map(({ siteID, available, total, from, till }) => [siteID, available, total, from, till]), [
+    [11, true, 2100, "2026-11-05", "2026-11-08"],
+    [12, null, null, null, null],
+  ]);
+});
+
 test("event search splits a 60-day window and never treats a partial unknown as unavailable", async () => {
   const calls = [];
   const result = await liveSupplierSearch({

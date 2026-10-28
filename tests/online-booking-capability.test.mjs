@@ -134,7 +134,7 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.doesNotMatch(page, /בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין/);
   assert.match(page, /const startingPrices = useStartingPrices\("vacations", undatedSearch\);/);
   assert.equal((page.match(/catalogStartingPrices=\{startingPrices\[property\.slug\]\}/g) || []).length, 2);
-  assert.match(page, /aria-busy=\{\(undatedSearch \? onlineCapabilities.status : supplierSearch.status\) === "loading"\}/);
+  assert.match(page, /aria-busy=\{undatedSearch \? onlineCapabilities.status === "loading" : datedAvailabilityPending\}/);
   assert.match(page, /onlineOnly && undatedCapabilityUnavailable/);
   assert.match(page, /undatedCapabilityUnavailable[\s\S]*?\? true[\s\S]*?matchesVacationOnlineBooking/);
   assert.match(page, /מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין/);
