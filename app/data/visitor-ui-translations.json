@@ -418,5 +418,8 @@
   "ארוחת בוקר מפנקת": { "en": "Indulgent breakfast", "ru": "Сытный завтрак", "fr": "Petit-déjeuner gourmand" },
   "ארוחות כשרות": { "en": "Kosher meals", "ru": "Кошерные блюда", "fr": "Repas casher" },
   "ארוחות צהריים": { "en": "Lunch", "ru": "Обед", "fr": "Déjeuner" },
-  "ארוחות ערב": { "en": "Dinner", "ru": "Ужин", "fr": "Dîner" }
+  "ארוחות ערב": { "en": "Dinner", "ru": "Ужин", "fr": "Dîner" },
+  "מחיר החבילה": { "en": "Package price", "ru": "Стоимость пакета", "fr": "Prix du forfait" },
+  "לבחירה קלה וברורה": { "en": "Easy to compare and choose", "ru": "Легко сравнить и выбрать", "fr": "Faciles à comparer et à choisir" },
+  "בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.": { "en": "Choose the package that suits you and check an available date before booking.", "ru": "Выберите подходящий пакет и проверьте доступную дату перед бронированием.", "fr": "Choisissez le forfait qui vous convient et vérifiez une date disponible avant de réserver." }
 }
