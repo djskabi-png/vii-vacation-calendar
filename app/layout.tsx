@@ -156,7 +156,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const worldAvailability = await readWorldAvailability();
   const requestedWorld = isAdmin ? null : worldForPath(normalizedPathname);
   if (requestedWorld && !worldAvailability[requestedWorld]) {
-    const fallback = ([["vacation", "/"], ["events", "/events"], ["corporate", "/corporate"], ["spa", "/spas"], ["hourly", "/hourly"], ["providers", "/providers"], ["trails", "/trails"], ["attractions", "/attractions"]] as const)
+    const fallback = ([["vacation", "/"], ["events", "/events"], ["corporate", "/corporate"], ["spa", "/spas"], ["hourly", "/hourly"], ["providers", "/providers"], ["trails", "/trails"], ["attractions", "/attractions"], ["gift-card", "/gift-card"]] as const)
       .find(([world]) => worldAvailability[world])?.[1] || "/account";
     if (normalizedPathname !== fallback) redirect(fallback);
   }

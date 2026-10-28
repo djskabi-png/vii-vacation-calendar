@@ -7,12 +7,18 @@ import { breadcrumbSchema } from "../lib/seo";
 import { CorporatePackageBuilder } from "./corporate-package-builder";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { FavoriteButton } from "../components/favorite-button";
+import { readWorldAvailability } from "../lib/world-availability";
 
-export const metadata: Metadata = {
-  title: "אירועי חברה, רווחה ומתנות לעובדים",
-  description: "מרכז אחד למנהלות רווחה, משאבי אנוש, עסקים ומועדוני צרכנות: מקומות, תוכן, ספקים, טיפולים וגיפט קארד.",
-  alternates: { canonical: "/corporate/" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const worldAvailability = await readWorldAvailability();
+  return {
+    title: "אירועי חברה, רווחה ומתנות לעובדים",
+    description: worldAvailability["gift-card"]
+      ? "מרכז אחד למנהלות רווחה, משאבי אנוש, עסקים ומועדוני צרכנות: מקומות, תוכן, ספקים, טיפולים וגיפט קארד."
+      : "מרכז אחד למנהלות רווחה, משאבי אנוש, עסקים ומועדוני צרכנות: מקומות, תוכן, ספקים וטיפולים.",
+    alternates: { canonical: "/corporate/" },
+  };
+}
 
 const solutions = [
   { number: "01", title: "יום גיבוש שיוצאים ממנו עם אנרגיה", text: "מקום מארח, אוכל, פעילות, הסעה ותוכנית יום אחת מסודרת.", href: "/events" },
@@ -23,14 +29,16 @@ const solutions = [
   { number: "06", title: "הטבה למועדון צרכנות", text: "עמוד הטבה, מבחר חוויות, קוד קמפיין ודוח בקשות מרוכז.", href: "#corporate-contact" },
 ];
 
-export default function CorporatePage() {
+export default async function CorporatePage() {
+  const worldAvailability = await readWorldAvailability();
+  const visibleSolutions = worldAvailability["gift-card"] ? solutions : solutions.filter((solution) => solution.href !== "/gift-card");
   return <PageShell variant="corporate">
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה", path: "/corporate/" }])} />
     <main id="main-content" className="corporate-page">
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה" }]} />
-      <section className="corporate-hero"><div className="shell"><div className="corporate-hero__copy"><span className="eyebrow">למנהלות רווחה, משאבי אנוש ומועדוני צרכנות</span><h1>כל מה שצריך כדי לעשות טוב לאנשים שלכם</h1><p>ממקום לאירוע ועד טיפול שמגיע למשרד. בונים חוויה, מתנה או תוכנית רווחה במסלול אחד ברור.</p><div><a className="button primary" href="#corporate-contact">בונים הצעה</a><Link className="button secondary" href="/gift-card">גיפט קארד לעובדים</Link><FavoriteButton compact={false} id="corporate-experiences" world="corporate" name="אירועי חברה ורווחה" location="בכל הארץ" href="/corporate" meta="ימי גיבוש, רווחה ומתנות לעובדים" /></div></div><div className="corporate-hero__board"><span>מתחילים בצורך, לא בספק</span><ul><li><b>01</b>כמה אנשים?</li><li><b>02</b>מה רוצים להרגיש?</li><li><b>03</b>איפה ומתי?</li><li><b>04</b>מה התקציב?</li></ul><strong>ומכאן מרכיבים את החוויה</strong></div></div></section>
+      <section className="corporate-hero"><div className="shell"><div className="corporate-hero__copy"><span className="eyebrow">למנהלות רווחה, משאבי אנוש ומועדוני צרכנות</span><h1>כל מה שצריך כדי לעשות טוב לאנשים שלכם</h1><p>ממקום לאירוע ועד טיפול שמגיע למשרד. בונים חוויה, מתנה או תוכנית רווחה במסלול אחד ברור.</p><div><a className="button primary" href="#corporate-contact">בונים הצעה</a>{worldAvailability["gift-card"] ? <Link className="button secondary" href="/gift-card">גיפט קארד לעובדים</Link> : null}<FavoriteButton compact={false} id="corporate-experiences" world="corporate" name="אירועי חברה ורווחה" location="בכל הארץ" href="/corporate" meta="ימי גיבוש, רווחה ומתנות לעובדים" /></div></div><div className="corporate-hero__board"><span>מתחילים בצורך, לא בספק</span><ul><li><b>01</b>כמה אנשים?</li><li><b>02</b>מה רוצים להרגיש?</li><li><b>03</b>איפה ומתי?</li><li><b>04</b>מה התקציב?</li></ul><strong>ומכאן מרכיבים את החוויה</strong></div></div></section>
 
-      <section className="section shell corporate-solutions" aria-labelledby="corporate-solutions-title"><div className="section-head"><div><h2 id="corporate-solutions-title">רעיונות שאפשר להפוך לתוכנית אמיתית</h2><p>כל מסלול מתחבר למקומות ולשירותים שכבר נמצאים בתוך האתר.</p></div></div><div>{solutions.map((solution) => <Link key={solution.number} href={solution.href}><span>{solution.number}</span><h3>{solution.title}</h3><p>{solution.text}</p><strong>לפתיחת האפשרויות</strong></Link>)}</div></section>
+      <section className="section shell corporate-solutions" aria-labelledby="corporate-solutions-title"><div className="section-head"><div><h2 id="corporate-solutions-title">רעיונות שאפשר להפוך לתוכנית אמיתית</h2><p>כל מסלול מתחבר למקומות ולשירותים שכבר נמצאים בתוך האתר.</p></div></div><div>{visibleSolutions.map((solution) => <Link key={solution.number} href={solution.href}><span>{solution.number}</span><h3>{solution.title}</h3><p>{solution.text}</p><strong>לפתיחת האפשרויות</strong></Link>)}</div></section>
 
       <CorporatePackageBuilder />
 
@@ -38,7 +46,7 @@ export default function CorporatePage() {
 
       <div className="section shell"><MasuExperience context="corporate" /></div>
 
-      <section className="section corporate-gifts"><div className="shell"><div><h2>גיפט קארד שמכבד את הטעם של כל עובד</h2><p>הארגון בוחר סכום וכמות. העובדים בוחרים את החוויה שמתאימה להם מתוך העולמות המשתתפים באתר.</p></div><Link className="button light" href="/gift-card">למרכז הגיפט קארד</Link></div></section>
+      {worldAvailability["gift-card"] ? <section className="section corporate-gifts"><div className="shell"><div><h2>גיפט קארד שמכבד את הטעם של כל עובד</h2><p>הארגון בוחר סכום וכמות. העובדים בוחרים את החוויה שמתאימה להם מתוך העולמות המשתתפים באתר.</p></div><Link className="button light" href="/gift-card">למרכז הגיפט קארד</Link></div></section> : null}
 
       <section className="section shell corporate-process"><div className="section-head"><div><span className="eyebrow">איך זה עובד</span><h2>בקשה אחת, תמונה מלאה</h2></div></div><ol><li><span>1</span><div><h3>מספרים מה צריך</h3><p>כמות משתתפים, מועד, אזור, תקציב והמטרה של האירוע או ההטבה.</p></div></li><li><span>2</span><div><h3>בונים שילוב</h3><p>מחברים מקום, ספקים, אוכל, רווחה ומתנה לפי הצורך.</p></div></li><li><span>3</span><div><h3>מקבלים הצעה מסודרת</h3><p>אפשרויות, מה כלול, תנאים ושלבי ביצוע במקום אחד.</p></div></li><li><span>4</span><div><h3>מאשרים ומתקדמים</h3><p>מאשרים את ההצעה והתנאים ישירות מול המקום או נותן השירות.</p></div></li></ol></section>
 

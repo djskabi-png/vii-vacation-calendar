@@ -122,7 +122,9 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
         basisGuests: positive(room.basisGuests),
         roomType: sergeyRoomType(room.roomType, amenityIndex),
         bedrooms: positive(room.bedrooms),
-        area: positive(room.totalSize) || positive(room.roomSize) || undefined,
+        builtArea: positive(room.roomSize) || undefined,
+        totalArea: positive(room.totalSize) || undefined,
+        area: positive(room.roomSize) || undefined,
         features: unique([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((space) => {
           const values = record(space).features;
           return Array.isArray(values) ? values.map((value) => text(record(value).description)) : [];

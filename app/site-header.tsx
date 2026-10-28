@@ -37,9 +37,11 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const managedNav = (managedChrome?.language === language && managedChrome.primary?.length
     ? managedChrome.primary.filter((item) => item.visible).map((item) => ({ ...item, description: defaultNav.find((entry) => entry.id === item.id)?.description || item.group }))
     : defaultNav).filter((item) => enabled(item.id === "activities" ? "attractions" : item.id));
-  const secondaryNav = managedChrome?.language === language && managedChrome.secondary?.length
-    ? managedChrome.secondary.filter((item) => item.visible)
-    : defaultSecondary;
+  const usingDefaultSecondary = !(managedChrome?.language === language && managedChrome.secondary?.length);
+  const secondaryNav = (usingDefaultSecondary
+    ? defaultSecondary
+    : managedChrome!.secondary!.filter((item) => item.visible))
+    .filter((item) => (item.id !== "gift-card" && !item.href.startsWith("/gift-card")) || enabled("gift-card"));
   const homeHref = localizedPath("/", language);
   const advertiseHref = localizedPath("/join#join-pricing", language);
   const homeLoadingLabel = translate("פותחים את דף הבית...");
@@ -50,6 +52,22 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     : pathname === "/attractions" || pathname.startsWith("/attractions/")
       ? "attractions"
       : variant;
+  const hasInPageSearch = pathname === "/"
+    || pathname === "/search" || pathname.startsWith("/search/")
+    || pathname === "/events" || pathname.startsWith("/events/search")
+    || pathname === "/spas" || pathname.startsWith("/spas/search")
+    || pathname === "/hourly" || pathname.startsWith("/hourly/search")
+    || pathname === "/providers" || pathname.startsWith("/providers/search")
+    || pathname === "/attractions" || pathname.startsWith("/attractions/search")
+    || pathname === "/trails" || pathname.startsWith("/trails/search");
+  const searchPaths: Record<string, string> = { events: "/events", spa: "/spas", hourly: "/hourly", providers: "/providers", activities: "/attractions", attractions: "/attractions", trails: "/trails" };
+  const searchHref = localizedPath(searchPaths[activeWorld] || "/search", language);
+  const searchLabel = {
+    he: "חיפוש באתר",
+    en: "Search the site",
+    ru: "Поиск по сайту",
+    fr: "Rechercher sur le site",
+  }[language];
   const magazineCopy = {
     he: { badge: "חדש", label: "מגזין", menuLabel: "מגזין ומדריכים" },
     en: { badge: "New", label: "Magazine", menuLabel: "Magazine and guides" },
@@ -191,7 +209,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
         <span className="menu-panel__section-title">{translate("עוד באתר")}</span>
         <div className="menu-panel__secondary">
-          {secondaryNav === defaultSecondary ? <><Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link><Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : <>{secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}{secondaryNav.some((item) => item.href === "/holidays") ? null : <Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link>}</>}
+          {usingDefaultSecondary ? <>{enabled("gift-card") ? <Link href={localizedPath("/gift-card", language)} onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link> : null}<Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : <>{secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}{secondaryNav.some((item) => item.href === "/holidays") ? null : <Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link>}</>}
           <AccessibilityWidget placement="menu" />
         </div>
 
@@ -215,7 +233,8 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
             <SavedViewedMenu />
             <LanguageSwitcher compact iconOnly />
             <AccessibilityWidget placement="icon" />
-            <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
+            {!hasInPageSearch ? <Link className="icon-button header-search" href={searchHref} aria-label={searchLabel}><SearchIcon /></Link> : null}
+            {enabled("gift-card") ? <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href={localizedPath("/gift-card", language)} aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link> : null}
             <WorldSwitcher active={activeWorld} />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
           </div>

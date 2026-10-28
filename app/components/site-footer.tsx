@@ -11,6 +11,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import type { ManagedLink } from "../lib/content-studio";
 import { PwaInstallControl } from "./pwa-experience";
 import { useWorldAvailability } from "./world-availability-provider";
+import { localizedPath } from "../i18n/locale-routing";
 
 const defaultWorldLinks: ManagedLink[] = [
   ["vacation", "נופש", "/search"], ["events", "אירועים", "/events"], ["corporate", "אירועי חברה ורווחה", "/corporate"],
@@ -35,9 +36,12 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
   const defaultContextualLinks: ManagedLink[] = contextual.links.map((item, index) => ({ id: `default-${index}`, ...item, group: contextual.label, order: index + 1, visible: true, newWindow: false }));
   const [managedChrome, setManagedChrome] = useState<{ key: string; contextual?: ManagedLink[] | null; worlds?: ManagedLink[] | null; service?: ManagedLink[] | null } | null>(null);
   const contextualOverride = managedChrome?.key === chromeKey ? managedChrome.contextual?.filter((item) => item.visible && item.group === contextual.label) : null;
-  const contextualLinks = contextualOverride?.length ? contextualOverride : defaultContextualLinks;
+  const contextualLinks = (contextualOverride?.length ? contextualOverride : defaultContextualLinks)
+    .filter((item) => !item.href.startsWith("/gift-card") || enabled("gift-card"));
   const worldLinks = (managedChrome?.key === chromeKey && managedChrome.worlds ? managedChrome.worlds.filter((item) => item.visible) : defaultWorldLinks).filter((item) => enabled(item.id));
-  const serviceLinks = managedChrome?.key === chromeKey && managedChrome.service ? managedChrome.service.filter((item) => item.visible) : defaultServiceLinks;
+  const usingDefaultServiceLinks = !(managedChrome?.key === chromeKey && managedChrome.service);
+  const serviceLinks = (usingDefaultServiceLinks ? defaultServiceLinks : managedChrome!.service!.filter((item) => item.visible))
+    .filter((item) => (item.id !== "gift-card" && !item.href.startsWith("/gift-card")) || enabled("gift-card"));
   const joinTarget = variant === "providers" ? "provider-pricing" : "expert-registration";
   useEffect(() => {
     const controller = new AbortController();
@@ -60,7 +64,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
         </section>
         <nav aria-label={contextual.label}><strong>{translate(contextual.label)}</strong>{links(contextualLinks)}</nav>
         <nav aria-label="שירותים"><strong>{translate("העולמות שלנו")}</strong>{links(worldLinks)}</nav>
-        <nav aria-label="מידע ושירות"><strong>{translate("מידע ושירות")}</strong>{serviceLinks === defaultServiceLinks ? <><Link href="/account">{translate("החשבון האישי שלי")}</Link><Link href="/favorites">{translate("המקומות שאהבתי")}</Link><Link href="/gift-card">{translate("גיפט קארד")}</Link><Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/booking?action=manage">{translate("ניהול הזמנה")}</Link><Link href="/questions">{translate("שאלות ותשובות")}</Link><Link href="/guides">{translate("מגזין ומדריכים")}</Link><Link href="/accessibility">{translate("הצהרת נגישות")}</Link><Link href="/legal/terms">{translate("תקנון האתר")}</Link><Link href="/legal/privacy">{translate("מדיניות פרטיות")}</Link><Link href="/legal/cancellation">{translate("ביטול ושינוי הזמנה")}</Link></> : links(serviceLinks)}<a href="https://www.spaplus.co.il/club/?src=vii" target="_blank" rel="noopener noreferrer">{translate("הצטרפות למועדון לקוחות")}</a></nav>
+        <nav aria-label="מידע ושירות"><strong>{translate("מידע ושירות")}</strong>{usingDefaultServiceLinks ? <><Link href="/account">{translate("החשבון האישי שלי")}</Link><Link href="/favorites">{translate("המקומות שאהבתי")}</Link>{enabled("gift-card") ? <Link href={localizedPath("/gift-card", language)}>{translate("גיפט קארד")}</Link> : null}<Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/booking?action=manage">{translate("ניהול הזמנה")}</Link><Link href="/questions">{translate("שאלות ותשובות")}</Link><Link href="/guides">{translate("מגזין ומדריכים")}</Link><Link href="/accessibility">{translate("הצהרת נגישות")}</Link><Link href="/legal/terms">{translate("תקנון האתר")}</Link><Link href="/legal/privacy">{translate("מדיניות פרטיות")}</Link><Link href="/legal/cancellation">{translate("ביטול ושינוי הזמנה")}</Link></> : links(serviceLinks)}<a href="https://www.spaplus.co.il/club/?src=vii" target="_blank" rel="noopener noreferrer">{translate("הצטרפות למועדון לקוחות")}</a></nav>
       </div>
       <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><AccessibilityWidget placement="footer" /><CookiePreferencesButton /><PwaInstallControl /><span>כל החופשה, במקום אחד</span></div></div>
     </footer>

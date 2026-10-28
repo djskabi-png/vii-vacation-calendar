@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { controllableWorlds, type ControllableWorld, type WorldAvailability } from "../../lib/world-availability";
 
-const labels: Record<ControllableWorld, string> = { vacation: "נופש", events: "אירועים", corporate: "אירועי חברה", spa: "ספא", hourly: "חדרים לפי שעה", providers: "ספקים", trails: "מסלולים", attractions: "אטרקציות" };
+const labels: Record<ControllableWorld, string> = { vacation: "נופש", events: "אירועים", corporate: "אירועי חברה", spa: "ספא", hourly: "חדרים לפי שעה", providers: "ספקים", trails: "מסלולים", attractions: "אטרקציות", "gift-card": "גיפט קארד" };
 
 export default function WorldsControlPage() {
   const [worlds, setWorlds] = useState<WorldAvailability | null>(null);

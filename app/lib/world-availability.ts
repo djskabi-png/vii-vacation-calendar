@@ -1,6 +1,6 @@
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
-export const controllableWorlds = ["vacation", "events", "corporate", "spa", "hourly", "providers", "trails", "attractions"] as const;
+export const controllableWorlds = ["vacation", "events", "corporate", "spa", "hourly", "providers", "trails", "attractions", "gift-card"] as const;
 export type ControllableWorld = typeof controllableWorlds[number];
 export type WorldAvailability = Record<ControllableWorld, boolean>;
 
@@ -56,5 +56,6 @@ export function worldForPath(pathname: string): ControllableWorld | null {
   if (path.startsWith("/providers")) return "providers";
   if (path.startsWith("/trails")) return "trails";
   if (path.startsWith("/attractions")) return "attractions";
+  if (path.startsWith("/gift-card")) return "gift-card";
   return null;
 }

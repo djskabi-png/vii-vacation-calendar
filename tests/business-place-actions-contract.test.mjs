@@ -22,7 +22,8 @@ test("mobile place contact actions stay in one refined row", () => {
 
 test("the contact row does not look like one enclosing button", () => {
   const contactRail = css.slice(css.indexOf("/* Business contact actions stay together"), css.indexOf("/* Keep the review transition"));
-  assert.match(contactRail, /max-width: 420px;/);
+  assert.match(contactRail, /max-width: 424px;/);
+  assert.match(contactRail, /grid-template-columns: minmax\(116px,1fr\) minmax\(132px,1\.12fr\) 44px;/);
   assert.match(contactRail, /\.property-title__actions--contact \{[\s\S]*gap: 8px;[\s\S]*padding: 0;[\s\S]*border: 0;[\s\S]*background: transparent;[\s\S]*box-shadow: none;/);
   assert.match(contactRail, /\.property-title__actions--contact > button,[\s\S]*border: 1px solid rgba\(18,50,61,\.1\);[\s\S]*border-radius: 14px;[\s\S]*background: #fff;/);
   assert.match(contactRail, /\.property-title__actions--contact \.property-whatsapp-action \{[\s\S]*background: #f1faf6;/);

@@ -40,9 +40,9 @@ test("guest reviews accept anonymous submissions into D1 and R2 with pending mod
   assert.match(operationsPage, /> דחייה</);
 });
 
-test("the shared header keeps one worlds trigger and restores accessibility while mobile removes the redundant gift shortcut", async () => {
+test("the shared header keeps one worlds trigger, restores accessibility and adds one conditional search shortcut", async () => {
   const [header, styles] = await Promise.all([read("app/site-header.tsx"), read("app/globals.css")]);
-  assert.doesNotMatch(header, /header-search/);
+  assert.match(header, /!hasInPageSearch \? <Link className="icon-button header-search"/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(styles, /\.header-actions \.header-gift \{ display: none; \}/);

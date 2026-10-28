@@ -641,7 +641,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     assert.match(business, />\{translate\("כל פרטי היחידה"\)\}<\/button>/);
   assert.match(business, /<SleepingArrangements/);
   assert.match(unitDetails, /לכל תמונות היחידה/);
-  assert.match(unitDetails, /עד \{room\.guests\} אורחים/);
+  assert.match(unitDetails, /translate\("עד"\)\} \{room\.guests\} \{translate\("אורחים"\)/);
   assert.doesNotMatch(business, /www\.vii\.co\.il/);
   assert.doesNotMatch(eventPlace, /www\.vii\.co\.il/);
   assert.doesNotMatch(business, /לכל פרטי המקום|לצפייה בעמוד המקור/);

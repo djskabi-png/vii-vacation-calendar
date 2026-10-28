@@ -11,7 +11,7 @@
 @media (max-width:760px) {
   /* A visible number needs a protected numeric track, not the old short-label
      slot. Keep the number/WhatsApp pair adjacent and share outside the pair. */
-  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link) { grid-template-columns:minmax(122px,1.1fr) minmax(0,1fr) 44px; gap:6px; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link) { grid-template-columns:minmax(112px,1.1fr) minmax(0,1fr) 44px; gap:6px; }
   .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .property-whatsapp-action)) { grid-template-columns:minmax(122px,1fr) 44px; }
   .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .property-whatsapp-action,> .share-trigger)) { grid-template-columns:minmax(0,1fr); }
   .site-page .property-title__actions--contact > .direct-phone-link.property-phone-action { gap:6px; padding-inline:4px; font-size:.74rem; }
@@ -26,8 +26,8 @@
   .preview-card-contact-row .stay-card__contact.direct-phone-link { gap:4px; padding-inline:4px; }
   .preview-card-contact-row .stay-card__contact.direct-phone-link > bdi { font-size:.7rem; }
   .preview-card-contact-row .stay-card__contact.direct-phone-link > svg { width:16px; height:16px; flex-basis:16px; }
-  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) { grid-template-columns:minmax(122px,1.1fr) minmax(0,1fr); }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
   .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .direct-phone-link[data-phone-long])) > .direct-phone-link { grid-column:1; grid-row:auto; }
   .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) > .property-whatsapp-action { grid-column:2; grid-row:auto; }
-  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) > .share-trigger { grid-column:1/-1; grid-row:auto; justify-self:end; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) > .share-trigger { grid-column:1/-1; grid-row:2; justify-self:center; }
 }

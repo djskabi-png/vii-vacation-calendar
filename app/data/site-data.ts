@@ -141,6 +141,11 @@ export type StayOption = {
   basisGuests?: number;
   roomType?: string;
   bedrooms: number;
+  /** Built/interior unit area from the supplier roomSize field. */
+  builtArea?: number;
+  /** Total area allocated to the unit from the supplier totalSize field. */
+  totalArea?: number;
+  /** Legacy built-area alias retained for accepted static inventory. */
   area?: number;
   image: string;
   images?: string[];

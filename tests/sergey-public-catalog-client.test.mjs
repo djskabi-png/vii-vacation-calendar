@@ -8,7 +8,7 @@ function client(override = {}, extraPlace = false, listOverride = {}) {
     id: 17, active: true, name: "מתחם בדיקה", location: { city: 1 },
     galleries: { main: { title: "סוויטה", pictures } },
     summary: "<p>תיאור מקום</p>", meta: { description: "תיאור קצר" },
-    rooms: [{ roomID: 55, roomName: "סוויטה", roomCount: 2, maxGuests: 4, bedrooms: 1,
+    rooms: [{ roomID: 55, roomName: "סוויטה", roomCount: 2, maxGuests: 4, bedrooms: 1, roomSize: 45, totalSize: 1500,
       spaces: [{ features: [{ description: "בריכה" }] }] }],
     reviews: { score: 9.4, count: 1, list: [{ id: 4, author: "אורח", text: "נהדר", score: 10 }] },
     contact: { phone: "0501234567", whatsapp: "0501234567" },
@@ -44,6 +44,9 @@ test("normalizes the full place gallery, rooms, reviews and explicit WhatsApp fi
   assert.equal(summary.images.length, 14);
   assert.equal(detail.images.length, 14);
   assert.equal(detail.rooms[0].quantity, 2);
+  assert.equal(detail.rooms[0].builtArea, 45);
+  assert.equal(detail.rooms[0].totalArea, 1500);
+  assert.equal(detail.rooms[0].area, 45);
   assert.equal(detail.reviews.length, 1);
   assert.ok(summary.contact.whatsapp);
   assert.equal(Object.hasOwn(summary, "available"), false);

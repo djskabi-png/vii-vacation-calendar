@@ -73,9 +73,16 @@ test("header utility actions share sizing and world selection is not fixed", () 
   assert.match(css, /\.world-dock > summary \.world-toggle-icon \{ width: 16px; height: 16px;/);
 });
 
-test("the header has one combined search and worlds action plus direct accessibility", () => {
+test("the header adds a direct search shortcut only when the page has no search surface", () => {
   const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldToggleIcon)/)?.[0] ?? "";
-  assert.doesNotMatch(header, /header-search/);
+  assert.match(header, /const hasInPageSearch = pathname === "\/"/);
+  assert.match(header, /!hasInPageSearch \? <Link className="icon-button header-search"/);
+  assert.match(header, /const searchLabel = \{/);
+  assert.match(header, /he: "חיפוש באתר"/);
+  assert.match(header, /en: "Search the site"/);
+  assert.match(header, /ru: "Поиск по сайту"/);
+  assert.match(header, /fr: "Rechercher sur le site"/);
+  assert.match(header, /aria-label=\{searchLabel\}/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(worldSwitcherComponent, /document\.addEventListener\("click", closeOnOutsideClick\)/);

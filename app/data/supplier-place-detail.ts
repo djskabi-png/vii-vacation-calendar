@@ -25,7 +25,7 @@ export type SupplierPlaceDetail = {
   summary: string;
   previewText?: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
-  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; maxAdults?: number; maxKids?: number; showKidsAndAdults?: boolean; basisGuests?: number; roomType?: string; bedrooms: number; area?: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
+  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; maxAdults?: number; maxKids?: number; showKidsAndAdults?: boolean; basisGuests?: number; roomType?: string; bedrooms: number; builtArea?: number; totalArea?: number; area?: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
   reviewCount?: number;
@@ -124,8 +124,9 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
           basisGuests: typeof room.basisGuests === "number" && room.basisGuests > 0 ? room.basisGuests : undefined,
           roomType: sergeyRoomType(room.roomType, amenityIndex) || undefined,
           bedrooms: typeof room.bedrooms === "number" && room.bedrooms > 0 ? room.bedrooms : 0,
-          area: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize
-            : typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
+          builtArea: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
+          totalArea: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize : undefined,
+          area: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
           features: [...new Set([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((value) => {
             const features = record(value).features;
             return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];

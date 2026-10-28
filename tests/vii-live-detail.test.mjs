@@ -11,7 +11,7 @@ test("a current supplier detail replaces stored photos, reviews, rooms and venue
       return Response.json({
         id: 1, active: true, name: "שם מעודכן", summary: "תיאור מעודכן", location: { city: 8 }, gps: { lat: 32.1, long: 35.1 },
         galleries: { main: { pictures: ["/gallery/new.jpg", "/gallery/second.jpg"] } },
-        rooms: [{ roomName: "סוויטה חדשה", roomCount: 2, maxGuests: 4, bedrooms: 1, spaces: [{ features: [{ description: "בריכה" }] }] }],
+        rooms: [{ roomName: "סוויטה חדשה", roomCount: 2, maxGuests: 4, basisGuests: 2, bedrooms: 1, roomSize: 45, totalSize: 1500, spaces: [{ features: [{ description: "בריכה" }] }] }],
         reviews: { count: 1, score: 9.5, list: [{ id: 123, author: "דנה", title: "מעולה", text: "מקום יפה", added: "2026-10-06", score: 9.5, pictures: [] }] },
         policy: { checkIn: "15:00:00", checkOut: "11:00:00" }, contact: { phone: "050-1234567", whatsapp: "054-7654321" },
       });
@@ -25,6 +25,10 @@ test("a current supplier detail replaces stored photos, reviews, rooms and venue
   assert.equal(detail.reviews[0].text, "מקום יפה");
   assert.equal(detail.rooms[0].name, "סוויטה חדשה");
   assert.equal(detail.rooms[0].features[0], "בריכה");
+  assert.equal(detail.rooms[0].builtArea, 45);
+  assert.equal(detail.rooms[0].totalArea, 1500);
+  assert.equal(detail.rooms[0].area, 45);
+  assert.equal(detail.rooms[0].basisGuests, 2);
   assert.equal(detail.phone, "050-1234567");
   assert.equal(detail.whatsapp, "054-7654321");
 });

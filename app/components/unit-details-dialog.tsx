@@ -4,10 +4,13 @@
 
 import { useEffect, useRef } from "react";
 import type { StayOption } from "../data/site-data";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { FeatureIcon } from "./feature-icon";
 
 export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGallery }: { propertyName: string; room: StayOption | null; open: boolean; onClose: () => void; onOpenGallery: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLElement>(null);
+  const { translate } = useSiteLanguage();
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +43,13 @@ export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGal
   }, [onClose, open]);
 
   if (!open || !room) return null;
-  const groups = room.featureGroups?.length ? room.featureGroups : [{ title: "כל מה שיש ביחידה", items: room.features }];
+  const groupedFeatures = new Set((room.featureGroups || []).flatMap((group) => group.items));
+  const ungroupedFeatures = room.features.filter((feature) => !groupedFeatures.has(feature));
+  const groups = [
+    ...(room.featureGroups || []),
+    ...(ungroupedFeatures.length ? [{ title: translate(room.featureGroups?.length ? "מאפיינים נוספים ביחידה" : "כל מה שיש ביחידה"), items: ungroupedFeatures }] : []),
+  ].filter((group) => group.items.length);
+  const builtArea = room.builtArea || room.area;
   return <div className="unit-details-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section ref={dialog} className="unit-details-dialog" role="dialog" aria-modal="true" aria-labelledby="unit-details-title">
       <header><div><span>{propertyName}</span><h2 id="unit-details-title">{room.name}</h2></div><button ref={closeButton} type="button" onClick={onClose} aria-label="סגירת פרטי היחידה">×</button></header>
@@ -48,8 +57,8 @@ export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGal
         <img src={room.image} alt={`${room.name} ב${propertyName}`} title={`${room.name} ב${propertyName}`} />
         <span>לכל תמונות היחידה</span>
       </button> : null}
-      <div className="unit-details-dialog__intro">{room.description || !room.supplierRoomID ? <p>{room.description || `${room.name} היא יחידת אירוח נפרדת ב${propertyName}.`}</p> : null}<div>{room.bedrooms > 0 ? <span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span> : null}<span>עד {room.guests} אורחים</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div></div>
-      <div className="unit-details-dialog__groups">{groups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((item) => <span key={item}>✓ {item}</span>)}</div></section>)}</div>
+      <div className="unit-details-dialog__intro">{room.description || !room.supplierRoomID ? <p>{room.description || `${room.name} היא יחידת אירוח נפרדת ב${propertyName}.`}</p> : null}<div>{room.bedrooms > 0 ? <span>{room.bedrooms === 1 ? translate("חדר שינה אחד") : `${room.bedrooms} ${translate("חדרי שינה")}`}</span> : null}<span>{translate("עד")} {room.guests} {translate("אורחים")}</span>{builtArea ? <span>{translate("שטח בנוי")} {builtArea} {translate("מ״ר")}</span> : null}{room.totalArea ? <span>{translate("שטח כללי")} {room.totalArea} {translate("מ״ר")}</span> : null}{room.basisGuests ? <span>{translate("מחיר הבסיס עד")} {room.basisGuests} {translate("אורחים")}</span> : null}</div></div>
+      <div className="unit-details-dialog__groups">{groups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((item) => <span key={item}><FeatureIcon label={item} className="property-highlight-icon" /><b>{item}</b></span>)}</div></section>)}</div>
     </section>
   </div>;
 }
