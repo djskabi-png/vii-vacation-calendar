@@ -30,8 +30,9 @@ test("the place page keeps current supplier groups authoritative and hydrates on
 
 test("descriptive bedroom names stay in where-you-sleep and a fallback property image opens the full gallery", async () => {
   const source = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
+  const mapper = await readFile(new URL("app/lib/verified-sleeping-rooms.ts", root), "utf8");
   const styles = await readFile(new URL("app/globals.css", root), "utf8");
-  assert.match(source, /\^חדר שינה\(\?:\\s\+\\d\+\)\?\(\?:\\s\*\[-–—:\]\\s\*\.\+\)\?\$/);
+  assert.match(mapper, /\^חדר שינה\(\?:\\s\+\\d\+\)\?\(\?:\\s\*\[-–—:\]\\s\*\.\+\)\?\$/);
   assert.match(source, /room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick=\{\(\) => openGallery\("all", 0\)\}/);
   assert.doesNotMatch(source, /room-card__image room-card__image--missing"><img/);
   assert.match(styles, /\.room-card__image \{[^}]*width: 100%;[^}]*min-width: 0;[^}]*max-width: 100%;[^}]*display: block;/);

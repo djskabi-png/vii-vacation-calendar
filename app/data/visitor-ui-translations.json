@@ -14,6 +14,8 @@
   "חדרי השינה בתוך מקום האירוח": {"en":"Bedrooms in this accommodation","fr":"Chambres dans cet hébergement","ru":"Спальни в этом объекте"},
   "חדר שינה אחד עם הפרטים שנמסרו על ידי המקום.": {"en":"One bedroom with the details provided by the property.","fr":"Une chambre avec les informations fournies par l’établissement.","ru":"Одна спальня с информацией, предоставленной объектом."},
   "חדרי שינה. כל מלבן מציג חדר שינה נפרד ואת הפרטים שנמסרו עליו.": {"en":"bedrooms. Each card shows a separate bedroom and its supplied details.","fr":"chambres. Chaque carte présente une chambre distincte et les informations fournies.","ru":"спален. Каждая карточка показывает отдельную спальню и предоставленные сведения."},
+  "חדרי שינה. כל מלבן מציג את חלוקת השינה שנמסרה על יחידת האירוח.": {"en":"bedrooms. Each card shows the sleeping arrangement supplied for the accommodation unit.","fr":"chambres. Chaque carte présente la configuration de couchage communiquée pour l’unité d’hébergement.","ru":"спален. Каждая карточка показывает схему спальных мест, предоставленную для единицы размещения."},
+  "סוגי המיטות נמסרים באישור המקום": {"en":"Bed types are provided subject to confirmation by the property","fr":"Les types de lits sont communiqués sous réserve de confirmation par l’établissement","ru":"Типы кроватей указываются после подтверждения объектом"},
   "דפדוף בין חדרי השינה": {"en":"Browse bedrooms","fr":"Parcourir les chambres","ru":"Просмотреть спальни"},
   "פרטי הלינה במקום": {"en":"Accommodation details","fr":"Détails de l’hébergement","ru":"Сведения о размещении"},
   "איפה תשנו?": {"en":"Where will you stay?","fr":"Où séjournerez-vous ?","ru":"Где вы будете жить?"},

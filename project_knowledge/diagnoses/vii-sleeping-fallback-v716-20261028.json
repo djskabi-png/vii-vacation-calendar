@@ -1,0 +1,72 @@
+{
+  "status": "diagnosed",
+  "symptom": "Production vacation-2574 shows one bedroom and 'איפה תשנו ביחידה?' inside its unit card, but the main #sleeping / 'איפה תשנו?' section is missing.",
+  "expected_behavior": "Every vacation place with a verified positive bedroom count displays the main sleeping section; explicit bedroom groups remain separate cards and missing data is never invented.",
+  "environment": "Production v715, https://vii.spaplus.co/business?id=vacation-2574, 2026-10-28, supplier snapshot and live-detail mapping in release/v646-four-gaps.",
+  "reproduction": {
+    "steps": [
+      "Open the exact production route.",
+      "Observe the unit card's verified one-bedroom fact.",
+      "Inspect the page for #sleeping and the main 'איפה תשנו?' heading."
+    ],
+    "evidence": "Production DOM: bedroom text exists, body includes 'איפה תשנו ביחידה?', but #sleeping is absent."
+  },
+  "observations": [
+    {
+      "observation": "The accepted supplier snapshot for vacation-2574 contains room id 4396 with bedrooms=1 and feature 'מיטה זוגית'.",
+      "evidence": "app/data/sergey-place-details.json details.vacation-2574.rooms[0]"
+    },
+    {
+      "observation": "The room feature group is titled 'צימרבוס', not 'חדר שינה 1'.",
+      "evidence": "app/data/sergey-place-details.json details.vacation-2574.rooms[0].featureGroups[0]"
+    },
+    {
+      "observation": "verifiedSleepingRooms currently discards every group whose title does not match isVerifiedBedroomGroup, and has no room.bedrooms fallback.",
+      "evidence": "app/business/client-page.tsx verifiedSleepingRooms useMemo"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The supplier omitted bedroom data for vacation-2574.",
+      "prediction": "Both snapshot and unit card would lack a positive bedroom count.",
+      "discriminating_test": "Inspect the accepted supplier detail and production unit-card facts.",
+      "result": "Rejected: both expose one verified bedroom; the snapshot also exposes a double bed.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The main sleeping mapper requires a bedroom-like group title and silently drops otherwise valid room-level bedroom data.",
+      "prediction": "A room with bedrooms=1 and group title 'צימרבוס' shows the unit-card fallback but produces zero verifiedSleepingRooms.",
+      "discriminating_test": "Compare the mapper predicate with the vacation-2574 supplier shape and production DOM.",
+      "result": "Supported: the title fails isVerifiedBedroomGroup, leaving #sleeping absent while the unit card still shows one bedroom.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The sleeping section is present but hidden by responsive CSS.",
+      "prediction": "#sleeping would exist in the DOM on production even if not visible.",
+      "discriminating_test": "Query the exact production DOM for #sleeping.",
+      "result": "Rejected: #sleeping is not rendered at all.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Pending: add a verified room-level bedroom fallback after the explicit bedroom-group branch, limited to positive bedroom counts and supplier-provided sleeping facts.",
+    "evidence": "Pending implementation and regression proof."
+  },
+  "affected_family": [
+    "vacation places with explicit bedroom groups",
+    "vacation places with positive bedroom counts but generic group titles",
+    "vacation places without bedroom data",
+    "desktop and mobile vacation place pages",
+    "QQQAAA vacation place checks"
+  ],
+  "regression_checks": [],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Exact number of supplier vacation records affected by generic group titles will be measured after the shared mapper exists."
+  ],
+  "authorization_boundary": "Authorized shared vacation place-page repair, tests and production publication; no supplier data mutation or unrelated product change."
+}

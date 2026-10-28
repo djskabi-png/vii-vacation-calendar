@@ -16,7 +16,8 @@ import { PropertyCard, resolveAvailabilityForStay } from "../components/property
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
-import { VerifiedSleepingDetails, type VerifiedSleepingRoom } from "../components/verified-sleeping-details";
+import { VerifiedSleepingDetails } from "../components/verified-sleeping-details";
+import { verifiedSleepingRoomsFromProperty } from "../lib/verified-sleeping-rooms";
 import type { BusinessWorld, ListingFeatureGroup, Property } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import { getListingOfferings } from "../lib/listing-offerings";
@@ -122,17 +123,6 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   return `/booking?${params.toString()}`;
 }
 
-function comparableSleepingTitle(value: string) {
-  return value.trim().replace(/[?؟]/g, "").replace(/\s+/g, " ").toLocaleLowerCase("he");
-}
-
-function isVerifiedBedroomGroup(title: string) {
-  const normalized = comparableSleepingTitle(title);
-  return /^חדר שינה(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
-    || /^bedroom(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
-    || /^chambre(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
-    || /^спальня(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
-}
 export default function BusinessPage({ initialProperty, relatedProperties, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -266,23 +256,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(initialRooms ? { rooms: initialRooms } : {}), ...(initialChildren ? { children: initialChildren } : {}), ...(initialInfants ? { infants: initialInfants } : {}), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(supplierSiteID && supplierQuote.roomIDs.length === 1 ? { roomID: String(supplierQuote.roomIDs[0]) } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
-  const verifiedSleepingRooms = useMemo<VerifiedSleepingRoom[]>(() => (property.roomOptions || []).flatMap((room, roomIndex) =>
-    (room.featureGroups || []).flatMap((group, groupIndex) => {
-      if (!isVerifiedBedroomGroup(group.title) || !group.items.length) return [];
-      const galleryGroup = property.galleryGroups?.find((gallery) => comparableSleepingTitle(gallery.title) === comparableSleepingTitle(group.title));
-      return [{
-        key: `${roomIndex}-${groupIndex}-${group.title}`,
-        name: group.title,
-        unitName: property.scenario === "multi" ? room.name : undefined,
-        details: [...new Set(group.items)],
-        galleryImage: galleryGroup?.images[0],
-        totalUnits: room.quantity,
-        availableUnits: room.supplierRoomID && supplierCalendarStay?.allowed
-          ? Math.min(room.quantity, supplierCalendarStay.availableUnitCounts[room.supplierRoomID] || 0)
-          : undefined,
-      }];
-    })
-  ), [property.galleryGroups, property.roomOptions, property.scenario, supplierCalendarStay]);
+  const verifiedSleepingRooms = useMemo(() => verifiedSleepingRoomsFromProperty({
+    rooms: property.roomOptions || [],
+    galleryGroups: property.galleryGroups,
+    scenario: property.scenario,
+    availableUnitCounts: supplierCalendarStay?.allowed ? supplierCalendarStay.availableUnitCounts : undefined,
+  }), [property.galleryGroups, property.roomOptions, property.scenario, supplierCalendarStay]);
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     { href: "#about", label: translate("על המקום") },
     ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),

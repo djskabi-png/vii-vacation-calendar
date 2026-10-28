@@ -7,12 +7,15 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 test("vacation bedroom facts render as separate visible cards sourced from supplier room groups", () => {
   const business = read("../app/business/client-page.tsx");
   const sleeping = read("../app/components/verified-sleeping-details.tsx");
+  const mapper = read("../app/lib/verified-sleeping-rooms.ts");
 
-  assert.match(business, /property\.roomOptions \|\| \[\]\)\.flatMap/);
-  assert.match(business, /room\.featureGroups \|\| \[\]/);
-  assert.match(business, /isVerifiedBedroomGroup\(group\.title\)/);
-  assert.match(business, /details: \[\.\.\.new Set\(group\.items\)\]/);
+  assert.match(business, /verifiedSleepingRoomsFromProperty/);
   assert.match(business, /<VerifiedSleepingDetails placeName=\{localizedPropertyName\} rooms=\{verifiedSleepingRooms\} \/>/);
+  assert.match(mapper, /room\.featureGroups \|\| \[\]/);
+  assert.match(mapper, /isVerifiedBedroomGroup\(group\.title\)/);
+  assert.match(mapper, /if \(explicitGroups\.length\) return explicitGroups/);
+  assert.match(mapper, /if \(!bedroomCount\) return \[\]/);
+  assert.match(mapper, /room\.features\.filter\(isVerifiedSleepingFact\)/);
 
   assert.match(sleeping, /<h2 id="sleeping-title">איפה תשנו\?<\/h2>/);
   assert.match(sleeping, /rooms\.map\(\(room\) => <article className="sleeping-card"/);

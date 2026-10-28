@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-sleeping-fallback-v716-20261028",
+  "project": "VII",
+  "task_type": "shared vacation sleeping-arrangements repair",
+  "requested_outcome": "Show the main 'איפה תשנו' section on every vacation place whose verified supplier unit data includes bedrooms, including vacation-2574, without inventing unsupplied bed details.",
+  "natural_destination": "https://vii.spaplus.co/business?id=vacation-2574",
+  "authorization_boundary": "Diagnose, implement, test and publish only the shared vacation sleeping-section repair and its QQQAAA guard. Preserve supplier data, booking, availability, CMS, permissions and unrelated design.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "The visible sleeping section must be derived from verified supplier room data.",
+      "acceptance_impact": "Render only verified bedroom counts and sleeping-related facts, and never invent bed types."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The defect is in a shared vacation place-page family condition.",
+      "acceptance_impact": "Every vacation room with a positive bedroom count gets a sleeping representation, regardless of its supplier group title."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "The approved page design and existing explicit bedroom cards must be preserved.",
+      "acceptance_impact": "Explicit bedroom groups remain authoritative; the fallback runs only when such groups are absent."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A local code change does not prove the public vacation family is repaired.",
+      "acceptance_impact": "The exact production route, a previously working route, a no-bedroom case, desktop and mobile must be verified after deployment."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The room card mentions a bedroom but the main 'איפה תשנו' section is still absent.",
+      "prevention": "Build a verified fallback from every room with bedrooms > 0 when explicit bedroom groups are absent.",
+      "acceptance_check": "vacation-2574 contains a visible #sleeping section headed 'איפה תשנו?'."
+    },
+    {
+      "rejection": "The fallback invents a bed type or applies every room amenity as a sleeping fact.",
+      "prevention": "Filter only explicit bed, mattress, crib and sleeping-sofa facts; always include only the verified bedroom count.",
+      "acceptance_check": "The fallback data contains the supplier bedroom count and only supplier-provided sleeping facts."
+    },
+    {
+      "rejection": "Existing places with named bedroom groups lose their separate room cards.",
+      "prevention": "Keep explicit verified bedroom groups as the first branch and use the fallback only when that list is empty.",
+      "acceptance_check": "vacation-2210 retains its named bedroom cards and QQQAAA parity labels."
+    },
+    {
+      "rejection": "Places without bedroom data get a fabricated section.",
+      "prevention": "Return no fallback when the verified bedroom count is zero or absent.",
+      "acceptance_check": "A zero-bedroom fixture produces no sleeping room."
+    },
+    {
+      "rejection": "The shared repair breaks mobile width or navigation.",
+      "prevention": "Reuse the existing responsive sleeping component and add no new layout primitive.",
+      "acceptance_check": "The exact public page has no horizontal overflow at desktop and 390x844."
+    }
+  ],
+  "affected_family": [
+    "vacation places with explicit bedroom feature groups",
+    "vacation places with bedroom counts but non-bedroom group titles",
+    "vacation places with no bedroom data",
+    "desktop vacation place pages",
+    "390px mobile vacation place pages",
+    "QQQAAA vacation place guards"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Accepted VII sleeping-arrangements behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Existing verified sleeping card component",
+        "source": "app/components/verified-sleeping-details.tsx"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared fallback mapper and focused fixtures pass, before full build and deployment.",
+    "checks": [
+      "vacation-2574 supplier data maps to one verified sleeping summary with one bedroom and a double bed.",
+      "Explicit bedroom groups remain separate cards.",
+      "A zero-bedroom fixture remains empty."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a positive bedroom count still omit #sleeping?",
+      "Can a generic non-bedroom feature leak into sleeping facts?",
+      "Can explicit bedroom names be replaced by the fallback?",
+      "Can a zero-bedroom place gain fabricated content?",
+      "Can the section overflow at 390px?"
+    ],
+    "natural_destination_evidence": "Fresh production DOM and visual checks on vacation-2574 at desktop and 390x844 after deployment.",
+    "affected_family_evidence": "Focused mapper tests, existing explicit-bedroom tests, full suite, production build and representative production routes."
+  },
+  "effectiveness": {
+    "baseline": "Production vacation-2574 displayed 'איפה תשנו ביחידה?' inside its unit card but omitted the main #sleeping section despite one verified bedroom.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One shared causal repair publishes with the exact route and representative vacation family verified in one cycle."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
