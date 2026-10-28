@@ -5319,6 +5319,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-feature-groups__column { min-width: 0; display: grid; align-content: start; gap: 12px; }
 .property-feature-groups article { width: 100%; min-width: 0; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #f8fbfb; box-sizing: border-box; }
 .property-feature-groups h3,.modal-feature-groups h3 { margin: 0 0 12px; font-size: 1rem; }
+.feature-section__loading { margin: 18px 0 0; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #f8fbfb; color: var(--ink-soft); }
 .feature-section__mobile-preview,
 .feature-section__mobile-details { display: none; }
 .modal-feature-groups { display: grid; gap: 18px; }

@@ -8527,5 +8527,7 @@
   "יחידות פנויות בטווח שנבחר": "units available for the selected date range",
   "הבחירה תחול על יחידות": "The selection will apply to units",
   "כל התמונות": "All photos",
-  "יחידות זהות": "identical units"
+  "יחידות זהות": "identical units",
+  "טוענים את מתקני המקום…": "Loading the property's facilities…",
+  "פרטי המתקנים המלאים יתעדכנו ברענון הבא.": "The full facility details will be updated on the next refresh."
 }

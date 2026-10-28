@@ -26,6 +26,7 @@ function fixture() {
 }
 
 const success = async (url) => {
+  if (url.includes("/api/vii/business-amenities")) return Response.json({ source: "biz-shared-amenities", groups: [{ title: "מתחם חיצוני", items: ["בריכה"] }, { title: "מתחם פנימי", items: ["מזגן"] }] });
   if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, review: null, authenticated: false, reviews: [], items: [], slider: [], section: [], popular: [], cities: [], types: [], capabilities: {}, coordinatesReady: true, interactiveMap: true });
   if (url.endsWith("/sitemap.xml")) return new Response("<?xml version=\"1.0\"?><sitemapindex><sitemap><loc>https://example.test/sitemaps/core/1.xml</loc></sitemap><sitemap><loc>https://example.test/sitemaps/vacations/1.xml</loc></sitemap>" + "x".repeat(500) + "</sitemapindex>", { status: 200, headers: { "content-type": "application/xml" } });
   if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset><loc>https://example.test/</loc>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });

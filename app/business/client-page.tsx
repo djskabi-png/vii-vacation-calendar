@@ -64,12 +64,6 @@ function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
 }
 
-function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
-  // A missing taxonomy is not permission to invent one from keywords.
-  // Preserve the verified source order in one honest fallback group.
-  return features.length ? [{ title: "כללי", items: [...new Set(features)] }] : [];
-}
-
 type DisplayFeatureGroup = { title: string; items: string[] };
 
 function balanceFeatureGroups(groups: DisplayFeatureGroup[]): [DisplayFeatureGroup[], DisplayFeatureGroup[]] {
@@ -153,7 +147,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })) : base.roomOptions,
       featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : legacyPlaceFeatureGroups(base.slug) || base.featureGroups,
-      features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
+      features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features])] } : base;
   }, [initialProperty, supplierDetail]);
   const businessCopy = {
     he: { name: "מקום אירוח מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מקום אירוח ב${location}. בעמוד תוכלו לראות תמונות, מתקנים, יחידות, זמינות ודרכי הזמנה.`, unit: "יחידת אירוח", feature: "מתקן במקום", faqQuestion: "מידע חשוב על המקום", faqAnswer: "הפרטים העדכניים, הזמינות ותנאי ההזמנה מאושרים מול המקום.", policy: "תנאי הביטול והשינויים נמסרים לפני אישור ההזמנה והתשלום.", checkIn: "כניסה", checkOut: "עזיבה", checkOutSat: "עזיבה בשבת", confirmHours: "יש לאשר את השעות מול המקום.", locationTitle: (name: string, location: string, area: string) => `המיקום של ${name} ב${location}, ${area}`, endcap: "אפשר להשוות מקומות נוספים באזור, לבחור מסלול לטיול או למצוא שירות שמגיע עד מקום האירוח.", moreArea: "עוד מקומות באזור" },
@@ -205,6 +199,31 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
   const supplierSiteID = /^vacation-(\d+)$/.exec(property.slug)?.[1];
+  const [amenityState, setAmenityState] = useState<{ supplierSiteID?: string; groups: ListingFeatureGroup[] | null; settled: boolean }>(() => ({
+    supplierSiteID,
+    groups: null,
+    settled: !supplierSiteID,
+  }));
+  const liveFeatureGroups = amenityState.supplierSiteID === supplierSiteID ? amenityState.groups : null;
+  const featureGroupsSettled = amenityState.supplierSiteID === supplierSiteID ? amenityState.settled : !supplierSiteID;
+  useEffect(() => {
+    let active = true;
+    if (!supplierSiteID) return;
+    const controller = new AbortController();
+    fetch(`/api/vii/business-amenities?id=${encodeURIComponent(supplierSiteID)}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("amenities_unavailable");
+        const payload = await response.json() as { groups?: ListingFeatureGroup[] };
+        if (!Array.isArray(payload.groups)) throw new Error("invalid_amenities");
+        if (active) setAmenityState({
+          supplierSiteID,
+          groups: payload.groups.filter((group) => group && typeof group.title === "string" && Array.isArray(group.items) && group.items.length),
+          settled: true,
+        });
+      })
+      .catch(() => { if (active) setAmenityState({ supplierSiteID, groups: null, settled: true }); });
+    return () => { active = false; controller.abort(); };
+  }, [supplierSiteID]);
   const siteToday = currentSiteDay();
   const calendarFrom = `${siteToday.getFullYear()}-${String(siteToday.getMonth() + 1).padStart(2, "0")}-${String(siteToday.getDate()).padStart(2, "0")}`;
   const supplierCalendar = useViiStayCalendar(supplierSiteID ? Number(supplierSiteID) : null, (calendarOpen || hasSelectedDates) && activeWorld === "vacation", calendarFrom, guests);
@@ -274,7 +293,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate, verifiedSleepingRooms.length]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label }))).slice(0, 5);
-  const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
+  const featureGroups = liveFeatureGroups ?? (property.featureGroups?.length ? property.featureGroups : []);
   const localizedFeatureGroups = featureGroups.flatMap((group) => {
     const items = localizedBusinessList(group.items, language, translate);
     return items.length ? [{ title: safeBusinessText(group.title, businessCopy.feature), items }] : [];
@@ -495,7 +514,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
             <section id="features" className="feature-section">
               <span className="eyebrow">עיקרי המקום</span>
               <h2>מתקנים ושירותים</h2>
-              <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
+              {featureGroups.length ? <><div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
                 {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}
               </div>
               <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></article>)}</div>)}</div>
@@ -503,7 +522,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                 <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
                 <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section> : null; })}</div>
               </div>
-              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
+              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button></> : <p className="feature-section__loading" aria-live="polite">{translate(featureGroupsSettled ? "פרטי המתקנים המלאים יתעדכנו ברענון הבא." : "טוענים את מתקני המקום…")}</p>}
             </section>
 
             <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => openGallery("guests", 0)} />

@@ -45,7 +45,7 @@ test("Professor answers a cached Biz-only question from aggregate cache tables w
     } }; } };
   } };
   const intent = parseProfessorIntent("כמה שיחות היו החודש", [], now);
-  const snapshot = await metricSnapshot(db, intent.range, intent);
+  const snapshot = await metricSnapshot(db, intent.range, intent, { now: new Date("2026-10-27T12:00:00Z") });
   assert.equal(snapshot.metrics.bizCalls, 584);
   assert.equal(snapshot.bizRows, 459);
   assert.equal(snapshot.bizSavedAt, "2026-10-26T16:17:40.000Z");
@@ -64,7 +64,7 @@ test("Professor falls back to the last closed Biz day without scanning every cac
     } }; } };
   } };
   const intent = parseProfessorIntent("כמה שיחות היו החודש", [], new Date("2026-10-27T12:00:00Z"));
-  const snapshot = await metricSnapshot(db, intent.range, intent);
+  const snapshot = await metricSnapshot(db, intent.range, intent, { now: new Date("2026-10-27T12:00:00Z") });
   assert.equal(snapshot.metrics.bizCalls, 584);
   assert.equal(snapshot.bizRange?.till, "2026-10-26");
   assert.equal(snapshot.bizRows, 459);

@@ -87,6 +87,7 @@ async function fastCachedBizTotals(db: D1Database, range: ProfessorRange, intent
 
 export async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, dependencies: {
   loadBizConversions?: typeof loadCachedBizConversions;
+  now?: Date;
 } = {}) {
   const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere(intent);
   const needsInternal = intent.metrics.some((metric) => ["impressions", "pageViews", "phone", "whatsapp"].includes(metric));
@@ -107,7 +108,7 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
   let fastBiz = needsBiz && !injectedBizLoader ? await fastCachedBizTotals(db, range, intent).catch(() => null) : null;
   let cached = needsBiz && injectedBizLoader ? await injectedBizLoader(db, range.from, range.till).catch(() => []) : [];
   if (needsBiz && !fastBiz && !cached.length) {
-    const today = day(new Date());
+    const today = day(dependencies.now || new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const closedTill = day(yesterday);
     if (range.from <= closedTill && range.till >= today) {
