@@ -15,7 +15,7 @@ test("vacation bedroom facts render as separate visible cards sourced from suppl
   assert.match(mapper, /isVerifiedBedroomGroup\(group\.title\)/);
   assert.match(mapper, /if \(explicitGroups\.length\) return explicitGroups/);
   assert.match(mapper, /if \(!bedroomCount\) return \[\]/);
-  assert.match(mapper, /room\.features\.filter\(isVerifiedSleepingFact\)/);
+  assert.match(mapper, /\(room\.features \|\| \[\]\)\.filter\(isVerifiedSleepingFact\)/);
 
   assert.match(sleeping, /<h2 id="sleeping-title">איפה תשנו\?<\/h2>/);
   assert.match(sleeping, /rooms\.map\(\(room\) => <article className="sleeping-card"/);

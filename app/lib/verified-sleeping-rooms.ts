@@ -13,7 +13,7 @@ type SleepingSourceRoom = {
   name: string;
   quantity: number;
   bedrooms: number;
-  features: string[];
+  features?: string[];
   featureGroups?: Array<{ title: string; items: string[] }>;
   images?: string[];
   supplierRoomID?: number;
@@ -70,7 +70,7 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
 
     const bedroomCount = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
     if (!bedroomCount) return [];
-    const sleepingFacts = [...new Set(room.features.filter(isVerifiedSleepingFact))];
+    const sleepingFacts = [...new Set((room.features || []).filter(isVerifiedSleepingFact))];
     return [{
       key: `${roomIndex}-verified-bedroom-summary`,
       name: bedroomCountLabel(bedroomCount),

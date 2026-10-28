@@ -58,6 +58,22 @@ test("no bedroom data produces no fabricated sleeping section", () => {
   assert.deepEqual(rooms, []);
 });
 
+test("accepted runtime rooms without a legacy features array still render sleeping details", () => {
+  const rooms = verifiedSleepingRoomsFromProperty({
+    scenario: "single",
+    rooms: [{
+      name: "יחידה מרשומת עבר",
+      quantity: 1,
+      bedrooms: 1,
+      featureGroups: [{ title: "היחידה", items: ["מיטה זוגית"] }],
+    }],
+  });
+
+  assert.equal(rooms.length, 1);
+  assert.equal(rooms[0].name, "חדר שינה אחד");
+  assert.deepEqual(rooms[0].details, ["סוגי המיטות נמסרים באישור המקום"]);
+});
+
 test("every vacation supplier room with a verified bedroom count produces where-you-sleep content", async () => {
   const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-place-details.json", import.meta.url), "utf8"));
   const verifiedRooms = Object.entries(catalog.details).flatMap(([placeId, detail]) =>
