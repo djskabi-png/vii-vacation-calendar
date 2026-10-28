@@ -1,9 +1,10 @@
 import type { ListingFeatureGroup } from "./site-data";
+import migrated from "./legacy-place-feature-groups.json" with { type: "json" };
 
 // Verified parity data from the former public place pages. The live supplier
 // taxonomy remains authoritative whenever it contains groups; this overlay is
 // only used for accepted snapshots that predate grouped shared amenities.
-const groups: Record<string, ListingFeatureGroup[]> = {
+const verifiedOverrides: Record<string, ListingFeatureGroup[]> = {
   "vacation-2210": [
     { title: "מידע", items: ["עד 14 אורחים ללינה", "4 חדרי שינה", "2 חדרי רחצה"] },
     { title: "כללי", items: ["חניה פרטית", "יוקרתית", "מפואר"] },
@@ -19,5 +20,6 @@ const groups: Record<string, ListingFeatureGroup[]> = {
 };
 
 export function legacyPlaceFeatureGroups(slug: string) {
-  return groups[slug]?.map((group) => ({ ...group, items: [...group.items] }));
+  const groups = verifiedOverrides[slug] || (migrated.groups as Record<string, ListingFeatureGroup[]>)[slug];
+  return groups?.map((group) => ({ ...group, items: [...group.items] }));
 }

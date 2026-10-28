@@ -2,6 +2,7 @@ import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "./sergey-amenities.ts";
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -25,8 +26,7 @@ function pictures(galleries: unknown) {
   return [...new Set(values.flatMap((gallery) => {
     const items = record(gallery).pictures;
     return Array.isArray(items) ? items : [];
-  }))].filter((path): path is string => typeof path === "string" && /^\/gallery\/[\w.-]+$/.test(path))
-    .map((path) => new URL(path, "https://www.vii.co.il").href);
+  }))].map(localGalleryMediaUrl).filter((path): path is string => Boolean(path));
 }
 
 function rates(value: unknown) {

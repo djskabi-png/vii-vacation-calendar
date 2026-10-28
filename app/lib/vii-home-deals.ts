@@ -1,9 +1,9 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
-const MEDIA_ROOT = "https://www.vii.co.il";
 import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
 import { supplierContactNumber } from "./supplier-contact.ts";
 import { eligibleDealDate } from "./deal-clock.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 export const homeDealPeriods = [
   { id: "tomorrow", label: "ברגע האחרון", weekday: null, nights: 1 },
@@ -64,11 +64,7 @@ export function homeDealDates(periodId: HomeDealPeriod, now = new Date()) {
 }
 
 function mediaUrl(value: unknown) {
-  if (typeof value !== "string") return null;
-  try {
-    const url = new URL(value, MEDIA_ROOT);
-    return url.protocol === "https:" && ["www.vii.co.il", "vii.co.il"].includes(url.hostname) ? url.href : null;
-  } catch { return null; }
+  return localGalleryMediaUrl(value);
 }
 
 function record(value: unknown): Record<string, unknown> {

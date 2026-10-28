@@ -1,6 +1,6 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
-const MEDIA_ROOT = "https://www.vii.co.il";
 const TIMEOUT_MS = 15_000;
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 export type ViiSupplierWorld = "vacations" | "events";
 
@@ -52,13 +52,7 @@ function number(value: unknown): number | null {
 }
 
 function mediaUrl(value: unknown): string | null {
-  if (typeof value !== "string" || !value.trim()) return null;
-  try {
-    const url = new URL(value, MEDIA_ROOT);
-    return url.protocol === "https:" && ["www.vii.co.il", "vii.co.il"].includes(url.hostname) ? url.href : null;
-  } catch {
-    return null;
-  }
+  return localGalleryMediaUrl(value);
 }
 
 function images(galleries: unknown): string[] {

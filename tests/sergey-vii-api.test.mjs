@@ -22,7 +22,7 @@ test("VII supplier list contains only active places with source media and locati
   const client = createSergeyViiClient({ apiKey: "test-vii-token", fetchImpl: mockFetch });
   assert.deepEqual(await client.list("vacations"), [{
     id: 11, name: "מקום אמיתי", city: "חיפה", area: "חיפה והכרמל",
-    image: "https://www.vii.co.il/gallery/one.jpeg", score: 9.4, reviewCount: 8,
+    image: "/api/vii/media/one.jpeg", score: 9.4, reviewCount: 8,
   }]);
 });
 
@@ -30,7 +30,7 @@ test("VII supplier detail reads rooms and never forwards third-party media", asy
   const client = createSergeyViiClient({ apiKey: "test-vii-token", fetchImpl: mockFetch });
   const place = await client.detail("vacations", 11);
   assert.equal(place?.phone, "050-1234567");
-  assert.deepEqual(place?.images, ["https://www.vii.co.il/gallery/one.jpeg"]);
+  assert.deepEqual(place?.images, ["/api/vii/media/one.jpeg"]);
   assert.deepEqual(place?.rooms, [{ id: 4, name: "סוויטה", units: 2, maxGuests: 4, bedrooms: 1 }]);
 });
 

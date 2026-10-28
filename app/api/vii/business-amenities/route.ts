@@ -11,7 +11,7 @@ export async function businessAmenitiesResponse(request: Request, dependencies: 
   token: () => Promise<string>;
   load: (supplierId: number, token: string) => Promise<{
     groups: Array<{ title: string; items: string[] }>;
-    source: "biz-shared-amenities" | "legacy-vii-place-amenities";
+    source: "biz-shared-amenities" | "migrated-vii-place-amenities";
   }>;
 }) {
   const url = new URL(request.url);

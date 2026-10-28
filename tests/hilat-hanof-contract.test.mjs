@@ -70,26 +70,25 @@ test("Hilat HaNof search and booking flow enforce source minimum stays and trust
   assert.match(bookingHub, /נדרשים לפחות/);
 });
 
-test("Hilat HaNof resolves exact legacy range prices in search and business details", async () => {
+test("Hilat HaNof resolves exact Biz calendar inventory and prices in search and business details", async () => {
   const route = await readFile(resolve(root, "app/api/legacy-availability/route.ts"), "utf8");
   const hook = await readFile(resolve(root, "app/components/use-legacy-availability.ts"), "utf8");
   const card = await readFile(resolve(root, "app/components/property-card.tsx"), "utf8");
   const business = await readFile(resolve(root, "app/business/client-page.tsx"), "utf8");
   assert.match(route, /legacyAvailabilitySourceFor\(place\)/);
-  assert.match(sources, /"hilat-hanof"[\s\S]*https:\/\/www\.vii\.co\.il\/hilat_hanof/);
-  assert.match(route, /https:\/\/www\.vii\.co\.il\/ajax_order\.php/);
-  assert.match(route, /act: "roomList"/);
-  assert.match(route, /sid: source\.siteId/);
-  assert.match(route, /from: selectedFrom/);
-  assert.match(route, /till: selectedTill/);
+  assert.match(sources, /"hilat-hanof"[\s\S]*bizonline\.co\.il\/api\/ai\/vii\/vacations\/11\/calendar/);
+  assert.match(route, /supplierStayCalendar/);
+  assert.match(route, /assessCalendarStay/);
+  assert.match(route, /BIZ_API_ROOT/);
+  assert.match(route, /siteID: options\.siteId/);
   assert.match(route, /method: "POST"/);
-  assert.match(route, /data-available/);
   assert.match(route, /availableUnits/);
   assert.match(route, /totalPrice/);
-  assert.match(route, /const unitQuotes = availableByUnit\.map/);
+  assert.match(route, /const unitQuotes = rooms\.map/);
   assert.match(route, /recommendVacationUnits\(unitQuotes, guests\)/);
   assert.match(route, /availability: availableCount > 0 \? "available" as const : "unavailable" as const/);
-  assert.match(route, /nightlyPrice: prices\[index\] > 0 \? prices\[index\] \/ nights : 0/);
+  assert.match(route, /nightlyPrice: price \? price\.total \/ nights : 0/);
+  assert.doesNotMatch(route, /ajax_order\.php|www\.vii\.co\.il/);
   assert.match(hook, /api\/legacy-availability/);
   assert.match(hook, /legacyAvailabilitySourceFor\(slug\)/);
   assert.match(hook, /units: \(Array\.isArray\(result\.units\) \? result\.units : \[\]\)\.map/);

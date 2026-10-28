@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups } from "../app/lib/sergey-amenities.ts";
-import { fetchLiveBusinessAmenities, legacyViiAmenityGroups } from "../app/lib/live-business-amenities.ts";
+import { fetchLiveBusinessAmenities } from "../app/lib/live-business-amenities.ts";
 import { businessAmenitiesResponse } from "../app/api/vii/business-amenities/route.ts";
 
 test("official category and item order wins over shuffled shared amenity input", () => {
@@ -80,16 +80,7 @@ test("live business amenities fall back to the official list taxonomy when detai
   assert.equal(calls.filter((url) => new URL(url).pathname.endsWith("/vacations")).length, 1);
 });
 
-test("legacy VII place amenities preserve the exact topic grouping when Biz shared amenities are empty", async () => {
-  const html = `<section class="minisite-properties"><div class="inner"><div class="desk">
-    <div class="item"><div class="title"><span>מידע</span></div><ul><li>15 אורחים</li></ul></div>
-    <div class="item"><div class="title"><span>מתחם חיצוני</span></div><ul><li>בריכת שחייה מגודרת</li><li>פינות שיזוף</li></ul></div>
-    <div class="item"><div class="title"><span>מתחם פנימי</span></div><ul><li>מטבח מאובזר</li><li>נטפליקס</li></ul></div>
-  </div></div></section>`;
-  assert.deepEqual(legacyViiAmenityGroups(html), [
-    { title: "מתחם חיצוני", items: ["בריכת שחייה מגודרת", "פינות שיזוף"] },
-    { title: "מתחם פנימי", items: ["מטבח מאובזר", "נטפליקס"] },
-  ]);
+test("migrated VII place amenities preserve exact topic grouping without a runtime old-site request", async () => {
   const fetchImpl = async (url) => {
     const path = new URL(url).pathname;
     if (path.endsWith("/vacations/2483")) return Response.json({
@@ -97,16 +88,13 @@ test("legacy VII place amenities preserve the exact topic grouping when Biz shar
     });
     if (path.endsWith("/vacations/types")) return Response.json({ amenity_categories: [], amenities: [] });
     if (path.endsWith("/vacations")) return Response.json({ places: [{ siteID: 2483 }] });
-    if (url === "https://www.vii.co.il/megic_mia") return new Response(html, { headers: { "Content-Type": "text/html" } });
+    assert.equal(new URL(url).hostname, "bizonline.co.il");
     return new Response("missing", { status: 404 });
   };
-  assert.deepEqual(await fetchLiveBusinessAmenities({ supplierId: 2483, token: "secret", fetchImpl }), {
-    groups: [
-      { title: "מתחם חיצוני", items: ["בריכת שחייה מגודרת", "פינות שיזוף"] },
-      { title: "מתחם פנימי", items: ["מטבח מאובזר", "נטפליקס"] },
-    ],
-    source: "legacy-vii-place-amenities",
-  });
+  const result = await fetchLiveBusinessAmenities({ supplierId: 2483, token: "secret", fetchImpl });
+  assert.equal(result.source, "migrated-vii-place-amenities");
+  assert.ok(result.groups.some((group) => group.title === "מתחם חיצוני" && group.items.includes("בריכת שחייה מגודרת")));
+  assert.ok(result.groups.some((group) => group.title === "מתחם פנימי" && group.items.includes("מטבח מאובזר")));
 });
 
 test("public endpoint validates input, returns a cacheable source contract and fails honestly", async () => {

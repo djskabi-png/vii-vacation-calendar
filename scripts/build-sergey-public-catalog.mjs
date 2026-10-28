@@ -6,6 +6,7 @@ import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 import { sergeyPlaceGalleryGroups, sergeyRoomImages, sergeyRoomFeatureGroups } from "../app/lib/sergey-gallery.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "../app/lib/sergey-amenities.ts";
+import { localGalleryMediaUrl } from "../app/lib/legacy-gallery-media.ts";
 
 const root = new URL("../", import.meta.url);
 const stageOnly = process.argv.includes("--stage-only");
@@ -28,8 +29,7 @@ function plainText(html) {
 }
 
 function imageUrl(value) {
-  if (typeof value !== "string" || !value.startsWith("/gallery/")) return null;
-  return new URL(value, "https://www.vii.co.il").href;
+  return localGalleryMediaUrl(value);
 }
 
 function unique(values) {

@@ -15,7 +15,7 @@ test("every accepted supplier place has full detail data without broadening the 
     assert.ok(detail.rooms.length || place.slug === "vacation-689", place.slug);
     assert.ok(detail.rooms.every((room) => room.id === undefined || (Number.isSafeInteger(room.id) && room.id > 0)));
     assert.ok(detail.rooms.every((room) => (room.images || []).every((src) => detail.images.includes(src))));
-    assert.ok(detail.images.every((src) => src.startsWith("https://www.vii.co.il/gallery/")));
+    assert.ok(detail.images.every((src) => src.startsWith("/api/vii/media/")));
     assert.equal(detail.reviews.length, place.reviews || 0, place.slug);
     assert.ok(detail.reviews.every((review) => review.author && (review.text || Number.isFinite(review.score))));
   }

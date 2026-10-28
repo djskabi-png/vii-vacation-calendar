@@ -15,7 +15,7 @@ function fixture(roomID) {
 test("unit gallery association requires a current positive supplier room identifier", async () => {
   const detail = await liveSupplierPlaceDetail("vacation-2662", fixture(4487));
   assert.equal(detail.rooms[0].id, 4487);
-  assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/unit.jpg"]);
+  assert.deepEqual(detail.rooms[0].images, ["/api/vii/media/unit.jpg"]);
   assert.equal(detail.rooms[0].quantity, 2);
   assert.equal(detail.rooms[0].bedrooms, 1);
   for (const id of [undefined, 0, -1, "4487"]) {

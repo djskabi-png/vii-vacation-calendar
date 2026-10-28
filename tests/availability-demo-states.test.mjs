@@ -19,7 +19,7 @@ test("dated vacation results do not manufacture availability or a dated price", 
   assert.match(card, /לא הצלחנו לאמת זמינות ומחיר כרגע/);
 });
 
-test("verified legacy inventory is selected by place, dates and guests", () => {
+test("compatibility inventory is selected by place while Biz remains the only live source", () => {
   for (const [slug, siteId] of Object.entries({
     "hilat-hanof": "11",
     "vacation-vila-harel": "2229",
@@ -33,7 +33,10 @@ test("verified legacy inventory is selected by place, dates and guests", () => {
   assert.match(route, /const guests = Math\.max\(1, Number\(url\.searchParams\.get\("guests"\)/);
   assert.match(route, /recommendVacationUnits\(unitQuotes, guests\)/);
   assert.match(route, /availability: recommendation \? "available" : "unavailable"/);
-  assert.match(route, /maxGuests: roomMatches\[index\]\.maxGuests/);
+  assert.match(route, /maxGuests: room\.guests/);
+  assert.match(route, /supplierStayCalendar/);
+  assert.match(route, /vacations\/search/);
+  assert.doesNotMatch(route, /ajax_order\.php|www\.vii\.co\.il/);
   assert.match(route, /Cache-Control": "public, max-age=60, s-maxage=60"/);
   assert.match(hook, /guests: String\(guests\)/);
   assert.match(hook, /status: "idle" \| "loading" \| "ready" \| "error"/);

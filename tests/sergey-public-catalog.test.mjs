@@ -25,7 +25,7 @@ test("public catalog contains only accepted supplier places", () => {
     place.slug === `${place.world === "vacations" ? "vacation" : "event"}-${place.supplierId}`
     && place.sourceUrl.startsWith("https://www.vii.co.il/")
     && place.images.length > 0 && place.images.length <= 12
-    && place.images.every((image) => image.startsWith("https://www.vii.co.il/gallery/"))
+    && place.images.every((image) => image.startsWith("/api/vii/media/"))
     && (place.lat === undefined && place.lng === undefined || place.lat >= 29 && place.lat <= 34 && place.lng >= 34 && place.lng <= 36)));
   assert.deepEqual(catalog.places.filter((place) => place.lat === undefined).map((place) => place.slug).sort(), ["event-2148", "vacation-927"]);
   assert.deepEqual(catalog.places.filter((place) => place.guests === 0).map((place) => place.slug), ["vacation-689"]);

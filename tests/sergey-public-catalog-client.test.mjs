@@ -129,13 +129,13 @@ test("keeps supplier gallery order and resolves the Suite Tohar naming differenc
       spaces: [{ title: "סוויטת טוהר", features: [{ description: "ג׳קוזי זוגי" }] }] }],
   }).fetchCandidate("vacations");
   const { summary, detail } = result.entries[0];
-  assert.equal(summary.image, "https://www.vii.co.il/gallery/cover.jpg");
-  assert.deepEqual(detail.images.slice(0, 2), ["https://www.vii.co.il/gallery/cover.jpg", "https://www.vii.co.il/gallery/second.jpg"]);
+  assert.equal(summary.image, "/api/vii/media/cover.jpg");
+  assert.deepEqual(detail.images.slice(0, 2), ["/api/vii/media/cover.jpg", "/api/vii/media/second.jpg"]);
   assert.deepEqual(detail.galleryGroups, [
-    { title: "גלריה ראשית", images: ["https://www.vii.co.il/gallery/cover.jpg", "https://www.vii.co.il/gallery/second.jpg"] },
-    { title: "סוויטה טוהר", images: ["https://www.vii.co.il/gallery/tohar.jpg"] },
+    { title: "גלריה ראשית", images: ["/api/vii/media/cover.jpg", "/api/vii/media/second.jpg"] },
+    { title: "סוויטה טוהר", images: ["/api/vii/media/tohar.jpg"] },
   ]);
-  assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+  assert.deepEqual(detail.rooms[0].images, ["/api/vii/media/tohar.jpg"]);
   assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["ג׳קוזי זוגי"] }]);
 });
 

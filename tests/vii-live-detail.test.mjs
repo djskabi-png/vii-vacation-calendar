@@ -20,7 +20,7 @@ test("a current supplier detail replaces stored photos, reviews, rooms and venue
   assert.equal(detail.name, "שם מעודכן");
   assert.equal(detail.location, "עיר חדשה");
   assert.equal(detail.area, "אזור חדש");
-  assert.deepEqual(detail.images, ["https://www.vii.co.il/gallery/new.jpg", "https://www.vii.co.il/gallery/second.jpg"]);
+  assert.deepEqual(detail.images, ["/api/vii/media/new.jpg", "/api/vii/media/second.jpg"]);
   assert.equal(detail.reviewScore, 9.5);
   assert.equal(detail.reviews[0].text, "מקום יפה");
   assert.equal(detail.rooms[0].name, "סוויטה חדשה");
@@ -50,8 +50,8 @@ test("live room detail keeps supplier ordering and matches the verified room gal
         spaces: [{ title: "סוויטת טוהר", features: [{ description: "מיטה זוגית" }] }] }],
     }),
   });
-  assert.equal(detail.images[0], "https://www.vii.co.il/gallery/cover.jpg");
-  assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+  assert.equal(detail.images[0], "/api/vii/media/cover.jpg");
+  assert.deepEqual(detail.rooms[0].images, ["/api/vii/media/tohar.jpg"]);
   assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["מיטה זוגית"] }]);
 });
 
@@ -68,9 +68,9 @@ test("a temporarily empty supplier room list does not erase accepted units", asy
       rooms: [],
     }),
   });
-  assert.equal(detail.images[0], "https://www.vii.co.il/gallery/cover.jpg");
+  assert.equal(detail.images[0], "/api/vii/media/cover.jpg");
   assert.deepEqual(detail.rooms.map((room) => room.id), [85, 86, 87]);
-  assert.deepEqual(detail.rooms[2].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+  assert.deepEqual(detail.rooms[2].images, ["/api/vii/media/tohar.jpg"]);
   assert.equal(detail.units, 3);
   assert.equal(detail.guests, 7);
 });

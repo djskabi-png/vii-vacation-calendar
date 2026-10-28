@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-old-site-independence-closure-20261028",
+  "project": "VII",
+  "task_type": "production closure and legacy-runtime independence",
+  "requested_outcome": "The new VII platform operates independently of the old website, closes every known public, admin, data and QA gap in scope, is published as one exact candidate and is verified before any future domain cutover.",
+  "natural_destination": "https://vii.spaplus.co/",
+  "authorization_boundary": "Authorized: inspect, edit, test and publish the existing VII Sites application while preserving production bindings, public access and rollback. Not authorized: DNS/domain cutover, AWS resumption, real customer messages, fake leads or bookings, supplier/CMS data mutation, secrets or permission changes.",
+  "lesson_bundle": [
+    {"lesson_id":"VII-PROJECT-001","reason":"VII requirements and accepted product decisions are project-scoped sources of truth.","acceptance_impact":"Every affected family is checked against the master plan and feedback standard."},
+    {"lesson_id":"ADIR-QA-001","reason":"Passing code tests is not completion without the exact public journey.","acceptance_impact":"Requires post-deploy desktop/mobile journeys, reload states, actor perspectives and rollback identity."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Biz, availability and supplier facts must reconcile with authoritative source data.","acceptance_impact":"Requires source-basis, date-basis, mapping, pagination and dedup evidence."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Admin features must persist, explain their state and be usable by the intended role.","acceptance_impact":"Requires authenticated admin natural-destination checks for reports, Professor and QQQAAA."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"Only the exact tested release candidate may be published.","acceptance_impact":"Requires immutable source/tree identities, one deployment, public probes and rollback."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Shared page families must behave consistently across worlds and viewports.","acceptance_impact":"Requires family matrices for detail pages, search, galleries, amenities, actions and languages."},
+    {"lesson_id":"ADIR-SEO-001","reason":"The domain migration must preserve crawlable content, metadata, URLs and redirects.","acceptance_impact":"Requires sitemap, canonical, hreflang, redirects, legacy inventory and media independence evidence."},
+    {"lesson_id":"ADIR-INTENT-001","reason":"'Finish everything' means the whole affected inventory, not only the latest screenshot.","acceptance_impact":"Requires an explicit closure map for known gaps and no silent exclusions except the previously excluded accessibility/typography audits."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The new site looks live but still loads images or availability from the old domain.","prevention":"Inventory every runtime legacy host dependency and move required media/data to stable new-platform storage or an approved independent source.","acceptance_check":"A production crawl and browser-network sample show no required runtime request to the retired host."},
+    {"rejection":"Facilities or galleries are fixed on one place but remain generic or mixed elsewhere.","prevention":"Repair shared official supplier mappers and validate representative vacation and event inventories.","acceptance_check":"Representative pages with distinct supplier groups preserve official group names, order and unit/place separation after reload."},
+    {"rejection":"Biz reports and Professor display plausible but wrong numbers.","prevention":"Use one canonical cached report query with explicit date basis, family mapping, pagination and dedup; Professor may only summarize its verified result.","acceptance_check":"Known source totals and Professor answers match the same saved report snapshot exactly."},
+    {"rejection":"QQQAAA passes while a known visible failure still exists.","prevention":"Add deliberate negative fixtures for each repaired family and require them in the full profile.","acceptance_check":"Each new guard fails on its broken fixture and passes on the corrected implementation."},
+    {"rejection":"The future domain cutover breaks canonicals, language URLs, old links, media or indexability.","prevention":"Use configurable public origin, complete redirect inventory and self-contained assets before changing DNS.","acceptance_check":"Cutover-readiness audit passes without changing DNS and identifies no runtime dependency on the old application."}
+  ],
+  "affected_family": [
+    "vacation and event business pages, units, sleeping details, facilities, galleries and actions",
+    "search with and without dates, availability ranking, prices and online booking",
+    "all media URLs, map assets, supplier catalogs, caches, refresh jobs and fallbacks",
+    "Biz reports, saved snapshots, conversion reconciliation, Professor and admin permissions",
+    "reviews, QQQAAA, diagnostics, schedules and admin visual controls",
+    "Hebrew, English, French and Russian URLs, metadata, sitemaps, canonicals and hreflang",
+    "legacy URL inventory, redirects, content migration and future main-domain cutover",
+    "desktop, mobile, reload, back, retry, empty, error and stale-data states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform master plan","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"VII accepted feedback standard","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"current exact production release v724","source":"source 18afd2d9480725fa6f91bff72816ae13ca50f041"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Before broad regression or publication, the legacy-runtime dependency audit, facilities mapper and canonical Biz report snapshot must pass focused tests and exact representative probes.",
+    "checks": [
+      "no required public media or data fetch relies on the retired old application",
+      "official facility and gallery groups remain distinct and ordered",
+      "Biz totals and Professor answers share one verified cached snapshot",
+      "new QQQAAA negative fixtures reject the known broken states"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "What fails if the old host serves no application or media?",
+      "Can QQQAAA pass with generic facilities, missing groups or a broken search result family?",
+      "Can the Professor invent a number or use a different date basis than the report?",
+      "Can a language, sitemap, canonical or redirect still point at the wrong public origin?",
+      "Did the deployed source or environment differ from the tested candidate?"
+    ],
+    "natural_destination_evidence": "Fresh production desktop and mobile checks on the exact deployed version across public and authenticated admin destinations.",
+    "affected_family_evidence": "Static dependency inventory, deliberate negative fixtures, full test suite, QQQAAA full profile, sitemap crawl, public network probes and immutable release manifest."
+  },
+  "effectiveness": {
+    "baseline": "Production v724 passes its existing QQQAAA profile but known facility parity, Biz reconciliation and old-host runtime dependency gaps remain.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One independent release candidate closes every evidenced gap, rejects known broken fixtures and survives exact post-deploy public/admin verification."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

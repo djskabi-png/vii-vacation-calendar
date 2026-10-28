@@ -1,3 +1,5 @@
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
+
 type Gallery = { title?: unknown; pictures?: unknown; roomID?: unknown };
 
 function record(value: unknown): Record<string, unknown> {
@@ -9,8 +11,7 @@ function galleryList(value: unknown): Gallery[] {
 }
 
 function imageUrl(value: unknown): string | null {
-  return typeof value === "string" && /^\/gallery\/[\w.-]+$/.test(value)
-    ? new URL(value, "https://www.vii.co.il").href : null;
+  return localGalleryMediaUrl(value);
 }
 
 function images(galleries: Gallery[]): string[] {

@@ -59,7 +59,7 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), publicNames: new Map([[11, "שם עמוד המקום"]]), fetchImpl });
   assert.equal(result.period, "tomorrow");
   assert.equal(requested.length, 3);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", images: ["https://www.vii.co.il/gallery/hilat.jpg"], city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, priceGuests: 2, onlineBooking: false }]);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "/api/vii/media/hilat.jpg", images: ["/api/vii/media/hilat.jpg"], city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, priceGuests: 2, onlineBooking: false }]);
 });
 
 test("home deals expose only verified room facts, guest basis and safe supplier phone", async () => {
@@ -119,6 +119,6 @@ test("deal cards preserve verified gallery photos from every gallery without ext
   assert.equal(deal.images.length, 10);
   assert.equal(new Set(deal.images).size, deal.images.length);
   assert.equal(deal.image, deal.images[0]);
-  assert.deepEqual(deal.images.slice(0, 3), ["cover", "pool", "room"].map(name => `https://www.vii.co.il/gallery/${name}.jpg`));
-  assert.ok(deal.images.every(url => url.startsWith("https://www.vii.co.il/")));
+  assert.deepEqual(deal.images.slice(0, 3), ["cover", "pool", "room"].map(name => `/api/vii/media/${name}.jpg`));
+  assert.ok(deal.images.every(url => url.startsWith("/api/vii/media/")));
 });

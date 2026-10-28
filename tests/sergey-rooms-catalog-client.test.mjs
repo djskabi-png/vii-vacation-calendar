@@ -39,7 +39,7 @@ test("fetches and normalizes hourly rooms and their base rates", async () => {
   const place = result.entries[0].summary;
   assert.equal(place.name, "חדר בדיקה");
   assert.equal(place.location, "חיפה");
-  assert.equal(place.images[0], "https://www.vii.co.il/gallery/room.jpg");
+  assert.equal(place.images[0], "/api/vii/media/room.jpg");
   assert.equal(place.rooms[0].rates[0].weekday, 280);
   assert.equal(place.rooms[0].features[0], "ג'קוזי");
   assert.equal(Object.hasOwn(place, "availability"), false);
