@@ -8,8 +8,8 @@ const [route, engine] = await Promise.all([
 ]);
 
 test("Professor keeps quota and history on one persistent primary state store", () => {
-  assert.match(route, /const db = await requiredRuntimeDatabase\("professor_unavailable"\); const stateDb = db;/);
-  assert.doesNotMatch(route, /runtimeD1Database/);
+  assert.match(route, /const stateDb = await runtimeD1Database\(\); const db = stateDb;/);
+  assert.doesNotMatch(route, /requiredRuntimeDatabase/);
   assert.doesNotMatch(route, /professor_state_using_d1_fallback/);
   assert.match(route, /professorQuota\(stateDb, session\.email\)/);
   assert.match(route, /professorHistory\(stateDb, session\.email\)/);
