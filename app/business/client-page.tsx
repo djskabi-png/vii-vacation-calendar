@@ -57,6 +57,7 @@ import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
 import { FeatureIcon } from "../components/feature-icon";
+import { legacyPlaceFeatureGroups } from "../data/legacy-place-feature-groups";
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
@@ -127,10 +128,10 @@ function comparableSleepingTitle(value: string) {
 
 function isVerifiedBedroomGroup(title: string) {
   const normalized = comparableSleepingTitle(title);
-  return /^חדר שינה(?:\s+\d+)?$/.test(normalized)
-    || /^bedroom(?:\s+\d+)?$/.test(normalized)
-    || /^chambre(?:\s+\d+)?$/.test(normalized)
-    || /^спальня(?:\s+\d+)?$/.test(normalized);
+  return /^חדר שינה(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^bedroom(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^chambre(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^спальня(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
 }
 export default function BusinessPage({ initialProperty, relatedProperties, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
@@ -161,7 +162,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         bedrooms: room.bedrooms, area: room.area, image: room.images?.[0] || "", images: room.images || [], features: room.features,
         featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })) : base.roomOptions,
-      featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : base.featureGroups,
+      featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : legacyPlaceFeatureGroups(base.slug) || base.featureGroups,
       features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, supplierDetail]);
   const businessCopy = {
@@ -488,7 +489,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
-                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
+                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <button className="room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`${translate("פתיחת גלריית")} ${localizedPropertyName}`}><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></button>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
                     {roomSleepingGroups.length ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><strong>איפה תשנו ביחידה?</strong>{roomSleepingGroups.map((group) => <div key={group.title}><b>{group.title}</b><span>{group.items.join(" · ")}</span></div>)}</section> : room.bedrooms > 0 ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><strong>איפה תשנו ביחידה?</strong><div><b>{translate(bedroomLabel(room.bedrooms))}</b><span>סוגי המיטות נמסרים באישור המקום.</span></div></section> : null}
