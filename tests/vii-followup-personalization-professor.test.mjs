@@ -50,8 +50,10 @@ test("identical units keep availability count and expose phone plus WhatsApp wit
   const business = read("../app/business/client-page.tsx");
   assert.match(business, /availableIdenticalUnits > 0/);
   assert.match(business, /\{availableIdenticalUnits\} מתוך \{room\.quantity\} יחידות זהות פנויות/);
-  assert.match(business, /חייגו להזמנה/);
-  assert.match(business, /שלחו הודעה ב־WhatsApp/);
+  assert.match(business, /translate\("הזמנות בטלפון"\)/);
+  assert.match(business, /translate\("חיוג להזמנה במספר"\)/);
+  assert.match(business, />\{property\.contact\?\.phone\}<\/a>/);
+  assert.match(business, /translate\("שלחו הודעה בוואטסאפ"\)/);
   assert.match(business, /initialDate=\{dateRange\.from\}/);
   assert.match(business, /initialTill=\{dateRange\.till\}/);
 });

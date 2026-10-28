@@ -5371,6 +5371,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__actions { display: flex; align-items: center; gap: 16px; margin-top: auto; padding-top: 2px; }
 .room-card__actions .button { min-height: 44px; padding: 10px 17px; }
 .room-card__contact-actions { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.room-card__contact-title { grid-column: 1 / -1; color: var(--ink); font-size: .92rem; font-weight: 900; line-height: 1.35; text-align: right; }
 .room-card__contact-actions .button { width: 100%; text-align: center; text-decoration: none; }
 .room-card__actions a { color: var(--teal-dark); font-size: .8rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
 .room-card--available { border-color: #91d9c0; box-shadow: 0 12px 32px rgba(10, 125, 105, .1); }
