@@ -9,20 +9,23 @@ const noStore = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosnif
 
 export async function businessAmenitiesResponse(request: Request, dependencies: {
   token: () => Promise<string>;
-  load: (supplierId: number, token: string) => Promise<Array<{ title: string; items: string[] }>>;
+  load: (supplierId: number, token: string) => Promise<{
+    groups: Array<{ title: string; items: string[] }>;
+    source: "biz-shared-amenities" | "legacy-vii-place-amenities";
+  }>;
 }) {
   const url = new URL(request.url);
   const supplierId = Number(url.searchParams.get("id"));
   if ([...url.searchParams.keys()].some((key) => !["id", "v"].includes(key))
-      || (url.searchParams.has("v") && url.searchParams.get("v") !== "2")
+      || (url.searchParams.has("v") && url.searchParams.get("v") !== "3")
       || !Number.isSafeInteger(supplierId) || supplierId <= 0) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
   }
   try {
     const token = await dependencies.token();
     if (!token) throw new Error("supplier_token_unavailable");
-    const groups = await dependencies.load(supplierId, token);
-    return Response.json({ supplierId, groups, source: "biz-shared-amenities" }, { headers: publicCache });
+    const result = await dependencies.load(supplierId, token);
+    return Response.json({ supplierId, ...result }, { headers: publicCache });
   } catch {
     return Response.json({ error: "amenities_temporarily_unavailable" }, { status: 503, headers: noStore });
   }
