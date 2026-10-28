@@ -13,7 +13,9 @@ export async function businessAmenitiesResponse(request: Request, dependencies: 
 }) {
   const url = new URL(request.url);
   const supplierId = Number(url.searchParams.get("id"));
-  if ([...url.searchParams.keys()].some((key) => key !== "id") || !Number.isSafeInteger(supplierId) || supplierId <= 0) {
+  if ([...url.searchParams.keys()].some((key) => !["id", "v"].includes(key))
+      || (url.searchParams.has("v") && url.searchParams.get("v") !== "2")
+      || !Number.isSafeInteger(supplierId) || supplierId <= 0) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
   }
   try {

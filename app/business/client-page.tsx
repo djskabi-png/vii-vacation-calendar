@@ -210,7 +210,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     let active = true;
     if (!supplierSiteID) return;
     const controller = new AbortController();
-    fetch(`/api/vii/business-amenities?id=${encodeURIComponent(supplierSiteID)}`, { signal: controller.signal })
+    fetch(`/api/vii/business-amenities?id=${encodeURIComponent(supplierSiteID)}&v=2`, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("amenities_unavailable");
         const payload = await response.json() as { groups?: ListingFeatureGroup[] };

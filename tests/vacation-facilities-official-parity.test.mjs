@@ -45,8 +45,39 @@ test("live business amenities use shared amenities only and never room amenities
   ]);
 });
 
+test("live business amenities fall back to the official list taxonomy when detail groups are empty", async () => {
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(url);
+    const path = new URL(url).pathname;
+    if (path.endsWith("/vacations/2483")) return Response.json({ id: 2483, active: true, shared_amenities: [] });
+    if (path.endsWith("/vacations/types")) return Response.json({
+      amenity_categories: [
+        { categoryID: 1, categoryName: "מתחם חיצוני" },
+        { categoryID: 2, categoryName: "מתחם פנימי" },
+      ],
+      amenities: [
+        { id: 11, categoryID: 1, title: "בריכה", orderInCategory: 1 },
+        { id: 12, categoryID: 2, title: "מטבח מאובזר", orderInCategory: 1 },
+      ],
+    });
+    if (path.endsWith("/vacations")) return Response.json({
+      places: [
+        { siteID: 12, shared_amenities: [999] },
+        { siteID: 2483, shared_amenities: [12, 11] },
+      ],
+    });
+    return new Response("missing", { status: 404 });
+  };
+  assert.deepEqual(await fetchLiveBusinessAmenities({ supplierId: 2483, token: "secret", fetchImpl }), [
+    { title: "מתחם חיצוני", items: ["בריכה"] },
+    { title: "מתחם פנימי", items: ["מטבח מאובזר"] },
+  ]);
+  assert.equal(calls.filter((url) => new URL(url).pathname.endsWith("/vacations")).length, 1);
+});
+
 test("public endpoint validates input, returns a cacheable source contract and fails honestly", async () => {
-  const ok = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=2483"), {
+  const ok = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=2483&v=2"), {
     token: async () => "secret",
     load: async () => [{ title: "מתחם חיצוני", items: ["בריכה"] }],
   });
@@ -56,6 +87,8 @@ test("public endpoint validates input, returns a cacheable source contract and f
 
   const invalid = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=0"), { token: async () => "secret", load: async () => [] });
   assert.equal(invalid.status, 400);
+  const invalidVersion = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=2483&v=1"), { token: async () => "secret", load: async () => [] });
+  assert.equal(invalidVersion.status, 400);
   const unavailable = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=2483"), { token: async () => "", load: async () => [] });
   assert.equal(unavailable.status, 503);
   assert.equal(unavailable.headers.get("cache-control"), "no-store");
