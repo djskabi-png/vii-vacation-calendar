@@ -17,7 +17,7 @@ import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { VerifiedSleepingDetails } from "../components/verified-sleeping-details";
-import { verifiedSleepingRoomsFromProperty } from "../lib/verified-sleeping-rooms";
+import { isVerifiedBedroomGroup, verifiedSleepingRoomsFromProperty } from "../lib/verified-sleeping-rooms";
 import type { BusinessWorld, ListingFeatureGroup, Property } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import { getListingOfferings } from "../lib/listing-offerings";
@@ -464,7 +464,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     unitBookingQuery.set("price", String(roomNightlyPrice));
                   }
                   const localizedRoomName = safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`);
-                  const roomSleepingGroups = (room.featureGroups || []).filter((group) => isVerifiedBedroomGroup(group.title) && group.items.length);
+                  const roomSleepingGroups = (room.featureGroups || []).filter((group) => isVerifiedBedroomGroup(group.title) && Array.isArray(group.items) && group.items.length);
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>

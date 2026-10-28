@@ -47,12 +47,12 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
   scenario: "single" | "multi";
   availableUnitCounts?: Record<number, number>;
 }): VerifiedSleepingRoom[] {
-  return rooms.flatMap((room, roomIndex) => {
+  return (Array.isArray(rooms) ? rooms : []).flatMap((room, roomIndex) => {
     const totalUnits = Math.max(1, room.quantity || 1);
     const availableUnits = room.supplierRoomID === undefined || availableUnitCounts === undefined ? undefined
       : Math.min(totalUnits, Math.max(0, availableUnitCounts[room.supplierRoomID] || 0));
-    const explicitGroups = (room.featureGroups || []).flatMap((group, groupIndex) => {
-      if (!isVerifiedBedroomGroup(group.title) || !group.items.length) return [];
+    const explicitGroups = (Array.isArray(room.featureGroups) ? room.featureGroups : []).flatMap((group, groupIndex) => {
+      if (!group || typeof group.title !== "string" || !Array.isArray(group.items) || !isVerifiedBedroomGroup(group.title) || !group.items.length) return [];
       const galleryGroup = galleryGroups.find((gallery) => comparableSleepingTitle(gallery.title) === comparableSleepingTitle(group.title));
       return [{
         key: `${roomIndex}-${groupIndex}-${group.title}`,

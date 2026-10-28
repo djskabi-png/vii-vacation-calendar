@@ -10,8 +10,10 @@ test("vacation bedroom facts render as separate visible cards sourced from suppl
   const mapper = read("../app/lib/verified-sleeping-rooms.ts");
 
   assert.match(business, /verifiedSleepingRoomsFromProperty/);
+  assert.match(business, /import \{ isVerifiedBedroomGroup, verifiedSleepingRoomsFromProperty \} from "\.\.\/lib\/verified-sleeping-rooms";/);
   assert.match(business, /<VerifiedSleepingDetails placeName=\{localizedPropertyName\} rooms=\{verifiedSleepingRooms\} \/>/);
-  assert.match(mapper, /room\.featureGroups \|\| \[\]/);
+  assert.match(mapper, /Array\.isArray\(room\.featureGroups\) \? room\.featureGroups : \[\]/);
+  assert.match(mapper, /Array\.isArray\(group\.items\)/);
   assert.match(mapper, /isVerifiedBedroomGroup\(group\.title\)/);
   assert.match(mapper, /if \(explicitGroups\.length\) return explicitGroups/);
   assert.match(mapper, /if \(!bedroomCount\) return \[\]/);
