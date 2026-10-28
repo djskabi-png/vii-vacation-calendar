@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 const manifest = JSON.parse(await read("app/data/legacy-gallery-media.json"));
 
 test("every migrated legacy gallery object has one safe immutable identity", () => {
-  assert.equal(manifest.files.length, 36_535);
+  assert.equal(manifest.files.length, 36_475);
   assert.equal(new Set(manifest.files).size, manifest.files.length);
   assert.equal(manifest.objectPrefix, "legacy-gallery/v1/");
   for (const filename of manifest.files) {
@@ -33,6 +33,17 @@ test("public catalog artifacts no longer render gallery media from the retiring 
       }
     };
     visit(document);
+  }
+});
+
+test("every public place keeps a valid cover and gallery after broken legacy media is pruned", async () => {
+  const catalog = JSON.parse(await read("app/data/sergey-public-catalog.json"));
+  const allowed = new Set(manifest.files.map((filename) => `/api/vii/media/${filename}`));
+  for (const place of catalog.places) {
+    assert.ok(Array.isArray(place.images) && place.images.length > 0, `${place.slug}:images`);
+    assert.ok(place.image && place.images.includes(place.image), `${place.slug}:cover`);
+    assert.ok(allowed.has(place.image), `${place.slug}:cover-allowlist`);
+    for (const image of place.images) assert.ok(allowed.has(image), `${place.slug}:${image}`);
   }
 });
 
@@ -65,7 +76,7 @@ test("the bounded migration route is allowlisted, stored in R2 and exposes stora
   assert.match(route, /X-VII-Media/);
   assert.match(route, /contentType\.startsWith\("image\/"\)/);
   assert.match(route, /20_000_000/);
-  assert.match(route, /const ALLOW_LEGACY_ORIGIN_FETCH = true/);
+  assert.match(route, /const ALLOW_LEGACY_ORIGIN_FETCH = false/);
 });
 
 test("availability and facility rendering no longer request the retiring site", async () => {
