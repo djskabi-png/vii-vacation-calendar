@@ -5,7 +5,7 @@
   "task_type": "production backend incident diagnosis and repair",
   "goal": "Identify and repair the causal Aurora bridge failure so accepted runtime catalogs are readable in production without bundled fallback, then publish and verify the exact repair if required.",
   "created_at": "2026-10-29T11:25:33.822700Z",
-  "updated_at": "2026-10-29T11:42:42.994088Z",
+  "updated_at": "2026-10-29T13:02:10.045589Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -163,6 +163,15 @@
       "source": "project_guidance",
       "statement": "Bridge failure still degrades safely without exposing private errors or mutating supplier data.",
       "acceptance_check": "Bridge failure still degrades safely without exposing private errors or mutating supplier data.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "correction:complete-launch-repair",
+      "source": "user_correction",
+      "statement": "Own and complete the Aurora repair, publication, full redirect reconciliation and live verification instead of returning the defects as work for Adir.",
+      "acceptance_check": "The exact production release is live; all four catalogs return non-degraded Aurora data; all 3533 legacy sources return their intended direct 301-to-200 or 410 disposition with zero contradictions; rollback is recorded.",
       "status": "pending",
       "evidence": [],
       "reason": null
