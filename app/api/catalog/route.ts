@@ -13,7 +13,7 @@ import type { EventPlace, Property } from "../../data/site-data.ts";
 import { safeHourlyDescription } from "../../lib/hourly-description.ts";
 import { readPublishedItems } from "../../lib/content-studio.ts";
 import { managedVacationPriority } from "../../lib/vacation-priority.ts";
-import { runtimeDatabase } from "../../lib/runtime-database.ts";
+import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime-database.ts";
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 
 const noStore = { "Cache-Control": "no-store" };
@@ -66,12 +66,20 @@ function withVacationSearchPriority<T extends { supplierId: number; summary: Pro
   });
 }
 
-async function database(): Promise<D1Database | null> {
+async function database(): Promise<ReportingDatabase | null> {
   try {
-    return await runtimeDatabase() || null;
+    return await publicCatalogDatabase();
   } catch {
     return null;
   }
+}
+
+function withDatabaseOrigin(response: Response, source: ReportingDatabase | null) {
+  if (!source) return response;
+  const headers = new Headers(response.headers);
+  headers.set("X-VII-Data-Origin", source.origin);
+  headers.set("X-VII-Degraded", String(source.degraded));
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
 export async function catalogResponse(request: Request, db: D1Database | null) {
@@ -148,5 +156,6 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
 }
 
 export async function GET(request: Request) {
-  return catalogResponse(request, await database());
+  const source = await database();
+  return withDatabaseOrigin(await catalogResponse(request, source?.database || null), source);
 }

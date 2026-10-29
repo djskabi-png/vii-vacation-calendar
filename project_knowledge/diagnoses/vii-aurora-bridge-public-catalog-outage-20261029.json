@@ -1,0 +1,106 @@
+{
+  "status": "investigating",
+  "symptom": "כל ארבעת הקטלוגים הציבוריים ירדו ל-bundled-fallback ישן כאשר גשר Aurora לא הצליח להשלים קריאת מסד.",
+  "expected_behavior": "קריאות ציבוריות יגיעו ל-Aurora כשהוא תקין. בכשל גשר הן ימשיכו מעותק D1 המאושר והעדכני בלי להמתין לכל בקשה ובלי להתיר כתיבה כפולה.",
+  "environment": "VII production v727 and release-v720-source candidate on 2026-10-29",
+  "reproduction": {
+    "steps": [
+      "קריאה ל-/api/catalog עבור vacations, events, rooms ו-spa",
+      "בדיקת source ו-fetchedAt בכל תשובה",
+      "POST ישיר ללא אסימון ל-VII_AWS_DB_ENDPOINT"
+    ],
+    "evidence": "כל ארבעת העולמות החזירו bundled-fallback עם מועדי אוקטובר ישנים. ה-endpoint עצמו החזיר 404 לבקשה ללא אסימון, כפי שמחזיר guard האימות בקוד Lambda."
+  },
+  "observations": [
+    {
+      "observation": "API Gateway מגיע כעת לקוד Lambda.",
+      "evidence": "בקשת POST ללא bearer token החזירה HTTP 404 דרך apigw-requestid ב-2026-10-29; זו תשובת equalToken בקוד הגשר."
+    },
+    {
+      "observation": "הגדרות Sites לא אבדו.",
+      "evidence": "ב-Settings הציבורי נצפו VII_AWS_DB_ENDPOINT, VII_AWS_DB_MODE=primary ו-VII_AWS_DB_TOKEN כסוד שמור."
+    },
+    {
+      "observation": "המסלול הציבורי ניסה רק את runtimeDatabase הראשי ולא את עותק D1 לפני מעבר לקטלוג הארוז.",
+      "evidence": "app/api/catalog/route.ts קרא runtimeDatabase; כל שגיאה בקריאת state נבלעה ולאחריה נבחר bundled-fallback."
+    },
+    {
+      "observation": "עותק D1 המחובר כבר משמש fallback מוגבל ומאומת לדוחות.",
+      "evidence": "reportingDatabaseForEnv מפריד בין Aurora ל-D1 ושומר כתיבות קנוניות fail-closed."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "API Gateway או הרשאת invoke נשברו לפני Lambda.",
+      "prediction": "גם בקשה ללא אסימון תקבל 500 כללי ולא את 404 של guard האימות.",
+      "discriminating_test": "POST ישיר ללא אסימון ל-endpoint הייצורי.",
+      "result": "התקבל 404, ולכן המנגנון ההיסטורי הזה אינו פעיל כעת.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "אסימון Sites אינו תואם ל-BRIDGE_TOKEN_SHA256 ב-Lambda.",
+      "prediction": "קריאה עם סוד Sites תחזיר 404.",
+      "discriminating_test": "בדיקת health שרתית עם הסוד או השוואת hash בתוך AWS.",
+      "result": "לא ניתן להבחין מהלוג הציבורי הקיים; נדרש session AWS או probe שרתי מוגן.",
+      "status": "untested"
+    },
+    {
+      "id": "H3",
+      "mechanism": "לאחר אימות, Lambda נכשל ב-Secrets Manager, בחיבור VPC/Aurora או בשאילתה.",
+      "prediction": "קריאה עם אסימון תקין תחזיר 500 database_operation_failed או Lambda integration 500, ו-CloudWatch יציג את השלב.",
+      "discriminating_test": "CloudWatch Lambda logs ובדיקת SELECT 1 חתומה.",
+      "result": "טרם נצפה session AWS תקף בסביבת המשימה; פורטל Account Access החזיר Invalid request לאחר שני ניסיונות שונים.",
+      "status": "untested"
+    },
+    {
+      "id": "H4",
+      "mechanism": "כשל הגשר הופך בטעות לכשל קטלוג ציבורי כי אין fallback לעותק D1 המאושר.",
+      "prediction": "כל העולמות יחזרו לקטלוג ארוז ישן אף שקיים D1 מחובר עם generation מאושר.",
+      "discriminating_test": "מעקב אחרי בחירת database ב-route והשוואת התשובה הציבורית.",
+      "result": "אושר בקוד וב-v727: כל ארבעת העולמות עברו ל-bundled-fallback.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H4",
+  "fix": {
+    "change": "נוסף publicCatalogDatabase read-only עם fallback ל-D1 ומפסק Aurora לחמש דקות. קטלוגים ציבוריים משתמשים בעותק accepted המחובר ולא ב-snapshot ארוז; מקור הנתונים וה-degraded נחשפים בכותרות. כל מסלול כתיבה נשאר על runtimeDatabase הראשי ו-fail-closed.",
+    "evidence": "6 בדיקות fallback/circuit ו-15 בדיקות public catalog עברו. בנייה, בדיקות מלאות ו-production verification עדיין נדרשות לפני אישור."
+  },
+  "affected_family": [
+    "חיפוש נופש ואירועים",
+    "סליידרים ועסקאות בית",
+    "עמודי מקום בכל ארבעת העולמות",
+    "מפות ו-lookups",
+    "sitemaps הנגזרים מהקטלוג"
+  ],
+  "regression_checks": [
+    {
+      "check": "Aurora תקין נשאר המקור הראשי",
+      "status": "passed",
+      "evidence": "בדיקת probe מקביל מאשרת origin=aws-aurora וקריאת bridge אחת."
+    },
+    {
+      "check": "Aurora תקול לא מאט כל בקשה ציבורית",
+      "status": "passed",
+      "evidence": "הבקשה הראשונה פתחה circuit לחמש דקות והבקשה השנייה חזרה מיד ל-D1 ללא fetch נוסף."
+    },
+    {
+      "check": "כתיבות קנוניות אינן עוברות ל-D1",
+      "status": "passed",
+      "evidence": "ה-helper החדש משמש רק app/api/catalog; runtimeDatabase ו-requiredRuntimeDatabase לא שונו."
+    },
+    {
+      "check": "פרסום ואימות כל ארבעת העולמות בציבורי",
+      "status": "pending",
+      "evidence": "נדרש מועמד מדויק, פריסה אחת ובדיקת source/count/fetchedAt לאחר הפרסום."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "הכשל הפנימי המדויק בתוך AWS עדיין מחייב CloudWatch או probe חתום; אין לטעון אם הוא token, secret, VPC או PostgreSQL ללא הראיה.",
+    "לאחר תיקון השירות הציבורי יש להשלים תיקון תשתית ולוודא שהמקור חוזר ל-aws-aurora."
+  ],
+  "authorization_boundary": "מורשה לתקן, לבדוק ולפרסם VII. אין שינוי DB, schema, data, secrets, environment, DNS, permissions או supplier data במועמד הזה."
+}

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { reportingDatabaseForEnv } from "../app/lib/runtime-database.ts";
+import { publicCatalogDatabaseForEnv, reportingDatabaseForEnv,
+  resetPublicCatalogDatabaseCircuitForTests } from "../app/lib/runtime-database.ts";
 import { databaseForEnv } from "../app/lib/aws-database.ts";
 
 function d1() {
@@ -78,4 +79,55 @@ test("admin reporting unwraps an Aurora adapter created by a separate bundle ins
   assert.equal(result.database, fallback);
   assert.equal(result.origin, "cloudflare-d1");
   assert.equal(result.degraded, true);
+});
+
+test("public catalog opens a bounded circuit and serves accepted D1 data while Aurora is down", async () => {
+  resetPublicCatalogDatabaseCircuitForTests();
+  const fallback = d1();
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return Response.json({ ok: false, error: "database_operation_failed" }, { status: 500 });
+  };
+  const env = { DB: fallback, VII_AWS_DB_MODE: "primary",
+    VII_AWS_DB_ENDPOINT: "https://bridge.example.test", VII_AWS_DB_TOKEN: "secret" };
+  try {
+    const first = await publicCatalogDatabaseForEnv(env, 1_000);
+    const second = await publicCatalogDatabaseForEnv(env, 2_000);
+    assert.equal(first.database, fallback);
+    assert.equal(first.origin, "cloudflare-d1");
+    assert.equal(first.degraded, true);
+    assert.equal(second.database, fallback);
+    assert.equal(second.degraded, true);
+    assert.equal(calls, 2, "only the first failed read performs the adapter's bounded retry");
+  } finally {
+    globalThis.fetch = originalFetch;
+    resetPublicCatalogDatabaseCircuitForTests();
+  }
+});
+
+test("public catalog coalesces concurrent Aurora probes", async () => {
+  resetPublicCatalogDatabaseCircuitForTests();
+  const fallback = d1();
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    await new Promise(resolve => setTimeout(resolve, 5));
+    return Response.json({ ok: true, results: [{ success: true, results: [{ ok: 1 }], meta: {} }] });
+  };
+  const env = { DB: fallback, VII_AWS_DB_MODE: "primary",
+    VII_AWS_DB_ENDPOINT: "https://bridge.example.test", VII_AWS_DB_TOKEN: "secret" };
+  try {
+    const [first, second] = await Promise.all([
+      publicCatalogDatabaseForEnv(env, 1_000), publicCatalogDatabaseForEnv(env, 1_000),
+    ]);
+    assert.equal(first.origin, "aws-aurora");
+    assert.equal(second.origin, "aws-aurora");
+    assert.equal(calls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    resetPublicCatalogDatabaseCircuitForTests();
+  }
 });

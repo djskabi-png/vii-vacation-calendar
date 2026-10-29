@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-aurora-bridge-root-cause-20261029",
+  "project": "VII",
+  "task_type": "production backend incident diagnosis and repair",
+  "requested_outcome": "Identify and repair the causal Aurora bridge failure so accepted runtime catalogs are readable in production without relying on bundled fallback, then publish and verify the exact repair if a code release is required.",
+  "natural_destination": "https://vii.spaplus.co/api/catalog for spa, vacations, events and rooms, plus the production Worker and Aurora bridge telemetry",
+  "authorization_boundary": "Read production telemetry and configuration metadata, change and test repository code, and publish a reversible production repair under the user's explicit instruction. Do not expose or rotate secrets, change DNS, alter supplier records, or mutate catalog data without causal proof.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The incident requires a predictive contract and evidence at the live destination, not a plausible explanation.",
+      "acceptance_impact": "Require competing hypotheses, a midpoint discriminating test, and live post-release evidence."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A code fix or passing build does not prove the runtime catalog path recovered.",
+      "acceptance_impact": "Require all four catalog worlds, failure containment, persistence and rollback evidence on the exact deployed version."
+    },
+    {
+      "lesson_id": "ADIR-OPS-001",
+      "reason": "Diagnosis and tests may start local processes.",
+      "acceptance_impact": "Track any owned processes and pass cleanup verification before delivery."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The fallback is described as fixed while the Aurora bridge still fails.",
+      "prevention": "Trace the request from Worker bindings through bridge authentication and SQL execution, and require runtime source rather than bundled-fallback.",
+      "acceptance_check": "All four production catalog responses return source runtime with current accepted generation timestamps, or the exact external blocker is proven."
+    },
+    {
+      "rejection": "A guessed secret or configuration change creates a wider outage.",
+      "prevention": "Inspect configuration presence and bridge responses without exposing secrets, test one discriminating variable at a time, and keep v727 rollback available.",
+      "acceptance_check": "The repair has before-and-after bridge evidence, no secret values in artifacts, and a verified rollback identity."
+    },
+    {
+      "rejection": "Only spa is repaired while vacations, events or rooms still use stale fallback.",
+      "prevention": "Treat every world sharing runtimeDatabase and callBridge as one affected family.",
+      "acceptance_check": "Production checks cover spa, vacations, events and rooms with counts, source and fetchedAt."
+    },
+    {
+      "rejection": "The bridge responds but catalog state is absent or incomplete.",
+      "prevention": "Separate transport/authentication from schema/state hypotheses and inspect state and entry consistency read-only.",
+      "acceptance_check": "The supported root cause explains both the bridge telemetry and the catalog-state behavior; competing hypotheses are rejected by evidence."
+    }
+  ],
+  "affected_family": [
+    "Worker Aurora environment bindings",
+    "app/lib/aws-database.ts bridge transport and error handling",
+    "app/lib/runtime-database.ts database selection",
+    "supplier_catalog_state and supplier_catalog_entries read paths",
+    "public catalog API for spa, vacations, events and rooms",
+    "catalog refresh and admin diagnostic routes"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII target architecture and production truth rules",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted fallback and release behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "v727 production baseline and rollback identity",
+        "source": "Version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_cf7a8580c8e4819198427d43a16b7ec5"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first read-only bridge probe and log correlation, before any production mutation or broad code edit",
+    "checks": [
+      "Distinguish missing configuration from network/authentication failure and SQL/state failure",
+      "Confirm whether the same mechanism affects all four worlds",
+      "Preserve the current public fallback while diagnosing"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a cold production request still fall back because callBridge fails?",
+      "Do all four worlds read the accepted runtime generation after reload?",
+      "Does a simulated bridge failure still degrade safely without exposing private errors?",
+      "Can the exact previous production version be restored without data loss?"
+    ],
+    "natural_destination_evidence": "Fresh production responses and logs tied to the deployed version, showing HTTP 200, runtime source, non-empty counts and accepted fetchedAt values.",
+    "affected_family_evidence": "Focused bridge tests, full catalog regression tests, build, and production probes for spa, vacations, events and rooms."
+  },
+  "effectiveness": {
+    "baseline": "v727 serves all four worlds from bundled-fallback; production logs show public_catalog_state_fallback and callBridge failures, while the precise internal bridge failure is not yet logged.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Restore runtime catalog reads in one causal repair cycle and prevent a fallback-only state from being reported as fully healthy."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
