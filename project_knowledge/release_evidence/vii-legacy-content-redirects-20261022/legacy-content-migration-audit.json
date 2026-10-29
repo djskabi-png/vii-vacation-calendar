@@ -1,25 +1,28 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T03:45:28.491Z",
+  "generatedAt": "2026-10-29T13:30:41.754Z",
   "scope": "Known legacy URL union: current legacy sitemap plus stored Search Console export. Place-detail URLs are excluded from the non-place migration requirement.",
   "sourceCoverage": {
-    "knownLegacyUrls": 3528,
-    "currentLegacySitemapUrls": 2711,
+    "knownLegacyUrls": 3553,
+    "currentLegacySitemapUrls": 2705,
     "storedSearchConsoleUrls": 1000
   },
   "nonPlace": {
-    "migratedSearchPages": 2340,
+    "migratedSearchPages": 2360,
+    "migratedSearchAliases": 2,
+    "migratedSearchUrls": 2362,
     "migratedStaticPages": 4,
-    "pagesWithRecoveredFaq": 1250,
-    "pagesWithCompleteBody": 2340,
-    "remainingIssues": 3
+    "pagesWithRecoveredFaq": 1261,
+    "pagesWithCompleteBody": 2360,
+    "remainingIssues": 0
   },
-  "excludedPlacePages": 423,
+  "excludedPlacePages": 398,
   "redirectInventory": {
-    "total": 3528,
-    "redirects": 3102,
-    "gone": 426,
-    "managedSearchRedirects": 2340
+    "total": 3553,
+    "redirects": 3155,
+    "gone": 398,
+    "managedSearchRedirects": 2362,
+    "managedSearchAliases": 2
   },
   "urlPolicy": {
     "approvedCanonicalPathsAsciiOnly": true,
@@ -47,29 +50,7 @@
       "type": "contact"
     }
   ],
-  "remainingNonPlaceIssues": [
-    {
-      "oldUrl": "https://www.vii.co.il/s/11487",
-      "oldPath": "/s/11487",
-      "sourceStatus": 200,
-      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
-      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
-    },
-    {
-      "oldUrl": "https://www.vii.co.il/s/gan_yavne/11857",
-      "oldPath": "/s/gan_yavne/11857",
-      "sourceStatus": 200,
-      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
-      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
-    },
-    {
-      "oldUrl": "https://www.vii.co.il/s/israel/12709",
-      "oldPath": "/s/israel/12709",
-      "sourceStatus": 200,
-      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
-      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
-    }
-  ],
+  "remainingNonPlaceIssues": [],
   "failures": [],
   "passed": true
 }
