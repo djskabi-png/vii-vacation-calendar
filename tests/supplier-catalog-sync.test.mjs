@@ -98,8 +98,9 @@ test("rejection diagnostics persist counts and IDs privately without changing th
     } };
     const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);
     const payload = await response.json();
-    assert.equal(response.status, 503); // Synthetic, unreviewed Spa text is never made public.
-    assert.deepEqual(payload, { error: "catalog_unavailable" });
+    assert.equal(response.status, 200); // Synthetic, unreviewed Spa text is never made public; the accepted release snapshot remains available.
+    assert.equal(payload.source, "bundled-fallback");
+    assert.equal(payload.entries.length, 159);
     assert.doesNotMatch(JSON.stringify(payload), /diagnostics|must-not-be-stored|private-reject/);
   } finally { db.close(); }
 });
@@ -159,9 +160,10 @@ test("spa parse failures persist private metadata without staging or changing th
     const publicDB = { prepare(sql) { assert.doesNotMatch(sql, /supplier_catalog_runs|diagnostics_json/); return db.prepare(sql); } };
     const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);
     const publicPayload = await response.json();
-    assert.equal(response.status, 503);
-    assert.deepEqual(publicPayload, { error: "catalog_unavailable" });
-    assert.doesNotMatch(JSON.stringify(publicPayload), /spaJsonFailure|diagnostics|private|json-failed/);
+    assert.equal(response.status, 200);
+    assert.equal(publicPayload.source, "bundled-fallback");
+    assert.equal(publicPayload.entries.length, 159);
+    assert.doesNotMatch(JSON.stringify(publicPayload), /spaJsonFailure|diagnostics|private-body|private-contact|json-failed/);
   } finally { db.close(); }
 });
 

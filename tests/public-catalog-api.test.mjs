@@ -30,6 +30,19 @@ test("serves the accepted bundled event snapshot when an active run has no mater
   assert.ok(body.entries.length > 0);
 });
 
+test("serves the accepted bundled spa snapshot when its runtime generation is unreadable", async () => {
+  const db = { prepare() { return {
+    bind() { return this; },
+    async first() { throw new Error("runtime temporarily unavailable"); },
+  }; } };
+  const response = await catalogResponse(request("world=spa"), db);
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.source, "bundled-fallback");
+  assert.ok(body.entries.length > 100);
+  assert.ok(body.entries.every((entry) => entry.summary?.id && entry.summary?.title));
+});
+
 test("does not resurrect a removed place from the bundled fallback", async () => {
   const db = {
     prepare(sql) {

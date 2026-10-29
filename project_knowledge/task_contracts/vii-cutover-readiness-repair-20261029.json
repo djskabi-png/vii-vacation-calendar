@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-cutover-readiness-repair-20261029",
+  "project": "VII",
+  "goal": "Remove the verified internal launch blockers before the primary-domain cutover without changing DNS or supplier data.",
+  "authorization": "Edit, test, push and publish the VII application. Preserve production data, secrets, schedules, permissions and domains. Do not change DNS until the exact candidate passes production verification.",
+  "requirements": [
+    {
+      "id": "spa-catalog-continuity",
+      "statement": "SPA discovery must return the last accepted bundled snapshot when the runtime generation is temporarily unreadable, while malformed data remains blocked.",
+      "acceptance_check": "The focused API test passes and production /api/catalog?world=spa returns HTTP 200 with a non-empty validated catalog."
+    },
+    {
+      "id": "catalog-freshness-diagnosis",
+      "statement": "Distinguish a runtime publication failure from a supplier API gap and retain the last-good catalog path for every world.",
+      "acceptance_check": "Production responses for vacations, events, rooms and spa are recorded with source, fetchedAt and HTTP status after deployment."
+    },
+    {
+      "id": "origin-cutover-safety",
+      "statement": "The same release must preserve the temporary host and already-supported primary-host canonical rewrite without changing DNS.",
+      "acceptance_check": "Primary-origin stream tests, launch SEO tests, sitemap, robots and llms checks pass; no domain mutation occurs."
+    },
+    {
+      "id": "release-proof",
+      "statement": "Publish only the exact pushed and tested commit and verify the natural public destination with a retained rollback identity.",
+      "acceptance_check": "Build, focused tests, full tests, terminal deployment identity and post-deploy HTTP probes are recorded."
+    }
+  ],
+  "predicted_rejections": [
+    "SPA still returns a blank state or 503 after deployment.",
+    "A fallback hides malformed SPA data instead of validating it.",
+    "The release changes DNS or breaks the current temporary host before cutover.",
+    "A passing local test is reported as production completion without a live check.",
+    "A stale or duplicate deployment is created after an uncertain result."
+  ],
+  "affected_family": ["catalog API", "vacation discovery", "event discovery", "hourly discovery", "spa discovery", "primary origin rewrite", "SEO discovery files", "production release"],
+  "midpoint_gate": "Focused catalog and origin tests pass before the full build and release candidate is pushed.",
+  "adversarial_close": "Force a database read failure, sample all four production catalogs, verify current and primary-host origin behavior, and reject completion on any 5xx or uncertain deployment.",
+  "status": "in_progress"
+}

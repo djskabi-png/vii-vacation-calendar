@@ -116,11 +116,10 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
       }
     } catch (error) {
       console.error("VII runtime catalog unavailable", world);
-      // Vacation, event and hourly bundles are immutable accepted snapshots.
-      // Keep search and public navigation alive when an active-run pointer is
-      // temporarily missing its materialized rows. Spa keeps its stricter
-      // projection and continues to fail closed on malformed runtime data.
-      if (world === "spa") return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore });
+      // Every bundled catalog is an immutable accepted snapshot. Keep public
+      // discovery alive when the runtime generation is temporarily unreadable.
+      // Spa still passes through its strict projection below, so malformed
+      // bundled data continues to fail closed instead of leaking publicly.
     }
   }
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-cutover-readiness-repair-20261029",
+  "requested_outcome": "A production-safe VII candidate that closes the catalog outage and is ready for the later primary-domain cutover.",
+  "natural_destination": "https://vii.spaplus.co and its public catalog endpoints",
+  "authorization_boundary": "Application code, tests, source push and production publication are authorized. DNS, custom domains, supplier data, secrets, schedules and permissions remain unchanged.",
+  "predicted_rejections": [
+    {"rejection":"SPA remains unavailable.","prevention":"Fall through to the already accepted bundled snapshot and retain strict projection.","acceptance_check":"Database-failure test and live SPA catalog both return validated non-empty HTTP 200 responses."},
+    {"rejection":"The temporary host works but the primary origin later emits wrong canonical URLs.","prevention":"Keep host-aware worker rewriting and run the primary-origin and launch SEO suites.","acceptance_check":"All origin stream and launch SEO tests pass."},
+    {"rejection":"A release is claimed from the wrong source or an uncertain duplicate publish.","prevention":"Record exact source commit and tree before one publication, then wait for a terminal result.","acceptance_check":"One terminal deployment maps to the tested commit and rollback identity."}
+  ],
+  "affected_family": ["catalogs", "search", "world pages", "SEO", "release"],
+  "midpoint_gate": "Focused catalog and origin tests pass with the intended diff only.",
+  "adversarial_close": "Inspect the exact deployed candidate, all four catalogs, sitemap, robots, llms and representative public routes.",
+  "effectiveness": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"]
+}
