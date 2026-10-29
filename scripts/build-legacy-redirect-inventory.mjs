@@ -53,6 +53,11 @@ for (const [source, target] of destinations) {
   }
 }
 
+// Do not preserve a redirect to a place that the public runtime no longer serves.
+// This legacy supplier is absent from the live catalog and its former business URL
+// returns 404, so a deliberate 410 is safer than a broken redirect after cutover.
+destinations.delete(normalizedPath("/villa_monsoon_premium"));
+
 const sitemapIndex = await (await fetch("https://www.vii.co.il/sitemap.php")).text();
 const sitemapChildren = [...sitemapIndex.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].trim());
 if (!sitemapChildren.length) throw new Error("Legacy sitemap index returned no child sitemaps");

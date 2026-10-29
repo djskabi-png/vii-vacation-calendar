@@ -16,8 +16,8 @@
   },
   "stats": {
     "total": 3553,
-    "redirects": 3155,
-    "gone": 398,
+    "redirects": 3154,
+    "gone": 399,
     "managedSearchRedirects": 2362,
     "managedSearchAliases": 2
   },
@@ -3105,7 +3105,6 @@
     "/villa_mol_yam_eilat": "/business?id=vacation-460",
     "/villa_monkata": "/business?id=vacation-210",
     "/villa_monkata?reviews=1": "/business?id=vacation-210",
-    "/villa_monsoon_premium": "/business?id=vacation-458",
     "/villa_moriah_kinneret": "/business?id=vacation-2493",
     "/villa_nato_eilat": "/business?id=vacation-1174",
     "/villa_new_york": "/business?id=vacation-119",
@@ -3353,6 +3352,7 @@
     "/ls_estate_in_the_galilee",
     "/lucky_villa",
     "/makom_shel_barko",
+    "/villa_monsoon_premium",
     "/malka_swit",
     "/maor_bakineret",
     "/marina_summit",

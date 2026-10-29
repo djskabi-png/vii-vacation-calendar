@@ -60,6 +60,14 @@ test("redirect administration merges the complete bundled inventory with managed
   assert.equal(deleted.allTotal, 3552);
 });
 
+test("inactive legacy suppliers never redirect to a public 404", () => {
+  const result = mergedRedirectInventory([], { query: "villa_monsoon_premium", pageSize: 20 });
+  assert.equal(result.total, 1);
+  assert.equal(result.rows[0].source_path, "/villa_monsoon_premium");
+  assert.equal(result.rows[0].status, 410);
+  assert.equal(result.rows[0].target_path, null);
+});
+
 test("redirect inventory filters outside the first page without rendering every row", () => {
   const result = mergedRedirectInventory([], { query: "zimmer_tropi", status: "301", origin: "legacy", pageSize: 20 });
   assert.equal(result.total, 1);
