@@ -4,6 +4,7 @@ const { Client, types } = require("pg");
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 const secrets = new SecretsManagerClient({});
 let cachedSecret;
+const DEFAULT_SECRET_CACHE_TTL_MS = 300_000;
 
 types.setTypeParser(20, value => {
   const parsed = Number(value);
@@ -17,12 +18,66 @@ function equalToken(value) {
   if (!/^[a-f0-9]{64}$/.test(expectedHex)) return false;
   return crypto.timingSafeEqual(Buffer.from(expectedHex, "hex"), crypto.createHash("sha256").update(value || "").digest());
 }
-async function credentials() {
-  if (!cachedSecret) {
-    const result = await secrets.send(new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_ARN }));
-    cachedSecret = JSON.parse(result.SecretString || "{}");
+function secretCacheTtlMs() {
+  const configured = Number(process.env.DB_SECRET_CACHE_TTL_MS || DEFAULT_SECRET_CACHE_TTL_MS);
+  return Number.isFinite(configured) && configured >= 1_000 ? configured : DEFAULT_SECRET_CACHE_TTL_MS;
+}
+async function loadSecret() {
+  const result = await secrets.send(new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_ARN }));
+  return JSON.parse(result.SecretString || "{}");
+}
+async function credentials(options = {}) {
+  const now = options.now ?? Date.now();
+  if (!options.forceRefresh && cachedSecret?.expiresAt > now) return cachedSecret.value;
+  const value = await (options.loadSecret || loadSecret)();
+  if (!value?.username || !value?.password) throw Object.assign(new Error("database_secret_invalid"), { bridgeStage: "secret" });
+  cachedSecret = { value, expiresAt: now + secretCacheTtlMs() };
+  return value;
+}
+function invalidateCredentials() {
+  cachedSecret = undefined;
+}
+function databaseClient(secret) {
+  return new Client({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 5432),
+    database: process.env.DB_NAME || secret.dbname || "vii",
+    user: secret.username,
+    password: secret.password,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 8000,
+    statement_timeout: 20000,
+  });
+}
+function isCredentialAuthenticationFailure(error) {
+  return error?.code === "28P01" || error?.code === "28000";
+}
+async function connectedClient(options = {}) {
+  const createClient = options.createClient || databaseClient;
+  let client;
+  try {
+    const secret = await credentials({ loadSecret: options.loadSecret, now: options.now });
+    client = createClient(secret);
+    await client.connect();
+    return client;
+  } catch (error) {
+    await client?.end().catch(() => {});
+    if (!isCredentialAuthenticationFailure(error)) throw Object.assign(error, { bridgeStage: error?.bridgeStage || "connect" });
   }
-  return cachedSecret;
+
+  // RDS-managed master credentials rotate automatically. A warm Lambda may
+  // briefly retain the previous password, so invalidate the local cache and
+  // retry the connection exactly once before any SQL operation has begun.
+  invalidateCredentials();
+  try {
+    const secret = await credentials({ forceRefresh: true, loadSecret: options.loadSecret, now: options.now });
+    client = createClient(secret);
+    await client.connect();
+    return client;
+  } catch (error) {
+    await client?.end().catch(() => {});
+    throw Object.assign(error, { bridgeStage: error?.bridgeStage || "connect_after_secret_refresh" });
+  }
 }
 function placeholders(sql) {
   let output="", index=0, quote=null;
@@ -93,8 +148,15 @@ exports.handler=async event=>{
   if(!equalToken(token))return {statusCode:404,body:JSON.stringify({ok:false,error:"not_found"})};
   let body; try{body=JSON.parse(event.body||"{}");}catch{return {statusCode:400,body:JSON.stringify({ok:false,error:"invalid_json"})};}
   if(!Array.isArray(body.operations)||body.operations.length<1||body.operations.length>100)return {statusCode:400,body:JSON.stringify({ok:false,error:"invalid_operations"})};
-  const secret=await credentials(); const client=new Client({host:process.env.DB_HOST,port:Number(process.env.DB_PORT||5432),database:process.env.DB_NAME||secret.dbname||"vii",user:secret.username,password:secret.password,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:8000,statement_timeout:20000});
-  try{await client.connect();if(body.transactional)await client.query("BEGIN");const results=[];for(const operation of body.operations){if(!operation||typeof operation.sql!=="string"||operation.sql.length>100000||!Array.isArray(operation.params))throw new Error("invalid_operation");results.push(await execute(client,operation));}if(body.transactional)await client.query("COMMIT");return {statusCode:200,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify({ok:true,results})};}
-  catch(error){if(body.transactional)await client.query("ROLLBACK").catch(()=>{});console.error("VII database bridge operation failed",error?.message||error);return {statusCode:500,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify({ok:false,error:"database_operation_failed"})};}
-  finally{await client.end().catch(()=>{});}
+  let client;
+  try{client=await connectedClient();if(body.transactional)await client.query("BEGIN");const results=[];for(const operation of body.operations){if(!operation||typeof operation.sql!=="string"||operation.sql.length>100000||!Array.isArray(operation.params))throw Object.assign(new Error("invalid_operation"),{bridgeStage:"validation"});results.push(await execute(client,operation));}if(body.transactional)await client.query("COMMIT");return {statusCode:200,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify({ok:true,results})};}
+  catch(error){if(body.transactional&&client)await client.query("ROLLBACK").catch(()=>{});console.error("VII database bridge operation failed",{stage:error?.bridgeStage||"operation",code:error?.code||"unknown"});return {statusCode:500,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify({ok:false,error:"database_operation_failed"})};}
+  finally{await client?.end().catch(()=>{});}
+};
+
+exports.__test = {
+  connectedClient,
+  credentials,
+  invalidateCredentials,
+  isCredentialAuthenticationFailure,
 };

@@ -304,7 +304,12 @@ const worker = {
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
     const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
-    response.headers.set("X-VII-Data-Origin", awsDatabaseMode(env));
+    // API routes can report a more precise runtime origin such as the accepted
+    // D1 fallback used during an Aurora incident. Preserve that evidence and
+    // only supply the configured database mode when the route did not.
+    if (!response.headers.has("X-VII-Data-Origin")) {
+      response.headers.set("X-VII-Data-Origin", awsDatabaseMode(env));
+    }
     const contentType = response.headers.get("content-type") || "";
     if (!contentType.includes("text/html")) {
       // Vite gives every compiled asset a content hash. Let the browser keep
