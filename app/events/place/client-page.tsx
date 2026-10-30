@@ -38,6 +38,15 @@ import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 import { projectEventPlaceDetail } from "../../lib/event-place-detail";
 
+function completeFeatureGroups(groups: { title: string; items: string[] }[] | undefined, features: string[]) {
+  const visibleGroups = (groups || []).filter((group) => group.items.length);
+  const grouped = new Set(visibleGroups.flatMap((group) => group.items));
+  const ungrouped = features.filter((feature) => !grouped.has(feature));
+  return ungrouped.length
+    ? [...visibleGroups, { title: "מתקנים נוספים", items: ungrouped }]
+    : visibleGroups;
+}
+
 export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, providerInventory, supplierDetail }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces: EventPlace[]; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail }) {
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
@@ -68,6 +77,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => projectEventPlaceDetail(initialPlace, supplierDetail), [initialPlace, supplierDetail]);
+  const featureGroups = useMemo(() => completeFeatureGroups(place.featureGroups, place.features), [place.featureGroups, place.features]);
   const eventContentCopy = {
     he: { name: "מתחם אירועים מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מתחם אירועים ב${location}. כאן תוכלו לראות תמונות, מתקנים, קיבולת ודרכי יצירת קשר.`, unit: "מתחם אירוח", policy: "הערות ותנאים נוספים מאושרים ישירות מול המקום." },
     en: { name: "Verified event venue", location: "Israel", description: (name: string, location: string) => `${name} is a verified event venue in ${location}. Explore its photos, amenities, capacity and contact options.`, unit: "Event space", policy: "Additional notes and terms are confirmed directly with the venue." },
@@ -168,7 +178,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <div className="shell event-place-layout">
           <div>
             {place.description ? <section id="event-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p></section> : null}
-            {place.featureGroups?.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="event-feature-groups">{place.featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeEventText(group.title, translate("מתקנים ואפשרויות"))}</h3><div className="feature-list">{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</div></section> : null; })}</div></section> : place.features.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="feature-list">{localizedBusinessList(place.features, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</div></section> : null}
+            {featureGroups.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="event-feature-groups">{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeEventText(group.title, translate("מתקנים ואפשרויות"))}</h3><div className="feature-list">{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</div></section> : null; })}</div></section> : null}
             {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => { const roomGroups = room.featureGroups?.filter((group) => group.items.length) || []; const grouped = new Set(roomGroups.flatMap((group) => group.items)); const ungrouped = localizedBusinessList(room.features.filter((feature) => !grouped.has(feature)), language, translate); return <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3>{room.quantity > 0 || room.guests > 0 || room.builtArea || room.area || room.totalArea ? <p>{room.quantity > 0 ? `${room.quantity} ${room.quantity === 1 ? "מתחם" : "מתחמים"}` : ""}{room.quantity > 0 && room.guests > 0 ? " · " : ""}{room.guests > 0 ? `עד ${room.guests} משתתפים ביחידה` : ""}{room.builtArea || room.area ? ` · שטח בנוי ${room.builtArea || room.area} מ״ר` : ""}{room.totalArea ? ` · שטח כללי ${room.totalArea} מ״ר` : ""}</p> : null}<div className="supplier-room-feature-groups">{roomGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h4>{safeEventText(group.title, translate("מתקנים ואפשרויות"))}</h4><div className="feature-list">{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</div></section> : null; })}{ungrouped.length ? <section><h4>{translate("מאפיינים נוספים ביחידה")}</h4><div className="feature-list">{ungrouped.map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</div></section> : null}</div></article>; })}</div></section> : null}
             <ListingAccessibility slug={place.slug} features={place.features} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{localizedLocation}</h2><p>{localizedArea}</p>{typeof place.lat === "number" && typeof place.lng === "number" ? <span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span> : <span className="location-card__inline-note">המיקום המדויק טרם נמסר על ידי המקום.</span>}</div>{typeof place.lat === "number" && typeof place.lng === "number" ? <DeferredListingMap listings={[place]} mode="events" single /> : null}</section>
