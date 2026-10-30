@@ -6,7 +6,7 @@ import acceptedRuntimeCatalog from "../data/accepted-runtime-catalog-state.json"
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 import { managedVacationPriority } from "./vacation-priority.ts";
@@ -165,9 +165,18 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
   try {
     const db = await runtimeCatalogDatabase();
     if (!db) return bundledDetail;
-    const snapshot = await readSupplierCatalogDetailSnapshot(db, world, supplierId);
-    if (!snapshot?.activeRunId) return bundledDetail;
-    return mergeBundledDetail(snapshot.detail, bundledDetail) as T | null;
+    // Read the selected business through the same accepted-entry path used by
+    // /api/catalog. That route is the public source of truth for room-owned
+    // galleries. A separate LEFT JOIN detail projection could fail while the
+    // accepted entry remained readable, silently replacing unit images with
+    // the older bundled fallback on the business page.
+    const entry = await readSupplierCatalogEntry(db, world, supplierId);
+    if (entry) return mergeBundledDetail(entry.detail, bundledDetail) as T | null;
+    // Preserve the important distinction between a world that has never had
+    // an accepted generation (bundle is allowed) and an accepted removal
+    // (bundle must not resurrect the supplier).
+    const state = await readSupplierCatalogState(db, world);
+    return state?.activeRunId ? null : bundledDetail;
   } catch {
     console.warn(`public_catalog_detail_fallback:${world}`);
     return bundledDetail;

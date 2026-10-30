@@ -109,19 +109,21 @@ test("a unit deep-link keeps a supplier-named gallery after media deduplication"
 });
 
 test("public review, accessibility and contact sources preserve their approved boundaries", async () => {
-  const [reviewRoute, accessibility, contact, floating, eventPlace] = await Promise.all([
+  const [reviewRoute, accessibility, contact, floating, eventPlace, eventProjector] = await Promise.all([
     read("app/api/reviews/route.ts"),
     read("app/components/listing-accessibility.tsx"),
     read("app/components/whatsapp-lead-button.tsx"),
     read("app/components/floating-contact-actions.tsx"),
     read("app/events/place/client-page.tsx"),
+    read("app/lib/event-place-detail.ts"),
   ]);
   assert.doesNotMatch(reviewRoute, /authorizedCustomerSession|require.*login/i);
   assert.doesNotMatch(accessibility, /href=|<a\b/);
   assert.doesNotMatch(await read("app/business/client-page.tsx"), /href: "#accessibility"/);
   assert.match(contact, /businessPhone/);
   assert.doesNotMatch(contact, /businessPhone\s*\|\|\s*phone/);
-  assert.match(eventPlace, /\.\.\.\(supplierDetail\.whatsapp \? \{ whatsapp: supplierDetail\.whatsapp \} : \{\}\)/);
+  assert.match(eventPlace, /projectEventPlaceDetail\(initialPlace, supplierDetail\)/);
+  assert.match(eventProjector, /\.\.\.\(detail\.whatsapp \? \{ whatsapp: detail\.whatsapp \} : \{\}\)/);
   assert.match(floating, /DirectPhoneLink/);
   assert.match(floating, /WhatsAppLeadButton/);
   assert.match(floating, /floating-contact-actions__online/);

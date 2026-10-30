@@ -107,16 +107,20 @@ test('preview fallbacks pin generation across publication and never resurrect mi
 
 test('public detail wrapper permits bundled fallback only before first accepted generation', async () => {
   const source = stripTypeScriptTypes((await readFile(new URL('../app/lib/public-catalog-read.ts', import.meta.url), 'utf8')).replace(/^import .*;\r?$/gm, ''));
-  let snapshot; let lookups = 0;
-  const readDetail = new Function('sergeyDetails', 'runtimeCatalogDatabase', 'readSupplierCatalogDetailSnapshot',
+  let entry; let activeRunId = null; let entryReads = 0; let stateReads = 0;
+  const readDetail = new Function('sergeyDetails', 'runtimeCatalogDatabase', 'readSupplierCatalogEntry', 'readSupplierCatalogState',
     source.replace(/export /g, '') + '; return publicCatalogDetail;')(
-      { details: { 'vacation-1': { name: 'bundled' } } }, async () => ({}), async () => { lookups++; return snapshot; });
+      { details: { 'vacation-1': { name: 'bundled' } } }, async () => ({}),
+      async () => { entryReads++; return entry; }, async () => { stateReads++; return activeRunId ? { activeRunId } : null; });
   assert.deepEqual(await readDetail('vacations', 1), { name: 'bundled' });
-  snapshot = { activeRunId: 'live', detail: null };
+  activeRunId = 'live';
   assert.equal(await readDetail('vacations', 1), null);
-  snapshot = { activeRunId: 'live', detail: { name: 'live' } };
-  assert.deepEqual(await readDetail('vacations', 1), { name: 'live' });
-  assert.equal(lookups, 3, 'exactly one snapshot read per call');
+  entry = { detail: { name: 'live', rooms: [{ id: 39, name: 'צימר 1', images: ['/api/vii/media/unit-39.jpg'] }] } };
+  assert.deepEqual(await readDetail('vacations', 1), {
+    name: 'live', images: [], rooms: [{ id: 39, name: 'צימר 1', images: ['/api/vii/media/unit-39.jpg'] }],
+  });
+  assert.equal(entryReads, 3, 'the accepted entry is the first read on every call');
+  assert.equal(stateReads, 2, 'state is read only when the supplier entry is absent');
 });
 
 test('all bundled vacation and event review selections keep exact parity in D1-sized batches', async () => {
