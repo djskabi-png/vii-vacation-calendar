@@ -8,6 +8,7 @@ import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
+import { publicCatalogDatabase } from "./runtime-database.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
@@ -163,8 +164,12 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   const bundledDetail = (sergeyDetails.details as unknown as Record<string, T>)[slug] || null;
   try {
-    const db = await runtimeCatalogDatabase();
-    if (!db) return bundledDetail;
+    // Public place pages must use the same resilient, read-only source as
+    // /api/catalog. When Aurora is unavailable this selector serves the same
+    // accepted D1 replica instead of replacing current unit data with the
+    // older immutable bundle.
+    const source = await publicCatalogDatabase();
+    const db = source.database;
     // Read the selected business through the same accepted-entry path used by
     // /api/catalog. That route is the public source of truth for room-owned
     // galleries. A separate LEFT JOIN detail projection could fail while the
