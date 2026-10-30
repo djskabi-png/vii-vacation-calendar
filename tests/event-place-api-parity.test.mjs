@@ -7,6 +7,7 @@ const projector = fs.readFileSync(new URL("../app/lib/event-place-detail.ts", im
 const gallery = fs.readFileSync(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8");
 const booking = fs.readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 const publicCatalogRead = fs.readFileSync(new URL("../app/lib/public-catalog-read.ts", import.meta.url), "utf8");
+const businessClient = fs.readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const details = JSON.parse(fs.readFileSync(new URL("../app/data/sergey-place-details.json", import.meta.url), "utf8")).details;
 
 test("event projection preserves supplier gallery groups, grouped facilities and room measurements", () => {
@@ -38,6 +39,13 @@ test("accepted runtime detail is normalized to immutable local media before bund
   assert.match(publicCatalogRead, /function normalizedMediaArray/);
   assert.match(publicCatalogRead, /merged\.images = normalizedMediaArray\(accepted\.images\)/);
   assert.match(publicCatalogRead, /images: normalizedMediaArray\(room\.images\)/);
+});
+
+test("accepted features remain visible when supplier taxonomy groups are incomplete", () => {
+  assert.match(businessClient, /function completeFeatureGroups/);
+  assert.match(businessClient, /title: "מתקנים נוספים", items: ungrouped/);
+  assert.match(businessClient, /const featureGroups = completeFeatureGroups\(/);
+  assert.match(businessClient, /property\.features/);
 });
 
 test("vacation booking keeps available without price separate from unavailable and provider error", () => {

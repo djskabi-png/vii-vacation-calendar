@@ -78,6 +78,17 @@ function balanceFeatureGroups(groups: DisplayFeatureGroup[]): [DisplayFeatureGro
   return columns;
 }
 
+function completeFeatureGroups(groups: ListingFeatureGroup[], features: string[]): ListingFeatureGroup[] {
+  const normalized = new Set(groups.flatMap((group) => group.items).map((item) => item.trim().toLocaleLowerCase("he-IL")));
+  const ungrouped = features.filter((feature) => {
+    const key = feature.trim().toLocaleLowerCase("he-IL");
+    if (!key || normalized.has(key)) return false;
+    normalized.add(key);
+    return true;
+  });
+  return ungrouped.length ? [...groups, { title: "מתקנים נוספים", items: ungrouped }] : groups;
+}
+
 const worldLabels: Record<BusinessWorld, string> = {
   vacation: "נופש ולינה",
   events: "אירועים",
@@ -295,7 +306,13 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate, verifiedSleepingRooms.length]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label }))).slice(0, 5);
-  const featureGroups = liveFeatureGroups ?? (property.featureGroups?.length ? property.featureGroups : []);
+  // Supplier groups define the presentation order, but the accepted catalog
+  // feature list is the completeness contract. Never hide an accepted feature
+  // merely because its taxonomy group is absent or temporarily unavailable.
+  const featureGroups = completeFeatureGroups(
+    liveFeatureGroups ?? (property.featureGroups?.length ? property.featureGroups : []),
+    property.features,
+  );
   const localizedFeatureGroups = featureGroups.flatMap((group) => {
     const items = localizedBusinessList(group.items, language, translate);
     return items.length ? [{ title: safeBusinessText(group.title, businessCopy.feature), items }] : [];
