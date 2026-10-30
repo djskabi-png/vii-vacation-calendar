@@ -52,6 +52,16 @@ test("accepted features remain visible when supplier taxonomy groups are incompl
   assert.match(client, /featureGroups\.map/);
 });
 
+test("selected place summaries use the same official public database as the catalog API", () => {
+  const selectedFunction = publicCatalogRead.slice(
+    publicCatalogRead.indexOf("export async function publicCatalogSelectedSummaries"),
+    publicCatalogRead.indexOf("function contentTypeForWorld"),
+  );
+  assert.match(selectedFunction, /const \{ database: db \} = await publicCatalogDatabase\(\)/);
+  assert.doesNotMatch(selectedFunction, /runtimeCatalogDatabase\(\)/);
+  assert.match(selectedFunction, /readSupplierCatalogSelectedSummaries\(db, world, ids\)/);
+});
+
 test("vacation booking keeps available without price separate from unavailable and provider error", () => {
   assert.match(booking, /availability\.availability === "available"\) return nightlyPrice > 0 \? "available-price" : "available-no-price"/);
   assert.match(booking, /availabilityStatus === "error"\) return "check-error"/);

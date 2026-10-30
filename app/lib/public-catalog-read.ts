@@ -100,8 +100,12 @@ export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWo
   const items = (async () => {
     let entries = fallbackEntries;
     try {
-      const db = await runtimeCatalogDatabase();
-      const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
+      // A canonical place page must read the same accepted public catalog as
+      // /api/catalog. The former runtime-only route could select a stale D1
+      // summary while the official public API was already serving Aurora,
+      // leaving labels and other supplier fields inconsistent on one page.
+      const { database: db } = await publicCatalogDatabase();
+      const selected = await readSupplierCatalogSelectedSummaries(db, world, ids);
       entries = selected ?? fallbackEntries;
     } catch {
       // The bundled data is the last accepted generation. Keep public place
