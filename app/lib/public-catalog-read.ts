@@ -11,6 +11,7 @@ import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise<unknown[]> }>();
@@ -183,12 +184,30 @@ function galleryGroupTitle(value: unknown): string {
   return typeof title === "string" ? title.trim().replace(/\s+/g, " ") : "";
 }
 
+function normalizedMediaArray(value: unknown) {
+  const source = nonEmptyArray(value);
+  if (!source) return undefined;
+  const normalized = source.map(localGalleryMediaUrl).filter((image): image is string => Boolean(image));
+  return normalized.length ? [...new Set(normalized)] : undefined;
+}
+
+function normalizedGalleryGroups(value: unknown): unknown[] | undefined {
+  const groups = nonEmptyArray(value);
+  if (!groups) return undefined;
+  const normalized = groups.flatMap((group) => {
+    if (!group || typeof group !== "object" || Array.isArray(group)) return [];
+    const images = normalizedMediaArray((group as Record<string, unknown>).images);
+    return images?.length ? [{ ...(group as Record<string, unknown>), images }] : [];
+  });
+  return normalized.length ? normalized : undefined;
+}
+
 function mergedGalleryGroups(acceptedValue: unknown, bundledValue: unknown): unknown[] | undefined {
-  const accepted = nonEmptyArray(acceptedValue) || [];
-  const bundled = nonEmptyArray(bundledValue) || [];
+  const accepted = normalizedGalleryGroups(acceptedValue) || [];
+  const bundled = normalizedGalleryGroups(bundledValue) || [];
   if (!accepted.length) return bundled.length ? bundled : undefined;
   if (!bundled.length) return accepted;
-  const bundledByTitle = new Map(bundled.map((group) => [galleryGroupTitle(group), group]).filter(([title]) => title));
+  const bundledByTitle = new Map<string, unknown>(bundled.map((group): [string, unknown] => [galleryGroupTitle(group), group]).filter(([title]) => Boolean(title)));
   const acceptedTitles = new Set(accepted.map(galleryGroupTitle).filter(Boolean));
   // Keep runtime rows authoritative for a matching supplier title, but append
   // newly supported supplier-defined groups from the immutable accepted build.
@@ -227,7 +246,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     return {
       ...fallback,
       ...room,
-      images: nonEmptyArray(room.images) || fallback.images || [],
+      images: normalizedMediaArray(room.images) || normalizedMediaArray(fallback.images) || [],
       featureGroups: nonEmptyArray(room.featureGroups) || fallback.featureGroups || [],
       features: nonEmptyArray(room.features) || fallback.features || [],
     };
@@ -236,6 +255,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     ...bundled,
     ...accepted,
   };
+  merged.images = normalizedMediaArray(accepted.images) || normalizedMediaArray(bundled.images) || [];
   const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups);
   const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
   const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);

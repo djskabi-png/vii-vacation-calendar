@@ -64,12 +64,16 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       ? property.galleryGroups.flatMap((group) => group.images.map((src, index) => ({ src, label: `${group.title} ב${property.name}, תמונה ${index + 1}`, category: "place" as const, topic: group.title })))
       : property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" }));
     const groupedSources = new Set(groupedPlaceItems.map((item) => item.src));
+    const ungroupedPlaceItems = property.galleryGroups?.length
+      ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: `תמונות נוספות ב${property.name}, תמונה ${index + 1}`, category: "place" as const, topic: "תמונות נוספות" }))
+      : [];
     return uniqueItems([
       // Supplier galleries are the editorial source of truth. Keep their
       // exact title and membership instead of replacing them with the broad
       // generic "place" or "units" buckets. A room-only image is appended
       // only when the supplier did not put it in a named gallery.
       ...groupedPlaceItems,
+      ...ungroupedPlaceItems,
       ...unitItems.filter((item) => !groupedSources.has(item.src)),
       ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
       ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
