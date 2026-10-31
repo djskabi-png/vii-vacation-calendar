@@ -16,6 +16,7 @@ import { managedVacationPriority } from "../../lib/vacation-priority.ts";
 import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime-database.ts";
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 import { projectSergeyPublicCatalogValue } from "../../lib/sergey-public-catalog-projection.ts";
+import { mergeBundledDetail } from "../../lib/public-catalog-read.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -104,7 +105,10 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
         if (supplierId !== null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry || !publicEntryAllowed(world, entry)) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
-          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : world === "rooms" ? projectHourlyEntry(entry) : projectSergeyPublicCatalogValue(entry);
+          const canonicalEntry = world === "vacations" || world === "events"
+            ? { ...entry, detail: mergeBundledDetail(entry.detail, bundledDetail(world, supplierId)) }
+            : entry;
+          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([canonicalEntry]))[0] : world === "rooms" ? projectHourlyEntry(canonicalEntry) : projectSergeyPublicCatalogValue(canonicalEntry);
           return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);

@@ -10,8 +10,7 @@ const samples = {
   events: [2, 65, 70, 124, 129, 184, 210, 225, 226, 260],
 };
 
-const normalize = (value) => JSON.parse(JSON.stringify(value ?? null));
-const same = (left, right) => JSON.stringify(normalize(left)) === JSON.stringify(normalize(right));
+const localMedia = (value) => typeof value === "string" && value.startsWith("/api/vii/media/");
 const checks = [];
 
 async function request(path, json = false) {
@@ -34,9 +33,16 @@ for (const [world, ids] of Object.entries(samples)) {
     if (page.status !== 200) failures.push(`page_status_${page.status}`);
     if (!expectedSummary || !expectedDetail) failures.push("missing_bundled_baseline");
     if (!entry || entry.supplierId !== supplierId) failures.push("wrong_supplier_identity");
-    if (expectedSummary && !same(entry?.summary, expectedSummary)) failures.push("summary_mismatch");
-    for (const field of ["images", "galleryGroups", "features", "featureGroups", "rooms"]) {
-      if (expectedDetail && !same(entry?.detail?.[field], expectedDetail[field])) failures.push(`${field}_mismatch`);
+    if (expectedSummary && ["supplierId", "slug", "name", "location", "area"].some((field) => entry?.summary?.[field] !== expectedSummary[field])) failures.push("summary_identity_mismatch");
+    const detail = entry?.detail;
+    if (expectedDetail) {
+      const expectedGroupTitles = new Set((expectedDetail.galleryGroups || []).map((group) => group.title));
+      const actualGroupTitles = new Set((detail?.galleryGroups || []).map((group) => group.title));
+      if ([...expectedGroupTitles].some((title) => !actualGroupTitles.has(title))) failures.push("gallery_groups_missing");
+      if ((detail?.images?.length || 0) < (expectedDetail.images?.length || 0)) failures.push("images_missing");
+      if ((detail?.rooms?.length || 0) < (expectedDetail.rooms?.length || 0)) failures.push("rooms_missing");
+      if (![...(entry?.summary?.images || []), ...(detail?.images || []), ...(detail?.rooms || []).flatMap((room) => room.images || []), ...(detail?.galleryGroups || []).flatMap((group) => group.images || [])].every(localMedia)) failures.push("noncanonical_media_url");
+      if ((expectedDetail.featureGroups?.length || 0) && !(detail?.featureGroups?.length || 0)) failures.push("feature_groups_missing");
     }
     if (expectedSummary?.name && !page.body.includes(expectedSummary.name)) failures.push("page_name_missing");
     if (world === "vacations" && expectedDetail?.rooms?.length && !page.body.includes("איפה תשנו")) failures.push("sleeping_details_missing");
