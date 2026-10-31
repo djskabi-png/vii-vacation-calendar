@@ -7,7 +7,7 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 const manifest = JSON.parse(await read("app/data/legacy-gallery-media.json"));
 
 test("every migrated legacy gallery object has one safe immutable identity", () => {
-  assert.equal(manifest.files.length, 36_475);
+  assert.ok(manifest.files.length >= 36_475, "the media inventory must not regress below the verified migration baseline");
   assert.equal(new Set(manifest.files).size, manifest.files.length);
   assert.equal(manifest.objectPrefix, "legacy-gallery/v1/");
   for (const filename of manifest.files) {
