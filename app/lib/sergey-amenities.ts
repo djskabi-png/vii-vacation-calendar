@@ -21,6 +21,15 @@ function text(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const canonicalAmenityLabels = new Map([
+  ["בריכת שחיה מרעננת", "בריכת שחיה מחוממת"],
+]);
+
+export function canonicalSergeyAmenityLabel(value: unknown) {
+  const label = text(value);
+  return canonicalAmenityLabels.get(label) || label;
+}
+
 function id(value: unknown) {
   return Number.isSafeInteger(value) && Number(value) > 0 ? Number(value) : 0;
 }
@@ -68,7 +77,7 @@ function normalizedAmenity(value: unknown, index: SergeyAmenityIndex, sourceOrde
   const definition = index.amenities.get(amenityId);
   return {
     id: amenityId,
-    label: text(item.description) || definition?.title || "",
+    label: canonicalSergeyAmenityLabel(item.description) || canonicalSergeyAmenityLabel(definition?.title),
     category: definition?.category || "מתקנים",
     categoryOrder: definition?.categoryOrder ?? Number.MAX_SAFE_INTEGER,
     orderInCategory: definition?.orderInCategory ?? Number.MAX_SAFE_INTEGER,

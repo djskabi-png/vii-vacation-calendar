@@ -10,6 +10,82 @@ import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
 
 type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string };
 
+type CatalogContentIssue = {
+  supplierId: number;
+  path: string;
+  reason: "collection_missing" | "item_removed";
+};
+
+function object(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function strings(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && Boolean(item.trim())) : [];
+}
+
+function records(value: unknown) {
+  return Array.isArray(value) ? value.map(object) : [];
+}
+
+function removedStrings(before: unknown, after: unknown) {
+  const next = new Set(strings(after));
+  return strings(before).filter((item) => !next.has(item));
+}
+
+function collectionIssues(supplierId: number, path: string, before: unknown, after: unknown): CatalogContentIssue[] {
+  const oldItems = Array.isArray(before) ? before : [];
+  if (!oldItems.length) return [];
+  if (!Array.isArray(after) || !after.length) return [{ supplierId, path, reason: "collection_missing" }];
+  return [];
+}
+
+/**
+ * Supplier responses currently have no field-level tombstones. A partial
+ * response must therefore never erase already accepted public content.
+ */
+export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
+  previous: SupplierCatalogEntry[], candidate: SupplierCatalogEntry[]): CatalogContentIssue[] {
+  if (world !== "vacations" && world !== "events") return [];
+  const next = new Map(candidate.map((entry) => [entry.supplierId, entry]));
+  const issues: CatalogContentIssue[] = [];
+  for (const oldEntry of previous) {
+    const updated = next.get(oldEntry.supplierId);
+    if (!updated) continue;
+    const before = object(oldEntry.detail);
+    const after = object(updated.detail);
+    for (const key of ["images", "galleryGroups", "features", "featureGroups", "rooms"] as const) {
+      issues.push(...collectionIssues(oldEntry.supplierId, `detail.${key}`, before[key], after[key]));
+    }
+    if (removedStrings(before.images, after.images).length) {
+      issues.push({ supplierId: oldEntry.supplierId, path: "detail.images", reason: "item_removed" });
+    }
+    const afterGalleryGroups = new Map(records(after.galleryGroups).map((group) => [String(group.title || ""), group]));
+    for (const group of records(before.galleryGroups)) {
+      const title = String(group.title || "");
+      const nextGroup = afterGalleryGroups.get(title);
+      if (!nextGroup) {
+        issues.push({ supplierId: oldEntry.supplierId, path: `detail.galleryGroups.${title || "untitled"}`, reason: "item_removed" });
+      } else if (removedStrings(group.images, nextGroup.images).length) {
+        issues.push({ supplierId: oldEntry.supplierId, path: `detail.galleryGroups.${title || "untitled"}.images`, reason: "item_removed" });
+      }
+    }
+    const afterRooms = new Map(records(after.rooms).map((room) => [Number(room.id), room]));
+    for (const room of records(before.rooms)) {
+      const roomId = Number(room.id);
+      const nextRoom = afterRooms.get(roomId);
+      if (!Number.isSafeInteger(roomId) || roomId < 1 || !nextRoom) continue;
+      for (const key of ["images", "features", "featureGroups"] as const) {
+        issues.push(...collectionIssues(oldEntry.supplierId, `detail.rooms.${roomId}.${key}`, room[key], nextRoom[key]));
+      }
+      if (removedStrings(room.images, nextRoom.images).length || removedStrings(room.features, nextRoom.features).length) {
+        issues.push({ supplierId: oldEntry.supplierId, path: `detail.rooms.${roomId}`, reason: "item_removed" });
+      }
+    }
+  }
+  return issues.slice(0, 100);
+}
+
 function children(world: SupplierCatalogWorld, entry: SupplierCatalogEntry) {
   const summary = entry.summary as Record<string, unknown>;
   const detail = entry.detail as Record<string, unknown> | undefined;
@@ -59,7 +135,7 @@ function failureCategory(code: string, stage: NonNullable<CatalogSyncDiagnostics
   if (code.includes("transport") || code.includes("timeout")) return "transport";
   if (code.includes("provider")) return "provider";
   if (code.includes("invalid_sergey") || code.includes("invalid_spa_response")) return "invalid_response";
-  if (code.startsWith("invalid_catalog") || code.includes("missing_catalog")) return "invalid_data";
+  if (code.startsWith("invalid_catalog") || code.includes("missing_catalog") || code === "catalog_content_requires_review") return "invalid_data";
   if (stage === "catalog_read" || stage === "candidate_stage" || stage === "publish") return "database";
   if (stage === "source_fetch" && code === "supplier_sync_failed") return "resource_or_runtime";
   return "unknown";
@@ -100,6 +176,9 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
+    if (catalogContentIntegrityIssues(input.world, previous, candidate.entries).length) {
+      throw new Error("catalog_content_requires_review");
+    }
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);
     if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)
       && !(input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries))) {
@@ -132,6 +211,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       retryable: ["transport", "provider", "resource_or_runtime", "database", "unknown"].includes(failureCategory(code, stage)),
     } };
     const status = code.includes("removal") || code === "catalog_media_requires_review" || code === "catalog_editorial_requires_review"
+      || code === "catalog_content_requires_review"
       || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,
       status,

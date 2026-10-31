@@ -15,6 +15,7 @@ import { readPublishedItems } from "../../lib/content-studio.ts";
 import { managedVacationPriority } from "../../lib/vacation-priority.ts";
 import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime-database.ts";
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
+import { projectSergeyPublicCatalogValue } from "../../lib/sergey-public-catalog-projection.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -103,13 +104,13 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
         if (supplierId !== null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry || !publicEntryAllowed(world, entry)) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
-          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : world === "rooms" ? projectHourlyEntry(entry) : entry;
+          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : world === "rooms" ? projectHourlyEntry(entry) : projectSergeyPublicCatalogValue(entry);
           return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);
         if (!catalog) throw new Error("catalog_active_generation_missing");
         const publicEntries = catalog.entries.filter((entry) => publicEntryAllowed(world, entry));
-        const entries = world === "spa" ? await projectSpaCatalogEntries(publicEntries) : world === "rooms" ? publicEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) : publicEntries;
+        const entries = world === "spa" ? await projectSpaCatalogEntries(publicEntries) : world === "rooms" ? publicEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) : publicEntries.map(projectSergeyPublicCatalogValue);
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
@@ -134,7 +135,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   const fetchedAt = world === "spa" ? spa.generatedAt : world === "rooms" ? hourly.fetchedAt : sergey.fetchedAt;
   const rawEntries = bundledEntries(world).filter((entry) => publicEntryAllowed(world, entry));
   let entries: typeof rawEntries;
-  try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : world === "rooms" ? rawEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) as typeof rawEntries : rawEntries; }
+  try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : world === "rooms" ? rawEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) as typeof rawEntries : rawEntries.map(projectSergeyPublicCatalogValue); }
   catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }
   if (view === "lookup") return Response.json({ world, source: "bundled-fallback", fetchedAt,
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
@@ -150,7 +151,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
     const entry = entries.find((item) => item.supplierId === supplierId);
     if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
-      entry: { ...entry, detail: bundledDetail(world, supplierId) } }, { headers: publicCatalogCache });
+      entry: projectSergeyPublicCatalogValue({ ...entry, detail: bundledDetail(world, supplierId) }) }, { headers: publicCatalogCache });
   }
   return Response.json({ world, source: "bundled-fallback", fetchedAt, entries }, { headers: publicCatalogCache });
 }

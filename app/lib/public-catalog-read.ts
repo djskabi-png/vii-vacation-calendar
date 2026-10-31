@@ -13,6 +13,7 @@ import { readPublishedItems, type ContentType, type EditorialContent } from "./c
 import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
+import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise<unknown[]> }>();
@@ -159,7 +160,7 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
   if (world === "spa") return Promise.all(publicEntries.map((site) => projectSpaViiSite(site as SpaPlusSite)));
   if (world !== "vacations" && world !== "events") return publicEntries;
   return publicEntries.map((value) => {
-    const place = value as { description: string; name: string; location: string; area: string };
+    const place = projectSergeyPublicCatalogValue(value) as { description: string; name: string; location: string; area: string };
     return { ...place, description: supplierDisplayDescription(place) };
   });
 }
@@ -180,15 +181,15 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
     // accepted entry remained readable, silently replacing unit images with
     // the older bundled fallback on the business page.
     const entry = await readSupplierCatalogEntry(db, world, supplierId);
-    if (entry) return mergeBundledDetail(entry.detail, bundledDetail) as T | null;
+    if (entry) return projectSergeyPublicCatalogValue(mergeBundledDetail(entry.detail, bundledDetail)) as T | null;
     // Preserve the important distinction between a world that has never had
     // an accepted generation (bundle is allowed) and an accepted removal
     // (bundle must not resurrect the supplier).
     const state = await readSupplierCatalogState(db, world);
-    return state?.activeRunId ? null : bundledDetail;
+    return state?.activeRunId ? null : projectSergeyPublicCatalogValue(bundledDetail);
   } catch {
     console.warn(`public_catalog_detail_fallback:${world}`);
-    return bundledDetail;
+    return projectSergeyPublicCatalogValue(bundledDetail);
   }
 }
 

@@ -1,0 +1,26 @@
+{
+  "target": "Loss-safe normalized supplier catalog and public vacation/event parity",
+  "natural_destination": "Public VII place pages and search",
+  "requirements": [
+    {"id": "REQ-1", "statement": "All public consumers use accepted normalized data"},
+    {"id": "REQ-2", "statement": "Partial candidates cannot erase populated nested content"},
+    {"id": "REQ-3", "statement": "Dated and undated searches preserve their distinct contracts"},
+    {"id": "REQ-4", "statement": "The final 20-place sample has zero observed mismatches"},
+    {"id": "REQ-5", "statement": "Publication is exact, single and rollback-safe"}
+  ],
+  "risks": [
+    {"id": "RISK-1", "risk": "Partial API data silently replaces complete accepted content", "severity": "high"},
+    {"id": "RISK-2", "risk": "Cards, search and detail diverge", "severity": "high"},
+    {"id": "RISK-3", "risk": "A release claim refers to an undeployed or duplicate build", "severity": "high"}
+  ],
+  "characteristics": {"stateful": true, "asynchronous": true, "role_based": false, "responsive": true, "external_integration": true},
+  "cases": [
+    {"id": "TC-1", "priority": "P0", "requirement_ids": ["REQ-2"], "risk_ids": ["RISK-1"], "tags": ["failure", "persistence", "dependency-failure"], "preconditions": "Complete accepted vacation or event entry", "action": "Remove each populated gallery, room, feature group and child image collection in turn", "oracle": "Candidate is rejected and the previous generation remains active", "execution_status": "planned"},
+    {"id": "TC-2", "priority": "P0", "requirement_ids": ["REQ-1", "REQ-2"], "risk_ids": ["RISK-1", "RISK-2"], "tags": ["success", "idempotency"], "preconditions": "Complete accepted entry", "action": "Submit an identical candidate twice and an additive candidate", "oracle": "Identical normalization is stable and additive content passes", "execution_status": "planned"},
+    {"id": "TC-3", "priority": "P0", "requirement_ids": ["REQ-3"], "risk_ids": ["RISK-2"], "tags": ["success", "retry"], "preconditions": "Known dated and undated search fixtures", "action": "Run both search modes", "oracle": "Dated availability/price tiers are ordered and undated results are not restricted to priced online inventory", "execution_status": "planned"},
+    {"id": "TC-4", "priority": "P0", "requirement_ids": ["REQ-4"], "risk_ids": ["RISK-2"], "tags": ["success", "responsive"], "preconditions": "Final candidate available on desktop and mobile", "action": "Audit 10 vacation and 10 event pages including full galleries, units and grouped facilities", "oracle": "Zero observed mismatches, no broken media and no horizontal overflow", "execution_status": "planned"},
+    {"id": "TC-5", "priority": "P0", "requirement_ids": ["REQ-5"], "risk_ids": ["RISK-3"], "tags": ["success", "failure", "retry", "idempotency", "persistence"], "preconditions": "All local gates pass and no operation is running, pending or uncertain", "action": "Publish once and verify the original operation", "oracle": "Exactly one successful Version and Deployment match the candidate and rollback remains recorded", "execution_status": "planned"}
+  ],
+  "out_of_scope": ["Production database migration", "Supplier write-back", "Payment and booking flows"],
+  "ready_for_execution": true
+}

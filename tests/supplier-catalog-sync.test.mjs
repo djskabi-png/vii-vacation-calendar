@@ -302,3 +302,29 @@ test("spa media loss cannot replace an accepted catalog", async () => {
     }
   } finally { db.close(); }
 });
+
+test("a partial vacation detail generation is rejected and the accepted generation persists", async () => {
+  const db = await database();
+  const complete = [{ supplierId: 17, summary: { slug: "vacation-17" }, detail: {
+    images: ["/api/vii/media/a.jpg"],
+    galleryGroups: [{ title: "המתחם", images: ["/api/vii/media/a.jpg"] }],
+    features: ["בריכה"], featureGroups: [{ title: "מתקנים", items: ["בריכה"] }],
+    rooms: [{ id: 55, images: ["/api/vii/media/a.jpg"], features: ["מיטה זוגית"],
+      featureGroups: [{ title: "חדר שינה", items: ["מיטה זוגית"] }] }],
+  } }];
+  try {
+    const accepted = await runSupplierCatalogSync(db, { id: "vacation-complete", world: "vacations",
+      source: "test", baseline: complete, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: complete }) });
+    assert.equal(accepted.status, "accepted");
+    const partial = structuredClone(complete);
+    partial[0].detail.galleryGroups = [];
+    partial[0].detail.rooms[0].images = [];
+    const rejected = await runSupplierCatalogSync(db, { id: "vacation-partial", world: "vacations",
+      source: "test", baseline: complete, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: partial }) });
+    assert.equal(rejected.status, "rejected");
+    assert.equal(rejected.errorCode, "catalog_content_requires_review");
+    assert.deepEqual((await readSupplierCatalog(db, "vacations")).entries, complete);
+  } finally { db.close(); }
+});

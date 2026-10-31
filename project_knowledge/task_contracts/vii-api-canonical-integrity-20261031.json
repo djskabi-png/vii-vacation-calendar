@@ -1,0 +1,62 @@
+{
+  "goal": "VII consumes supplier API data through one loss-safe canonical catalog and exposes consistent vacation and event content without relying on the legacy site.",
+  "intent_model": {
+    "literal_request": "Complete the API logic, test 10 vacation and 10 event places, fix discrepancies and retest until zero observed errors.",
+    "implied_outcome": "The new public platform remains correct after the legacy domain disappears and future partial supplier refreshes cannot silently damage content.",
+    "likely_rejections": ["Only sampled pages were patched", "A partial API payload erased accepted content", "Search and detail disagree", "The result was not verified publicly"],
+    "interpretation_rules": [
+      {"phrase": "לך על זה עד הסוף", "operational_meaning": "Cover the shared ingestion boundary and every affected public consumer", "acceptance_impact": "Full affected-family checks plus natural-destination proof"},
+      {"phrase": "0 טעויות", "operational_meaning": "Zero observed mismatches in the defined final sample, not an unprovable guarantee for all future inputs", "acceptance_impact": "All 20 sampled places and both search modes must pass after the final repair cycle"}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Canonical supplier data integrity",
+    "current_decision": "Reject partial content erosion and preserve the last accepted generation",
+    "next_action": "Implement the shared guard and execute focused tests",
+    "deferred_complexity": ["Production data migration", "Supplier write-back", "New database schema"],
+    "preserved_depth": ["Versioned adapters", "atomic publication", "rollback", "full reconciliation", "public parity audit"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-api-canonical-integrity-20261031.json",
+    "lesson_bundle_ids": [],
+    "no_applicable_lessons_reason": "No verified applicable lesson was loaded; missing project sources were not invented.",
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public visitor", "VII catalog synchronization worker", "VII operator"],
+  "natural_destination": "Public VII vacation and event pages and searches",
+  "facts": [
+    {"claim": "The catalog sync already stages and atomically accepts generations", "evidence": "app/lib/supplier-catalog-sync.ts and app/lib/supplier-catalog-store.ts"},
+    {"claim": "The API adapter normalizes place, gallery, unit and amenity data", "evidence": "app/lib/sergey-public-catalog-client.ts"},
+    {"claim": "The project master plan and feedback standard paths are missing", "evidence": "Filesystem checks on the exact AGENTS.md paths"}
+  ],
+  "assumptions": [
+    {"claim": "The supplier API has no explicit field-level tombstone contract for galleries, rooms or facilities", "validation": "Treat destructive absence as unsafe until a documented tombstone is available"}
+  ],
+  "in_scope": ["Field-level content integrity guard", "Vacation and event catalog sync", "Gallery, unit and facility-group preservation", "Dated and undated search parity", "20-place public sample", "Release verification"],
+  "out_of_scope": ["Production database or schema mutation", "Supplier data edits", "Secrets and environment changes", "Bookings or leads", "Legacy-site runtime dependency"],
+  "invariants": ["Existing accepted generation remains public after rejection", "PUBLIC access and environment revision 29 remain unchanged", "Bindings and public routes remain unchanged", "Additive supplier content continues to publish"],
+  "affected_family": ["vacation catalog world", "event catalog world", "public catalog API", "public place detail pages", "public discovery cards", "supplier gallery groups", "dated and undated search"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "All public vacation and event consumers use accepted normalized supplier catalog data", "source": "User request"},
+    {"id": "REQ-2", "statement": "A partial candidate cannot erase populated galleries, rooms, grouped facilities or room content", "source": "User correction and API reliability goal"},
+    {"id": "REQ-3", "statement": "Dated search preserves the ordered availability and price tiers while undated search remains complete", "source": "User search parity correction"},
+    {"id": "REQ-4", "statement": "Ten vacation and ten event places plus dated and undated searches finish with zero observed mismatches", "source": "Current user request"},
+    {"id": "REQ-5", "statement": "Only an exact verified candidate may be published and rollback identity remains available", "source": "Existing release instruction"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "failure", "setup": "An accepted entry contains galleries, rooms and grouped facilities", "action": "A candidate omits or empties one populated collection", "observable_result": "The sync is rejected before staging and the active generation remains unchanged"},
+    {"id": "AC-2", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "An accepted entry exists", "action": "A candidate preserves existing content and adds new content", "observable_result": "The candidate passes the integrity guard and may publish atomically"},
+    {"id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "A destructive candidate was rejected", "action": "Read the active catalog again", "observable_result": "The previous galleries, rooms and groups are unchanged"},
+    {"id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Search is run with dates and without dates", "action": "Inspect result tiers and inventory", "observable_result": "Dated tiers are ordered correctly and undated discovery is not narrowed to online-priced inventory"},
+    {"id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "The final candidate is running at its natural destination", "action": "Audit 10 vacation and 10 event pages and both search modes", "observable_result": "Zero observed content, gallery, unit, group, route or loading mismatches remain"},
+    {"id": "AC-6", "requirement_ids": ["REQ-5"], "kind": "rollback", "setup": "The candidate passes all local gates and duplicate-operation preflight", "action": "Publish once and verify exact release identity", "observable_result": "One Version and one Deployment succeed, public checks pass and the prior Version and Deployment remain the rollback identity"}
+  ],
+  "open_questions": [
+    {"question": "Does the supplier expose explicit deletion tombstones for individual nested fields?", "blocking": false, "resolution": "Until documented, destructive absence is quarantined rather than accepted"}
+  ],
+  "authorization_boundary": "Local implementation, testing and release preparation are authorized. No production data/schema/secret/environment mutation. Publication only through the approved Sites route after duplicate and uncertain-operation checks.",
+  "ready_for_implementation": true
+}

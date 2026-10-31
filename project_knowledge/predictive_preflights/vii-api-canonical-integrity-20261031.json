@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-api-canonical-integrity-20261031",
+  "project": "VII",
+  "task_type": "supplier API normalization and public parity",
+  "requested_outcome": "Make API-derived vacation and event content deterministic and loss-safe, then prove zero observed mismatches in a 10 plus 10 public sample and dated and undated search flows.",
+  "natural_destination": "The public VII vacation and event place pages, cards, galleries and search results.",
+  "authorization_boundary": "Local code, tests and release preparation are authorized. No production database, schema, supplier data, secrets, bindings, DNS or environment changes. Production publication requires the existing explicit release route and a clean duplicate-operation preflight.",
+  "lesson_bundle": [],
+  "no_applicable_lessons_reason": "The project master plan and feedback standard named by AGENTS.md are absent, and no accepted lesson was loaded rather than inventing project truth.",
+  "predicted_rejections": [
+    {
+      "rejection": "A partial supplier response silently erases galleries, units or grouped facilities.",
+      "prevention": "Reject content erosion before staging and keep the previously accepted generation.",
+      "acceptance_check": "Focused tests prove place and child content loss is rejected while additive changes pass."
+    },
+    {
+      "rejection": "Only one page is fixed while cards, searches or other places still use a different model.",
+      "prevention": "Apply the guard at the shared supplier catalog publication boundary and sample both worlds and both search modes.",
+      "acceptance_check": "Ten vacation and ten event destinations plus dated and undated searches pass the same parity audit."
+    },
+    {
+      "rejection": "A green unit test is reported as a successful public release.",
+      "prevention": "Require exact deployed-version evidence and public natural-destination checks after publication.",
+      "acceptance_check": "Release IDs, source and tree, HTTP checks and public sample evidence are recorded."
+    }
+  ],
+  "affected_family": ["supplier API adapter", "catalog synchronization", "vacation detail pages", "event detail pages", "supplier gallery groups", "vacation unit cards", "facility topic groups", "dated vacation search", "undated vacation search"],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "Existing accepted API normalization and catalog generation model", "source": "app/lib/sergey-public-catalog-client.ts and app/lib/supplier-catalog-sync.ts"},
+      {"label": "Observed 10 vacation and 10 event public sample", "source": "project_knowledge/release_evidence/v738-public-parity-audit-20261031.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The shared catalog content-integrity guard and focused tests are complete.",
+    "checks": ["A loss candidate is rejected", "An additive candidate is accepted", "The active generation remains unchanged after rejection"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an empty gallery replace a previously populated supplier gallery?",
+      "Can a missing room or room image disappear during a partial refresh?",
+      "Can dated search hide available places without an online price?",
+      "Can all tests pass while the deployed public version is still old?"
+    ],
+    "natural_destination_evidence": "Exact public URLs for 10 vacation and 10 event places and dated and undated search checks on the deployed candidate.",
+    "affected_family_evidence": "Focused catalog guard tests, full suite, production build and public parity report."
+  },
+  "effectiveness": {
+    "baseline": "The existing sync protects entity-count collapse but does not explicitly reject field-level content erosion for vacation and event details.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Zero observed errors in the final 20-place sample and both search modes, with content-loss fixtures blocked automatically."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}
