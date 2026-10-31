@@ -25,6 +25,15 @@ test("commercial-only and already-projected updates remain accepted", async () =
   await validateSpaEditorialCandidate([]);
 });
 
+test("an orphan supplier cover is replaced by the first approved gallery image", async () => {
+  const site = structuredClone(catalog.sites[0]);
+  const gallery = ["https://www.spaplus.co.il/gallery/working-cover.jpeg", ...(site.gallery || [])];
+  const projected = await projectSpaViiSite({ ...site,
+    image: "https://www.spaplus.co.il/gallery/orphan-cover.jpeg", gallery });
+  assert.equal(projected.image, gallery[0]);
+  assert.equal(site.image, catalog.sites[0].image);
+});
+
 test("diagnostic sanitizer rejects arbitrary field names, reasons and values and bounds history", () => {
   const raw = { total: 150, rejected: Array.from({ length: 150 }, (_, index) => ({
     supplierId: index + 1, fields: ["about", "about", "contact", "private-value", { secret: "private-value" }],

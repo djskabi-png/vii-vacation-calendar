@@ -8,6 +8,14 @@ function text(value: unknown) {
   return String(value ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
 }
 
+function withCanonicalSpaImage(site: SpaPlusSite): SpaPlusSite {
+  const gallery = Array.isArray(site.gallery) ? site.gallery.filter(Boolean) : [];
+  const image = site.image && (gallery.length === 0 || gallery.includes(site.image))
+    ? site.image
+    : gallery[0] || site.image;
+  return { ...site, image };
+}
+
 /** Narrative, hours and package terms are reviewed together; prices and media remain independent. */
 export function spaEditorialSource(site: SpaPlusSite) {
   return JSON.stringify({ id: site.id, title: text(site.title), titleEN: text(site.titleEN),
@@ -24,13 +32,14 @@ export async function spaEditorialSourceHash(site: SpaPlusSite) {
 }
 
 export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite> {
+  const canonicalSite = withCanonicalSpaImage(site);
   let copy;
   try { copy = spaViiCopy(site.id); } catch {
     const place = text(site.city) || "ישראל";
     const title = text(site.title);
     if (!title) throw new SpaEditorialReviewError({ total: 1, truncated: false,
       rejected: [{ supplierId: site.id, fields: ["title"], reason: "missing_title" }] });
-    return { ...site,
+    return { ...canonicalSite,
       shortDescription: `${title}, מתחם ספא ב${place}.`,
       about: ["לפני ההזמנה, בדקו מה כלול בחבילה, למי היא מתאימה ומהם תנאי הביטול."] };
   }
@@ -39,7 +48,7 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
   // refresh without turning a harmless upstream edit into a catalog-wide
   // editorial rejection. The source hash remains audit evidence for the
   // original review, not a publication lock on all future supplier facts.
-  return { ...site, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
+  return { ...canonicalSite, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
 }
 
 export async function validateSpaEditorialCandidate(entries: SupplierCatalogEntry[]) {
