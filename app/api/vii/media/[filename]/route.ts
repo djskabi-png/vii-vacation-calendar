@@ -12,6 +12,17 @@ function validFilename(filename: string) {
   return /^[A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp)$/i.test(filename) && files.has(filename);
 }
 
+function legacyContentType(filename: string, header: string | null) {
+  const supplied = header?.split(";")[0].trim().toLowerCase() || "";
+  if (supplied.startsWith("image/")) return supplied;
+  if (/\.(?:jpg|jpeg|jfif)$/i.test(filename)) return "image/jpeg";
+  if (/\.png$/i.test(filename)) return "image/png";
+  if (/\.webp$/i.test(filename)) return "image/webp";
+  if (/\.gif$/i.test(filename)) return "image/gif";
+  if (/\.avif$/i.test(filename)) return "image/avif";
+  return "";
+}
+
 function responseHeaders(contentType: string, source: "stored" | "migrated", etag?: string) {
   return {
     "Content-Type": contentType,
@@ -50,7 +61,7 @@ export async function GET(_request: Request, context: { params: Promise<{ filena
     if (!ALLOW_LEGACY_ORIGIN_FETCH) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "missing" } });
     const sourceUrl = `https://www.vii.co.il/gallery/${encodeURIComponent(filename)}`;
     const upstream = await fetch(sourceUrl, { headers: { Accept: "image/avif,image/webp,image/*" }, cache: "no-store", signal: AbortSignal.timeout(20_000) });
-    const contentType = upstream.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() || "";
+    const contentType = legacyContentType(filename, upstream.headers.get("Content-Type"));
     const length = Number(upstream.headers.get("Content-Length") || 0);
     if (!upstream.ok || !contentType.startsWith("image/") || length > 20_000_000) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
     const body = await upstream.arrayBuffer();
