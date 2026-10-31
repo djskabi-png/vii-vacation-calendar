@@ -10,13 +10,16 @@ const jsonTargets = [
 ];
 const sourceTargets = ["app/lib/event-landing-presentation.ts"];
 const legacyPattern = /https:\/\/(?:www\.)?vii\.co\.il\/gallery\/([A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp))/gi;
+const localPattern = /\/api\/vii\/media\/([A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp))/gi;
 const files = new Set();
 
 function replaceLegacyUrls(source) {
-  return source.replace(legacyPattern, (_match, filename) => {
+  const migrated = source.replace(legacyPattern, (_match, filename) => {
     files.add(filename);
     return `/api/vii/media/${filename}`;
   });
+  for (const match of migrated.matchAll(localPattern)) files.add(match[1]);
+  return migrated;
 }
 
 for (const target of [...jsonTargets, ...sourceTargets]) {
