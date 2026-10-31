@@ -265,7 +265,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     return {
       ...fallback,
       ...room,
-      images: normalizedMediaArray(room.images) || normalizedMediaArray(fallback.images) || [],
+      images: [...new Set([...(normalizedMediaArray(room.images) || []), ...(normalizedMediaArray(fallback.images) || [])])],
       featureGroups: nonEmptyArray(room.featureGroups) || fallback.featureGroups || [],
       features: nonEmptyArray(room.features) || fallback.features || [],
     };
@@ -274,7 +274,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     ...bundled,
     ...accepted,
   };
-  merged.images = normalizedMediaArray(accepted.images) || normalizedMediaArray(bundled.images) || [];
+  merged.images = [...new Set([...(normalizedMediaArray(accepted.images) || []), ...(normalizedMediaArray(bundled.images) || [])])];
   const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups);
   const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
   const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);

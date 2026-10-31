@@ -38,8 +38,10 @@ test("supplier-defined gallery topics remain distinct even when one image belong
 test("accepted runtime detail is normalized to immutable local media before bundled groups are merged", () => {
   assert.match(publicCatalogRead, /import \{ localGalleryMediaUrl \} from "\.\/legacy-gallery-media\.ts"/);
   assert.match(publicCatalogRead, /function normalizedMediaArray/);
-  assert.match(publicCatalogRead, /merged\.images = normalizedMediaArray\(accepted\.images\)/);
-  assert.match(publicCatalogRead, /images: normalizedMediaArray\(room\.images\)/);
+  assert.match(publicCatalogRead, /normalizedMediaArray\(accepted\.images\)/);
+  assert.match(publicCatalogRead, /normalizedMediaArray\(bundled\.images\)/);
+  assert.match(publicCatalogRead, /normalizedMediaArray\(room\.images\)/);
+  assert.match(publicCatalogRead, /normalizedMediaArray\(fallback\.images\)/);
 });
 
 test("catalog lookup and place pages share the same canonical runtime detail merge", () => {

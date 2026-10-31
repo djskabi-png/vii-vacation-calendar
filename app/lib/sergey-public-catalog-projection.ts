@@ -1,4 +1,5 @@
 import { canonicalSergeyAmenityLabel } from "./sergey-amenities.ts";
+import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 function labels(value: unknown) {
   return Array.isArray(value) ? value.map(canonicalSergeyAmenityLabel).filter(Boolean) : value;
@@ -22,6 +23,8 @@ export function projectSergeyPublicCatalogValue<T>(value: T): T {
   const source = value as Record<string, unknown>;
   const projected: Record<string, unknown> = {
     ...source,
+    ...(typeof source.image === "string" ? { image: localGalleryMediaUrl(source.image) } : {}),
+    ...(Array.isArray(source.images) ? { images: [...new Set(source.images.map(localGalleryMediaUrl).filter(Boolean))] } : {}),
     ...(Array.isArray(source.features) ? { features: labels(source.features) } : {}),
     ...(Array.isArray(source.featureGroups) ? { featureGroups: groups(source.featureGroups) } : {}),
   };
