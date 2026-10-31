@@ -50,12 +50,22 @@ test("explicit bedroom groups remain authoritative and separate", () => {
   ]);
 });
 
-test("no bedroom data produces no fabricated sleeping section", () => {
+test("ungrouped bed text without a bedroom count does not fabricate a sleeping section", () => {
   const rooms = verifiedSleepingRoomsFromProperty({
     scenario: "single",
     rooms: [{ name: "יחידה", quantity: 1, bedrooms: 0, features: ["מיטה זוגית"], featureGroups: [], images: [] }],
   });
   assert.deepEqual(rooms, []);
+});
+
+test("supplier-grouped bed facts render without fabricating a bedroom count", () => {
+  const rooms = verifiedSleepingRoomsFromProperty({
+    scenario: "single",
+    rooms: [{ name: "יחידה", quantity: 1, bedrooms: 0, features: ["מיטה זוגית"], featureGroups: [{ title: "היחידה", items: ["מיטה זוגית"] }], images: [] }],
+  });
+  assert.equal(rooms.length, 1);
+  assert.equal(rooms[0].bedroomCount, 0);
+  assert.deepEqual(rooms[0].details, ["מיטה זוגית"]);
 });
 
 test("accepted runtime rooms without a legacy features array still render sleeping details", () => {
@@ -71,7 +81,7 @@ test("accepted runtime rooms without a legacy features array still render sleepi
 
   assert.equal(rooms.length, 1);
   assert.equal(rooms[0].name, "חדר שינה אחד");
-  assert.deepEqual(rooms[0].details, ["סוגי המיטות נמסרים באישור המקום"]);
+  assert.deepEqual(rooms[0].details, ["מיטה זוגית"]);
 });
 
 test("every vacation supplier room with a verified bedroom count produces where-you-sleep content", async () => {

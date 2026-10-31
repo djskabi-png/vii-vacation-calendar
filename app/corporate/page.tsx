@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: worldAvailability["gift-card"]
       ? "מרכז אחד למנהלות רווחה, משאבי אנוש, עסקים ומועדוני צרכנות: מקומות, תוכן, ספקים, טיפולים וגיפט קארד."
       : "מרכז אחד למנהלות רווחה, משאבי אנוש, עסקים ומועדוני צרכנות: מקומות, תוכן, ספקים וטיפולים.",
-    alternates: { canonical: "/corporate/" },
+    alternates: { canonical: "/corporate" },
   };
 }
 
@@ -33,7 +33,7 @@ export default async function CorporatePage() {
   const worldAvailability = await readWorldAvailability();
   const visibleSolutions = worldAvailability["gift-card"] ? solutions : solutions.filter((solution) => solution.href !== "/gift-card");
   return <PageShell variant="corporate">
-    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה", path: "/corporate/" }])} />
+    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה", path: "/corporate" }])} />
     <main id="main-content" className="corporate-page">
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה" }]} />
       <section className="corporate-hero"><div className="shell"><div className="corporate-hero__copy"><span className="eyebrow">למנהלות רווחה, משאבי אנוש ומועדוני צרכנות</span><h1>כל מה שצריך כדי לעשות טוב לאנשים שלכם</h1><p>ממקום לאירוע ועד טיפול שמגיע למשרד. בונים חוויה, מתנה או תוכנית רווחה במסלול אחד ברור.</p><div><a className="button primary" href="#corporate-contact">בונים הצעה</a>{worldAvailability["gift-card"] ? <Link className="button secondary" href="/gift-card">גיפט קארד לעובדים</Link> : null}<FavoriteButton compact={false} id="corporate-experiences" world="corporate" name="אירועי חברה ורווחה" location="בכל הארץ" href="/corporate" meta="ימי גיבוש, רווחה ומתנות לעובדים" /></div></div><div className="corporate-hero__board"><span>מתחילים בצורך, לא בספק</span><ul><li><b>01</b>כמה אנשים?</li><li><b>02</b>מה רוצים להרגיש?</li><li><b>03</b>איפה ומתי?</li><li><b>04</b>מה התקציב?</li></ul><strong>ומכאן מרכיבים את החוויה</strong></div></div></section>

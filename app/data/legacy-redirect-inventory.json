@@ -16,8 +16,8 @@
   },
   "stats": {
     "total": 3553,
-    "redirects": 3154,
-    "gone": 399,
+    "redirects": 3148,
+    "gone": 405,
     "managedSearchRedirects": 2362,
     "managedSearchAliases": 2
   },
@@ -301,7 +301,6 @@
     "/events/sky_roof": "/events/place/event-1698",
     "/events/sol_-_hospitality_and_events_venue": "/events/place/event-871",
     "/events/sol_lian_-_vacation_and_events_complex": "/events/place/event-1568",
-    "/events/spa_sun_marie": "/events/place/event-2123",
     "/events/star_loft": "/events/place/event-2",
     "/events/star_loft_rishon_lezion": "/events/place/event-2284",
     "/events/starloft-batyam": "/events/place/event-1932",
@@ -351,7 +350,6 @@
     "/haruach_hagalilit": "/business?id=vacation-2280",
     "/hashvil_la_yam": "/business?id=vacation-2517",
     "/hcozat_galil": "/business?id=vacation-2297",
-    "/helkat_elokim": "/business?id=vacation-2261",
     "/hermes_suite": "/business?id=vacation-1950",
     "/hilat_hanof": "/business?id=vacation-11",
     "/hlom_shel_makom": "/business?id=vacation-1746",
@@ -445,7 +443,6 @@
     "/penthouse_marina": "/business?id=vacation-1883",
     "/penthouse_on_the_roof": "/business?id=vacation-742",
     "/plaza_boutique": "/business?id=vacation-28",
-    "/pnina_bamate": "/business?id=vacation-846",
     "/pninat_chen": "/business?id=vacation-2442",
     "/pninat_hamlach": "/business?id=vacation-2539",
     "/pninat_hanegev": "/business?id=vacation-2439",
@@ -2994,7 +2991,6 @@
     "/vila_la_mer?spx=eyJwYXgiOnsiNDAyNyI6W3siYWR1bHRzIjoyLCJraWRzIjowfV19LCJyYyI6MX0%3D": "/business?id=vacation-2349",
     "/vila_la_vida": "/business?id=vacation-379",
     "/vila_libilend": "/business?id=vacation-2472",
-    "/vila_m_premium": "/business?id=vacation-1887",
     "/vila_maagel_hashmash": "/business?id=vacation-2367",
     "/vila_malkat_hadarom": "/business?id=vacation-1290",
     "/vila_mamlecet_hahalomot": "/business?id=vacation-1299",
@@ -3036,7 +3032,6 @@
     "/villa_astorya": "/business?id=vacation-1120",
     "/villa_atzulat_hanof": "/business?id=vacation-1151",
     "/villa_ayder_village": "/business?id=vacation-2043",
-    "/villa_ben_gaon": "/business?id=vacation-2576",
     "/villa_beylot": "/business?id=vacation-1499",
     "/villa_bliss": "/business?id=vacation-2251",
     "/villa_blu": "/business?id=vacation-1591",
@@ -3105,7 +3100,6 @@
     "/villa_mol_yam_eilat": "/business?id=vacation-460",
     "/villa_monkata": "/business?id=vacation-210",
     "/villa_monkata?reviews=1": "/business?id=vacation-210",
-    "/villa_moriah_kinneret": "/business?id=vacation-2493",
     "/villa_nato_eilat": "/business?id=vacation-1174",
     "/villa_new_york": "/business?id=vacation-119",
     "/villa_nof_botik": "/business?id=vacation-2532",
@@ -3576,6 +3570,12 @@
     "/yela_brosh_pina",
     "/zimer_bagivaa",
     "/zimer_bonito",
-    "/zimmer_la_krame"
+    "/zimmer_la_krame",
+    "/events/spa_sun_marie",
+    "/helkat_elokim",
+    "/pnina_bamate",
+    "/vila_m_premium",
+    "/villa_ben_gaon",
+    "/villa_moriah_kinneret"
   ]
 }

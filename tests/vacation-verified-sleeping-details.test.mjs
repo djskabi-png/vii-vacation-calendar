@@ -16,10 +16,12 @@ test("vacation bedroom facts render as separate visible cards sourced from suppl
   assert.match(mapper, /Array\.isArray\(group\.items\)/);
   assert.match(mapper, /isVerifiedBedroomGroup\(group\.title\)/);
   assert.match(mapper, /if \(explicitGroups\.length\) return explicitGroups/);
-  assert.match(mapper, /if \(!bedroomCount\) return \[\]/);
+  assert.match(mapper, /if \(!bedroomCount && !groupedSleepingFacts\.length\) return \[\]/);
+  assert.match(mapper, /bedroomCount \? bedroomCountLabel\(bedroomCount\) : "סידור השינה ביחידה"/);
   assert.match(mapper, /\(room\.features \|\| \[\]\)\.filter\(isVerifiedSleepingFact\)/);
 
   assert.match(sleeping, /<h2 id="sleeping-title">איפה תשנו\?<\/h2>/);
+  assert.match(sleeping, /bedroomCount === 0 \? "סידור השינה המאומת/);
   assert.match(sleeping, /rooms\.map\(\(room\) => <article className="sleeping-card"/);
   assert.match(sleeping, /room\.details\.map/);
   assert.doesNotMatch(sleeping, /מיטה זוגית|מיטת יחיד|ספה נפתחת/);

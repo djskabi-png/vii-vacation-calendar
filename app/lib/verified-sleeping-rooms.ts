@@ -68,14 +68,17 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
 
     if (explicitGroups.length) return explicitGroups;
 
-    const bedroomCount = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
-    if (!bedroomCount) return [];
+    const groupedSleepingFacts = [...new Set((room.featureGroups || []).flatMap((group) => group.items || []).filter(isVerifiedSleepingFact))];
     const sleepingFacts = [...new Set((room.features || []).filter(isVerifiedSleepingFact))];
+    const bedroomCount = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
+    // A supplier can confirm the sleeping arrangement without declaring a
+    // bedroom count. Show those verified facts, but never invent a room.
+    if (!bedroomCount && !groupedSleepingFacts.length) return [];
     return [{
       key: `${roomIndex}-verified-bedroom-summary`,
-      name: bedroomCountLabel(bedroomCount),
+      name: bedroomCount ? bedroomCountLabel(bedroomCount) : "סידור השינה ביחידה",
       unitName: scenario === "multi" ? room.name : undefined,
-      details: sleepingFacts.length ? sleepingFacts : ["סוגי המיטות נמסרים באישור המקום"],
+      details: groupedSleepingFacts.length ? groupedSleepingFacts : sleepingFacts.length ? sleepingFacts : ["סוגי המיטות נמסרים באישור המקום"],
       galleryImage: room.images?.[0],
       bedroomCount,
       totalUnits,

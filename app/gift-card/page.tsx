@@ -9,7 +9,7 @@ import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const canonical = await serverLocalePath("/gift-card/");
+  const canonical = await serverLocalePath("/gift-card");
   const { translate } = await serverPublicCopy();
   const title = translate("גיפט קארד לחופשה, ספא וחוויות");
   const description = translate("גיפט קארד אחד לבחירת נופש, ספא, אירועים, אטרקציות ושירותים מתוך העולמות של וי.");
@@ -28,7 +28,7 @@ const worlds = [
 
 export default function GiftCardPage() {
   return <PageShell>
-    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "גיפט קארד", path: "/gift-card/" }])} />
+    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "גיפט קארד", path: "/gift-card" }])} />
     <main id="main-content" className="gift-page">
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "גיפט קארד" }]} />
       <section className="gift-hero"><div className="shell"><div><h1>גיפט קארד אחד.<br />עולם שלם של אפשרויות.</h1><p>נותנים סכום, והם בוחרים איך ליהנות ממנו: נופש, ספא, אירוע, אטרקציה או שירות שמגיע עד המקום.</p><a className="button primary" href="#gift-builder">בוחרים מתנה</a></div><div className="gift-hero__card"><span>V GIFT CARD</span><b>החופש לבחור</b><small>נופש · ספא · אירועים · חוויות</small></div></div></section>

@@ -18,9 +18,9 @@ export function VerifiedSleepingDetails({ placeName, rooms }: { placeName: strin
   return <section id="sleeping" className="sleeping-section" aria-labelledby="sleeping-title">
     <div className="sleeping-section__heading">
       <div>
-        <span className="eyebrow">חדרי השינה בתוך מקום האירוח</span>
+        <span className="eyebrow">פרטי השינה בתוך מקום האירוח</span>
         <h2 id="sleeping-title">איפה תשנו?</h2>
-        <p>{bedroomCount === 1 ? "חדר שינה אחד עם הפרטים שנמסרו על ידי המקום." : everyCardIsOneBedroom ? `${bedroomCount} חדרי שינה. כל מלבן מציג חדר שינה נפרד ואת הפרטים שנמסרו עליו.` : `${bedroomCount} חדרי שינה. כל מלבן מציג את חלוקת השינה שנמסרה על יחידת האירוח.`}</p>
+        <p>{bedroomCount === 0 ? "סידור השינה המאומת שנמסר על ידי המקום, ללא השלמת מספר חדרים שלא נמסר." : bedroomCount === 1 ? "חדר שינה אחד עם הפרטים שנמסרו על ידי המקום." : everyCardIsOneBedroom ? `${bedroomCount} חדרי שינה. כל מלבן מציג חדר שינה נפרד ואת הפרטים שנמסרו עליו.` : `${bedroomCount} חדרי שינה. כל מלבן מציג את חלוקת השינה שנמסרה על יחידת האירוח.`}</p>
       </div>
       <SliderRailControls railId={trackId} railRef={track} label="דפדוף בין חדרי השינה" className="sleeping-section__controls" />
     </div>

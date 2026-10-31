@@ -46,6 +46,9 @@ const resolveProperty = cache(async (id?: string) => {
   if (supplierId) {
     const [property] = await publicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
     if (property) return { ...property, description: supplierDisplayDescription(property) };
+    // An authoritative empty selection means the supplier was removed from
+    // the accepted generation. Do not resurrect it from the immutable bundle.
+    return undefined;
   }
   const properties = await loadProperties();
   return id ? properties.find((item) => item.slug === slug) : properties[0];

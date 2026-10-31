@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29T13:58:37.702Z",
+  "generatedAt": "2026-10-31T19:04:15.195Z",
   "scope": "Known legacy URL union: current legacy sitemap plus stored Search Console export. Place-detail URLs are excluded from the non-place migration requirement.",
   "sourceCoverage": {
     "knownLegacyUrls": 3553,
@@ -16,11 +16,11 @@
     "pagesWithCompleteBody": 2360,
     "remainingIssues": 0
   },
-  "excludedPlacePages": 399,
+  "excludedPlacePages": 405,
   "redirectInventory": {
     "total": 3553,
-    "redirects": 3154,
-    "gone": 399,
+    "redirects": 3148,
+    "gone": 405,
     "managedSearchRedirects": 2362,
     "managedSearchAliases": 2
   },

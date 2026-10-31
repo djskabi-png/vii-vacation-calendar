@@ -32,7 +32,7 @@ const resolvePlace = cache(async (id: string) => {
   const [selected] = supplierId
     ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
-  const place = selected || (await loadPlaces()).find((item) => item.slug === id);
+  const place = supplierId ? selected : (await loadPlaces()).find((item) => item.slug === id);
   if (!place) notFound();
   return place;
 });

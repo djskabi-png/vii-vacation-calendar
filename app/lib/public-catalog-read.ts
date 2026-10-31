@@ -23,10 +23,14 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "rooms") return hourly.places;
   const accepted = acceptedRuntimeCatalog.worlds[world];
   const activeIds = new Set(accepted.ids);
-  // The canonical bundled catalog now contains every active public supplier.
-  // Historical additions remain in the snapshot only as audit history and
-  // must not resurrect suppliers withdrawn from the accepted generation.
-  return sergey.places.filter((place) => place.world === world && activeIds.has(place.supplierId));
+  // Preserve the immutable, fully detailed base while layering only suppliers
+  // introduced by the newer accepted generation. Active IDs remain the final
+  // authority, so neither source can resurrect a withdrawn supplier.
+  const bySupplier = new Map<number, unknown>();
+  for (const place of [...sergey.places, ...accepted.additions]) {
+    if (place.world === world && activeIds.has(place.supplierId)) bySupplier.set(place.supplierId, place);
+  }
+  return [...bySupplier.values()];
 }
 
 /**

@@ -33,7 +33,7 @@ const resolvePlace = cache(async (id?: string) => {
     ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
   const place = selected ? { ...selected, description: supplierDisplayDescription(selected) }
-    : id ? (await loadPlaces()).find((item) => item.slug === id) : undefined;
+    : supplierId ? undefined : id ? (await loadPlaces()).find((item) => item.slug === id) : undefined;
   if (!place) notFound();
   return place;
 });

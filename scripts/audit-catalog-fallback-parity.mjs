@@ -20,7 +20,7 @@ for (const world of ["vacations", "events"]) {
   assert.ok(state && Array.isArray(state.ids) && Array.isArray(state.additions), `${world}: accepted snapshot state missing`);
   const activeIds = new Set(state.ids.map(Number));
   const fallbackIds = new Set(
-    catalog.places
+    [...catalog.places, ...state.additions]
       .filter((entry) => entry.world === world && activeIds.has(Number(entry.supplierId)))
       .map((entry) => Number(entry.supplierId)),
   );

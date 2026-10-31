@@ -20,7 +20,7 @@ test("shared listing and content pages localize canonical and social URLs", asyn
   for (const [path, route] of [
     ["app/hourly/page.tsx", "/hourly"],
     ["app/spas/page.tsx", "/spas"],
-    ["app/gift-card/page.tsx", "/gift-card/"],
+    ["app/gift-card/page.tsx", "/gift-card"],
     ["app/guides/page.tsx", "/guides"],
     ["app/attractions/page.tsx", "/attractions"],
     ["app/trails/page.tsx", "/trails"],

@@ -14,7 +14,7 @@ test("the accepted runtime identity state filters withdrawals and QQQAAA guards 
   assert.equal(new Set(keys).size, keys.length);
   assert.ok(accepted.worlds.vacations.ids.includes(2705));
   assert.match(source, /activeIds\.has\(place\.supplierId\)/);
-  assert.doesNotMatch(source, /accepted\.additions\.filter/);
+  assert.match(source, /\.\.\.sergey\.places, \.\.\.accepted\.additions/);
   assert.match(audit, /accepted public IDs missing from the emergency snapshot/);
   assert.match(audit, /withdrawn public IDs remain in the emergency snapshot/);
   assert.match(qqqaaa, /catalog-fallback-parity/);
