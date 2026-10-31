@@ -331,7 +331,10 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
   const undatedSearch = !selectedStay && !hasSearchDate(searchParams);
-  const startingPrice = undatedSearch && !resolvedAvailability && !promotional ? supplierStartingPrice(catalogStartingPrices ?? property) : null;
+  const catalogStartingPrice = !promotional ? supplierStartingPrice(catalogStartingPrices ?? property) : null;
+  const startingPrice = undatedSearch && !resolvedAvailability ? catalogStartingPrice : null;
+  const datedUnknownStartingPrice = selectedStay && resolvedAvailability?.availability === "unknown" && !hasQuotedPrice
+    ? catalogStartingPrice : null;
   const onlineBookingEligible = (undatedSearch && !promotional && !property.demoOperations?.fictional && onlineCapability) || canShowOnlineBookingBadge({
     ready: !promotional && liveLegacyAvailability.status === "ready",
     onlineBooking: resolvedAvailability?.onlineBooking,
@@ -403,7 +406,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional && (resolvedAvailability || startingPrice || (undatedSearch && property.price)) ? <div className="stay-card__commercial-summary">
-            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} language={language} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
+            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} language={language} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : null}

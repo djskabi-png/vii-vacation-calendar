@@ -30,6 +30,21 @@ test("live vacation search keeps available, unavailable and unknown distinct", a
   assert.equal(result.results[0].priceMode, "stay_total");
 });
 
+test("exact vacation search preserves confirmed availability when the supplier has no price", async () => {
+  const result = await liveSupplierSearch({
+    world: "vacations", from: "2026-11-12", till: "2026-11-15", guests: 2,
+    token: "test-token", publishedIds: new Set([738]),
+    fetchImpl: async (url) => url.endsWith("/vacations")
+      ? Response.json({ places: [] })
+      : Response.json({ sites: [{ siteID: 738, available: true, onlineBooking: false, cheapest: {} }] }),
+  });
+  assert.deepEqual(result.results[0], {
+    siteID: 738, available: true, onlineBooking: false, total: null,
+    from: "2026-11-12", till: "2026-11-15", start: null, reason: null,
+    roomCount: 1, priceGuests: null, priceMode: "stay_total",
+  });
+});
+
 test('infants are preserved separately and provider receives kids, never children',async()=>{
  const rooms=vacationRoomsFromSearchParams(new URLSearchParams('adults=2&children=1&infants=1&rooms=1'));
  assert.deepEqual(rooms,[{adults:2,children:1,infants:1}]);const calls=[];

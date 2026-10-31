@@ -114,7 +114,8 @@ test('existing discovery cache coalesces, isolates worlds and preserves only val
 test('all search card callers guard dates without changing live quotes, ranking or online evidence',()=>{
   const vacation=read('app/components/property-card.tsx'),events=read('app/events/search/page.tsx');
   assert.match(vacation,/undatedSearch = !selectedStay && !hasSearchDate\(searchParams\)/);
-  assert.match(vacation,/undatedSearch && !resolvedAvailability && !promotional \? supplierStartingPrice/);
+  assert.match(vacation,/catalogStartingPrice = !promotional \? supplierStartingPrice/);
+  assert.match(vacation,/resolvedAvailability\?\.availability === "unknown" && !hasQuotedPrice/);
   assert.equal((read('app/search/page.tsx').match(/catalogStartingPrices=\{startingPrices\[property.slug\]\}/g)||[]).length,2);
   assert.match(events,/useStartingPrices\("events", undatedSearch\)/);
   assert.match(events,/startingPrice=\{undatedSearch \? supplierStartingPrice/);

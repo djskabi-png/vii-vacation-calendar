@@ -171,12 +171,17 @@ export async function liveSupplierSearch(options: {
     const selectedStay = candidates.length
       ? candidates.map((candidate) => offeredStays.find((stay) => stay.from === candidate.from && stay.till === candidate.till)).find(Boolean) || {}
       : cheapest;
-    const resultFrom = selectedStay.from;
-    const resultTill = selectedStay.till;
+    const resultFrom = selectedStay.from ?? (candidates.length ? null : from);
+    const resultTill = selectedStay.till ?? (candidates.length ? null : till);
     const selectedTotal = selectedStay.total ?? (selectedStay === cheapest ? site.minTotal : null);
     const total = reportedAvailable && typeof selectedTotal === "number" && Number.isFinite(selectedTotal) && selectedTotal > 0 ? selectedTotal : null;
     const validStay = candidates.length ? candidateKeys.has(`${resultFrom}|${resultTill}`) : resultFrom === from && resultTill === till;
-    const available = reportedAvailable && (!validStay || total === null) ? null : reportedAvailable;
+    // Availability and price are independent supplier facts. An exact dated
+    // request may be available even when the supplier has no online price.
+    // Flexible searches still require a matching candidate identity.
+    const available = reportedAvailable === true
+      ? validStay ? true : null
+      : reportedAvailable;
     const selectedRooms = Array.isArray(selectedStay.rooms) ? selectedStay.rooms.map(object) : [];
     const priceGuests = selectedRooms.length ? selectedRooms.reduce((sum, room) => {
       const roomID = Number(room.roomID);

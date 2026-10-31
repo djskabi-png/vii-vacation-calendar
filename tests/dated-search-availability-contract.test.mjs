@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { hasConfirmedDatedAvailability, hasConfirmedEventAvailability } from "../app/lib/dated-availability-eligibility.ts";
+import { canShowDatedSearchResult, datedSearchResultTier, hasConfirmedDatedAvailability, hasConfirmedEventAvailability } from "../app/lib/dated-availability-eligibility.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -18,6 +18,20 @@ test("vacation dated eligibility accepts only an exact positive availability pro
   ]) assert.equal(hasConfirmedDatedAvailability(state, selection), false);
 });
 
+test("dated vacation discovery keeps unknown candidates, excludes unavailable, and ranks the four commercial tiers", () => {
+  const selection = { from: "2026-11-10", till: "2026-11-12" };
+  const state = (availability) => ({ status: "ready", quote: { ...selection, availability } });
+  assert.equal(canShowDatedSearchResult(state("available"), selection), true);
+  assert.equal(canShowDatedSearchResult(state("unknown"), selection), true);
+  assert.equal(canShowDatedSearchResult(state("unavailable"), selection), false);
+  assert.deepEqual([
+    datedSearchResultTier({ availability: "unknown", hasPrice: false }),
+    datedSearchResultTier({ availability: "available", hasPrice: false }),
+    datedSearchResultTier({ availability: "unknown", hasPrice: true }),
+    datedSearchResultTier({ availability: "available", hasPrice: true }),
+  ].sort((a, b) => a - b), [0, 1, 2, 3]);
+});
+
 test("event dated eligibility rejects unknown, unavailable and zero-price offers", () => {
   assert.equal(hasConfirmedEventAvailability({ available: true, total: 900, from: "2026-11-10" }), true);
   assert.equal(hasConfirmedEventAvailability({ available: true, total: 0, from: "2026-11-10" }), false);
@@ -27,7 +41,7 @@ test("event dated eligibility rejects unknown, unavailable and zero-price offers
 
 test("all dated result families fail closed instead of falling back to the ordinary catalog", async () => {
   const vacation = await read("app/search/page.tsx");
-  assert.match(vacation, /\.filter\(\(property\) => confirmedForSelectedStay\(property\)\)/);
+  assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
   assert.match(vacation, /selectedStay && !onlineOnly/);
 
   const events = await read("app/events/search/page.tsx");

@@ -24,7 +24,8 @@ test("result cards support verified price and all availability states", async ()
   assert.match(card, /hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0/);
   assert.match(card, /undatedSearch = !selectedStay && !hasSearchDate\(searchParams\)/);
   assert.match(card, /!promotional && \(resolvedAvailability \|\| startingPrice \|\| \(undatedSearch && property\.price\)\)/);
-  assert.match(card, /undatedSearch && !resolvedAvailability && !promotional \? supplierStartingPrice/);
+  assert.match(card, /catalogStartingPrice = !promotional \? supplierStartingPrice/);
+  assert.match(card, /datedUnknownStartingPrice = selectedStay && resolvedAvailability\?\.availability === "unknown"/);
   assert.doesNotMatch(card, /: copy\.datePrice/);
   assert.match(card, /פנו למקום לקבלת הצעת מחיר/);
   assert.match(card, /פנוי בתאריכים שבחרת/);

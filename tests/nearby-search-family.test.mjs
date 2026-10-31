@@ -47,13 +47,13 @@ test("event fallback reuses all hard predicates and updates on every filter", as
   assert.match(source, /NearbySearchNotice dated=\{Boolean\(eventFrom\)\}/);
 });
 
-test("vacation fallback keeps amenities, live price and unavailability eligibility", async () => {
+test("vacation fallback keeps amenities, live price and excludes explicit unavailability", async () => {
   const source = await read("app/search/page.tsx");
   const nearby = source.slice(source.indexOf("const nearbyRecovery"), source.indexOf("const resultSet"));
   assert.match(nearby, /mapCandidates\.filter/);
   assert.match(nearby, /liveAvailabilityFor\(property\.slug\)/);
   assert.match(nearby, /price < minPrice \|\| price > maxPrice/);
-  assert.match(nearby, /confirmedForSelectedStay\(property\)/);
+  assert.match(nearby, /eligibleForSelectedStay\(property\)/);
   assert.match(nearby, /!selectedStay && !flexibleSearch/);
   assert.match(source, /NearbySearchNotice dated=\{Boolean\(selectedStay \|\| flexibleSearch\)\}/);
 });

@@ -14,7 +14,9 @@ test("dated vacation results do not manufacture availability or a dated price", 
   assert.match(card, /if \(legacyAvailabilitySourceFor\(property\.slug\)\) return null;/);
   assert.match(card, /undatedSearch = !selectedStay && !hasSearchDate\(searchParams\)/, "a date intent, including partial or flexible dates, must suppress static starting prices");
   assert.match(card, /\(undatedSearch && property\.price\)/, "a static from-price must not be shown as the selected date price");
-  assert.match(card, /undatedSearch && !resolvedAvailability && !promotional \? supplierStartingPrice/, "supplier starting prices cannot replace live quotes or appear on promotional cards");
+  assert.match(card, /catalogStartingPrice = !promotional \? supplierStartingPrice/, "promotional cards cannot inherit supplier starting prices");
+  assert.match(card, /resolvedAvailability\?\.availability === "unknown" && !hasQuotedPrice/, "a dated catalog price is allowed only when exact-date availability remains unknown and no quote exists");
+  assert.match(card, /datedUnknownStartingPrice \? <CatalogStartingPrice amount=\{datedUnknownStartingPrice\}/, "the catalog amount remains explicitly rendered as a starting price, never as a dated quote");
   assert.match(card, /בודקים זמינות ומחיר/);
   assert.match(card, /לא הצלחנו לאמת זמינות ומחיר כרגע/);
 });

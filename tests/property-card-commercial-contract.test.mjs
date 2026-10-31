@@ -30,7 +30,8 @@ test("recommended cards preserve price scope and direct phone uses separate clic
   assert.match(card, /promotional = false/);
   assert.match(card, /!promotional && resolvedAvailability \? <div className="stay-card__date-status"/);
   assert.match(card, /!promotional && \(resolvedAvailability \|\| startingPrice \|\| \(undatedSearch && property\.price\)\) \? <div className="stay-card__commercial-summary">/);
-  assert.match(card, /undatedSearch && !resolvedAvailability && !promotional \? supplierStartingPrice/);
+  assert.match(card, /catalogStartingPrice = !promotional \? supplierStartingPrice/);
+  assert.match(card, /datedUnknownStartingPrice \? <CatalogStartingPrice amount=\{datedUnknownStartingPrice\}/);
   assert.match(card, /resolvedAvailability \? <span[^]*? : startingPrice \? <CatalogStartingPrice/);
   assert.match(card, /const cardMode = promotional \? "promotional" : resolvedAvailability \? "dated" : "result"/);
   assert.match(card, /!promotional && whatsapp \? <WhatsAppLeadButton/);

@@ -11,7 +11,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { SupplierCapacityNotice } from "../components/supplier-capacity-notice";
 import { UnavailablePlaceNotice } from "../components/unavailable-place-notice";
 import { PageShell } from "../components/page-shell";
-import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
+import { availabilityDemoSlugs, isAvailabilityDemoSearch, PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { type LegacyAvailabilityState, useLegacyAvailabilityBatch, useLegacyFlexibleAvailabilityBatch } from "../components/use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
@@ -51,7 +51,7 @@ import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-fil
 import { prioritizeOnlineFirst } from "../lib/vacation-online-first";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { RegionalAvailability } from "../components/regional-availability";
-import { hasConfirmedDatedAvailability } from "../lib/dated-availability-eligibility";
+import { canShowDatedSearchResult, datedSearchResultTier } from "../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
@@ -643,12 +643,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (!quote) return selectedStay;
     return { from: quote.from, till: quote.till, guests };
   };
-  const hasVerifiedAvailablePrice = (property: typeof properties[number]) => {
-    const quote = liveAvailabilityFor(property.slug)?.quote;
-    return quote?.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0;
-  };
-  const confirmedForSelectedStay = (property: Property) => !selectedStay
-    || hasConfirmedDatedAvailability(liveAvailabilityFor(property.slug), selectedStay);
+  const eligibleForSelectedStay = (property: Property) => !selectedStay
+    || canShowDatedSearchResult(liveAvailabilityFor(property.slug), selectedStay);
   const legacyAvailabilityPending = Boolean(selectedStay) && Object.values(liveAvailabilityBySlug).some((state) => state.status === "loading");
   const flexibleAvailabilityPending = Boolean(flexibleSearch) && flexibleSupplierSearch.status === "loading";
   const flexibleAvailabilityError = Boolean(flexibleSearch) && flexibleSupplierSearch.status === "error";
@@ -671,7 +667,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (landing.area ? area === landing.area : area === "הכל"));
     const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
     const matches = mapCandidates
-      .filter((property) => confirmedForSelectedStay(property))
+      .filter((property) => eligibleForSelectedStay(property))
       .filter((property) => !onlineOnly || matchesOnline(property))
       .filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area))
       .filter((property) => {
@@ -689,14 +685,23 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         return Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
           || discoverySeedCompare(a.slug, b.slug, `${documentSeed}:vacation-search`);
       }
-      const liveRank = (property: typeof properties[number]) => {
-        if (!selectedStay || !/^vacation-\d+$/.test(property.slug) || supplierSearch.status !== "ready") return 1;
-        const result = supplierSearch.results[Number(property.slug.slice(9))];
-        return result?.available === true ? 0 : result?.available === false ? 2 : 1;
-      };
-      const availabilityPriority = liveRank(a) - liveRank(b) || Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
-        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
-      if (availabilityPriority) return availabilityPriority;
+      if (selectedStay) {
+        const datedTier = (property: typeof properties[number]) => {
+          const quote = liveAvailabilityFor(property.slug)?.quote;
+          const availability = quote?.availability || "unknown";
+          const hasPrice = availability === "available"
+            ? typeof quote?.nightlyPrice === "number" && quote.nightlyPrice > 0
+            : Boolean(supplierStartingPrice(startingPrices[property.slug] ?? property));
+          return datedSearchResultTier({ availability, hasPrice });
+        };
+        const tierPriority = datedTier(a) - datedTier(b);
+        if (tierPriority) return tierPriority;
+        const availablePriceTier = datedTier(a) === 0;
+        if (availablePriceTier) {
+          const onlinePriority = Number(!matchesOnline(a)) - Number(!matchesOnline(b));
+          if (onlinePriority) return onlinePriority;
+        }
+      }
       if (sort === "recommended" && availabilityDemoActive) {
         const aDemoIndex = availabilityDemoSlugs.indexOf(a.slug);
         const bDemoIndex = availabilityDemoSlugs.indexOf(b.slug);
@@ -708,7 +713,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       return compareVacationProperties(a, b, sort, properties, documentSeed);
     };
-    return prioritizeOnlineFirst(matches, property => matchesOnline(property), compareMatches);
+    return selectedStay
+      ? [...matches].sort(compareMatches)
+      : prioritizeOnlineFirst(matches, property => matchesOnline(property), compareMatches);
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -726,7 +733,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         if (typeof price !== "number" || price < minPrice || price > maxPrice) return false;
       }
       if (!selectedStay && !flexibleSearch) return true;
-      if (selectedStay) return confirmedForSelectedStay(property);
+      if (selectedStay) return eligibleForSelectedStay(property);
       return liveAvailabilityFor(property.slug)?.quote?.availability !== "unavailable";
     });
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (property) => property.slug });
@@ -769,7 +776,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, onlineOnly, onlineCheckPending, datedAvailabilityPending, datedAvailabilityError, undatedCapabilityUnavailable, flexibleSearch, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
 
   const draftCandidates = properties.filter((property) => {
-    if (selectedStay && shownFilters.guests === guests && !confirmedForSelectedStay(property)) return false;
+    if (selectedStay && shownFilters.guests === guests && !eligibleForSelectedStay(property)) return false;
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
