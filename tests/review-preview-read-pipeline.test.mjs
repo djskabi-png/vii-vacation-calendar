@@ -108,10 +108,11 @@ test('preview fallbacks pin generation across publication and never resurrect mi
 test('public detail wrapper permits bundled fallback only before first accepted generation', async () => {
   const source = stripTypeScriptTypes((await readFile(new URL('../app/lib/public-catalog-read.ts', import.meta.url), 'utf8')).replace(/^import .*;\r?$/gm, ''));
   let entry; let activeRunId = null; let entryReads = 0; let stateReads = 0;
-  const readDetail = new Function('sergeyDetails', 'publicCatalogDatabase', 'readSupplierCatalogEntry', 'readSupplierCatalogState',
+  const readDetail = new Function('sergeyDetails', 'publicCatalogDatabase', 'readSupplierCatalogEntry', 'readSupplierCatalogState', 'projectSergeyPublicCatalogValue',
     source.replace(/export /g, '') + '; return publicCatalogDetail;')(
       { details: { 'vacation-1': { name: 'bundled' } } }, async () => ({ database: {} }),
-      async () => { entryReads++; return entry; }, async () => { stateReads++; return activeRunId ? { activeRunId } : null; });
+      async () => { entryReads++; return entry; }, async () => { stateReads++; return activeRunId ? { activeRunId } : null; },
+      (value) => value);
   assert.deepEqual(await readDetail('vacations', 1), { name: 'bundled' });
   activeRunId = 'live';
   assert.equal(await readDetail('vacations', 1), null);

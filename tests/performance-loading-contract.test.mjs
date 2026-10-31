@@ -268,7 +268,7 @@ test("public business reads fail soft to the accepted bundled snapshot under run
   assert.match(catalog, /entries = selected \?\? fallbackEntries/);
   assert.match(catalog, /public_catalog_detail_fallback/);
   assert.match(catalog, /public_catalog_details_fallback/);
-  assert.match(catalog, /return bundledDetail/);
+  assert.match(catalog, /return projectSergeyPublicCatalogValue\(bundledDetail\)/);
   assert.match(business, /managedTrails\(trails\)\.catch\(\(\) => trails\)/);
   assert.match(business, /managedDiscoveryItems\(fallbackAttractions, "attractions"\)\.catch\(\(\) => fallbackAttractions\)/);
 });
