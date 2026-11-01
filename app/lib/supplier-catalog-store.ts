@@ -370,13 +370,9 @@ export async function readSupplierCatalogDashboard(db: D1Database) {
   const runs = await db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
       finished_at AS finishedAt, before_count AS beforeCount, candidate_count AS candidateCount,
       added_count AS addedCount, changed_count AS changedCount, removed_count AS removedCount,
-      error_code AS errorCode, diagnostics_json AS diagnosticsJson
+      error_code AS errorCode
       FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>();
-  return { states: states.results, runs: runs.results.map(({ diagnosticsJson, ...run }) => {
-    let diagnostics: CatalogSyncDiagnostics | undefined;
-    try { diagnostics = sanitizeCatalogDiagnostics(JSON.parse(String(diagnosticsJson))); } catch { /* Old runs have no diagnostics. */ }
-    return { ...run, ...(diagnostics ? { diagnostics } : {}) };
-  }) };
+  return { states: states.results, runs: runs.results };
 }
 
 export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld,
