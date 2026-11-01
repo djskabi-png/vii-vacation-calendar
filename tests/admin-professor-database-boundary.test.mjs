@@ -20,7 +20,14 @@ test("Professor separates report reads from state writes and falls back only for
   assert.match(route, /const report = await reportingDatabase\(\)/);
   assert.match(route, /answerProfessor\(stateDb, session\.email, question, report\.database\)/);
   assert.match(engine, /answerProfessor\(db: D1Database, email: string, question: string, reportingDb: D1Database = db\)/);
-  assert.match(engine, /try \{ return await metricSnapshot\(reportingDb, range, intent\); \}/);
-  assert.match(engine, /return metricSnapshot\(db, range, intent\)/);
+  assert.match(engine, /try \{ return await metricSnapshot\(reportingDb, range, intent, \{ bizDb: db \}\); \}/);
+  assert.match(engine, /return metricSnapshot\(db, range, intent, \{ bizDb: db \}\)/);
+  assert.match(engine, /ranking\(reportingDb, db, intent\.range, intent, places\)/);
+  assert.match(engine, /ranking\(db, db, intent\.range, intent, places\)/);
   assert.match(engine, /INSERT INTO vii_professor_questions_v1/);
+});
+
+test("Professor POST accepts the real forwarded production origin", () => {
+  assert.match(route, /requestOriginMatches\(request\)/);
+  assert.doesNotMatch(route, /new URL\(request\.url\)\.origin/);
 });

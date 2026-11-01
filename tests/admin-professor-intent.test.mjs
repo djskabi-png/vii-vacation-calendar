@@ -87,12 +87,12 @@ test("Professor understands worlds, rankings and equivalent previous periods", (
   assert.equal(intent.ranking, true);
   assert.deepEqual(intent.metrics, ["pageViews"]);
   assert.deepEqual(intent.range, { from: "2026-09-27", till: "2026-10-26", label: "30 הימים האחרונים" });
-  assert.deepEqual(intent.compareRange, { from: "2026-08-28", till: "2026-09-26", label: "התקופה הקודמת, 2026-08-28 עד 2026-09-26" });
+  assert.deepEqual(intent.compareRange, { from: "2026-08-28", till: "2026-09-26", label: "התקופה הקודמת, 28.08.2026 עד 26.09.2026" });
 });
 
 test("Professor accepts explicit Israeli and ISO date ranges", () => {
-  assert.deepEqual(professorRange("מ־01/09/2026 עד 30/09/2026", now), { from: "2026-09-01", till: "2026-09-30", label: "2026-09-01 עד 2026-09-30" });
-  assert.deepEqual(professorRange("2026-08-10 עד 2026-08-12", now), { from: "2026-08-10", till: "2026-08-12", label: "2026-08-10 עד 2026-08-12" });
+  assert.deepEqual(professorRange("מ־01/09/2026 עד 30/09/2026", now), { from: "2026-09-01", till: "2026-09-30", label: "01.09.2026 עד 30.09.2026" });
+  assert.deepEqual(professorRange("2026-08-10 עד 2026-08-12", now), { from: "2026-08-10", till: "2026-08-12", label: "10.08.2026 עד 12.08.2026" });
 });
 
 test("Professor refuses to invent causal explanations", () => {
@@ -116,6 +116,36 @@ test("Professor requests clarification for equally plausible businesses", () => 
 test("plain Hebrew calls means Biz Maskyoo calls instead of an all-metrics fallback", () => {
   const intent = parseProfessorIntent("כמה שיחות היו החודש לכולם?", places, now);
   assert.deepEqual(intent.metrics, ["bizCalls"]);
+});
+
+test("Professor understands common business language for leads, sales and money", () => {
+  assert.deepEqual(parseProfessorIntent("כמה לידים היו החודש", places, now).metrics,
+    ["phone", "whatsapp", "bizCalls", "bizWhatsapp"]);
+  assert.deepEqual(parseProfessorIntent("כמה מכירות וכמה כסף היו החודש", places, now).metrics,
+    ["bizOrders", "bizRevenue"]);
+});
+
+test("an explicit Biz bookings question does not add unrelated V bookings", () => {
+  assert.deepEqual(parseProfessorIntent("כמה הזמנות Biz היו החודש", places, now).metrics,
+    ["bizOrders", "bizRevenue"]);
+});
+
+test("Professor reads Biz cache from the operational database and leaves the reporting database for V data", async () => {
+  let reportingQueries = 0;
+  const reportingDb = { prepare() { reportingQueries += 1; throw new Error("Biz cache must not use reporting DB"); } };
+  const bizDb = { prepare(sql) {
+    return { bind() { return { async first() {
+      if (sql.includes("vii_biz_conversion_coverage_v1")) return { businesses: 7, savedAt: "2026-10-26T16:17:40.000Z" };
+      if (sql.includes("SUM(CASE WHEN source = 'maskyoo'")) return { calls: 19, whatsapp: 4 };
+      if (sql.includes("SELECT COUNT(*) AS orders")) return { orders: 2, revenue: 1500 };
+      throw new Error(`unexpected query: ${sql}`);
+    } }; } };
+  } };
+  const intent = parseProfessorIntent("כמה שיחות היו החודש", [], now);
+  const snapshot = await metricSnapshot(reportingDb, intent.range, intent, { bizDb, now });
+  assert.equal(snapshot.metrics.bizCalls, 19);
+  assert.equal(snapshot.bizRows, 7);
+  assert.equal(reportingQueries, 0);
 });
 
 test("natural ranking question about calls ranks Biz Maskyoo calls", () => {
@@ -149,6 +179,6 @@ test("the public comparison suggestion always requests the equivalent previous p
   assert.deepEqual(intent.compareRange, {
     from: "2026-09-05",
     till: "2026-09-30",
-    label: "התקופה הקודמת, 2026-09-05 עד 2026-09-30",
+    label: "התקופה הקודמת, 05.09.2026 עד 30.09.2026",
   });
 });
