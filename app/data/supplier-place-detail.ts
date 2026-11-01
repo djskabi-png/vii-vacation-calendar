@@ -1,4 +1,5 @@
 import source from "./sergey-place-details.json" with { type: "json" };
+import legacyAgreements from "./legacy-place-agreements.json" with { type: "json" };
 import { supplierToken } from "../lib/vii-supplier-token.ts";
 import { supplierDisplayDescription } from "./supplier-display-text.ts";
 import catalog from "./sergey-public-catalog.json" with { type: "json" };
@@ -24,7 +25,7 @@ export type SupplierPlaceDetail = {
   galleryGroups?: Array<{ title: string; images: string[] }>;
   summary: string;
   previewText?: string;
-  policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
+  policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string; cancellationTerms?: string };
   rooms: Array<{ id?: number; name: string; quantity: number; guests: number; maxAdults?: number; maxKids?: number; showKidsAndAdults?: boolean; basisGuests?: number; roomType?: string; bedrooms: number; builtArea?: number; totalArea?: number; area?: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
@@ -33,7 +34,10 @@ export type SupplierPlaceDetail = {
 };
 
 export function supplierPlaceDetail(slug: string): SupplierPlaceDetail | undefined {
-  return (source.details as Record<string, SupplierPlaceDetail>)[slug];
+  const detail = (source.details as Record<string, SupplierPlaceDetail>)[slug];
+  if (!detail) return undefined;
+  const cancellationTerms = (legacyAgreements.policies as Record<string, string>)[slug]?.trim();
+  return cancellationTerms ? { ...detail, policy: { ...detail.policy, cancellationTerms } } : detail;
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -68,6 +72,12 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const images = sergeyPlaceImages(detail.galleries);
     if (!images.length) return fallback;
     const policy = record(detail.policy);
+    const cancellationTerms = plain(policy.cancellationTerms)
+      || plain(policy.cancellation)
+      || plain(policy.agreement1)
+      || plain(detail.agreement1)
+      || fallback.policy.cancellationTerms
+      || "";
     const reviews = record(detail.reviews);
     const rooms = Array.isArray(detail.rooms) ? detail.rooms : [];
     const reviewList = Array.isArray(reviews.list) ? reviews.list : [];
@@ -106,6 +116,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         checkOut: typeof policy.checkOut === "string" ? policy.checkOut : "",
         checkOutSat: typeof policy.checkOutSat === "string" ? policy.checkOutSat : "",
         remarks: plain(policy.remarks),
+        ...(cancellationTerms ? { cancellationTerms } : {}),
       },
       rooms: rooms.length ? rooms.map((value) => {
         const room = record(value);

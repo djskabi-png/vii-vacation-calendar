@@ -14,7 +14,7 @@ import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { supplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { nearbyTrails, trails } from "../data/trail-data";
 import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
 import type { SpaPlusSite } from "../data/spaplus";
@@ -104,7 +104,10 @@ export default async function Page({ searchParams }: Props) {
   // Public pages render from the accepted platform snapshot. Supplier refreshes
   // belong to the ingestion pipeline and must never sit on the visitor's
   // critical path or turn a slow upstream API into a slow business page.
-  const supplierDetail = acceptedDetail || undefined;
+  const agreementDetail = supplierPlaceDetail(property.slug);
+  const supplierDetail = acceptedDetail
+    ? { ...acceptedDetail, policy: { ...acceptedDetail.policy, ...(agreementDetail?.policy.cancellationTerms ? { cancellationTerms: agreementDetail.policy.cancellationTerms } : {}) } }
+    : agreementDetail;
   const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
   const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
