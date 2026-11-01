@@ -26,7 +26,7 @@ export function searchFilterValueLabel(key: string, value: string | number | boo
     if (key === "noise") return "ללא הגבלת רעש";
     return "כן";
   }
-  if (typeof value === "number") return key === "maxPrice" ? `${value.toLocaleString("he-IL")} ₪` : value.toLocaleString("he-IL");
+  if (typeof value === "number") return key === "maxPrice" ? `₪ ${value.toLocaleString("he-IL")}` : value.toLocaleString("he-IL");
   return value.split(",").map((entry) => values[entry.trim()] || entry.trim()).filter(Boolean).join(" · ");
 }
 

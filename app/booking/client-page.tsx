@@ -183,8 +183,8 @@ export default function BookingPageClient(props: Props) {
   </nav>;
   const vacationPriceSummary = pricing ? <div className="booking-price-breakdown" aria-label={labels.total}>
     <span>{labels.total}</span>
-    <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
-    <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })} ₪ {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
+    <strong><bdi dir="ltr">₪&nbsp;{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)}</bdi></strong>
+    <small><bdi dir="ltr">₪&nbsp;{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })}</bdi> {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
     <small>{pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""}{guests} {labels.guests}</small>
     {props.includedGuests && props.includedGuests > 0 ? <small>{language === "he" ? `המחיר כולל עד ${props.includedGuests} אורחים` : `${props.includedGuests} guests included in the price`}</small> : null}
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
@@ -387,7 +387,7 @@ export default function BookingPageClient(props: Props) {
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
       <h1 id="booking-phone-title">{supplierPhoneOnly ? "התאריכים פנויים, ההזמנה בטלפון" : supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
-      <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ₪ ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
+      <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ₪ ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
       {supplierPhoneLink(props.phone) ? <DirectPhoneLink phone={props.phone} placeName={props.placeName} className="phone-reveal phone-reveal--visible" tracking={{ placeId: props.placeId, placeName: props.placeName, world: props.world, placement: "booking_phone_fallback" }} /> : <p role="status">{translate("מספר טלפון אינו זמין כרגע")}</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnUrl}>{returnCopy.business}</Link></span>
     </section>
@@ -407,7 +407,7 @@ export default function BookingPageClient(props: Props) {
           <span>{arrival}{departure ? " עד " + departure : ""}</span>
           <span>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים"}</span>
           {usesSpaPayment ? <span>{paymentMethodLabel}</span> : null}
-          <b>{supplierSiteID && currentTotal ? `${currentTotal.toLocaleString("he-IL")} ₪` : props.price}</b>
+          <b>{supplierSiteID && currentTotal ? `₪ ${currentTotal.toLocaleString("he-IL")}` : props.price}</b>
           {reference ? <code dir="ltr">{reference}</code> : null}
         </div>
         <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>

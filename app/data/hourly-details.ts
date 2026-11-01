@@ -49,8 +49,8 @@ export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlac
     ...(place?.rooms.flatMap((room) => room.features) || []),
   ]));
   const rates = place?.rooms.flatMap((room) => room.rates.flatMap((rate) => [
-    ...(rate.weekday ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · יום חול`, price: `${rate.weekday} ₪` }] : []),
-    ...(rate.weekend ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · סוף שבוע`, price: `${rate.weekend} ₪` }] : []),
+    ...(rate.weekday ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · יום חול`, price: `₪ ${rate.weekday}` }] : []),
+    ...(rate.weekend ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · סוף שבוע`, price: `₪ ${rate.weekend}` }] : []),
   ])) || [];
   return {
     about: [item.description],

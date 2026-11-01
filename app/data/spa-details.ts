@@ -46,7 +46,7 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
     id: String(pack.id),
     title: pack.title,
     audience: spaPlusAudience(pack),
-    price: `${pack.price.toLocaleString("he-IL")} ₪`,
+    price: `₪ ${pack.price.toLocaleString("he-IL")}`,
     duration: pack.durationMinutes ? `${pack.durationMinutes} דקות` : undefined,
     durationMinutes: pack.durationMinutes,
     people: pack.people,

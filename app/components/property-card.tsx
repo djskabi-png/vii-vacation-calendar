@@ -166,8 +166,8 @@ function localizedDate(value: string, language: SiteLanguage) {
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locales[language], { day: "numeric", month: "short" }).format(date);
 }
 
-function PriceValue({ amount, language }: { amount: string; language: SiteLanguage }) {
-  return <bdi className="stay-card__price-value" dir={language === "he" ? "rtl" : "ltr"} aria-label={`${amount} \u20AA`}><span className="stay-card__price-number">{amount}</span><span className="stay-card__currency" aria-hidden="true">{"\u20AA"}</span></bdi>;
+function PriceValue({ amount }: { amount: string }) {
+  return <bdi className="stay-card__price-value" dir="ltr" aria-label={`\u20AA ${amount}`}><span className="stay-card__currency" aria-hidden="true">{"\u20AA"}</span><span className="stay-card__price-number">{amount}</span></bdi>;
 }
 
 function quoteForStay(property: Property, selectedStay: SelectedStay | null): (ListingDateQuote & { illustrative?: boolean }) | null {
@@ -402,12 +402,12 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           {resolvedAvailability.availability === "available" && (onlineBookingEligible || resolvedAvailability.onlineBooking === false) ? <small>{onlineBookingEligible ? { he: "אפשר להזמין באתר", en: "Book online", ru: "Бронирование на сайте", fr: "Réservation en ligne" }[language] : { he: "להזמנה מתקשרים למקום", en: "Call the property to book", ru: "Для бронирования позвоните", fr: "Réservation par téléphone" }[language]}</small> : null}
           {resolvedAvailability.alternatives?.length ? <div className="stay-card__alternatives">
             <strong>{demoScenarioCopy[language].alternatives}</strong>
-            <div>{resolvedAvailability.alternatives.map((alternative) => <span key={alternative.from}><small>{localizedDate(alternative.from, language)} {copy.to} {localizedDate(alternative.till, language)}</small><b><PriceValue amount={alternative.nightlyPrice.toLocaleString()} language={language} /></b></span>)}</div>
+            <div>{resolvedAvailability.alternatives.map((alternative) => <span key={alternative.from}><small>{localizedDate(alternative.from, language)} {copy.to} {localizedDate(alternative.till, language)}</small><b><PriceValue amount={alternative.nightlyPrice.toLocaleString()} /></b></span>)}</div>
           </div> : null}
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional && (resolvedAvailability || startingPrice || (undatedSearch && property.price)) ? <div className="stay-card__commercial-summary">
-            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} language={language} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
+            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : null}

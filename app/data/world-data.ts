@@ -77,7 +77,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
       ...(site.gallery || []),
       ...site.packages.map((pack) => pack.image),
     ].filter((image): image is string => Boolean(image)))],
-    priceLabel: prices.length ? `החל מ־${Math.min(...prices).toLocaleString("he-IL")} ₪` : undefined,
+    priceLabel: prices.length ? `החל מ־₪ ${Math.min(...prices).toLocaleString("he-IL")}` : undefined,
     phone: site.phone || undefined,
     sourceUrl: site.bookingUrl || undefined,
     sourceName: "ספא פלוס",
@@ -105,7 +105,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
     features: features.slice(0, 12),
     image: place.images[0],
     images: place.images,
-    priceLabel: startingPrice ? `שעה החל מ־${startingPrice} ₪` : undefined,
+    priceLabel: startingPrice ? `שעה החל מ־₪ ${startingPrice}` : undefined,
     phone: supplierContactNumber(place.phone),
     whatsapp: supplierContactNumber(place.whatsapp),
     rating: typeof place.score === "number" && place.score > 0 ? place.score : undefined,
@@ -120,7 +120,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
 export const hourlyPlaces: DiscoveryItem[] = hourlyPlacesFromCatalog(hourlyCatalog.places);
 
 const curatedProviderProfiles: DiscoveryItem[] = [
-  { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png", "/media/providers/masu/masu-logo.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
+  { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png", "/media/providers/masu/masu-logo.png"], priceLabel: "החל מ-₪ 340", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
   { id: "maor-natan", world: "providers", name: "מאור נתן", location: "לפי מיקום האירוע", area: "שף פרטי וקייטרינג", description: "ארוחות שף פרטיות, אירוח מלא וקייטרינג בוטיק שמגיעים לבית או למקום הנופש.", features: ["שף פרטי", "אירוח מלא", "תפריט מותאם"], image: "/media/providers/maor-natan-1.jpg", images: ["/media/providers/maor-natan-1.jpg", "/media/providers/maor-natan-2.jpg", "/media/providers/maor-natan-3.jpg"], priceLabel: "מחיר לפי תפריט והרכב", sourceUrl: "https://www.maornatan.co.il/", sourceName: "האתר הרשמי של מאור נתן", indexable: true },
   { id: "nissan-mukhtar", world: "providers", name: "ניסן מוכתר", location: "כל הארץ", area: "שף פרטי", description: "ארוחות שף בבית או בווילה, עם תפריטים בשריים וחלביים לאירועים פרטיים ועסקיים.", features: ["בשרי או חלבי", "אירועים קטנים", "הגשה במקום"], image: "/media/providers/nissan-mukhtar-1.jpg", images: ["/media/providers/nissan-mukhtar-1.jpg", "/media/providers/nissan-mukhtar-2.jpg", "/media/providers/nissan-mukhtar-3.jpg"], priceLabel: "מחיר לפי תפריט והרכב", sourceUrl: "https://www.chef-b.co.il/", sourceName: "האתר הרשמי של ניסן מוכתר", indexable: true },
   { id: "amit-mitrani-magic-man", world: "providers", name: "עמית מיטרני, Magic Man", searchTerms: ["עמית מיטרני", "מג׳יק מן", "Magic Man", "קוסם", "אמן חושים"], location: "כל הארץ", area: "אמן חושים וקוסם", description: "מופעי קסמים ואמנות חושים לילדים, למשפחות, לאירועים עסקיים ולקבלות פנים, בהתאמה לקהל ולאופי האירוע.", features: ["אמן חושים", "מופע לכל המשפחה", "אירועים עסקיים"], image: "/media/providers/amit-mitrani/amit-mitrani-1.webp", images: ["/media/providers/amit-mitrani/amit-mitrani-1.webp", "/media/providers/amit-mitrani/amit-mitrani-2.webp", "/media/providers/amit-mitrani/amit-mitrani-3.webp"], priceLabel: "מחיר לפי סוג המופע והאירוע", sourceUrl: "https://amitgic.co.il/", sourceName: "האתר הרשמי של עמית מיטרני", indexable: true },
@@ -215,7 +215,7 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
     images,
     imageFit: media.fit,
     imagePosition: media.position,
-    priceLabel: "price" in item && item.price ? `החל מ-${item.price} ₪` : "מחיר מוצג בבחירת מועד",
+    priceLabel: "price" in item && item.price ? `החל מ-₪ ${item.price}` : "מחיר מוצג בבחירת מועד",
     sourceUrl: item.sourceUrl,
     sourceName: item.sourceName,
     lat: item.lat,

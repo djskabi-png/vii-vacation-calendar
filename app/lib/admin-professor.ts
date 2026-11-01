@@ -181,7 +181,7 @@ function scopeLabel(intent: ProfessorIntent) { return intent.place?.name || (int
 function metricValue(metrics: MetricValues, metric: ProfessorMetric) { return metrics[metric]; }
 function formatMetric(metric: ProfessorMetric, value: number | null) {
   if (value === null) return `${METRIC_LABEL[metric]}: לא נשמר במטמון לטווח הזה`;
-  return `${METRIC_LABEL[metric]}: ${value.toLocaleString("he-IL")}${metric === "bizRevenue" ? " ₪" : ""}`;
+  return `${METRIC_LABEL[metric]}: ${metric === "bizRevenue" ? "₪ " : ""}${value.toLocaleString("he-IL")}`;
 }
 function answerText(intent: ProfessorIntent, current: MetricValues, comparison: MetricValues | null, ranked: Array<{ name: string; value: number }>) {
   const requested = intent.metrics.map((metric) => formatMetric(metric, metricValue(current, metric)));

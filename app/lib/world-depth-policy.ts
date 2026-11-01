@@ -49,7 +49,7 @@ export function defaultDepthSuggestions(world: DepthWorld, inventory: SearchDept
   if (world === "hourly") return [
     { label: "חדרים עם ג׳קוזי", params: { features: "jacuzzi" } }, { label: "חדרים עם בריכה", params: { features: "pool" } },
     { label: "כניסה עצמאית", params: { features: "independent" } }, { label: "חדרים עם חניה", params: { features: "parking" } },
-    { label: "עד 250 ₪ לשעתיים", params: { maxPrice: "250" } }, { label: "עד 400 ₪ לשעתיים", params: { maxPrice: "400" } }];
+    { label: "עד ₪ 250 לשעתיים", params: { maxPrice: "250" } }, { label: "עד ₪ 400 לשעתיים", params: { maxPrice: "400" } }];
   if (world === "providers") return providerTopicCategories.map(category => ({ label: category.label, path: providerCategoryHref(category), params: {}, kind: "type" }));
   if (world === "activities") return unique(inventory.map(item => item.type)).slice(0, 12).map(label => ({ label, params: { type: label }, kind: "type" }));
   return [

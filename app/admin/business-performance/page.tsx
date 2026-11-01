@@ -21,7 +21,7 @@ const worldLabels: Record<string, string> = { vacation: "נופש", vacations: "
 const scopeLabels: Record<(typeof businessReportScopes)[number], string> = { all: "כל העסקים", vacations: "כל הנופש", events: "כל האירועים", spa: "כל הספא", rooms: "כל החדרים לפי שעה", activities: "כל האטרקציות", trails: "כל הטיולים", providers: "כל הספקים" };
 const sourceLabels = { whatsapp: "WhatsApp", maskyoo: "שיחות מסקיו", form: "טופס באתר" } as const;
 const num = (value: number) => value.toLocaleString("he-IL");
-const money = (value: number) => `${num(value)} ₪`;
+const money = (value: number) => `₪ ${num(value)}`;
 const percent = (part: number, whole: number) => whole ? Math.round(part / whole * 100) : 0;
 const actions = (row: Row) => row.phoneClicks + row.whatsappHandoffs + row.bookingRequests;
 const isoDay = (date: Date) => date.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" });

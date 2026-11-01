@@ -283,7 +283,7 @@ function CalendarMonth({
               onClick={() => onChoose(date)}
             >
               <span className="demo-day-number">{date.getDate()}</span>
-              {price && state.kind !== "past" ? <span className="demo-day-price" dir="rtl">מ־{price.toLocaleString("he-IL")} ₪</span> : null}
+              {price && state.kind !== "past" ? <span className="demo-day-price">מ־<bdi dir="ltr">₪&nbsp;{price.toLocaleString("he-IL")}</bdi></span> : null}
               {mode === "business" && state.kind !== "past" && !state.unknown && (
                 <span className="demo-availability">
                   {canBeCheckout ? "עזיבה" : state.kind === "busy" ? "תפוס" : businessKind === "single" ? "פנוי" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}

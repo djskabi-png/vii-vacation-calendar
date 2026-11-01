@@ -235,7 +235,7 @@ function normalizeVacationPrice(value: string | null, fallback: number, maximum:
 }
 
 function formatVacationPrice(value: number) {
-  return `${value.toLocaleString("he-IL")} ₪`;
+  return `₪ ${value.toLocaleString("he-IL")}`;
 }
 
 type VacationPriceInputProps = {
@@ -1011,7 +1011,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                 <fieldset className="vacation-price-filter" disabled={!priceFilterAvailable}>
                   <legend>מחיר ללילה</legend>
                   <p>בחרו את המחיר הנמוך והגבוה שמתאים לכם.</p>
-                  <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi>{shownFilters.minPrice.toLocaleString("he-IL")}</bdi> ₪</span><i aria-hidden="true">עד</i><span><bdi>{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi> ₪</span></output>
+                  <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi dir="ltr">₪&nbsp;{shownFilters.minPrice.toLocaleString("he-IL")}</bdi></span><i aria-hidden="true">עד</i><span><bdi dir="ltr">₪&nbsp;{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi></span></output>
                   <div className="vacation-price-filter__inputs">
                     <label><span>מחיר מינימלי</span><VacationPriceInput value={shownFilters.minPrice} minimum={VACATION_PRICE_MIN} maximum={shownFilters.maxPrice} emptyValue={VACATION_PRICE_MIN} ariaLabel="מחיר מינימום בשקלים" onValueChange={(nextValue) => changePriceRange(nextValue, shownFilters.maxPrice)} /></label>
                     <span aria-hidden="true">עד</span>

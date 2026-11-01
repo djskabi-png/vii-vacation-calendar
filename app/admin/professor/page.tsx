@@ -10,7 +10,7 @@ type Answer = { answer: string; range: { from: string; till: string; label: stri
 type History = { id: string; question: string; answer: Answer; durationMs: number; createdAt: string };
 const suggestions = ["תן לי נתונים של החודש להילת הנוף: טלפונים, וואטסאפ והזמנות Biz", "השווה את כל הנופש החודש לתקופה הקודמת", "מי מוביל בכניסות לעמודים ב־30 הימים האחרונים?"];
 const metricLabel: Record<MetricKey, string> = { impressions: "חשיפות", pageViews: "כניסות", phone: "טלפון ב־V", whatsapp: "WhatsApp ב־V", viiBookings: "בקשות V", bizCalls: "שיחות Maskyoo", bizWhatsapp: "WhatsApp ב־Biz", bizOrders: "הזמנות Biz", bizRevenue: "הכנסות Biz" };
-const metricValue = (key: MetricKey, value: number | null) => value == null ? "לא נשמר" : `${key === "bizRevenue" ? "₪" : ""}${value.toLocaleString("he-IL")}`;
+const metricValue = (key: MetricKey, value: number | null) => value == null ? "לא נשמר" : `${key === "bizRevenue" ? "₪ " : ""}${value.toLocaleString("he-IL")}`;
 const insightIcon = { up: ArrowUpRight, down: ArrowDownRight, neutral: Minus, conversion: Sparkles, warning: TriangleAlert } as const;
 
 const LTR_RUN = /(https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|₪\s*\d[\d,.:/%+-]*|\d[\d,.:/%+-]*|[A-Za-z][A-Za-z0-9._/@+-]*)/g;
