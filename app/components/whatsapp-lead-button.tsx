@@ -249,9 +249,12 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         labels.messageOutro,
       ].filter(Boolean).join("\n");
       trackWhatsAppLeadSaved({ placeId, placeName, world, reference });
-      const handoff = await fetch("/api/leads/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ submissionId, reference }) });
-      if (!handoff.ok) throw new Error("handoff_not_recorded");
-      trackWhatsAppHandoff({ placeId, placeName, world, reference });
+      try {
+        const handoff = await fetch("/api/leads/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ submissionId: id, reference }) });
+        if (handoff.ok) trackWhatsAppHandoff({ placeId, placeName, world, reference });
+      } catch {
+        // The lead is already saved. A secondary audit failure must not block the visitor's conversation.
+      }
       window.location.assign(`https://wa.me/${whatsappNumber(businessPhone)}?text=${encodeURIComponent(whatsappMessage)}`);
     } catch {
       setState("error");

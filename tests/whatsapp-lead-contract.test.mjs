@@ -23,6 +23,8 @@ test("place WhatsApp actions save a complete lead before opening the conversatio
   const successCheck = source.indexOf("if (!response.ok || !result.success)");
   const whatsappNavigation = source.indexOf("window.location.assign(`https://wa.me/");
   assert.ok(successCheck > -1 && whatsappNavigation > successCheck, "WhatsApp must open only after lead persistence succeeds");
+  assert.match(source, /JSON\.stringify\(\{ submissionId: id, reference \}\)/);
+  assert.match(source, /if \(handoff\.ok\) trackWhatsAppHandoff/);
 });
 
 test("the server owns the verified SMS notification request", async () => {
@@ -143,7 +145,7 @@ test("isolated enquiry handler preserves optional context and never navigates on
     .replace("event: FormEvent<HTMLFormElement>", "event")
     .replace(/ as \{ success\?: boolean; reference\?: string \}/, "");
   const run = new Function("deps", `const {setState,state,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
-  for (const mode of ["success", "error", "retry", "busy"]) {
+  for (const mode of ["success", "error", "handoff-error", "retry", "busy"]) {
     const calls = [], states = [], navigations = [];
     const payloads = [];
     const deps = {
@@ -153,7 +155,13 @@ test("isolated enquiry handler preserves optional context and never navigates on
       labels: new Proxy({}, {get: (_, key) => key === "messageIntro" ? name => `Hello ${name}` : key}),
       world:"vacation",placeId:"test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
       window:{location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
-      fetch: async (url, options) => { calls.push(url); payloads.push(JSON.parse(options.body)); return {ok:mode !== "error",json:async () => ({success:mode !== "error",reference:"fixture-ref"})}; },
+      fetch: async (url, options) => {
+        calls.push(url);
+        payloads.push(JSON.parse(options.body));
+        const leadFailed = mode === "error" && url === "/api/leads/";
+        const handoffFailed = mode === "handoff-error" && url === "/api/leads/handoff";
+        return {ok: !leadFailed && !handoffFailed, json:async () => ({success: !leadFailed,reference:"fixture-ref"})};
+      },
       trackWhatsAppLeadSaved: () => calls.push("tracked"),
       trackWhatsAppHandoff: () => calls.push("handoff-tracked"),
     };
@@ -167,7 +175,15 @@ test("isolated enquiry handler preserves optional context and never navigates on
     assert.equal(payload.privacyAccepted, true);
     assert.equal(payload.submissionId, mode === "retry" ? "stable-id" : "new-id");
     if (mode === "error") { assert.deepEqual(navigations, []); assert.equal(states.at(-1), "error"); assert.ok(!calls.includes("tracked")); }
-    else { assert.equal(navigations.length, 1); assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/); assert.equal(payloads[1].reference, "fixture-ref"); assert.ok(calls.includes("tracked")); assert.ok(calls.includes("handoff-tracked")); }
+    else {
+      assert.equal(navigations.length, 1);
+      assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/);
+      assert.equal(payloads[1].submissionId, mode === "retry" ? "stable-id" : "new-id");
+      assert.equal(payloads[1].reference, "fixture-ref");
+      assert.ok(calls.includes("tracked"));
+      if (mode === "handoff-error") assert.ok(!calls.includes("handoff-tracked"));
+      else assert.ok(calls.includes("handoff-tracked"));
+    }
   }
 });
 
