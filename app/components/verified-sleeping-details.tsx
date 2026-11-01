@@ -5,12 +5,12 @@
 import { useId, useRef } from "react";
 import { FeatureIcon } from "./feature-icon";
 import { SliderRailControls } from "./slider-rail-controls";
-import type { VerifiedSleepingRoom } from "../lib/verified-sleeping-rooms";
+import { totalVerifiedBedroomCount, type VerifiedSleepingRoom } from "../lib/verified-sleeping-rooms";
 
 export function VerifiedSleepingDetails({ placeName, rooms }: { placeName: string; rooms: VerifiedSleepingRoom[] }) {
   const track = useRef<HTMLDivElement>(null);
   const trackId = useId();
-  const bedroomCount = rooms.reduce((total, room) => total + room.bedroomCount, 0);
+  const bedroomCount = totalVerifiedBedroomCount(rooms);
   const everyCardIsOneBedroom = rooms.every((room) => room.bedroomCount === 1);
 
   if (!rooms.length) return null;

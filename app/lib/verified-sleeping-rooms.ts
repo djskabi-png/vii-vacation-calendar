@@ -28,9 +28,22 @@ function comparableSleepingTitle(value: string) {
 export function isVerifiedBedroomGroup(title: string) {
   const normalized = comparableSleepingTitle(title);
   return /^חדר שינה(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^חדר\s+\d+(?:\s*[-–—:]\s*.+)?$/.test(normalized)
     || /^bedroom(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
     || /^chambre(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
     || /^спальня(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
+}
+
+export function totalBedroomCountFromRooms(rooms: Array<{ bedrooms: number; quantity?: number }>) {
+  return (Array.isArray(rooms) ? rooms : []).reduce((total, room) => {
+    const bedrooms = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
+    const quantity = Number.isFinite(room.quantity) ? Math.max(1, Math.floor(room.quantity || 1)) : 1;
+    return total + bedrooms * quantity;
+  }, 0);
+}
+
+export function totalVerifiedBedroomCount(rooms: VerifiedSleepingRoom[]) {
+  return (Array.isArray(rooms) ? rooms : []).reduce((total, room) => total + room.bedroomCount * Math.max(1, room.totalUnits || 1), 0);
 }
 
 function isVerifiedSleepingFact(value: string) {
