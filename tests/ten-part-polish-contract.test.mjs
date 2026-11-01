@@ -28,15 +28,20 @@ test("context-free booking routes recover into a useful world chooser", () => {
   assert.doesNotMatch(booking, /placeName: "הזמנה באתר"/);
 });
 
-test("room cards expose every verified amenity in compact two-row grids without changing image proportions", () => {
-  assert.match(business, /className="room-card__amenities"/);
-  assert.match(business, /localizedBusinessList\(room\.features, language, translate\)/);
-  assert.doesNotMatch(business, /room\.features\.slice\(/);
-  assert.match(business, /<FeatureIcon label=\{feature\} className="property-highlight-icon" \/>/);
-  assert.match(styles, /\.room-card__amenities \{[^}]*display: grid;[^}]*grid-template-columns: repeat\(4/);
-  assert.match(styles, /\.room-card__amenities \{ grid-template-columns: repeat\(2/);
+test("room cards avoid repeating amenities and show verified size when supplied", () => {
+  assert.doesNotMatch(business, /className="room-card__amenities"/);
+  assert.match(business, /className="room-card__area"/);
+  assert.match(business, /property\.scenario === "single" \? "גודל המתחם" : "גודל היחידה"/);
+  assert.match(business, /room\.builtArea \|\| room\.area \|\| room\.totalArea/);
+  assert.match(styles, /\.room-card__area \{[^}]*display: grid/);
   assert.match(styles, /\.room-card__image img \{[^}]*width: 100%; height: 100%;[^}]*object-fit: cover/);
   assert.match(styles, /\.room-card__image \{[^}]*aspect-ratio: 16 \/ 10/);
+});
+
+test("property amenities are presented before the sleeping section", () => {
+  const featuresPosition = business.indexOf('<section id="features"');
+  const sleepingPosition = business.indexOf('{verifiedSleepingRooms.length ? <VerifiedSleepingDetails');
+  assert.ok(featuresPosition > 0 && sleepingPosition > featuresPosition);
 });
 
 test("404 has a dedicated noindex identity and recovery paths", () => {

@@ -58,11 +58,11 @@ test("identical units keep availability count and expose phone plus WhatsApp wit
   assert.match(business, /initialTill=\{dateRange\.till\}/);
 });
 
-test("unit amenities wrap into two mobile rows and gallery arrows have one visible glyph", () => {
+test("unit cards reserve the secondary panel for size and gallery arrows have one visible glyph", () => {
   const css = read("../app/globals.css");
   const gallery = read("../app/components/gallery-experience.tsx");
-  assert.match(css, /\.room-card__amenities \{ display: grid; grid-template-columns: repeat\(4/);
-  assert.match(css, /\.room-card__amenities \{ grid-template-columns: repeat\(2/);
+  assert.match(css, /\.room-card__area \{ display: grid/);
+  assert.match(css, /\.room-card__area > div \{ display: grid; grid-template-columns: repeat\(2/);
   assert.match(css, /\.story-gallery__tap::before \{ display:none; \}/);
   assert.match(gallery, /story-gallery__tap-icon/);
 });
