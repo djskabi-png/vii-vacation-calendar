@@ -3,17 +3,21 @@ import type { SpaPlusSite } from "../data/spaplus";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SpaEditorialReviewError, catalogDiagnosticLimit,
   type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { isBannedPublicMedia } from "./public-media-policy.ts";
 
 function text(value: unknown) {
   return String(value ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
 }
 
 function withCanonicalSpaImage(site: SpaPlusSite): SpaPlusSite {
-  const gallery = Array.isArray(site.gallery) ? site.gallery.filter(Boolean) : [];
-  const image = site.image && (gallery.length === 0 || gallery.includes(site.image))
+  const gallery = Array.isArray(site.gallery)
+    ? site.gallery.filter((image) => Boolean(image) && !isBannedPublicMedia(image))
+    : [];
+  const image = site.image && !isBannedPublicMedia(site.image)
+    && (gallery.length === 0 || gallery.includes(site.image))
     ? site.image
-    : gallery[0] || site.image;
-  return { ...site, image };
+    : gallery[0];
+  return { ...site, image, gallery };
 }
 
 /** Narrative, hours and package terms are reviewed together; prices and media remain independent. */

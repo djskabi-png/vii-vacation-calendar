@@ -34,6 +34,38 @@ test("an orphan supplier cover is replaced by the first approved gallery image",
   assert.equal(site.image, catalog.sites[0].image);
 });
 
+test("unavailable supplier media is removed and the first approved gallery image becomes the cover", async () => {
+  const unavailable = [
+    "https://www.spaplus.co.il/gallery/1775671890054446.jpeg",
+    "https://www.spaplus.co.il/gallery/1775671890081933.jpeg",
+  ];
+  const approved = "https://www.spaplus.co.il/gallery/1775671890040425.jpeg";
+  const site = { id: 534, title: "Spa", city: "Nahariya", image: unavailable[0],
+    gallery: [...unavailable, approved], packages: [] };
+  const before = structuredClone(site);
+  const projected = await projectSpaViiSite(site);
+  assert.equal(projected.image, approved);
+  assert.deepEqual(projected.gallery, [approved]);
+  assert.deepEqual(site, before);
+});
+
+test("an approved supplier cover and gallery remain unchanged", async () => {
+  const approved = "https://www.spaplus.co.il/gallery/1775671890040425.jpeg";
+  const site = { id: 534, title: "Spa", city: "Nahariya", image: approved,
+    gallery: [approved], packages: [] };
+  const projected = await projectSpaViiSite(site);
+  assert.equal(projected.image, approved);
+  assert.deepEqual(projected.gallery, [approved]);
+});
+
+test("a spa with only unavailable media exposes no broken cover", async () => {
+  const unavailable = "https://www.spaplus.co.il/gallery/1775671890054446.jpeg";
+  const projected = await projectSpaViiSite({ id: 534, title: "Spa", city: "Nahariya",
+    image: unavailable, gallery: [unavailable], packages: [] });
+  assert.equal(projected.image, undefined);
+  assert.deepEqual(projected.gallery, []);
+});
+
 test("diagnostic sanitizer rejects arbitrary field names, reasons and values and bounds history", () => {
   const raw = { total: 150, rejected: Array.from({ length: 150 }, (_, index) => ({
     supplierId: index + 1, fields: ["about", "about", "contact", "private-value", { secret: "private-value" }],

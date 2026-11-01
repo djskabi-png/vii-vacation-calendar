@@ -1,5 +1,10 @@
 const BANNED_MEDIA_PATHS = new Set([
   "/media/c3a6274bfd08091a.jpeg",
+  "/gallery/1775671890054446.jpeg",
+  "/gallery/1775671890081933.jpeg",
+  "/gallery/1775671890075824.jpeg",
+  "/gallery/1775671890050932.jpeg",
+  "/gallery/1791884790718478.jpeg",
 ]);
 
 const TOPIC_FALLBACKS = [
