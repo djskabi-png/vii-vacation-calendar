@@ -27,11 +27,12 @@ const day = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/J
 const dateAtNoon = (value: string) => new Date(`${value}T12:00:00Z`);
 const shift = (value: string, delta: number) => { const date = dateAtNoon(value); date.setUTCDate(date.getUTCDate() + delta); return day(date); };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && day(dateAtNoon(value)) === value;
-const displayRange = (from: string, till: string) => from === till ? from : `${from} עד ${till}`;
+const displayDay = (value: string) => value.split("-").reverse().join(".");
+const displayRange = (from: string, till: string) => from === till ? displayDay(from) : `${displayDay(from)} עד ${displayDay(till)}`;
 
 function explicitRange(question: string): ProfessorRange | null {
-  const iso = question.match(/(?:מ(?:תאריך)?\s*)?(\d{4}-\d{2}-\d{2})\s*(?:עד|ועד|\-|–)\s*(?:ל(?:תאריך)?\s*)?(\d{4}-\d{2}-\d{2})/);
-  const local = question.match(/(?:מ(?:תאריך)?\s*)?(\d{1,2})[/.](\d{1,2})[/.](\d{4})\s*(?:עד|ועד|\-|–)\s*(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  const iso = question.match(/(?:מ(?:תאריך)?\s*)?(\d{4}-\d{2}-\d{2})\s*(?:עד|ועד|-|\u2013)\s*(?:ל(?:תאריך)?\s*)?(\d{4}-\d{2}-\d{2})/);
+  const local = question.match(/(?:מ(?:תאריך)?\s*)?(\d{1,2})[/.](\d{1,2})[/.](\d{4})\s*(?:עד|ועד|-|\u2013)\s*(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
   const from = iso?.[1] || (local ? `${local[3]}-${local[2].padStart(2, "0")}-${local[1].padStart(2, "0")}` : "");
   const till = iso?.[2] || (local ? `${local[6]}-${local[5].padStart(2, "0")}-${local[4].padStart(2, "0")}` : "");
   if (!validDay(from) || !validDay(till) || from > till) return null;
@@ -65,8 +66,13 @@ function requestedMetrics(question: string): { metrics: ProfessorMetric[]; expli
   if (/כניסות?|צפיות?|עמודי?\s+עסק/.test(question)) add("pageViews");
   if (/טלפונים?|לחיצ(?:ה|ות)\s+(?:על\s+)?(?:מספר|טלפון)|גילוי\s+מספר/.test(question)) add("phone", "bizCalls");
   if (/וואטסאפ|whatsapp|הודעות?/.test(question)) add("whatsapp", "bizWhatsapp");
-  if (/בקשות?\s+הזמנה|הזמנות?\s+(?:מ|של)[־-]?v\b/.test(question)) add("viiBookings");
+  if (/בקשות?\s+הזמנה|הזמנות?\s+(?:מ|של)[-\u05BE]?v\b/.test(question)) add("viiBookings");
   if (/שיחות?|מסקיו/.test(question)) add("bizCalls");
+  if (/לידים?|פניות?|אנשי\s+קשר/.test(question)) add("phone", "whatsapp", "bizCalls", "bizWhatsapp");
+  if (/לקוחות?/.test(question)) add("bizCalls", "bizWhatsapp", "bizOrders");
+  if (/מכירות?|עסקאות?/.test(question)) add("bizOrders", "bizRevenue");
+  if (/כמה\s+כסף|כספים|פדיון/.test(question)) add("bizRevenue");
+  if (/הזמנות?/.test(question) && !/בקשות?\s+הזמנה|מ[-\u05BE]?v\b|הזמנות?\s*(?:מ|של)?\s*(?:biz|ביז)/.test(question)) add("viiBookings", "bizOrders");
   if (/הזמנ(?:ה|ות)\s*(?:מ|של)?\s*biz|הזמנ(?:ה|ות)\s*(?:מ|של)?\s*ביז|הכנסות?|מחזור|סכום/.test(question)) add("bizOrders", "bizRevenue");
   if (/מכל\s+כמה|יחס\s+המרה|אחוז\s+המרה|המרות?/.test(question)) {
     if (/שיחות?|טלפונים?|מסקיו/.test(question)) add("bizCalls");

@@ -2,6 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { resolveAdminAccess } from "../../../lib/admin-grants.ts";
 import { answerProfessor, ProfessorQuestionError, professorHistory, professorQuota, saveProfessorQuota } from "../../../lib/admin-professor.ts";
 import { reportingDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
+import { requestOriginMatches } from "../../../lib/request-origin.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null); if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
-  if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
+  if (!requestOriginMatches(request)) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
   const body = await request.json().catch(() => null) as { question?: unknown; action?: unknown; email?: unknown; limit?: unknown } | null;
   const stateDb = await runtimeD1Database(); const db = stateDb;
   if (body?.action === "quota") { const access = await resolveAdminAccess(session.email, async () => db, session.sub); if (!access?.manageUsers) return Response.json({ error: "forbidden" }, { status: 403, headers }); const email = typeof body.email === "string" ? body.email : ""; const limit = Number(body.limit); if (!email.includes("@") || !Number.isSafeInteger(limit) || limit < 0 || limit > 500) return Response.json({ error: "invalid_input" }, { status: 400, headers }); return Response.json({ email, limit: await saveProfessorQuota(stateDb, email, limit, session.email) }, { headers }); }

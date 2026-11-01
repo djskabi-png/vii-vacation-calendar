@@ -1,7 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
-import { parseProfessorIntent, professorNeedsInventory, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
+import { parseProfessorIntent, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
 
 type MetricValues = {
   impressions: number; pageViews: number; phone: number; whatsapp: number; viiBookings: number;
@@ -32,8 +32,8 @@ const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`)
 const WORLD_LABEL: Record<ProfessorWorld, string> = { vacations: "כל הנופש", events: "כל האירועים", rooms: "כל החדרים לפי שעה", spa: "כל הספא" };
 const WORLD_DB: Record<ProfessorWorld, string[]> = { vacations: ["vacation", "vacations"], events: ["event", "events"], rooms: ["hourly", "room", "rooms"], spa: ["spa"] };
 const METRIC_LABEL: Record<ProfessorMetric, string> = {
-  impressions: "חשיפות", pageViews: "כניסות לעמודים", phone: "פעולות טלפון ב־V", whatsapp: "פניות WhatsApp ב־V",
-  viiBookings: "בקשות הזמנה מ־V", bizCalls: "שיחות Maskyoo", bizWhatsapp: "שיחות WhatsApp ב־Biz", bizOrders: "הזמנות Biz", bizRevenue: "הכנסות Biz",
+  impressions: "חשיפות", pageViews: "כניסות לעמודים", phone: "פעולות טלפון באתר V", whatsapp: "פניות WhatsApp באתר V",
+  viiBookings: "בקשות הזמנה מאתר V", bizCalls: "שיחות Maskyoo", bizWhatsapp: "שיחות WhatsApp במערכת Biz", bizOrders: "הזמנות Biz", bizRevenue: "הכנסות Biz",
 };
 
 async function inventory(): Promise<ProfessorPlace[]> {
@@ -49,6 +49,14 @@ async function inventory(): Promise<ProfessorPlace[]> {
     return [{ placeId: Number.isSafeInteger(siteID) && siteID > 0 ? `${prefix}-${siteID}` : String(row.id || ""), name, world, siteID: Number.isSafeInteger(siteID) && siteID > 0 ? siteID : null }];
     });
   });
+}
+
+let inventoryCache: { expiresAt: number; places: ProfessorPlace[] } | null = null;
+async function cachedInventory() {
+  if (inventoryCache && inventoryCache.expiresAt > Date.now()) return inventoryCache.places;
+  const places = await inventory();
+  inventoryCache = { expiresAt: Date.now() + 5 * 60_000, places };
+  return places;
 }
 
 function scopeWhere(intent: ProfessorIntent, alias = "") {
@@ -87,12 +95,14 @@ async function fastCachedBizTotals(db: D1Database, range: ProfessorRange, intent
 
 export async function metricSnapshot(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, dependencies: {
   loadBizConversions?: typeof loadCachedBizConversions;
+  bizDb?: D1Database;
   now?: Date;
 } = {}) {
   const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere(intent);
   const needsInternal = intent.metrics.some((metric) => ["impressions", "pageViews", "phone", "whatsapp"].includes(metric));
   const needsBookings = intent.metrics.includes("viiBookings");
   const needsBiz = intent.metrics.some((metric) => metric.startsWith("biz"));
+  const bizDb = dependencies.bizDb || db;
   const internal = needsInternal ? await db.prepare(`SELECT
     SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
     SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
@@ -105,16 +115,16 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
     .bind(since, until, ...bookingScope.values).first<{ total: number }>() : null;
   let bizRange = range;
   const injectedBizLoader = dependencies.loadBizConversions;
-  let fastBiz = needsBiz && !injectedBizLoader ? await fastCachedBizTotals(db, range, intent).catch(() => null) : null;
-  let cached = needsBiz && injectedBizLoader ? await injectedBizLoader(db, range.from, range.till).catch(() => []) : [];
+  let fastBiz = needsBiz && !injectedBizLoader ? await fastCachedBizTotals(bizDb, range, intent).catch(() => null) : null;
+  let cached = needsBiz && injectedBizLoader ? await injectedBizLoader(bizDb, range.from, range.till).catch(() => []) : [];
   if (needsBiz && !fastBiz && !cached.length) {
     const today = day(dependencies.now || new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const closedTill = day(yesterday);
     if (range.from <= closedTill && range.till >= today) {
       bizRange = { from: range.from, till: closedTill, label: `${range.from} עד ${closedTill}` };
-      fastBiz = !injectedBizLoader ? await fastCachedBizTotals(db, bizRange, intent).catch(() => null) : null;
-      cached = injectedBizLoader ? await injectedBizLoader(db, bizRange.from, bizRange.till).catch(() => []) : [];
+      fastBiz = !injectedBizLoader ? await fastCachedBizTotals(bizDb, bizRange, intent).catch(() => null) : null;
+      cached = injectedBizLoader ? await injectedBizLoader(bizDb, bizRange.from, bizRange.till).catch(() => []) : [];
     }
   }
   const selected = cached.filter((row) => intent.place?.siteID ? row.siteID === intent.place.siteID && row.world === intent.place.world : intent.world && intent.world !== "spa" ? row.world === intent.world : !intent.world);
@@ -132,7 +142,7 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
     bizRows: fastBiz?.businesses || selected.length, bizSupported, bizRange: hasBiz ? bizRange : null };
 }
 
-async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
+async function ranking(db: D1Database, bizDb: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
   if (!intent.ranking) return [];
   const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere({ ...intent, place: null });
   const requested = intent.metrics[0];
@@ -157,11 +167,11 @@ async function ranking(db: D1Database, range: ProfessorRange, intent: ProfessorI
         FROM vii_biz_conversion_contacts_v1
         WHERE contact_day >= ? AND contact_day <= ?${requested === "bizOrders" ? " AND order_id IS NOT NULL" : ""}${worldWhere}
         GROUP BY world, site_id ORDER BY value DESC LIMIT 5`;
-    let rows = await db.prepare(aggregate).bind(...params).all<{ world: ProfessorWorld; siteID: number; value: number }>().catch(() => ({ results: [] }));
+    let rows = await bizDb.prepare(aggregate).bind(...params).all<{ world: ProfessorWorld; siteID: number; value: number }>().catch(() => ({ results: [] }));
     if (!rows.results.length) {
       const today = day(new Date()); const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
       const closedTill = day(yesterday);
-      if (range.from <= closedTill && range.till >= today) rows = await db.prepare(aggregate).bind(range.from, closedTill, ...allowedWorlds)
+      if (range.from <= closedTill && range.till >= today) rows = await bizDb.prepare(aggregate).bind(range.from, closedTill, ...allowedWorlds)
         .all<{ world: ProfessorWorld; siteID: number; value: number }>().catch(() => ({ results: [] }));
     }
     const labelByKey = new Map(places.filter((place) => place.siteID).map((place) => [`${place.world}:${place.siteID}`, place.name]));
@@ -190,8 +200,10 @@ function answerText(intent: ProfessorIntent, current: MetricValues, comparison: 
     const delta = value - previous; const direction = delta > 0 ? "עלייה" : delta < 0 ? "ירידה" : "ללא שינוי";
     return `${METRIC_LABEL[metric]}: ${direction}${delta ? ` של ${Math.abs(delta).toLocaleString("he-IL")}` : ""}`;
   }).join("; ") : "";
-  const rankingText = ranked.length ? ` המובילים לפי ${METRIC_LABEL[intent.metrics[0]]}: ${ranked.map((row, index) => `${index + 1}. ${row.name}, ${row.value.toLocaleString("he-IL")}`).join("; ")}.` : "";
-  return `היי אדיר, ${intent.range.label} עבור ${scopeLabel(intent)}. ${requested.join("; ")}.${comparisonText ? ` בהשוואה לתקופה הקודמת: ${comparisonText}.` : ""}${rankingText}`;
+  const lines = [`${intent.range.label} עבור ${scopeLabel(intent)}`, ...requested];
+  if (comparisonText) lines.push(`בהשוואה לתקופה הקודמת: ${comparisonText}`);
+  if (ranked.length) lines.push(`המובילים לפי ${METRIC_LABEL[intent.metrics[0]]}: ${ranked.map((row, index) => `${index + 1}. ${row.name}, ${row.value.toLocaleString("he-IL")}`).join("; ")}`);
+  return lines.join("\n");
 }
 
 function buildInsights(intent: ProfessorIntent, current: MetricValues, comparison: MetricValues | null) {
@@ -205,7 +217,7 @@ function buildInsights(intent: ProfessorIntent, current: MetricValues, compariso
       : `${delta > 0 ? "עלייה" : "ירידה"} של ${Math.abs(delta).toLocaleString("he-IL")}${percent === null ? "" : ` (${Math.abs(percent).toLocaleString("he-IL")}%)`} מול התקופה הקודמת` });
   });
   const contacts = (current.bizCalls || 0) + (current.bizWhatsapp || 0);
-  if (contacts > 0 && current.bizOrders && current.bizOrders > 0) insights.unshift({ kind: "conversion", title: "יחס קשר להזמנה", detail: `הזמנה אחת לכל ${Math.max(1, Math.round(contacts / current.bizOrders)).toLocaleString("he-IL")} אנשי קשר שנשמרו ב־Biz` });
+  if (contacts > 0 && current.bizOrders && current.bizOrders > 0) insights.unshift({ kind: "conversion", title: "יחס קשר להזמנה", detail: `הזמנה אחת לכל ${Math.max(1, Math.round(contacts / current.bizOrders)).toLocaleString("he-IL")} אנשי קשר שנשמרו במערכת Biz` });
   const unavailable = intent.metrics.filter((metric) => metricValue(current, metric) === null);
   if (unavailable.length) insights.push({ kind: "warning", title: "כיסוי נתונים חלקי", detail: `${unavailable.map((metric) => METRIC_LABEL[metric]).join(", ")} לא נשמרו לטווח הזה ולכן לא חושבו` });
   return insights.slice(0, 5);
@@ -232,7 +244,7 @@ export async function saveProfessorQuota(db: D1Database, email: string, limit: n
 export async function answerProfessor(db: D1Database, email: string, question: string, reportingDb: D1Database = db): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
-  const places = professorNeedsInventory(normalizedQuestion) ? await inventory() : []; const parsed = parseProfessorIntent(normalizedQuestion, places);
+  const places = await cachedInventory(); const parsed = parseProfessorIntent(normalizedQuestion, places);
   if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
   if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
   const isFollowUp = /^(?:ומה|ומה לגבי|ואיך|אותו|אותה|ובחודש|ובשבוע|לעומת|בהשוואה)/.test(normalizedQuestion);
@@ -244,25 +256,25 @@ export async function answerProfessor(db: D1Database, email: string, question: s
     metrics: parsed.explicitMetrics ? parsed.metrics : context.plan.metrics,
   } : parsed;
   const readSnapshot = async (range: ProfessorRange) => {
-    try { return await metricSnapshot(reportingDb, range, intent); }
+    try { return await metricSnapshot(reportingDb, range, intent, { bizDb: db }); }
     catch (error) {
       if (reportingDb === db) throw error;
-      return metricSnapshot(db, range, intent);
+      return metricSnapshot(db, range, intent, { bizDb: db });
     }
   };
   const current = await readSnapshot(intent.range);
   const previous = intent.compareRange ? await readSnapshot(intent.compareRange) : null;
   let ranked: Array<{ name: string; value: number }> = [];
-  try { ranked = await ranking(reportingDb, intent.range, intent, places); }
+  try { ranked = await ranking(reportingDb, db, intent.range, intent, places); }
   catch (error) {
     if (reportingDb === db) throw error;
-    ranked = await ranking(db, intent.range, intent, places);
+    ranked = await ranking(db, db, intent.range, intent, places);
   }
   const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric, metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
   const bizRequested = intent.metrics.some((metric) => metric.startsWith("biz"));
   const partialBizRange = current.bizRange && (current.bizRange.from !== intent.range.from || current.bizRange.till !== intent.range.till);
   const coverage = !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows
-    ? `נתוני V ו־Biz שמורים, כיסוי Biz ל־${current.bizRows} עסקים${partialBizRange ? ` עד ${current.bizRange?.till}` : ""}`
+    ? `נתוני V ומערכת Biz שמורים. כיסוי Biz עבור ${current.bizRows} עסקים${partialBizRange ? ` עד ${current.bizRange?.till}` : ""}`
     : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
   const result: ProfessorAnswer = {
     answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,

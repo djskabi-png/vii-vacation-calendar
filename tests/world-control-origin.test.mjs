@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { requestOriginMatches } from "../app/api/admin/worlds/route.ts";
+import { requestOriginMatches } from "../app/lib/request-origin.ts";
 
 test("world control accepts the public origin behind the production proxy", () => {
   const request = new Request("https://internal-worker.local/api/admin/worlds", { headers: {
