@@ -4,7 +4,8 @@ import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { createPortal } from "react-dom";
 import { validSpaDealDate } from "../../lib/spa-package-deals";
 import { spaDealCopy } from "../../i18n/spa-deal-copy";
 import { localizedSpaPackageTitle } from "../../i18n/localized-spa-package";
@@ -12,7 +13,7 @@ import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
@@ -64,7 +65,49 @@ function hasListingMedia(item: DiscoveryItem) {
   return Boolean(item.image?.trim() || item.images?.some((image) => image?.trim()));
 }
 
-function SpaPackageCard({ pack, requestedDate }: { pack: SpaPackage; requestedDate?: string }) {
+function SpaBookingDialog({ bookingUrl, title, onClose }: { bookingUrl: string; title: string; onClose: () => void }) {
+  const { translate } = useSiteLanguage();
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButton.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div className="spa-booking-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="spa-booking-dialog" role="dialog" aria-modal="true" aria-labelledby="spa-booking-title">
+        <header>
+          <div><small>{translate("הזמנת ספא")}</small><h2 id="spa-booking-title">{title}</h2></div>
+          <button ref={closeButton} type="button" className="spa-booking-dialog__close" onClick={onClose} aria-label={translate("סגירת חלון ההזמנה")}>×</button>
+        </header>
+        {!loaded ? <div className="spa-booking-dialog__loading" role="status"><span aria-hidden="true" />{translate("טוענים את פרטי ההזמנה...")}</div> : null}
+        <iframe
+          className={loaded ? "is-loaded" : ""}
+          src={bookingUrl}
+          title={`${translate("הזמנת ספא")} - ${title}`}
+          onLoad={() => setLoaded(true)}
+          allow="payment"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+        <footer><button type="button" className="button secondary" onClick={onClose}>{translate("חזרה לעמוד המקום")}</button></footer>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+function SpaPackageCard({ pack, requestedDate, onBook }: { pack: SpaPackage; requestedDate?: string; onBook: (pack: SpaPackage) => void }) {
   const { language, translate } = useSiteLanguage();
   const [imageFailed,setImageFailed] = useState(false);
   const text = spaDealCopy[language];
@@ -86,7 +129,7 @@ function SpaPackageCard({ pack, requestedDate }: { pack: SpaPackage; requestedDa
       {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul>}
       <footer>
         <div className="spa-package-card__price"><small>{translate("מחיר החבילה")}</small><strong>{pack.price}</strong></div>
-        <a className="button primary" href={pack.bookingUrl} target="_blank" rel="noopener noreferrer" aria-label={`בדיקת זמינות והזמנת ${pack.title} באתר ספא פלוס, נפתח בלשונית חדשה`}>{translate("בדיקת זמינות והזמנה")}</a>
+        <button className="button primary" type="button" onClick={() => onBook(pack)} aria-label={`בדיקת זמינות והזמנת ${pack.title}`}>{translate("בדיקת זמינות והזמנה")}</button>
       </footer>
     </div>
   </article>;
@@ -94,6 +137,8 @@ function SpaPackageCard({ pack, requestedDate }: { pack: SpaPackage; requestedDa
 
 function SpaContent({ details }: { details: SpaDetails }) {
   const { language, translate } = useSiteLanguage();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const requestedDate = searchParams.get("date") || "";
   const selectedPackage = searchParams.get("package");
@@ -103,6 +148,20 @@ function SpaContent({ details }: { details: SpaDetails }) {
   const [sourceAbout, setSourceAbout] = useState<string[] | null>(null);
   const [sourceError, setSourceError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const bookingToken = searchParams.get("booking");
+  const selectedBooking = bookingToken === "site"
+    ? { url: details.bookingUrl, title: "בחירת חבילת ספא" }
+    : details.packages.find((pack) => pack.id === bookingToken)
+      ? { url: details.packages.find((pack) => pack.id === bookingToken)!.bookingUrl, title: details.packages.find((pack) => pack.id === bookingToken)!.title }
+      : null;
+  const setBooking = (value?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set("booking", value);
+    else params.delete("booking");
+    const href = params.size ? `${pathname}?${params.toString()}` : pathname;
+    if (value) router.push(href, { scroll: false });
+    else router.replace(href, { scroll: false });
+  };
 
   useEffect(() => {
     if (!expanded || sourceAbout) return;
@@ -133,7 +192,8 @@ function SpaContent({ details }: { details: SpaDetails }) {
         {details.suitableFor.length > 0 && <div><small>{translate("מתאים עבור")}</small><strong>{details.suitableFor.map(translate).join(" · ")}</strong></div>}
       </aside>
     </section>
-    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head spa-packages-head"><div><span className="eyebrow">{translate("לבחירה קלה וברורה")}</span><h2>{translate("חבילות הספא")}</h2><p>{translate("בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.")}</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} requestedDate={pack.id === selectedPackage && validSpaDealDate(requestedDate) ? requestedDate : undefined} />)}</div><p className="spa-price-note">{translate("המחיר והזמינות הסופיים מוצגים לפני אישור ההזמנה.")}</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לבירור חבילות ומחירים</h2><p>בדקו חבילות וזמינות לפני ההזמנה.</p></div><a className="button primary" href={details.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת אפשרויות בספא פלוס</a></div></section>}
+    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head spa-packages-head"><div><span className="eyebrow">{translate("לבחירה קלה וברורה")}</span><h2>{translate("חבילות הספא")}</h2><p>{translate("בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.")}</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} onBook={(selected) => setBooking(selected.id)} requestedDate={pack.id === selectedPackage && validSpaDealDate(requestedDate) ? requestedDate : undefined} />)}</div><p className="spa-price-note">{translate("המחיר והזמינות הסופיים מוצגים לפני אישור ההזמנה.")}</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לבירור חבילות ומחירים</h2><p>בדקו חבילות וזמינות לפני ההזמנה.</p></div><button className="button primary" type="button" onClick={() => setBooking("site")}>בדיקת אפשרויות בספא פלוס</button></div></section>}
+    {selectedBooking ? <SpaBookingDialog bookingUrl={selectedBooking.url} title={selectedBooking.title} onClose={() => setBooking()} /> : null}
     {(details.treatments?.length || details.facilities.length) ? <section className="section shell spa-details-grid">
       {details.treatments?.length ? <div id="spa-treatments" className="spa-detail-panel"><h2>{translate("טיפולים")}</h2><div className="spa-treatment-list">{details.treatments.map((treatment) => <article key={treatment.name}><strong>{translate(treatment.name)}</strong>{treatment.durations?.length ? <span>{treatment.durations.map(translate).join(" · ")}</span> : null}{treatment.priceNote ? <small>{translate(treatment.priceNote)}</small> : null}</article>)}</div></div> : null}
       {details.facilities.length > 0 && <div id="spa-facilities" className="spa-detail-panel"><h2>{translate("מתקנים ושירותים")}</h2><ul className="spa-facility-list">{details.facilities.map((facility) => <li key={facility}><FeatureIcon label={facility} className="spa-facility-icon" /><span>{translate(facility)}</span></li>)}</ul></div>}

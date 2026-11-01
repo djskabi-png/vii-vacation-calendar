@@ -34,8 +34,8 @@ const weekdays = ["ראשון", "שני", "שלישי", "רביעי", "חמיש�
 
 export function publicSpaBookingUrl(value: string): string {
   const url = new URL(value);
-  url.searchParams.delete("isFrame");
-  url.searchParams.delete("ispackFrame");
+  url.searchParams.set("isFrame", "1");
+  url.searchParams.set("domainSrc", "vii");
   return url.toString();
 }
 
