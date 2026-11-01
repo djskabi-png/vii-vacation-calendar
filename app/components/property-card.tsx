@@ -305,7 +305,7 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
     && resolvedAvailability.nightlyPrice > 0;
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, catalogStartingPrices, onlineCapability = false, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; catalogStartingPrices?: SeasonalStartingPrices; onlineCapability?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, catalogStartingPrices, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; catalogStartingPrices?: SeasonalStartingPrices; onlineCapability?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -336,7 +336,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const startingPrice = undatedSearch && !resolvedAvailability ? catalogStartingPrice : null;
   const datedUnknownStartingPrice = selectedStay && resolvedAvailability?.availability === "unknown" && !hasQuotedPrice
     ? catalogStartingPrice : null;
-  const onlineBookingEligible = (undatedSearch && !promotional && !property.demoOperations?.fictional && onlineCapability) || canShowOnlineBookingBadge({
+  const onlineBookingEligible = canShowOnlineBookingBadge({
     ready: !promotional && liveLegacyAvailability.status === "ready",
     onlineBooking: resolvedAvailability?.onlineBooking,
     bookingSupported: resolvedAvailability?.bookingSupported === true,
