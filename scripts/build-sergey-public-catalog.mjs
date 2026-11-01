@@ -69,6 +69,7 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
   const hasCoordinates = validIsraelCoordinates(lat, lng);
   const rooms = Array.isArray(raw.rooms) ? raw.rooms : [];
   const amenityIndex = buildSergeyAmenityIndex(source.types?.[world] || {});
+  const placeTypes = unique(rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)));
   if (!city?.title || !images.length) {
     rejected.push({ world, supplierId, reason: "missing_required_field" });
     return [];
@@ -139,7 +140,8 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     name,
     location: city.title,
     area: areas.get(city.area) || "",
-    type: world === "vacations" ? "מקום אירוח" : "מקום לאירועים",
+    type: placeTypes[0] || (world === "vacations" ? "מקום אירוח" : "מקום לאירועים"),
+    types: placeTypes.length ? placeTypes : [world === "vacations" ? "מקום אירוח" : "מקום לאירועים"],
     units,
     guests: capacity,
     capacityScope: "unit",

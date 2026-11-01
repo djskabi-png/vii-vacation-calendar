@@ -37,16 +37,20 @@ function positive(value: unknown) {
   return Number.isSafeInteger(value) && (value as number) > 0 ? value as number : 0;
 }
 
-function accommodationType(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[], amenityIndex: SergeyAmenityIndex) {
-  const explicit = rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean);
-  if (explicit) return explicit;
+function inferredAccommodationType(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[]) {
   const searchable = `${name} ${rooms.map((room) => text(room.roomName)).join(" ")} ${highlights.join(" ")} ${features.slice(0, 8).join(" ")}`;
   if (/וילה/.test(searchable)) return "וילה";
   if (/בקת/.test(searchable)) return "בקתות עץ";
+  if (/מערה|מערות/.test(searchable)) return "מערות";
   if (/סוויט/.test(searchable)) return "סוויטות";
   if (/דיר/.test(searchable)) return "דירות נופש";
   if (/צימר/.test(searchable)) return "צימרים";
   return "מתחם אירוח";
+}
+
+function accommodationTypes(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[], amenityIndex: SergeyAmenityIndex) {
+  const explicit = unique(rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)));
+  return explicit.length ? explicit : [inferredAccommodationType(name, rooms, highlights, features)];
 }
 
 function coordinates(gps: unknown) {
@@ -100,6 +104,9 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const whatsapp = supplierContactNumber(contact.whatsapp);
   const previewText = plainText(raw.preview_text);
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
+  const placeTypes = world === "vacations"
+    ? accommodationTypes(name, rooms, highlights, searchableFeatures, amenityIndex)
+    : unique(rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)));
   const policy = record(raw.policy);
   const detail = {
     images,
@@ -155,9 +162,8 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     name,
     location: text(city?.title),
     area,
-    type: world === "vacations"
-      ? accommodationType(name, rooms, highlights, searchableFeatures, amenityIndex)
-      : rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean) || "מקום לאירועים",
+    type: placeTypes[0] || (world === "vacations" ? "מתחם אירוח" : "מקום לאירועים"),
+    types: placeTypes.length ? placeTypes : [world === "vacations" ? "מתחם אירוח" : "מקום לאירועים"],
     units,
     guests,
     capacityScope: "unit",

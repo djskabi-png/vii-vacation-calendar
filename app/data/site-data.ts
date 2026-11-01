@@ -15,6 +15,8 @@ export type Listing = {
   location: string;
   area: string;
   type: string;
+  /** Every supplier business classification. A place may be, for example, both suites and caves. */
+  types?: string[];
   units?: number;
   guests: number;
   capacityScope?: "unit";

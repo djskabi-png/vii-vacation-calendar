@@ -111,20 +111,21 @@ function normalizedLandingType(landing?: SearchLandingContext) {
   return normalized === "הכל" ? null : normalized;
 }
 
-function matchesAnyAccommodationType(propertyType: string, selectedTypes: string[], landing?: SearchLandingContext) {
+function matchesAnyAccommodationType(propertyTypes: string | string[], selectedTypes: string[], landing?: SearchLandingContext) {
   if (selectedTypes.length === 0) return true;
-  const normalizedPropertyType = propertyType.trim().toLocaleLowerCase("he");
+  const normalizedPropertyTypes = (Array.isArray(propertyTypes) ? propertyTypes : [propertyTypes])
+    .map((propertyType) => propertyType.trim().toLocaleLowerCase("he"));
   return selectedTypes.some((selectedType) => {
     const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
     const matchingTypes: readonly string[] | undefined = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
     return matchingTypes
       ? matchingTypes.some((candidate) => {
           const normalizedCandidate = candidate.toLocaleLowerCase("he");
-          return normalizedPropertyType === normalizedCandidate
+          return normalizedPropertyTypes.some((normalizedPropertyType) => normalizedPropertyType === normalizedCandidate
             || normalizedPropertyType.includes(normalizedCandidate)
-            || normalizedCandidate.includes(normalizedPropertyType);
+            || normalizedCandidate.includes(normalizedPropertyType));
         })
-      : normalizedPropertyType === selectedType.toLocaleLowerCase("he");
+      : normalizedPropertyTypes.includes(selectedType.toLocaleLowerCase("he"));
   });
 }
 
@@ -579,7 +580,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const shownFilters = filtersOpen && draftFilters ? draftFilters : currentFilterState();
 
   const mapCandidates = useMemo(() => properties.filter((property) => {
-      const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, selectedTypes, landing);
+      const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.types?.length ? property.types : property.type, selectedTypes, landing);
       const matchesGuests = property.capacityScope === "unit" || property.guests >= guests;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       const catalogPrice = supplierStartingPrice(startingPrices[property.slug]);
@@ -784,7 +785,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftCandidates = properties.filter((property) => {
     if (selectedStay && shownFilters.guests === guests && !eligibleForSelectedStay(property)) return false;
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
-    const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
+    const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.types?.length ? property.types : property.type, shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
       if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
       return matchesVacationSearchFilter(property, id);
