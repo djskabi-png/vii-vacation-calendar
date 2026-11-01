@@ -36,13 +36,13 @@ const baseMetadata: Metadata = {
     siteName: "וי פור ויקיישן",
     title: "וי פור ויקיישן",
     description: "מוצאים את החופשה שמתאימה לכם",
-    images: [{ url: "/og-v2.png", width: 1536, height: 1024, alt: "וי פור ויקיישן" }],
+    images: [{ url: "/og-v2.webp", width: 1536, height: 1024, alt: "וי פור ויקיישן" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "וי פור ויקיישן",
     description: "נופש, אירועים, ספא וחוויות בישראל במקום אחד.",
-    images: ["/og-v2.png"],
+    images: ["/og-v2.webp"],
   },
   icons: {
     icon: [

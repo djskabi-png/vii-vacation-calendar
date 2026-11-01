@@ -636,7 +636,7 @@ function InteractiveArchitecture({
           <picture>
             <source srcSet="/platform-architecture-overview.avif" type="image/avif" />
             <source srcSet="/platform-architecture-overview.webp" type="image/webp" />
-            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של V, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" title="המחשה של ארכיטקטורת היעד של V, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
+            <img src="/platform-architecture-overview.webp" alt="המחשה של ארכיטקטורת היעד של V, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" title="המחשה של ארכיטקטורת היעד של V, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
           </picture>
           <span className={styles.architectureScan} aria-hidden="true" />
           <span className={styles.architectureCorePulse} aria-hidden="true" />
