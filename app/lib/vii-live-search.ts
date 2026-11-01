@@ -183,6 +183,8 @@ export async function liveSupplierSearch(options: {
       ? validStay ? true : null
       : reportedAvailable;
     const selectedRooms = Array.isArray(selectedStay.rooms) ? selectedStay.rooms.map(object) : [];
+    const selectedRoomID = selectedRooms.length === 1 && Number.isSafeInteger(Number(selectedRooms[0].roomID)) && Number(selectedRooms[0].roomID) > 0
+      ? Number(selectedRooms[0].roomID) : undefined;
     const priceGuests = selectedRooms.length ? selectedRooms.reduce((sum, room) => {
       const roomID = Number(room.roomID);
       return sum + (roomBasis.get(Number(siteID))?.get(roomID) || 0);
@@ -200,6 +202,7 @@ export async function liveSupplierSearch(options: {
       roomCount: selectedRooms.length || requestedRooms.length,
       priceGuests,
       priceMode,
+      ...(selectedRoomID ? { roomID: selectedRoomID } : {}),
     } satisfies LiveSearchResult];
   }));
   const ids = new Set(parsed.flatMap((items) => items.map((item) => item.siteID)));

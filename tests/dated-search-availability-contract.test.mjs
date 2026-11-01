@@ -18,18 +18,22 @@ test("vacation dated eligibility accepts only an exact positive availability pro
   ]) assert.equal(hasConfirmedDatedAvailability(state, selection), false);
 });
 
-test("dated vacation discovery keeps unknown candidates, excludes unavailable, and ranks the four commercial tiers", () => {
+test("dated vacation discovery keeps the complete inventory and ranks the five commercial tiers", () => {
   const selection = { from: "2026-11-10", till: "2026-11-12" };
   const state = (availability) => ({ status: "ready", quote: { ...selection, availability } });
   assert.equal(canShowDatedSearchResult(state("available"), selection), true);
   assert.equal(canShowDatedSearchResult(state("unknown"), selection), true);
-  assert.equal(canShowDatedSearchResult(state("unavailable"), selection), false);
+  assert.equal(canShowDatedSearchResult(state("unavailable"), selection), true);
+  assert.equal(canShowDatedSearchResult({ status: "error", quote: null }, selection), true);
+  assert.equal(canShowDatedSearchResult({ status: "loading", quote: null }, selection), false);
   assert.deepEqual([
-    datedSearchResultTier({ availability: "unknown", hasPrice: false }),
-    datedSearchResultTier({ availability: "available", hasPrice: false }),
-    datedSearchResultTier({ availability: "unknown", hasPrice: true }),
-    datedSearchResultTier({ availability: "available", hasPrice: true }),
-  ].sort((a, b) => a - b), [0, 1, 2, 3]);
+    datedSearchResultTier({ availability: "unavailable", hasPrice: true, onlineBookable: true }),
+    datedSearchResultTier({ availability: "unknown", hasPrice: false, onlineBookable: false }),
+    datedSearchResultTier({ availability: "unknown", hasPrice: true, onlineBookable: false }),
+    datedSearchResultTier({ availability: "available", hasPrice: true, onlineBookable: false }),
+    datedSearchResultTier({ availability: "available", hasPrice: true, onlineBookable: true }),
+    datedSearchResultTier({ availability: "available", hasPrice: false, onlineBookable: true }),
+  ].sort((a, b) => a - b), [0, 1, 2, 3, 4, 4]);
 });
 
 test("event dated eligibility rejects unknown, unavailable and zero-price offers", () => {
@@ -42,6 +46,7 @@ test("event dated eligibility rejects unknown, unavailable and zero-price offers
 test("all dated result families fail closed instead of falling back to the ordinary catalog", async () => {
   const vacation = await read("app/search/page.tsx");
   assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
+  assert.match(vacation, /if \(selectedStay\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
   assert.match(vacation, /selectedStay && !onlineOnly/);
 
   const events = await read("app/events/search/page.tsx");

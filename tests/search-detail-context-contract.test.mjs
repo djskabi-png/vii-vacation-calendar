@@ -49,8 +49,9 @@ test("the nightly price is a stable RTL-aware inline group", () => {
 });
 
 test("available dates with a quoted price lead directly to quick booking", () => {
-  assert.match(card, /quickBookingReady = Boolean/);
+  assert.match(card, /quickBookingReady = Boolean\(onlineBookingEligible/);
   assert.match(card, /availability === "available"/);
+  assert.match(card, /roomID: resolvedAvailability\?\.supplierRoomID/);
   assert.match(card, /quickBook: "הזמנה מהירה"/);
   assert.match(card, /!quickBookingReady && !promotional && whatsapp/);
   assert.match(card, /illustrative: "1"/);
