@@ -360,17 +360,18 @@ export async function readSupplierCatalogSelectedSummaries(db: D1Database, world
 }
 
 export async function readSupplierCatalogDashboard(db: D1Database) {
-  const [states, runs] = await Promise.all([
-    db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,
+  // The production database bridge does not support concurrent statements on
+  // one request reliably. Keep these safety-critical reads sequential so the
+  // operator can always inspect runs and locks before starting a sync.
+  const states = await db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,
       accepted_at AS acceptedAt, lock_run_id AS lockRunId, lock_until AS lockUntil
       FROM supplier_catalog_state ORDER BY world`).all<{ world: SupplierCatalogWorld; activeRunId: string | null;
-        activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null }>(),
-    db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
+        activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null }>();
+  const runs = await db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
       finished_at AS finishedAt, before_count AS beforeCount, candidate_count AS candidateCount,
       added_count AS addedCount, changed_count AS changedCount, removed_count AS removedCount,
       error_code AS errorCode, diagnostics_json AS diagnosticsJson
-      FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>(),
-  ]);
+      FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>();
   return { states: states.results, runs: runs.results.map(({ diagnosticsJson, ...run }) => {
     let diagnostics: CatalogSyncDiagnostics | undefined;
     try { diagnostics = sanitizeCatalogDiagnostics(JSON.parse(String(diagnosticsJson))); } catch { /* Old runs have no diagnostics. */ }
