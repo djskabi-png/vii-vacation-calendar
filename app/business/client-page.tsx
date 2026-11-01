@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
@@ -141,6 +141,8 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [aboutCanExpand, setAboutCanExpand] = useState(false);
+  const aboutDescriptionRef = useRef<HTMLParagraphElement>(null);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
@@ -174,6 +176,40 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const localizedArea = safeBusinessText(property.area, businessCopy.location);
   const localizedLocation = safeBusinessText(property.location, localizedArea);
   const localizedDescription = safeBusinessText(property.description, businessCopy.description(localizedPropertyName, localizedLocation));
+  useLayoutEffect(() => {
+    const description = aboutDescriptionRef.current;
+    if (!description) return;
+    const measureOverflow = () => {
+      const probe = description.cloneNode(true) as HTMLParagraphElement;
+      Object.assign(probe.style, {
+        position: "fixed",
+        insetInlineStart: "-10000px",
+        top: "0",
+        width: `${description.clientWidth}px`,
+        height: "auto",
+        maxHeight: "none",
+        margin: "0",
+        visibility: "hidden",
+        pointerEvents: "none",
+        display: "block",
+        overflow: "visible",
+        webkitLineClamp: "unset",
+        webkitBoxOrient: "unset",
+      });
+      document.body.appendChild(probe);
+      const fullHeight = probe.scrollHeight;
+      Object.assign(probe.style, { display: "-webkit-box", overflow: "hidden", webkitLineClamp: "3", webkitBoxOrient: "vertical" });
+      const collapsedHeight = probe.clientHeight;
+      probe.remove();
+      const canExpand = fullHeight > collapsedHeight + 1;
+      setAboutCanExpand(canExpand);
+      if (!canExpand) setAboutExpanded(false);
+    };
+    measureOverflow();
+    const observer = new ResizeObserver(measureOverflow);
+    observer.observe(description);
+    return () => observer.disconnect();
+  }, [localizedDescription]);
   const breadcrumbPrefixes = {
     he: { events: "מקומות לאירועים ב", spa: "ספא ב", hourly: "חדרים לפי שעה ב", vacation: "נופש ב" },
     en: { events: "Event venues in ", spa: "Spas in ", hourly: "Hourly rooms in ", vacation: "Stays in " },
@@ -422,7 +458,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p id="property-about-description" className="property-about__description">{localizedDescription}</p>{localizedDescription.length > 190 ? <button className="property-about__toggle" type="button" aria-controls="property-about-description" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{aboutExpanded ? "סגור" : "פתח עוד"}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
+            <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p ref={aboutDescriptionRef} id="property-about-description" className="property-about__description">{localizedDescription}</p>{aboutCanExpand ? <button className="property-about__toggle" type="button" aria-controls="property-about-description" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{aboutExpanded ? "סגור" : "פתח עוד"}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
