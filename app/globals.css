@@ -3583,7 +3583,8 @@ h3 { font-size: 1.18rem; }
 .detail-sticky-dock__sections a { flex: 0 0 auto; min-height: 38px; display: inline-flex; align-items: center; padding: 0 11px; color: var(--ink-soft); border-radius: 999px; font-size: .74rem; font-weight: 780; white-space: nowrap; }
 .detail-sticky-dock__sections a:hover, .detail-sticky-dock__sections a:focus-visible { color: var(--teal-dark); background: var(--mist); }
 .detail-sticky-dock__actions { display: flex; align-items: center; gap: 8px; }
-.detail-sticky-dock__actions .button { min-height: 46px; padding-inline: 18px; white-space: nowrap; }
+.detail-sticky-dock__actions .button { min-height: 46px; padding: 8px 18px; line-height: 1.25; white-space: normal; overflow: visible; text-wrap: balance; }
+.detail-sticky-dock__primary { min-width: 190px; max-width: 230px; }
 .detail-sticky-dock__phone { min-height: 46px; display: inline-flex; align-items: center; gap: 7px; padding-inline: 13px; color: var(--teal-dark); border: 1px solid #b9dadd; border-radius: 14px; background: white; font-size: .77rem; font-weight: 850; }
 .detail-sticky-dock__phone span { font-size: 1.08rem; line-height: 1; }
 .detail-mobile-review-summary { display: none; }
@@ -5424,7 +5425,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .sleeping-summary h2 { margin: 5px 0 8px; }
 .sleeping-summary p { margin: 0; color: var(--ink-soft); line-height: 1.75; }
 .room-card__actions { display: flex; align-items: center; gap: 16px; margin-top: auto; padding-top: 2px; }
-.room-card__actions .button { min-height: 44px; padding: 10px 17px; }
+.room-card__actions .button { min-height: 44px; max-width: 100%; padding: 10px 17px; line-height: 1.35; white-space: normal; overflow: visible; overflow-wrap: anywhere; text-wrap: balance; }
 .room-card__contact-actions { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .room-card__contact-title { grid-column: 1 / -1; color: var(--ink); font-size: .92rem; font-weight: 900; line-height: 1.35; text-align: right; }
 .room-card__contact-actions .button { width: 100%; text-align: center; text-decoration: none; }
