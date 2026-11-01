@@ -4,8 +4,8 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("gift card is a fully controllable world with public entry points gated by one state", async () => {
-  const [availability, admin, layout, header, footer, home, search, corporate] = await Promise.all([
+test("gift card is a fully controllable world with public entry points and indexing gated by one state", async () => {
+  const [availability, admin, layout, header, footer, home, search, corporate, sitemap] = await Promise.all([
     read("app/lib/world-availability.ts"),
     read("app/admin/worlds/page.tsx"),
     read("app/layout.tsx"),
@@ -14,6 +14,7 @@ test("gift card is a fully controllable world with public entry points gated by 
     read("app/page.tsx"),
     read("app/components/search-box.tsx"),
     read("app/corporate/page.tsx"),
+    read("app/lib/sitemap-inventory.ts"),
   ]);
 
   assert.match(availability, /controllableWorlds = \[[^\]]*"gift-card"/s);
@@ -21,6 +22,7 @@ test("gift card is a fully controllable world with public entry points gated by 
   assert.match(admin, /"gift-card": "גיפט קארד"/);
   assert.match(layout, /\["gift-card", "\/gift-card"\]/);
   for (const source of [header, footer, home, search, corporate]) assert.match(source, /enabled\("gift-card"\)|worldAvailability\["gift-card"\]/);
+  assert.match(sitemap, /path === "\/gift-card"[\s\S]*availability\["gift-card"\]/);
 });
 
 test("header search shortcut is world-aware and is suppressed on routes with a full search", async () => {
