@@ -113,10 +113,18 @@ function normalizedLandingType(landing?: SearchLandingContext) {
 
 function matchesAnyAccommodationType(propertyType: string, selectedTypes: string[], landing?: SearchLandingContext) {
   if (selectedTypes.length === 0) return true;
+  const normalizedPropertyType = propertyType.trim().toLocaleLowerCase("he");
   return selectedTypes.some((selectedType) => {
     const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
     const matchingTypes: readonly string[] | undefined = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
-    return matchingTypes ? matchingTypes.includes(propertyType) : propertyType === selectedType;
+    return matchingTypes
+      ? matchingTypes.some((candidate) => {
+          const normalizedCandidate = candidate.toLocaleLowerCase("he");
+          return normalizedPropertyType === normalizedCandidate
+            || normalizedPropertyType.includes(normalizedCandidate)
+            || normalizedCandidate.includes(normalizedPropertyType);
+        })
+      : normalizedPropertyType === selectedType.toLocaleLowerCase("he");
   });
 }
 
@@ -201,7 +209,7 @@ function compareVacationProperties(a: Property, b: Property, sort: string, order
   if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "rating-asc") return compareOptionalNumber(a.score, b.score, "asc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "capacity" && order.some((property) => property.capacityScope !== "unit")) return b.guests - a.guests;
-  if (sort === "units") return (b.units || 1) - (a.units || 1);
+  if (sort === "units") return (b.bedrooms || 0) - (a.bedrooms || 0);
   if (sort === "name") return a.name.localeCompare(b.name, "he");
   return order.indexOf(a) - order.indexOf(b);
 }
@@ -341,7 +349,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }].map((option) => ({ ...option, label: translate(option.label) })) : []),
     ...[{ value: "rating-desc", label: "דירוג מהגבוה לנמוך" }, { value: "rating-asc", label: "דירוג מהנמוך לגבוה" }].map((option) => ({ ...option, label: translate(option.label) })),
     ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
-    { value: "units", label: "מספר יחידות" },
+    { value: "units", label: "מספר חדרי שינה" },
     { value: "name", label: translate("א-ב (סדר עולה)") },
   ];
   const router = useRouter();
@@ -710,7 +718,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       return compareVacationProperties(a, b, sort, properties, documentSeed);
     };
-    return selectedStay
+    const shouldPrioritizeOnline = sort === "recommended" || sort === "popular";
+    return selectedStay || !shouldPrioritizeOnline
       ? [...matches].sort(compareMatches)
       : prioritizeOnlineFirst(matches, property => matchesOnline(property), compareMatches);
   // landingType is derived from the immutable landing prop. Keeping the prop in
