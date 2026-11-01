@@ -72,7 +72,7 @@ export function PartnerOnboarding({ initialWorld, initialPlan, initialBilling = 
   const selected = selectedPlan ? plans[selectedPlan] : null;
   const billing = selectedPlan ? planBilling[selectedPlan] : "annual";
   const selectedPrice = selected ? billing === "annual" ? selected.annual : selected.monthly : 0;
-  const priceLabel = selected ? billing === "annual" ? `${selectedPrice.toLocaleString("he-IL")} ₪ לשנה` : `${selectedPrice} ₪ לחודש` : "";
+  const priceLabel = selected ? billing === "annual" ? `₪ ${selectedPrice.toLocaleString("he-IL")} לשנה` : `₪ ${selectedPrice} לחודש` : "";
   const selectionLabel = selected ? `${selected.name}, ${billing === "annual" ? "התחייבות שנתית" : "חודש בחודשו"}` : "";
   const world = worlds.find((item) => item.id === selectedWorld);
   const isProvider = selectedWorld === "providers";
@@ -178,9 +178,9 @@ export function PartnerOnboarding({ initialWorld, initialPlan, initialBilling = 
               </div>
               <div className={`pricing-choice pricing-choice--single${isAnnual ? " pricing-choice--recommended" : ""}`} aria-live="polite">
                 <span><b>{isAnnual ? "התחייבות שנתית" : "חודש בחודשו"}</b>{isAnnual ? <em>הבחירה המשתלמת</em> : null}</span>
-                <strong>{displayedPrice} ₪ <small>לחודש</small></strong>
-                <p>{isAnnual ? `חיוב שנתי בסך ${plan.annual.toLocaleString("he-IL")} ₪` : "חיוב חודשי מתחדש, ניתן להפסיק לפי תנאי המסלול"}</p>
-                {isAnnual ? <mark>חיסכון של {annualSaving.toLocaleString("he-IL")} ₪ בשנה</mark> : null}
+                <strong><bdi dir="ltr">₪&nbsp;{displayedPrice}</bdi> <small>לחודש</small></strong>
+                <p>{isAnnual ? `חיוב שנתי בסך ₪ ${plan.annual.toLocaleString("he-IL")}` : "חיוב חודשי מתחדש, ניתן להפסיק לפי תנאי המסלול"}</p>
+                {isAnnual ? <mark>חיסכון של <bdi dir="ltr">₪&nbsp;{annualSaving.toLocaleString("he-IL")}</bdi> בשנה</mark> : null}
               </div>
               <button className="button primary pricing-card__select" type="button" aria-pressed={selectedPlan === planId} onClick={() => choosePlan(planId)}>בחירת חבילת {plan.name}</button>
               <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
@@ -226,7 +226,7 @@ export function PartnerOnboarding({ initialWorld, initialPlan, initialBilling = 
       {providerStep === "details" ? <LeadIntakeForm purpose="join" fixedWorld="providers" selectedPackage={selectionLabel} billingCycle={billing} onSuccess={() => setProviderStep("payment")} /> : providerStep === "payment" ? <form className="supplier-checkout" onSubmit={completeRegistration}>
         <span className="eyebrow">אישור המסלול</span>
         <h2>מאשרים את בקשת ההצטרפות</h2>
-        <div className="supplier-checkout__summary"><span>{selectionLabel}</span><strong>{priceLabel}</strong><small>{billing === "annual" ? `כ־${Math.round(selected.annual / 12)} ₪ לחודש בממוצע` : "ללא התחייבות שנתית"}</small></div>
+        <div className="supplier-checkout__summary"><span>{selectionLabel}</span><strong>{priceLabel}</strong><small>{billing === "annual" ? `כ־₪ ${Math.round(selected.annual / 12)} לחודש בממוצע` : "ללא התחייבות שנתית"}</small></div>
         <div className="supplier-checkout__summary"><span>השלב הבא</span><p>הבקשה תיבדק לפני פתיחת החשבון ולפני כל חיוב. נציג יחזור אליכם עם אישור המסלול והמשך מאובטח.</p></div>
         <label className="consent legal-consent"><input required name="privacy" type="checkbox" /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת את מסלול ההצטרפות שנבחר.</span></label>
         <div className="supplier-checkout__actions"><button className="button secondary" type="button" onClick={() => setProviderStep("details")}>חזרה לפרטי העסק</button><button className="button primary" type="submit">אישור ושליחת הבקשה</button></div>

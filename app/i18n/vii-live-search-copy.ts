@@ -15,7 +15,7 @@ export const eventLiveCopy: Record<SiteLanguage, {
   he: {
     checking: "בודקים זמינות ומחיר", error: "לא ניתן לאמת זמינות כרגע", unavailable: "אין זמינות במועד שבחרתם", availableNoPrice: "פנוי במועד שבחרתם",
     unknown: "אין מידע מאומת על זמינות למועד זה", duration: "משך האירוע", hours: (count) => `${count} שעות`,
-    available: (total, _count, date, _start) => `פנוי · ${total.toLocaleString("he-IL")} ₪ לאירוע · ${date}`,
+    available: (total, _count, date, _start) => `פנוי · ₪ ${total.toLocaleString("he-IL")} לאירוע · ${date}`,
   },
   en: {
     checking: "Checking availability and price", error: "Availability could not be verified", unavailable: "Unavailable for your dates", availableNoPrice: "Available for your selected date",

@@ -88,7 +88,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     placeName: property.name,
     offerId: supplierRoomID ? `room-${supplierRoomID}` : selectedUnit ? `unit-${selectedUnitIndex + 1}` : offerId,
     offerName: selectedUnit ? `בקשת הזמנה ל${selectedUnit.name}` : "בקשת הזמנה למקום",
-    price: totalPrice ? `${totalPrice.toLocaleString("he-IL")} ₪ לכל השהייה` : "מחיר סופי לאחר בחירת תאריך",
+    price: totalPrice ? `₪ ${totalPrice.toLocaleString("he-IL")} לכל השהייה` : "מחיר סופי לאחר בחירת תאריך",
     vacationPrice: nightlyPrice > 0 && nights > 0 ? {
       nightlyPrice,
       nights,

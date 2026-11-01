@@ -41,7 +41,7 @@ export default function GiftCardPage() {
 
       <section className="section gift-corporate"><div className="shell"><div><h2>גיפט קארד מרוכז לחברות ומועדוני צרכנות</h2><p>חלוקה בכמויות, סכומים שונים, ברכה ארגונית וריכוז בקשה אחת מול הצוות.</p></div><Link className="button light" href="/corporate#corporate-contact">לבקשת הצעה ארגונית</Link></div></section>
 
-      <section className="section shell depth-faq"><div className="section-head"><div><h2>שאלות נפוצות</h2></div></div><details><summary>איפה אפשר לממש את הגיפט קארד?</summary><p>בעסקים ובחוויות המשתתפים בתוכנית וי. הרשימה והתנאים יוצגו לפני השלמת התשלום.</p></details><details><summary>אפשר לבחור סכום אחר?</summary><p>כן. אפשר לבחור סכום מותאם החל מ-100 ₪.</p></details><details><summary>אפשר לרכוש לכמה עובדים?</summary><p>כן. הזמנה ארגונית עוברת למסלול מרוכז שמאפשר לבחור סכומים, כמויות וברכה אחידה או אישית.</p></details></section>
+      <section className="section shell depth-faq"><div className="section-head"><div><h2>שאלות נפוצות</h2></div></div><details><summary>איפה אפשר לממש את הגיפט קארד?</summary><p>בעסקים ובחוויות המשתתפים בתוכנית וי. הרשימה והתנאים יוצגו לפני השלמת התשלום.</p></details><details><summary>אפשר לבחור סכום אחר?</summary><p>כן. אפשר לבחור סכום מותאם החל מ-₪ 100.</p></details><details><summary>אפשר לרכוש לכמה עובדים?</summary><p>כן. הזמנה ארגונית עוברת למסלול מרוכז שמאפשר לבחור סכומים, כמויות וברכה אחידה או אישית.</p></details></section>
     </main>
   </PageShell>;
 }

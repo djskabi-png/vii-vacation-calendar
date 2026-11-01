@@ -285,7 +285,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
       </span>
       {hasDates ? <span className="vacation-booking-hub__launcher-meta">
         <small>{guests} אורחים</small>
-        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })} ₪ {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount === 1 && property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{hasVerifiedUnitCatalog ? unitCopy.availableCount(availableUnitCount, totalUnitCount) : summary.title}</b>}
+        {nightlyPrice > 0 ? <b><bdi dir="ltr">₪&nbsp;{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}</bdi> {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount === 1 && property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{hasVerifiedUnitCatalog ? unitCopy.availableCount(availableUnitCount, totalUnitCount) : summary.title}</b>}
       </span> : null}
         {hasDates ? <span className="vacation-booking-hub__launcher-action">עריכה</span> : null}
     </button>
@@ -325,7 +325,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
           </div> : state !== "no-data" ? <div className={`vacation-booking-dialog__status vacation-booking-dialog__status--${unavailable ? "unavailable" : quickBooking || state === "available-no-price" ? "available" : "confirm"}`} role="status" aria-live="polite">
             <span aria-hidden="true"></span>
             <div><strong>{statusSummary.title}</strong><small>{statusSummary.text}</small></div>
-            {nightlyPrice > 0 ? <b>{totalPrice ? `${totalPrice.toLocaleString(numberLocale)} ₪` : `${nightlyPrice.toLocaleString(numberLocale)} ₪`}</b> : null}
+            {nightlyPrice > 0 ? <b><bdi dir="ltr">₪&nbsp;{(totalPrice || nightlyPrice).toLocaleString(numberLocale)}</bdi></b> : null}
           </div> : null}
 
           {!availabilityLoading && recommendation ? <section className="vacation-booking-dialog__recommendation" aria-labelledby="vacation-party-recommendation-title">
@@ -335,11 +335,11 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
             </div>
             {recommendationNames.length ? <ul>{recommendationNames.map((item) => <li key={item.index}><span>{item.quantity > 1 ? `${item.quantity} × ` : ""}{translate(item.name)}</span><small>עד {item.maxGuests * item.quantity} אורחים</small></li>)}</ul> : null}
             <div className="vacation-booking-dialog__recommendation-footer">
-              <p>{availabilityMode === "inquiry" ? "הזמינות והמחיר יאושרו ישירות מול המקום." : availabilityMode === "demo" ? "הזמינות והמחיר מוצגים להמחשת הממשק בלבד." : recommendation.totalPrice ? <><strong>{recommendation.totalPrice.toLocaleString(numberLocale)} ₪</strong> לכל השהייה</> : "המחיר הסופי יאושר לפני הזמנה."}</p>
+              <p>{availabilityMode === "inquiry" ? "הזמינות והמחיר יאושרו ישירות מול המקום." : availabilityMode === "demo" ? "הזמינות והמחיר מוצגים להמחשת הממשק בלבד." : recommendation.totalPrice ? <><strong><bdi dir="ltr">₪&nbsp;{recommendation.totalPrice.toLocaleString(numberLocale)}</bdi></strong> לכל השהייה</> : "המחיר הסופי יאושר לפני הזמנה."}</p>
             </div>
           </section> : null}
 
-          {!availabilityLoading && displayedAvailability?.alternatives?.length ? <div className="vacation-booking-dialog__alternatives"><strong>תאריכים חלופיים</strong><div>{displayedAvailability.alternatives.map((alternative) => <button type="button" key={`${alternative.from}-${alternative.till}`} onClick={openCalendar}><span>{localizedDateRange(alternative.from, alternative.till, "", language)}</span><b>{alternative.nightlyPrice.toLocaleString(numberLocale)} ₪</b></button>)}</div></div> : null}
+          {!availabilityLoading && displayedAvailability?.alternatives?.length ? <div className="vacation-booking-dialog__alternatives"><strong>תאריכים חלופיים</strong><div>{displayedAvailability.alternatives.map((alternative) => <button type="button" key={`${alternative.from}-${alternative.till}`} onClick={openCalendar}><span>{localizedDateRange(alternative.from, alternative.till, "", language)}</span><b><bdi dir="ltr">₪&nbsp;{alternative.nightlyPrice.toLocaleString(numberLocale)}</bdi></b></button>)}</div></div> : null}
 
           {showUnitChoices ? <div className={`vacation-booking-dialog__units${availabilityLoading ? " is-updating" : ""}`} aria-hidden={availabilityLoading || undefined} inert={availabilityLoading || undefined}>
             <div className="vacation-booking-dialog__units-heading">
@@ -377,7 +377,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                     {hasDates ? <div className="vacation-booking-dialog__unit-availability" role="status">
                       <div>
                         <strong>{statusTitle}</strong>
-                        {availabilityMode !== "inquiry" && unitNightlyPrice ? <small>{unitNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{unitTotalPrice ? ` · ${unitTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.totalStay}` : ""}</small> : <small>{availabilityMode === "inquiry" ? unitCopy.inquiryHint : availabilityStatus === "error" ? unitCopy.errorHint : isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
+                        {availabilityMode !== "inquiry" && unitNightlyPrice ? <small><bdi dir="ltr">₪&nbsp;{unitNightlyPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.perNight}{unitTotalPrice ? <> · <bdi dir="ltr">₪&nbsp;{unitTotalPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.totalStay}</> : null}</small> : <small>{availabilityMode === "inquiry" ? unitCopy.inquiryHint : availabilityStatus === "error" ? unitCopy.errorHint : isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
                       </div>
                     {canBookUnit ? <Link className="button primary vacation-booking-dialog__unit-action" href={unitBookingHref(bookingHref, index, unitNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
                         : isAvailable && unitFitsParty && Boolean(unitNightlyPrice) && !bookingEnabled && phoneHref ? <a className="button primary vacation-booking-dialog__unit-action" href={phoneHref}>הזמנה בטלפון</a>
@@ -397,7 +397,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
 
         <footer className="vacation-booking-dialog__footer">
           {nightlyPrice > 0 || illustrative ? <div className="vacation-booking-dialog__footer-copy">
-            {nightlyPrice > 0 ? <><strong>{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })} ₪ {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.night : ""}</strong>{totalPrice ? <small>{totalPrice.toLocaleString(numberLocale)} ₪ לכל {nights} הלילות{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.stay : ""}</small> : null}</> : null}
+            {nightlyPrice > 0 ? <><strong><bdi dir="ltr">₪&nbsp;{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })}</bdi> {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.night : ""}</strong>{totalPrice ? <small><bdi dir="ltr">₪&nbsp;{totalPrice.toLocaleString(numberLocale)}</bdi> לכל {nights} הלילות{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.stay : ""}</small> : null}</> : null}
             {illustrative ? <em>המחשה בלבד, ללא חיוב</em> : null}
           </div> : null}
           <div className="vacation-booking-dialog__footer-actions">

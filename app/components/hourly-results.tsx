@@ -180,7 +180,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
       <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>
         <header className="hourly-results__filters-head"><strong>סינון התוצאות</strong><span>בחרו רק את מה שחשוב לכם</span></header>
         <ModernSelect label="עיר או אזור" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} />
-        <ModernSelect label="מחיר לשעתיים עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלת מחיר" }, { value: "250", label: "עד 250 ₪ לשעתיים" }, { value: "400", label: "עד 400 ₪ לשעתיים" }, { value: "600", label: "עד 600 ₪ לשעתיים" }]} />
+        <ModernSelect label="מחיר לשעתיים עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלת מחיר" }, { value: "250", label: "עד ₪ 250 לשעתיים" }, { value: "400", label: "עד ₪ 400 לשעתיים" }, { value: "600", label: "עד ₪ 600 לשעתיים" }]} />
         <fieldset><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
