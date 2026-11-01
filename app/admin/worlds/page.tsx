@@ -19,7 +19,10 @@ export default function WorldsControlPage() {
     try {
       const response = await fetch("/api/admin/worlds", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ world, enabled: !worlds[world] }) });
       if (!response.ok) throw new Error("השינוי לא נשמר");
-      setWorlds((await response.json() as { worlds: WorldAvailability }).worlds);
+      const next = (await response.json() as { worlds: WorldAvailability }).worlds;
+      setWorlds(next);
+      window.dispatchEvent(new CustomEvent("vii-world-availability", { detail: next }));
+      localStorage.setItem("vii-world-availability", String(Date.now()));
     } catch (cause) { setError(cause instanceof Error ? cause.message : "השינוי לא נשמר"); }
     finally { setSaving(""); }
   }

@@ -5,8 +5,10 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("world launch control has one persisted source and is wired across public chrome", async () => {
-  const [state, route, page, layout, header, switcher, footer, nav, policy, home, searchBox, corporate] = await Promise.all([
-    read("app/lib/world-availability.ts"), read("app/api/admin/worlds/route.ts"), read("app/admin/worlds/page.tsx"),
+  const [state, route, publicRoute, provider, page, layout, header, switcher, footer, nav, policy, home, searchBox, corporate] = await Promise.all([
+    read("app/lib/world-availability.ts"), read("app/api/admin/worlds/route.ts"),
+    read("app/api/content/world-availability/route.ts"), read("app/components/world-availability-provider.tsx"),
+    read("app/admin/worlds/page.tsx"),
     read("app/layout.tsx"), read("app/site-header.tsx"), read("app/components/world-switcher.tsx"),
     read("app/components/site-footer.tsx"), read("app/admin/admin-nav.tsx"), read("app/admin/access-policy.ts"),
     read("app/page.tsx"), read("app/components/search-box.tsx"), read("app/corporate/page.tsx"),
@@ -15,7 +17,13 @@ test("world launch control has one persisted source and is wired across public c
   assert.match(state, /worldForPath/);
   assert.match(route, /authorizedAdminSession/);
   assert.match(route, /setWorldAvailability/);
+  assert.match(route, /requestOriginMatches/);
+  assert.match(publicRoute, /readWorldAvailability/);
+  assert.match(publicRoute, /no-store/);
   assert.match(page, /כיבוי העולם/);
+  assert.match(page, /vii-world-availability/);
+  assert.match(provider, /api\/content\/world-availability/);
+  assert.match(provider, /addEventListener\("storage"/);
   assert.match(layout, /WorldAvailabilityProvider/);
   assert.match(layout, /redirect\(fallback\)/);
   assert.match(header, /filter\(\(item\) => enabled/);
