@@ -25,7 +25,7 @@ export type GuestPhoto = {
 };
 
 const tabLabels: Record<GalleryTab, string> = {
-  all: "כל התמונות",
+  all: "גלריית תמונות",
   place: "המקום והמתקנים",
   units: "יחידות האירוח",
   bedrooms: "חדרי השינה",
@@ -79,14 +79,11 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
     ]);
   }, [guestPhotos, property]);
+  const defaultTopic = useMemo(() => allItems.find((item) => item.category !== "guests")?.topic ?? null, [allItems]);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
-  const [topic, setTopic] = useState<string | null>(() => resolvedInitialTopic(allItems, property, initialTopic));
+  const [topic, setTopic] = useState<string | null>(() => resolvedInitialTopic(allItems, property, initialTopic) ?? (initialTab === "all" ? defaultTopic : null));
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
-  // Mobile always starts with the complete visual overview. The requested
-  // index and topic still select the right media for desktop and for the
-  // focused viewer after the visitor chooses an image.
   const [mobileViewer, setMobileViewer] = useState(false);
-  const [mobileTourAll, setMobileTourAll] = useState(true);
 
   const visibleItems = useMemo(() => {
     return visibleGalleryItems(allItems, tab, topic);
@@ -94,13 +91,12 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
   const mobileGroups = useMemo(() => {
     const groups = new Map<string, Array<{ item: GalleryItem; index: number }>>();
-    const tourItems = mobileTourAll ? allItems : visibleItems;
-    tourItems.forEach((item) => {
+    visibleItems.forEach((item) => {
       const current = groups.get(item.topic) || [];
       groups.set(item.topic, [...current, { item, index: current.length }]);
     });
     return [...groups.entries()];
-  }, [allItems, mobileTourAll, visibleItems]);
+  }, [visibleItems]);
   const topicTabs = useMemo(() => {
     const counts = new Map<string, number>();
     for (const item of allItems) {
@@ -181,7 +177,6 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     setTopic(null);
     setSelected(0);
     setMobileViewer(false);
-    setMobileTourAll(next === "all");
   }
 
   function selectTopic(next: string) {
@@ -189,7 +184,6 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     setTopic(next);
     setSelected(0);
     setMobileViewer(false);
-    setMobileTourAll(false);
   }
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
@@ -200,7 +194,6 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     </header>
 
     <nav className="story-gallery__tabs" aria-label="נושאים בגלריה">
-      <button type="button" aria-pressed={tab === "all" && !topic} onClick={() => selectTab("all")}>{tabLabels.all}<small>{allItems.length}</small></button>
       {topicTabs.map((item) => <button key={item.title} type="button" aria-pressed={topic === item.title} onClick={() => selectTopic(item.title)}>{item.title}<small>{item.count}</small></button>)}
       <button type="button" aria-pressed={tab === "guests"} onClick={() => selectTab("guests")}>{tabLabels.guests}<small>{guestPhotos.length}</small></button>
       {property.videos?.length ? <button type="button" aria-pressed={tab === "videos"} onClick={() => selectTab("videos")}>{tabLabels.videos}<small>{property.videos.length}</small></button> : null}
@@ -218,11 +211,11 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </article>)}
     </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
-        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab("all"); setTopic(item.topic); setSelected(index); setMobileTourAll(false); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" /></button>)}</div></section>)}
+        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab("all"); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" /></button>)}</div></section>)}
       </div>
       <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__mobile-media">
-          <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לכל התמונות</button>
+          <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לגלריה</button>
           <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
           {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
           {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button>
