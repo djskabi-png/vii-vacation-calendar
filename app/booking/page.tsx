@@ -170,7 +170,7 @@ export default async function BookingPage({ searchParams }: Props) {
     const details = getSpaDetails(placeId, site);
     if (!details) notFound();
     const pack = details.packages.find((entry) => entry.id === params.package);
-    redirect(pack?.bookingUrl || details.bookingUrl);
+    redirect(`/discover/place/${encodeURIComponent(placeId)}?booking=${encodeURIComponent(pack?.id || "site")}`);
   }
   const booking = await resolveBooking(params);
   return <PageShell variant={booking.world as "vacation" | "events" | "spa" | "hourly" | "providers" | "activities"}>

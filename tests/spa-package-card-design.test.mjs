@@ -13,8 +13,9 @@ test("spa package cards keep supplier facts and expose a clear booking hierarchy
   assert.match(page, /const \[imageFailed,setImageFailed\] = useState\(false\)/);
   assert.match(page, /onError=\{\(\) => setImageFailed\(true\)\}/);
   assert.match(page, /translate\("מחיר החבילה"\)/);
-  assert.match(page, /href=\{pack\.bookingUrl\}/);
-  assert.match(page, /target="_blank" rel="noopener noreferrer"/);
+  assert.match(page, /onClick=\{\(\) => onBook\(pack\)\}/);
+  assert.match(page, /role="dialog" aria-modal="true"/);
+  assert.match(page, /router\.replace\(href, \{ scroll: false \}\)/);
   assert.match(page, /pack\.includes\.map/);
   assert.match(page, /בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה/);
 });

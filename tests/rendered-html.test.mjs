@@ -200,7 +200,7 @@ test("spa pages use the supplier catalog and preserve only verified legacy route
   assert.match(oldMatch.headers.get("location") || "", /\/discover\/place\/spa-365$/);
   assert.equal(oldMissing.status, 404);
   assert.equal(booking.status, 307);
-  assert.match(booking.headers.get("location") || "", /^https:\/\/www\.spaplus\.co\.il\//);
+  assert.match(booking.headers.get("location") || "", /\/discover\/place\/spa-6\?booking=2054$/);
 });
 
 test("removed places stay out of the public catalogs and magazine", async () => {
@@ -467,9 +467,9 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
   assert.doesNotMatch(spaPage, /detail-sticky-dock__phone|aria-label="חיוג להזמנה אצל/);
   assert.match(otherPages[0], /detail-sticky-dock__phone/);
   const spaSource = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
-  assert.match(spaSource, /href=\{pack\.bookingUrl\} target="_blank" rel="noopener noreferrer"/);
-  assert.doesNotMatch(spaSource, /spa-booking-dialog|<iframe/);
-  assert.doesNotMatch(spaPage, /spa-booking-dialog|<iframe|isFrame=1|ispackFrame=1/);
+  assert.match(spaSource, /<SpaBookingDialog bookingUrl=\{selectedBooking\.url\}/);
+  assert.match(spaSource, /onClick=\{\(\) => onBook\(pack\)\}/);
+  assert.match(spaSource, /spa-booking-dialog|<iframe/);
   assert.doesNotMatch(otherPages.join("\n").replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /בדיקת זמינות מול המקום/);
