@@ -17,7 +17,7 @@ import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { VerifiedSleepingDetails } from "../components/verified-sleeping-details";
-import { isVerifiedBedroomGroup, verifiedSleepingRoomsFromProperty } from "../lib/verified-sleeping-rooms";
+import { isVerifiedBedroomGroup, totalBedroomCountFromRooms, verifiedSleepingRoomsFromProperty } from "../lib/verified-sleeping-rooms";
 import type { BusinessWorld, ListingFeatureGroup, Property } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import { getListingOfferings } from "../lib/listing-offerings";
@@ -148,10 +148,11 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
   const property = useMemo<Property>(() => {
     const base = initialProperty;
+    const supplierBedrooms = supplierDetail ? totalBedroomCountFromRooms(supplierDetail.rooms) : 0;
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
-      units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), ...(supplierDetail.whatsapp ? { whatsapp: supplierDetail.whatsapp } : {}) },
+      units: supplierDetail.units || base.units, bedrooms: supplierBedrooms || base.bedrooms, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), ...(supplierDetail.whatsapp ? { whatsapp: supplierDetail.whatsapp } : {}) },
       galleryGroups: supplierDetail.galleryGroups?.length ? supplierDetail.galleryGroups : base.galleryGroups,
       description: supplierDetail.summary || base.description,
       roomOptions: supplierDetail.rooms.length ? supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
