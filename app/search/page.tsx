@@ -382,7 +382,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
   const undatedSearch = !selectedStay && !hasSearchDate(searchParams);
   const onlineCapabilities = useOnlineCapabilities(undatedSearch, onlineSearchRetry);
-  const startingPrices = useStartingPrices("vacations", undatedSearch);
+  const startingPrices = useStartingPrices("vacations", true);
   const priceFilterAvailable = supplierPriceFilterAvailable || Object.values(startingPrices).some((price) => supplierStartingPrice(price) !== null) || Boolean(selectedStay || flexibleSearch);
   const flexibleCandidates = useMemo(
     () => flexibleVacationCandidates(flexibleSearch, guests),
@@ -615,7 +615,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const from = result.from || selectedStay.from;
       const till = result.till || selectedStay.till;
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
-      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1,
+      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
+        ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
         ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
     }
@@ -628,7 +629,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const till = result.till || flexibleCandidates[0]?.till;
       if (!from || !till) return { quote: null, status: "ready" };
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
-      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1,
+      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
+        ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
         ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
     }
@@ -675,7 +677,19 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         const price = searchPrice(property);
         return typeof price === "number" && price >= minPrice && price <= maxPrice;
       });
+    const datedTier = (property: typeof properties[number]) => {
+      const quote = liveAvailabilityFor(property.slug)?.quote;
+      const availability = quote?.availability || "unknown";
+      const hasPrice = availability === "available"
+        ? typeof quote?.nightlyPrice === "number" && quote.nightlyPrice > 0
+        : Boolean(supplierStartingPrice(startingPrices[property.slug] ?? property));
+      return datedSearchResultTier({ availability, hasPrice, onlineBookable: matchesOnline(property) });
+    };
     const compareMatches = (a: typeof properties[number], b: typeof properties[number]) => {
+      if (selectedStay) {
+        const tierPriority = datedTier(a) - datedTier(b);
+        if (tierPriority) return tierPriority;
+      }
       if (undatedSearch && (sort === "price-asc" || sort === "price-desc")) {
         const aPrice = searchPrice(a), bPrice = searchPrice(b);
         if (!aPrice || !bPrice) return Number(!aPrice) - Number(!bPrice);
@@ -684,23 +698,6 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (sort === "recommended") {
         return Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
           || discoverySeedCompare(a.slug, b.slug, `${documentSeed}:vacation-search`);
-      }
-      if (selectedStay) {
-        const datedTier = (property: typeof properties[number]) => {
-          const quote = liveAvailabilityFor(property.slug)?.quote;
-          const availability = quote?.availability || "unknown";
-          const hasPrice = availability === "available"
-            ? typeof quote?.nightlyPrice === "number" && quote.nightlyPrice > 0
-            : Boolean(supplierStartingPrice(startingPrices[property.slug] ?? property));
-          return datedSearchResultTier({ availability, hasPrice });
-        };
-        const tierPriority = datedTier(a) - datedTier(b);
-        if (tierPriority) return tierPriority;
-        const availablePriceTier = datedTier(a) === 0;
-        if (availablePriceTier) {
-          const onlinePriority = Number(!matchesOnline(a)) - Number(!matchesOnline(b));
-          if (onlinePriority) return onlinePriority;
-        }
       }
       if (sort === "recommended" && availabilityDemoActive) {
         const aDemoIndex = availabilityDemoSlugs.indexOf(a.slug);

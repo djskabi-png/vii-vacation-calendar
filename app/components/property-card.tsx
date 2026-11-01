@@ -53,6 +53,7 @@ export type ResolvedAvailability = ListingDateQuote & {
   priceMode?: "stay_total" | "nightly_average" | "event_total";
   onlineBooking?: boolean;
   bookingSupported?: boolean;
+  supplierRoomID?: number;
   alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>;
   illustrative?: boolean;
   units?: Array<{
@@ -344,12 +345,12 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
     selectedFrom: selectedStay?.from, selectedTill: selectedStay?.till,
     illustrative: Boolean(resolvedAvailability?.illustrative || property.demoOperations?.fictional),
   });
-  const quickBookingReady = Boolean(!/^vacation-\d+$/.test(property.slug) && selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
+  const quickBookingReady = Boolean(onlineBookingEligible && selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const basePropertyHref = detailHref || `/business?id=${property.slug}`;
   const selectedGuests = String(selectedStay?.guests || searchParams.get("guests") || searchParams.get("adults") || 2);
-  const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative || property.demoOperations?.fictional ? "1" : undefined }) : basePropertyHref;
-  const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative || property.demoOperations?.fictional ? { illustrative: "1" } : {}) }).toString()}` : "";
+  const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), roomID: resolvedAvailability?.supplierRoomID ? String(resolvedAvailability.supplierRoomID) : undefined, illustrative: resolvedAvailability?.illustrative || property.demoOperations?.fictional ? "1" : undefined }) : basePropertyHref;
+  const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.supplierRoomID ? { roomID: String(resolvedAvailability.supplierRoomID) } : {}), ...(resolvedAvailability?.illustrative || property.demoOperations?.fictional ? { illustrative: "1" } : {}) }).toString()}` : "";
   const cardHighlights = localizedBusinessList((property.highlights?.length ? property.highlights.map((highlight) => highlight.label) : property.features).slice(0, 3), language, translate);
   useEffect(() => { const node = cardRef.current; if (!node || !window.IntersectionObserver) return; let sent = false; const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting && entry.intersectionRatio >= .5 && !sent) { sent = true; trackBusinessEvent("impression", { placeId: property.slug, placeName: property.name, world: "vacation" }); observer.disconnect(); } }, { threshold: .5 }); observer.observe(node); return () => observer.disconnect(); }, [property.name, property.slug]);
 

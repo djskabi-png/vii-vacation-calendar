@@ -23,25 +23,25 @@ export function hasConfirmedDatedAvailability(state: AvailabilityState | undefin
 }
 
 /**
- * A dated discovery result may remain visible when availability is unknown,
- * but an explicit unavailable answer must never be presented as a candidate.
- * The quote must still belong to the exact requested stay.
+ * Dated discovery keeps the complete place inventory visible after the live
+ * check. Exact answers are ranked by their commercial state; missing or failed
+ * answers remain an unknown state instead of disappearing. A quote from a
+ * different stay is never accepted as evidence for the selected dates.
  */
 export function canShowDatedSearchResult(state: AvailabilityState | undefined, selection: Selection | null | undefined) {
   const quote = state?.quote;
-  return Boolean(selection
-    && state?.status === "ready"
-    && quote
-    && quote.availability !== "unavailable"
-    && quote.from === selection.from
-    && quote.till === selection.till);
+  if (!selection || state?.status === "loading") return false;
+  if (!quote) return true;
+  return quote.from === selection.from && quote.till === selection.till;
 }
 
 export function datedSearchResultTier(input: {
   availability: "available" | "unavailable" | "unknown";
   hasPrice: boolean;
+  onlineBookable?: boolean;
 }) {
-  if (input.availability === "available") return input.hasPrice ? 0 : 1;
+  if (input.availability === "available" && input.hasPrice && input.onlineBookable) return 0;
+  if (input.availability === "available" && input.hasPrice) return 1;
   if (input.availability === "unknown") return input.hasPrice ? 2 : 3;
   return 4;
 }

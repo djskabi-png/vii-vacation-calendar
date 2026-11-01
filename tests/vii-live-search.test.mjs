@@ -28,6 +28,7 @@ test("live vacation search keeps available, unavailable and unknown distinct", a
   assert.equal(result.results[0].onlineBooking, false);
   assert.equal(result.results[0].priceGuests, 2);
   assert.equal(result.results[0].priceMode, "stay_total");
+  assert.equal(result.results[0].roomID, 11);
 });
 
 test("exact vacation search preserves confirmed availability when the supplier has no price", async () => {
@@ -69,6 +70,7 @@ test("multi-room vacation search preserves room composition and marks the price 
   assert.equal(result.results[0].total, 4500);
   assert.equal(result.results[0].priceGuests, 6);
   assert.equal(result.results[0].roomCount, 2);
+  assert.equal(result.results[0].roomID, undefined);
   assert.equal(result.results[0].priceMode, "nightly_average");
 });
 
