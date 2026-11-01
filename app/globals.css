@@ -5344,7 +5344,6 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-highlight-icon svg { width: 25px; height: 25px; display: block; flex: none; margin: auto; overflow: visible; transform-origin: center; }
 .property-highlight-icon--default svg { width: 23px; height: 23px; stroke-width: 2.15; }
 .property-highlight-icon--spa { --feature-icon-color: #a84287; --feature-icon-bg: #fae8f5; }
-.property-highlight-icon--games { --feature-icon-color: #425fbd; --feature-icon-bg: #e9edfb; }
 .property-highlight-icon--garden { --feature-icon-color: #16775f; --feature-icon-bg: #e1f3eb; }
 .property-highlight-icon--events { --feature-icon-color: #a85c16; --feature-icon-bg: #fff0de; }
 /* Shared icon frames use the SVG box itself as the centering reference. */

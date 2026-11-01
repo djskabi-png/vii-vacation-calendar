@@ -22,6 +22,7 @@ test("shared square icon frames center the SVG box explicitly", async () => {
   assert.match(styles, /\.property-highlight-icon \{[^}]*display: grid;[^}]*place-items: center;[^}]*line-height: 0;/s);
   assert.match(styles, /\.property-highlight-icon svg \{[^}]*display: block;[^}]*margin: auto;[^}]*transform-origin: center;/s);
   assert.match(styles, /\.property-feature-groups \.feature-list \.property-highlight-icon \{[^}]*display: grid;[^}]*place-items: center;[^}]*padding: 0;[^}]*line-height: 0;/s);
+  assert.doesNotMatch(styles, /\.property-highlight-icon--games\s*\{/);
   assert.match(styles, /:is\(\.property-highlight-icon,[^)]+\) > svg \{[^}]*display: block;[^}]*margin: auto;/s);
   assert.match(styles, /\.online-booking-badge > svg \{[^}]*display: block;[^}]*margin: auto 0;/s);
   assert.match(styles, /\.discovery-card__chip-icon \{[^}]*display: grid;[^}]*place-items: center;[^}]*overflow: hidden;[^}]*line-height: 0;/s);
