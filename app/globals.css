@@ -3009,6 +3009,15 @@ h3 { font-size: 1.18rem; }
 .header-gift.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
 .menu-button { gap: 8px; padding: 0 15px; }
 .icon-button[aria-pressed="true"] { background: var(--sky); color: var(--teal-dark); }
+.header-search-layer { position: fixed; inset: 0; z-index: 1100; display: grid; place-items: start center; padding: min(12vh,110px) 20px 28px; overflow-y: auto; background: rgba(3,27,34,.62); backdrop-filter: blur(10px); animation: menuFade .18s ease-out; }
+.header-search-panel { width: min(1120px,100%); padding: 24px; border: 1px solid rgba(190,222,225,.9); border-radius: 28px; background: linear-gradient(180deg,#fff,#f5fbfc); box-shadow: 0 28px 80px rgba(3,35,43,.28); }
+.header-search-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+.header-search-panel > header span { color: var(--teal-dark); font-size: .78rem; font-weight: 800; }
+.header-search-panel > header h2 { margin: 3px 0 0; font-size: clamp(1.4rem,3vw,2rem); }
+.header-search-panel > header button { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: #fff; cursor: pointer; }
+.header-search-panel > header button:hover,.header-search-panel > header button:focus-visible { color: var(--teal-dark); border-color: #9bcfd6; outline: 3px solid rgba(8,126,139,.18); outline-offset: 2px; }
+.header-search-panel > header button svg { width: 20px; height: 20px; }
+@media(max-width:700px){.header-search-layer{place-items:start stretch;padding:12px 10px calc(18px + env(safe-area-inset-bottom,0px))}.header-search-panel{min-height:calc(100dvh - 24px);padding:18px 12px;border-radius:22px}.header-search-panel>header{margin-bottom:10px}.header-search-panel>header h2{font-size:1.45rem}}
 .saved-viewed-menu { position: relative; display: inline-flex; }
 .saved-viewed-menu__trigger[aria-expanded="true"] { color: #fff; border-color: var(--teal); background: var(--teal); }
 .saved-viewed-menu__popover { position: absolute; z-index: 120; top: calc(100% + 12px); inset-inline-start: 0; width: min(340px,calc(100vw - 28px)); display: grid; gap: 7px; padding: 14px; color: var(--ink); border: 1px solid #d5e5e7; border-radius: 20px; background: rgba(255,255,255,.98); box-shadow: 0 22px 60px rgba(4,55,65,.2); font-family: var(--font-sans); }

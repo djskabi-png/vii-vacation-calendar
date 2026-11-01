@@ -15,6 +15,10 @@ import { useAccountAccess } from "./components/account-access";
 import { SavedViewedMenu } from "./components/saved-viewed-menu";
 import type { ManagedLink } from "./lib/content-studio";
 import { useWorldAvailability } from "./components/world-availability-provider";
+import { SearchBox } from "./components/search-box";
+import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./components/site-icons";
+
+export { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./components/site-icons";
 
 const defaultNav = publicWorldNavigation.map((world) => ({ id: String(world.id), href: world.href, label: world.shortLabel, description: world.description }));
 const defaultSecondary: ManagedLink[] = [
@@ -28,9 +32,12 @@ const defaultSecondary: ManagedLink[] = [
 
 export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [managedChrome, setManagedChrome] = useState<{ language: string; primary?: ManagedLink[] | null; secondary?: ManagedLink[] | null } | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const searchCloseButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language, translate } = useSiteLanguage();
   const { enabled } = useWorldAvailability();
@@ -60,8 +67,6 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     || pathname === "/providers" || pathname.startsWith("/providers/search")
     || pathname === "/attractions" || pathname.startsWith("/attractions/search")
     || pathname === "/trails" || pathname.startsWith("/trails/search");
-  const searchPaths: Record<string, string> = { events: "/events", spa: "/spas", hourly: "/hourly", providers: "/providers", activities: "/attractions", attractions: "/attractions", trails: "/trails" };
-  const searchHref = localizedPath(searchPaths[activeWorld] || "/search", language);
   const searchLabel = {
     he: "חיפוש באתר",
     en: "Search the site",
@@ -138,6 +143,35 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       if (viewportFallback !== undefined) window.clearInterval(viewportFallback);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    searchCloseButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+        window.setTimeout(() => searchButtonRef.current?.focus(), 0);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const panel = document.querySelector<HTMLElement>(".header-search-panel");
+      const focusable = panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchOpen]);
+
+  useEffect(() => setSearchOpen(false), [pathname]);
 
   const closeMenu = () => {
     setMenuOpen(false);
@@ -221,6 +255,24 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     document.body,
   ) : null;
 
+  const searchMode = activeWorld === "events" || activeWorld === "spa" || activeWorld === "hourly" ? activeWorld : "vacation";
+  const closeSearch = () => {
+    setSearchOpen(false);
+    window.setTimeout(() => searchButtonRef.current?.focus(), 0);
+  };
+  const searchOverlay = searchOpen && typeof document !== "undefined" ? createPortal(
+    <div className="header-search-layer" role="dialog" aria-modal="true" aria-labelledby="header-search-title" onMouseDown={(event) => event.target === event.currentTarget && closeSearch()}>
+      <section className="header-search-panel">
+        <header>
+          <div><span>{translate("חיפוש באתר")}</span><h2 id="header-search-title">{translate("מה תרצו למצוא?")}</h2></div>
+          <button ref={searchCloseButtonRef} type="button" onClick={closeSearch} aria-label={translate("סגירת החיפוש")}><CloseIcon /></button>
+        </header>
+        <SearchBox mode={searchMode} forceExpanded showWorlds />
+      </section>
+    </div>,
+    document.body,
+  ) : null;
+
   return (
     <>
       <header className="site-header">
@@ -233,7 +285,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
             <SavedViewedMenu />
             <LanguageSwitcher compact iconOnly />
             <AccessibilityWidget placement="icon" />
-            {!hasInPageSearch ? <Link className="icon-button header-search" href={searchHref} aria-label={searchLabel}><SearchIcon /></Link> : null}
+            {!hasInPageSearch ? <button ref={searchButtonRef} type="button" className="icon-button header-search" onClick={() => setSearchOpen(true)} aria-label={searchLabel} aria-haspopup="dialog" aria-expanded={searchOpen}><SearchIcon /></button> : null}
             {enabled("gift-card") ? <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href={localizedPath("/gift-card", language)} aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link> : null}
             <WorldSwitcher active={activeWorld} />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
@@ -241,6 +293,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         </div>
       </header>
       {menu}
+      {searchOverlay}
     </>
   );
 }
@@ -251,12 +304,7 @@ export function HeartIcon({ filled = false }: { filled?: boolean }) { return <sv
 export function EyeIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.6-6 9.5-6 9.5 6 9.5 6-3.6 6-9.5 6-9.5-6-9.5-6Z" /><circle cx="12" cy="12" r="2.8" /></svg>; }
 export function AccessibilityIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2" /><path d="M5 8h14M12 6v7m0 0-4 7m4-7 4 7" /></svg>; }
 export function ArrowIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>; }
-export function SearchIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>; }
-export function PinIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>; }
 export function MapIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 3 5-2v13l-5 2-8-3-5 2V6Z" /><path d="M8 4v13m8-10v13" /></svg>; }
-export function CalendarIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4m8-4v4M3 10h18" /></svg>; }
-export function PeopleIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20c0-4 2-7 6-7s6 3 6 7m0-9c3 0 5 2 5 5v4" /></svg>; }
 export function UserIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c.7-5 3.3-8 8-8s7.3 3 8 8" /></svg>; }
-export function GiftIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16v11H4zM3 6h18v4H3zM12 6v15" /><path d="M12 6c-4 0-5-2-4-3s4 0 4 3Zm0 0c4 0 5-2 4-3s-4 0-4 3Z" /></svg>; }
 function ContactIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z" /><path d="M8 9h8M8 13h5" /></svg>; }
 function InfoIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></svg>; }

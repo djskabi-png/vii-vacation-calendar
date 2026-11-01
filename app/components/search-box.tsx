@@ -10,7 +10,7 @@ import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
 import { type WorldId } from "../data/world-data";
 import { isWholeCountrySelection, searchLocationOptions, vacationLocationGroups, type SearchMode } from "../data/search-taxonomy";
-import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
+import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./site-icons";
 import { SearchWorldTabs } from "./world-switcher";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { languageFromPathname, localizedPath, type SiteLanguage } from "../i18n/locale-routing";
@@ -154,7 +154,7 @@ function normalizeHourlyPrice(value: string | null) {
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [], openDatesRequest = 0 }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[]; openDatesRequest?: number }) {
+export function SearchBox({ mode = "vacation", compact = false, forceExpanded = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [], openDatesRequest = 0 }: { mode?: SearchMode; compact?: boolean; forceExpanded?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[]; openDatesRequest?: number }) {
   const router = useRouter();
   const { enabled } = useWorldAvailability();
   const searchParams = useSearchParams();
@@ -163,7 +163,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const dateDisplayLanguage = language;
   const isHourly = mode === "hourly";
   const [searchCommitted, setSearchCommitted] = useState(() => compact || Boolean(searchParamsKey) || Boolean(initialLocation) || Boolean(initialSpaAudience) || initialSpaFeatures.length > 0);
-  const shouldCollapse = compact || searchCommitted;
+  const shouldCollapse = forceExpanded ? false : compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
   const managedGeography = useManagedGeography();
   const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);

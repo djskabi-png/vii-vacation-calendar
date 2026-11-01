@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage } from "./i18n/locale-provider";
-import { CalendarIcon } from "./site-header";
+import { CalendarIcon } from "./components/site-icons";
 import { SearchWorldTabs } from "./components/world-switcher";
 import { assessCalendarStay, stayCalendarDay, type StayCalendar } from "./lib/vii-stay-calendar.ts";
 

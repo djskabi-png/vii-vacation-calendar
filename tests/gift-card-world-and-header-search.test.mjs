@@ -29,7 +29,7 @@ test("header search shortcut is world-aware and is suppressed on routes with a f
   assert.match(header, /pathname\.startsWith\("\/events\/search"\)/);
   assert.match(header, /pathname\.startsWith\("\/spas\/search"\)/);
   assert.match(header, /pathname\.startsWith\("\/hourly\/search"\)/);
-  assert.match(header, /!hasInPageSearch \? <Link className="icon-button header-search" href=\{searchHref\}/);
-  assert.match(header, /events: "\/events"/);
-  assert.match(header, /spa: "\/spas"/);
+  assert.match(header, /!hasInPageSearch \? <button[^>]+className="icon-button header-search"[^>]+onClick=\{\(\) => setSearchOpen\(true\)\}/);
+  assert.match(header, /<SearchBox mode=\{searchMode\} forceExpanded showWorlds \/>/);
+  assert.match(header, /activeWorld === "events" \|\| activeWorld === "spa" \|\| activeWorld === "hourly"/);
 });
