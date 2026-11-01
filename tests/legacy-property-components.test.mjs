@@ -16,7 +16,12 @@ test("property data contract supports five CMS-selected highlights and grouped a
 
 test("property page preserves description, highlights and full feature groups as separate components", () => {
   assert.match(page, /<section id="about" className=\{`property-about/);
-  assert.match(page, /<h2>\{translate\("על המקום"\)\}<\/h2><p id="property-about-description" className="property-about__description">\{localizedDescription\}<\/p>/);
+  assert.match(page, /<h2>\{translate\("על המקום"\)\}<\/h2><p ref=\{aboutDescriptionRef\} id="property-about-description" className="property-about__description">\{localizedDescription\}<\/p>/);
+  assert.match(page, /const \[aboutCanExpand, setAboutCanExpand\] = useState\(false\)/);
+  assert.match(page, /const fullHeight = probe\.scrollHeight/);
+  assert.match(page, /const canExpand = fullHeight > collapsedHeight \+ 1/);
+  assert.match(page, /new ResizeObserver\(measureOverflow\)/);
+  assert.match(page, /\{aboutCanExpand \? <button className="property-about__toggle"/);
   assert.match(page, /aria-controls="property-about-description" aria-expanded=\{aboutExpanded\}/);
   assert.match(page, /aboutExpanded \? "סגור" : "פתח עוד"/);
   assert.match(page, /aria-label="הדברים הבולטים במקום"/);
