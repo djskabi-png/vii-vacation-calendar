@@ -39,7 +39,11 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
   if (section === "core") { const { joinWorlds } = await import("../join/worlds.ts"); return unique(expand([
       { path: "/" }, { path: "/gift-card" }, { path: "/corporate" }, { path: "/destinations" }, { path: "/questions" }, { path: "/join" },
       ...joinWorlds.map((world) => ({ path: `/join/${world}` })), { path: "/accessibility" }, { path: "/legal/terms" }, { path: "/legal/privacy" }, { path: "/legal/cancellation" },
-  ].filter(({ path }) => path !== "/corporate" || availability.corporate))); }
+  ].filter(({ path }) => {
+    if (path === "/corporate") return availability.corporate;
+    if (path === "/gift-card") return availability["gift-card"];
+    return true;
+  }))); }
   if (section === "holidays") {
     if (!availability.vacation) return [];
     const [{ getHomeHolidays }, { supplierToken }, { holidayWorldPath, readHolidayWorld }] = await Promise.all([
