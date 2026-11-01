@@ -186,6 +186,40 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", confirm: "Доступность подтвердит объект", inquiry: "Наличие и цену подтвердит объект", inquiryHint: "Даты и состав гостей будут переданы", error: "Не удалось проверить сейчас", errorHint: "Попробуйте ещё раз или свяжитесь с объектом", combination: "Доступна в составе рекомендуемой комбинации", tooSmall: "Эта единица не вмещает всю группу", confirmPrice: "Цена требует подтверждения", otherDate: "Можно проверить другую дату", quick: "Быстро забронировать", checkOther: "Проверить другую дату", check: "Проверить доступность", checkDates: "Проверить даты для", choose: "Выберите доступный вариант из списка", enquire: "Уточнить наличие", call: "Позвонить по наличию", retry: "Повторить проверку", combinationCheck: "Проверить комбинацию", availableCount: (count: number, total: number) => `Доступно ${count} из ${total}`, perNight: "за ночь", totalStay: "за всё проживание" },
     fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", confirm: "La disponibilité sera confirmée par l’établissement", inquiry: "Disponibilité et prix confirmés par l’établissement", inquiryHint: "Les dates et le nombre de personnes seront transmis", error: "Vérification impossible pour le moment", errorHint: "Réessayez ou contactez l’établissement", combination: "Disponible dans la combinaison recommandée", tooSmall: "Cette unité ne suffit pas seule pour le groupe", confirmPrice: "Prix à confirmer", otherDate: "Vous pouvez vérifier une autre date", quick: "Réservation rapide", checkOther: "Vérifier une autre date", check: "Vérifier la disponibilité de", checkDates: "Vérifier les dates pour", choose: "Choisissez une unité disponible dans la liste", enquire: "Demander la disponibilité", call: "Appeler pour vérifier", retry: "Réessayer", combinationCheck: "Vérifier une combinaison", availableCount: (count: number, total: number) => `${count} unité(s) disponible(s) sur ${total}`, perNight: "par nuit", totalStay: "pour tout le séjour" },
   }[language];
+  const phoneAvailabilityCopy = {
+    he: {
+      eyebrow: "זמינות טלפונית",
+      title: "הזמינות במקום זה נבדקת בטלפון",
+      text: "אפשר להתקשר או לשלוח הודעה בוואטסאפ ישירות למקום.",
+      call: "התקשרו למקום",
+      whatsapp: "שלחו הודעה בוואטסאפ",
+      note: "הזמינות, המחיר והתנאים מאושרים ישירות מול המקום.",
+    },
+    en: {
+      eyebrow: "Availability by phone",
+      title: "Availability for this property is checked by phone",
+      text: "Call or send the property a WhatsApp message directly.",
+      call: "Call the property",
+      whatsapp: "Send a WhatsApp message",
+      note: "Availability, price and terms are confirmed directly by the property.",
+    },
+    ru: {
+      eyebrow: "Наличие по телефону",
+      title: "Наличие мест уточняется по телефону",
+      text: "Позвоните или отправьте объекту сообщение в WhatsApp.",
+      call: "Позвонить",
+      whatsapp: "Написать в WhatsApp",
+      note: "Наличие, цена и условия подтверждаются непосредственно объектом.",
+    },
+    fr: {
+      eyebrow: "Disponibilité par téléphone",
+      title: "La disponibilité de cet établissement se vérifie par téléphone",
+      text: "Appelez l’établissement ou envoyez-lui directement un message WhatsApp.",
+      call: "Appeler l’établissement",
+      whatsapp: "Envoyer un message WhatsApp",
+      note: "La disponibilité, le prix et les conditions sont confirmés directement par l’établissement.",
+    },
+  }[language];
 
   useEffect(() => {
     if (!dialogOpen) return;
@@ -215,6 +249,23 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     }
     onGuestsChange(nextGuests);
   };
+
+  if (availabilityMode === "inquiry") {
+    return <section id="booking-summary" className="vacation-booking-hub vacation-booking-hub--phone" aria-labelledby="vacation-phone-availability-title">
+      <div className="vacation-booking-hub__phone-card">
+        <div className="vacation-booking-hub__phone-copy">
+          <span>{phoneAvailabilityCopy.eyebrow}</span>
+          <h2 id="vacation-phone-availability-title">{phoneAvailabilityCopy.title}</h2>
+          <p>{phoneAvailabilityCopy.text}</p>
+        </div>
+        <div className="vacation-booking-hub__phone-actions">
+          {phoneHref ? <a className="button primary" href={phoneHref}>{phoneAvailabilityCopy.call}</a> : null}
+          {ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות טלפונית" initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={phoneAvailabilityCopy.whatsapp} buttonClassName="button secondary" /> : null}
+        </div>
+        <small>{phoneAvailabilityCopy.note}</small>
+      </div>
+    </section>;
+  }
 
   return <section id="booking-summary" className={`vacation-booking-hub vacation-booking-hub--${state}`} aria-labelledby="vacation-booking-title">
     <h2 id="vacation-booking-title" className="sr-only">בדיקת תאריכים והזמנה</h2>
