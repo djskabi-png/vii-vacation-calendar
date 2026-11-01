@@ -52,7 +52,8 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(gallery, /group\.title/);
   assert.match(gallery, /group\.images\.map/);
   assert.match(gallery, /topicTabs\.map/);
-  assert.match(gallery, /mobileTourAll/);
+  assert.match(gallery, /const defaultTopic = useMemo/);
+  assert.doesNotMatch(gallery, />\{tabLabels\.all\}<small>/);
   assert.match(gallery, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
   assert.match(selection, /if \(topic\) return items\.filter/);
   assert.match(hook, /params\.set\("topic", topic\)/);

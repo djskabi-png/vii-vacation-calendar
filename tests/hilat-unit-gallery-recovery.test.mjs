@@ -54,7 +54,7 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.doesNotMatch(gallery, /useState\(initialIndex > 0 \|\| initialTab !== "all"\)/);
   assert.match(gallery, /setMobileViewer\(true\)/);
   assert.match(gallery, /function selectTab\([\s\S]*?setMobileViewer\(false\)/);
-  assert.match(gallery, /חזרה לכל התמונות/);
+  assert.match(gallery, /חזרה לגלריה/);
   assert.match(css, /\.story-gallery__mobile-tour section > div \{ display: grid; grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /@media \(max-width: 760px\) \{[\s\S]*?\.story-gallery__story,\s*\.story-gallery__grid \{ display: none !important; \}[\s\S]*?\.story-gallery__mobile-tour \{ display: grid;/);
   assert.match(css, /\.story-gallery__mobile-stage \{\s*display: none;\s*min-height: 0;/);
