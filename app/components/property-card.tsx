@@ -364,9 +364,9 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
 
   return (
     <article ref={cardRef} className={`stay-card stay-card--${cardMode}${mapActive ? " is-map-active" : ""}`} data-map-place-id={property.slug} aria-busy={pending || undefined} onTouchStartCapture={warmImages} onPointerEnter={() => { warmImages(); onActiveChange?.(true); }} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => { warmImages(); onActiveChange?.(true); }} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
-      <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} />
+      <Link className="stay-card__surface-link" href={propertyHref} aria-label={`${interfaceCopy.open}: ${localizedName}`} />
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => boundedSliderIndex(current, distance > 0 ? -1 : 1, galleryImages.length)); } touchStart.current = null; }}>
-        <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
+        <Link href={propertyHref} aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
           <img src={galleryImages[imageIndex]} alt={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} title={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading="lazy" decoding="async" />
         </Link>
         <PreviewGalleryStatus pending={pending} error={error} />
@@ -380,7 +380,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         {property.demoOperations?.fictional ? <SampleListingDisclosure variant="card" /> : null}
         <div className="stay-card__title">
           <div>
-            <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
+            <h3><Link href={propertyHref}>{localizedName}<span className="sr-only"></span></Link></h3>
             <p><PinIcon />{localizedLocation}, {localizedArea}</p>
           </div>
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
