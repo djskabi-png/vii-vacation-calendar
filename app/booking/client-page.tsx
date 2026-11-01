@@ -72,6 +72,13 @@ function countStayNights(from: string, till: string) {
   return Math.round((end - start) / 86_400_000);
 }
 
+function formatBookingDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const date = new Date(`${value}T12:00:00Z`);
+  if (!Number.isFinite(date.getTime())) return value;
+  return new Intl.DateTimeFormat("he-IL", { day: "2-digit", month: "2-digit", year: "2-digit", timeZone: "UTC" }).format(date);
+}
+
 export default function BookingPageClient(props: Props) {
   const { language, translate } = useSiteLanguage();
   const { account } = useAccountAccess();
@@ -465,7 +472,7 @@ export default function BookingPageClient(props: Props) {
           {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
           {localizedOfferIncludes?.length ? <div><dt>מה כלול</dt><dd>{localizedOfferIncludes.join(" · ")}</dd></div> : null}
         </dl> : null}
-        <ul>{usesSpaPayment ? <><li>בוחרים תשלום עכשיו או במקום</li><li>הכרטיס מוזן רק בחלון סליקה מאובטח</li><li>בשלב ההמחשה לא נאספים פרטי כרטיס</li></> : <><li>אין הזנת כרטיס אשראי</li><li>הבקשה נשמרת בסטטוס ממתין</li><li>אישור סופי מתקבל לאחר בדיקת המקום</li></>}</ul>
+        <ul>{usesSpaPayment ? <><li>בוחרים תשלום עכשיו או במקום</li><li>הכרטיס מוזן רק בחלון סליקה מאובטח</li><li>בשלב ההמחשה לא נאספים פרטי כרטיס</li></> : <><li>כרטיס אשראי יימסר לביטחון בשיחת טלפון לאחר ההזמנה בלבד</li><li>במהלך ההזמנה לא ייגבה תשלום</li><li>תוך מספר שעות מסיום ההזמנה תקבלו אישור סופי בדואר האלקטרוני</li></>}</ul>
       </aside>
 
       <form ref={formRef} className="booking-form booking-form--steps" onSubmit={submit}>
@@ -506,7 +513,7 @@ export default function BookingPageClient(props: Props) {
           <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">{usesSpaPayment ? "סיכום ואופן התשלום" : "סיכום ושליחת הבקשה"}</h2></header>
           <div className="booking-review form-wide">
             <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
-            <article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + departure : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
+            <article><span>מועד והרכב</span><strong>{formatBookingDate(arrival) || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + formatBookingDate(departure) : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
             <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong>{props.price}</strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
           </div>
@@ -518,7 +525,7 @@ export default function BookingPageClient(props: Props) {
               <label><input type="radio" name="paymentMethod" value="pay_at_venue" checked={paymentMethod === "pay_at_venue"} onChange={() => setPaymentMethod("pay_at_venue")} required /><span><b>תשלום במקום</b><small>הכרטיס משמש לביטחון ההזמנה בלבד ואינו מחויב עכשיו.</small></span></label>
             </div>
             <small className="booking-payment-choice__notice">המחשה בלבד. לא מתבצע תשלום ואין להזין פרטי כרטיס אמיתי.</small>
-          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "לאחר בדיקת המחיר והזמינות, הבקשה תועבר למקום. בסיום יוצג אם ההזמנה אושרה או ממתינה לאישורו. לא יבוצע חיוב דרך V." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
+          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>בקשת ההזמנה תועבר ישירות למקום. נציג מטעם המקום יצור איתך קשר תוך 24 שעות לתיאום הפרטים, אישור המחיר והזמינות והשלמת ההזמנה. לא יבוצע חיוב דרך V.</p></div>}
           <div className="booking-form__actions form-wide">
             <button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button>
             {usesSpaPayment ? <button ref={paymentTriggerRef} className="button primary" type="button" onClick={openPayment}>המשך לתשלום</button> : <button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : props.illustrative ? "סיום המחשת ההזמנה" : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>}

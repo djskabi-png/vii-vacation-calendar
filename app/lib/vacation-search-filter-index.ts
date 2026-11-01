@@ -68,7 +68,7 @@ export function vacationSearchFilterIds(property: Property) {
 }
 
 export function matchesVacationSearchFilter(property: Property, id: string) {
-  if (property.searchFilterIds) return property.searchFilterIds.includes(id);
+  if (property.searchFilterIds?.includes(id)) return true;
   const terms = vacationSearchFilterTerms[id];
   if (!terms) return false;
   const searchable = searchablePropertyText(property);
