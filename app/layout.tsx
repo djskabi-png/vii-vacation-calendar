@@ -18,6 +18,7 @@ import { WorldAvailabilityProvider } from "./components/world-availability-provi
 import { readWorldAvailability, worldForPath } from "./lib/world-availability";
 import { redirect } from "next/navigation";
 import { GoogleTagManager } from "./components/google-tag-manager";
+import { NavigationProgress } from "./components/navigation-progress";
 
 const baseMetadata: Metadata = {
   metadataBase: new URL("https://vii.spaplus.co/"),
@@ -167,6 +168,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return <html lang={locale} dir={direction} data-locale-pending={locale === "he" ? undefined : ""} suppressHydrationWarning><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link rel="preconnect" href="https://www.vii.co.il" /><link rel="preload" href="/vii-logo.png" as="image" type="image/png" fetchPriority="high" />{isAdmin ? <><link rel="preload" href="/fonts/heebo/heebo-hebrew-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><link rel="preload" href="/fonts/heebo/heebo-latin-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><style id="vii-admin-font-critical" dangerouslySetInnerHTML={{ __html: adminFontCriticalCss }} /></> : null}<script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /><script dangerouslySetInnerHTML={{ __html: apiHydrationGate }} /></head><body data-vii-surface={isAdmin ? "admin" : "public"}>
     <GoogleTagManager enabled={!isAdmin} />
     {isAdmin ? null : <><StructuredData data={organizationSchema()} /><StructuredData data={websiteSchema()} /></>}
-    <LocaleProvider initialLanguage={locale}>{isAdmin ? worldTree : <AccountAccessProvider>{worldTree}</AccountAccessProvider>}</LocaleProvider>
+    <LocaleProvider initialLanguage={locale}>{isAdmin ? worldTree : <AccountAccessProvider><NavigationProgress />{worldTree}</AccountAccessProvider>}</LocaleProvider>
   </body></html>;
 }
