@@ -105,6 +105,7 @@ function unitBookingHref(baseHref: string, index: number, nightlyPrice?: number)
 }
 
 export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, availabilityStatus = "idle", availabilityMode, bookingEnabled = true, bookingHref, ownerWhatsapp, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange, onRetryAvailability }: VacationBookingHubProps) {
+  const [failedUnitImages, setFailedUnitImages] = useState<Set<string>>(() => new Set());
   const { language, translate } = useSiteLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingAvailability, setPendingAvailability] = useState<{ dateKey: string; value: ResolvedAvailability } | null>(null);
@@ -368,7 +369,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                           ? unitCopy.tooSmall
                           : isUnavailable ? unitCopy.unavailable : unitCopy.confirm;
                 return <article className={`vacation-booking-dialog__unit${isAvailable ? " is-available" : isUnavailable ? " is-unavailable" : ""}`} key={room.name}>
-                  {room.image ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" title="" data-image-role="decorative" loading="lazy" /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
+                  {room.image && !failedUnitImages.has(room.image) ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" title="" data-image-role="decorative" loading="lazy" onError={() => setFailedUnitImages((current) => new Set(current).add(room.image))} /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
                   <div className="vacation-booking-dialog__unit-content">
                     <div className="vacation-booking-dialog__unit-main">
                       <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>
