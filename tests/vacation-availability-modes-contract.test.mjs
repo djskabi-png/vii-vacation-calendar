@@ -37,8 +37,8 @@ test("unit cards keep compact facts, a distinct sleeping explanation and place s
   const actionPosition = page.indexOf("room-card__actions", statusPosition);
   assert.ok(statusPosition > 0 && actionPosition > statusPosition);
   assert.match(page, /room-card__facts[\s\S]*פרטי היחידה/);
-  assert.match(page, /localizedBusinessList\(room\.features, language, translate\)/);
-  assert.doesNotMatch(page, /room\.features\.slice\(/);
+  assert.match(page, /className="room-card__area"/);
+  assert.doesNotMatch(page, /className="room-card__amenities"/);
   assert.match(page, /unavailableReason === "min_nights"/);
   assert.match(page, /נדרשים לפחות \$\{roomAvailability\.minimumNights\} לילות/);
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
@@ -47,9 +47,7 @@ test("unit cards keep compact facts, a distinct sleeping explanation and place s
   assert.match(css, /grid-template-areas: "image identity" "image body"/);
   assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);
-  assert.match(css, /\.room-card__amenities \{[^}]*display: grid;[^}]*grid-template-columns: repeat\(4/);
-  assert.match(css, /\.room-card__amenities \{ grid-template-columns: repeat\(2/);
-  assert.doesNotMatch(css, /\.room-card__amenities \{[^}]*overflow-x: auto/);
+  assert.match(css, /\.room-card__area \{[^}]*display: grid/);
 });
 
 test("the party recommendation is shown before the unit list", async () => {
