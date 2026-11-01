@@ -65,6 +65,8 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const raw = record(rawValue);
   const name = text(raw.name);
   const images = sergeyPlaceImages(raw.galleries);
+  const representativeImages = sergeyPlaceImages(raw.representative_galleries);
+  const cardImages = unique([...representativeImages, ...images]);
   const city = cityById.get(Number(record(raw.location).city));
   if (raw.active !== true || raw.id !== supplierId || !name || !text(city?.title)) {
     throw new Error("invalid_sergey_place");
@@ -159,8 +161,8 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     units,
     guests,
     capacityScope: "unit",
-    image: images[0],
-    images,
+    image: cardImages[0],
+    images: cardImages,
     description: text(record(raw.meta).description),
     features: unique([...highlights, ...visibleFeatures]).slice(0, 24),
     searchFilterIds: vacationSearchFilterIdsFromText([name, text(city?.title), area, text(record(raw.meta).description), ...searchableFeatures]),
@@ -265,6 +267,11 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             // undated browse price.
             entries[index] = normalizePlace(world, id, {
               ...detail,
+              // The list response is the supplier's card contract. Its
+              // gallery order identifies the representative media, while the
+              // detail response remains authoritative for the complete,
+              // topic-grouped gallery on the place page.
+              representative_galleries: active[index].galleries,
               // The list is the authoritative card contract and may be
               // deployed ahead of a cached detail payload. It also carries
               // an explicit null when the supplier removes the sentence.

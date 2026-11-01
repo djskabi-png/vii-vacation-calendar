@@ -139,6 +139,26 @@ test("keeps supplier gallery order and resolves the Suite Tohar naming differenc
   assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["ג׳קוזי זוגי"] }]);
 });
 
+test("uses the supplier list gallery as representative media without losing detail galleries", async () => {
+  const result = await client({
+    galleries: [
+      { title: "חדר קולנוע", pictures: ["/gallery/cinema.jpg"] },
+      { title: "גלרית כללית", pictures: ["/gallery/pool.jpg", "/gallery/garden.jpg"] },
+    ],
+  }, false, {
+    galleries: [{ title: "גלרית כללית", pictures: ["/gallery/pool.jpg", "/gallery/garden.jpg"] }],
+  }).fetchCandidate("vacations");
+  const { summary, detail } = result.entries[0];
+  assert.equal(summary.image, "/api/vii/media/pool.jpg");
+  assert.deepEqual(summary.images.slice(0, 3), [
+    "/api/vii/media/pool.jpg",
+    "/api/vii/media/garden.jpg",
+    "/api/vii/media/cinema.jpg",
+  ]);
+  assert.equal(detail.galleryGroups[0].title, "חדר קולנוע");
+  assert.equal(detail.images[0], "/api/vii/media/cinema.jpg");
+});
+
 test("withholds a place without photos without discarding the rest of the catalog", async () => {
   const result = await client({ galleries: [] }, true).fetchCandidate("vacations");
   assert.deepEqual(result.entries.map((entry) => entry.supplierId), [18]);
