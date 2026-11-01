@@ -40,6 +40,6 @@ test("vacation units and verified bedrooms remain separate visible sections", ()
   assert.match(business, /property\.scenario === "multi" \? \(roomQuantity === 1/);
   assert.match(business, /"המקום כולו עומד לרשותכם"/);
   assert.match(business, /room\.featureGroups/);
-  assert.match(business, /isVerifiedBedroomGroup/);
+  assert.match(business, /verifiedBedroomGroupsFromRoom/);
   assert.match(business, /<VerifiedSleepingDetails placeName=\{localizedPropertyName\} rooms=\{verifiedSleepingRooms\} \/>/);
 });

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const { totalBedroomCountFromRooms, totalVerifiedBedroomCount, verifiedSleepingRoomsFromProperty } = await import("../app/lib/verified-sleeping-rooms.ts");
+const { totalBedroomCountFromRooms, totalVerifiedBedroomCount, verifiedBedroomGroupsFromRoom, verifiedSleepingRoomsFromProperty } = await import("../app/lib/verified-sleeping-rooms.ts");
 
 test("a verified bedroom count survives a supplier group whose title is not a bedroom", () => {
   const rooms = verifiedSleepingRoomsFromProperty({
@@ -48,6 +48,24 @@ test("explicit bedroom groups remain authoritative and separate", () => {
     { name: "חדר שינה 1 - הורים", unitName: "הווילה", bedroomCount: 1, totalUnits: 2, availableUnits: 1 },
     { name: "חדר שינה 2", unitName: "הווילה", bedroomCount: 1, totalUnits: 2, availableUnits: 1 },
   ]);
+});
+
+test("supplier suites fill the declared bedroom list without adding an auxiliary sleeping area", () => {
+  const room = {
+    bedrooms: 5,
+    featureGroups: [
+      ...Array.from({ length: 4 }, (_, index) => ({ title: `סוויטה ${index + 1}`, items: ["מיטה זוגית", "מסך LCD"] })),
+      { title: "חדר שינה 5", items: ["מיטה זוגית", "מזגן"] },
+      { title: "חדר מרתף", items: ["2 מיטות קומותיים", "ספה נפתחת"] },
+    ],
+  };
+
+  assert.deepEqual(verifiedBedroomGroupsFromRoom(room).map((group) => group.title), [
+    "סוויטה 1", "סוויטה 2", "סוויטה 3", "סוויטה 4", "חדר שינה 5",
+  ]);
+  const rooms = verifiedSleepingRoomsFromProperty({ scenario: "single", rooms: [{ name: "וילה ליאור", quantity: 1, features: [], ...room }] });
+  assert.equal(rooms.length, 5);
+  assert.equal(totalVerifiedBedroomCount(rooms), 5);
 });
 
 test("supplier titles such as room 1 remain verified bedroom groups and preserve complex totals", () => {

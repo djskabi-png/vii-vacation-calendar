@@ -34,6 +34,12 @@ export function isVerifiedBedroomGroup(title: string) {
     || /^спальня(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
 }
 
+function isNamedSleepingSpaceGroup(title: string) {
+  const normalized = comparableSleepingTitle(title);
+  return /^(?:סוויטה|סוויטת\s+הורים)(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^suite(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
+}
+
 export function totalBedroomCountFromRooms(rooms: Array<{ bedrooms: number; quantity?: number }>) {
   return (Array.isArray(rooms) ? rooms : []).reduce((total, room) => {
     const bedrooms = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
@@ -50,6 +56,32 @@ function isVerifiedSleepingFact(value: string) {
   return /מיטה|מיטות|מזרן|מזרנים|לול|עריסה|ספה\s+(?:נפתחת|לשינה)|\bbed(?:s|ding)?\b|mattress|crib|cot|sofa\s*bed|\blit(?:s)?\b|matelas|berceau|canapé[- ]lit|кровать|матрас|детская кроватка|диван[- ]кровать/i.test(value);
 }
 
+export function verifiedBedroomGroupsFromRoom(room: Pick<SleepingSourceRoom, "bedrooms" | "featureGroups">) {
+  const groups = (Array.isArray(room.featureGroups) ? room.featureGroups : [])
+    .map((group, index) => ({ group, index }))
+    .filter(({ group }) => group && typeof group.title === "string" && Array.isArray(group.items) && group.items.length);
+  const declaredBedrooms = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
+  const explicitIndexes = new Set(groups.filter(({ group }) => isVerifiedBedroomGroup(group.title)).map(({ index }) => index));
+  const sleepingFactIndexes = groups
+    .filter(({ group }) => declaredBedrooms > 0 && isNamedSleepingSpaceGroup(group.title) && group.items.some(isVerifiedSleepingFact))
+    .map(({ index }) => index);
+  const selectedIndexes = new Set(explicitIndexes);
+
+  // Supplier room names are not always literally "חדר שינה". Suites and
+  // similarly named sleeping spaces still belong in the bedroom list when
+  // their contents contain verified bed facts. The declared bedroom count is
+  // the authority that prevents auxiliary sleeping areas from inflating it.
+  for (const index of sleepingFactIndexes) {
+    if (declaredBedrooms && selectedIndexes.size >= declaredBedrooms) break;
+    selectedIndexes.add(index);
+  }
+
+  const selected = groups.filter(({ index }) => selectedIndexes.has(index));
+  return declaredBedrooms && selected.length > declaredBedrooms
+    ? selected.slice(0, declaredBedrooms).map(({ group }) => group)
+    : selected.map(({ group }) => group);
+}
+
 function bedroomCountLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
 }
@@ -64,8 +96,7 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
     const totalUnits = Math.max(1, room.quantity || 1);
     const availableUnits = room.supplierRoomID === undefined || availableUnitCounts === undefined ? undefined
       : Math.min(totalUnits, Math.max(0, availableUnitCounts[room.supplierRoomID] || 0));
-    const explicitGroups = (Array.isArray(room.featureGroups) ? room.featureGroups : []).flatMap((group, groupIndex) => {
-      if (!group || typeof group.title !== "string" || !Array.isArray(group.items) || !isVerifiedBedroomGroup(group.title) || !group.items.length) return [];
+    const explicitGroups = verifiedBedroomGroupsFromRoom(room).flatMap((group, groupIndex) => {
       const galleryGroup = galleryGroups.find((gallery) => comparableSleepingTitle(gallery.title) === comparableSleepingTitle(group.title));
       return [{
         key: `${roomIndex}-${groupIndex}-${group.title}`,
