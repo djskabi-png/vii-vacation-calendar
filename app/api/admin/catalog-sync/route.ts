@@ -27,15 +27,30 @@ export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const db = await database();
-    const [dashboard, retryJobs, storedAlerts, capabilitySnapshot, vacationIds] = await Promise.all([
-      readSupplierCatalogDashboard(db), readCatalogRetryJobs(db), readCatalogAlerts(db),
-      readCachedOnlineCapabilities(db).catch(() => null), publishedSupplierIds("vacations").catch(() => new Set<number>()),
+    // The generation state is the safety-critical part of this screen. Optional
+    // diagnostics must not hide it: an older production database can be missing
+    // a retry, alert or capability table while the catalog itself is healthy.
+    // Keeping the core state readable lets operators see an active lock before
+    // they start a manual pull instead of turning a secondary read failure into
+    // an unsafe, opaque dashboard.
+    const dashboard = await readSupplierCatalogDashboard(db);
+    const [retryJobsResult, alertsResult, capabilityResult, vacationIdsResult] = await Promise.allSettled([
+      readCatalogRetryJobs(db), readCatalogAlerts(db), readCachedOnlineCapabilities(db), publishedSupplierIds("vacations"),
     ]);
+    const retryJobs = retryJobsResult.status === "fulfilled" ? retryJobsResult.value : [];
+    const storedAlerts = alertsResult.status === "fulfilled" ? alertsResult.value : [];
+    const capabilitySnapshot = capabilityResult.status === "fulfilled" ? capabilityResult.value : null;
+    const vacationIds = vacationIdsResult.status === "fulfilled" ? vacationIdsResult.value : new Set<number>();
     const alerts = [...catalogFreshnessAlerts(dashboard.states), ...storedAlerts];
     const capabilityValue = capabilitySnapshot
       ? publicOnlineCapabilities(capabilitySnapshot.value, vacationIds)
       : {};
-    return Response.json({ ...dashboard, retryJobs, alerts, onlineCapabilities: capabilitySnapshot ? {
+    return Response.json({ ...dashboard, retryJobs, alerts, diagnosticsAvailability: {
+      retries: retryJobsResult.status === "fulfilled",
+      alerts: alertsResult.status === "fulfilled",
+      onlineCapabilities: capabilityResult.status === "fulfilled",
+      publishedVacationIds: vacationIdsResult.status === "fulfilled",
+    }, onlineCapabilities: capabilitySnapshot ? {
       status: capabilitySnapshot.cache.status,
       checkedAt: capabilitySnapshot.cache.checkedAt,
       count: Object.keys(capabilityValue).length,
