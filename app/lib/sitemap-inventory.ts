@@ -69,7 +69,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       import("./public-catalog-read.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
     return unique(expand([
-      { path: "/events" }, { path: "/events/search" },
+      { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/search" },
       ...searchLocationOptions("events").filter((location) => location !== "כל הארץ" && eventPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => ({ path: eventSearchHref(location) })),
       ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => ({ path: `/events/place/${place.slug}`, images: [place.image, ...place.images] })),
     ]));
@@ -81,7 +81,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const spaPlaces = spaPlacesFromSites(spaSites);
     return unique(expand([
-      { path: "/spas" }, ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
+      { path: "/spas" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
       ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => ({ path })),
       ...spaPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));

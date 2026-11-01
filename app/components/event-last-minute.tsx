@@ -33,24 +33,30 @@ const copy = {
   fr: { title: "Lieux événementiels pour les prochaines dates", all: "Tous les lieux événementiels", tabs: ["Dernière minute", "Jeudi", "Vendredi"], loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être actualisée pour le moment", retry: "Réessayer", empty: "Aucune offre vérifiée pour cette date. Parcourez tous les lieux événementiels.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", today: "Disponible aujourd’hui", tomorrow: "Disponible demain", thursday: "Disponible jeudi", friday: "Disponible vendredi" },
 };
 
-export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20 }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number }) {
+type EventDealPresetId = "lastminute" | "thursday" | "friday";
+
+export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20, fixedPreset, sectionTitle, layout = "rail" }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number; fixedPreset?: EventDealPresetId; sectionTitle?: string; layout?: "rail" | "grid" }) {
   const { language, translate } = useSiteLanguage();
   const clock = useDealClock();
   const documentSeed = useDocumentSeed();
   const geography = useManagedGeography(language !== "he");
   const text = copy[language];
   const scope = regionalAvailabilityRegion(region);
-  const title = !scope ? text.title : language === "he" ? `${text.title} ב${scope.label}`
+  const title = sectionTitle || (!scope ? text.title : language === "he" ? `${text.title} ב${scope.label}`
     : language === "en" ? `${text.title} in ${scope.en}`
     : language === "ru" ? `${text.title} в ${scope.ru}`
-    : `${text.title} : ${scope.fr}`;
+    : `${text.title} : ${scope.fr}`);
   const slots = eventSlotCopy[language];
   const [chosenDate, setDate] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState<string | null>("lastminute");
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(fixedPreset || "lastminute");
   const guests = initialGuests > 0 ? initialGuests : 20;
   const [retry, setRetry] = useState(0);
-  useEffect(() => { setDate(eventDealDate(1)); setInitialized(true); }, []);
+  useEffect(() => {
+    const preset = eventDealPresets().find((item) => item.id === (fixedPreset || "lastminute"));
+    setDate(preset?.date || eventDealDate(1));
+    setInitialized(true);
+  }, [fixedPreset]);
   const presets = clock ? eventDealPresets(clock.now) : [];
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const selectedAvailability = selectedPreset === "thursday" ? text.thursday
@@ -66,7 +72,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     return [{ place, offer }];
   }), { id: item => item.place.slug, seed: `${documentSeed}:${sectionId}:${date}`, priority: item => scope && search.regionalOrder?.length ? Math.max(0, search.regionalOrder.indexOf(item.offer.siteID)) : undefined });
   const confirmed = new Set(candidates.map(({ place }) => place.slug));
-  const additionalPlaces = orderDiscoveryRail(places.flatMap((place) => {
+  const additionalPlaces = fixedPreset ? [] : orderDiscoveryRail(places.flatMap((place) => {
     if (!place.image || confirmed.has(place.slug)) return [];
     if (scope && !matchesSearchLocation(place, scope.label)) return [];
     return [homeEventPhotography(place)];
@@ -78,7 +84,8 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     // daily rotation make the restored starting-price field look missing.
     priority: place => supplierStartingPrice(startingPrices[place.slug] ?? place) ? 0 : 1,
   }).slice(0, Math.max(0, 20 - candidates.length));
-  const searchPath = eventSearchHref(scope?.label);
+  const searchPath = !scope && selectedPreset === "lastminute" ? "/events/last-minute" : eventSearchHref(scope?.label);
+  const allLabel = selectedPreset === "lastminute" ? ({ he: "לכל אירועי הרגע האחרון", en: "All last-minute event venues", ru: "Все площадки в последний момент", fr: "Tous les lieux de dernière minute" } as const)[language] : text.all;
   const busy = search.status === "loading" || !initialized;
 
   function choosePreset(id: string, presetDate: string) {
@@ -86,9 +93,9 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     setSelectedPreset(id);
   }
 
-  return <section className="section shell event-discovery-section event-deals" aria-labelledby={`${sectionId}-title`}>
-    <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={localizedPath(searchPath, language)}>{text.all}</Link></div>
-    <div className="home-live-deals__tabs event-last-minute-tabs" role="tablist" aria-label={text.title}>
+  return <section className={`section shell event-discovery-section event-deals${layout === "grid" ? " event-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
+    <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2>{layout === "rail" ? <Link href={localizedPath(searchPath, language)}>{allLabel}</Link> : null}</div>
+    {!fixedPreset ? <div className="home-live-deals__tabs event-last-minute-tabs" role="tablist" aria-label={text.title}>
       {presets.map((preset, index) => <button type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={selectedPreset === preset.id} tabIndex={selectedPreset === preset.id ? 0 : -1} key={preset.id} onClick={() => choosePreset(preset.id, preset.date)} onKeyDown={(event) => {
         const next = event.key === "Home" ? 0 : event.key === "End" ? presets.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + presets.length) % presets.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + presets.length) % presets.length : -1;
         if (next < 0) return;
@@ -96,7 +103,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
         choosePreset(presets[next].id, presets[next].date);
         event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
       }}>{text.tabs[index]}</button>)}
-    </div>
+    </div> : null}
     <div id={`${sectionId}-results`} role="tabpanel" aria-busy={busy} aria-live="polite">
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy && !additionalPlaces.length ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
