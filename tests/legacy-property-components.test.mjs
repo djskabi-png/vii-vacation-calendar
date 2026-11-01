@@ -16,11 +16,17 @@ test("property data contract supports five CMS-selected highlights and grouped a
 
 test("property page preserves description, highlights and full feature groups as separate components", () => {
   assert.match(page, /<section id="about" className=\{`property-about/);
-  assert.match(page, /<h2>\{translate\("על המקום"\)\}<\/h2><p className="property-about__description">\{localizedDescription\}<\/p>/);
+  assert.match(page, /<h2>\{translate\("על המקום"\)\}<\/h2><p id="property-about-description" className="property-about__description">\{localizedDescription\}<\/p>/);
+  assert.match(page, /aria-controls="property-about-description" aria-expanded=\{aboutExpanded\}/);
+  assert.match(page, /aboutExpanded \? "סגור" : "פתח עוד"/);
   assert.match(page, /aria-label="הדברים הבולטים במקום"/);
   assert.match(page, /property-feature-groups/);
   assert.match(page, /modal-feature-groups/);
   assert.match(page, /property\.featureGroups\?\.length/);
+  assert.match(css, /\.property-about__description \{[^}]*-webkit-line-clamp: 3/);
+  assert.match(css, /\.property-about\.is-expanded \.property-about__description \{[^}]*overflow: visible/);
+  assert.match(css, /\.property-about__toggle \{[^}]*display: inline-flex/);
+  assert.doesNotMatch(css, /\.property-about__toggle \{ display:none; \}/);
 });
 
 test("highlight strip is a five-column desktop row and a safe mobile scroller", () => {
