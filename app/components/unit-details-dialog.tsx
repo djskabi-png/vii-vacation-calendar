@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { StayOption } from "../data/site-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { FeatureIcon } from "./feature-icon";
@@ -11,6 +11,7 @@ export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGal
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLElement>(null);
   const { translate } = useSiteLanguage();
+  const [failedImage, setFailedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -53,8 +54,8 @@ export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGal
   return <div className="unit-details-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section ref={dialog} className="unit-details-dialog" role="dialog" aria-modal="true" aria-labelledby="unit-details-title">
       <header><div><span>{propertyName}</span><h2 id="unit-details-title">{room.name}</h2></div><button ref={closeButton} type="button" onClick={onClose} aria-label="סגירת פרטי היחידה">×</button></header>
-      {room.image ? <button className="unit-details-dialog__image" type="button" onClick={onOpenGallery} aria-label={`פתיחת גלריית ${room.name}`}>
-        <img src={room.image} alt={`${room.name} ב${propertyName}`} title={`${room.name} ב${propertyName}`} />
+      {room.image && failedImage !== room.image ? <button className="unit-details-dialog__image" type="button" onClick={onOpenGallery} aria-label={`פתיחת גלריית ${room.name}`}>
+        <img src={room.image} alt={`${room.name} ב${propertyName}`} title={`${room.name} ב${propertyName}`} onError={() => setFailedImage(room.image)} />
         <span>לכל תמונות היחידה</span>
       </button> : null}
       <div className="unit-details-dialog__intro">{room.description || !room.supplierRoomID ? <p>{room.description || `${room.name} היא יחידת אירוח נפרדת ב${propertyName}.`}</p> : null}<div>{room.bedrooms > 0 ? <span>{room.bedrooms === 1 ? translate("חדר שינה אחד") : `${room.bedrooms} ${translate("חדרי שינה")}`}</span> : null}<span>{translate("עד")} {room.guests} {translate("אורחים")}</span>{builtArea ? <span>{translate("שטח בנוי")} {builtArea} {translate("מ״ר")}</span> : null}{room.totalArea ? <span>{translate("שטח כללי")} {room.totalArea} {translate("מ״ר")}</span> : null}{room.basisGuests ? <span>{translate("מחיר הבסיס עד")} {room.basisGuests} {translate("אורחים")}</span> : null}</div></div>
