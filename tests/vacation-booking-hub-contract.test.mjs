@@ -86,6 +86,21 @@ test("the availability launcher opens date selection directly when no dates exis
   assert.doesNotMatch(hub, /\{hasDates \? "שינוי" : "בחירה"\}/);
 });
 
+test("telephone-only properties replace date selection with direct call and WhatsApp actions", async () => {
+  const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
+  const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.match(hub, /title: "הזמינות במקום זה נבדקת בטלפון"/);
+  assert.match(hub, /if \(availabilityMode === "inquiry"\) \{[\s\S]*vacation-booking-hub--phone/);
+  assert.match(hub, /vacation-booking-hub__phone-actions[\s\S]*phoneHref[\s\S]*WhatsAppLeadButton/);
+  assert.match(hub, /buttonLabel=\{phoneAvailabilityCopy\.whatsapp\}/);
+  assert.match(css, /\.vacation-booking-hub__phone-actions \{[^}]*grid-template-columns: repeat\(2,/s);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.vacation-booking-hub__phone-actions \{ grid-template-columns: 1fr 1fr; \}/);
+  assert.match(page, /hasSelectedDates \|\| vacationAvailabilityMode === "inquiry"/);
+  assert.match(page, /הזמינות ביחידה זו נבדקת בטלפון/);
+  assert.match(page, /vacationAvailabilityMode === "inquiry" \? <div className="room-card__contact-actions">[\s\S]*התקשרו למקום[\s\S]*שלחו הודעה בוואטסאפ/);
+});
+
 test("each multi-unit card exposes its own status price and direct booking action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   assert.match(hub, /<details><summary>פרטי היחידה<\/summary>/);
