@@ -24,3 +24,9 @@ test("desktop detail dock replaces duplicate identity with verified review summa
   assert.match(css, /\.detail-sticky-dock__review-summary[^}]*display: flex/);
   assert.match(css, /\.detail-sticky-dock--no-review-summary \{ grid-template-columns: minmax\(0, 1fr\) max-content; \}/);
 });
+
+test("long availability actions remain fully readable", () => {
+  assert.match(css, /\.detail-sticky-dock__actions \.button \{[^}]*white-space: normal;[^}]*overflow: visible;/);
+  assert.match(css, /\.detail-sticky-dock__primary \{ min-width: 190px; max-width: 230px; \}/);
+  assert.match(css, /\.room-card__actions \.button \{[^}]*white-space: normal;[^}]*overflow: visible;/);
+});
