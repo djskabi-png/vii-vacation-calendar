@@ -4500,6 +4500,16 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .booking-schedule__time-optional .modern-select__trigger { min-height: 44px; }
 .booking-schedule__time-optional p { margin: 0 0 4px; color: var(--muted); font: 650 .75rem/1.55 var(--font-sans); }
 .booking-form__schedule-error { margin: -4px 0 0; padding: 10px 12px; border-radius: 12px; background: #fff3f1; color: #8a3025; font-weight: 750; }
+.booking-place-policy { overflow: hidden; border: 1px solid #cfe2e3; border-radius: 16px; background: #f5fbfb; }
+.booking-place-policy summary { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; color: var(--teal-dark); font-weight: 850; cursor: pointer; list-style: none; }
+.booking-place-policy summary::-webkit-details-marker { display: none; }
+.booking-place-policy summary::after { content: "+"; flex: 0 0 auto; font-size: 1.35rem; line-height: 1; }
+.booking-place-policy[open] summary::after { content: "−"; }
+.booking-place-policy > div { max-height: 320px; overflow: auto; padding: 0 16px 16px; border-top: 1px solid #dcebed; }
+.booking-place-policy p { margin: 14px 0 0; white-space: pre-line; color: var(--ink); line-height: 1.85; }
+.place-cancellation-policy { margin-top: 10px; }
+.place-cancellation-policy summary { color: var(--teal-dark); font-weight: 800; cursor: pointer; }
+.place-cancellation-policy p { max-height: 320px; overflow: auto; white-space: pre-line; line-height: 1.8; }
 .booking-form .consent { display: flex; align-items: flex-start; gap: 9px; font-weight: 450; }
 .booking-form .consent input { flex: 0 0 20px; width: 20px; min-height: 20px; margin-top: 2px; }
 .booking-form .consent a { color: var(--teal-dark); text-decoration: underline; }

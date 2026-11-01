@@ -55,6 +55,7 @@ type Props = {
   supplierRoomID?: number;
   supplierRoomVerified?: boolean;
   vacationProperty?: Property;
+  cancellationTerms?: string;
 };
 
 const priceCopy = {
@@ -493,7 +494,11 @@ export default function BookingPageClient(props: Props) {
           <label>דואר אלקטרוני<input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required={Boolean(supplierSiteID)} /></label>
           <label className="form-wide">{isManage ? "מה תרצו לעדכן?" : "בקשות מיוחדות"}<textarea name="notes" rows={4} maxLength={1500} value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
           <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-          <label className="consent legal-consent form-wide"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בהזמנה.</span></label>
+          {!isManage && props.cancellationTerms ? <details className="booking-place-policy form-wide">
+            <summary>מדיניות הביטול של {props.placeName}</summary>
+            <div><p>{props.cancellationTerms}</p></div>
+          </details> : null}
+          <label className="consent legal-consent form-wide"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי {props.cancellationTerms ? <>למדיניות הביטול של המקום, </> : null}ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בהזמנה.</span></label>
           <div className="booking-form__actions form-wide"><button className="button secondary" type="button" onClick={() => setStep(1)}>חזרה</button><button className="button primary" type="button" onClick={() => nextStep(2)}>המשך לסיכום</button></div>
         </section>
 

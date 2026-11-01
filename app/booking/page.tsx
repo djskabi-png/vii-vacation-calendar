@@ -11,7 +11,7 @@ import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, supplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import spaLegacyAliases from "../data/spaplus-legacy-aliases.json";
 import { serverPublicCopy } from "../i18n/server-public-copy";
@@ -73,6 +73,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   if (property) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
     const supplierRoomID = /^vacation-\d+$/.test(property.slug) && Number.isSafeInteger(Number(params.roomID)) && Number(params.roomID) > 0 ? Number(params.roomID) : undefined;
+    const staticSupplierDetail = supplierPlaceDetail(property.slug);
     const currentSupplierDetail = supplierRoomID ? await liveSupplierPlaceDetail(property.slug) : undefined;
     const acceptedDetail = supplierRoomID ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(property.slug.slice(9))) : null;
     const selectedUnit = supplierRoomID
@@ -107,6 +108,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     placeImage: property.image,
     includedGuests: selectedUnit?.basisGuests || selectedUnit?.guests || property.guests,
     vacationProperty: property,
+    cancellationTerms: currentSupplierDetail?.policy.cancellationTerms || acceptedDetail?.policy.cancellationTerms || staticSupplierDetail?.policy.cancellationTerms,
     };
   }
 
