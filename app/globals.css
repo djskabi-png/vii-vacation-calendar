@@ -5332,7 +5332,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-facts span { color: var(--ink-soft); font-size: .78rem; }
 .audience-chips { margin-top: 18px; }
 .property-about > p { color: var(--ink-soft); line-height: 1.85; }
-.property-about__toggle { display:none; }
+.property-about__description { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.property-about.is-expanded .property-about__description { display: block; overflow: visible; }
+.property-about__toggle { min-height: 44px; display: inline-flex; align-items: center; margin-top: 6px; padding: 6px 0; border: 0; border-bottom: 1px solid currentColor; color: var(--teal-dark); background: transparent; font: 800 .82rem var(--font-sans); cursor: pointer; }
+.property-about__toggle:hover { color: var(--ink); }
+.property-about__toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .property-highlights { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; margin-top: 24px; }
 .property-highlights article { min-width: 0; min-height: 128px; display: grid; align-content: center; justify-items: center; gap: 11px; padding: 15px 10px; border: 1px solid #d2e5e7; border-radius: 18px; background: linear-gradient(145deg,#fff,#f4fafb); text-align: center; }
 .property-highlights strong { max-width: 16ch; color: var(--ink-soft); font-size: .78rem; line-height: 1.45; }
@@ -10528,9 +10532,6 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
   .floating-contact-actions > :is(button,a):focus-visible { outline: 3px solid #f4b942; outline-offset: 2px; }
   .floating-contact-actions svg { width: 20px; height: 20px; flex: 0 0 20px; }
   .back-to-top { inset-inline-start: 12px; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
-  .property-about__description { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .property-about.is-expanded .property-about__description { display:block; overflow:visible; }
-  .property-about__toggle { display:inline-flex; min-height:44px; align-items:center; margin-top:6px; padding:6px 0; border:0; border-bottom:1px solid currentColor; color:var(--teal-dark); background:transparent; font:800 .82rem var(--font-sans); cursor:pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {
