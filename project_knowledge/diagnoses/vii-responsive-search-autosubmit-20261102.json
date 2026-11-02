@@ -1,0 +1,42 @@
+{
+  "status": "fixed",
+  "symptom": "Selecting a search value on mobile navigates immediately instead of preserving the staged mobile flow.",
+  "expected_behavior": "Desktop choices submit immediately; mobile progresses through location, dates and party before final submission.",
+  "environment": "Local reconciled candidate a493408, shared app/components/search-box.tsx, desktop breakpoint 821px and mobile breakpoint 820px.",
+  "reproduction": {
+    "steps": ["Open the mobile search sheet", "Choose a location"],
+    "evidence": "chooseLocation calls search({ location: selectedLocation }) unconditionally."
+  },
+  "observations": [
+    {"observation": "The component already has an established mobile breakpoint helper pattern.", "evidence": "SearchBox uses matchMedia(max-width: 820px) and matchMedia(min-width: 821px)."},
+    {"observation": "Immediate callbacks read some dates from React state after setting that state.", "evidence": "Date confirmation callbacks call set state, while search currently reads vacationDateRange and eventDateRange from the previous render."}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "Immediate search was added to shared callbacks without a desktop viewport boundary.", "prediction": "The same callback navigates on both desktop and mobile.", "discriminating_test": "Inspect chooseLocation and option callbacks for a breakpoint condition.", "result": "No responsive condition exists in chooseLocation and several option callbacks.", "status": "supported"},
+    {"id": "H2", "mechanism": "CSS or the mobile portal alone causes the unexpected navigation.", "prediction": "The callback would not invoke router navigation directly.", "discriminating_test": "Trace the selection callback into search and router.push.", "result": "The callback directly invokes search, which reaches router.push, so CSS is not the cause.", "status": "rejected"},
+    {"id": "H3", "mechanism": "Only the vacation page duplicates the SearchBox with different behavior.", "prediction": "Other modes would use separate location callbacks.", "discriminating_test": "Inspect SearchBox mode routing and call sites.", "result": "One shared chooseLocation callback serves all modes.", "status": "rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Immediate selection is now limited to desktop, mobile advances through location, dates and party, staged values are kept in synchronous refs for the final submission, and the hidden mobile final confirmation button is visible again.",
+    "evidence": "Desktop browser checks navigated immediately for location and exact dates. Mobile browser checks kept the URL unchanged after location and dates, then navigated only from שמירת ההרכב to /vacations/north?from=2026-11-26&till=2026-11-28."
+  },
+  "affected_family": [
+    "vacation search on desktop and mobile",
+    "event search on desktop and mobile",
+    "spa search on desktop and mobile",
+    "hourly search on desktop and mobile",
+    "exact and flexible date confirmation",
+    "mobile location, date and party progression"
+  ],
+  "regression_checks": [
+    {"check": "Focused responsive search contracts", "status": "passed", "evidence": "All 11 focused contract tests passed after adding the responsive boundary, fresh-value refs and visible mobile final action."},
+    {"check": "Affected search and mobile family", "status": "passed", "evidence": "All 38 affected-family tests passed across search state, mobile progression, cancellation, portal, desktop dialog and tablet layout."},
+    {"check": "Production compilation and route generation", "status": "passed", "evidence": "pnpm build completed successfully and generated the vacation, event, spa and hourly search routes."},
+    {"check": "Desktop natural-destination behavior", "status": "passed", "evidence": "At 1280x900 selecting צפון navigated immediately to /vacations/north, and confirming 26 to 28 November navigated immediately with the exact from and till query."},
+    {"check": "Mobile staged natural-destination behavior", "status": "passed", "evidence": "At 390x844 the URL stayed on /vacations/center after location and date choices, then שמירת ההרכב navigated to /vacations/north?from=2026-11-26&till=2026-11-28."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Local diagnosis and repair are authorized; publication is not."
+}

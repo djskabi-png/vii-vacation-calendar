@@ -1,0 +1,89 @@
+{
+  "goal": "Make search choices submit immediately on desktop only while preserving the staged mobile journey.",
+  "intent_model": {
+    "literal_request": "Immediate filtering and navigation applies only on desktop; mobile must keep the previous staged flow.",
+    "implied_outcome": "Search feels obvious and fast on desktop without making mobile skip required context or lose the accepted step-by-step interaction.",
+    "likely_rejections": [
+      "Mobile still navigates after choosing a location",
+      "Desktop still requires the final search button",
+      "Confirmed dates are missing from the destination",
+      "Only vacations were corrected"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "only on desktop",
+        "operational_meaning": "Immediate navigation is gated at the 821-pixel desktop breakpoint.",
+        "acceptance_impact": "Desktop and mobile require separate observable checks."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Choose one search value.",
+    "current_decision": "Desktop applies it immediately; mobile advances to the next required step.",
+    "next_action": "Desktop reviews updated results; mobile completes dates and party before submission.",
+    "deferred_complexity": ["Advanced filters remain on their existing surfaces"],
+    "preserved_depth": ["Direct final search button", "Editable dates", "Editable party composition", "All four worlds"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\project_knowledge\\predictive_preflights\\vii-desktop-immediate-mobile-stepped-search-20261102.json",
+    "lesson_bundle_ids": ["ADIR-SEARCH-001", "ADIR-MOBILE-001", "ADIR-QA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Desktop visitor", "Mobile visitor"],
+  "natural_destination": "Shared VII SearchBox across vacation, events, spa and hourly search routes.",
+  "facts": [
+    {
+      "claim": "The current shared chooseLocation callback invokes search unconditionally.",
+      "evidence": "app/components/search-box.tsx lines 530 to 540 before correction"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The established responsive boundary remains 820 pixels.",
+      "validation": "The same component already uses max-width 820px and min-width 821px for its mobile editor."
+    }
+  ],
+  "in_scope": [
+    "Immediate desktop search after choosing location, date, spa audience or hourly price",
+    "Mobile staged location to dates to guests journey",
+    "Direct confirmed-value URL construction",
+    "All SearchBox modes"
+  ],
+  "out_of_scope": ["Visual redesign", "Publication", "Search ranking changes", "Supplier data changes"],
+  "invariants": [
+    "Mobile final party confirmation submits the search",
+    "The explicit search button remains available",
+    "Existing SEO landing URL builders remain authoritative",
+    "No search world, filter or stored selection is removed"
+  ],
+  "affected_family": [
+    "SearchBox vacation mode",
+    "SearchBox events mode",
+    "SearchBox spa mode",
+    "SearchBox hourly mode",
+    "desktop popovers",
+    "mobile search sheet",
+    "date confirmation callbacks"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Desktop choices submit immediately.", "source": "User correction"},
+    {"id": "REQ-2", "statement": "Mobile choices preserve the staged flow and do not submit early.", "source": "User correction"},
+    {"id": "REQ-3", "statement": "The destination uses the exact newly confirmed values.", "source": "Root-cause prevention"},
+    {"id": "REQ-4", "statement": "The behavior is consistent across all SearchBox modes.", "source": "Affected-family requirement"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-4"], "kind": "success", "setup": "Viewport at least 821 pixels", "action": "Choose a destination or confirm a date", "observable_result": "The matching results destination is pushed immediately with the selected value."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2", "REQ-4"], "kind": "success", "setup": "Viewport 390 pixels with the mobile search sheet open", "action": "Choose a destination", "observable_result": "No navigation occurs and the date stage opens."},
+    {"id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "Mobile visitor selected a destination and dates", "action": "Continue to party and save", "observable_result": "The final search contains the selected destination, dates and party."},
+    {"id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Desktop visitor confirms dates that differ from component state", "action": "The confirmation callback submits", "observable_result": "The target URL contains the newly confirmed dates, never the previous dates."},
+    {"id": "AC-5", "requirement_ids": ["REQ-1", "REQ-2", "REQ-4"], "kind": "recovery", "setup": "Mobile search sheet is open", "action": "Resize to desktop", "observable_result": "Mobile-only state and document locks are released and desktop search remains usable."},
+    {"id": "AC-6", "requirement_ids": ["REQ-2", "REQ-3"], "kind": "failure", "setup": "Mobile visitor has not completed the staged flow", "action": "Choose an intermediate location or date", "observable_result": "No premature results navigation occurs and incomplete or stale values are not submitted."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and verification only; no publication.",
+  "ready_for_implementation": true
+}

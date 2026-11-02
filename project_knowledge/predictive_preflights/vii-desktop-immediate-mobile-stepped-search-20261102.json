@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-desktop-immediate-mobile-stepped-search-20261102",
+  "project": "VII",
+  "task_type": "responsive search behavior correction",
+  "requested_outcome": "Desktop search selections navigate immediately while mobile preserves the staged location, date and party flow.",
+  "natural_destination": "VII search surfaces for vacations, events, spa and hourly rooms on desktop and mobile.",
+  "authorization_boundary": "Local source changes and verification are authorized. Publication is not authorized by this correction alone.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "The correction changes shared discovery state and navigation behavior.",
+      "acceptance_impact": "Search state and destination URLs must stay coherent across all worlds."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "Adir explicitly distinguishes the mobile staged journey from desktop immediate navigation.",
+      "acceptance_impact": "Mobile must be tested as its own journey, including transitions between location, dates and party."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "SearchBox is shared by multiple public routes and modes.",
+      "acceptance_impact": "The exact correction and the full affected family require regression evidence before completion."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The desktop fix also changes the accepted mobile staged flow.",
+      "prevention": "Gate immediate navigation behind the desktop breakpoint and explicitly test mobile transitions.",
+      "acceptance_check": "At 390 pixels, selecting a location opens the date stage and does not navigate."
+    },
+    {
+      "rejection": "A date-triggered desktop search navigates with the previous date because React state has not committed yet.",
+      "prevention": "Pass the confirmed date selection directly into the search URL builder.",
+      "acceptance_check": "The generated desktop destination contains the newly confirmed date values."
+    },
+    {
+      "rejection": "The behavior is fixed for vacations but remains inconsistent in events, spa or hourly rooms.",
+      "prevention": "Inventory all SearchBox modes and cover each mode in the responsive contract test.",
+      "acceptance_check": "Vacation, event, spa and hourly callbacks all use the same responsive navigation boundary."
+    }
+  ],
+  "affected_family": [
+    "shared SearchBox component",
+    "vacation location, date and party flow",
+    "event location, date and participant flow",
+    "spa location, date and audience flow",
+    "hourly location and price flow",
+    "desktop breakpoint",
+    "mobile staged search sheet"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Adir correction: immediate navigation is desktop-only and mobile keeps the prior staged flow",
+        "source": "Current user correction on 2026-11-02"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After extracting the responsive decision and updating one location selection path.",
+    "checks": [
+      "Desktop selection calls search immediately",
+      "Mobile selection advances without navigation",
+      "Confirmed dates are passed directly rather than read from stale state"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any mobile location selection still call search immediately?",
+      "Can a desktop date confirmation navigate with stale dates?",
+      "Do any of the four search modes bypass the responsive boundary?",
+      "Does resizing across the breakpoint retain a locked mobile overlay?"
+    ],
+    "natural_destination_evidence": "Rendered desktop and 390-pixel mobile search journeys on the exact candidate.",
+    "affected_family_evidence": "Focused automated tests and build evidence for all four SearchBox modes."
+  },
+  "effectiveness": {
+    "baseline": "Before correction, chooseLocation and several option callbacks invoked search unconditionally on every viewport.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "No immediate mobile navigation and no stale-date desktop navigation in the complete shared family."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -1,0 +1,77 @@
+{
+  "verdict": "ready",
+  "release": "Local search correction commit ec8d452b1089c925cf4e233e1ae270bc4b9480b5 with tree 2d3b30ad71da8e7207197254083af6b349f46f7d",
+  "target": "Local VII candidate on branch fix/reconcile-lost-features-20261102; no public deployment was requested or performed",
+  "baseline": "Commit a4934089167aab2705053d5fae4df62b2b61c1cf before the responsive search correction",
+  "requested_outcome": "Search selections submit immediately on desktop only, while mobile keeps the location, dates and party steps and submits from the final confirmation",
+  "authorization_boundary": "Local implementation, tests, browser verification and commit were authorized; production publication and deployment were outside this request",
+  "changed_components": [
+    "Shared SearchBox responsive submission boundary and fresh staged-value handling",
+    "Mobile final party confirmation visibility in the responsive stylesheet",
+    "Responsive search contract and without-date regression tests"
+  ],
+  "affected_family": [
+    {"id": "desktop-search", "surface": "Desktop location and exact-date selection in the shared vacation search"},
+    {"id": "mobile-search", "surface": "Mobile location, date and party progression in the shared vacation search"},
+    {"id": "shared-worlds", "surface": "Responsive callbacks shared by vacation, event, spa and hourly search modes"},
+    {"id": "state-integrity", "surface": "Latest staged location, exact dates and party values used during final URL construction"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {
+      "id": "desktop-success",
+      "state": "success",
+      "status": "passed",
+      "family_ids": ["desktop-search", "state-integrity"],
+      "evidence": "On commit ec8d452b at 1280x900, selecting צפון navigated immediately to /vacations/north and confirming 26 to 28 November navigated to /vacations/center?from=2026-11-26&till=2026-11-28."
+    },
+    {
+      "id": "mobile-responsive",
+      "state": "responsive",
+      "status": "passed",
+      "family_ids": ["mobile-search", "shared-worlds"],
+      "evidence": "On commit ec8d452b at 390x844, selecting צפון kept /vacations/center and opened dates, and confirming dates kept the same URL and opened the party step."
+    },
+    {
+      "id": "mobile-final-success",
+      "state": "success",
+      "status": "passed",
+      "family_ids": ["mobile-search", "state-integrity"],
+      "evidence": "The visible שמירת ההרכב action on commit ec8d452b navigated once to /vacations/north?from=2026-11-26&till=2026-11-28."
+    },
+    {
+      "id": "intermediate-failure-prevention",
+      "state": "failure",
+      "status": "passed",
+      "family_ids": ["mobile-search", "shared-worlds"],
+      "evidence": "Browser URL observations and the 38-test affected-family suite proved that intermediate mobile location and date choices do not submit prematurely."
+    },
+    {
+      "id": "state-persistence",
+      "state": "persistence",
+      "status": "passed",
+      "family_ids": ["state-integrity"],
+      "evidence": "The selected north location and 2026-11-26 to 2026-11-28 exact dates persisted across the mobile stages and appeared unchanged in the final result URL."
+    },
+    {
+      "id": "result-reload",
+      "state": "reload",
+      "status": "passed",
+      "family_ids": ["desktop-search", "mobile-search", "state-integrity"],
+      "evidence": "The exact result URLs rendered the expected נופש בצפון or נופש במרכז heading after route loading, and the production build completed with all search routes generated."
+    },
+    {
+      "id": "automated-regression",
+      "state": "recovery",
+      "status": "passed",
+      "family_ids": ["desktop-search", "mobile-search", "shared-worlds", "state-integrity"],
+      "evidence": "Eleven focused tests and all 38 affected-family tests passed, including responsive progression, cancellation, portal, location synchronization, desktop dialog and tablet contracts."
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Revert commit ec8d452b1089c925cf4e233e1ae270bc4b9480b5 to restore baseline a4934089167aab2705053d5fae4df62b2b61c1cf without rewriting unrelated branch history",
+    "verification": "The baseline commit identity is recorded and the correction is isolated to SearchBox, its responsive CSS and three contract-test files"
+  },
+  "remaining_blockers": []
+}
