@@ -1,0 +1,31 @@
+{
+  "verdict": "ready",
+  "release": "local candidate on fix/reconcile-lost-features-20261102",
+  "target": "Local VII homepage at http://127.0.0.1:4187/",
+  "baseline": "Popular searches used a four-column desktop grid and a two-column mobile grid.",
+  "requested_outcome": "All popular searches remain in one horizontal row and can be moved like a slider.",
+  "changed_components": [
+    "app/components/home-discovery-sections.tsx HomeQuickSearches",
+    "app/globals.css home-visual-searches rail styles",
+    "app/home-mobile.css mobile rail override",
+    "tests/visual-cleanup.test.mjs"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Homepage popular-searches section and all ten managed cards"},
+    {"id": "FAM-2", "surface": "Desktop slider controls and horizontal rail"},
+    {"id": "FAM-3", "surface": "390-pixel and low-height mobile horizontal rail"}
+  ],
+  "characteristics": {"stateful": false, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1"], "state": "success", "status": "passed", "evidence": "Focused node tests pass and the local DOM contains exactly ten direct link items in one grid-auto-flow column track."},
+    {"id": "CHK-2", "family_ids": ["FAM-2"], "state": "success", "status": "passed", "evidence": "At 1280x720 the rail is 950px wide and 2294px scrollable; activating the enabled next control moved RTL scrollLeft from 0 to -194 while page scrollX stayed 0."},
+    {"id": "CHK-3", "family_ids": ["FAM-3"], "state": "responsive", "status": "passed", "evidence": "At 390x844 and 390x640 all ten cards share one row, rail overflow remains internal, document overflow is 0, and the next control moves scrollLeft to -218."},
+    {"id": "CHK-4", "family_ids": ["FAM-2", "FAM-3"], "state": "reload", "status": "passed", "evidence": "Desktop and mobile reloads preserve one-row geometry; resetting to 1280x720 leaves no backdrop, stale lock or document overflow."},
+    {"id": "CHK-5", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "failure", "status": "passed", "evidence": "At the starting edge the unavailable previous direction is a disabled button while the next direction is enabled."},
+    {"id": "CHK-6", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "recovery", "status": "passed", "evidence": "Viewport reset returns to desktop width with static body positioning, no stale backdrop and zero document overflow."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "success", "status": "passed", "evidence": "Production build completed, RSC manifests agree, and the Hebrew font-source audit passed."}
+  ],
+  "rollback": {"available": true, "method": "Revert only the targeted candidate commit after it is created.", "verification": "The change is isolated to the component, its two style files, the focused test and evidence files."},
+  "authorization_boundary": "Local implementation and verification completed. No deployment or publication was authorized or performed.",
+  "remaining_blockers": []
+}

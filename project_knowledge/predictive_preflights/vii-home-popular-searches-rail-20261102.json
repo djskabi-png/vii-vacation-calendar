@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-popular-searches-rail-20261102",
+  "project": "VII",
+  "task_type": "targeted responsive homepage correction",
+  "requested_outcome": "Keep every popular-search card in one horizontal row and let visitors move through the row like a slider.",
+  "natural_destination": "VII homepage popular-searches section on desktop and mobile.",
+  "authorization_boundary": "Local source changes and verification only. Publication is not authorized by this request.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-MOBILE-001", "reason": "The rail is a primary mobile discovery surface.", "acceptance_impact": "Verify a usable one-row touch rail at 390 pixels without page overflow."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A visible shared homepage control must work at its natural destination.", "acceptance_impact": "Exercise arrows, horizontal scroll and links instead of relying only on CSS inspection."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "The mobile override still turns the cards into two rows.", "prevention": "Replace both desktop and mobile layout rules with one named rail contract.", "acceptance_check": "All ten cards share one horizontal track at desktop and 390 pixels."},
+    {"rejection": "The row looks horizontal but cannot be moved on desktop.", "prevention": "Reuse the tested slider controls and keep native horizontal scrolling.", "acceptance_check": "The enabled left-direction control changes the rail scroll position."},
+    {"rejection": "The section creates horizontal overflow for the whole page.", "prevention": "Contain overflow inside the rail and keep the section min-width at zero.", "acceptance_check": "Document width does not exceed viewport width while rail width exceeds its client width."},
+    {"rejection": "The change removes or changes one of the ten managed destinations.", "prevention": "Change only container semantics and CSS, preserving the existing item mapping.", "acceptance_check": "The existing ten-destination test continues to pass."}
+  ],
+  "affected_family": ["homepage popular-searches heading", "popular-searches slider controls", "popular-searches rail", "all ten popular-search cards", "desktop viewport", "390-pixel mobile viewport"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "Existing VII managed discovery slider controls", "source": "app/components/home-discovery-sections.tsx and app/components/slider-rail-controls.tsx"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "After component semantics and CSS are changed.", "checks": ["one named rail exists", "all mapped links remain direct children", "mobile override no longer creates two columns"], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Can any viewport wrap cards into another row?", "Can the controls fail to move an overflowing RTL rail?", "Can rail overflow widen the whole page?", "Did any destination or loading behavior change?"], "natural_destination_evidence": "Rendered local homepage on desktop and 390-pixel mobile.", "affected_family_evidence": "Focused tests, production build and responsive browser measurements."},
+  "effectiveness": {"baseline": "Desktop used a four-column grid and the mobile stylesheet forced a two-column grid.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "Exactly one movable horizontal row at every tested viewport with all ten links preserved."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

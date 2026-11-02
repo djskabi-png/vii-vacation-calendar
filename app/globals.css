@@ -5743,12 +5743,16 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 @media (max-width: 700px) { .home-live-deals__tabs--near { display: flex; } .home-live-deals__tabs--near button { min-width: 138px; } .home-live-deals__all-link { max-width: 58vw; font-size: .82rem; } }
 @media (max-width: 600px) { .home-hero__quick-links { width: 100%; border-radius: 18px; padding: 5px; } .home-hero__quick-links a { min-height: 44px; flex: 0 0 auto; } .home-live-deals__item, .home-live-deals__loading-card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } .home-live-deals__card-body { padding: 13px; } .home-live-deals__actions { padding: 0 13px 13px; } .home-holiday-deals .home-live-deals__tabs button { min-width: 145px; } }
 
-.home-visual-searches { width: min(980px,100%); margin: 22px auto 0; padding: 14px; border: 1px solid rgba(16,117,127,.17); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: 0 18px 45px rgba(13,73,82,.11); text-align: start; }
-.home-visual-searches__head { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 4px 11px; color: #0a6f78; text-align: center; }
-.home-visual-searches__head > svg { width: 30px; height: 30px; padding: 7px; border-radius: 50%; background: #e5f7f6; }
+.home-visual-searches { width: min(980px,100%); min-width: 0; margin: 22px auto 0; padding: 14px; border: 1px solid rgba(16,117,127,.17); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: 0 18px 45px rgba(13,73,82,.11); text-align: start; }
+.home-visual-searches__head { position: relative; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 4px 11px; color: #0a6f78; text-align: center; }
+.home-visual-searches__title { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.home-visual-searches__title > svg { width: 30px; height: 30px; padding: 7px; border-radius: 50%; background: #e5f7f6; }
 .home-visual-searches__head h2 { margin: 0; font-size: 1rem; color: #143e42; }
-.home-visual-searches > div:last-child { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.home-visual-searches__head .home-slider__controls { position: absolute; inset-inline-end: 0; }
+.home-visual-searches__head .home-slider__controls button { min-width: 44px; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+.home-visual-searches__track { min-width: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px,240px); gap: 10px; padding: 2px 2px 10px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scroll-snap-type: inline mandatory; scroll-padding-inline: 2px; scrollbar-width: thin; scrollbar-color: #9bcdd2 transparent; }
 .home-visual-searches a { min-width: 0; display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 10px; min-height: 70px; padding: 7px; border: 1px solid #dcebea; border-radius: 16px; background: #fff; color: #153f42; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.home-visual-searches__track > a { scroll-snap-align: start; }
 .home-visual-searches a:hover,.home-visual-searches a:focus-visible { transform: translateY(-2px); border-color: #79c6c8; box-shadow: 0 10px 24px rgba(9,91,99,.12); }
 .home-visual-searches img { width: 58px; height: 56px; border-radius: 12px; object-fit: cover; }
 .home-visual-searches a span { min-width: 0; display: grid; gap: 3px; }
@@ -5782,8 +5786,10 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 
 @media (max-width: 820px) {
   .home-visual-searches { margin-top: 16px; padding: 10px; border-radius: 20px; }
-  .home-visual-searches > div:last-child { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
-  .home-visual-searches a { flex: 0 0 76%; scroll-snap-align: start; }
+  .home-visual-searches__head { justify-content: flex-start; padding-inline-end: 100px; text-align: start; }
+  .home-visual-searches__title { justify-content: flex-start; }
+  .home-visual-searches__track { grid-auto-columns: minmax(220px,78vw); scrollbar-width: none; }
+  .home-visual-searches__track::-webkit-scrollbar { display: none; }
   .home-managed-discovery-wrap { gap: 30px; margin-top: 30px; }
   .home-managed-discovery__track.search-depth__rail { grid-auto-columns: minmax(220px,78vw); gap: 10px; }
   .home-managed-discovery__track .search-depth__discovery-card { min-height: 116px; padding: 16px; border-radius: 17px; }

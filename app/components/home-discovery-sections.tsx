@@ -55,7 +55,13 @@ function DiscoveryRail({ id, title, items }: { id: string; title: string; items:
 export function HomeQuickSearches() {
   const { language } = useSiteLanguage();
   const presentation = usePresentation();
-  return <section className="home-visual-searches" aria-labelledby="home-popular-searches-title"><div className="home-visual-searches__head"><Search aria-hidden="true" /><h2 id="home-popular-searches-title">חיפושים פופולריים</h2></div><div>{presentation.popular.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} prefetch={false} data-global-feedback="true" data-loading-label={`מחפשים ${item.label}...`}><img src={item.image} alt={item.imageAlt || item.label} title={item.imageAlt || item.label} /><span><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}</div></section>;
+  return <section className="home-visual-searches" aria-labelledby="home-popular-searches-title">
+    <div className="home-visual-searches__head">
+      <div className="home-visual-searches__title"><Search aria-hidden="true" /><h2 id="home-popular-searches-title">חיפושים פופולריים</h2></div>
+      <HomeSliderControls railId="home-popular-searches-track" label="חיפושים פופולריים" itemSelector=":scope > a" />
+    </div>
+    <nav id="home-popular-searches-track" className="home-visual-searches__track" dir={language === "he" ? "rtl" : "ltr"} data-horizontal-rail aria-label="חיפושים פופולריים" tabIndex={0}>{presentation.popular.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} prefetch={false} data-global-feedback="true" data-loading-label={`מחפשים ${item.label}...`}><img src={item.image} alt={item.imageAlt || item.label} title={item.imageAlt || item.label} /><span><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}</nav>
+  </section>;
 }
 
 export function HomeManagedDiscovery() {

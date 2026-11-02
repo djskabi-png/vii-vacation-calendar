@@ -1,0 +1,12 @@
+{
+  "outcomes": [
+    {
+      "name": "VII homepage popular-searches single-row slider",
+      "status": "completed",
+      "addressable": false,
+      "links": [],
+      "no_link_reason": "The user requested a local code correction and did not authorize publication, so no persistent public result URL exists yet.",
+      "location": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\app\\components\\home-discovery-sections.tsx"
+    }
+  ]
+}

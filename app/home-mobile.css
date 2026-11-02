@@ -43,7 +43,7 @@
   .home-page .spa-package-deals__days::-webkit-scrollbar { display:none; }
   .home-page .spa-package-deals__days button { min-width:66px; padding-inline:10px; }
   .home-page .home-visual-searches { padding:0; border:0; border-radius:0; box-shadow:none; background:transparent; }
-  .home-page .home-visual-searches > div:last-child { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; gap:8px; }
+  .home-page .home-visual-searches__track { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(220px,82vw); overflow-x:auto; overflow-y:hidden; gap:8px; }
   .home-page .home-visual-searches a { grid-template-columns:40px minmax(0,1fr); min-height:80px; gap:8px; padding:8px; }
   .home-page .home-visual-searches img { width:40px; height:48px; border-radius:10px; }
   .home-page .home-visual-searches a strong { font-size:.78rem; line-height:1.35; }

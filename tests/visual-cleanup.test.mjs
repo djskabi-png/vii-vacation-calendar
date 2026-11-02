@@ -8,8 +8,18 @@ test('popular searches has one centered heading and preserves all managed quick 
  assert.match(source,/<Search aria-hidden="true" \/><h2 id="home-popular-searches-title">חיפושים פופולריים/);
  assert.match(source,/presentation\.popular\.map/);
  assert.match(source,/href=\{localizedPath\(item\.href, language\)\}/);
+ assert.match(source,/HomeSliderControls railId="home-popular-searches-track"/);
+ assert.match(source,/className="home-visual-searches__track"[^>]*data-horizontal-rail/);
  assert.match(source,/home-city-rail/);assert.match(source,/home-type-rail/);
  assert.match(read('app/globals.css'),/\.home-visual-searches__head\s*\{[^}]*justify-content:\s*center/);
+});
+test('popular searches stay in one horizontally scrollable row on desktop and mobile',()=>{
+ const globalCss=read('app/globals.css');
+ const mobileCss=read('app/home-mobile.css');
+ assert.match(globalCss,/\.home-visual-searches__track\s*\{[^}]*grid-auto-flow:\s*column;[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*inline mandatory/s);
+ assert.match(globalCss,/\.home-visual-searches__track\s*>\s*a\s*\{[^}]*scroll-snap-align:\s*start/);
+ assert.match(mobileCss,/\.home-page \.home-visual-searches__track\s*\{[^}]*grid-auto-flow:column;[^}]*overflow-x:auto;[^}]*overflow-y:hidden/s);
+ assert.doesNotMatch(mobileCss,/\.home-page \.home-visual-searches\s*>\s*div:last-child\s*\{[^}]*grid-template-columns:repeat\(2/);
 });
 test('world openings retain H1, intro, search, breadcrumbs and truthful imagery without slogan stacking',()=>{
  const hero=read('app/components/discovery-world-hero.tsx');

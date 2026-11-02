@@ -1,0 +1,36 @@
+{
+  "goal": "Render homepage popular searches as one accessible horizontal slider row on every viewport.",
+  "predictive_preflight": {
+    "manifest_path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\project_knowledge\\predictive_preflights\\vii-home-popular-searches-rail-20261102.json",
+    "lesson_bundle_ids": ["ADIR-MOBILE-001", "ADIR-QA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Desktop visitor", "Mobile visitor"],
+  "natural_destination": "VII homepage popular-searches section.",
+  "facts": [{"claim": "The current mobile stylesheet forces the popular-search cards into a two-column grid.", "evidence": "app/home-mobile.css before correction"}],
+  "assumptions": [],
+  "in_scope": ["Single-row rail", "RTL-aware slider controls", "Touch and trackpad horizontal scrolling", "All existing popular-search destinations"],
+  "out_of_scope": ["Changing popular-search content", "Changing destinations", "Homepage redesign", "Publication"],
+  "invariants": ["All ten managed links remain present", "Existing images and copy remain unchanged", "Cards remain keyboard-focusable links", "No sitewide horizontal page overflow"],
+  "affected_family": ["HomeQuickSearches", "home-visual-searches styles", "desktop", "mobile", "Hebrew RTL", "other supported language directions"],
+  "characteristics": {"stateful": false, "responsive": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Popular searches never wrap into a second row.", "source": "Current user request"},
+    {"id": "REQ-2", "statement": "Visitors can move horizontally through the complete list.", "source": "Current user request"},
+    {"id": "REQ-3", "statement": "All existing destinations and card content remain intact.", "source": "Targeted-change preservation"},
+    {"id": "REQ-4", "statement": "The rail is usable and contained on desktop and mobile.", "source": "Responsive product gate"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-3"], "kind": "success", "setup": "Homepage loaded", "action": "Inspect the popular-search section", "observable_result": "All ten cards are direct items of one non-wrapping horizontal track."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2", "REQ-4"], "kind": "success", "setup": "Desktop viewport with overflowing rail", "action": "Activate the enabled next control", "observable_result": "Rail scroll position changes while page position does not."},
+    {"id": "AC-3", "requirement_ids": ["REQ-1", "REQ-2", "REQ-4"], "kind": "responsive", "setup": "390-pixel mobile viewport", "action": "Swipe or horizontally scroll the popular-search rail", "observable_result": "Cards remain in one row, later cards become reachable and the document has no horizontal overflow."},
+    {"id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "reload", "setup": "Any supported viewport", "action": "Reload and open a popular-search link", "observable_result": "The original localized destination still opens."},
+    {"id": "AC-5", "requirement_ids": ["REQ-2", "REQ-4"], "kind": "failure", "setup": "Rail is already at an edge", "action": "Inspect the corresponding control", "observable_result": "The unavailable direction is semantically disabled and no duplicate navigation occurs."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and verification only; no publication.",
+  "ready_for_implementation": true
+}
