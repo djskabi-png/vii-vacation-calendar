@@ -6,6 +6,15 @@ import { eventDealDate, eventDealPresets } from "../app/lib/event-deal-dates.ts"
 import { eventDealPlaceLabels } from "../app/lib/event-deal-labels.ts";
 import { eventOfferHref, eventPlaceHref } from "../app/lib/event-place-href.ts";
 
+test("dedicated last-minute page keeps a truthful browse fallback without claiming availability", () => {
+  const source = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
+  assert.match(source, /fallbackTitle/);
+  assert.match(source, /fallbackStatus/);
+  assert.match(source, /fixedPreset && !busy && !candidates\.length/);
+  assert.doesNotMatch(source, /const additionalPlaces = fixedPreset \? \[\] :/);
+  assert.match(source, /selectedPreset === "lastminute" \? text\.fallbackStatus/);
+});
+
 test("dated event offers preserve their supplier identity instead of joining a second query to a vacation link", () => {
   const place = { slug: "event-4", sourcePropertySlug: "vacation-9" };
   const href = eventOfferHref(place, new URLSearchParams({ from: "2026-10-22", guests: "100", slot: "evening", roomID: "40" }));
@@ -101,7 +110,7 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /text\.thursday/);
   assert.match(slider, /text\.friday/);
   assert.match(slider, /eventPlaceHref\(place\)/);
-  assert.match(slider, /busy && !additionalPlaces\.length/);
-  assert.match(slider, /search\.status === "error" && !additionalPlaces\.length/);
+  assert.match(slider, /busy && !visibleAdditionalPlaces\.length/);
+  assert.match(slider, /search\.status === "error"/);
   assert.doesNotMatch(slider, /בדיקת זמינות בעמוד המקום/);
 });

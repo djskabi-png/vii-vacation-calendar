@@ -42,8 +42,18 @@ export async function POST(request: Request) {
     return json({ success: false, error: "missing_whatsapp_enquiry_context" }, 400);
   }
 
+  const localReference = String(payload.submissionId);
+  if (isWhatsAppEnquiry) {
+    try {
+      await saveWhatsAppLead(payload, localReference);
+    } catch {
+      return json({ success: false, error: "lead_storage_unavailable" }, 503);
+    }
+  }
+
   const secret = process.env.VII_LEADS_SECRET?.trim();
   if (!secret || secret.length < 32) {
+    if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
     return json({ success: false, error: "lead_service_not_configured" }, 503);
   }
 
@@ -76,10 +86,10 @@ export async function POST(request: Request) {
     });
     const result = (await response.json().catch(() => null)) as Record<string, unknown> | null;
     if (!response.ok || !result?.success) {
+      if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
       return json({ success: false, error: "upstream_rejected" }, 502);
     }
-    const reference = String(result.reference || payload.submissionId);
-    if (isWhatsAppEnquiry) await saveWhatsAppLead(payload, reference);
+    const reference = isWhatsAppEnquiry ? localReference : String(result.reference || payload.submissionId);
     if (payload.purpose === "booking" || payload.purpose === "booking-management") {
       try {
         await recordBookingAudit({ id: reference, world: String(payload.world || "unknown"),
@@ -92,9 +102,11 @@ export async function POST(request: Request) {
     return json({
       success: true,
       reference,
+      upstreamDelivered: true,
       emailDelivered: result.emailDelivered === true,
     });
   } catch {
+    if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
     return json({ success: false, error: "upstream_unavailable" }, 502);
   }
 }

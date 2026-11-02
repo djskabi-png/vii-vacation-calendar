@@ -16,6 +16,7 @@ const suites = [
   ["admin-customer-auth-boundaries", ["qa:auth-boundaries"]],
   ["administration-control-inventory", ["qa:admin-controls"]],
   ["protected-release-baseline", ["qa:release-baseline"]],
+  ["critical-public-families", ["qa:critical-public-families"]],
   ["pre-professor-production-repairs", ["qa:pre-professor-repairs"]],
   ["production-build-and-all-tests", ["test"]],
   ["regression-guard-matrix", ["qa:regression-guards"]],

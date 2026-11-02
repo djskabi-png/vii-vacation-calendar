@@ -6,7 +6,8 @@ const business = readFileSync(new URL("../app/business/client-page.tsx", import.
 const hub = readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 
 test("a supplier without an online calendar is routed to the contact-only mode", () => {
-  assert.match(business, /\(supplierSiteID && property\.onlineAvailability === true\) \|\| usesLiveLegacyAvailability\) \? "live"/);
+  assert.match(business, /property\.onlineAvailability === true \|\| hasVerifiedSupplierQuote/);
+  assert.match(business, /supplierQuote\.status === "ready" && supplierQuote\.quote !== null/);
   assert.match(business, /phone=\{property\.contact\?\.phone\}/);
 });
 

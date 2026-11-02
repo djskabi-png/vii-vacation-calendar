@@ -5,7 +5,13 @@ import {spaSearchStateFromValues,spaSearchHref,spaSearchTitle,spaItemMatchesSear
 import {vacationRegionByLabel,cleanVacationPath} from '../app/data/vacation-landings.ts';
 import {eventSearchHref,hourlySearchHref,mergeSearchHref,searchLocationFromSlug} from '../app/data/world-search-landings.ts';
 import {regionalAvailabilityRegion,selectRegionalOffers} from '../app/lib/regional-availability.ts';
+import {approvedSearchLocationFromSlug} from '../app/lib/world-location-pages.ts';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+test('curated region routes remain approved even when catalog rows use cities instead of umbrella regions',()=>{
+  assert.equal(approvedSearchLocationFromSlug('events','north'),'צפון');
+  assert.equal(approvedSearchLocationFromSlug('events','center'),'מרכז');
+  assert.equal(approvedSearchLocationFromSlug('events','definitely-unknown'),null);
+});
 test('equivalent scopes use one clean route per world without dropping selection',()=>{
  for(const label of ['דרום','הנגב','דרום ונגב']){
   assert.equal(cleanVacationPath(label),'/vacations/south-negev');
@@ -41,10 +47,12 @@ test('semantic location routes accept every location they can generate, independ
  assert.equal(searchLocationFromSlug('events','eilat'),'אילת והערבה');
  assert.equal(searchLocationFromSlug('hourly','not-a-real-place'),undefined);
 });
-test('live catalog cities without a semantic slug keep their location as a query and retain hard filters',()=>{
- assert.equal(hourlySearchHref('טירת כרמל'),'/hourly?location=%D7%98%D7%99%D7%A8%D7%AA%20%D7%9B%D7%A8%D7%9E%D7%9C');
- assert.equal(eventSearchHref('טירת כרמל'),'/events/search?location=%D7%98%D7%99%D7%A8%D7%AA%20%D7%9B%D7%A8%D7%9E%D7%9C');
- assert.equal(mergeSearchHref(hourlySearchHref('טירת כרמל'),new URLSearchParams({maxPrice:'250'})),'/hourly?location=%D7%98%D7%99%D7%A8%D7%AA+%D7%9B%D7%A8%D7%9E%D7%9C&maxPrice=250');
+test('live catalog cities use clean ASCII routes and retain hard filters',()=>{
+ const hourly=hourlySearchHref('טירת כרמל');
+ const events=eventSearchHref('טירת כרמל');
+ assert.match(hourly,/^\/hourly\/search\/[a-z0-9-]+$/);
+ assert.match(events,/^\/events\/search\/[a-z0-9-]+$/);
+ assert.equal(mergeSearchHref(hourly,new URLSearchParams({maxPrice:'250'})),`${hourly}?maxPrice=250`);
 });
 test('known sparse semantic routes reach nearby recovery instead of returning a false 404',()=>{
  const hourlyRoute=read('app/hourly/search/[region]/page.tsx');

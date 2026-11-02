@@ -37,7 +37,11 @@ test("the server owns the verified SMS notification request", async () => {
   assert.match(source, /recipientSource: "verified_place_contact"/);
   assert.match(source, /template: "vii_whatsapp_lead"/);
   assert.match(source, /sourceBrand: "VII"/);
-  assert.match(source, /if \(isWhatsAppEnquiry\) await saveWhatsAppLead\(payload, reference\)/);
+  const localSave = source.indexOf("await saveWhatsAppLead(payload, localReference)");
+  const secretCheck = source.indexOf("const secret = process.env.VII_LEADS_SECRET");
+  const upstreamCall = source.indexOf("const response = await fetch(upstream");
+  assert.ok(localSave > -1 && localSave < secretCheck && localSave < upstreamCall, "WhatsApp enquiries must be persisted before optional notification delivery");
+  assert.match(source, /return json\(\{ success: true, reference: localReference, upstreamDelivered: false \}\)/);
 });
 
 test("completed WhatsApp popups are counted once and visible only to approved admins", async () => {

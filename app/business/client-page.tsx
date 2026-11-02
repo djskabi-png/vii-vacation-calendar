@@ -307,7 +307,8 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     : null;
   const resolvedAvailability = supplierSiteID ? supplierQuote.quote : verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
-  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = ((supplierSiteID && property.onlineAvailability === true) || usesLiveLegacyAvailability) ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
+  const hasVerifiedSupplierQuote = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.quote !== null);
+  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = ((supplierSiteID && (property.onlineAvailability === true || hasVerifiedSupplierQuote)) || usesLiveLegacyAvailability) ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
   const effectiveVacationAvailability = vacationAvailabilityMode !== "inquiry" ? resolvedAvailability : null;
   // A quote supplied in a link is useful only for properties without a live source.
   // For migrated listings the source response always wins, so an old shared link

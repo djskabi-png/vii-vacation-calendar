@@ -1,6 +1,6 @@
 import { canonicalSearchLocation, uniqueSearchLocations } from "./geographic-names.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
-import type { SearchMode } from "../data/search-taxonomy.ts";
+import { isWholeCountrySelection, searchLocationOptions, type SearchMode } from "../data/search-taxonomy.ts";
 import { worldLocationSlug } from "./location-slug.ts";
 
 type CatalogLocation = {
@@ -39,12 +39,25 @@ export async function worldLocationInventory(mode: SearchMode) {
     .sort((left, right) => left.label.localeCompare(right.label, "he"));
 }
 
+export function approvedSearchLocationFromSlug(mode: SearchMode, slug: string) {
+  const match = searchLocationOptions(mode)
+    .filter((label) => !isWholeCountrySelection(label))
+    .find((label) => worldLocationSlug(label) === slug);
+  return match || null;
+}
+
 export async function approvedWorldLocation(mode: SearchMode, slug: string) {
+  const approvedLabel = approvedSearchLocationFromSlug(mode, slug);
+  if (approvedLabel) return { label: approvedLabel, slug, path: worldLocationPath(mode, approvedLabel) };
   return (await worldLocationInventory(mode)).find((entry) => entry.slug === slug) || null;
 }
 
 export async function approvedWorldLocationForLabel(mode: SearchMode, label: string) {
   const canonical = canonicalSearchLocation(label);
+  const approvedLabel = searchLocationOptions(mode)
+    .filter((candidate) => !isWholeCountrySelection(candidate))
+    .find((candidate) => canonicalSearchLocation(candidate) === canonical);
+  if (approvedLabel) return { label: approvedLabel, slug: worldLocationSlug(approvedLabel), path: worldLocationPath(mode, approvedLabel) };
   return (await worldLocationInventory(mode)).find((entry) => entry.label === canonical) || null;
 }
 

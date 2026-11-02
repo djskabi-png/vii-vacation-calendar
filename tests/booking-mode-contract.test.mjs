@@ -27,6 +27,11 @@ test("vacation online booking requires dates and a positive connected price", ()
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
 });
 
+test("a verified dated supplier quote can upgrade stale catalog capability to live booking", () => {
+  assert.match(business, /supplierQuote\.status === "ready" && supplierQuote\.quote !== null/);
+  assert.match(business, /vacationOnlineReady[\s\S]*supplierQuote\.onlineBooking/);
+});
+
 test("incomplete vacation data keeps availability date-first and preserves the booking phone fallback", () => {
   assert.match(business, /vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady/);
   assert.match(vacationHub, /בחרו תאריכים כדי לראות זמינות ומחיר/);

@@ -63,6 +63,15 @@ test("QQQAAA permanently guards the production repairs required before Professor
   }
 });
 
+test("QQQAAA locks regional events, truthful last-minute discovery, WhatsApp handoff and unit-level booking authority", () => {
+  assert.match(runner, /critical-public-families/);
+  assert.match(runner, /qa:critical-public-families/);
+  const suite = packageJson.scripts["qa:critical-public-families"];
+  for (const file of ["booking-mode-contract.test.mjs", "whatsapp-lead-contract.test.mjs", "geographic-search-family.test.mjs", "event-slot-deals.test.mjs", "contextual-deal-landings.test.mjs", "vacation-contact-only-availability.test.mjs"]) {
+    assert.match(suite, new RegExp(file.replaceAll(".", "\\.")));
+  }
+});
+
 test("QQQAAA observes supplier gallery names and every floating action family in production", () => {
   assert.match(runner, /vii-unified-19-public/);
   assert.match(packageJson.scripts["qa:vii-unified-19-public"], /audit-unified-19-public/);

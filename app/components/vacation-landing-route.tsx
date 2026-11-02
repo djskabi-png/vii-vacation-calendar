@@ -29,7 +29,6 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
   const listings = region && !locationOverride
     ? vacationRegionListings(region, publishedProperties)
     : publishedProperties.filter((property) => matchesSearchLocation(property, location));
-  if (!listings.length) notFound();
   const represented = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, location, [], {
     key: (property) => property.slug,
     origin: { location, area: location },
