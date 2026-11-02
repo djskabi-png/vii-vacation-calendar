@@ -1,6 +1,7 @@
 import type { SearchMode } from "./search-taxonomy";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
+import { worldLocationSlug } from "../lib/world-location-pages.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",
@@ -30,7 +31,8 @@ const locationSlugs: Record<string, string> = {
 };
 
 export function searchLocationSlug(location: string) {
-  return locationSlugs[canonicalSearchLocation(location)];
+  const canonical = canonicalSearchLocation(location);
+  return locationSlugs[canonical] || worldLocationSlug(canonical);
 }
 
 export function searchLocationFromSlug(mode: SearchMode, slug: string | undefined) {

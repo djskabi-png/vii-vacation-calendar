@@ -4,7 +4,8 @@ import EventSearchPage from "../page";
 import type { EventPlace } from "../../../data/site-data";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { matchesSearchLocation } from "../../../data/search-taxonomy";
-import { eventSearchHref, searchLocationFromSlug } from "../../../data/world-search-landings";
+import { eventSearchHref } from "../../../data/world-search-landings";
+import { approvedWorldLocation } from "../../../lib/world-location-pages.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
 import { publishedSearchPage } from "../../../lib/search-page-content.ts";
@@ -14,14 +15,10 @@ export const dynamic = "force-dynamic";
 
 type PageProps = { params: Promise<{ region: string }> };
 
-function locationFor(region: string) {
-  return searchLocationFromSlug("events", region);
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { region } = await params;
-  const location = locationFor(region);
-  if (!location) return {};
+  const location = (await approvedWorldLocation("events", region))?.label;
+  if (!location) return { robots: { index: false, follow: false } };
   const title = `מקומות לאירועים ב${location}`;
   const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const url = eventSearchHref(location);
@@ -36,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function EventRegionPage({ params }: PageProps) {
   const { region } = await params;
-  const location = locationFor(region);
+  const location = (await approvedWorldLocation("events", region))?.label;
   if (!location) notFound();
   const places = await publicCatalogSummaries<EventPlace>("events");
   const matching = places.filter((place) => matchesSearchLocation(place, location));

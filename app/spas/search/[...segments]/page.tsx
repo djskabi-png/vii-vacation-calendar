@@ -13,15 +13,24 @@ import {
   spaSearchTitle,
 } from "../../../data/spa-search-landings";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
+import { approvedWorldLocation } from "../../../lib/world-location-pages.ts";
+import { matchesSearchLocation } from "../../../data/search-taxonomy.ts";
 
 type Props = { params: Promise<{ segments: string[] }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const state = spaSearchStateFromSegments((await params).segments);
-  if (!state) return {};
-  const path = spaSearchHref(state);
-  const title = spaSearchTitle(state);
-  const description = spaSearchDescription(state);
+  const segments = (await params).segments;
+  const state = spaSearchStateFromSegments(segments);
+  const locationPage = !state && segments.length === 1 ? await approvedWorldLocation("spa", segments[0]) : null;
+  if (!state && !locationPage) return { robots: { index: false, follow: false } };
+  if (locationPage) {
+    const title = `ספא ב${locationPage.label}`;
+    const description = `${title}, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר.`;
+    return { title, description, alternates: { canonical: locationPage.path }, openGraph: { type: "website", url: locationPage.path, title, description } };
+  }
+  const path = spaSearchHref(state!);
+  const title = spaSearchTitle(state!);
+  const description = spaSearchDescription(state!);
   return {
     title,
     description,
@@ -31,13 +40,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SpaSearchLandingPage({ params }: Props) {
-  const state = spaSearchStateFromSegments((await params).segments);
-  if (!state) notFound();
+  const segments = (await params).segments;
+  const state = spaSearchStateFromSegments(segments);
+  const locationPage = !state && segments.length === 1 ? await approvedWorldLocation("spa", segments[0]) : null;
+  if (!state && !locationPage) notFound();
   const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
-  const path = spaSearchHref(state);
-  const title = spaSearchTitle(state);
-  const description = spaSearchDescription(state);
-  const items = spaPlaces.filter((item) => spaItemMatchesSearch(item, state));
+  const path = locationPage?.path || spaSearchHref(state!);
+  const title = locationPage ? `ספא ב${locationPage.label}` : spaSearchTitle(state!);
+  const description = locationPage ? `${title}, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר.` : spaSearchDescription(state!);
+  const items = locationPage ? spaPlaces.filter((item) => matchesSearchLocation(item, locationPage.label)) : spaPlaces.filter((item) => spaItemMatchesSearch(item, state!));
   const breadcrumbs = [
     { name: "ראשי", path: "/" },
     { name: "בתי ספא", path: "/spas" },
@@ -53,9 +64,9 @@ export default async function SpaSearchLandingPage({ params }: Props) {
       description={description}
       items={spaPlaces}
       searchMode="spa"
-      initialSearchLocation={state.region?.label}
-      initialSpaAudience={state.audience?.id}
-      initialSpaFilters={state.features.map((entry) => entry.id)}
+      initialSearchLocation={locationPage?.label || state!.region?.label}
+      initialSpaAudience={state?.audience?.id}
+      initialSpaFilters={state?.features.map((entry) => entry.id)}
       breadcrumbItems={breadcrumbs}
       collectionTitle={`${items.length} בתי ספא מתאימים לחיפוש`}
     />

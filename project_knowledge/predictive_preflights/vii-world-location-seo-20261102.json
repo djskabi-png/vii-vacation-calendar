@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-world-location-seo-20261102",
+  "project": "VII",
+  "task_type": "world location SEO and canonical routing",
+  "requested_outcome": "Create a complete active city and region page family for all four commercial worlds, publish clean ASCII canonicals, add them to sitemaps and autocomplete, and permanently redirect approved query URLs without inventing pages for unknown locations.",
+  "natural_destination": "The public VII search, autocomplete, semantic location pages, redirects and XML sitemaps.",
+  "authorization_boundary": "Local code, tests and one production publication are authorized. Do not change supplier data, database schema, secrets, bindings, schedules, DNS, domains or permissions.",
+  "lesson_bundle": [],
+  "no_applicable_lessons_reason": "The project master plan and feedback standard named by the workspace instructions are absent, so project truth is taken from the current request, current production catalog and existing URL policy without inventing lesson applicability.",
+  "predicted_rejections": [
+    {
+      "rejection": "Only the small hardcoded location list is indexed and cities such as ראשון לציון remain absent.",
+      "prevention": "Derive the page and autocomplete inventory from every active catalog area and city in each world.",
+      "acceptance_check": "The accepted registry exactly matches all current production catalog labels and includes ראשון לציון in all four worlds."
+    },
+    {
+      "rejection": "Clean pages exist but query URLs, sitemap entries or canonicals still disagree.",
+      "prevention": "Use one deterministic slug and route policy across redirect, route, metadata and sitemap generation.",
+      "acceptance_check": "Every semantic location URL is ASCII, unique, HTTP 200 and self canonical, and every approved query URL returns HTTP 301 to its world route."
+    },
+    {
+      "rejection": "A generated page is thin, empty or made indexable despite having no accepted active inventory.",
+      "prevention": "Approve routes only from active public catalog inventory and render world-specific results, metadata, guide content and FAQ.",
+      "acceptance_check": "The full sitemap crawl finds no missing H1, meta description, canonical or failed page, and unknown locations do not redirect to fabricated canonicals."
+    },
+    {
+      "rejection": "A successful local build is reported as a public release.",
+      "prevention": "Require exact version and deployment identities plus a second crawl of the deployed public candidate.",
+      "acceptance_check": "The deployed source commit is identified and the public URLs, redirects and sitemap family pass after publication."
+    }
+  ],
+  "affected_family": ["vacation search", "event search", "spa search", "hourly search", "destination autocomplete", "semantic location routes", "canonical metadata", "XML sitemaps", "query redirects", "legacy redirect compatibility"],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "Existing clean hourly route", "source": "/hourly/search/north"},
+      {"label": "Project URL and publication policy", "source": "project_knowledge/VII_SEARCH_PAGE_URL_AND_PUBLICATION_POLICY.md"},
+      {"label": "Current accepted production catalog", "source": "https://vii.spaplus.co/api/catalog"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first cross-world route, redirect and sitemap slice is locally reachable.",
+    "checks": ["ראשון לציון resolves in all four worlds", "approved query URLs return HTTP 301", "unknown locations remain editable", "canonical and sitemap paths use the same slug"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can two labels create the same sitemap URL?",
+      "Can an approved query redirect to a route that returns 404?",
+      "Can a path contain Hebrew or unsafe encoded text?",
+      "Can an unknown location be incorrectly indexed?",
+      "Can autocomplete omit an active city that exists in the catalog?"
+    ],
+    "natural_destination_evidence": "The full deployed location page family and its public query redirects and XML sitemaps.",
+    "affected_family_evidence": "Focused contract tests, production build, exact catalog comparison and full local and public crawls."
+  },
+  "effectiveness": {
+    "baseline": "The hardcoded location taxonomy exposed only a small subset of the active catalog and omitted ראשון לציון from autocomplete.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Zero failures in the full location page crawl, zero duplicate or non ASCII canonicals, exact catalog registry coverage and all approved redirects returning 301."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

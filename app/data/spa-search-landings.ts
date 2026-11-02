@@ -3,6 +3,7 @@ import { matchesSearchLocation } from "./search-taxonomy.ts";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings.ts";
+import { searchLocationSlug } from "./world-search-landings.ts";
 
 export const spaSearchRegions = [
   { slug: "north", label: "צפון" },
@@ -28,7 +29,7 @@ export type SpaSearchAudienceId = (typeof spaSearchAudiences)[number]["id"];
 export type SpaSearchLanguage = "he" | "en" | "ru" | "fr";
 
 export type SpaSearchState = {
-  region?: (typeof spaSearchRegions)[number];
+  region?: { slug: string; label: string };
   audience?: (typeof spaSearchAudiences)[number];
   features: SpaLanding[];
 };
@@ -48,8 +49,10 @@ export function spaSearchStateFromSegments(segments: string[] | undefined): SpaS
 }
 
 export function spaSearchStateFromValues(location?: string, audienceId?: string, featureIds: string[] = []): SpaSearchState {
+  const canonicalLocation = canonicalSearchLocation(location);
   return {
-    region: spaSearchRegions.find((entry) => entry.label === canonicalSearchLocation(location)),
+    region: spaSearchRegions.find((entry) => entry.label === canonicalLocation)
+      || (canonicalLocation ? { slug: searchLocationSlug(canonicalLocation), label: canonicalLocation } : undefined),
     audience: spaSearchAudiences.find((entry) => entry.id === audienceId),
     features: featureIds.map((id) => spaLandings.find((entry) => entry.id === id)).filter((entry): entry is SpaLanding => Boolean(entry)),
   };

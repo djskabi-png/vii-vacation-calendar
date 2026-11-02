@@ -10,6 +10,8 @@ import { hourlySearchHref } from "../data/world-search-landings";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
 import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
+import { permanentRedirect } from "next/navigation";
+import { approvedWorldLocationForLabel } from "../lib/world-location-pages.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,20 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
   </>;
 }
 
-export default function HourlyPage() {
+export default async function HourlyPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const requestedLocation = typeof params?.location === "string" ? params.location : null;
+  if (requestedLocation) {
+    const approved = await approvedWorldLocationForLabel("hourly", requestedLocation);
+    if (approved) {
+      const query = new URLSearchParams();
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (key === "location" || value === undefined) return;
+        if (Array.isArray(value)) value.forEach((item) => query.append(key, item));
+        else query.set(key, value);
+      });
+      permanentRedirect(`${approved.path}${query.size ? `?${query}` : ""}`);
+    }
+  }
   return <HourlyLanding />;
 }

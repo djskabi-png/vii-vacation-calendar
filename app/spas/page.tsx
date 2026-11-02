@@ -8,6 +8,8 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
 import { SpaPackageDeals } from "../components/spa-package-deals";
 import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
+import { permanentRedirect } from "next/navigation";
+import { approvedWorldLocationForLabel } from "../lib/world-location-pages.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
 }
 
-export default async function SpasPage() {
+export default async function SpasPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const requestedLocation = typeof params?.location === "string" ? params.location : null;
+  if (requestedLocation) {
+    const approved = await approvedWorldLocationForLabel("spa", requestedLocation);
+    if (approved) {
+      const query = new URLSearchParams();
+      Object.entries(params || {}).forEach(([key, value]) => {
+        if (key === "location" || value === undefined) return;
+        if (Array.isArray(value)) value.forEach((item) => query.append(key, item));
+        else query.set(key, value);
+      });
+      permanentRedirect(`${approved.path}${query.size ? `?${query}` : ""}`);
+    }
+  }
   const page = await publishedSearchPage("/spas");
   const { translate } = await serverPublicCopy();
   const spaPlaces = spaPlacesFromSites(await bundledPublicCatalogSummaries<SpaPlusSite>("spa"));

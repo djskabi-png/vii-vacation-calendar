@@ -1,6 +1,7 @@
 import type { Property } from "./site-data";
 import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy.ts";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
+import { worldLocationPath } from "../lib/world-location-pages.ts";
 
 export type VacationRegion = {
   slug: string;
@@ -36,7 +37,8 @@ export function vacationRegionListings(region: VacationRegion, inventory: Proper
 export function cleanVacationPath(location: string, inventory?: Property[]) {
   if (isWholeCountrySelection(location)) return null;
   const region = vacationRegionByLabel(location);
-  return region && (!inventory || vacationRegionListings(region, inventory).length) ? `/vacations/${region.slug}` : null;
+  if (region && (!inventory || vacationRegionListings(region, inventory).length)) return `/vacations/${region.slug}`;
+  return worldLocationPath("vacation", location);
 }
 
 export function vacationBreadcrumbForLocation(location: string) {

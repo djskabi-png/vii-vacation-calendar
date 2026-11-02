@@ -635,7 +635,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
-  const destinations = useMemo(() => destinationInventory(managedGeography, uniqueSearchLocations([...destinationOptions, ...vacationLocationGroups.flatMap(group => [...group.options])])), [managedGeography, destinationOptions]);
+  const catalogDestinations = useMemo(() => placeInventory.flatMap((place) => [place.area, place.location]).filter(Boolean), [placeInventory]);
+  const destinations = useMemo(() => destinationInventory(managedGeography, uniqueSearchLocations([...destinationOptions, ...vacationLocationGroups.flatMap(group => [...group.options]), ...catalogDestinations])), [catalogDestinations, managedGeography, destinationOptions]);
   const visibleDestinations = matchingDestinations(destinations, locationQuery, translate);
   const visibleNamedPlaces = normalizedLocationQuery
     ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, DESTINATION_PAGE_SIZE - visibleDestinations.length)

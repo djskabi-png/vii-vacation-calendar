@@ -59,46 +59,48 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
   }
   if (section === "vacations") {
     if (!availability.vacation) return [];
-    const [{ publicCatalogSummaries }, { indexableAccommodationLandings }, { indexableVacationLandings }] = await Promise.all([
-      import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts")]);
+    const [{ publicCatalogSummaries }, { indexableAccommodationLandings }, { indexableVacationLandings }, { worldLocationInventory }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts"), import("./world-location-pages.ts")]);
     const properties = await publicCatalogSummaries<Property>("vacations");
     return unique(expand([
       { path: "/search" }, ...indexableAccommodationLandings(properties).map(({ path }) => ({ path })), ...indexableVacationLandings(properties).map(({ path }) => ({ path })),
+      ...(await worldLocationInventory("vacation")).map(({ path }) => ({ path })),
       ...properties.filter((place) => place.indexable !== false).map((place) => ({ path: `/business?id=${place.slug}`, images: [place.image, ...place.images] })),
     ]));
   }
   if (section === "events") {
     if (!availability.events) return [];
-    const [{ publicCatalogSummaries }, { matchesSearchLocation, searchLocationOptions }, { eventSearchHref }] = await Promise.all([
-      import("./public-catalog-read.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
+    const [{ publicCatalogSummaries }, { worldLocationInventory }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("./world-location-pages.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
     return unique(expand([
       { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/search" },
-      ...searchLocationOptions("events").filter((location) => location !== "כל הארץ" && eventPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => ({ path: eventSearchHref(location) })),
+      ...(await worldLocationInventory("events")).map(({ path }) => ({ path })),
       ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => ({ path: `/events/place/${place.slug}`, images: [place.image, ...place.images] })),
     ]));
   }
   if (section === "spas") {
     if (!availability.spa) return [];
-    const [{ publicCatalogSummaries }, { spaPlacesFromSites }, { spaLandings, spaLandingHref }, { indexableSpaSearchStates, spaSearchHref }] = await Promise.all([
-      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/spa-landings.ts"), import("../data/spa-search-landings.ts")]);
+    const [{ publicCatalogSummaries }, { spaPlacesFromSites }, { spaLandings, spaLandingHref }, { indexableSpaSearchStates, spaSearchHref }, { worldLocationInventory }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/spa-landings.ts"), import("../data/spa-search-landings.ts"), import("./world-location-pages.ts")]);
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const spaPlaces = spaPlacesFromSites(spaSites);
     return unique(expand([
       { path: "/spas" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
+      ...(await worldLocationInventory("spa")).map(({ path }) => ({ path })),
       ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => ({ path })),
       ...spaPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));
   }
   if (section === "hourly") {
     if (!availability.hourly) return [];
-    const [{ publicCatalogSummaries }, { hourlyPlacesFromCatalog }, { matchesSearchLocation, searchLocationOptions }, { hourlySearchHref }] = await Promise.all([
-      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
+    const [{ publicCatalogSummaries }, { hourlyPlacesFromCatalog }, { worldLocationInventory }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("./world-location-pages.ts")]);
     type HourlyCatalogPlace = Parameters<typeof hourlyPlacesFromCatalog>[0][number];
     const hourlyCatalogPlaces = await publicCatalogSummaries<HourlyCatalogPlace>("rooms");
     const hourlyPlaces = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
     return unique(expand([
-      { path: "/hourly" }, ...searchLocationOptions("hourly").filter((location) => location !== "כל הארץ" && hourlyPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => ({ path: hourlySearchHref(location) })),
+      { path: "/hourly" }, ...(await worldLocationInventory("hourly")).map(({ path }) => ({ path })),
       ...hourlyPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));
   }

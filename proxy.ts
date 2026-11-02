@@ -1,9 +1,28 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { redirectForPath, redirectLookupDatabase, shouldCheckRedirect } from "./app/lib/admin-redirects";
+import approvedLocations from "./app/data/approved-world-locations.json" with { type: "json" };
+import { worldLocationSlug } from "./app/lib/location-slug.ts";
+
+type ApprovedWorld = keyof typeof approvedLocations;
+const locationQueryRoutes: Record<string, { world: ApprovedWorld; base: string }> = {
+  "/search": { world: "vacation", base: "/vacations/search" },
+  "/events/search": { world: "events", base: "/events/search" },
+  "/spas": { world: "spa", base: "/spas/search" },
+  "/hourly": { world: "hourly", base: "/hourly/search" },
+};
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname.replace(/\/$/, "") || "/";
+  const locationRoute = locationQueryRoutes[path];
+  const location = request.nextUrl.searchParams.get("location")?.trim();
+  if (locationRoute && location && approvedLocations[locationRoute.world].includes(location)
+    && !(locationRoute.world === "vacation" && (request.nextUrl.searchParams.has("type") || request.nextUrl.searchParams.has("types")))) {
+    const url = request.nextUrl.clone();
+    url.pathname = `${locationRoute.base}/${worldLocationSlug(location)}`;
+    url.searchParams.delete("location");
+    return NextResponse.redirect(url, 301);
+  }
   if (!shouldCheckRedirect(path)) return NextResponse.next();
   try {
     const redirect = await redirectForPath(await redirectLookupDatabase(), path);
