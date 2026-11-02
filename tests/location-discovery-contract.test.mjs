@@ -31,11 +31,11 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   assert.match(css, /\.location-list\s*\{[^}]*overflow-y:\s*auto/s);
 });
 
-test("choosing a destination immediately searches with the clicked value", () => {
+test("choosing a destination searches immediately on desktop and advances the staged flow on mobile", () => {
   const chooseLocationBody = search.slice(search.indexOf("function chooseLocation"), search.indexOf("async function chooseNearbyLocation"));
   assert.match(
     chooseLocationBody,
-    /function chooseLocation\(place: string\)[\s\S]*?const selectedLocation = canonicalSearchLocation\(place\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?search\(\{ location: selectedLocation \}\);/,
+    /function chooseLocation\(place: string\)[\s\S]*?const selectedLocation = canonicalSearchLocation\(place\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?if \(isDesktopSearchViewport\(\)\) \{[\s\S]*?search\(\{ location: selectedLocation \}\);[\s\S]*?return;[\s\S]*?\}/,
   );
-  assert.doesNotMatch(chooseLocationBody, /setMobileStep\("dates"\)/);
+  assert.match(chooseLocationBody, /if \(isHourly\)[\s\S]*?setMobileStep\("overview"\)[\s\S]*?return;[\s\S]*?setMobileStep\("dates"\);[\s\S]*?setCalendarOpen\(true\);/);
 });

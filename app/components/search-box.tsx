@@ -155,8 +155,15 @@ type ImmediateSearchOverrides = {
   spaAudience?: SpaAudience | null;
   spaDate?: { date: string | null; withoutDate: boolean };
   eventGuests?: number;
+  eventDateRange?: { from: string | null; to: string | null };
   vacationParty?: VacationParty;
+  vacationDateRange?: { from: string | null; till: string | null };
+  vacationFlexibleSearch?: VacationFlexibleSearch | null;
 };
+
+function isDesktopSearchViewport() {
+  return window.matchMedia("(min-width: 821px)").matches;
+}
 
 function normalizeHourlyPrice(value: string | null) {
   const price = Number(value) || 0;
@@ -196,6 +203,18 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const [spaAudience, setSpaAudience] = useState<SpaAudience | null>(() => parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
   const [guests, setGuests] = useState(() => Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
   const [vacationParty, setVacationParty] = useState<VacationParty>(() => initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
+  const locationValueRef = useRef(locationValue);
+  const vacationDateRangeRef = useRef(vacationDateRange);
+  const vacationFlexibleSearchRef = useRef(vacationFlexibleSearch);
+  const eventDateRangeRef = useRef(eventDateRange);
+  const spaDateRef = useRef(spaDate);
+  const vacationPartyRef = useRef(vacationParty);
+  locationValueRef.current = locationValue;
+  vacationDateRangeRef.current = vacationDateRange;
+  vacationFlexibleSearchRef.current = vacationFlexibleSearch;
+  eventDateRangeRef.current = eventDateRange;
+  spaDateRef.current = spaDate;
+  vacationPartyRef.current = vacationParty;
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
@@ -269,18 +288,30 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const restoreCommittedSearchState = useCallback(() => {
     const committedParams = new URLSearchParams(searchParamsKey);
     const requestedLocation = committedParams.get("location");
-    setLocationValue(requestedLocation
+    const committedLocation = requestedLocation
       ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
-      : initialLocation || "כל הארץ");
+      : initialLocation || "כל הארץ";
+    const committedStay = vacationStayFromSearch(committedParams, activeRouteLanguage(language));
+    const committedVacationRange = { from: committedStay?.from || null, till: committedStay?.till || null };
+    const committedFlexibleSearch = flexibleSearchFromParams(committedParams);
+    const committedEventRange = { from: committedParams.get("from"), to: committedParams.get("to") };
+    const committedSpaDate = { date: committedParams.get("date"), withoutDate: committedParams.get("withoutDate") === "1" };
+    const committedParty = initialVacationParty(committedParams, Number(committedParams.get("guests")) || initialGuests || 2);
+    locationValueRef.current = committedLocation;
+    vacationDateRangeRef.current = committedVacationRange;
+    vacationFlexibleSearchRef.current = committedFlexibleSearch;
+    eventDateRangeRef.current = committedEventRange;
+    spaDateRef.current = committedSpaDate;
+    vacationPartyRef.current = committedParty;
+    setLocationValue(committedLocation);
     setDates(dateLabelFromSearch(committedParams, mode, activeRouteLanguage(language)));
-    const selectedStay = vacationStayFromSearch(committedParams, activeRouteLanguage(language));
-    setVacationDateRange({ from: selectedStay?.from || null, till: selectedStay?.till || null });
-    setVacationFlexibleSearch(flexibleSearchFromParams(committedParams));
-    setEventDateRange({ from: committedParams.get("from"), to: committedParams.get("to") });
-    setSpaDate({ date: committedParams.get("date"), withoutDate: committedParams.get("withoutDate") === "1" });
+    setVacationDateRange(committedVacationRange);
+    setVacationFlexibleSearch(committedFlexibleSearch);
+    setEventDateRange(committedEventRange);
+    setSpaDate(committedSpaDate);
     setSpaAudience(parseSpaAudience(committedParams.get("spaFor") || initialSpaAudience || null));
     setGuests(Number(committedParams.get("guests")) || initialGuests || defaultGuestCount(mode));
-    setVacationParty(initialVacationParty(committedParams, Number(committedParams.get("guests")) || initialGuests || 2));
+    setVacationParty(committedParty);
     setMaximumPrice(normalizeHourlyPrice(committedParams.get("maxPrice")));
   }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParamsKey]);
 
@@ -420,12 +451,15 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     setIsSearching(true);
     setSearchCommitted(true);
     closeMobileSearch();
-    const selectedLocation = overrides.location === undefined ? locationValue : canonicalSearchLocation(overrides.location);
+    const selectedLocation = overrides.location === undefined ? locationValueRef.current : canonicalSearchLocation(overrides.location);
     const selectedMaximumPrice = overrides.maximumPrice === undefined ? maximumPrice : overrides.maximumPrice;
     const selectedSpaAudience = overrides.spaAudience === undefined ? spaAudience : overrides.spaAudience;
-    const selectedSpaDate = overrides.spaDate || spaDate;
+    const selectedSpaDate = overrides.spaDate || spaDateRef.current;
     const selectedEventGuests = overrides.eventGuests === undefined ? guests : overrides.eventGuests;
-    const selectedVacationParty = overrides.vacationParty || vacationParty;
+    const selectedEventDateRange = overrides.eventDateRange || eventDateRangeRef.current;
+    const selectedVacationParty = overrides.vacationParty || vacationPartyRef.current;
+    const selectedVacationDateRange = overrides.vacationDateRange || vacationDateRangeRef.current;
+    const selectedVacationFlexibleSearch = overrides.vacationFlexibleSearch === undefined ? vacationFlexibleSearchRef.current : overrides.vacationFlexibleSearch;
     const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, selectedLocation) : cleanVacationPath(selectedLocation)) : null;
     const cleanSpaRoute = mode === "spa" ? spaSearchHref(spaSearchStateFromValues(selectedLocation, selectedSpaAudience || undefined, initialSpaFeatures)) : null;
     const cleanEventRoute = mode === "events" ? eventSearchHref(selectedLocation) : null;
@@ -438,17 +472,17 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       params.delete("stay");
       params.delete("month");
       params.delete("flexDays");
-      if (vacationDateRange.from && vacationDateRange.till) {
-        params.set("from", vacationDateRange.from);
-        params.set("till", vacationDateRange.till);
+      if (selectedVacationDateRange.from && selectedVacationDateRange.till) {
+        params.set("from", selectedVacationDateRange.from);
+        params.set("till", selectedVacationDateRange.till);
       } else {
         params.delete("from");
         params.delete("till");
-        if (vacationFlexibleSearch) {
+        if (selectedVacationFlexibleSearch) {
           params.set("dateMode", "flexible");
-          params.set("stay", vacationFlexibleSearch.stay);
-          params.set("month", vacationFlexibleSearch.month);
-          params.set("flexDays", String(vacationFlexibleSearch.days));
+          params.set("stay", selectedVacationFlexibleSearch.stay);
+          params.set("month", selectedVacationFlexibleSearch.month);
+          params.set("flexDays", String(selectedVacationFlexibleSearch.days));
         }
       }
     };
@@ -474,8 +508,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         params.set("location", selectedLocation);
       }
       if (mode === "events") {
-        if (eventDateRange.from) params.set("from", eventDateRange.from);
-        if (eventDateRange.to) params.set("to", eventDateRange.to);
+        if (selectedEventDateRange.from) params.set("from", selectedEventDateRange.from);
+        if (selectedEventDateRange.to) params.set("to", selectedEventDateRange.to);
         if (selectedEventGuests > 0) params.set("guests", String(selectedEventGuests));
         const selectedEventSlot = new URLSearchParams(searchParamsKey).get("slot");
         if (selectedEventSlot === "morning" || selectedEventSlot === "evening") params.set("slot", selectedEventSlot);
@@ -495,7 +529,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       destination = mergeSearchHref(route, params);
     }
     try {
-      trackSearchSubmitted({ world: mode, location: selectedLocation, hasDate: Boolean(mode === "spa" ? selectedSpaDate.date : mode === "events" ? eventDateRange.from : vacationDateRange.from) });
+      trackSearchSubmitted({ world: mode, location: selectedLocation, hasDate: Boolean(mode === "spa" ? selectedSpaDate.date : mode === "events" ? selectedEventDateRange.from : selectedVacationDateRange.from) });
       const target = localizedPath(destination, language);
       const current = `${window.location.pathname}${window.location.search}`;
       if (current === target || `${current}/` === target || current === `${target}/`) {
@@ -522,6 +556,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         ...current,
         [id]: Math.min(row.maximum, Math.max(row.minimum, current[id] + difference)),
       };
+      vacationPartyRef.current = next;
       setGuests(next.adults + next.children);
       return next;
     });
@@ -529,6 +564,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
 
   function chooseLocation(place: string) {
     const selectedLocation = canonicalSearchLocation(place);
+    locationValueRef.current = selectedLocation;
     setLocationValue(selectedLocation);
     const recent = recentDestinations([place, ...(Array.isArray(recentLocations) ? recentLocations : [])], destinations);
     setRecentLocations(recent);
@@ -536,7 +572,18 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
-    search({ location: selectedLocation });
+    if (isDesktopSearchViewport()) {
+      search({ location: selectedLocation });
+      return;
+    }
+    if (isHourly) {
+      setMobileStep("overview");
+      setMobileExpanded(true);
+      return;
+    }
+    setMobileStep("dates");
+    setMobileExpanded(true);
+    setCalendarOpen(true);
   }
 
   async function chooseNearbyLocation() {
@@ -658,7 +705,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">
           <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `₪ ${maximumPrice}` : "ללא הגבלת מחיר"}</strong></span></button>
-          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); search({ maximumPrice: price }); }}>{price ? `עד ₪ ${price} לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
+          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); if (isDesktopSearchViewport()) search({ maximumPrice: price }); else { setMobileStep("overview"); setMobileExpanded(true); } }}>{price ? `עד ₪ ${price} לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
         </div>}
         {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{visibleDates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>
@@ -693,7 +740,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} location={locationValue} />}
       {showWorlds && shouldCollapse && (guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
       {mobileExpanded && typeof document !== "undefined" ? createPortal(searchSurface, document.body) : searchSurface}
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setEventDateRange({ from: null, to: null }); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { date: null, withoutDate: true }; setDates("בלי תאריך כרגע"); setSpaDate(selection); search({ spaDate: selection }); }} onConfirm={(result) => { const selection = { date: result.date, withoutDate: result.withoutDate }; setDates(result.summary); setSpaDate(selection); search({ spaDate: selection }); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setVacationDateRange({ from: null, till: null }); setVacationFlexibleSearch(null); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setVacationFlexibleSearch(result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null); setMobileStep("guests"); setGuestOpen(true); }} />}
+      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, to: null }; eventDateRangeRef.current = selection; setDates("בחרו תאריכים"); setEventDateRange(selection); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.from, to: result.to }; eventDateRangeRef.current = selection; setDates(result.summary); setEventDateRange(selection); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { date: null, withoutDate: true }; spaDateRef.current = selection; setDates("בלי תאריך כרגע"); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { date: result.date, withoutDate: result.withoutDate }; spaDateRef.current = selection; setDates(result.summary); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, till: null }; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = null; setDates("בחרו תאריכים"); setVacationDateRange(selection); setVacationFlexibleSearch(null); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: null }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.checkIn, till: result.checkOut }; const flexibleSelection = result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = flexibleSelection; setDates(result.summary); setVacationDateRange(selection); setVacationFlexibleSearch(flexibleSelection); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: flexibleSelection }); else { setMobileStep("guests"); setGuestOpen(true); } }} />}
     </>
   );
 }

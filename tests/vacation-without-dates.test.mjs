@@ -17,7 +17,7 @@ test('without-date is an enabled localized search-only action on mobile and desk
 test('without-date clears both draft and parent exact/flexible choices, not just local highlight',()=>{
   assert.match(calendar,/function continueWithoutDates\(\)\s*\{\s*reset\(\);\s*setFlexible\(false\);\s*onSkip\?\.\(\);/);
   assert.match(calendar,/function reset\(\)\s*\{\s*setCheckIn\(null\);\s*setCheckOut\(null\);/);
-  assert.match(search,/<CalendarDemo mode="home"[\s\S]*?onSkip=\{\(\) => \{ setDates\("בחרו תאריכים"\); setVacationDateRange\(\{ from: null, till: null \}\); setVacationFlexibleSearch\(null\); setCalendarOpen\(false\); setMobileStep\("guests"\); setGuestOpen\(true\);/);
+  assert.match(search,/<CalendarDemo mode="home"[\s\S]*?onSkip=\{\(\) => \{ const selection = \{ from: null, till: null \}; vacationDateRangeRef\.current = selection; vacationFlexibleSearchRef\.current = null; setDates\("בחרו תאריכים"\); setVacationDateRange\(selection\); setVacationFlexibleSearch\(null\); setCalendarOpen\(false\); if \(isDesktopSearchViewport\(\)\) search\(\{ vacationDateRange: selection, vacationFlexibleSearch: null \}\); else \{ setMobileStep\("guests"\); setGuestOpen\(true\); \}/);
   for(const key of ['dates','dateMode','stay','month','flexDays','from','till']) assert.ok(search.includes(`params.delete("${key}")`),`remove ${key}`);
 });
 

@@ -4840,8 +4840,6 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
     overflow: visible;
     box-shadow: 0 10px 28px rgba(13,47,57,.08);
   }
-  .search-box-shell.mobile-expanded .vacation-party-picker .popover-done { display: none; }
-  .search-box-shell.mobile-expanded .search-step--guests .popover-done { display: none; }
   .section { padding-block: 48px; }
   .destination-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 200px 200px; }
   .destination-tile--1 { grid-row: auto; grid-column: 1/3; }
