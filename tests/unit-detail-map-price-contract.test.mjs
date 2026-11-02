@@ -26,13 +26,18 @@ test("broken unit media never leaves an empty image frame", async () => {
   const dialog = await read("app/components/unit-details-dialog.tsx");
   const page = await read("app/business/client-page.tsx");
   const bookingHub = await read("app/components/vacation-booking-hub.tsx");
+  const resilientImage = await read("app/components/resilient-image.tsx");
   assert.match(dialog, /failedImage !== room\.image/);
-  assert.match(dialog, /onError=\{\(\) => setFailedImage\(room\.image\)\}/);
+  assert.match(dialog, /ResilientImage/);
   assert.match(page, /failedRoomImages\.has\(room\.image\)/);
-  assert.match(page, /onError=\{\(\) => setFailedRoomImages/);
+  assert.match(page, /ResilientImage/);
+  assert.match(page, /markRoomImageFailed\(room\.image\)/);
+  assert.match(page, /room-card__image--unavailable/);
   assert.match(page, /תמונת המתחם, לא היחידה/);
   assert.match(bookingHub, /failedUnitImages\.has\(room\.image\)/);
   assert.match(bookingHub, /vacation-booking-dialog__unit-image--missing/);
+  assert.match(resilientImage, /image\?\.complete && image\.naturalWidth === 0/);
+  assert.match(resilientImage, /onError=\{onFailure\}/);
 });
 
 test("supplier room sizes and base-price guests remain distinct", async () => {

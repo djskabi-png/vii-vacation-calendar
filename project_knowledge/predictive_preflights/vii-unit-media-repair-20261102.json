@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-unit-media-repair-20261102",
+  "project": "VII",
+  "task_type": "production media integrity incident",
+  "requested_outcome": "Restore every current catalog and unit image, prevent pre-hydration failures from leaving broken frames, diagnose the observed global error screen, verify the affected family and publish only a fully observed candidate.",
+  "natural_destination": "Public VII place pages, unit cards, unit detail dialogs, booking dialogs and galleries on desktop and mobile.",
+  "authorization_boundary": "Code, generated media inventory, bounded R2 migration and production publication are authorized by the active request. Do not change catalog business data, schema, secrets, environment, DNS, domains, permissions or billing.",
+  "lesson_bundle": [],
+  "no_applicable_lessons_reason": "The mandatory project master plan and feedback standard paths are absent. Current production evidence and the user's screenshots are authoritative for this incident.",
+  "predicted_rejections": [
+    {"rejection": "The exact screenshot is hidden by a fallback but the real unit images remain unavailable.", "prevention": "Reconcile every live catalog media reference with the immutable inventory and R2, then verify HTTP content type and browser decoding.", "acceptance_check": "The exact eight vacation-164 unit cards show their real images and all live catalog media references return decodable image responses."},
+    {"rejection": "Images that fail before hydration still leave alt text and an empty frame.", "prevention": "Use a shared resilient image component that checks the decoded state after hydration in addition to onError.", "acceptance_check": "Forced pre-hydration failures switch to an honest property fallback or neutral unavailable state in every unit surface."},
+    {"rejection": "Only the visible card is fixed while dialogs, booking cards or other places still break.", "prevention": "Apply and test the shared boundary across place cards, unit details and booking dialogs, then audit the full live catalog.", "acceptance_check": "Desktop and mobile family tests find zero broken unit images and zero global error screens."},
+    {"rejection": "A local build is reported as fixed while production still serves 404 media or the error page.", "prevention": "Require exact deployment identity and repeat browser and HTTP audits against the public candidate.", "acceptance_check": "Public exact-page and full-family audits pass after the final deployment with rollback recorded."}
+  ],
+  "affected_family": ["vacation place unit cards", "unit detail dialog", "vacation booking dialog", "property fallback media", "unit gallery surfaces", "legacy media route", "live media inventory", "R2 media migration", "desktop viewport", "mobile viewport", "global error boundary"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "Exact production failure", "source": "https://vii.spaplus.co/business?id=vacation-164"}, {"label": "Current catalog detail", "source": "https://vii.spaplus.co/api/catalog?world=vacations&id=164"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "The exact page renders locally with the refreshed inventory and forced failures.", "checks": ["real vacation-164 unit media is allowlisted", "pre-hydration failure has no broken frame", "dialogs share the same resilience boundary", "no global error is emitted"], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Can a live catalog image be absent from the manifest?", "Can a request fail before hydration?", "Can both unit and property images fail?", "Can lazy loading hide failures below the fold?", "Can any place navigation reach the global error screen?"], "natural_destination_evidence": "The exact public place and all eight unit cards on desktop and mobile.", "affected_family_evidence": "Full live media reconciliation, targeted contracts, production build, forced failure tests and public browser audit."},
+  "effectiveness": {"baseline": "v768 passed only primary-image checks and missed 1,083 live unit/detail media objects plus failures that occurred before hydration.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "Zero live catalog media gaps, zero broken decoded images and zero observed global error screens."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

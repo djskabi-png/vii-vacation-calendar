@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-unit-media-repair-20261102",
+  "project": "VII",
+  "task_type": "production media integrity incident",
+  "goal": "Restore every current catalog and unit image, prevent broken frames and diagnose the observed global error screen before publication.",
+  "created_at": "2026-11-02T19:43:27.768835Z",
+  "updated_at": "2026-11-02T19:43:27.768841Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\project_knowledge\\predictive_preflights\\vii-unit-media-repair-20261102.json",
+      "sha256": "493722a3d80b180f7251a3b1ab0e09f6694f026dad99aedb872115b2a81793a1"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\project_knowledge\\predictive_preflights\\vii-unit-media-repair-20261102.json",
+    "sha256": "493722a3d80b180f7251a3b1ab0e09f6694f026dad99aedb872115b2a81793a1",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 11,
+    "lesson_bundle_count": 0,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [],
+  "no_applicable_lessons_reason": "The mandatory project master plan and feedback standard paths are absent. Current production evidence and the user's screenshots are authoritative for this incident.",
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Restore every current catalog and unit image, prevent broken frames and diagnose the observed global error screen before publication.",
+      "acceptance_check": "Exact place, full media inventory and affected unit family pass on public desktop and mobile with zero broken images or global errors.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-reconcile-20261102\\project_knowledge\\predictive_preflights\\vii-unit-media-repair-20261102.json validated with sha256 493722a3d80b180f7251a3b1ab0e09f6694f026dad99aedb872115b2a81793a1"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-02T19:43:27.768790Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "The exact page renders locally with the refreshed inventory and forced failures.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

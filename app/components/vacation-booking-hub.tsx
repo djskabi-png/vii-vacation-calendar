@@ -8,6 +8,7 @@ import type { Property, StayOption } from "../data/site-data";
 import type { ResolvedAvailability } from "./property-card";
 import { CalendarIcon } from "../site-header";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
+import { ResilientImage } from "./resilient-image";
 import { DirectPhoneLink } from "./direct-phone-link";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
@@ -362,7 +363,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                           ? unitCopy.tooSmall
                           : isUnavailable ? unitCopy.unavailable : unitCopy.confirm;
                 return <article className={`vacation-booking-dialog__unit${isAvailable ? " is-available" : isUnavailable ? " is-unavailable" : ""}`} key={room.name}>
-                  {room.image && !failedUnitImages.has(room.image) ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" title="" data-image-role="decorative" loading="lazy" onError={() => setFailedUnitImages((current) => new Set(current).add(room.image))} /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
+                  {room.image && !failedUnitImages.has(room.image) ? <ResilientImage className="vacation-booking-dialog__unit-image" src={room.image} alt="" title="" data-image-role="decorative" loading="lazy" onFailure={() => setFailedUnitImages((current) => new Set(current).add(room.image))} /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
                   <div className="vacation-booking-dialog__unit-content">
                     <div className="vacation-booking-dialog__unit-main">
                       <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>

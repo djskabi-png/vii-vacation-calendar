@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 
-export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+const assetFailurePattern = /(?:dynamically imported module|loading (?:css )?chunk|importing a module script failed|failed to fetch.*\/assets\/)/i;
+
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const language = typeof document === "undefined" ? "he" : document.documentElement.lang.split("-")[0];
+  const assetLoadFailure = assetFailurePattern.test(error?.message || "");
+  useEffect(() => {
+    if (!assetLoadFailure) return;
+    const key = `vii:asset-recovery:${window.location.pathname}`;
+    const lastAttempt = Number(window.sessionStorage.getItem(key) || 0);
+    if (Date.now() - lastAttempt < 60_000) return;
+    window.sessionStorage.setItem(key, String(Date.now()));
+    window.location.reload();
+  }, [assetLoadFailure]);
   const labels = {
     he: ["לא הצלחנו להשלים את הטעינה", "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.", "לנסות שוב", "לדף הבית"],
     en: ["We could not complete loading", "Try again. If the problem continues, return to the homepage.", "Try again", "Homepage"],
@@ -15,7 +27,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
       <h1>{labels[0]}</h1>
       <p>{labels[1]}</p>
       <div className="error-state-page__actions">
-        <button className="button primary" type="button" onClick={reset}>{labels[2]}</button>
+        <button className="button primary" type="button" onClick={() => assetLoadFailure ? window.location.reload() : reset()}>{labels[2]}</button>
         <Link className="button secondary" href="/">{labels[3]}</Link>
       </div>
     </section>

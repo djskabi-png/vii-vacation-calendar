@@ -60,6 +60,7 @@ import { DirectPhoneLink } from "../components/direct-phone-link";
 import { FeatureIcon } from "../components/feature-icon";
 import { legacyPlaceFeatureGroups } from "../data/legacy-place-feature-groups";
 import { RoomSleepingPreview } from "../components/room-sleeping-preview";
+import { ResilientImage } from "../components/resilient-image";
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
@@ -144,6 +145,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const [aboutCanExpand, setAboutCanExpand] = useState(false);
   const aboutDescriptionRef = useRef<HTMLParagraphElement>(null);
   const [failedRoomImages, setFailedRoomImages] = useState<Set<string>>(() => new Set());
+  const markRoomImageFailed = useCallback((src: string) => setFailedRoomImages((current) => {
+    if (current.has(src)) return current;
+    const next = new Set(current);
+    next.add(src);
+    return next;
+  }), []);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
@@ -559,7 +566,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
-                  {room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onError={() => setFailedRoomImages((current) => new Set(current).add(room.image))} /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <button className="room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`${translate("פתיחת גלריית")} ${localizedPropertyName}`}><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></button>}
+                  {room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><ResilientImage src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(room.image)} /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : property.image && !failedRoomImages.has(property.image) ? <button className="room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`${translate("פתיחת גלריית")} ${localizedPropertyName}`}><ResilientImage src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(property.image)} /><span>{translate("תמונת המתחם, לא היחידה")}</span></button> : <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={`${translate("אין תמונה זמינה עבור")} ${localizedRoomName}`}><span>{translate("תמונה לא זמינה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
                     {roomSleepingGroups.length ? <RoomSleepingPreview roomName={localizedRoomName} groups={roomSleepingGroups} /> : room.bedrooms > 0 ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><div className="room-card__sleeping-heading"><strong>איפה תשנו ביחידה?</strong><span>{translate(bedroomLabel(room.bedrooms))}</span></div><div className="room-card__sleeping-list"><div><b>{translate(bedroomLabel(room.bedrooms))}</b><span>סוגי המיטות נמסרים באישור המקום.</span></div></div></section> : null}
