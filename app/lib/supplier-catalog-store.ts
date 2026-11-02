@@ -360,22 +360,21 @@ export async function readSupplierCatalogSelectedSummaries(db: D1Database, world
 }
 
 export async function readSupplierCatalogDashboard(db: D1Database) {
-  const [states, runs] = await Promise.all([
-    db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,
+  // The production database bridge serializes statements on one request. Keep
+  // these operator-safety reads sequential so a healthy catalog state is not
+  // hidden by concurrent bridge calls.
+  const states = await db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,
       accepted_at AS acceptedAt, lock_run_id AS lockRunId, lock_until AS lockUntil
       FROM supplier_catalog_state ORDER BY world`).all<{ world: SupplierCatalogWorld; activeRunId: string | null;
-        activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null }>(),
-    db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
+        activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null }>();
+  // Keep the dashboard payload bounded. Large historical diagnostics remain in
+  // storage but must not prevent the current locks and generations from loading.
+  const runs = await db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
       finished_at AS finishedAt, before_count AS beforeCount, candidate_count AS candidateCount,
       added_count AS addedCount, changed_count AS changedCount, removed_count AS removedCount,
-      error_code AS errorCode, diagnostics_json AS diagnosticsJson
-      FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>(),
-  ]);
-  return { states: states.results, runs: runs.results.map(({ diagnosticsJson, ...run }) => {
-    let diagnostics: CatalogSyncDiagnostics | undefined;
-    try { diagnostics = sanitizeCatalogDiagnostics(JSON.parse(String(diagnosticsJson))); } catch { /* Old runs have no diagnostics. */ }
-    return { ...run, ...(diagnostics ? { diagnostics } : {}) };
-  }) };
+      error_code AS errorCode
+      FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>();
+  return { states: states.results, runs: runs.results };
 }
 
 export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld,
