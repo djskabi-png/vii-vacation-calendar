@@ -27,3 +27,16 @@ test("Professor visual motion respects reduced-motion preferences", () => {
   assert.match(styles, /prefers-reduced-motion:reduce/);
   assert.match(styles, /\.professorBrain>i/);
 });
+
+test("Professor isolates mixed Hebrew, English, numeric, date and currency runs across the shared text family", () => {
+  assert.match(page, /function ProfessorBidiText/);
+  assert.match(page, /<bdi className=\{styles\.professorLtrRun\} dir="ltr"/);
+  assert.match(page, /<ProfessorBidiText text=\{answer\.answer\} multiline \/>/);
+  assert.match(page, /<ProfessorBidiText text=\{item\.answer\.answer\} multiline \/>/);
+  assert.match(page, /<ProfessorBidiText text=\{insight\.detail\} \/>/);
+  assert.match(page, /key === "bizRevenue" \? "₪" : ""/);
+  assert.match(page, /₪\\s\*\\d/);
+  assert.match(page, /\[A-Za-z\]\[A-Za-z0-9\._\/@\+\-\]\*/);
+  assert.match(styles, /professorBidiText\{direction:rtl;unicode-bidi:isolate;text-align:right\}/);
+  assert.match(styles, /professorLtrRun\{direction:ltr;unicode-bidi:isolate;display:inline-block\}/);
+});
