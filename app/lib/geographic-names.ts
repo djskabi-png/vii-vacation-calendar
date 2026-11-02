@@ -17,6 +17,7 @@ export function normalizeGeographicName(value?: string | null): string {
 }
 
 const nameGroups = [
+  { label: "דרום ונגב", aliases: ["דרום", "הנגב", "Southern Israel", "South and Negev", "south-negev"] },
   { label: "חיפה", aliases: ["Haifa", "Haïfa"] },
   { label: "תל אביב", aliases: ["תל אביב יפו", "תל-אביב-יפו", "ת״א", "Tel Aviv", "Tel Aviv Yafo"] },
   { label: "חיפה והכרמל", aliases: ["חיפה וחוף הכרמל", "חיפה והסביבה", "חיפה והקריות", "אזור חיפה", "Haifa and Carmel", "Haifa and Hof HaCarmel", "haifa-carmel"], anchor: "חיפה",

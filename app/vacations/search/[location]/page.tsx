@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { VacationLandingRoute } from "../../../components/vacation-landing-route.tsx";
 import { approvedWorldLocation } from "../../../lib/world-location-pages.ts";
 
@@ -15,7 +15,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function VacationLocationPage({ params }: Props) {
-  const approved = await approvedWorldLocation("vacation", (await params).location);
+  const requestedLocation = (await params).location;
+  // v768 briefly generated this opaque slug for the quick destination "דרום".
+  // Preserve existing browser history and shared links by moving it to the
+  // stable, human-readable regional landing instead of leaving a false 404.
+  if (requestedLocation === "city-drvm-1vh8x") permanentRedirect("/vacations/south-negev");
+  const approved = await approvedWorldLocation("vacation", requestedLocation);
   if (!approved) notFound();
   return <VacationLandingRoute regionSlug={approved.slug} locationOverride={approved.label} />;
 }

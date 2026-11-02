@@ -7,6 +7,12 @@ import {eventSearchHref,hourlySearchHref,mergeSearchHref,searchLocationFromSlug}
 import {regionalAvailabilityRegion,selectRegionalOffers} from '../app/lib/regional-availability.ts';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('equivalent scopes use one clean route per world without dropping selection',()=>{
+ for(const label of ['דרום','הנגב','דרום ונגב']){
+  assert.equal(cleanVacationPath(label),'/vacations/south-negev');
+  assert.equal(eventSearchHref(label),'/events/search/south');
+  assert.equal(hourlySearchHref(label),'/hourly/search/south');
+  assert.equal(regionalAvailabilityRegion(label)?.label,'דרום ונגב');
+ }
  for(const label of ['גוש דן','תל אביב והסביבה','תל אביב וגוש דן']){
   assert.equal(spaSearchHref(spaSearchStateFromValues(label)), '/spas/search/tel-aviv-area');
   assert.equal(cleanVacationPath(label),'/vacations/tel-aviv-area');
@@ -22,6 +28,11 @@ test('equivalent scopes use one clean route per world without dropping selection
  }
  assert.equal(vacationRegionByLabel('תל אביב').slug,'tel-aviv');
  assert.equal(searchLocationFromSlug('events','tel-aviv-area'),'תל אביב וגוש דן');
+});
+test('the former opaque south search URL permanently redirects instead of rendering a false 404',()=>{
+ const route=read('app/vacations/search/[location]/page.tsx');
+ assert.match(route,/requestedLocation === "city-drvm-1vh8x"/);
+ assert.match(route,/permanentRedirect\("\/vacations\/south-negev"\)/);
 });
 test('semantic location routes accept every location they can generate, independent of curated world options',()=>{
  assert.equal(hourlySearchHref('חיפה'),'/hourly/search/haifa');
