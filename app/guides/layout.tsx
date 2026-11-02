@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "מגזין וי, החופשה הטובה מתחילה ברעיון טוב",
     description: "כתבות עומק ורעיונות שימושיים לחופשה הבאה.",
-    images: [{ url: "/og-magazine.png", width: 1536, height: 1024, alt: "גרפיקה מערכתית של מגזין וי בגוני טורקיז" }],
+    images: [{ url: "/og-magazine.webp", width: 1536, height: 1024, alt: "גרפיקה מערכתית של מגזין וי בגוני טורקיז" }],
   },
 };
 

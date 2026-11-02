@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     title: "V Platform | One platform. Many worlds.",
     description: "הפעילו תרחישים ולחצו על כל שכבה כדי לראות כיצד V מחברת ספקים, נתונים, עולמות ומוצרי קצה.",
     url: "/platform",
-    images: [{ url: "/platform-architecture-overview.png", width: 1672, height: 941, alt: "מפת ארכיטקטורת היעד האינטראקטיבית של פלטפורמת V" }],
+    images: [{ url: "/platform-architecture-overview.webp", width: 1672, height: 941, alt: "מפת ארכיטקטורת היעד האינטראקטיבית של פלטפורמת V" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "V Platform | One platform. Many worlds.",
     description: "הדמיית הארכיטקטורה הלחיצה של V.",
-    images: ["/platform-architecture-overview.png"],
+    images: ["/platform-architecture-overview.webp"],
   },
 };
 
