@@ -57,7 +57,7 @@ test("the booking entry opens one calm responsive dialog with a reachable primar
   assert.match(css, /\.vacation-booking-dialog \{[^}]*grid-template-rows: auto minmax\(0, 1fr\) auto/s);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.vacation-booking-dialog \{ width: 100%; height: auto; max-height: 92dvh;/);
   assert.match(css, /\.vacation-booking-dialog__body \{ max-height: calc\(92dvh - 172px\); \}/);
-  assert.match(css, /\.vacation-booking-dialog__footer-actions \.button \{[^}]*min-height: 50px/s);
+  assert.match(css, /\.vacation-booking-dialog__footer-actions \.button,[\s\S]*?\.vacation-booking-dialog__footer-actions \.vacation-booking-dialog__whatsapp \{[^}]*min-height: 50px/s);
   assert.match(css, /\.vacation-booking-dialog summary:focus-visible/);
   assert.match(css, /body:has\(\.vacation-booking-dialog-layer\) \.detail-sticky-wrap \{ display: none; \}/);
 });

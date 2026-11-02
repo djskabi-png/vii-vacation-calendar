@@ -32,7 +32,7 @@ test("home ratings use sourced values, clean excerpts and responsive cards", () 
   assert.match(home, /<Suspense fallback=\{null\}><HomeRatings \/><\/Suspense>/);
   assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);
-  assert.match(source, /href=\{`\/business\?id=\$\{place\.slug\}`\}/);
+  assert.match(source, /href=\{localizedPath\(`\/business\?id=\$\{place\.slug\}`, language\)\}/);
   assert.match(source, /home-rating-card__top/);
   assert.match(source, />לפרטי המקום</);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: clamp/);

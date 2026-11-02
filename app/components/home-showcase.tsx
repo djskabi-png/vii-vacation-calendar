@@ -28,6 +28,7 @@ import { useDocumentSeed } from "./use-document-seed";
 import { homeTourVideos } from "../lib/home-video-selection";
 import { useWorldAvailability } from "./world-availability-provider";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
+import { localizedPath } from "../i18n/locale-routing";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -108,10 +109,13 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, seed: `${documentSeed}:home-events` });
   const eventFallback = { he: { venue: "מתחם אירועים", location: "ישראל", description: "מתחם לאירועים פרטיים ועסקיים", guests: "אורחים ביחידה הגדולה" }, en: { venue: "Event venue", location: "Israel", description: "Venue for private and business events", guests: "guests in the largest unit" }, ru: { venue: "Площадка для мероприятий", location: "Израиль", description: "Площадка для частных и деловых мероприятий", guests: "гостей в самой большой зоне" }, fr: { venue: "Lieu événementiel", location: "Israël", description: "Lieu pour événements privés et professionnels", guests: "personnes dans le plus grand espace" } }[language];
   const localizeEvent = (place: EventPlace) => ({
-    name: localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || eventFallback.venue),
-    type: localizedBusinessText(place.type, language, translate, eventFallback.venue),
-    location: localizedBusinessText(place.location, language, translate, eventFallback.location),
-    description: localizedBusinessText(place.description, language, translate, eventFallback.description),
+    // Keep the first server and browser render identical. Generated catalog
+    // translations load asynchronously in the browser and must not change the
+    // business facts while React is hydrating this rail.
+    name: localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || eventFallback.venue, true),
+    type: localizedBusinessText(place.type, language, translate, eventFallback.venue, true),
+    location: localizedBusinessText(place.location, language, translate, eventFallback.location, true),
+    description: localizedBusinessText(place.description, language, translate, eventFallback.description, true),
   });
 
   function warmDestination(href: string) {
@@ -226,7 +230,7 @@ export function HomeRatingsSection({ ratedPlaces }: { ratedPlaces: HomeRatedPlac
     <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
     <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
       {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => { const name = localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || copy.details); const location = localizedBusinessText(place.location, language, translate, copy.location); const review = language === "he" ? homeReviewExcerpt(reviewText) : copy.review; const author = language === "he" ? reviewAuthor : copy.author; return <article className="home-rating-card home-slider__item" key={place.slug}>
-        <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={name} title={name} width="640" height="426" loading="lazy" decoding="async" /></Link><div><span title={location}>{location}</span><h3><Link href={`/business?id=${place.slug}`} title={name}>{name}</Link></h3><strong aria-label={`${copy.rating} ${place.score} ${copy.outOf}, ${place.reviews} ${copy.reviews}`}><b>{place.score}</b><small>{place.reviews} {copy.reviews}</small></strong></div></div><p>{review}</p><small className="home-rating-card__byline"><span title={author}>{author}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${reviewDate}T12:00:00Z`))}</time> : null}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>{copy.details}</Link>
+        <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={localizedPath(`/business?id=${place.slug}`, language)} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={name} title={name} width="640" height="426" loading="lazy" decoding="async" /></Link><div><span title={location}>{location}</span><h3><Link href={localizedPath(`/business?id=${place.slug}`, language)} title={name}>{name}</Link></h3><strong aria-label={`${copy.rating} ${place.score} ${copy.outOf}, ${place.reviews} ${copy.reviews}`}><b>{place.score}</b><small>{place.reviews} {copy.reviews}</small></strong></div></div><p>{review}</p><small className="home-rating-card__byline"><span title={author}>{author}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${reviewDate}T12:00:00Z`))}</time> : null}</small><Link className="home-rating-card__cta" href={localizedPath(`/business?id=${place.slug}`, language)}>{copy.details}</Link>
       </article>; })}
     </div>
   </div></div></section>;

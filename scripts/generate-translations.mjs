@@ -173,13 +173,13 @@ const manual = {
 async function translate(text, target) {
   if (manual[target][text]) return manual[target][text];
   const params = new URLSearchParams({ client: "gtx", sl: "he", tl: target, dt: "t", q: text });
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
     const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
     if (response.ok) {
       const data = await response.json();
       return data[0].map((part) => part[0]).join("").trim();
     }
-    await new Promise((resolvePromise) => setTimeout(resolvePromise, 400 * (attempt + 1)));
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, 900 * (attempt + 1)));
   }
   throw new Error(`Translation failed for ${target}: ${text.slice(0, 80)}`);
 }
@@ -188,15 +188,20 @@ async function translateBatch(texts, target) {
   const separator = "[[[VII_SPLIT_9F3A]]]";
   const joined = texts.join(`\n${separator}\n`);
   const params = new URLSearchParams({ client: "gtx", sl: "he", tl: target, dt: "t", q: joined });
-  const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
-  if (!response.ok) return mapLimit(texts, 5, (text) => translate(text, target));
-  const data = await response.json();
-  const translated = data[0].map((part) => part[0]).join("");
-  const parts = translated.split(separator).map((part) => part.trim());
-  return parts.length === texts.length ? parts : mapLimit(texts, 5, (text) => translate(text, target));
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
+    if (response.ok) {
+      const data = await response.json();
+      const translated = data[0].map((part) => part[0]).join("");
+      const parts = translated.split(separator).map((part) => part.trim());
+      if (parts.length === texts.length) return parts;
+    }
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, 1200 * (attempt + 1)));
+  }
+  return mapLimit(texts, 1, (text) => translate(text, target));
 }
 
-function makeBatches(values, maximumCharacters = 3200) {
+function makeBatches(values, maximumCharacters = 1800) {
   const batches = [];
   let batch = [];
   let length = 0;
@@ -231,7 +236,7 @@ const source = [...phrases].sort((a, b) => a.localeCompare(b, "he"));
 const generated = { en: {}, ru: {}, fr: {} };
 for (const language of ["en", "ru", "fr"]) {
   const batches = makeBatches(source);
-  const translatedBatches = await mapLimit(batches, 3, (batch) => translateBatch(batch, language));
+  const translatedBatches = await mapLimit(batches, 1, (batch) => translateBatch(batch, language));
   const values = translatedBatches.flat();
   source.forEach((text, index) => { generated[language][text] = values[index]; });
   Object.assign(generated[language], manual[language]);

@@ -23,6 +23,7 @@ import "./home-mobile.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
 import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 import { readWorldAvailability } from "./lib/world-availability";
+import { localizedPath, type SiteLanguage } from "./i18n/locale-routing";
 
 type SupplierReview = { author?: string; text?: string; date?: string };
 type SupplierReviewDetail = { reviews?: SupplierReview[] };
@@ -90,10 +91,11 @@ async function HomeRatings() {
 }
 
 async function HomeMagazineSection() {
-  const locale = (await headers()).get("x-vii-locale") || "he";
+  const requestedLocale = (await headers()).get("x-vii-locale") || "he";
+  const locale: SiteLanguage = ["he", "en", "ru", "fr"].includes(requestedLocale) ? requestedLocale as SiteLanguage : "he";
   const managedArticles = await managedMagazineArticles(magazineArticles).catch(() => magazineArticles);
   const homeArticles = managedArticles.filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
-  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
+  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href={localizedPath("/guides", locale)}>לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={localizedPath(`/guides/${article.slug}`, locale)}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
 
 export default async function HomePage() {

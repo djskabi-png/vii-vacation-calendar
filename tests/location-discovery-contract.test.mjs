@@ -31,9 +31,11 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   assert.match(css, /\.location-list\s*\{[^}]*overflow-y:\s*auto/s);
 });
 
-test("choosing a destination on mobile advances directly to the date picker", () => {
+test("choosing a destination immediately searches with the clicked value", () => {
+  const chooseLocationBody = search.slice(search.indexOf("function chooseLocation"), search.indexOf("async function chooseNearbyLocation"));
   assert.match(
-    search,
-    /function chooseLocation\(place: string\)[\s\S]*?setLocationOpen\(false\);[\s\S]*?setMobileStep\("dates"\);[\s\S]*?setCalendarOpen\(true\);/,
+    chooseLocationBody,
+    /function chooseLocation\(place: string\)[\s\S]*?const selectedLocation = canonicalSearchLocation\(place\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?search\(\{ location: selectedLocation \}\);/,
   );
+  assert.doesNotMatch(chooseLocationBody, /setMobileStep\("dates"\)/);
 });

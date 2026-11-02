@@ -49,6 +49,11 @@ function accommodationType(name: string, rooms: Record<string, unknown>[], highl
   return "מתחם אירוח";
 }
 
+function accommodationTypes(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[], amenityIndex: SergeyAmenityIndex) {
+  const explicit = unique(rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)));
+  return explicit.length ? explicit : [accommodationType(name, rooms, highlights, features, amenityIndex)];
+}
+
 function coordinates(gps: unknown) {
   const source = record(gps);
   const lat = source.lat;
@@ -89,6 +94,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   ]);
   const highlights = Array.isArray(raw.highlights) ? raw.highlights.filter((item): item is string => typeof item === "string") : [];
   const units = rooms.reduce((total, room) => total + (positive(room.roomCount) || 1), 0);
+  const bedrooms = rooms.reduce((total, room) => total + positive(room.bedrooms) * (positive(room.roomCount) || 1), 0);
   const guests = rooms.length ? Math.max(...rooms.map((room) => positive(room.maxGuests))) : 0;
   const reviews = record(raw.reviews);
   const score = typeof reviews.score === "number" && reviews.score > 0 ? reviews.score : undefined;
@@ -144,19 +150,24 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
       })),
     sourceUrl: raw.page_url,
   };
+  const vacationTypes = world === "vacations" ? accommodationTypes(name, rooms, highlights, searchableFeatures, amenityIndex) : [];
   const summary = {
     supplierId,
     world,
     ...startingPriceFields(raw),
+    onlineAvailability: raw.has_availability === true,
+    onlinePrices: raw.has_prices === true,
     sourceUrl: raw.page_url,
     slug,
     name,
     location: text(city?.title),
     area,
     type: world === "vacations"
-      ? accommodationType(name, rooms, highlights, searchableFeatures, amenityIndex)
+      ? vacationTypes[0]
       : rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean) || "מקום לאירועים",
+    ...(world === "vacations" ? { types: vacationTypes } : {}),
     units,
+    ...(bedrooms ? { bedrooms } : {}),
     guests,
     capacityScope: "unit",
     image: images[0],
@@ -240,6 +251,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             ...listPlace,
             id: ids[index], name: listPlace.siteName, location: { city: location.cityID },
             summary: record(old.detail).summary || "", meta: { description: record(old.summary).description || "" },
+            has_prices: record(old.summary).onlinePrices === true,
           }, cities, areas, amenityIndex);
           entries[index] = { supplierId: ids[index], summary: {
             ...record(old.summary),
@@ -270,6 +282,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
               // an explicit null when the supplier removes the sentence.
               preview_text: Object.hasOwn(active[index], "preview_text")
                 ? active[index].preview_text : detail.preview_text,
+              has_availability: active[index].has_availability,
               ...startingPriceFields(active[index]),
             }, cities, areas, amenityIndex);
           } catch (error) {

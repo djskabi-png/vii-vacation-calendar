@@ -35,7 +35,7 @@ test('unrelated links, arbitrary features, external links and ambiguous repeated
 });
 test('defaults and managed CMS records use the same correct search contract',()=>{
  const source=readFileSync('app/lib/homepage-presentation.ts','utf8');
- assert.match(source,/id: "pool"[^\n]*href: "\/search\?pool=1"/);
+ assert.match(source,/id: "heated-pool-family"[^\n]*href: vacationSearchHref\(\{ features: "heated-pool,families" \}\)/);
  assert.match(source,/href: normalizeHomepageSearchHref\(href\)/);
 });
 test('the browser also normalizes cached old presentation responses before rendering links',()=>{

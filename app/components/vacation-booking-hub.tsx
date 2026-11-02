@@ -8,6 +8,7 @@ import type { Property, StayOption } from "../data/site-data";
 import type { ResolvedAvailability } from "./property-card";
 import { CalendarIcon } from "../site-header";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
+import { DirectPhoneLink } from "./direct-phone-link";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { recommendVacationUnits } from "../lib/vacation-party-recommendation.mjs";
@@ -25,6 +26,7 @@ type VacationBookingHubProps = {
   bookingEnabled?: boolean;
   bookingHref: string;
   ownerWhatsapp?: string;
+  phone?: string;
   phoneHref?: string;
   illustrative?: boolean;
   onOpenCalendar: () => void;
@@ -65,9 +67,9 @@ function localizedDateRange(from: string, till: string, fallback: string, langua
 }
 
 function bookingState(hasDates: boolean, guests: number, property: Property, availability: ResolvedAvailability | null, nightlyPrice: number, availabilityMode: "live" | "demo" | "inquiry", availabilityStatus: VacationBookingHubProps["availabilityStatus"]): BookingState {
+  if (availabilityMode === "inquiry") return "inquiry-only";
   if (!hasDates) return "choose-dates";
   if (property.capacityScope !== "unit" && guests > property.guests) return "too-many-guests";
-  if (availabilityMode === "inquiry") return "inquiry-only";
   if (availabilityStatus === "error") return "check-error";
   if (!availability) return "no-data";
   if (availability.availability === "available") return nightlyPrice > 0 ? "available-price" : "available-no-price";
@@ -104,7 +106,7 @@ function unitBookingHref(baseHref: string, index: number, nightlyPrice?: number)
   return `${pathname}?${params.toString()}`;
 }
 
-export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, availabilityStatus = "idle", availabilityMode, bookingEnabled = true, bookingHref, ownerWhatsapp, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange, onRetryAvailability }: VacationBookingHubProps) {
+export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, availabilityStatus = "idle", availabilityMode, bookingEnabled = true, bookingHref, ownerWhatsapp, phone, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange, onRetryAvailability }: VacationBookingHubProps) {
   const { language, translate } = useSiteLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingAvailability, setPendingAvailability] = useState<{ dateKey: string; value: ResolvedAvailability } | null>(null);
@@ -186,6 +188,36 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", confirm: "Доступность подтвердит объект", inquiry: "Наличие и цену подтвердит объект", inquiryHint: "Даты и состав гостей будут переданы", error: "Не удалось проверить сейчас", errorHint: "Попробуйте ещё раз или свяжитесь с объектом", combination: "Доступна в составе рекомендуемой комбинации", tooSmall: "Эта единица не вмещает всю группу", confirmPrice: "Цена требует подтверждения", otherDate: "Можно проверить другую дату", quick: "Быстро забронировать", checkOther: "Проверить другую дату", check: "Проверить доступность", checkDates: "Проверить даты для", choose: "Выберите доступный вариант из списка", enquire: "Уточнить наличие", call: "Позвонить по наличию", retry: "Повторить проверку", combinationCheck: "Проверить комбинацию", availableCount: (count: number, total: number) => `Доступно ${count} из ${total}`, perNight: "за ночь", totalStay: "за всё проживание" },
     fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", confirm: "La disponibilité sera confirmée par l’établissement", inquiry: "Disponibilité et prix confirmés par l’établissement", inquiryHint: "Les dates et le nombre de personnes seront transmis", error: "Vérification impossible pour le moment", errorHint: "Réessayez ou contactez l’établissement", combination: "Disponible dans la combinaison recommandée", tooSmall: "Cette unité ne suffit pas seule pour le groupe", confirmPrice: "Prix à confirmer", otherDate: "Vous pouvez vérifier une autre date", quick: "Réservation rapide", checkOther: "Vérifier une autre date", check: "Vérifier la disponibilité de", checkDates: "Vérifier les dates pour", choose: "Choisissez une unité disponible dans la liste", enquire: "Demander la disponibilité", call: "Appeler pour vérifier", retry: "Réessayer", combinationCheck: "Vérifier une combinaison", availableCount: (count: number, total: number) => `${count} unité(s) disponible(s) sur ${total}`, perNight: "par nuit", totalStay: "pour tout le séjour" },
   }[language];
+  const inquiryCopy = {
+    he: {
+      eyebrow: "זמינות באישור המקום",
+      title: "הזמינות במקום נבדקת ישירות מול הצוות",
+      text: "המקום אינו מנהל יומן הזמנות מקוון, ולכן הזמינות והמחיר אינם מוצגים באתר. אפשר להתקשר או לשלוח הודעה בוואטסאפ ולקבל תשובה ישירות מהמקום.",
+      call: "התקשרו למקום",
+      whatsapp: "שלחו הודעה בוואטסאפ",
+    },
+    en: {
+      eyebrow: "Availability confirmed by the property",
+      title: "Check availability directly with the property",
+      text: "This property does not manage an online booking calendar, so availability and prices are not shown on the site. Call or send a WhatsApp message for a direct answer.",
+      call: "Call the property",
+      whatsapp: "Send a WhatsApp message",
+    },
+    ru: {
+      eyebrow: "Наличие подтверждает объект",
+      title: "Уточните наличие напрямую у объекта",
+      text: "Объект не ведёт онлайн-календарь бронирования, поэтому наличие и цены не отображаются на сайте. Позвоните или напишите в WhatsApp, чтобы получить ответ напрямую.",
+      call: "Позвонить объекту",
+      whatsapp: "Написать в WhatsApp",
+    },
+    fr: {
+      eyebrow: "Disponibilité confirmée par l’établissement",
+      title: "Vérifiez la disponibilité directement auprès de l’établissement",
+      text: "Cet établissement ne gère pas de calendrier de réservation en ligne. Les disponibilités et les prix ne sont donc pas affichés sur le site. Appelez ou envoyez un message WhatsApp pour obtenir une réponse directe.",
+      call: "Appeler l’établissement",
+      whatsapp: "Envoyer un message WhatsApp",
+    },
+  }[language];
 
   useEffect(() => {
     if (!dialogOpen) return;
@@ -215,6 +247,18 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     }
     onGuestsChange(nextGuests);
   };
+
+  if (availabilityMode === "inquiry") return <section id="booking-summary" className="vacation-booking-hub vacation-booking-hub--inquiry-only" aria-labelledby="vacation-booking-title">
+    <div className="vacation-booking-hub__inquiry-copy">
+      <span className="eyebrow">{inquiryCopy.eyebrow}</span>
+      <h2 id="vacation-booking-title">{inquiryCopy.title}</h2>
+      <p>{inquiryCopy.text}</p>
+    </div>
+    <div className="vacation-booking-hub__inquiry-actions">
+      {phone && phoneHref ? <DirectPhoneLink phone={phone} placeName={property.name} label={inquiryCopy.call} className="button primary" tracking={{ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_detail" }} /> : null}
+      {ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בירור זמינות ומחיר" initialGuests={guests} buttonLabel={inquiryCopy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp vacation-booking-hub__inquiry-whatsapp" /> : null}
+    </div>
+  </section>;
 
   return <section id="booking-summary" className={`vacation-booking-hub vacation-booking-hub--${state}`} aria-labelledby="vacation-booking-title">
     <h2 id="vacation-booking-title" className="sr-only">בדיקת תאריכים והזמנה</h2>
@@ -352,15 +396,15 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
           <div className="vacation-booking-dialog__footer-actions">
             {availabilityLoading ? <span className="vacation-booking-dialog__loading-note">מעדכנים זמינות</span>
               : state === "check-error" && onRetryAvailability ? <button className="button primary" type="button" onClick={onRetryAvailability}>בדיקה חוזרת</button>
-              : state === "inquiry-only" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות" initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="פנייה לבירור זמינות" buttonClassName="button primary vacation-booking-dialog__whatsapp" />
+              : state === "inquiry-only" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות" initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="שלחו הודעה בוואטסאפ" buttonClassName="stay-card__contact stay-card__contact--whatsapp vacation-booking-dialog__whatsapp" />
               : state === "inquiry-only" && phoneHref ? <a className="button primary" href={phoneHref}>חיוג לבירור זמינות</a>
-              : recommendationNeedsEnquiry && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת ההרכב המומלץ: ${recommendationNames.map((item) => `${item.quantity} ${translate(item.name)}`).join(", ")}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="פנייה לבדיקת ההרכב" buttonClassName="button primary vacation-booking-dialog__whatsapp" />
+              : recommendationNeedsEnquiry && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת ההרכב המומלץ: ${recommendationNames.map((item) => `${item.quantity} ${translate(item.name)}`).join(", ")}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="פנייה לבדיקת ההרכב" buttonClassName="stay-card__contact stay-card__contact--whatsapp vacation-booking-dialog__whatsapp" />
               : recommendationNeedsEnquiry && phoneHref ? <a className="button primary" href={phoneHref}>חיוג לבדיקת ההרכב</a>
               : directQuickBooking && !showUnitChoices ? <Link className="button primary" href={bookingHref}>הזמנה מהירה</Link>
               : state === "available-price" && !bookingEnabled && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
               : showUnitChoices && availableUnitCount > 0 ? <span className="vacation-booking-dialog__unit-guidance">{unitCopy.choose}</span>
               : unavailable || !hasDates ? <button className="button primary" type="button" onClick={openCalendar}>{hasDates ? "שינוי תאריכים" : "בחירת תאריכים"}</button>
-                : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={bookingEnabled ? "בקשת זמינות" : "בקשת הזמנה"} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={bookingEnabled ? "בדיקת זמינות" : "פנייה להזמנה"} buttonClassName="button primary vacation-booking-dialog__whatsapp" />
+                : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={bookingEnabled ? "בקשת זמינות" : "בקשת הזמנה"} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={bookingEnabled ? "בדיקת זמינות" : "פנייה להזמנה"} buttonClassName="stay-card__contact stay-card__contact--whatsapp vacation-booking-dialog__whatsapp" />
                   : phoneHref ? <a className="button primary" href={phoneHref}>חיוג למקום</a> : null}
             {hasDates && !unavailable ? <button className="vacation-booking-dialog__change-date" type="button" onClick={openCalendar}>שינוי תאריכים</button> : null}
           </div>

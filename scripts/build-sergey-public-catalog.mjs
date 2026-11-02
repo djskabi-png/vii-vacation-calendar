@@ -48,6 +48,10 @@ function featuresFor(place) {
   return unique([...(place.highlights || []).filter((item) => typeof item === "string"), ...roomFeatures]).slice(0, 24);
 }
 
+function accommodationTypesFor(rooms, amenityIndex) {
+  return unique((rooms || []).map((room) => sergeyRoomType(room.roomType, amenityIndex)));
+}
+
 function validIsraelCoordinates(lat, lng) {
   return typeof lat === "number" && typeof lng === "number"
     && Number.isFinite(lat) && Number.isFinite(lng)
@@ -69,6 +73,7 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
   const hasCoordinates = validIsraelCoordinates(lat, lng);
   const rooms = Array.isArray(raw.rooms) ? raw.rooms : [];
   const amenityIndex = buildSergeyAmenityIndex(source.types?.[world] || {});
+  const accommodationTypes = world === "vacations" ? accommodationTypesFor(rooms, amenityIndex) : [];
   if (!city?.title || !images.length) {
     rejected.push({ world, supplierId, reason: "missing_required_field" });
     return [];
@@ -110,8 +115,9 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
       basisGuests: Number.isSafeInteger(room.basisGuests) && room.basisGuests > 0 ? room.basisGuests : undefined,
       roomType: sergeyRoomType(room.roomType, amenityIndex) || undefined,
       bedrooms: Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0,
-      area: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize
-        : typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
+      builtArea: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
+      totalArea: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize : undefined,
+      area: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
       features: unique([
         ...sergeyAmenityLabels(room.amenities, amenityIndex),
         ...(room.spaces || []).flatMap((space) => (space.features || []).map((feature) => feature.description?.trim())),
@@ -139,8 +145,12 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     name,
     location: city.title,
     area: areas.get(city.area) || "",
-    type: world === "vacations" ? "מקום אירוח" : "מקום לאירועים",
+    type: world === "vacations" ? accommodationTypes[0] || "מקום אירוח" : "מקום לאירועים",
+    ...(world === "vacations" && accommodationTypes.length ? { types: accommodationTypes } : {}),
     units,
+    ...(rooms.reduce((total, room) => total + (Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0) * (Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1), 0) > 0
+      ? { bedrooms: rooms.reduce((total, room) => total + (Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0) * (Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1), 0) }
+      : {}),
     guests: capacity,
     capacityScope: "unit",
     image: images[0],

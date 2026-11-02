@@ -126,12 +126,12 @@ test("vacation SSR honors region before hydration and old unsupported filters do
   assert.doesNotMatch(large, />מקום שלם<|>קיבולת גבוהה</);
 });
 
-test("unsupported taxonomy and missing-place booking preserve locale without old prices", async () => {
-  for (const path of ["/en/villas/center", "/en/booking?world=vacation&place=vacation-tepers-estate&price=9999"]) {
-    const response = await render(path);
-    assert.equal(response.status, 307);
-    const url = new URL(response.headers.get("location"), "https://vii.spaplus.co");
-    assert.equal(url.pathname, "/en/search");
-    assert.equal(url.searchParams.has("price"), false);
-  }
+test("verified taxonomy is localized while missing-place booking preserves locale without old prices", async () => {
+  const landing = await render("/en/villas/center");
+  assert.equal(landing.status, 200);
+  const response = await render("/en/booking?world=vacation&place=vacation-tepers-estate&price=9999");
+  assert.equal(response.status, 307);
+  const url = new URL(response.headers.get("location"), "https://vii.spaplus.co");
+  assert.equal(url.pathname, "/en/search");
+  assert.equal(url.searchParams.has("price"), false);
 });

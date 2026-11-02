@@ -15,7 +15,7 @@ test("Vacation place pages separate live, inquiry-only and temporary failure sta
   assert.match(hub, /state === "inquiry-only"/);
   assert.match(hub, /state === "check-error"/);
   assert.match(hub, /state === "inquiry-only"[\s\S]*title: "התקשרו לבירור זמינות"/);
-  assert.match(hub, /state === "inquiry-only"[\s\S]*buttonLabel="פנייה לבירור זמינות"/);
+  assert.match(hub, /state === "inquiry-only"[\s\S]*buttonLabel="שלחו הודעה בוואטסאפ"/);
   assert.match(hub, /לא הצלחנו לבדוק כרגע/);
   assert.match(hub, /onRetryAvailability/);
   assert.match(hub, /initialTill=\{till\}/);

@@ -29,7 +29,11 @@ function bundledEntries(world: SupplierCatalogWorld) {
   if (world === "spa") return spa.sites.map((site) => ({ supplierId: site.id, summary: site }));
   if (world === "rooms") return hourly.places.map((place) => ({ supplierId: place.supplierId, summary: place }));
   return sergey.places.filter((place) => place.world === world)
-    .map((place) => ({ supplierId: place.supplierId, summary: place }));
+    .map((place) => {
+      const detail = bundledDetail(world, place.supplierId) as { rooms?: Array<{ bedrooms?: number; quantity?: number }> } | null;
+      const bedrooms = detail?.rooms?.reduce((total, room) => total + (room.bedrooms || 0) * (room.quantity || 1), 0) || 0;
+      return { supplierId: place.supplierId, summary: bedrooms ? { ...place, bedrooms } : place };
+    });
 }
 
 function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {

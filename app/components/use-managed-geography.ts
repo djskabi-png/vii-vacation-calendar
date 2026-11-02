@@ -22,7 +22,11 @@ function loadManagedGeography() {
 }
 
 export function useManagedGeography(enabled = true) {
-  const [nodes, setNodes] = useState<PublicGeographyNode[]>(() => acceptedNodes || []);
+  // The server cannot see the browser module cache. Always hydrate from the
+  // same empty snapshot, then reuse accepted nodes after the component mounts.
+  // Reading `acceptedNodes` here makes later Suspense boundaries render a city
+  // in the browser while the server rendered the country fallback.
+  const [nodes, setNodes] = useState<PublicGeographyNode[]>([]);
   useEffect(() => {
     if (!enabled) return;
     let active = true;

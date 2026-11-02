@@ -3,6 +3,7 @@
 import "./search-tablet.css";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap, preloadListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
@@ -71,12 +72,14 @@ export type SearchLandingContext = {
   guideTitle?: string;
   guideParagraphs?: string[];
   faqs?: Array<{ question: string; answer: string }>;
+  relatedLinks?: Array<{ label: string; href: string }>;
 };
 
 type VacationFilterState = {
   area: string;
   selectedTypes: string[];
   guests: number;
+  bedrooms: number;
   minPrice: number;
   maxPrice: number;
   pool: boolean;
@@ -92,7 +95,7 @@ const legacyAccommodationTypes = [
   { label: "בקתות עץ", matches: ["בקתת עץ", "בקתות עץ"] },
   { label: "וילות", matches: ["וילה", "וילות"] },
   { label: "דירות נופש", matches: ["דירת נופש", "דירות נופש"] },
-  { label: "סוויטות", matches: ["סוויטות", "סוויטות יוקרה", "מתחם סוויטות"] },
+  { label: "סוויטות", matches: ["סוויטה", "סוויטות", "סוויטות יוקרה", "מתחם סוויטות"] },
   { label: "מערות", matches: ["מערה", "מערות"] },
   { label: "צימרים מאבן", matches: ["צימר מאבן", "צימרים מאבן"] },
   { label: "צימרים", matches: ["צימר", "צימרים"] },
@@ -111,13 +114,17 @@ function normalizedLandingType(landing?: SearchLandingContext) {
   return normalized === "הכל" ? null : normalized;
 }
 
-function matchesAnyAccommodationType(propertyType: string, selectedTypes: string[], landing?: SearchLandingContext) {
+function matchesAnyAccommodationType(propertyTypes: readonly string[], selectedTypes: string[], landing?: SearchLandingContext) {
   if (selectedTypes.length === 0) return true;
   return selectedTypes.some((selectedType) => {
     const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
     const matchingTypes: readonly string[] | undefined = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
-    return matchingTypes ? matchingTypes.includes(propertyType) : propertyType === selectedType;
+    return propertyTypes.some((propertyType) => matchingTypes ? matchingTypes.includes(propertyType) : propertyType === selectedType);
   });
+}
+
+function propertyAccommodationTypes(property: Property) {
+  return property.types?.length ? property.types : [property.type];
 }
 
 const legacyExtraFilterGroups = [
@@ -338,7 +345,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const vacationSortOptions = [
     { value: "recommended", label: discoverySortOptionLabel("recommended", language) },
     { value: "popular", label: discoverySortOptionLabel("popular", language) },
-    ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }].map((option) => ({ ...option, label: translate(option.label) })) : []),
+    ...[{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }].map((option) => ({ ...option, label: translate(option.label) })),
     ...[{ value: "rating-desc", label: "דירוג מהגבוה לנמוך" }, { value: "rating-asc", label: "דירוג מהנמוך לגבוה" }].map((option) => ({ ...option, label: translate(option.label) })),
     ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
     { value: "units", label: "מספר יחידות" },
@@ -365,6 +372,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [area, setArea] = useState(initialArea && !isWholeCountrySelection(initialArea) ? initialArea : landing?.area || "הכל");
   const [selectedTypes, setSelectedTypes] = useState<string[]>(landingType ? [landingType] : []);
   const [guests, setGuests] = useState(Number.isFinite(initialGuestCount) ? Math.max(1, initialGuestCount) : 2);
+  const [bedrooms, setBedrooms] = useState(Math.max(0, Number(initialParams.get("bedrooms")) || 0));
   const [minPrice, setMinPrice] = useState(VACATION_PRICE_MIN);
   const [maxPrice, setMaxPrice] = useState(VACATION_PRICE_MAX);
   const [pool, setPool] = useState(initialParams.get("pool") === "1");
@@ -410,7 +418,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }
 
   function currentFilterState(): VacationFilterState {
-    return { area, selectedTypes, guests, minPrice, maxPrice, pool, spa, whole, accessibleOnly, onlineOnly, selectedExtras, sort };
+    return { area, selectedTypes, guests, bedrooms, minPrice, maxPrice, pool, spa, whole, accessibleOnly, onlineOnly, selectedExtras, sort };
   }
 
   function openFiltersPanel(section: "types" | "more" = filterSection) {
@@ -440,6 +448,16 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     }
     setGuests(nextGuests);
     updateSearchContext({ guests: nextGuests === 2 ? null : String(nextGuests) });
+  }
+
+  function changeBedrooms(nextBedrooms: number) {
+    const normalizedBedrooms = Math.max(0, Math.min(10, Math.round(nextBedrooms)));
+    if (filtersOpen && draftFilters) {
+      setDraftFilters({ ...draftFilters, bedrooms: normalizedBedrooms });
+      return;
+    }
+    setBedrooms(normalizedBedrooms);
+    updateSearchContext({ bedrooms: normalizedBedrooms ? String(normalizedBedrooms) : null });
   }
 
   function changePriceRange(nextMinimum: number, nextMaximum: number) {
@@ -521,6 +539,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const params = new URLSearchParams(searchQuery);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || (Number(params.get("adults") || 2) + Number(params.get("children") || 0)));
+      const requestedBedrooms = Math.max(0, Math.min(10, Number(params.get("bedrooms")) || 0));
       const requestedMinPrice = normalizeVacationPrice(params.get("minPrice"), VACATION_PRICE_MIN, VACATION_PRICE_MAX);
       const requestedMaxPrice = normalizeVacationPrice(params.get("maxPrice"), VACATION_PRICE_MAX, VACATION_PRICE_MAX);
       const requestedType = params.get("type");
@@ -544,6 +563,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       else if (landing?.area) setArea(landing.area);
       else setArea("הכל");
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
+      setBedrooms(requestedBedrooms);
       setMinPrice(priceFilterAvailable ? Math.min(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MIN);
       setMaxPrice(priceFilterAvailable ? Math.max(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MAX);
       if (requestedTypes.length) setSelectedTypes(requestedTypes);
@@ -571,8 +591,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const shownFilters = filtersOpen && draftFilters ? draftFilters : currentFilterState();
 
   const mapCandidates = useMemo(() => properties.filter((property) => {
-      const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, selectedTypes, landing);
+      const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(propertyAccommodationTypes(property), selectedTypes, landing);
       const matchesGuests = property.capacityScope === "unit" || property.guests >= guests;
+      const matchesBedrooms = !bedrooms || (property.bedrooms || 0) >= bedrooms;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       const catalogPrice = supplierStartingPrice(startingPrices[property.slug]);
       const matchesPrice = !priceFilterAvailable || !priceFilterActive || (typeof catalogPrice === "number" && catalogPrice >= minPrice && catalogPrice <= maxPrice);
@@ -584,8 +605,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
         return matchesVacationSearchFilter(property, id);
       });
-      return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
-    }), [VACATION_PRICE_MAX, accessibleOnly, guests, landing, maxPrice, minPrice, pool, priceFilterAvailable, properties, selectedExtras, selectedTypes, spa, startingPrices, supplierTypeFilterAvailable, whole]);
+      return matchesType && matchesGuests && matchesBedrooms && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
+    }), [VACATION_PRICE_MAX, accessibleOnly, bedrooms, guests, landing, maxPrice, minPrice, pool, priceFilterAvailable, properties, selectedExtras, selectedTypes, spa, startingPrices, supplierTypeFilterAvailable, whole]);
 
   const liveAvailabilityBySlug = useLegacyAvailabilityBatch(mapCandidates, selectedStay);
   const flexibleAvailabilityBySlug = useLegacyFlexibleAvailabilityBatch(mapCandidates, flexibleCandidates);
@@ -778,7 +799,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftCandidates = properties.filter((property) => {
     if (selectedStay && shownFilters.guests === guests && !eligibleForSelectedStay(property)) return false;
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
-    const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
+    const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(propertyAccommodationTypes(property), shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
       if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
       return matchesVacationSearchFilter(property, id);
@@ -789,6 +810,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       || (typeof draftPrice === "number" && draftPrice >= shownFilters.minPrice && draftPrice <= shownFilters.maxPrice);
     return matchesType
       && (property.capacityScope === "unit" || property.guests >= shownFilters.guests)
+      && (!shownFilters.bedrooms || (property.bedrooms || 0) >= shownFilters.bedrooms)
       && matchesPrice
       && (!shownFilters.pool || matchesVacationSearchFilter(property, "pool"))
       && (!shownFilters.spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id)))
@@ -812,7 +834,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const visible = new Set(mapVisibleIds);
     return resultSet.filter((property) => visible.has(property.slug));
   }, [resultSet, mapOpen, mapVisibleIds]);
-  const resultWindowKey = [area, selectedTypes.join(","), minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
+  const resultWindowKey = [area, selectedTypes.join(","), bedrooms, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
   // Keep the initial SSR window small while preserving total, ranking,
   // filters and the progressive continuation.
   // A search page must open with a useful comparison set. Six cards made a
@@ -850,7 +872,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   useEffect(() => {
     const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPropertyId(null); }, 0);
     return () => window.clearTimeout(timer);
-  }, [area, selectedTypes, guests, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras, sort, searchQuery]);
+  }, [area, selectedTypes, guests, bedrooms, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras, sort, searchQuery]);
 
   function openResultsMap() {
     setMapVisibleIds(null);
@@ -869,6 +891,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,
     ...selectedTypes.map((selectedType) => ({ id: `type-${selectedType}`, label: selectedType, remove: () => toggleType(selectedType) })),
     guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => changeGuests(2) } : null,
+    bedrooms ? { id: "bedrooms", label: `${bedrooms} חדרי שינה ומעלה`, remove: () => changeBedrooms(0) } : null,
     minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX ? { id: "price", label: `${formatVacationPrice(minPrice)} עד ${formatVacationPrice(maxPrice)}`, remove: () => changePriceRange(VACATION_PRICE_MIN, VACATION_PRICE_MAX) } : null,
     pool ? { id: "pool", label: "בריכה", remove: () => changeBinaryFilter("pool", false) } : null,
     spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => changeBinaryFilter("spa", false) } : null,
@@ -899,6 +922,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     area !== "הכל" ? area : null,
     ...selectedTypes,
     guests > 2 ? `${guests} אורחים ומעלה` : null,
+    bedrooms ? `${bedrooms} חדרי שינה ומעלה` : null,
     minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX ? `${formatVacationPrice(minPrice)} עד ${formatVacationPrice(maxPrice)}` : null,
     ...selectedExtras.map((id) => legacyExtraFilters.find((item) => item.id === id)?.label || null),
   ].filter((item): item is string => Boolean(item));
@@ -910,12 +934,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   function resetFilters() {
     if (filtersOpen) {
-      setDraftFilters({ area, selectedTypes: [], guests, minPrice: VACATION_PRICE_MIN, maxPrice: VACATION_PRICE_MAX, pool: false, spa: false, whole: false, accessibleOnly: false, onlineOnly: false, selectedExtras: [], sort: "recommended" });
+      setDraftFilters({ area, selectedTypes: [], guests, bedrooms: 0, minPrice: VACATION_PRICE_MIN, maxPrice: VACATION_PRICE_MAX, pool: false, spa: false, whole: false, accessibleOnly: false, onlineOnly: false, selectedExtras: [], sort: "recommended" });
       return;
     }
     setArea("הכל");
     setSelectedTypes([]);
     setGuests(2);
+    setBedrooms(0);
     setMinPrice(VACATION_PRICE_MIN);
     setMaxPrice(VACATION_PRICE_MAX);
     setPool(false);
@@ -923,7 +948,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     setWhole(false);
     setAccessibleOnly(false);
     setSelectedExtras([]);
-    updateSearchContext({ location: "כל הארץ", guests: null, type: null, types: null, minPrice: null, maxPrice: null, pool: null, spa: null, whole: null, accessible: null, online: null, features: null, sort: null }, [], "הכל");
+    updateSearchContext({ location: "כל הארץ", guests: null, bedrooms: null, type: null, types: null, minPrice: null, maxPrice: null, pool: null, spa: null, whole: null, accessible: null, online: null, features: null, sort: null }, [], "הכל");
   }
 
   function applyFilters() {
@@ -934,6 +959,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     setArea(draftFilters.area);
     setSelectedTypes(draftFilters.selectedTypes);
     setGuests(draftFilters.guests);
+    setBedrooms(draftFilters.bedrooms);
     setMinPrice(draftFilters.minPrice);
     setMaxPrice(draftFilters.maxPrice);
     setPool(draftFilters.pool);
@@ -947,6 +973,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       type: null,
       types: draftFilters.selectedTypes.length > 1 ? draftFilters.selectedTypes.join(",") : null,
       guests: draftFilters.guests === 2 ? null : String(draftFilters.guests),
+      bedrooms: draftFilters.bedrooms ? String(draftFilters.bedrooms) : null,
       minPrice: draftFilters.minPrice === VACATION_PRICE_MIN ? null : String(draftFilters.minPrice),
       maxPrice: draftFilters.maxPrice === VACATION_PRICE_MAX ? null : String(draftFilters.maxPrice),
       pool: draftFilters.pool ? "1" : null,
@@ -994,6 +1021,19 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                     <label><span>מחיר מקסימלי</span><VacationPriceInput value={shownFilters.maxPrice} minimum={shownFilters.minPrice} maximum={VACATION_PRICE_MAX} emptyValue={VACATION_PRICE_MAX} ariaLabel="מחיר מקסימום בשקלים" onValueChange={(nextValue) => changePriceRange(shownFilters.minPrice, nextValue)} /></label>
                   </div>
                   {!priceFilterAvailable ? <small className="vacation-price-filter__notice">טווח המחיר ייפתח כשהמחירים המעודכנים ייטענו.</small> : null}
+                </fieldset>
+                <fieldset className="vacation-bedroom-filter">
+                  <legend>מספר חדרי שינה</legend>
+                  <p>הציגו מקומות עם מספר חדרי השינה הדרוש לכם לפחות.</p>
+                  <ModernSelect label="מספר חדרי שינה" value={String(shownFilters.bedrooms)} onChange={(value) => changeBedrooms(Number(value))} options={[
+                    { value: "0", label: "הכול" },
+                    { value: "1", label: "חדר שינה אחד ומעלה" },
+                    { value: "2", label: "2 חדרי שינה ומעלה" },
+                    { value: "3", label: "3 חדרי שינה ומעלה" },
+                    { value: "4", label: "4 חדרי שינה ומעלה" },
+                    { value: "5", label: "5 חדרי שינה ומעלה" },
+                    { value: "6", label: "6 חדרי שינה ומעלה" },
+                  ]} />
                 </fieldset>
                 <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>
               </div>}
@@ -1047,6 +1087,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {landing && filtered.length > 0 && <>
               <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
               {landing.faqs?.length ? <section id="accommodation-faq" className="accommodation-page-faq" aria-labelledby="accommodation-page-faq-title"><h2 id="accommodation-page-faq-title">שאלות ותשובות על {landing.breadcrumb}</h2><div>{landing.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></section> : null}
+              {landing.relatedLinks?.length ? <nav className="accommodation-related-links" aria-labelledby="accommodation-related-links-title"><h2 id="accommodation-related-links-title">עוד חיפושים שיכולים להתאים</h2><div>{landing.relatedLinks.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}</div></nav> : null}
             </>}
           </section>
         </div>

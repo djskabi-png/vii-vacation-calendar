@@ -16,7 +16,7 @@ test("world navigation stays available throughout every public search flow", asy
 
   assert.match(searchBox, /showWorlds = true/);
   assert.match(searchBox, /const \[searchCommitted, setSearchCommitted\] = useState/);
-  assert.match(searchBox, /const shouldCollapse = compact \|\| searchCommitted/);
+  assert.match(searchBox, /const shouldCollapse = forceExpanded \? false : compact \|\| searchCommitted/);
   assert.match(searchBox, /setSearchCommitted\(true\)/);
   assert.match(searchBox, /mobileExpanded && showWorlds && <div className="search-mobile-worlds">/);
   assert.doesNotMatch(searchBox, /mobileExpanded && showWorlds && !shouldCollapse/);
@@ -52,4 +52,18 @@ test("world navigation stays available throughout every public search flow", asy
   assert.match(styles, /\.search-dialog-worlds/);
   assert.match(styles, /\.search-desktop-worlds \{ padding:/);
   assert.match(styles, /\.search-desktop-worlds \{ display: none; \}/);
+});
+
+test("localized home hydration starts from deterministic data and keeps locale-aware links", async () => {
+  const [geography, page, showcase] = await Promise.all([
+    read("app/components/use-managed-geography.ts"),
+    read("app/page.tsx"),
+    read("app/components/home-showcase.tsx"),
+  ]);
+
+  assert.match(geography, /useState<PublicGeographyNode\[\]>\(\[\]\)/);
+  assert.doesNotMatch(geography, /useState<PublicGeographyNode\[\]>\(\(\) => acceptedNodes \|\| \[\]\)/);
+  assert.match(page, /localizedPath\("\/guides", locale\)/);
+  assert.match(page, /localizedPath\(`\/guides\/\$\{article\.slug\}`, locale\)/);
+  assert.match(showcase, /localizedPath\(`\/business\?id=\$\{place\.slug\}`, language\)/);
 });

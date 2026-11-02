@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
 
-function client(override = {}, extraPlace = false, listOverride = {}) {
+function client(override = {}, extraPlace = false, listOverride = {}, typesOverride = null) {
   const pictures = Array.from({ length: 14 }, (_, index) => `/gallery/photo-${index}.jpg`);
   const detail = {
     id: 17, active: true, name: "מתחם בדיקה", location: { city: 1 },
@@ -18,7 +18,7 @@ function client(override = {}, extraPlace = false, listOverride = {}) {
     assert.equal(options.headers.Authorization, "Bearer test-key");
     const path = new URL(url).pathname.replace("/api/ai/vii", "");
     if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
-    if (path === "/vacations/types") return Response.json({
+    if (path === "/vacations/types") return Response.json(typesOverride || {
       roomTypes: [{ id: 2, title: "סוויטה" }],
       amenity_categories: [{ categoryID: 1, categoryName: "מתקנים" }],
       amenities: [
@@ -46,10 +46,21 @@ test("normalizes the full place gallery, rooms, reviews and explicit WhatsApp fi
   assert.equal(detail.rooms[0].quantity, 2);
   assert.equal(detail.rooms[0].builtArea, 45);
   assert.equal(detail.rooms[0].totalArea, 1500);
+  assert.equal(summary.bedrooms, 2);
   assert.equal(detail.rooms[0].area, 45);
   assert.equal(detail.reviews.length, 1);
   assert.ok(summary.contact.whatsapp);
   assert.equal(Object.hasOwn(summary, "available"), false);
+});
+
+test("preserves the supplier calendar and price capabilities as stable place facts", async () => {
+  const enabled = await client({ has_prices: true }, false, { has_availability: true }).fetchCandidate("vacations");
+  assert.equal(enabled.entries[0].summary.onlineAvailability, true);
+  assert.equal(enabled.entries[0].summary.onlinePrices, true);
+
+  const contactOnly = await client({ has_prices: false }, false, { has_availability: false }).fetchCandidate("vacations");
+  assert.equal(contactOnly.entries[0].summary.onlineAvailability, false);
+  assert.equal(contactOnly.entries[0].summary.onlinePrices, false);
 });
 
 test("preserves optional supplier preview text in both catalog summary and place detail", async () => {
@@ -86,6 +97,21 @@ test("resolves shared and room amenity IDs through the official types contract",
   assert.equal(detail.rooms[0].showKidsAndAdults, true);
   assert.equal(detail.rooms[0].roomType, "סוויטה");
   assert.ok(detail.rooms[0].features.includes("מכונת כביסה"));
+});
+
+test("preserves every supplier room type for multi-type vacation filtering", async () => {
+  const result = await client({
+    rooms: [
+      { roomID: 55, roomName: "הצימר", roomType: 1, roomCount: 1, maxGuests: 4, spaces: [] },
+      { roomID: 56, roomName: "הסוויטה", roomType: 2, roomCount: 1, maxGuests: 4, spaces: [] },
+    ],
+  }, false, {}, {
+    roomTypes: [{ id: 1, title: "צימר" }, { id: 2, title: "סוויטה" }],
+    amenity_categories: [],
+    amenities: [],
+  }).fetchCandidate("vacations");
+  assert.equal(result.entries[0].summary.type, "צימר");
+  assert.deepEqual(result.entries[0].summary.types, ["צימר", "סוויטה"]);
 });
 
 test("hidden child amenities remain searchable through the official parent tree without leaking into visible facts", async () => {

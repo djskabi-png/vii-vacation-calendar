@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
 import { parseProfessorIntent, professorNeedsInventory, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
+import { interpretProfessorQuestion } from "./admin-professor-openai.ts";
 
 type MetricValues = {
   impressions: number; pageViews: number; phone: number; whatsapp: number; viiBookings: number;
@@ -232,7 +233,10 @@ export async function saveProfessorQuota(db: D1Database, email: string, limit: n
 export async function answerProfessor(db: D1Database, email: string, question: string, reportingDb: D1Database = db): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
-  const places = professorNeedsInventory(normalizedQuestion) ? await inventory() : []; const parsed = parseProfessorIntent(normalizedQuestion, places);
+  const interpretation = await interpretProfessorQuestion(normalizedQuestion);
+  const interpretedQuestion = interpretation.canonicalQuestion;
+  const places = professorNeedsInventory(normalizedQuestion) || professorNeedsInventory(interpretedQuestion) ? await inventory() : [];
+  const parsed = parseProfessorIntent(interpretedQuestion, places);
   if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
   if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
   const isFollowUp = /^(?:ומה|ומה לגבי|ואיך|אותו|אותה|ובחודש|ובשבוע|לעומת|בהשוואה)/.test(normalizedQuestion);
@@ -268,7 +272,9 @@ export async function answerProfessor(db: D1Database, email: string, question: s
     answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,
     place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
     insights: buildInsights(intent, current.metrics, previous?.metrics || null),
-    plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: "מסד V ומטמון Biz בלבד" },
+    plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: interpretation.provider === "openai"
+      ? "פענוח OpenAI מאומת מול מסד V ומטמון Biz"
+      : "מסד V ומטמון Biz בלבד" },
     freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage, bizRange: current.bizRange },
     reportHref: `/admin/business-performance?from=${intent.range.from}&till=${intent.range.till}${intent.place ? `&business=${encodeURIComponent(intent.place.placeId)}` : intent.world ? `&scope=${intent.world}` : ""}`,
   };

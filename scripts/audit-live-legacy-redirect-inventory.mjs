@@ -4,7 +4,7 @@ const inventory = JSON.parse(
   await readFile(new URL("../app/data/legacy-redirect-inventory.json", import.meta.url), "utf8"),
 );
 const release = process.argv[2] || "unversioned";
-const origin = "https://vii.spaplus.co";
+const origin = (process.argv[3] || "https://vii.spaplus.co").replace(/\/$/, "");
 const entries = [
   ...Object.entries(inventory.redirects).map(([path, target]) => ({ path, target, expected: 301 })),
   ...inventory.gone.map((path) => ({ path, target: null, expected: 410 })),
@@ -24,13 +24,15 @@ async function inspect(entry) {
   }
   if (entry.expected === 410) return;
   const location = response.headers.get("location");
-  const expectedLocation = new URL(entry.target, origin).href;
-  const actualLocation = location ? new URL(location, origin).href : null;
-  if (actualLocation !== expectedLocation) {
+  const expectedLocation = new URL(entry.target, origin);
+  const actualLocation = location ? new URL(location, origin) : null;
+  const expectedPath = `${expectedLocation.pathname}${expectedLocation.search}`;
+  const actualPath = actualLocation ? `${actualLocation.pathname}${actualLocation.search}` : null;
+  if (actualPath !== expectedPath) {
     failures.push({ ...entry, actual: response.status, location, reason: "wrong_location" });
     return;
   }
-  const finalResponse = await fetch(expectedLocation, {
+  const finalResponse = await fetch(`${origin}${expectedPath}`, {
     method: "GET",
     redirect: "follow",
     headers: { "user-agent": "VII-Legacy-Redirect-Audit/1.0" },

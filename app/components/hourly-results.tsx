@@ -46,7 +46,7 @@ export function HourlyResults({ items, initialLocation }: { items: DiscoveryItem
 
 function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requestedFeatures, requestedSort }: { items: DiscoveryItem[]; requestedLocation: string; requestedPrice: number; requestedFeatures: string[]; requestedSort: string }) {
   const router = useRouter();
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
   const [location, setLocation] = useState(requestedLocation);
   const managedGeography = useManagedGeography(location !== "כל הארץ");
@@ -139,8 +139,8 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }
 
   const resultLabel = mapOpen
-    ? `${visibleMapCount} מקומות באזור המוצג במפה`
-    : resultItems.length === 1 ? "נמצא מקום אחד" : `נמצאו ${resultItems.length} מקומות`;
+    ? `${visibleMapCount} ${translate("מקומות באזור המוצג במפה")}`
+    : resultItems.length === 1 ? translate("נמצא מקום אחד") : `${translate("נמצאו")} ${resultItems.length} ${translate("מקומות")}`;
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultItems;
     const visible = new Set(mapVisibleIds);
@@ -167,24 +167,24 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
 
   return <div className="hourly-results">
     {resultItems.length > filtered.length && <NearbySearchNotice />}
-    <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
+    <div className="hourly-results__toolbar" aria-label={translate("סינון תוצאות של חדרים לפי שעה")}>
       <div className="hourly-results__heading">
         <div><h2 aria-live="polite">{resultLabel}</h2></div>
         <div className="hourly-results__actions">
           <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />
           <ResultsViewToggle value={viewMode} onChange={setViewMode} />
-          <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>סינון{features.length ? ` (${features.length})` : ""}</button>
-          {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+          <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>{translate("סינון")}{features.length ? ` (${features.length})` : ""}</button>
+          {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={translate(mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה")} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{translate(mapOpen ? "תצוגת רשימה" : "מפה")}</span><span className="map-button__mobile-label" aria-hidden="true">{translate("מפה")}</span></button>}
         </div>
       </div>
       <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>
-        <header className="hourly-results__filters-head"><strong>סינון התוצאות</strong><span>בחרו רק את מה שחשוב לכם</span></header>
-        <ModernSelect label="עיר או אזור" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} />
-        <ModernSelect label="מחיר לשעתיים עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלת מחיר" }, { value: "250", label: "עד 250 ₪ לשעתיים" }, { value: "400", label: "עד 400 ₪ לשעתיים" }, { value: "600", label: "עד 600 ₪ לשעתיים" }]} />
-        <fieldset><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
-        <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
+        <header className="hourly-results__filters-head"><strong>{translate("סינון התוצאות")}</strong><span>{translate("בחרו רק את מה שחשוב לכם")}</span></header>
+        <ModernSelect label={translate("עיר או אזור")} value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: translate(option) }))} />
+        <ModernSelect label={translate("מחיר לשעתיים עד")} value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: translate("ללא הגבלת מחיר") }, { value: "250", label: translate("עד 250 ₪ לשעתיים") }, { value: "400", label: translate("עד 400 ₪ לשעתיים") }, { value: "600", label: translate("עד 600 ₪ לשעתיים") }]} />
+        <fieldset><legend>{translate("מאפייני המקום")}</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{translate(filter.label)}</span></label>)}</div></fieldset>
+        <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>{translate("ניקוי סינונים")}</button>
       </div>
     </div>
-    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>{translate("לא נמצאו מקומות שמתאימים לכל הסינונים")}</strong><p>{translate("אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.")}</p><button type="button" className="button secondary" onClick={resetFilters}>{translate("הצגת כל המקומות")}</button></div>}
   </div>;
 }

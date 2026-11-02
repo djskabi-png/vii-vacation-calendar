@@ -149,6 +149,15 @@ function parseSpaAudience(value: string | null): SpaAudience | null {
 
 const HOURLY_PRICE_OPTIONS = [0, 250, 400, 600] as const;
 
+type ImmediateSearchOverrides = {
+  location?: string;
+  maximumPrice?: number;
+  spaAudience?: SpaAudience | null;
+  spaDate?: { date: string | null; withoutDate: boolean };
+  eventGuests?: number;
+  vacationParty?: VacationParty;
+};
+
 function normalizeHourlyPrice(value: string | null) {
   const price = Number(value) || 0;
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
@@ -226,6 +235,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const [priceOpen, setPriceOpen] = useState(false);
   const [maximumPrice, setMaximumPrice] = useState(() => normalizeHourlyPrice(searchParams.get("maxPrice")));
   const [isSearching, setIsSearching] = useState(false);
+  const isSearchingRef = useRef(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const searchSurfaceRef = useRef<HTMLDivElement>(null);
   const handledEditSearchRef = useRef(false);
@@ -404,15 +414,22 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     return () => desktop.removeEventListener("change", leaveMobileEditor);
   }, [cancelMobileSearch]);
 
-  function search() {
-    if (isSearching) return;
+  function search(overrides: ImmediateSearchOverrides = {}) {
+    if (isSearchingRef.current) return;
+    isSearchingRef.current = true;
     setIsSearching(true);
     setSearchCommitted(true);
     closeMobileSearch();
-    const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, locationValue) : cleanVacationPath(locationValue)) : null;
-    const cleanSpaRoute = mode === "spa" ? spaSearchHref(spaSearchStateFromValues(locationValue, spaAudience || undefined, initialSpaFeatures)) : null;
-    const cleanEventRoute = mode === "events" ? eventSearchHref(locationValue) : null;
-    const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(locationValue) : null;
+    const selectedLocation = overrides.location === undefined ? locationValue : canonicalSearchLocation(overrides.location);
+    const selectedMaximumPrice = overrides.maximumPrice === undefined ? maximumPrice : overrides.maximumPrice;
+    const selectedSpaAudience = overrides.spaAudience === undefined ? spaAudience : overrides.spaAudience;
+    const selectedSpaDate = overrides.spaDate || spaDate;
+    const selectedEventGuests = overrides.eventGuests === undefined ? guests : overrides.eventGuests;
+    const selectedVacationParty = overrides.vacationParty || vacationParty;
+    const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, selectedLocation) : cleanVacationPath(selectedLocation)) : null;
+    const cleanSpaRoute = mode === "spa" ? spaSearchHref(spaSearchStateFromValues(selectedLocation, selectedSpaAudience || undefined, initialSpaFeatures)) : null;
+    const cleanEventRoute = mode === "events" ? eventSearchHref(selectedLocation) : null;
+    const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(selectedLocation) : null;
     const route = cleanVacationRoute || cleanSpaRoute || cleanEventRoute || cleanHourlyRoute || (basePath && mode === "vacation" ? basePath : "/search/");
     let destination: string;
     const applyVacationDates = (params: URLSearchParams) => {
@@ -437,61 +454,62 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     };
     if (isHourly) {
       const params = new URLSearchParams();
-      if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
+      if (selectedMaximumPrice > 0) params.set("maxPrice", String(selectedMaximumPrice));
       destination = mergeSearchHref(route, params);
     } else if (mode === "vacation" && cleanVacationRoute) {
       const params = new URLSearchParams();
       applyVacationDates(params);
       if (new URLSearchParams(searchParamsKey).get("online") === "1") params.set("online", "1");
-      if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
-      if (vacationParty.children) params.set("children", String(vacationParty.children));
-      if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
-      if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
-      if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
+      if (selectedVacationParty.adults !== 2) params.set("adults", String(selectedVacationParty.adults));
+      if (selectedVacationParty.children) params.set("children", String(selectedVacationParty.children));
+      if (selectedVacationParty.infants) params.set("infants", String(selectedVacationParty.infants));
+      if (selectedVacationParty.pets) params.set("pets", String(selectedVacationParty.pets));
+      if (selectedVacationParty.rooms !== 1) params.set("rooms", String(selectedVacationParty.rooms));
       destination = mergeSearchHref(route, params);
     } else {
       const params = new URLSearchParams();
       if (mode === "vacation" && !basePath) {
-        params.set("location", isWholeCountrySelection(locationValue) && language !== "he" ? "all-country" : locationValue || "כל הארץ");
-      } else if (mode !== "events" && !(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
-        params.set("location", locationValue);
+        params.set("location", isWholeCountrySelection(selectedLocation) && language !== "he" ? "all-country" : selectedLocation || "כל הארץ");
+      } else if (mode !== "events" && !(basePath && mode === "vacation" && selectedLocation === initialLocation) && selectedLocation !== "כל הארץ") {
+        params.set("location", selectedLocation);
       }
       if (mode === "events") {
         if (eventDateRange.from) params.set("from", eventDateRange.from);
         if (eventDateRange.to) params.set("to", eventDateRange.to);
-        if (guests > 0) params.set("guests", String(guests));
+        if (selectedEventGuests > 0) params.set("guests", String(selectedEventGuests));
         const selectedEventSlot = new URLSearchParams(searchParamsKey).get("slot");
         if (selectedEventSlot === "morning" || selectedEventSlot === "evening") params.set("slot", selectedEventSlot);
       } else if (mode === "spa") {
-        if (spaDate.date) params.set("date", spaDate.date);
-        if (spaDate.withoutDate) params.set("withoutDate", "1");
+        if (selectedSpaDate.date) params.set("date", selectedSpaDate.date);
+        if (selectedSpaDate.withoutDate) params.set("withoutDate", "1");
       } else {
         applyVacationDates(params);
         if (mode === "vacation" && new URLSearchParams(searchParamsKey).get("online") === "1") params.set("online", "1");
-        if (mode === "vacation" && vacationParty.adults === 2 && vacationParty.children === 0) params.set("guests", "2");
-        if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
-        if (vacationParty.children) params.set("children", String(vacationParty.children));
-        if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
-        if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
-        if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
+        if (mode === "vacation" && selectedVacationParty.adults === 2 && selectedVacationParty.children === 0) params.set("guests", "2");
+        if (selectedVacationParty.adults !== 2) params.set("adults", String(selectedVacationParty.adults));
+        if (selectedVacationParty.children) params.set("children", String(selectedVacationParty.children));
+        if (selectedVacationParty.infants) params.set("infants", String(selectedVacationParty.infants));
+        if (selectedVacationParty.pets) params.set("pets", String(selectedVacationParty.pets));
+        if (selectedVacationParty.rooms !== 1) params.set("rooms", String(selectedVacationParty.rooms));
       }
       destination = mergeSearchHref(route, params);
     }
     try {
-      trackSearchSubmitted({ world: mode, location: locationValue, hasDate: Boolean(mode === "spa" ? spaDate.date : mode === "events" ? eventDateRange.from : vacationDateRange.from) });
+      trackSearchSubmitted({ world: mode, location: selectedLocation, hasDate: Boolean(mode === "spa" ? selectedSpaDate.date : mode === "events" ? eventDateRange.from : vacationDateRange.from) });
       const target = localizedPath(destination, language);
       const current = `${window.location.pathname}${window.location.search}`;
       if (current === target || `${current}/` === target || current === `${target}/`) {
         document.querySelector<HTMLElement>("[data-search-results], .results-heading, .search-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        window.setTimeout(() => setIsSearching(false), 240);
+        window.setTimeout(() => { isSearchingRef.current = false; setIsSearching(false); }, 240);
         return;
       }
       // Keep search transitions inside the app router. A document-level
       // navigation reloads the header, locale runtime, styles and route data,
       // which made every search feel like a cold page load.
       router.push(target);
-      window.setTimeout(() => setIsSearching(false), 1200);
+      window.setTimeout(() => { isSearchingRef.current = false; setIsSearching(false); }, 1200);
     } catch {
+      isSearchingRef.current = false;
       setIsSearching(false);
     }
   }
@@ -510,17 +528,15 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   }
 
   function chooseLocation(place: string) {
-    setLocationValue(canonicalSearchLocation(place));
+    const selectedLocation = canonicalSearchLocation(place);
+    setLocationValue(selectedLocation);
     const recent = recentDestinations([place, ...(Array.isArray(recentLocations) ? recentLocations : [])], destinations);
     setRecentLocations(recent);
     try { localStorage.setItem("vii-recent-destinations", JSON.stringify(recent)); } catch { /* Search still works when storage is unavailable. */ }
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
-    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
-      setMobileStep("dates");
-      setCalendarOpen(true);
-    }
+    search({ location: selectedLocation });
   }
 
   async function chooseNearbyLocation() {
@@ -642,13 +658,13 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">
           <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלת מחיר"}</strong></span></button>
-          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); }}>{price ? `עד ${price} ₪ לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
+          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); search({ maximumPrice: price }); }}>{price ? `עד ${price} ₪ לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
         </div>}
         {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{visibleDates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { if (guestOpen) { closeGuestPicker(); return; } setMobileStep("guests"); expandMobileSearch(); setGuestOpen(true); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
           {guestOpen && (mode === "spa"
-            ? <div className="search-popover spa-audience-picker"><strong>למי מזמינים?<small>לא חובה</small></strong><button type="button" className={`spa-audience-clear ${spaAudience === null ? "selected" : ""}`} aria-pressed={spaAudience === null} onClick={() => { setSpaAudience(null); setGuests(0); if (!mobileExpanded) setGuestOpen(false); }}><span>ללא העדפה</span><small>הציגו את כל בתי הספא</small></button><div>{SPA_AUDIENCES.map((option) => <button type="button" key={option.id} className={spaAudience === option.id ? "selected" : ""} aria-pressed={spaAudience === option.id} onClick={() => { setSpaAudience(option.id); setGuests(option.guests); if (!mobileExpanded) setGuestOpen(false); }}><span>{option.label}</span><small>{option.description}</small></button>)}</div></div>
+            ? <div className="search-popover spa-audience-picker"><strong>למי מזמינים?<small>לא חובה</small></strong><button type="button" className={`spa-audience-clear ${spaAudience === null ? "selected" : ""}`} aria-pressed={spaAudience === null} onClick={() => { setSpaAudience(null); setGuests(0); search({ spaAudience: null }); }}><span>ללא העדפה</span><small>הציגו את כל בתי הספא</small></button><div>{SPA_AUDIENCES.map((option) => <button type="button" key={option.id} className={spaAudience === option.id ? "selected" : ""} aria-pressed={spaAudience === option.id} onClick={() => { setSpaAudience(option.id); setGuests(option.guests); search({ spaAudience: option.id }); }}><span>{option.label}</span><small>{option.description}</small></button>)}</div></div>
             : mode === "vacation"
               ? <div className="search-popover vacation-party-picker" aria-label="בחירת הרכב אורחים וחדרים">
                   <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={closeGuestPicker} aria-label="סגירת בחירת האורחים">×</button></header>
@@ -662,11 +678,11 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
                       </div>
                     </div>)}
                   </div>
-                  <button type="button" className="popover-done" onClick={closeGuestPicker}>שמירת ההרכב</button>
+                  <button type="button" className="popover-done" onClick={() => search({ vacationParty })}>שמירת ההרכב</button>
                 </div>
-              : <div className="search-popover guest-picker"><strong>משתתפים</strong><div><button type="button" disabled={guests <= 0} onClick={() => setGuests((value) => value - 10)}>−</button><span>{guests === 0 ? "לא נבחר" : guests}</span><button type="button" onClick={() => setGuests((value) => value + 10)}>+</button></div><button type="button" className="popover-done" onClick={() => setGuestOpen(false)}>סיום</button></div>)}
+              : <div className="search-popover guest-picker"><strong>משתתפים</strong><div><button type="button" disabled={guests <= 0} onClick={() => setGuests((value) => value - 10)}>−</button><span>{guests === 0 ? "לא נבחר" : guests}</span><button type="button" onClick={() => setGuests((value) => value + 10)}>+</button></div><button type="button" className="popover-done" onClick={() => search({ eventGuests: guests })}>סיום</button></div>)}
         </div>}
-        <button type="button" className={`search-submit ${isSearching ? "is-searching" : ""}`} onClick={search} disabled={isSearching} aria-busy={isSearching}><span className="search-submit__icon" aria-hidden="true">{isSearching ? <i /> : <SearchIcon />}</span><span>{isSearching ? "מחפשים..." : "חיפוש"}</span></button>
+        <button type="button" className={`search-submit ${isSearching ? "is-searching" : ""}`} onClick={() => search()} disabled={isSearching} aria-busy={isSearching}><span className="search-submit__icon" aria-hidden="true">{isSearching ? <i /> : <SearchIcon />}</span><span>{isSearching ? "מחפשים..." : "חיפוש"}</span></button>
         </div>
         <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
@@ -677,7 +693,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} location={locationValue} />}
       {showWorlds && shouldCollapse && (guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
       {mobileExpanded && typeof document !== "undefined" ? createPortal(searchSurface, document.body) : searchSurface}
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setEventDateRange({ from: null, to: null }); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בלי תאריך כרגע"); setSpaDate({ date: null, withoutDate: true }); setCalendarOpen(false); setMobileStep("overview"); }} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setVacationDateRange({ from: null, till: null }); setVacationFlexibleSearch(null); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setVacationFlexibleSearch(result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null); setMobileStep("guests"); setGuestOpen(true); }} />}
+      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setEventDateRange({ from: null, to: null }); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { date: null, withoutDate: true }; setDates("בלי תאריך כרגע"); setSpaDate(selection); search({ spaDate: selection }); }} onConfirm={(result) => { const selection = { date: result.date, withoutDate: result.withoutDate }; setDates(result.summary); setSpaDate(selection); search({ spaDate: selection }); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setVacationDateRange({ from: null, till: null }); setVacationFlexibleSearch(null); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setVacationFlexibleSearch(result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null); setMobileStep("guests"); setGuestOpen(true); }} />}
     </>
   );
 }

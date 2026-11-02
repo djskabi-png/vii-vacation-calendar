@@ -8,9 +8,9 @@ const vacationHub = readFileSync(new URL("../app/components/vacation-booking-hub
 
 test("mobile booking actions keep a reachable safe-area dialog footer", () => {
   assert.match(business, /<VacationBookingHub/);
-  assert.match(vacationHub, /buttonClassName="button primary vacation-booking-dialog__whatsapp"/);
+  assert.match(vacationHub, /buttonClassName="stay-card__contact stay-card__contact--whatsapp vacation-booking-dialog__whatsapp"/);
   assert.match(styles, /\.property-layout \{ padding-bottom: max\(56px, calc\(32px \+ env\(safe-area-inset-bottom\)\)\); \}/);
   assert.match(styles, /\.vacation-booking-dialog__footer \{[\s\S]*env\(safe-area-inset-bottom\)/);
-  assert.match(styles, /\.vacation-booking-dialog__footer-actions \.button \{ width: 100%; min-width: 0; min-height: 48px; \}/);
+  assert.match(styles, /\.vacation-booking-dialog__footer-actions \.button,[\s\S]*?\.vacation-booking-dialog__footer-actions \.vacation-booking-dialog__whatsapp \{ width: 100%; min-width: 0; min-height: 48px; \}/);
   assert.match(styles, /\.vacation-booking-hub \{ width: calc\(100% - 24px\)/);
 });

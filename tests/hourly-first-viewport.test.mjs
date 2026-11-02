@@ -10,11 +10,11 @@ const hourlyPage = await readFile(new URL("../app/hourly/page.tsx", import.meta.
 test("hourly results use one compact toolbar with inline map and collapsible filters", () => {
   assert.match(results, /className="hourly-results__actions"/);
   assert.match(results, /aria-controls="hourly-result-filters"/);
-  assert.match(results, />סינון\{/);
+  assert.match(results, /translate\("סינון"\)/);
   assert.match(results, /className={`button map-button mobile-map-fab \$\{mapOpen/);
   assert.match(styles, /\.hourly-results__filters \{ display: none;/);
   assert.match(styles, /\.hourly-results__filters\.open \{ display: grid;/);
-  assert.match(results, /`נמצאו \$\{resultItems\.length\} מקומות`/);
+  assert.match(results, /`\$\{translate\("נמצאו"\)\} \$\{resultItems\.length\} \$\{translate\("מקומות"\)\}`/);
   assert.match(styles, /\.world-page--hourly \.results-view-toggle button\.active/);
   assert.match(styles, /\.world-page--hourly \.world-hero \.search-box--hourly/);
   assert.doesNotMatch(styles, /\.world-page--hourly \.world-hero \.search-box--hourly \.search-submit/);

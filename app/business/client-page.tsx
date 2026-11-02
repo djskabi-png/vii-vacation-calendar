@@ -262,7 +262,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     : null;
   const resolvedAvailability = supplierSiteID ? supplierQuote.quote : verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
-  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = supplierSiteID || usesLiveLegacyAvailability ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
+  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = ((supplierSiteID && property.onlineAvailability === true) || usesLiveLegacyAvailability) ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
   const effectiveVacationAvailability = vacationAvailabilityMode !== "inquiry" ? resolvedAvailability : null;
   // A quote supplied in a link is useful only for properties without a live source.
   // For migrated listings the source response always wins, so an old shared link
@@ -305,7 +305,17 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     { href: "#policies", label: translate("חשוב לדעת") },
   ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate, verifiedSleepingRooms.length]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
-  const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label }))).slice(0, 5);
+  const areaHighlights = (property.roomOptions || []).flatMap((room) => {
+    const builtArea = room.builtArea || room.area;
+    const totalArea = room.totalArea;
+    return [
+      totalArea ? { label: `גודל המתחם ${totalArea} מ״ר` } : null,
+      builtArea && builtArea !== totalArea ? { label: `שטח בנוי ${builtArea} מ״ר` } : null,
+    ].filter((item): item is { label: string } => Boolean(item));
+  }).filter((highlight, index, items) => items.findIndex((item) => item.label === highlight.label) === index);
+  const highlights = [...areaHighlights, ...(property.highlights?.length ? property.highlights : property.features.map((label) => ({ label })))]
+    .filter((highlight, index, items) => items.findIndex((item) => item.label === highlight.label) === index)
+    .slice(0, 5);
   // Supplier groups define the presentation order, but the accepted catalog
   // feature list is the completeness contract. Never hide an accepted feature
   // merely because its taxonomy group is absent or temporarily unavailable.
@@ -420,7 +430,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p className="property-about__description">{localizedDescription}</p>{localizedDescription.length > 190 ? <button className="property-about__toggle" type="button" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{aboutExpanded ? "הצגת פחות" : "המשך קריאה"}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
+            <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p className="property-about__description">{localizedDescription}</p>{localizedDescription.length > 190 ? <button className="property-about__toggle" type="button" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{translate(aboutExpanded ? "הצגת פחות" : "המשך קריאה")}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
@@ -437,6 +447,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
               bookingEnabled={!supplierSiteID || supplierQuote.onlineBooking && Boolean(verifiedSupplierRoomID)}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
+              phone={property.contact?.phone}
               phoneHref={phoneHref}
               illustrative={initialIllustrative || vacationAvailabilityMode === "demo" || Boolean(effectiveVacationAvailability?.illustrative)}
               onOpenCalendar={() => setCalendarOpen(true)}
@@ -466,14 +477,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   const availableIdenticalUnits = room.supplierRoomID && supplierCalendarStay?.allowed
                     ? Math.min(room.quantity, supplierCalendarStay.availableUnitCounts[room.supplierRoomID] || 0)
                     : undefined;
-                  const roomAvailable = availableIdenticalUnits !== undefined
+                  const roomAvailable = vacationAvailabilityMode !== "inquiry" && (availableIdenticalUnits !== undefined
                     ? availableIdenticalUnits > 0
-                    : roomAvailability?.availability === "available" || supplierAvailableRoomIDs.includes(room.supplierRoomID || 0);
-                  const roomUnavailable = availableIdenticalUnits !== undefined
+                    : roomAvailability?.availability === "available" || supplierAvailableRoomIDs.includes(room.supplierRoomID || 0));
+                  const roomUnavailable = vacationAvailabilityMode !== "inquiry" && (availableIdenticalUnits !== undefined
                     ? availableIdenticalUnits === 0
-                    : supplierSiteID && supplierUnitQuote?.status === "ready"
-                    ? roomAvailability?.availability === "unavailable"
-                    : roomAvailability?.availability === "unavailable";
+                    : roomAvailability?.availability === "unavailable");
                   const roomCapacity = roomAvailability && "maxGuests" in roomAvailability ? roomAvailability.maxGuests || room.guests : room.guests;
                   const roomFitsParty = guests <= roomCapacity;
                   const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
@@ -483,10 +492,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     ? `נדרשים לפחות ${roomAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
                     : "";
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
-                  const roomStatus = availableIdenticalUnits !== undefined && availableIdenticalUnits > 0
-                    ? "יש זמינות בתאריכים שבחרתם"
-                    : vacationAvailabilityMode === "inquiry"
+                  const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
+                    : availableIdenticalUnits !== undefined && availableIdenticalUnits > 0
+                    ? "יש זמינות בתאריכים שבחרתם"
                     : supplierSiteID && supplierUnitQuotes.status === "loading" && roomFitsParty
                       ? "מעדכנים זמינות ומחיר"
                     : supplierSiteID && supplierUnitQuote?.status === "ready" && minimumStayRestriction
@@ -519,9 +528,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{room.quantity > 1 && availableIdenticalUnits !== undefined ? <small>{availableIdenticalUnits} מתוך {room.quantity} יחידות זהות פנויות בתאריכים שנבחרו</small> : room.quantity > 1 ? <small>{room.quantity} יחידות זהות מסוג זה</small> : null}{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{room.basisGuests ? ` ${translate("עד")} ${room.basisGuests} ${translate("אורחים")}` : ""}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${unitBookingQuery.toString()}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
-                        : supplierSiteID && roomAvailable && roomFitsParty ? <div className="room-card__contact-actions"><strong className="room-card__contact-title">{translate("הזמנות בטלפון")}</strong>{phoneHref ? <a className="button primary" href={phoneHref} aria-label={`${translate("חיוג להזמנה במספר")} ${property.contact?.phone}`}>{property.contact?.phone}</a> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`פנייה עבור ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={translate("שלחו הודעה בוואטסאפ")} buttonClassName="button secondary" /> : null}</div>
-                        : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
-                          : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
+                        : supplierSiteID && roomAvailable && roomFitsParty ? <div className="room-card__contact-actions"><strong className="room-card__contact-title">{translate("הזמנות בטלפון")}</strong>{phoneHref ? <a className="button primary" href={phoneHref} aria-label={`${translate("חיוג להזמנה במספר")} ${property.contact?.phone}`}>{property.contact?.phone}</a> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`פנייה עבור ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={translate("שלחו הודעה בוואטסאפ")} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}</div>
+                        : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={translate("שלחו הודעה בוואטסאפ")} buttonClassName="stay-card__contact stay-card__contact--whatsapp" />
+                          : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{translate("התקשרו למקום")}</a>
                             : (supplierSiteID ? supplierUnitQuote?.status === "error" : liveLegacyAvailability.status === "error") ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierUnitQuotes.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>
                               : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
                                 : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />

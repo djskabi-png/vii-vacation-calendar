@@ -249,11 +249,11 @@ test("vacation search keeps a complete Airbnb-style party breakdown", async () =
   for (const label of ["מבוגרים", "ילדים", "תינוקות", "חיות מחמד", "חדרים"]) {
     assert.match(searchBox, new RegExp(`label: "${label}"`));
   }
-  assert.match(searchBox, /params\.set\("adults", String\(vacationParty\.adults\)\)/);
-  assert.match(searchBox, /params\.set\("children", String\(vacationParty\.children\)\)/);
-  assert.match(searchBox, /params\.set\("infants", String\(vacationParty\.infants\)\)/);
-  assert.match(searchBox, /params\.set\("pets", String\(vacationParty\.pets\)\)/);
-  assert.match(searchBox, /params\.set\("rooms", String\(vacationParty\.rooms\)\)/);
+  assert.match(searchBox, /params\.set\("adults", String\(selectedVacationParty\.adults\)\)/);
+  assert.match(searchBox, /params\.set\("children", String\(selectedVacationParty\.children\)\)/);
+  assert.match(searchBox, /params\.set\("infants", String\(selectedVacationParty\.infants\)\)/);
+  assert.match(searchBox, /params\.set\("pets", String\(selectedVacationParty\.pets\)\)/);
+  assert.match(searchBox, /params\.set\("rooms", String\(selectedVacationParty\.rooms\)\)/);
   assert.match(searchBox, /mode === "vacation"/);
 });
 
@@ -1605,17 +1605,12 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 
-test("unverified accommodation taxonomy redirects to regional search and stays out of the sitemap", async () => {
+test("verified accommodation taxonomy renders a canonical landing and is included in the sitemap", async () => {
   const response = await render("/villas/center");
-  assert.ok([307, 308].includes(response.status));
-  const destination = new URL(response.headers.get("location"), "https://vii.spaplus.co");
-  assert.equal(destination.pathname, "/search");
-  assert.equal(destination.searchParams.get("location"), "מרכז");
-  const search = await render(destination.pathname + destination.search);
-  assert.equal(search.status, 200);
-  assert.match(await search.text(), /business\?id=vacation-\d+/);
-  const sitemap = await (await render("/sitemap.xml")).text();
-  assert.doesNotMatch(sitemap, /<loc>[^<]*\/villas/);
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), /business\?id=vacation-\d+/);
+  const sitemap = await (await render("/sitemaps/vacations/1.xml")).text();
+  assert.match(sitemap, /<loc>[^<]*\/villas\/center<\/loc>/);
 });
 
 test("discovery rating and favorite controls use opposite logical corners", async () => {

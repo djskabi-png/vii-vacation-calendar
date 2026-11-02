@@ -5,6 +5,7 @@ import { publicFeatureLabels } from "../lib/public-feature-policy";
 import { legacyVacationProfiles, type LegacyReview } from "./legacy-vacation-profiles";
 import { getListingOfferings } from "../lib/listing-offerings";
 import { eventPlaceHref } from "../lib/event-place-href";
+import { withVacationAccommodationTypes } from "../lib/vacation-accommodation-types";
 export { getListingOfferings, eventPlaceHref };
 
 export type Listing = {
@@ -15,6 +16,8 @@ export type Listing = {
   location: string;
   area: string;
   type: string;
+  /** Every authoritative accommodation classification for this place. */
+  types?: string[];
   units?: number;
   guests: number;
   capacityScope?: "unit";
@@ -45,6 +48,10 @@ export type Listing = {
   /** Supplier advertising floor only; never a dated quote or availability evidence. */
   startPriceWinter?: number;
   startPriceSummer?: number;
+  /** Supplier list capability. False means the place does not manage an online availability calendar. */
+  onlineAvailability?: boolean;
+  /** Supplier detail capability. False means dated prices are not managed online. */
+  onlinePrices?: boolean;
   /** Managed editorial priority projected from published content for vacation search. */
   curatedRank?: number;
   dateQuotes?: ListingDateQuote[];
@@ -788,7 +795,7 @@ export function isPublicProperty(property: Property) {
 export const properties: Property[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "vacations")
   .map((place) => ({
-    ...place,
+    ...withVacationAccommodationTypes(place),
     description: supplierDisplayDescription(place),
     features: publicFeatureLabels(place.features, { maxGuests: place.guests }),
   })) as unknown as Property[];

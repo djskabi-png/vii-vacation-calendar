@@ -8349,7 +8349,12 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .accommodation-page-faq details { border: 1px solid #dbe9eb; border-radius: 16px; background: #f9fcfc; }
 .accommodation-page-faq summary { min-height: 58px; display: flex; align-items: center; padding: 14px 18px; font-weight: 850; cursor: pointer; }
 .accommodation-page-faq details p { margin: 0; padding: 0 18px 18px; color: var(--ink-soft); line-height: 1.75; }
-.accommodation-page-faq summary:focus-visible,.accommodation-landing-copy__links a:focus-visible { outline: 3px solid rgba(0,143,162,.25); outline-offset: 3px; }
+.accommodation-related-links { margin-top: 28px; padding: clamp(22px,3vw,34px); border-radius: 24px; background: #edf8f7; }
+.accommodation-related-links h2 { margin: 0 0 16px; font-size: clamp(1.35rem,2.4vw,1.9rem); }
+.accommodation-related-links > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.accommodation-related-links a { min-height: 44px; display: inline-flex; align-items: center; padding: 9px 16px; border: 1px solid #b9d9da; border-radius: 999px; background: #fff; color: var(--ink); font-weight: 750; text-decoration: none; }
+.accommodation-related-links a:hover { border-color: var(--primary); color: var(--primary); }
+.accommodation-page-faq summary:focus-visible,.accommodation-related-links a:focus-visible,.accommodation-landing-copy__links a:focus-visible { outline: 3px solid rgba(0,143,162,.25); outline-offset: 3px; }
 .join-faq { display: grid; grid-template-columns: minmax(240px,.72fr) minmax(0,1.28fr); gap: clamp(28px,5vw,72px); align-items: start; padding-block: 64px; }
 .join-faq__intro { align-self: start; }
 .join-faq__intro h2 { margin: 8px 0 14px; font-size: clamp(1.75rem,3vw,2.55rem); line-height: 1.12; }
@@ -8445,8 +8450,10 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .site-header:has(.world-dock) .brand, .site-header:has(.world-dock) .brand img { width: 48px; }
   .site-header:has(.world-dock) .site-header__inner { grid-template-columns: 48px minmax(0,1fr); gap: 4px; }
   .site-header:has(.world-dock) .header-actions { gap: 3px; }
-  .site-header:has(.world-dock) .header-actions :is(.icon-button,.menu-button,.language-trigger) { width: 44px; min-width: 44px; min-height: 44px; padding-inline: 0; flex: 0 0 44px; }
-  .world-dock > summary { width: 90px; max-width: 90px; }
+  .site-header:has(.world-dock) .header-actions :is(.icon-button,.menu-button,.language-trigger) { width: 40px; min-width: 40px; min-height: 44px; padding-inline: 0; flex: 0 0 40px; }
+  .site-header:has(.world-dock) .accessibility-trigger { font-size: 1.15rem; }
+  .site-header:has(.world-dock) .header-gift { display: none; }
+  .world-dock > summary { width: 80px; min-width: 80px; max-width: 80px; padding-inline: 8px; gap: 4px; flex: 0 0 80px; }
 }
 
 @media (max-width: 360px) {
@@ -9827,7 +9834,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .vacation-booking-dialog__footer-copy small { color: var(--ink-soft); font-size: .7rem; }
 .vacation-booking-dialog__footer-copy em { color: #8a5b08; font-size: .67rem; font-style: normal; font-weight: 800; }
 .vacation-booking-dialog__footer-actions { display: flex; align-items: center; gap: 12px; }
-.vacation-booking-dialog__footer-actions .button { min-width: 168px; min-height: 50px; margin: 0; }
+.vacation-booking-dialog__footer-actions .button,
+.vacation-booking-dialog__footer-actions .vacation-booking-dialog__whatsapp { min-width: 168px; min-height: 50px; margin: 0; }
 .vacation-booking-dialog__footer-actions .button.primary { background: var(--teal-dark); }
 .vacation-booking-dialog__change-date { min-height: 44px; padding: 0 4px; border: 0; color: var(--teal-dark); background: transparent; font: 800 .76rem/1 Rubik, Heebo, Arial, sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
 .vacation-booking-hub button:focus-visible,
@@ -9893,7 +9901,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   .vacation-booking-dialog__footer-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .vacation-booking-dialog__unit-guidance { align-self: center; padding-block: 8px; }
   .vacation-booking-dialog__loading-note { width: 100%; min-width: 0; min-height: 48px; }
-  .vacation-booking-dialog__footer-actions .button { width: 100%; min-width: 0; min-height: 48px; }
+  .vacation-booking-dialog__footer-actions .button,
+  .vacation-booking-dialog__footer-actions .vacation-booking-dialog__whatsapp { width: 100%; min-width: 0; min-height: 48px; }
   .vacation-booking-dialog__change-date { min-width: 78px; }
 }
 
@@ -10793,4 +10802,17 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .active-filter-row .online-booking-active-filter { min-height:44px; }
 @media (max-width:820px) {
   body > .search-box-shell.mobile-expanded { position:fixed; inset:0; z-index:1600; margin:0; border:0; font-family:Rubik,Heebo,Assistant,Arial,sans-serif; }
+}
+.vacation-booking-hub__inquiry-copy { display: grid; gap: 8px; max-width: 760px; }
+.vacation-booking-hub__inquiry-copy h2,
+.vacation-booking-hub__inquiry-copy p { margin: 0; }
+.vacation-booking-hub__inquiry-copy p { color: var(--muted); line-height: 1.7; }
+.vacation-booking-hub__inquiry-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.vacation-booking-hub__inquiry-actions .button,
+.vacation-booking-hub__inquiry-actions .vacation-booking-hub__inquiry-whatsapp { min-height: 48px; justify-content: center; }
+.vacation-booking-hub--inquiry-only { background: linear-gradient(135deg,#f7fbfa,#fff); border-color: #cfe5df; }
+@media (max-width: 640px) {
+  .vacation-booking-hub__inquiry-actions { display: grid; }
+  .vacation-booking-hub__inquiry-actions .button,
+  .vacation-booking-hub__inquiry-actions .vacation-booking-hub__inquiry-whatsapp { width: 100%; }
 }

@@ -17,10 +17,16 @@ const vacationSearchHref = (params: Record<string, string>) => `/search?${new UR
 
 const defaults = {
   popular: [
-    { id: "vacations", label: "מקומות נופש", note: "כל המקומות והאזורים", href: "/search", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
-    { id: "pool", label: "נופש עם בריכה", note: "בריכות פרטיות ומתחמים", href: "/search?pool=1", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
-    { id: "events", label: "מקומות לאירועים", note: "לפי כמות וסוג האירוע", href: "/events/search", image: "/media/bc85b10f1d64d6db.jpeg", visible: true },
-    { id: "north", label: "נופש בצפון", note: "גליל, גולן וכנרת", href: "/vacations/north", image: "/media/978e5fd5134b0831.jpeg", visible: true }
+    { id: "vacation-villas", label: "וילות נופש", note: "וילות למשפחות ולקבוצות", href: "/villas", image: "/media/322de460abbda5c6.jpg", visible: true },
+    { id: "zimmers", label: "צימרים", note: "צימרים ובקתות ברחבי הארץ", href: "/zimmers", image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
+    { id: "vacation-apartments", label: "דירות נופש", note: "דירות מאובזרות לחופשה עצמאית", href: "/vacation-apartments", image: "/media/88fcef4341b24a45.jpeg", visible: true },
+    { id: "luxury-suites", label: "סוויטות יוקרתיות", note: "סוויטות לחופשה מפנקת", href: "/luxury-suites", image: "/media/051ff4fbc8d7d2ac.jpeg", visible: true },
+    { id: "last-minute", label: "נופש ברגע האחרון", note: "מקומות פנויים לתאריך הקרוב", href: "/last-minute", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
+    { id: "heated-pool-family", label: "נופש למשפחה עם בריכה מחוממת", note: "מקומות למשפחות עם בריכה מחוממת", href: vacationSearchHref({ features: "heated-pool,families" }), image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
+    { id: "event-places", label: "מקומות לאירועים", note: "לופטים ומתחמים לכל חגיגה", href: "/events", image: "/media/bc85b10f1d64d6db.jpeg", visible: true },
+    { id: "spa-packages", label: "חבילות ספא", note: "טיפולים וחבילות לפי תאריך", href: "/spas#spa-world-package-deals", image: "/media/editorial/spa-couple-experience.webp", visible: true },
+    { id: "hourly-rooms", label: "חדרים לפי שעה", note: "שהייה קצרה, פרטית וגמישה", href: "/hourly", image: "/media/editorial/hourly-stay-what-to-check.webp", visible: true },
+    { id: "lofts", label: "לופטים", note: "לופטים למסיבות ולאירועים", href: "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ],
   cities: [
     { id: "eilat", label: "אילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat", image: "/media/322de460abbda5c6.jpg", visible: true },
@@ -32,11 +38,18 @@ const defaults = {
   types: [
     { id: "villas", label: "וילות", note: "מקום שלם למשפחה או לקבוצה", href: "/villas", image: "/media/322de460abbda5c6.jpg", visible: true },
     { id: "suites", label: "סוויטות", note: "אירוח זוגי ומשפחתי", href: "/suite-complexes", image: "/media/051ff4fbc8d7d2ac.jpeg", visible: true },
-    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: vacationSearchHref({ types: "צימרים" }), image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
+    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: "/zimmers", image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
     { id: "apartments", label: "דירות נופש", note: "עצמאות ונוחות בעיר", href: "/vacation-apartments", image: "/media/88fcef4341b24a45.jpeg", visible: true },
-    { id: "complexes", label: "מתחמי אירוח", note: "כמה יחידות במקום אחד", href: "/suite-complexes", image: "/media/978e5fd5134b0831.jpeg", visible: true }
+    { id: "complexes", label: "מתחמי אירוח", note: "כמה יחידות במקום אחד", href: "/hospitality-complexes", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ]
 } satisfies Record<string, HomeDiscoveryItem[]>;
+
+const retiredPopularSearchIds = ["vacations", "pool", "events", "north"];
+
+function isRetiredPopularSearchList(items: HomeDiscoveryItem[]) {
+  return items.length === retiredPopularSearchIds.length
+    && retiredPopularSearchIds.every((id, index) => items[index]?.id === id);
+}
 
 function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
   if (!value) return fallback;
@@ -79,8 +92,9 @@ export const defaultHomepagePresentation = {
 };
 
 export function parseHomepagePresentation(attributes?: Record<string, string>) {
+  const managedPopular = parseItems(attributes?.homePopularSearches, defaults.popular);
   return {
-    popular: parseItems(attributes?.homePopularSearches, defaults.popular).filter((item) => item.visible),
+    popular: (isRetiredPopularSearchList(managedPopular) ? defaults.popular : managedPopular).filter((item) => item.visible),
     cities: parseItems(attributes?.homeCitySearches, defaults.cities).filter((item) => item.visible),
     types: parseItems(attributes?.homeTypeSearches, defaults.types).filter((item) => item.visible),
     editorialTitle: attributes?.homeEditorialTitle?.trim().slice(0, 120) || defaultHomepagePresentation.editorialTitle,

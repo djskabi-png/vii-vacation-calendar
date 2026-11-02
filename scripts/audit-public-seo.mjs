@@ -127,8 +127,12 @@ async function inspect(path) {
 }
 
 const results = [];
-for (let index = 0; index < urls.length; index += 12) {
-  results.push(...await Promise.all(urls.slice(index, index + 12).map(inspect)));
+// Production pages can contain large serialized server-component payloads.
+// Keep concurrency deliberately small so a complete sitemap audit remains
+// bounded instead of retaining several large HTML strings at once.
+const auditConcurrency = Math.max(1, Math.min(4, Number(process.env.SEO_AUDIT_CONCURRENCY || 2)));
+for (let index = 0; index < urls.length; index += auditConcurrency) {
+  results.push(...await Promise.all(urls.slice(index, index + auditConcurrency).map(inspect)));
 }
 
 const failures = results.filter((result) => result.errors.length);

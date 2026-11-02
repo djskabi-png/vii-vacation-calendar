@@ -19,7 +19,7 @@ test("closing any mobile date flow returns to the unchanged page", () => {
 });
 
 test("submitting a search closes every open search layer before showing results", () => {
-  assert.match(source, /function search\(\) \{[\s\S]*?setIsSearching\(true\);[\s\S]*?closeMobileSearch\(\);/);
+  assert.match(source, /function search\(overrides: ImmediateSearchOverrides = \{\}\) \{[\s\S]*?setIsSearching\(true\);[\s\S]*?closeMobileSearch\(\);/);
   assert.match(source, /const closeMobileSearch = useCallback\(\(\) => \{[\s\S]*?setPriceOpen\(false\);[\s\S]*?setMobileExpanded\(false\);/);
 });
 

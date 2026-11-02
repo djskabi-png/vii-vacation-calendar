@@ -20,12 +20,21 @@ test("every legacy sitemap search page has one unique published replacement", ()
 });
 
 test("every migrated search source has a direct 301 target and is no longer gone", () => {
+  const promotedCategoryLandings = new Map([
+    ["/s/israel/16094", "/wood-cabins"],
+    ["/s/israel/16095", "/villas"],
+    ["/s/israel/16096", "/zimmers"],
+    ["/s/israel/16097", "/vacation-caves"],
+    ["/s/israel/16101", "/suite-complexes"],
+    ["/s/israel/20158", "/stone-zimmers"],
+    ["/s/israel/55578", "/vacation-apartments"],
+  ]);
   const gone = new Set(redirects.gone);
   const bySource = new Map(publications.pages.map((page) => [page.legacySourcePath, page]));
   for (const source of exported.rows.map((row) => row.sourcePath)) {
     const page = bySource.get(source);
     if (!page) continue;
-    assert.equal(redirects.redirects[source], page.canonicalPath, source);
+    assert.equal(redirects.redirects[source], promotedCategoryLandings.get(source) || page.canonicalPath, source);
     assert.equal(gone.has(source), false, source);
   }
   for (const alias of publications.aliases) {
