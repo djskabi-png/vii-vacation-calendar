@@ -1,5 +1,6 @@
-import { cleanAccommodationPath } from "../data/accommodation-landings";
-import { cleanVacationPath } from "../data/vacation-landings";
+import { cleanAccommodationPath } from "../data/accommodation-landings.ts";
+import { cleanVacationPath } from "../data/vacation-landings.ts";
+import { canonicalLegacyVacationSearchPath, semanticVacationFeaturesFromSearchParams, vacationSearchHasTransactionalState } from "./legacy-search-intent.ts";
 
 type SearchUpdate = Record<string, string | null>;
 
@@ -13,6 +14,11 @@ export function buildVacationSearchUrl(currentSearch: string, updates: SearchUpd
     if (value === null) params.delete(key);
     else params.set(key, value);
   });
+
+  const canonicalLegacyPath = !vacationSearchHasTransactionalState(params) && nextTypes.length === 1
+    ? canonicalLegacyVacationSearchPath({ location: nextArea, type: nextTypes[0], features: semanticVacationFeaturesFromSearchParams(params) })
+    : null;
+  if (canonicalLegacyPath) return canonicalLegacyPath;
 
   const cleanPath = nextTypes.length === 1 ? cleanAccommodationPath(nextTypes[0], nextArea) : cleanVacationPath(nextArea);
   if (cleanPath) {

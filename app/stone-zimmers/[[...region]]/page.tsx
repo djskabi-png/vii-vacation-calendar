@@ -5,7 +5,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region?: 
   return accommodationLandingMetadata("stone-zimmers", region?.[0]);
 }
 
-export default async function StoneZimmersPage({ params }: { params: Promise<{ region?: string[] }> }) {
+export default async function StoneZimmersPage({ params, searchParams }: { params: Promise<{ region?: string[] }>; searchParams: import("../../components/accommodation-landing-route").AccommodationSearchParams }) {
   const { region } = await params;
-  return <AccommodationLandingRoute categoryId="stone-zimmers" regionSlug={region?.[0]} />;
+  return <AccommodationLandingRoute categoryId="stone-zimmers" regionSlug={region?.[0]} searchParams={searchParams} />;
 }

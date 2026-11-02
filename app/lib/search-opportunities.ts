@@ -6,6 +6,7 @@ import { validSearchWorld, type SearchWorld } from "./search-analytics.ts";
 import type { SiteLanguage } from "../i18n/locale-routing.ts";
 import legacySearchPublications from "../data/legacy-search-page-publications.json" with { type: "json" };
 import { holidayWorldPath } from "./holiday-world.ts";
+import { completeLegacySearchFilters, completeLegacySearchSourcePath } from "./legacy-search-intent.ts";
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -70,7 +71,7 @@ function legacyBody(page: LegacySearchPageRecord) {
 
 function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunity {
   const generatedAt = legacySearchPublications.generatedAt;
-  return { ...page, origin: "managed", world: "vacation", locale: "he", filters: page.filters || {},
+  return { ...page, sourcePath: completeLegacySearchSourcePath(page), origin: "managed", world: "vacation", locale: "he", filters: completeLegacySearchFilters(page),
     proposedPath: page.canonicalPath, suggestedTitle: page.h1, firstSeenAt: generatedAt, lastSeenAt: generatedAt,
     searches: 0, uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
     zeroResults: 0, status: "published", assignee: null, body: legacyBody(page), faq: page.faq || [], robotsIndex: true,

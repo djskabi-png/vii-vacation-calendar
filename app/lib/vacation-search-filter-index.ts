@@ -1,5 +1,29 @@
 import type { Property } from "../data/site-data.ts";
 
+const vacationAccommodationTypeTerms: Record<string, readonly string[]> = {
+  "בקתות עץ": ["בקתת עץ", "בקתות עץ"],
+  "וילות": ["וילה", "וילות"],
+  "דירות נופש": ["דירת נופש", "דירות נופש"],
+  "סוויטות": ["סוויטה", "סוויטות", "סוויטות יוקרה", "מתחם סוויטות"],
+  "מערות": ["מערה", "מערות"],
+  "צימרים מאבן": ["צימר מאבן", "צימרים מאבן"],
+  "צימרים": ["צימר", "צימרים"],
+  "מתחמי אירוח": ["מתחם אירוח", "מתחמי אירוח", "מתחם נופש", "מתחם סוויטות"],
+  "אוהלים אינדיאנים": ["אוהל אינדיאני", "אוהלים אינדיאנים"],
+};
+
+export function matchesVacationAccommodationType(property: Property, selectedType: string) {
+  const propertyTypes = property.types?.length ? property.types : [property.type];
+  const normalizedPropertyTypes = propertyTypes.map((value) => value.trim().toLocaleLowerCase("he"));
+  const candidates = vacationAccommodationTypeTerms[selectedType] || [selectedType];
+  return candidates.some((candidate) => {
+    const normalizedCandidate = candidate.toLocaleLowerCase("he");
+    return normalizedPropertyTypes.some((propertyType) => propertyType === normalizedCandidate
+      || propertyType.includes(normalizedCandidate)
+      || normalizedCandidate.includes(propertyType));
+  });
+}
+
 const vacationSearchFilterTerms: Record<string, readonly string[]> = {
   accessible: ["נגיש"],
   pets: ["בעלי חיים", "חיות מחמד"],

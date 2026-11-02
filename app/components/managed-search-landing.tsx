@@ -10,7 +10,7 @@ import { hourlyPlacesFromCatalog, spaPlacesFromSites, type DiscoveryItem } from 
 import type { SpaPlusSite } from "../data/spaplus";
 import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { matchesSearchLocation } from "../data/search-taxonomy";
-import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
+import { matchesVacationAccommodationType, matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { completePlaceSearchResults, nearbyRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
@@ -31,7 +31,7 @@ async function resultsFor(world: string, location: string, filters: Record<strin
   if (world === "vacation") {
     const catalog = await publicCatalogSummaries<Property>("vacations");
     const featureIds = typeof filters.features === "string" ? filters.features.split(",").filter(Boolean) : [];
-    const eligible = catalog.filter((place) => (typeof filters.type !== "string" || place.type === filters.type) &&
+    const eligible = catalog.filter((place) => (typeof filters.type !== "string" || matchesVacationAccommodationType(place, filters.type)) &&
       (typeof filters.guests !== "number" || place.guests >= filters.guests) && featureIds.every((id) => matchesVacationSearchFilter(place, id)));
     const exact = eligible.filter((place) => matchesSearchLocation(place, location));
     const nearby = fallbackMode === "nearby" && exact.length < PLACE_SEARCH_MINIMUM_RESULTS

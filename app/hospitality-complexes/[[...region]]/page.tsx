@@ -5,7 +5,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region?: 
   return accommodationLandingMetadata("hospitality-complexes", region?.[0]);
 }
 
-export default async function HospitalityComplexesPage({ params }: { params: Promise<{ region?: string[] }> }) {
+export default async function HospitalityComplexesPage({ params, searchParams }: { params: Promise<{ region?: string[] }>; searchParams: import("../../components/accommodation-landing-route").AccommodationSearchParams }) {
   const { region } = await params;
-  return <AccommodationLandingRoute categoryId="hospitality-complexes" regionSlug={region?.[0]} />;
+  return <AccommodationLandingRoute categoryId="hospitality-complexes" regionSlug={region?.[0]} searchParams={searchParams} />;
 }

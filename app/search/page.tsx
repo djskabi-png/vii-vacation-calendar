@@ -410,6 +410,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
   useEffect(() => {
+    if (!landing || selectedStay || flexibleSearch) return;
+    const canonical = buildVacationSearchUrl(searchQuery, {}, landingType ? [landingType] : selectedTypes, landing.area || area);
+    const current = searchQuery ? `${pathname}?${searchQuery}` : pathname;
+    if (canonical !== current && canonical.startsWith("/search/vacations/")) router.replace(localizedPath(canonical, language), { scroll: false });
+  }, [area, flexibleSearch, landing, landingType, language, pathname, router, searchQuery, selectedStay, selectedTypes]);
+
+  useEffect(() => {
     if (!selectedStay || (!searchParams.get("dates") && searchParams.get("from") && searchParams.get("till"))) return;
     const params = new URLSearchParams(searchParams.toString());
     params.delete("dates");

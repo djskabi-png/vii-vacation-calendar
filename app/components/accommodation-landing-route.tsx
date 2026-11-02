@@ -9,6 +9,18 @@ import type { Property } from "../data/site-data";
 import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { accommodationLandingForPath, indexableAccommodationLandings, type AccommodationCategoryId } from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
+import { canonicalLegacyVacationSearchPath, semanticVacationFeaturesFromSearchParams, vacationSearchHasTransactionalState } from "../lib/legacy-search-intent.ts";
+
+export type AccommodationSearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function urlSearchParams(values: Record<string, string | string[] | undefined>) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(values)) {
+    if (Array.isArray(value)) value.forEach((item) => params.append(key, item));
+    else if (value !== undefined) params.set(key, value);
+  }
+  return params;
+}
 
 export async function accommodationLandingMetadata(categoryId: AccommodationCategoryId, regionSlug?: string | null): Promise<Metadata> {
   const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
@@ -29,10 +41,20 @@ export async function accommodationLandingMetadata(categoryId: AccommodationCate
   };
 }
 
-export async function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
+export async function AccommodationLandingRoute({ categoryId, regionSlug, searchParams }: { categoryId: AccommodationCategoryId; regionSlug?: string | null; searchParams?: AccommodationSearchParams }) {
   const publishedProperties = await publicCatalogSummaries<Property>("vacations");
   const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) notFound();
+  if (searchParams) {
+    const params = urlSearchParams(await searchParams);
+    const canonical = !vacationSearchHasTransactionalState(params)
+      ? canonicalLegacyVacationSearchPath({ location: landing.region?.label || "כל הארץ", type: landing.category.propertyTypes[0], features: semanticVacationFeaturesFromSearchParams(params) })
+      : null;
+    if (canonical) {
+      const locale = (await headers()).get("x-vii-locale");
+      redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${canonical}`);
+    }
+  }
   if (!landing.listings.length) {
     const locale = (await headers()).get("x-vii-locale");
     const prefix = locale && locale !== "he" ? `/${locale}` : "";

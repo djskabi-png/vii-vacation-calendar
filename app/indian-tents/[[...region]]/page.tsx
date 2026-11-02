@@ -5,7 +5,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region?: 
   return accommodationLandingMetadata("indian-tents", region?.[0]);
 }
 
-export default async function IndianTentsPage({ params }: { params: Promise<{ region?: string[] }> }) {
+export default async function IndianTentsPage({ params, searchParams }: { params: Promise<{ region?: string[] }>; searchParams: import("../../components/accommodation-landing-route").AccommodationSearchParams }) {
   const { region } = await params;
-  return <AccommodationLandingRoute categoryId="indian-tents" regionSlug={region?.[0]} />;
+  return <AccommodationLandingRoute categoryId="indian-tents" regionSlug={region?.[0]} searchParams={searchParams} />;
 }

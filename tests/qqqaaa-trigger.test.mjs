@@ -67,6 +67,7 @@ test("QQQAAA locks regional events, truthful last-minute discovery, WhatsApp han
   assert.match(runner, /critical-public-families/);
   assert.match(runner, /qa:critical-public-families/);
   const suite = packageJson.scripts["qa:critical-public-families"];
+  assert.match(suite, /legacy-search-canonical-intent\.test\.mjs/, "semantic filter landings must remain in the permanent public-family gate");
   for (const file of ["booking-mode-contract.test.mjs", "whatsapp-lead-contract.test.mjs", "geographic-search-family.test.mjs", "event-slot-deals.test.mjs", "contextual-deal-landings.test.mjs", "vacation-contact-only-availability.test.mjs"]) {
     assert.match(suite, new RegExp(file.replaceAll(".", "\\.")));
   }
