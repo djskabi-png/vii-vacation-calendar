@@ -27,6 +27,7 @@ import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
 import { runQualityChecks } from "../app/lib/quality-platform.ts";
+import { deploymentMediaAliases } from "../app/lib/deployment-media-aliases.generated.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -233,6 +234,10 @@ const worker = {
     env = env || ({} as Env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);
+    const mediaAlias = deploymentMediaAliases[url.pathname];
+    if ((request.method === "GET" || request.method === "HEAD") && mediaAlias) {
+      return Response.redirect(new URL(mediaAlias, url.origin), 308);
+    }
     // Maintenance belongs to the scheduled handler above. Starting catalog
     // synchronization and the sitewide QA runner from every customer HTML
     // request made ordinary navigation pay for unrelated background work and
