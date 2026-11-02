@@ -14,7 +14,7 @@ test("spa mobile uses the premium hero and keeps the functional filter rail comp
   assert.match(landing, /spa-discovery-hero__search/);
   assert.match(css, /\.spa-discovery-hero \{[^}]*z-index: 1;[^}]*overflow: visible;/);
   assert.match(css, /@media \(max-width: 560px\)[\s\S]*?\.spa-discovery-hero__visual \{ min-height: 168px; \}/);
-  assert.match(css, /\.spa-discovery-hero \+ \.section \{ padding-top: 54px; \}/);
+  assert.match(css, /\.spa-discovery-hero \+ \.section \{ padding-top: 48px; \}/);
   assert.match(css, /\.spa-results__landing-links a \{ width: 88px; min-height: 72px;/);
   assert.match(css, /\.spa-results__filter-label \{[^}]*white-space: normal;[^}]*-webkit-line-clamp: 2;/);
   assert.match(css, /\.spa-results__filter-toggle \{ min-height: 44px; display: inline-flex;/);

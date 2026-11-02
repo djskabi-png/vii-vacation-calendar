@@ -132,7 +132,7 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.match(page, /onlineOnly && !matchesOnline\(property\)/);
   assert.match(page, /shownFilters.onlineOnly[^\n]*!matchesOnline\(property\)/);
   assert.doesNotMatch(page, /בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין/);
-  assert.match(page, /const startingPrices = useStartingPrices\("vacations", undatedSearch\);/);
+  assert.match(page, /const startingPrices = useStartingPrices\("vacations", true\);/);
   assert.equal((page.match(/catalogStartingPrices=\{startingPrices\[property\.slug\]\}/g) || []).length, 2);
   assert.match(page, /aria-busy=\{undatedSearch \? onlineCapabilities.status === "loading" : datedAvailabilityPending\}/);
   assert.match(page, /onlineOnly && undatedCapabilityUnavailable/);
@@ -148,5 +148,6 @@ test("search list, nearby, map, draft and badge share capability without changin
   const mcp = readFileSync(new URL("../app/mcp/route.ts", import.meta.url), "utf8");
   assert.match(mcp, /world === "vacations"[\s\S]*cachedOnlineCapabilities\(db\)/);
   const card = readFileSync(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
-  assert.match(card, /undatedSearch && !promotional && !property.demoOperations\?\.fictional && onlineCapability/);
+  assert.match(card, /const onlineBookingEligible = canShowOnlineBookingBadge\(\{/);
+  assert.doesNotMatch(card, /undatedSearch[^;\n]*onlineCapability[^;\n]*\|\| canShowOnlineBookingBadge/);
 });

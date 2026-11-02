@@ -42,6 +42,19 @@ test("QQQAAA has an explicit administrator and customer identity boundary gate",
   assert.match(packageJson.scripts["qa:auth-boundaries"], /launch-seo\.test\.mjs/);
 });
 
+test("QQQAAA permanently inventories every administration control", () => {
+  assert.match(runner, /administration-control-inventory/);
+  assert.match(runner, /qa:admin-controls/);
+  assert.match(packageJson.scripts["qa:admin-controls"], /admin-control-inventory\.test\.mjs/);
+});
+
+test("QQQAAA blocks any release source that drops an approved VII capability family", () => {
+  assert.match(runner, /protected-release-baseline/);
+  assert.match(runner, /qa:release-baseline/);
+  assert.match(packageJson.scripts["qa:release-baseline"], /release-baseline-integrity\.test\.mjs/);
+  assert.match(packageJson.scripts["qa:release-baseline"], /contextual-deal-landings\.test\.mjs/);
+});
+
 test("QQQAAA permanently guards the production repairs required before Professor", () => {
   assert.match(runner, /pre-professor-production-repairs/);
   const suite = packageJson.scripts["qa:pre-professor-repairs"];

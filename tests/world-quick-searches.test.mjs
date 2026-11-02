@@ -23,7 +23,7 @@ test("every quick search is a crawlable link with a meaningful URL state", () =>
   assert.match(eventPresentation, /guests=100/);
   assert.match(component, /\/spas\/couples-spa/);
   assert.match(component, /maxPrice=250/);
-  assert.match(component, /עד 250 ₪ לשעתיים/);
+  assert.match(component, /עד ₪ 250 לשעתיים/);
   assert.match(component, /features=independent/);
   assert.doesNotMatch(component, /preventDefault/);
   assert.match(eventComponent, /<Link key=\{item\.id\} href=\{item\.href\}/);

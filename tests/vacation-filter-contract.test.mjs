@@ -13,7 +13,8 @@ test("vacation search preserves every legacy accommodation type", async () => {
   assert.match(source, />מחיר ומאפיינים<\/button>/);
   assert.match(source, /type="checkbox" checked=\{shownFilters\.selectedTypes\.includes\(item\.label\)\}/);
   assert.match(source, /selectedTypes\.some/);
-  assert.match(source, /propertyTypes\.some\(\(propertyType\) => matchingTypes \? matchingTypes\.includes\(propertyType\)/);
+  assert.match(source, /const normalizedPropertyTypes = propertyTypes\.map/);
+  assert.match(source, /matchingTypes\.some\(\(candidate\) =>/);
   assert.match(source, /label: "בקתות עץ", matches: \["בקתת עץ", "בקתות עץ"\]/);
   assert.match(source, /label: "צימרים", matches: \["צימר", "צימרים"\]/);
 });

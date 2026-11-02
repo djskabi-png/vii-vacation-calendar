@@ -1,0 +1,75 @@
+{
+  "status": "candidate_verified_locally_not_published",
+  "reviewedAt": "2026-11-02T19:15:00+02:00",
+  "mergeBase": "c6f5f04919a8654e7e2e05bddc4b013489e0bc2f",
+  "canonicalBase": {
+    "branch": "fix/api-canonical-integrity-20261031",
+    "commit": "6f0df60e"
+  },
+  "reconciliationBranch": "fix/reconcile-lost-features-20261102",
+  "divergentSource": {
+    "branch": "fix/spa-booking-modal-20261101-slim",
+    "tip": "cabdd78e45255510a0539fc4c4bd22db5a107ee4"
+  },
+  "includedFamilies": [
+    "contextual event and spa deal pages",
+    "place navigation loading and performance",
+    "shared spacing rhythm",
+    "vacation bedroom and unit details",
+    "dated vacation ranking",
+    "spa booking contained inside VII",
+    "mobile header logo integrity",
+    "WhatsApp continuation after saved enquiry",
+    "overflow-only description expansion",
+    "priced dated proof for online booking badges",
+    "telephone-only availability actions",
+    "gift card world gating",
+    "Hebrew price and date typography",
+    "supplier gallery and media integrity",
+    "place cancellation policies",
+    "world shutdown behavior",
+    "Professor verified data answers and presentation",
+    "search parity and multi-type accommodation support"
+  ],
+  "excludedCommits": [
+    {
+      "commits": ["7a7ad39e9b478db417413bb3d974270353867cf6", "86343744e89658376459f5879d708800d9b4565d"],
+      "reason": "Packaging-only history that deleted tests and evidence. The release source keeps the complete verified tree."
+    },
+    {
+      "commits": ["02ce861966d7b01bd106674eed611f7fdf42db29", "c9e0bedb808419c17a8a1a276f58b9f000e8b56d", "cabdd78e45255510a0539fc4c4bd22db5a107ee4"],
+      "reason": "Superseded catalog dashboard implementations. The canonical line already contains the newer resilient dashboard commits 999753f1 and 6f0df60e."
+    }
+  ],
+  "durableReleaseGate": {
+    "script": "pnpm qa:release-baseline",
+    "qqqaaaSuite": "protected-release-baseline",
+    "protectedCapabilities": [
+      "/events/last-minute",
+      "/spas/today",
+      "/spas/tomorrow",
+      "spa booking modal containment",
+      "vacation place-detail family",
+      "SEO multi-type search",
+      "Professor data and bidi presentation",
+      "admin catalog controls",
+      "place cancellation policies",
+      "world shutdown"
+    ]
+  },
+  "verification": {
+    "releaseBaseline": "15 of 15 passed",
+    "adminControls": "40 of 40 passed",
+    "focusedIntegration": "105 of 105 passed across the final focused runs",
+    "productionBuild": "passed",
+    "fullSuiteClassification": {
+      "integrationRegressions": "fixed",
+      "preExistingSupplierDiagnostics": "3 failures reproduced unchanged on canonical base worktree",
+      "environmentOnly": [
+        "AWS rotation test requires optional pg module not installed in this workspace",
+        "Playwright Chromium launch failed with Windows spawn UNKNOWN"
+      ]
+    }
+  },
+  "publication": "not_performed"
+}
