@@ -5,7 +5,7 @@ import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
-import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
+import { requiredRuntimeDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
 import { readCachedOnlineCapabilities } from "../../../lib/online-booking-capability-cache.ts";
 import { publicOnlineCapabilities } from "../../../lib/online-booking-capability.ts";
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
@@ -26,10 +26,25 @@ async function database(): Promise<D1Database> {
 export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
-    const db = await database();
+    let db = await database();
     // Locks and active generations are the safety-critical core. Optional
     // diagnostics must never turn a healthy catalog into an opaque 503 screen.
-    const dashboard = await readSupplierCatalogDashboard(db);
+    let dashboard;
+    let databaseOrigin: "aws-aurora" | "cloudflare-d1" = "aws-aurora";
+    let degraded = false;
+    try {
+      dashboard = await readSupplierCatalogDashboard(db);
+    } catch (primaryError) {
+      const fallback = await runtimeD1Database();
+      if (fallback === db) throw primaryError;
+      console.error("catalog_dashboard_using_d1_fallback", {
+        reason: primaryError instanceof Error ? primaryError.message.slice(0, 160) : "unknown",
+      });
+      db = fallback;
+      dashboard = await readSupplierCatalogDashboard(db);
+      databaseOrigin = "cloudflare-d1";
+      degraded = true;
+    }
     const [retryJobsResult, alertsResult, capabilityResult, vacationIdsResult] = await Promise.allSettled([
       readCatalogRetryJobs(db), readCatalogAlerts(db), readCachedOnlineCapabilities(db), publishedSupplierIds("vacations"),
     ]);
@@ -41,7 +56,7 @@ export async function GET(request: Request) {
     const capabilityValue = capabilitySnapshot
       ? publicOnlineCapabilities(capabilitySnapshot.value, vacationIds)
       : {};
-    return Response.json({ ...dashboard, retryJobs, alerts, diagnosticsAvailability: {
+    return Response.json({ ...dashboard, databaseOrigin, degraded, retryJobs, alerts, diagnosticsAvailability: {
       retries: retryJobsResult.status === "fulfilled",
       alerts: alertsResult.status === "fulfilled",
       onlineCapabilities: capabilityResult.status === "fulfilled",

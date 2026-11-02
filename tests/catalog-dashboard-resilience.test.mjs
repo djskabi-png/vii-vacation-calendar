@@ -29,7 +29,15 @@ test("catalog dashboard serializes bridge statements and bounds historical paylo
 
 test("catalog admin keeps core state visible when optional diagnostics fail", async () => {
   const route = await readFile(new URL("../app/api/admin/catalog-sync/route.ts", import.meta.url), "utf8");
-  assert.match(route, /const dashboard = await readSupplierCatalogDashboard\(db\)/);
+  assert.match(route, /dashboard = await readSupplierCatalogDashboard\(db\)/);
   assert.match(route, /Promise\.allSettled/);
   assert.match(route, /diagnosticsAvailability/);
+});
+
+test("catalog admin falls back to the read-only D1 replica when Aurora catalog state is unavailable", async () => {
+  const route = await readFile(new URL("../app/api/admin/catalog-sync/route.ts", import.meta.url), "utf8");
+  assert.match(route, /runtimeD1Database/);
+  assert.match(route, /catalog_dashboard_using_d1_fallback/);
+  assert.match(route, /databaseOrigin = "cloudflare-d1"/);
+  assert.match(route, /degraded = true/);
 });
