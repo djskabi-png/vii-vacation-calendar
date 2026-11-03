@@ -1,4 +1,9 @@
-const CACHE = "vii-public-v1";
+// v2 deliberately contains only release-independent offline shell assets.
+// Caching rendered HTML here can pair an old document with a newer deployment's
+// hashed JavaScript after a brief network failure, which makes Next/Vinext fall
+// into the route error boundary. The edge cache already versions documents by
+// build, so the browser worker must never keep a second unversioned HTML copy.
+const CACHE = "vii-public-v2";
 const OFFLINE = "/offline";
 const SHELL = [OFFLINE, "/favicon.svg", "/vii-app-icon.svg", "/vii-app-icon-maskable.svg"];
 
@@ -18,10 +23,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin || privateRequest(url)) return;
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).then((response) => {
-      if (response.ok) void caches.open(CACHE).then((cache) => cache.put(request, response.clone()));
-      return response;
-    }).catch(async () => (await caches.match(request)) || (await caches.match(OFFLINE))));
+    event.respondWith(fetch(request).catch(async () => (await caches.match(OFFLINE)) || Response.error()));
     return;
   }
   if (["style", "script", "font", "image"].includes(request.destination)) {

@@ -21,6 +21,16 @@ test("service worker supports offline navigation and updates without caching pri
   assert.match(worker, /if \(url\.origin !== self\.location\.origin \|\| privateRequest\(url\)\) return/);
 });
 
+test("service worker never replays an old rendered document across releases", () => {
+  const worker = source("../public/sw.js");
+  const navigation = worker.slice(worker.indexOf('if (request.mode === "navigate")'), worker.indexOf('if (["style", "script", "font", "image"]'));
+  assert.match(worker, /const CACHE = "vii-public-v2"/);
+  assert.match(navigation, /fetch\(request\)\.catch/);
+  assert.match(navigation, /caches\.match\(OFFLINE\)/);
+  assert.doesNotMatch(navigation, /cache\.put\(request/);
+  assert.doesNotMatch(navigation, /caches\.match\(request\)/);
+});
+
 test("PWA controls cover install, iOS guidance, update and offline states in all public languages", () => {
   const experience = source("../app/components/pwa-experience.tsx");
   for (const language of ["he", "en", "fr", "ru"]) assert.match(experience, new RegExp(`\\n  ${language}: \\{`));

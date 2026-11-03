@@ -1,0 +1,28 @@
+{
+  "status": "fixed",
+  "symptom": "The public application intermittently replaced a requested business page with the shared route error boundary and, in a fresh browser, returned a 500 Internal server error.",
+  "expected_behavior": "Public pages render verified content through cold loads, reloads and route transitions, and a release change cannot pair an old rendered document with new hashed assets.",
+  "environment": "vii.spaplus.co on 3 November 2026; public baseline Version appgver_87cf0f1a04608191b067d46435fde5e8 and cumulative candidate starting at commit 0f744df409a4b901000b3052400f22caa4b9dd4b.",
+  "reproduction": {"steps":["Open https://vii.spaplus.co/business?id=vacation-164 in a fresh browser context.","Observe the document response and visible title and body.","Repeat the same route through direct HTTP probes."],"evidence":"The browser showed title This site ran into a problem and body 500 Internal server error. Six immediate HTTP repeats then returned 200 with 2.7 to 7.6 second latency, proving an intermittent runtime failure."},
+  "observations": [
+    {"observation":"The current public service worker uses vii-public-v1 and stores rendered navigation responses by request URL.","evidence":"Direct read of https://vii.spaplus.co/sw.js showed cache.put(request, response.clone()) and caches.match(request) for navigation."},
+    {"observation":"The cumulative candidate contains an Aurora circuit breaker plus D1 and accepted bundled catalog fallback.","evidence":"app/lib/runtime-database.ts and app/lib/public-catalog-read.ts; built-candidate logs showed selected and detail fallback while still returning the business page with HTTP 200."},
+    {"observation":"The screenshot wording matches app/error.tsx.","evidence":"Source comparison of the Hebrew labels and public browser reproduction."}
+  ],
+  "hypotheses": [
+    {"id":"H1","mechanism":"The unversioned service-worker document cache can replay old HTML after a release and pair it with newer hashed assets, reaching the route error boundary.","prediction":"The public worker caches navigation documents, while a worker that caches only the offline shell eliminates this cross-release path.","discriminating_test":"Read the public worker, change navigation handling to network plus offline shell only, and assert no document put or request replay.","result":"Supported. The public v1 worker cached full navigation responses. The v2 regression test proves navigation contains no cache.put(request) or caches.match(request).","status":"supported"},
+    {"id":"H2","mechanism":"A transient Aurora or catalog-read failure escapes on the currently deployed build and produces a server 500.","prediction":"The public business route can fail once and then succeed, while the cumulative candidate renders it when cloud database access is unavailable by using the accepted fallback chain.","discriminating_test":"Compare fresh public reproduction with the exact built candidate running without cloud bindings.","result":"Supported. Production returned a direct intermittent 500. The built candidate logged public catalog fallbacks but rendered the same business route with HTTP 200.","status":"supported"},
+    {"id":"H3","mechanism":"A deterministic render or hydration exception exists in the candidate independent of network and release state.","prediction":"The same candidate route or viewport fails consistently during repeated local browser checks.","discriminating_test":"Run home, vacation search, business detail and business reload on desktop and 390 pixel mobile.","result":"Rejected. All eight candidate checks returned expected content with no HTTP 500, visible shared error boundary or page exception.","status":"rejected"}
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {"change":"Release the cumulative database fallback candidate and prevent release mixing by changing the service worker to cache only release-independent shell assets. Centralize bounded route and global asset recovery so CacheStorage failure cannot block a single reload.","evidence":"Targeted tests passed 10 of 10 and the exact built candidate passed eight desktop and mobile route and reload checks with zero failures."},
+  "affected_family": ["homepage cold and warm navigation","vacation search with dated query","business detail vacation-164 cold load and reload","route and global error boundaries","service-worker navigation on desktop and 390 pixel mobile"],
+  "regression_checks": [
+    {"check":"Service worker release isolation","status":"passed","evidence":"tests/pwa-experience.test.mjs asserts v2 shell cache and prohibits navigation document caching or replay."},
+    {"check":"Bounded shared asset recovery","status":"passed","evidence":"tests/navigation-unit-results-regression.test.mjs verifies both boundaries use one helper, a 60 second guard, cache cleanup and reload."},
+    {"check":"Built route family","status":"passed","evidence":"qa:route-reliability against http://127.0.0.1:4191 completed eight desktop and mobile checks with zero failures."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["The original server digest was not exposed by the public 500 response, so the exact first failing Aurora call cannot be named from production logs."],
+  "authorization_boundary": "Read-only production diagnosis, local repair and tests, and one explicitly authorized public release; no data, schema, DNS, environment, sharing or permission changes."
+}

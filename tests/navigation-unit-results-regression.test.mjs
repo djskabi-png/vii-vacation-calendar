@@ -16,10 +16,16 @@ test("customer navigation never starts catalog or QQQAAA maintenance", async () 
 
 test("global boundary recovers a release asset mismatch once without looping", async () => {
   const boundary = await read("app/error.tsx");
-  assert.match(boundary, /isReleaseAssetMismatch/);
-  assert.match(boundary, /RECOVERY_WINDOW_MS = 60_000/);
-  assert.match(boundary, /startsWith\("vii-public-"\)/);
-  assert.match(boundary, /location\.reload\(\)/);
+  const globalBoundary = await read("app/global-error.tsx");
+  const recovery = await read("app/lib/release-asset-recovery.ts");
+  assert.match(boundary, /recoverReleaseAssetMismatch\(error, "route"\)/);
+  assert.match(globalBoundary, /recoverReleaseAssetMismatch\(error, "global"\)/);
+  assert.match(recovery, /RECOVERY_WINDOW_MS = 60_000/);
+  assert.match(recovery, /Loading \(\?:CSS \)\?chunk/);
+  assert.match(recovery, /Failed to fetch RSC payload/);
+  assert.match(recovery, /"caches" in window/);
+  assert.match(recovery, /Promise\.allSettled/);
+  assert.match(recovery, /window\.location\.reload\(\)/);
 });
 
 test("unit quote fan-out preserves every room and isolates one supplier failure", async () => {

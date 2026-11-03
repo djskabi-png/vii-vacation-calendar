@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-intermittent-error-boundary-release-20261103",
+  "project": "VII public web application",
+  "task_type": "production runtime reliability repair and controlled release",
+  "requested_outcome": "Remove the intermittent public route failure, prevent stale release assets from recreating it, and publish one verified cumulative release.",
+  "natural_destination": "https://vii.spaplus.co on desktop and 390 pixel mobile",
+  "authorization_boundary": "Local diagnosis, repair, tests and one public Version and Deployment are authorized. DNS, schema, data, environment variables, sharing and permissions are excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The defect is intermittent and shared by public routes.","acceptance_impact":"Require cold load, warm reload, retry and affected-family evidence at the public destination."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The user explicitly authorized production publication.","acceptance_impact":"Record exact Version, Deployment, source, tree, environment revision and rollback."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Only one controlled mutation is allowed.","acceptance_impact":"Freeze a clean cumulative source and create exactly one Version and Deployment."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"The symptom can be caused by mixed release artifacts.","acceptance_impact":"Prevent cached rendered HTML from surviving across releases and verify asset consistency."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Mobile is a required VII surface.","acceptance_impact":"Repeat route and reload checks at 390 by 844 pixels."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The generic error page is cosmetically changed while the original failure remains possible.","prevention":"Repair the stale document boundary and retain data-source fallback rather than changing only copy.","acceptance_check":"The exact business route renders content after cold load and reload without either shared error boundary."},
+    {"rejection":"The fix works on one page but another shared route still fails.","prevention":"Test home, vacation search and business detail as one affected family.","acceptance_check":"All three routes pass on desktop and mobile."},
+    {"rejection":"An older source overwrites accepted work.","prevention":"Release only a clean descendant that passes the protected source gate.","acceptance_check":"qa:release-source reports clean and all protected ancestors and capabilities present."},
+    {"rejection":"A local success is reported as production completion.","prevention":"Open and audit the exact public deployment after publication.","acceptance_check":"Repeated public checks pass and exact deployment identity is recorded."},
+    {"rejection":"A transient failure still leaves the visitor trapped.","prevention":"Use one bounded asset recovery and an offline shell that never replays old HTML.","acceptance_check":"Regression tests prove one recovery window and no navigation document caching."}
+  ],
+  "affected_family": ["public homepage cold and warm load","vacation search navigation and reload","business detail navigation and reload","route and global error recovery","service-worker offline navigation","desktop and 390 pixel mobile"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII accepted reliability and release behavior","source":"project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"VII architecture and fallback requirements","source":"project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After reproducing a real public 500 and before publication.","checks":["The built cumulative candidate renders home, search and business on desktop and mobile.","Reloading business detail does not expose a shared error boundary."],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can the public business route still return or display a 500?","Can an old service worker replay release HTML after a deployment?","Do home, search or business fail only on mobile or reload?","Does the release omit protected cumulative work?"],"natural_destination_evidence":"Repeated browser and HTTP checks against https://vii.spaplus.co on the exact deployment.","affected_family_evidence":"Route reliability audit covering all three route families, desktop, mobile and reload."},
+  "effectiveness": {"baseline":"Current public business detail reproduced an intermittent 500, while six immediate repeats varied between 2.7 and 7.6 seconds.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Zero error-boundary or HTTP 500 failures across the defined local and public route reliability matrix."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

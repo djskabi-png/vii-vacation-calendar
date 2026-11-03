@@ -32,6 +32,7 @@
     "qa:live-slider-api": "node project_knowledge/diagnostics/audit-live-slider-api-contract.mjs",
     "qa:pre-professor-repairs": "node --test tests/booking-mode-contract.test.mjs tests/vii-stay-calendar.test.mjs tests/last-minute-page.test.mjs tests/geography-missing-map-points.test.mjs tests/admin-professor-intent.test.mjs tests/admin-professor-database-boundary.test.mjs tests/admin-professor-visualization.test.mjs tests/admin-business-performance-visualization.test.mjs tests/discovery-immediate-fallback.test.mjs tests/legacy-gallery-media-independence.test.mjs",
     "qa:navigation-unit-results": "node --test tests/navigation-unit-results-regression.test.mjs",
+    "qa:route-reliability": "node scripts/audit-route-reliability.mjs",
     "qa:flexible-online-search": "node --test tests/vii-live-search.test.mjs tests/flexible-search-priority-contract.test.mjs tests/dated-search-availability-contract.test.mjs",
     "qa:vii-unified-19": "node --test tests/vii-unified-19-regression.test.mjs tests/liran-palumbo-regression-contract.test.mjs tests/hilat-unit-gallery-recovery.test.mjs tests/vii-stay-calendar.test.mjs tests/admin-command-center.test.mjs tests/biz-conversion-cache.test.mjs tests/biz-report-runs.test.mjs tests/quality-platform.test.mjs tests/admin-reporting-database-fallback.test.mjs tests/backend-source-metadata.test.mjs",
     "qa:vii-unified-19-public": "node scripts/audit-unified-19-public.cjs",

@@ -1,0 +1,15 @@
+{
+  "observed_error": "The selected Sites connector returned project_not_found for the exact VII project ID.",
+  "category": "permission",
+  "diagnosis": "The connector workspace does not own the VII Site, while the authenticated Site settings session still owns the exact public project and exposes its Edit route.",
+  "authorization_boundary": "Publish the exact tested and pushed source once without changing data, schema, secrets, environment variables, schedules, DNS, sharing or permissions.",
+  "routes": [
+    {"kind":"connector","status":"unavailable","evidence":"Sites get, list versions and worker logs each returned project_not_found for appgprj_6a71ccdca27481918bf04dd329d3eb21."},
+    {"kind":"authorized_session","status":"checked","result":"succeeded","evidence":"The authenticated in-app browser opened the exact Site settings page and displayed the active VII Site, Edit control and vii.spaplus.co domain."},
+    {"kind":"project_cli_api","status":"checked","result":"succeeded","evidence":"The project contains .openai/hosting.json with the exact project ID and an authenticated GitHub origin for the release commit."},
+    {"kind":"official_connection","status":"checked","result":"succeeded","evidence":"project_knowledge/VII_RELEASE_CHANNEL.md defines the durable Publish VII Release conversation opened through the Site Edit control as the proven fallback."}
+  ],
+  "outcome": "recovered",
+  "verified_result": "The exact VII Site settings and authorized Edit entry point are accessible in the authenticated session; publication can continue after the clean source is pushed.",
+  "ready_work_remaining": true
+}
