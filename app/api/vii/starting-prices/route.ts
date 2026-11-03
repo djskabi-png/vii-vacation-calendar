@@ -31,11 +31,20 @@ export async function GET(request: Request) {
   return startingPricesResponse(request, {
     published: world => publishedSupplierIds(world, database),
     read: async world => cachedDiscovery({
-      key: ["supplier-starting-prices", 4, world],
+      key: ["supplier-starting-prices", 5, world],
       db: database,
       load: async () => {
-        const accepted = database ? await readAcceptedStartingPriceCatalog(database, world) : {};
-        if (Object.keys(accepted).length) return accepted;
+        if (database) {
+          try {
+            // A complete accepted generation with no seasonal fields is a
+            // valid empty price catalog. Do not call the remote supplier just
+            // because the accepted projection contains zero prices.
+            return await readAcceptedStartingPriceCatalog(database, world);
+          } catch {
+            // A missing or temporarily unreadable accepted generation may be
+            // rebuilt from the bounded authenticated supplier source below.
+          }
+        }
         // A generation created while the old projection was active can be
         // complete yet contain no seasonal price fields. Rebuild the bounded
         // public price cache from the authenticated supplier source instead

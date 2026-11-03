@@ -127,9 +127,10 @@ test('all search card callers guard dates without changing live quotes, ranking 
   const route=read('app/api/vii/starting-prices/route.ts');
   assert.match(route,/readAcceptedStartingPriceCatalog\(database, world\)/);
   assert.match(route,/fetchStartingPriceCatalog\(world, await supplierToken\(\)\)/);
-  assert.match(route,/Object\.keys\(accepted\)\.length/);
+  assert.doesNotMatch(route,/Object\.keys\(accepted\)\.length/);
+  assert.match(route,/return await readAcceptedStartingPriceCatalog\(database, world\)/);
   assert.doesNotMatch(route,/Object\.keys\(fallback\)\.length\) throw/);
-  assert.match(route,/\["supplier-starting-prices", 4, world\]/);
+  assert.match(route,/\["supplier-starting-prices", 5, world\]/);
 });
 
 test('actual client hook clears previous prices for malformed 200, wrong-world and failed responses',async()=>{
