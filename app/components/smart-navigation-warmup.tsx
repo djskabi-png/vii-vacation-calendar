@@ -38,8 +38,8 @@ export function SmartNavigationWarmup() {
       if (/^\/(?:admin|account|favorites|booking)(?:\/|$)/.test(basePath) || warmed.has(destination)) return;
       warmed.add(destination);
       router.prefetch(destination);
-      // Business/detail pages intentionally open in a new tab. App Router
-      // memory is tab-local, so also warm the browser/server document cache.
+      // Detail routes that intentionally open in a new tab cannot reuse the
+      // current tab's App Router cache, so also warm the document response.
       if (anchor.target === "_blank" || isBusinessDepthRoute(basePath)) {
         void fetch(destination, {
           method: "GET",

@@ -1,5 +1,4 @@
 const businessDepthRoutes = [
-  /^\/business(?:\/|$)/,
   /^\/events\/place(?:\/|$)/,
   /^\/discover\/place(?:\/|$)/,
   /^\/guides\/[^/]+(?:\/|$)/,

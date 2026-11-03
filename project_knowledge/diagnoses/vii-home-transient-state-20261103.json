@@ -1,0 +1,95 @@
+{
+  "status": "fixed",
+  "symptom": "After opening a vacation result and changing dates, the page could show a full blank transition and a deal message that no longer matched the selected stay.",
+  "expected_behavior": "Vacation business pages open in the current application tab, keep a stable loading surface, and show availability and price only for the current dates and guest count.",
+  "environment": "v785 public behavior reproduced from the 2026-11-03 screen recording; repair candidate built from source 37d91c9b3970047d9386c598d63153a095713441 on Windows production build.",
+  "reproduction": {
+    "steps": [
+      "Open a vacation search result.",
+      "Observe the new-document blank transition.",
+      "Change the stay dates on the business page.",
+      "Compare the deal banner with the active booking summary."
+    ],
+    "evidence": "The supplied video shows a solid blank frame during the result-to-business transition and an old deal state beside the newly selected dates."
+  },
+  "observations": [
+    {
+      "observation": "The business page rendered both HomeDealDetailStatus and VacationBookingHub as independent dated state owners.",
+      "evidence": "Pre-fix app/business/client-page.tsx contained both components, while HomeDealDetailStatus combined initial source and period with mutable dates."
+    },
+    {
+      "observation": "The global navigation policy forced /business links into a new tab.",
+      "evidence": "Pre-fix app/lib/new-tab-policy.ts included /^\\/business/ and browser DOM showed target=_blank on vacation result links."
+    },
+    {
+      "observation": "Exact result hrefs retained their vacation IDs.",
+      "evidence": "DOM inspection returned /business?id=vacation-* links; the accessibility tree had only omitted the query in its compact display."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Two independent dated availability surfaces allowed immutable deal context to remain visible after the active stay changed.",
+      "prediction": "Removing the duplicate deal surface leaves one quote keyed to site, dates, guests and room selection.",
+      "discriminating_test": "Inspect component ownership and run the transient-state and booking-mode contracts.",
+      "result": "HomeDealDetailStatus was removed; VacationBookingHub is the sole dated surface and all focused contracts passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The supplier API itself returned contradictory dates.",
+      "prediction": "Contradictory values would remain after eliminating the duplicate UI owner.",
+      "discriminating_test": "Trace the quote key and compare supplier quote state with the duplicate deal component inputs.",
+      "result": "The supplier quote is keyed to the complete current stay; the contradiction originated in the duplicate UI context.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Forced new-document navigation created the full blank transition.",
+      "prediction": "Keeping vacation business links in the App Router removes target=_blank and preserves a stable route-loading surface.",
+      "discriminating_test": "Inspect the live DOM policy and execute the new-tab and transient navigation contracts.",
+      "result": "The candidate has no target on vacation business links, removes stale target attributes, observes later target mutations, and all navigation contracts passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H4",
+      "mechanism": "Search cards lost their business IDs during catalog hydration.",
+      "prediction": "Exact href attributes would become /business without an id.",
+      "discriminating_test": "Read exact DOM href attributes after live catalog hydration.",
+      "result": "Exact hrefs retained valid vacation IDs; only the compact accessibility representation omitted query strings.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Removed the duplicate deal-status owner, kept vacation business navigation in the current tab, actively clears cached target attributes, and made the global route-loading surface viewport-stable.",
+    "evidence": "Thirteen focused contracts passed, the production build completed, and clean-origin DOM verification showed one booking hub, zero duplicate deal status nodes and zero target=_blank business links."
+  },
+  "affected_family": [
+    "Vacation search result links",
+    "Vacation business pages entered from home deals and search",
+    "Date and guest changes on the vacation booking hub",
+    "Cached browser sessions carrying the previous new-tab policy",
+    "Global route-loading surface"
+  ],
+  "regression_checks": [
+    {
+      "check": "Focused transient-state, booking-mode and new-tab contracts",
+      "status": "passed",
+      "evidence": "13 tests passed with 0 failures."
+    },
+    {
+      "check": "Production build and RSC manifests",
+      "status": "passed",
+      "evidence": "pnpm build completed and verify-rsc-assets reported manifestsAgree=true with 229 references."
+    },
+    {
+      "check": "Clean-origin browser DOM",
+      "status": "passed",
+      "evidence": "Business links retained vacation IDs with target=null; the page contained one VacationBookingHub and no HomeDealDetailStatus."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Authorized repair and one production publication; no database, supplier data, environment, DNS, domain, schedule, permission or AWS changes."
+}

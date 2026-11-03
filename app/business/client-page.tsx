@@ -38,7 +38,6 @@ import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { OnlineBookingBadge } from "../components/online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
-import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { useViiUnitQuotes } from "../components/use-vii-unit-quotes";
@@ -478,8 +477,6 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
             <section id="about" className={`property-about${aboutExpanded ? " is-expanded" : ""}`}><h2>{translate("על המקום")}</h2><p ref={aboutDescriptionRef} id="property-about-description" className="property-about__description">{localizedDescription}</p>{aboutCanExpand ? <button className="property-about__toggle" type="button" aria-controls="property-about-description" aria-expanded={aboutExpanded} onClick={() => setAboutExpanded((value) => !value)}>{translate(aboutExpanded ? "סגור" : "פתח עוד")}</button> : null}<div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
-
-            {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
             {activeWorld === "vacation" && property.guests > 0 ? <VacationBookingHub
               property={property}

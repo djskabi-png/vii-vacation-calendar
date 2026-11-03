@@ -9,7 +9,6 @@ const bookingPage = await readFile(new URL("../app/booking/page.tsx", import.met
 const businessPage = await readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8");
 const homeDeals = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
 const stayQuoteHook = await readFile(new URL("../app/components/use-vii-stay-quote.ts", import.meta.url), "utf8");
-const dealStatus = await readFile(new URL("../app/components/home-deal-detail-status.tsx", import.meta.url), "utf8");
 const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
@@ -100,7 +99,9 @@ test("last-minute entry highlights its source room but rechecks the whole proper
   assert.match(business, /onlineHref=\{activeWorld === "vacation" \? "#booking-summary"/);
 });
 
-test("deal status does not promise an online action independently of quote readiness", () => {
-  assert.doesNotMatch(dealStatus, /אפשר להמשיך להזמנה באתר|You can continue to booking/);
-  assert.match(dealStatus, /החדר אינו נשמר עד לסיום ההזמנה/);
+test("the business page has one authoritative dated availability surface", () => {
+  assert.doesNotMatch(business, /HomeDealDetailStatus|home-deal-detail-status/);
+  assert.match(business, /<VacationBookingHub/);
+  assert.match(business, /availability=\{effectiveVacationAvailability\}/);
+  assert.match(business, /availabilityStatus=\{supplierSiteID \? supplierQuote\.status/);
 });

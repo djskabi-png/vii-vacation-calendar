@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-transient-state-20261103",
+  "project": "VII",
+  "task_type": "production booking-state integrity incident",
+  "requested_outcome": "Remove unrelated or contradictory deal, price and availability states from the vacation place flow, eliminate the blank navigation flash observed in the supplied recording, verify the affected desktop and mobile family, and publish one production release.",
+  "natural_destination": "The public VII search-to-place flow and vacation booking summary on desktop and mobile.",
+  "authorization_boundary": "Code, tests, branch push and one production Version and Deployment are authorized. Preserve PUBLIC visibility, environment revision 31 and all bindings. Do not change database data or schema, secrets, environment values, schedules, DNS, domains, permissions, catalog, supplier data, CMS, access settings or AWS.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A component patch and build do not prove the visible production state is coherent.",
+      "acceptance_impact": "Requires exact desktop and mobile public flow evidence after publication."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "The failure combines immutable entry context with mutable visitor selection.",
+      "acceptance_impact": "Requires one explicit state owner and date, guest, loading and failure transition tests."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The correction must not create duplicate versions or deployments.",
+      "acceptance_impact": "Requires pre-write release-state verification, one publication and exact rollback evidence."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The old deal warning remains visible after the visitor changes dates or guests.",
+      "prevention": "Bind the deal confirmation to an immutable initial deal identity and remove it as soon as the active selection differs.",
+      "acceptance_check": "Changing either date boundary or guest count removes every old-deal status and leaves only the current booking state."
+    },
+    {
+      "rejection": "An old price or availability claim appears under a newly selected date range while the new quote is loading or fails.",
+      "prevention": "Key all supplier quote and displayed price state by the complete active stay selection and reject mismatched dates before rendering.",
+      "acceptance_check": "During loading, failure, success and retry, the visible price and availability either match the active dates and party or are absent."
+    },
+    {
+      "rejection": "The blank green full-page frame still appears during search-to-place navigation.",
+      "prevention": "Keep a truthful page-shaped loading surface with an explicit stable background throughout the route transition.",
+      "acceptance_check": "Frame-by-frame desktop and mobile navigation shows no unstructured solid-color frame."
+    },
+    {
+      "rejection": "The fix works on one screenshot but breaks holidays, reload, back navigation or the existing WhatsApp handoff.",
+      "prevention": "Test both home-deals and home-holidays, changed dates and guests, supplier failure, reload and back, at desktop and mobile sizes while preserving the v785 WhatsApp contract.",
+      "acceptance_check": "The affected-family matrix passes and the existing WhatsApp handoff tests remain green."
+    },
+    {
+      "rejection": "A build is reported as fixed while production still serves the old behavior or a duplicate release is created.",
+      "prevention": "Check live release state before writing, create at most one Version and one Deployment, wait for success and repeat the exact public flow.",
+      "acceptance_check": "The public Version and Deployment identities, source commit, managed commit, tree, environment revision and rollback are recorded with passing live evidence."
+    }
+  ],
+  "affected_family": [
+    "vacation search card to business detail navigation",
+    "home-deals entry",
+    "home-holidays entry",
+    "date change",
+    "guest change",
+    "supplier quote loading",
+    "supplier quote failure and retry",
+    "current availability and price summary",
+    "desktop viewport",
+    "mobile viewport",
+    "reload and back navigation",
+    "WhatsApp handoff invariant"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Observed production recording",
+        "source": "C:/Users/Adir/Downloads/הקלטה 2026-11-03 173541.mp4"
+      },
+      {
+        "label": "Observed stale deal screenshot",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-9a679bf5-3ec7-4cd0-9d37-4a9ba2127af2.png"
+      },
+      {
+        "label": "Observed result-card screenshot",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-e2a47df3-0ed8-4921-bfd0-42fc37857205.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The state contract and route loading surface pass deterministic component and production-build checks.",
+    "checks": [
+      "initial unchanged deal can be confirmed",
+      "changed dates remove initial deal status",
+      "changed guests remove initial deal status",
+      "displayed quote dates equal selected dates",
+      "loading and error states expose no stale price",
+      "route loading surface remains page-shaped"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "What if the supplier responds after the visitor changed dates?",
+      "What if only one date boundary changes?",
+      "What if guests change from two to another count?",
+      "What if the quote fails after a previously successful quote?",
+      "What if the visitor reloads or uses Back?",
+      "Can an old source or period leak into the current booking URL?",
+      "Can a solid background appear before the loading skeleton paints?"
+    ],
+    "natural_destination_evidence": "Exact public search-card to vacation place flow exercised on desktop and mobile with date changes.",
+    "affected_family_evidence": "Targeted contracts, production build, frame inspection and public browser verification across the complete affected family."
+  },
+  "effectiveness": {
+    "baseline": "Production v785 can display a stale home-deal failure next to a current booking selection and shows a solid green transition frame in the supplied recording.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "desktop_mobile_flow_passes",
+      "public_release_match",
+      "elapsed_time"
+    ],
+    "target": "Zero contradictory deal or quote states, zero stale price exposure and zero unstructured full-page transition frames in the verified flow."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
