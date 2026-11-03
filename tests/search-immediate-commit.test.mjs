@@ -12,8 +12,8 @@ test("desktop committed search choices navigate immediately with explicit fresh 
   assert.match(source, /search\(\{ maximumPrice: price \}\)/);
   assert.match(source, /search\(\{ spaAudience: option\.id \}\)/);
   assert.match(source, /search\(\{ spaDate: selection \}\)/);
-  assert.match(source, /search\(\{ vacationParty \}\)/);
-  assert.match(source, /search\(\{ eventGuests: guests \}\)/);
+  assert.match(source, /function saveVacationParty\(\)[\s\S]*?if \(isDesktopSearchViewport\(\)\)[\s\S]*?search\(\{ vacationParty \}\)/);
+  assert.match(source, /function saveEventGuests\(\)[\s\S]*?if \(isDesktopSearchViewport\(\)\)[\s\S]*?search\(\{ eventGuests: guests \}\)/);
 });
 
 test("mobile dates advance to guests while desktop dates search with the newly confirmed values", () => {
@@ -31,7 +31,8 @@ test("mobile final confirmation reads the latest staged location and dates", () 
   assert.match(source, /locationValueRef\.current = selectedLocation;/);
   assert.match(source, /const selectedLocation = overrides\.location === undefined \? locationValueRef\.current/);
   assert.match(source, /const selectedVacationFlexibleSearch = overrides\.vacationFlexibleSearch === undefined \? vacationFlexibleSearchRef\.current/);
-  assert.match(source, /onClick=\{\(\) => search\(\{ vacationParty \}\)\}>שמירת ההרכב/);
+  assert.match(source, /onClick=\{saveVacationParty\}>שמירת ההרכב/);
+  assert.match(source, /function saveVacationParty\(\)[\s\S]*?closeGuestPicker\(\);/);
   assert.doesNotMatch(css, /\.search-box-shell\.mobile-expanded \.vacation-party-picker \.popover-done\s*\{\s*display:\s*none/);
   assert.doesNotMatch(css, /\.search-box-shell\.mobile-expanded \.search-step--guests \.popover-done\s*\{\s*display:\s*none/);
 });
@@ -41,6 +42,7 @@ test("mobile intermediate choices never bypass the staged journey", () => {
   assert.match(location, /if \(isDesktopSearchViewport\(\)\)[\s\S]*?search\(\{ location: selectedLocation \}\);[\s\S]*?setMobileStep\("dates"\);[\s\S]*?setCalendarOpen\(true\);/);
   assert.match(source, /if \(isDesktopSearchViewport\(\)\) search\(\{ maximumPrice: price \}\); else \{ setMobileStep\("overview"\); setMobileExpanded\(true\); \}/);
   assert.match(source, /if \(isDesktopSearchViewport\(\)\) search\(\{ spaDate: selection \}\); else \{ setMobileStep\("guests"\); setGuestOpen\(true\); \}/);
+  assert.match(source, /function saveEventGuests\(\)[\s\S]*?closeGuestPicker\(\);/);
 });
 
 test("one in-flight guard prevents duplicate automatic searches and the Search button remains", () => {

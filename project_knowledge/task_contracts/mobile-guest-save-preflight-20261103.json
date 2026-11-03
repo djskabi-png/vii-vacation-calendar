@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-mobile-guest-save-20261103",
+  "project": "vii.co.il",
+  "task_type": "mobile-search-behavior",
+  "requested_outcome": "On mobile, saving the vacation party closes only the party picker and leaves the search editor open until the user presses Search.",
+  "natural_destination": "VII mobile vacation search editor at 390px width",
+  "authorization_boundary": "Local code and test changes are authorized. Publishing a new public version is not authorized by this request.",
+  "lesson_bundle": [],
+  "no_applicable_lessons_reason": "The accepted mobile screenshot lesson applies to public release approval, while this request authorizes a local behavior correction only. Project-specific mobile staged-flow rules provide the governing precedent.",
+  "predicted_rejections": [
+    {
+      "rejection": "Saving the party still navigates or submits a search on mobile.",
+      "prevention": "Separate mobile save from desktop immediate search and cover both branches with a regression test.",
+      "acceptance_check": "At 390px, pressing Save party keeps the URL unchanged and closes only the party picker."
+    },
+    {
+      "rejection": "The picker closes but the main Search button is not visible or usable.",
+      "prevention": "Return the mobile editor to its overview state after saving and verify the existing sticky Search action is visible.",
+      "acceptance_check": "After saving, the editor remains open in overview and its Search button is visible and enabled."
+    },
+    {
+      "rejection": "The fix breaks desktop immediate search or loses the selected counts.",
+      "prevention": "Keep immediate submit behind the desktop viewport guard and verify selected party state persists into the explicit mobile search.",
+      "acceptance_check": "Desktop save still searches immediately; mobile values remain selected until Search is pressed."
+    }
+  ],
+  "affected_family": [
+    "vacation mobile search editor",
+    "event mobile guest picker",
+    "desktop immediate search",
+    "guest state persistence",
+    "mobile overlay close and reopen states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Mobile preserves staged search flow while desktop may apply immediately",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "User screenshot and current correction",
+        "source": "codex-clipboard-42c67fbe-93a3-447f-a92b-8d297a8ed6e5.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the click handlers and focused regression contracts are updated",
+    "checks": [
+      "Focused tests prove mobile save closes only the picker",
+      "Desktop branch still calls immediate search",
+      "Search button becomes reachable in overview"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does Save party change pathname or query on mobile?",
+      "Does closing the picker accidentally close the entire mobile search sheet?",
+      "Does rotating or widening to desktop leave stale overlay or guest state?",
+      "Does the explicit Search action use the latest selected counts?"
+    ],
+    "natural_destination_evidence": "A mobile browser run at 390px showing the party picker close, editor remain open, URL remain unchanged, and Search navigate only after the explicit click.",
+    "affected_family_evidence": "Focused tests for vacation and event guest confirmation plus desktop immediate-search preservation."
+  },
+  "effectiveness": {
+    "baseline": "Current code calls search directly from the vacation Save party button on every viewport.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "No mobile navigation before an explicit Search click, with zero regressions in desktop immediate search."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -574,6 +574,22 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     });
   }
 
+  function saveVacationParty() {
+    if (isDesktopSearchViewport()) {
+      search({ vacationParty });
+      return;
+    }
+    closeGuestPicker();
+  }
+
+  function saveEventGuests() {
+    if (isDesktopSearchViewport()) {
+      search({ eventGuests: guests });
+      return;
+    }
+    closeGuestPicker();
+  }
+
   function chooseLocation(place: string) {
     const selectedLocation = canonicalSearchLocation(place);
     locationValueRef.current = selectedLocation;
@@ -742,9 +758,9 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
                       </div>
                     </div>)}
                   </div>
-                  <button type="button" className="popover-done" onClick={() => search({ vacationParty })}>שמירת ההרכב</button>
+                  <button type="button" className="popover-done" onClick={saveVacationParty}>שמירת ההרכב</button>
                 </div>
-              : <div className="search-popover guest-picker"><strong>משתתפים</strong><div><button type="button" disabled={guests <= 0} onClick={() => setGuests((value) => value - 10)}>−</button><span>{guests === 0 ? "לא נבחר" : guests}</span><button type="button" onClick={() => setGuests((value) => value + 10)}>+</button></div><button type="button" className="popover-done" onClick={() => search({ eventGuests: guests })}>סיום</button></div>)}
+              : <div className="search-popover guest-picker"><strong>משתתפים</strong><div><button type="button" disabled={guests <= 0} onClick={() => setGuests((value) => value - 10)}>−</button><span>{guests === 0 ? "לא נבחר" : guests}</span><button type="button" onClick={() => setGuests((value) => value + 10)}>+</button></div><button type="button" className="popover-done" onClick={saveEventGuests}>סיום</button></div>)}
         </div>}
         <button type="button" className={`search-submit ${isSearching ? "is-searching" : ""}`} onClick={() => search()} disabled={isSearching} aria-busy={isSearching}><span className="search-submit__icon" aria-hidden="true">{isSearching ? <i /> : <SearchIcon />}</span><span>{isSearching ? "מחפשים..." : "חיפוש"}</span></button>
         </div>

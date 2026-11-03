@@ -1,0 +1,85 @@
+{
+  "goal": "Make mobile party saving a staged action that closes the party picker and leaves an explicit Search action.",
+  "intent_model": {
+    "literal_request": "Saving the party should not search. It should close the popup and leave a Search button.",
+    "implied_outcome": "Mobile users can review and change all search fields before intentionally submitting once.",
+    "likely_rejections": [
+      "The URL changes before Search is pressed",
+      "The whole search sheet closes",
+      "The Search button stays hidden",
+      "Guest counts are lost",
+      "Desktop behavior regresses"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "לא אמורה לעשות חיפוש",
+        "operational_meaning": "No navigation, search tracking, or search submission occurs from the mobile party-save action.",
+        "acceptance_impact": "Verify the URL and results remain unchanged after saving."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Choose guest and room composition",
+    "current_decision": "Save the selected composition",
+    "next_action": "Review the full search and press Search",
+    "deferred_complexity": ["Search results and availability ranking"],
+    "preserved_depth": ["Desktop immediate application", "Explicit mobile search", "Editing and reopening the party picker"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/mobile-guest-save-preflight-20261103.json",
+    "lesson_bundle_ids": [],
+    "no_applicable_lessons_reason": "No accepted account lesson directly governs this local staged interaction; the VII feedback standard does.",
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Mobile vacation search user", "Mobile event search user", "Desktop search user"],
+  "natural_destination": "Expanded VII search editor on a 390px mobile viewport",
+  "facts": [
+    {
+      "claim": "The current vacation party save button invokes search directly.",
+      "evidence": "app/components/search-box.tsx"
+    },
+    {
+      "claim": "The approved VII standard keeps mobile search staged.",
+      "evidence": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The existing overview Search button becomes visible when mobileStep returns to overview.",
+      "validation": "Focused CSS contract and live mobile browser check"
+    }
+  ],
+  "in_scope": [
+    "Mobile vacation party save",
+    "Parallel mobile event participant completion",
+    "Explicit Search button availability",
+    "Desktop behavior preservation",
+    "Guest state persistence"
+  ],
+  "out_of_scope": ["Public deployment", "Search ranking", "API or database changes"],
+  "invariants": [
+    "Desktop committed choices may search immediately",
+    "Mobile search editor remains open until explicit Search or cancel",
+    "Selected composition survives picker close and reopen"
+  ],
+  "affected_family": ["SearchBox vacation mode", "SearchBox events mode", "mobile and desktop viewport branches"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Mobile Save party closes only the party picker and does not submit search.", "source": "User request"},
+    {"id": "REQ-2", "statement": "The full mobile search editor remains open with a visible Search button.", "source": "User request"},
+    {"id": "REQ-3", "statement": "Selected composition persists until explicit Search.", "source": "Implied outcome"},
+    {"id": "REQ-4", "statement": "Desktop immediate search remains unchanged.", "source": "VII feedback standard"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "Open vacation search at 390px and open the party picker", "action": "Change counts and press Save party", "observable_result": "Party picker closes, editor stays open, URL is unchanged, and Search is visible"},
+    {"id": "AC-2", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Save a non-default party on mobile", "action": "Reopen the party picker, then press explicit Search", "observable_result": "Counts remain selected and are included in the resulting query"},
+    {"id": "AC-3", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Open the same picker at desktop width", "action": "Press Save party", "observable_result": "Search applies immediately using the latest party values"},
+    {"id": "AC-FAIL-1", "requirement_ids": ["REQ-1"], "kind": "failure", "setup": "Open the vacation party picker on mobile with a destination and dates already staged", "action": "Press Save party while monitoring navigation and search submission", "observable_result": "No navigation or search submission occurs before the explicit Search button is pressed"},
+    {"id": "AC-4", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "recovery", "setup": "Close and reopen the mobile party picker and switch viewport widths", "action": "Return to mobile overview", "observable_result": "No stale overlay or scroll lock remains and Search is usable"}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implement and verify locally only. Do not publish without a separate explicit instruction.",
+  "ready_for_implementation": true
+}
