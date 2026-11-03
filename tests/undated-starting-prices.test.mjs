@@ -128,6 +128,7 @@ test('all search card callers guard dates without changing live quotes, ranking 
   assert.match(route,/readAcceptedStartingPriceCatalog\(database, world\)/);
   assert.match(route,/fetchStartingPriceCatalog\(world, await supplierToken\(\)\)/);
   assert.match(route,/Object\.keys\(accepted\)\.length/);
+  assert.doesNotMatch(route,/Object\.keys\(fallback\)\.length\) throw/);
   assert.match(route,/\["supplier-starting-prices", 4, world\]/);
 });
 

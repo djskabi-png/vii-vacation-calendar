@@ -41,7 +41,9 @@ export async function GET(request: Request) {
         // public price cache from the authenticated supplier source instead
         // of publishing a misleading empty map.
         const fallback = await fetchStartingPriceCatalog(world, await supplierToken());
-        if (!Object.keys(fallback).length) throw new Error("starting_prices_unavailable");
+        // A complete active catalog may legitimately contain no seasonal
+        // advertising prices. An empty, validated map means "no starting
+        // price published", not an infrastructure failure.
         return fallback;
       },
       validate: value => validStartingPriceMap(world, value),
