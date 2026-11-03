@@ -1,0 +1,76 @@
+{
+  "goal": "Make approved vacation filter intents open complete clean SEO pages while preserving exact operational search state.",
+  "intent_model": {
+    "literal_request": "The pool filter on the north vacation page must show an approved page instead of a query parameter.",
+    "implied_outcome": "The established approved-page policy must work consistently for the full semantic filter family.",
+    "likely_rejections": [
+      "Only north plus pool is hardcoded",
+      "The new URL is clean but not a real published page",
+      "Transactional searches lose dates or prices",
+      "The page is absent from the sitemap"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "כל הקטע של סינונים",
+        "operational_meaning": "Repair the shared approved-intent resolver and verify parallel filter combinations.",
+        "acceptance_impact": "A one-off redirect for pool on north is insufficient."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The visitor sees the selected location and amenity as one stable search intent.",
+    "current_decision": "Browse the approved result set for that intent.",
+    "next_action": "Open a matching place or change a filter.",
+    "deferred_complexity": ["selected travel dates", "guest composition", "requested price range", "selected sorting order"],
+    "preserved_depth": ["live catalog result filtering", "complete transactional search state", "managed search page content", "structured questions and answers", "search engine sitemap discovery"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-approved-filter-canonical-20261103.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-CONTROL-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["vacation visitor", "search engine crawler", "VII content editor"],
+  "natural_destination": "VII vacation filtering and /search/vacations approved pages.",
+  "facts": [
+    { "claim": "The resolver currently requires exactly one accommodation type.", "evidence": "app/lib/vacation-search-url.ts and app/lib/legacy-search-intent.ts" },
+    { "claim": "The exact north plus generic pool intent has no current approved publication record.", "evidence": "app/data/legacy-search-page-publications.json inventory query" }
+  ],
+  "assumptions": [
+    { "claim": "The pool feature index yields current live matching inventory.", "validation": "Render the managed page and inspect its result computation through existing tests and local verification." }
+  ],
+  "in_scope": [
+    "approved no-type semantic filter resolution",
+    "a complete approved north with pool page",
+    "permanent redirect from the exact technical source URL",
+    "sitemap inclusion",
+    "regression tests"
+  ],
+  "out_of_scope": ["automatic publication of every possible filter combination", "public deployment", "database mutation", "supplier data changes"],
+  "invariants": [
+    "Dates, guests, price and sort remain transactional",
+    "Unapproved combinations remain query-based and non-fabricated",
+    "Existing type-specific approved pages keep their current canonicals",
+    "Only separately approved language editions may redirect"
+  ],
+  "affected_family": ["shared vacation URL builder", "vacation region landing route", "approved search intent registry", "managed search page family", "search page XML sitemap"],
+  "characteristics": { "stateful": false },
+  "requirements": [
+    { "id": "REQ-1", "statement": "An approved location and semantic feature combination resolves to its clean page even without an accommodation type.", "source": "User request and URL policy" },
+    { "id": "REQ-2", "statement": "The north with pool intent has complete publication content and a stable ASCII URL.", "source": "User request and publication policy" },
+    { "id": "REQ-3", "statement": "Transactional and unapproved states are preserved without fabricated SEO redirects.", "source": "User request and existing search behavior" },
+    { "id": "REQ-4", "statement": "The approved page is self canonical and discoverable in the managed sitemap family.", "source": "VII SEO policy" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "Open /vacations/north?pool=1 in Hebrew.", "action": "Let the server resolve the filter intent.", "observable_result": "A permanent redirect reaches /search/vacations/north-with-pool and the page renders matching results with complete content." },
+    { "id": "AC-2", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Select an already approved no-type feature combination.", "action": "Build its filter URL.", "observable_result": "The existing approved canonical is returned without a feature-specific code branch." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Add dates, price or sort to an approved semantic filter.", "action": "Build or request the URL.", "observable_result": "The operational location route retains the full query state and does not redirect to the static page." },
+    { "id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "empty", "setup": "Use a semantic combination that has no approved publication.", "action": "Build the URL.", "observable_result": "The URL remains query-based and no indexable page is invented." },
+    { "id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Read the managed page and search-pages sitemap inventory.", "action": "Inspect metadata and URLs.", "observable_result": "The page is indexable, self canonical, complete and included exactly once in the sitemap." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local repair and verification are authorized. Public publication is not implied by this request.",
+  "ready_for_implementation": true
+}

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { sitemapSection } from "../app/lib/sitemap-inventory.ts";
 import { publicSearchOpportunityAllowed } from "../app/lib/search-opportunities.ts";
+import { curatedVacationSearchPages } from "../app/data/curated-vacation-search-pages.ts";
 
 const exported = JSON.parse(readFileSync(new URL("../project_knowledge/launch/legacy-search-pages-complete-merged-20261022.json", import.meta.url), "utf8"));
 const publications = JSON.parse(readFileSync(new URL("../app/data/legacy-search-page-publications.json", import.meta.url), "utf8"));
@@ -74,7 +75,8 @@ test("migrated pages satisfy publication content and URL requirements", () => {
 
 test("only publication-quality migrated pages are included in the managed search sitemap family", async () => {
   const entries = await sitemapSection("search-pages");
-  const eligible = publications.pages.filter((page) => publicSearchOpportunityAllowed({ ...page, body: page.body || page.metaDescription }));
+  const eligible = [...publications.pages, ...curatedVacationSearchPages]
+    .filter((page) => publicSearchOpportunityAllowed({ ...page, body: page.body || page.metaDescription }));
   assert.equal(entries.length, eligible.length);
   const urls = new Set(entries.map((entry) => new URL(entry.url).pathname));
   for (const page of eligible) assert.equal(urls.has(page.canonicalPath), true, page.canonicalPath);

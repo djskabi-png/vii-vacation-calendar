@@ -15,8 +15,8 @@ export function buildVacationSearchUrl(currentSearch: string, updates: SearchUpd
     else params.set(key, value);
   });
 
-  const canonicalLegacyPath = !vacationSearchHasTransactionalState(params) && nextTypes.length === 1
-    ? canonicalLegacyVacationSearchPath({ location: nextArea, type: nextTypes[0], features: semanticVacationFeaturesFromSearchParams(params) })
+  const canonicalLegacyPath = !vacationSearchHasTransactionalState(params) && nextTypes.length <= 1
+    ? canonicalLegacyVacationSearchPath({ location: nextArea, type: nextTypes[0] || "", features: semanticVacationFeaturesFromSearchParams(params) })
     : null;
   if (canonicalLegacyPath) return canonicalLegacyPath;
 

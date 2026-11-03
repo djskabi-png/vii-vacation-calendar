@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-approved-filter-canonical-20261103",
+  "project": "VII",
+  "task_type": "approved semantic filter canonical routing",
+  "requested_outcome": "Route approved vacation filter combinations to complete clean indexable pages instead of leaving technical query parameters, beginning with נופש בצפון עם בריכה.",
+  "natural_destination": "VII vacation filters, clean managed search pages and the search-pages sitemap.",
+  "authorization_boundary": "Local code, content and tests only. Public deployment, database changes, supplier data, secrets, bindings, schedules, DNS and domains are outside this turn.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-QA-001", "reason": "The reported defect belongs to a shared route family and a one URL repair would not prove the product outcome.", "acceptance_impact": "Require exact destination evidence for no-type, type-specific, transactional and sitemap paths." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "A visible filter promises a navigation result whose URL and rendered page must match the approved semantic intent.", "acceptance_impact": "Verify the filter action and direct source URL across approved and unapproved states." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the screenshot example is fixed while other approved location and feature pages still remain query URLs.",
+      "prevention": "Remove the single accommodation type restriction in the shared approved-intent resolver.",
+      "acceptance_check": "No-type approved feature pages and type-specific approved feature pages both resolve through the same canonical registry."
+    },
+    {
+      "rejection": "Dates, guests, price or sort are redirected and the active search state is lost.",
+      "prevention": "Keep transactional search state outside the SEO redirect path.",
+      "acceptance_check": "Dated and priced searches retain their exact query parameters and do not redirect to a static landing."
+    },
+    {
+      "rejection": "The clean page exists but lacks metadata, content, FAQ, self canonical or sitemap membership.",
+      "prevention": "Publish the curated page through the existing managed search page model.",
+      "acceptance_check": "The page passes publication quality rules and is returned by the search-pages sitemap inventory."
+    },
+    {
+      "rejection": "Non-Hebrew routes are silently redirected to an unapproved Hebrew edition.",
+      "prevention": "Apply the server redirect only to the approved Hebrew locale.",
+      "acceptance_check": "The route guard requires the Hebrew locale before issuing a permanent redirect."
+    }
+  ],
+  "affected_family": [
+    "vacation region pages",
+    "vacation filters",
+    "type-specific vacation pages",
+    "managed search pages",
+    "canonical metadata",
+    "search-pages sitemap",
+    "localized routes",
+    "transactional searches"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII search page URL and publication policy", "source": "project_knowledge/VII_SEARCH_PAGE_URL_AND_PUBLICATION_POLICY.md" },
+      { "label": "Existing managed search page renderer", "source": "app/components/managed-search-landing.tsx" },
+      { "label": "Existing type plus feature canonical tests", "source": "tests/legacy-search-canonical-intent.test.mjs" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The shared resolver recognizes approved no-type semantic filters.",
+    "checks": [
+      "צפון with pool resolves to the new approved path",
+      "an existing no-type approved feature page resolves without a new special case",
+      "type-specific canonical behavior remains intact",
+      "transactional state remains on the operational URL"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the source URL redirect in a loop?",
+      "Can a dated search lose its dates?",
+      "Can an unapproved combination be indexed accidentally?",
+      "Can the clean page be omitted from the sitemap?",
+      "Can a localized route be redirected to the wrong language?"
+    ],
+    "natural_destination_evidence": "Focused resolver tests, production build and rendered local route verification.",
+    "affected_family_evidence": "No-type, type-specific, transactional, unknown and localized route tests."
+  },
+  "effectiveness": {
+    "baseline": "The public URL /vacations/north?pool=1 stays parameterized and presents the generic north landing.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Approved semantic filter URLs resolve to one clean page with complete publication data while transactional and unapproved filters remain operational URLs."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

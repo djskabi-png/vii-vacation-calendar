@@ -1,0 +1,107 @@
+{
+  "status": "fixed",
+  "symptom": "The public vacation north page keeps the technical query URL /vacations/north?pool=1 and renders the generic north landing instead of an approved north with pool page.",
+  "expected_behavior": "An approved semantic combination without transactional state permanently redirects to one complete clean indexable page, while dates, guests, price and sort remain on operational URLs.",
+  "environment": "Local candidate in C:/Users/Adir/Documents/vii.co.il/.release-v786-home-state on 2026-11-03, verified with focused Node tests, a production build and Vite at 127.0.0.1:4184.",
+  "reproduction": {
+    "steps": [
+      "Open /vacations/north?pool=1 before the repair.",
+      "Inspect the shared URL builder and approved intent resolver.",
+      "Query the approved publication inventory for a no-type north plus generic pool page."
+    ],
+    "evidence": "The reported public screenshot shows the parameter URL. The resolver required one type, and the exact generic no-type intent was absent from the publication inventory."
+  },
+  "observations": [
+    {
+      "observation": "The URL builder attempted an approved canonical only when nextTypes.length equaled one.",
+      "evidence": "Pre-fix app/lib/vacation-search-url.ts condition."
+    },
+    {
+      "observation": "The approved intent resolver returned null whenever intent.type was empty.",
+      "evidence": "Pre-fix app/lib/legacy-search-intent.ts guard."
+    },
+    {
+      "observation": "The exact no-type north plus generic pool page was not present in the migrated publication JSON.",
+      "evidence": "Inventory query over app/data/legacy-search-page-publications.json returned no matching row."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Approved semantic routing was artificially gated on a selected accommodation type, and the exact generic intent lacked an approved page record.",
+      "prediction": "Type-specific pool pages resolve cleanly while no-type location plus pool remains parameterized.",
+      "discriminating_test": "Compare canonical resolution for צימרים plus צפון plus pool with צפון plus pool and inspect the publication inventory.",
+      "result": "The type-specific intent resolved to an existing canonical, the no-type intent returned null, and no exact generic publication existed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The filter control failed to serialize the pool selection into the URL.",
+      "prediction": "The resulting source URL would omit pool=1 or use a value the semantic parser does not recognize.",
+      "discriminating_test": "Inspect the reported URL and run semanticVacationFeaturesFromSearchParams with pool=1.",
+      "result": "The reported URL contains pool=1 and the parser returns the pool feature, so serialization is not the cause.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Use the shared approved registry for zero or one accommodation type, add a complete curated north with pool publication, permanently redirect the direct Hebrew source URL, include the page in the static publication and sitemap family, and give the page a non-looping edit destination.",
+    "evidence": "The repaired local source returns HTTP 308 to /search/vacations/north-with-pool, the destination returns 200 with matching H1, title, canonical, FAQ and 228 live results, and the sitemap contains the path exactly once."
+  },
+  "affected_family": [
+    "no-type approved vacation feature combinations",
+    "type-specific approved vacation feature combinations",
+    "direct regional query entry",
+    "transactional vacation searches",
+    "localized regional routes",
+    "managed search pages",
+    "search-pages sitemap"
+  ],
+  "regression_checks": [
+    {
+      "check": "No-type north plus pool approved intent",
+      "status": "passed",
+      "evidence": "HTTP 308 to /search/vacations/north-with-pool and focused test assertion."
+    },
+    {
+      "check": "Existing no-type heated pool intent",
+      "status": "passed",
+      "evidence": "Focused test resolves the migrated approved page without a special case."
+    },
+    {
+      "check": "Existing type-specific pool intent",
+      "status": "passed",
+      "evidence": "Focused tests preserve צימרים plus pool canonicals."
+    },
+    {
+      "check": "Dated search with pool",
+      "status": "passed",
+      "evidence": "The local route returns 200 without redirect and the URL builder retains from, till and pool."
+    },
+    {
+      "check": "Unapproved feature combination",
+      "status": "passed",
+      "evidence": "The local spa=1 regional URL returns 200 without an invented canonical redirect."
+    },
+    {
+      "check": "English locale isolation",
+      "status": "passed",
+      "evidence": "The local English regional URL returns 200 without redirecting to the Hebrew managed page."
+    },
+    {
+      "check": "Managed page and sitemap quality",
+      "status": "passed",
+      "evidence": "Destination returns complete title, H1, canonical, content and FAQ; sitemap includes the path once; production build passes."
+    },
+    {
+      "check": "Desktop and mobile rendering",
+      "status": "passed",
+      "evidence": "Playwright rendered 1440 by 1000 and 390 by 844 with zero failed requests, matching H1, 48 card links and a working /vacations/north edit link."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The repaired candidate has not been deployed publicly because this turn did not authorize publication."
+  ],
+  "authorization_boundary": "Local diagnosis, code, content and verification only. No production deployment or external data mutation."
+}

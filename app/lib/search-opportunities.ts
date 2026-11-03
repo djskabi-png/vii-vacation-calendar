@@ -5,6 +5,7 @@ import { publicSearchPagePath } from "./search-page-url-policy.ts";
 import { validSearchWorld, type SearchWorld } from "./search-analytics.ts";
 import type { SiteLanguage } from "../i18n/locale-routing.ts";
 import legacySearchPublications from "../data/legacy-search-page-publications.json" with { type: "json" };
+import { curatedVacationSearchPages } from "../data/curated-vacation-search-pages.ts";
 import { holidayWorldPath } from "./holiday-world.ts";
 import { completeLegacySearchFilters, completeLegacySearchSourcePath } from "./legacy-search-intent.ts";
 
@@ -50,6 +51,7 @@ export type SearchOpportunity = {
   readiness: number;
   priority: number;
   fallbackMode?: "nearby";
+  editPath?: string;
 };
 
 type LegacySearchPageRecord = {
@@ -58,6 +60,7 @@ type LegacySearchPageRecord = {
   canonicalPath: string; latestResultCount: number; updatedAt: string;
   body?: string; faq?: Array<{ question: string; answer: string }>;
   filters?: Record<string, string | number | boolean>; fallbackMode?: "nearby";
+  editPath?: string;
 };
 type LegacySearchOpportunity = SearchOpportunity & { legacySourcePath: string };
 
@@ -86,7 +89,9 @@ export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "ti
   return true;
 }
 
-const legacySearchPages = (legacySearchPublications.pages as LegacySearchPageRecord[]).map(hydrateLegacyPage).filter(publicSearchOpportunityAllowed);
+const staticSearchPages = ([...legacySearchPublications.pages, ...curatedVacationSearchPages] as LegacySearchPageRecord[])
+  .map(hydrateLegacyPage)
+  .filter(publicSearchOpportunityAllowed);
 
 function normalizedHolidayName(value: string) {
   return value.toLocaleLowerCase("he").replace(/^(?:חג|ערב חג)\s+/, "").replace(/["'״׳]/g, "").replace(/\s+/g, " ").trim();
@@ -97,7 +102,7 @@ export function legacyHolidaySearchPath(name: string) {
   if (!holiday) return null;
   if (/חנוכה|hanukkah/i.test(holiday)) return holidayWorldPath(name);
   const preferredHolidayTitle = /^מקומות\s+פנויים/;
-  const candidates = legacySearchPages.filter((page) => {
+  const candidates = staticSearchPages.filter((page) => {
     const content = normalizedHolidayName(`${page.title} ${page.h1} ${page.metaTitle}`);
     return content.includes(holiday) && /חג|פסח|חנוכה|סוכות|שבועות|סיגד|ראש השנה|יום העצמאות/.test(`${page.title} ${page.h1}`);
   });
@@ -106,11 +111,11 @@ export function legacyHolidaySearchPath(name: string) {
 }
 
 function legacyOpportunityById(id: string) {
-  return legacySearchPages.find((page) => page.id === id) || null;
+  return staticSearchPages.find((page) => page.id === id) || null;
 }
 
 function legacyOpportunityByPath(world: string, slug: string, locale: string) {
-  return legacySearchPages.find((page) => page.world === world && page.slug === slug && page.locale === locale) || null;
+  return staticSearchPages.find((page) => page.world === world && page.slug === slug && page.locale === locale) || null;
 }
 
 type OpportunityRow = {
@@ -238,7 +243,7 @@ export async function readOpportunityDashboard(db: D1Database, days: number) {
   ]);
   const databaseOpportunities = rows.results.map(hydrate);
   const databaseIds = new Set(databaseOpportunities.map((item) => item.id));
-  const opportunities = [...databaseOpportunities, ...legacySearchPages.filter((item) => !databaseIds.has(item.id))]
+  const opportunities = [...databaseOpportunities, ...staticSearchPages.filter((item) => !databaseIds.has(item.id))]
     .sort((a, b) => b.priority - a.priority || b.searches - a.searches || b.lastSeenAt.localeCompare(a.lastSeenAt));
   const statusCounts = Object.fromEntries(opportunityStatuses.map((status) => [status, opportunities.filter((item) => item.status === status).length]));
   return {
@@ -392,7 +397,7 @@ export async function saveOpportunity(db: D1Database, change: NonNullable<Return
 }
 
 export async function publishedOpportunityBySlug(slug: string) {
-  const fallback = legacySearchPages.find((page) => page.slug === slug && page.locale === "he") || null;
+  const fallback = staticSearchPages.find((page) => page.slug === slug && page.locale === "he") || null;
   try {
     const db = await opportunityDatabase();
     const now = new Date().toISOString();
@@ -430,9 +435,9 @@ export async function publishedOpportunityPaths() {
     const rows = await db.prepare(`SELECT canonical_path AS path, updated_at AS updatedAt FROM vii_search_page_publications
       WHERE scheduled_at IS NULL OR scheduled_at <= ?`).bind(now).all<{ path: string; updatedAt: string | null }>();
     const liveRows = rows.results.filter((row) => /^\/(?:en\/|ru\/|fr\/)?search\/(?:vacations|events|spas|hourly)\/[a-z0-9-]+$/.test(row.path || ""));
-    return [...new Map([...liveRows, ...legacySearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt }))]
+    return [...new Map([...liveRows, ...staticSearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt }))]
       .map((row) => [row.path, row])).values()];
-  } catch { return legacySearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt })); }
+  } catch { return staticSearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt })); }
 }
 
 export function managedDefinitionCount() { return searchPageDefinitions.length; }

@@ -1,4 +1,5 @@
 import legacySearchPublications from "../data/legacy-search-page-publications.json" with { type: "json" };
+import { curatedVacationSearchPages } from "../data/curated-vacation-search-pages.ts";
 
 type SearchFilters = Record<string, string | number | boolean>;
 type LegacySearchPage = {
@@ -95,7 +96,7 @@ function intentKey(intent: VacationIntent) {
 
 const canonicalVacationIntents = (() => {
   const candidates = new Map<string, LegacySearchPage[]>();
-  for (const page of legacySearchPublications.pages as LegacySearchPage[]) {
+  for (const page of [...legacySearchPublications.pages, ...curatedVacationSearchPages] as LegacySearchPage[]) {
     const filters = completeLegacySearchFilters(page);
     const features = stringFeatures(filters.features);
     if (!features.length) continue;
@@ -112,7 +113,7 @@ const canonicalVacationIntents = (() => {
 })();
 
 export function canonicalLegacyVacationSearchPath(intent: VacationIntent) {
-  if (!intent.type || !intent.features?.length) return null;
+  if (!intent.features?.length) return null;
   return canonicalVacationIntents.get(intentKey(intent)) || null;
 }
 
