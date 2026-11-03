@@ -58,7 +58,7 @@ import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
 import type { MapPriceQuote } from "../lib/map-price";
-import { compareVacationDisplayedPrices, orderVacationResultsByDisplayedPrice } from "../lib/vacation-price-sort";
+import { compareVacationDisplayedPrices, orderVacationResultsByDisplayedPrice, vacationCatalogDisplayedPrice } from "../lib/vacation-price-sort";
 
 export type SearchLandingContext = {
   path: string;
@@ -694,11 +694,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     { undated: undatedSearch, capability: onlineCapabilities.capabilities[property.slug] },
   );
   const searchPrice = (property: Property) => liveAvailabilityFor(property.slug)?.quote?.nightlyPrice
-    ?? supplierStartingPrice(startingPrices[property.slug]) ?? property.price;
+    ?? vacationCatalogDisplayedPrice(property, startingPrices[property.slug], property.price);
   const displayedSearchPrice = (property: Property) => {
     const quote = liveAvailabilityFor(property.slug)?.quote;
     const liveDisplayedPrice = quote?.priceMode === "stay_total" ? quote.totalPrice : quote?.nightlyPrice;
-    return liveDisplayedPrice ?? supplierStartingPrice(startingPrices[property.slug]) ?? property.price;
+    return liveDisplayedPrice ?? vacationCatalogDisplayedPrice(property, startingPrices[property.slug], property.price);
   };
   const propertyOrderBySlug = useMemo(
     () => new Map(properties.map((property, index) => [property.slug, index])),

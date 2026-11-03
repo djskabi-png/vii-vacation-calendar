@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   compareVacationDisplayedPrices,
   orderVacationResultsByDisplayedPrice,
+  vacationCatalogDisplayedPrice,
 } from "../app/lib/vacation-price-sort.ts";
 
 const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
@@ -26,9 +27,32 @@ test("known displayed prices are monotonic and unknown prices stay last in both 
   assert.equal(compareVacationDisplayedPrices(undefined, 650, "desc"), 1);
 });
 
+test("the sort price and card price share the same async catalog fallback ladder", () => {
+  const inventory = [
+    { id: "seasonal-high", price: 900, startPriceWinter: 4800, order: 0 },
+    { id: "catalog-middle", price: 5000, startPriceWinter: 700, order: 1 },
+    { id: "legacy-low", price: 650, order: 2 },
+  ];
+  const initialCatalog = {};
+  const loadedCatalog = { "catalog-middle": { startPriceSummer: 1250 } };
+  const priceFor = catalog => item => vacationCatalogDisplayedPrice(item, catalog[item.id], item.price);
+
+  assert.deepEqual(
+    orderVacationResultsByDisplayedPrice(inventory, "desc", priceFor(initialCatalog), item => item.order).map(item => item.id),
+    ["seasonal-high", "catalog-middle", "legacy-low"],
+  );
+  assert.deepEqual(
+    orderVacationResultsByDisplayedPrice(inventory, "asc", priceFor(loadedCatalog), item => item.order).map(item => item.id),
+    ["legacy-low", "catalog-middle", "seasonal-high"],
+  );
+  assert.equal(vacationCatalogDisplayedPrice(inventory[0], undefined, inventory[0].price), 4800);
+  assert.equal(vacationCatalogDisplayedPrice(inventory[1], loadedCatalog["catalog-middle"], inventory[1].price), 1250);
+});
+
 test("vacation search sorts the complete result set by the same displayed-price source", () => {
   const comparator = search.slice(search.indexOf("const compareMatches"), search.indexOf("const shouldPrioritizeOnline"));
   assert.match(search, /const displayedSearchPrice = [\s\S]*quote\?\.priceMode === "stay_total" \? quote\.totalPrice : quote\?\.nightlyPrice/);
+  assert.match(search, /vacationCatalogDisplayedPrice\(property, startingPrices\[property\.slug\], property\.price\)/);
   assert.match(search, /compareVacationDisplayedPrices\(displayedSearchPrice\(a\), displayedSearchPrice\(b\)/);
   assert.match(search, /orderVacationResultsByDisplayedPrice\([\s\S]*complete,[\s\S]*displayedSearchPrice/);
   assert.ok(comparator.indexOf('if (sort === "price-asc" || sort === "price-desc")') < comparator.indexOf("if (selectedStay)"));

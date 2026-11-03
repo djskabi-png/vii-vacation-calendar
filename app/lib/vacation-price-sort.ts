@@ -1,7 +1,24 @@
+import { supplierStartingPrice } from "./supplier-starting-price.ts";
+
 export type VacationPriceSortDirection = "asc" | "desc";
 
 function knownPrice(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+/**
+ * Keep the undated search ranking on the exact same price ladder rendered by
+ * PropertyCard. The asynchronously loaded catalog is authoritative when it
+ * contains the listing. If it does not, the listing's approved seasonal
+ * fields are checked before the legacy numeric fallback.
+ */
+export function vacationCatalogDisplayedPrice(
+  property: unknown,
+  catalogPrices: unknown,
+  legacyFallback: number | null | undefined,
+) {
+  return supplierStartingPrice(catalogPrices ?? property)
+    ?? (knownPrice(legacyFallback) ? legacyFallback : null);
 }
 
 export function compareVacationDisplayedPrices(
