@@ -521,12 +521,16 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   const availableIdenticalUnits = room.supplierRoomID && supplierCalendarStay?.allowed
                     ? Math.min(room.quantity, supplierCalendarStay.availableUnitCounts[room.supplierRoomID] || 0)
                     : undefined;
-                  const roomAvailable = vacationAvailabilityMode !== "inquiry" && (availableIdenticalUnits !== undefined
+                  // The property-level quote is the authoritative answer for the
+                  // selected stay. Unit metadata must never claim availability
+                  // when that current quote is explicitly unavailable.
+                  const overallStayUnavailable = hasSelectedDates && effectiveVacationAvailability?.availability === "unavailable";
+                  const roomAvailable = vacationAvailabilityMode !== "inquiry" && !overallStayUnavailable && (availableIdenticalUnits !== undefined
                     ? availableIdenticalUnits > 0
                     : roomAvailability?.availability === "available" || supplierAvailableRoomIDs.includes(room.supplierRoomID || 0));
-                  const roomUnavailable = vacationAvailabilityMode !== "inquiry" && (availableIdenticalUnits !== undefined
+                  const roomUnavailable = vacationAvailabilityMode !== "inquiry" && (overallStayUnavailable || (availableIdenticalUnits !== undefined
                     ? availableIdenticalUnits === 0
-                    : roomAvailability?.availability === "unavailable");
+                    : roomAvailability?.availability === "unavailable"));
                   const roomCapacity = roomAvailability && "maxGuests" in roomAvailability ? roomAvailability.maxGuests || room.guests : room.guests;
                   const roomFitsParty = guests <= roomCapacity;
                   const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
