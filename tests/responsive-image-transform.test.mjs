@@ -8,9 +8,10 @@ test("the image optimizer has a bounded independent fallback", async () => {
   const source = await read("worker/responsive-image-transform.ts");
   assert.match(source, /MAX_SOURCE_BYTES/);
   assert.match(source, /MAX_SOURCE_PIXELS/);
-  assert.match(source, /SamplingFilter\.Lanczos3/);
+  assert.match(source, /jpeg\.decode/);
+  assert.match(source, /resizeRgba/);
   assert.match(source, /X-VII-Image-Engine/);
-  assert.match(source, /photonResponse\(bytes, options\)/);
+  assert.match(source, /jpegResponse\(bytes, options\)/);
 });
 
 test("the worker treats the managed images binding as optional", async () => {

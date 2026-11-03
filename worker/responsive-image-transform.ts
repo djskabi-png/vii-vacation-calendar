@@ -1,4 +1,4 @@
-import { PhotonImage, SamplingFilter, resize } from "@cf-wasm/photon";
+import jpeg from "jpeg-js";
 
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 const MAX_SOURCE_PIXELS = 24_000_000;
@@ -26,38 +26,48 @@ function bytesResponse(bytes: Uint8Array, contentType: string, engine: string) {
   });
 }
 
-function isPng(bytes: Uint8Array) {
-  return bytes.length >= 8
-    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
-    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a;
+function isJpeg(bytes: Uint8Array) {
+  return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
 }
 
-function photonResponse(bytes: Uint8Array, { width, quality }: ResponsiveImageOptions) {
-  if (bytes.byteLength > MAX_SOURCE_BYTES) throw new Error("Responsive image source exceeds the safe byte limit");
-
-  const input = PhotonImage.new_from_byteslice(bytes);
-  let output: PhotonImage | undefined;
-  try {
-    const sourceWidth = input.get_width();
-    const sourceHeight = input.get_height();
-    if (!sourceWidth || !sourceHeight || sourceWidth * sourceHeight > MAX_SOURCE_PIXELS) {
-      throw new Error("Responsive image source exceeds the safe pixel limit");
+function resizeRgba(source: Uint8Array, sourceWidth: number, sourceHeight: number, width: number, height: number) {
+  const output = new Uint8Array(width * height * 4);
+  const xRatio = sourceWidth / width;
+  const yRatio = sourceHeight / height;
+  for (let y = 0; y < height; y += 1) {
+    const sourceY = Math.min(sourceHeight - 1, Math.floor((y + 0.5) * yRatio));
+    for (let x = 0; x < width; x += 1) {
+      const sourceX = Math.min(sourceWidth - 1, Math.floor((x + 0.5) * xRatio));
+      const sourceOffset = (sourceY * sourceWidth + sourceX) * 4;
+      const outputOffset = (y * width + x) * 4;
+      output[outputOffset] = source[sourceOffset];
+      output[outputOffset + 1] = source[sourceOffset + 1];
+      output[outputOffset + 2] = source[sourceOffset + 2];
+      output[outputOffset + 3] = source[sourceOffset + 3];
     }
-
-    const targetWidth = Math.max(1, Math.min(sourceWidth, Math.floor(width)));
-    const targetHeight = Math.max(1, Math.round(sourceHeight * targetWidth / sourceWidth));
-    output = resize(input, targetWidth, targetHeight, SamplingFilter.Lanczos3);
-
-    // Photon encodes WebP losslessly, which is often larger than a supplier
-    // JPEG. Preserve alpha-capable PNG sources as WebP, and encode ordinary
-    // gallery photography as bounded-quality JPEG for a real byte reduction.
-    return isPng(bytes)
-      ? bytesResponse(output.get_bytes_webp(), "image/webp", "photon-webp")
-      : bytesResponse(output.get_bytes_jpeg(Math.round(quality)), "image/jpeg", "photon-jpeg");
-  } finally {
-    output?.free();
-    input.free();
   }
+  return output;
+}
+
+function jpegResponse(bytes: Uint8Array, { width, quality }: ResponsiveImageOptions) {
+  if (bytes.byteLength > MAX_SOURCE_BYTES) throw new Error("Responsive image source exceeds the safe byte limit");
+  if (!isJpeg(bytes)) throw new Error("The bounded image fallback currently accepts JPEG photography only");
+
+  const input = jpeg.decode(bytes, {
+    useTArray: true,
+    formatAsRGBA: true,
+    maxResolutionInMP: MAX_SOURCE_PIXELS / 1_000_000,
+    maxMemoryUsageInMB: 96,
+  });
+  if (!input.width || !input.height || input.width * input.height > MAX_SOURCE_PIXELS) {
+    throw new Error("Responsive image source exceeds the safe pixel limit");
+  }
+
+  const targetWidth = Math.max(1, Math.min(input.width, Math.floor(width)));
+  const targetHeight = Math.max(1, Math.round(input.height * targetWidth / input.width));
+  const resized = resizeRgba(input.data, input.width, input.height, targetWidth, targetHeight);
+  const output = jpeg.encode({ data: resized, width: targetWidth, height: targetHeight }, Math.round(quality));
+  return bytesResponse(new Uint8Array(output.data), "image/jpeg", "jpeg-js");
 }
 
 export async function transformResponsiveImage(
@@ -82,5 +92,5 @@ export async function transformResponsiveImage(
     }
   }
 
-  return photonResponse(bytes, options);
+  return jpegResponse(bytes, options);
 }
