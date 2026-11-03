@@ -1,0 +1,109 @@
+{
+  "status": "fixed",
+  "symptom": "The vacation and event availability sliders do not consistently match the legacy reference or the current supplier-backed API, and visible cards can change between reloads.",
+  "expected_behavior": "Each tab uses the intended date window, displays only complete supplier-verified offers joined to published public businesses, and preserves the exact accepted API identity and order on every render.",
+  "environment": "Legacy vii.co.il, public vii.spaplus.co API and local branch fix/reconcile-lost-features-20261102 on 2026-11-03.",
+  "reproduction": {
+    "steps": [
+      "Open all five legacy vacation tabs and record date, business identity and price",
+      "Open all three legacy event tabs and record identity, availability text and price",
+      "Request all matching supplier-backed public API periods",
+      "Inspect the new vacation and event rail ordering code"
+    ],
+    "evidence": "Legacy event tabs showed twelve claimed available venues but only two had prices; the current supplier API confirmed exactly those two complete event offers. Both new rail components applied document-seeded ordering after receiving the API response. Selected public catalog reads were capped at eight while the rail supports twenty."
+  },
+  "observations": [
+    {
+      "observation": "The legacy site is not a safe current availability source after the same-day cutoff and marks event venues available without a verified price.",
+      "evidence": "Legacy last-minute tabs used 2026-11-03 after the current-day cutoff and ten of twelve event cards had no price; the current API returned two complete offers for 2026-11-04."
+    },
+    {
+      "observation": "The new browser reshuffled already ordered API offers using a per-document seed.",
+      "evidence": "HomeLiveDeals and EventLastMinute called orderDiscoveryRail with useDocumentSeed after accepting the API payload."
+    },
+    {
+      "observation": "The event API could select twenty offers but load public details for only eight identities.",
+      "evidence": "publicCatalogSelectedSummaries and readSupplierCatalogSelectedSummaries sliced requested IDs to eight."
+    },
+    {
+      "observation": "The event hook stored results in a numeric-key object and did not retain the API result order.",
+      "evidence": "useViiLiveSearch exposed only results keyed by siteID before the repair."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Client-side document-seeded ordering changes the accepted API order and makes the visible rail differ across page loads.",
+      "prediction": "Identical API payloads can render different first cards when the document seed changes.",
+      "discriminating_test": "Inspect both components and render the same fixture through different seeds.",
+      "result": "Both verified rail paths used the document seed; the new canonical boundary now ignores it and preserves input order.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The eight-item selected-catalog cap silently drops valid event offers from a twenty-card rail.",
+      "prediction": "More than eight complete offers can be present in results while at most eight matching public places are returned.",
+      "discriminating_test": "Trace includePlaces from offer selection through publicCatalogSelectedSummaries.",
+      "result": "The API selected up to twenty IDs but both selected-summary layers truncated to eight.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The legacy list is more complete and should be copied as current truth.",
+      "prediction": "Every legacy claimed event venue has a complete current supplier offer.",
+      "discriminating_test": "Compare legacy identities and prices with the raw current supplier-backed API response.",
+      "result": "Rejected: ten of twelve legacy cards lacked price, while the current API verified only the two complete priced offers.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Preserve supplier API order at the browser boundary, retain explicit result order in the live-search hook, join event places in that same order, require complete event offers, remove unmatched offers, deduplicate identities, and raise selected-summary support to the rail limit of twenty.",
+    "evidence": "The focused slider, date-boundary, regional, catalog, event and vacation contract suites pass, including deterministic repeated-render and API-to-card identity tests."
+  },
+  "affected_family": [
+    "vacation home-deals rail",
+    "event last-minute rail",
+    "event includePlaces API projection",
+    "selected public catalog summaries",
+    "live-search client state",
+    "all vacation and event quick-date tabs"
+  ],
+  "regression_checks": [
+    {
+      "check": "Identical API input preserves identical card identity and order",
+      "status": "passed",
+      "evidence": "The canonical verified-slider helper test repeats the same fixture and asserts the exact same ordered identity list."
+    },
+    {
+      "check": "Duplicate or invalid identities are removed without reshuffling",
+      "status": "passed",
+      "evidence": "The verified-slider helper test covers duplicate, empty and invalid identities while preserving the first accepted API occurrence."
+    },
+    {
+      "check": "Event results and public places have identical IDs and order",
+      "status": "passed",
+      "evidence": "The event includePlaces route test asserts that offer identities and public place identities are equal and in the same order."
+    },
+    {
+      "check": "Only complete event offers with price date slot and room identity are displayed",
+      "status": "passed",
+      "evidence": "The event route tests reject incomplete offers and accept only available positive-price offers with exact dates, slot and positive roomID."
+    },
+    {
+      "check": "All five vacation and three event date windows pass Israel time boundary tests",
+      "status": "passed",
+      "evidence": "The deal-clock, regional availability and event slot suites pass every required preset and cutoff boundary."
+    },
+    {
+      "check": "Selected summary reads support twenty verified cards",
+      "status": "passed",
+      "evidence": "Both selected catalog readers now cap at twenty, matching the rail contract, and the focused event projection tests pass."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The legacy site does not expose enough evidence to distinguish stale availability from a different no-price business rule for its ten unpriced event cards; neither is safe to advertise as verified availability."
+  ],
+  "authorization_boundary": "Diagnose, repair and verify locally; no supplier, CMS, database, secret, DNS or production publication mutation."
+}

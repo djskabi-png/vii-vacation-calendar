@@ -1,0 +1,81 @@
+{
+  "goal": "Make the vacation and event availability sliders deterministic, supplier-authoritative and regression-resistant.",
+  "intent_model": {
+    "literal_request": "Compare the vacation and event availability sliders with the old site and then with the API, fix the mismatch and lock it permanently.",
+    "implied_outcome": "Users always see the correct currently available businesses, price, dates and booking mode without cards randomly appearing, disappearing or changing order.",
+    "likely_rejections": [
+      "Only one currently visible tab was fixed",
+      "The old site was copied even when its data was stale",
+      "The API is correct but the browser changes the order",
+      "A test passes while the public card identity or price is wrong"
+    ],
+    "interpretation_rules": [
+      {"phrase":"מול האתר הישן ואז מול ה api","operational_meaning":"Use legacy UI to recover intended labels, windows and presentation, then use the supplier-backed API as current availability truth.","acceptance_impact":"Legacy-only differences must be classified, not blindly reproduced."},
+      {"phrase":"לנעול את זה שיעבוד תקין תמיד","operational_meaning":"Create a shared pure selection contract and regression audit that fails on nondeterminism, wrong joins or incomplete offers.","acceptance_impact":"A point fix without contract tests is insufficient."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "One stable rail per selected date window showing only complete verified offers.",
+    "current_decision": "The user chooses a named date period; the system chooses the canonical offers deterministically.",
+    "next_action": "Open the matching business with the exact dates, guests and supplier room or slot.",
+    "deferred_complexity": ["Internal cache and supplier diagnostics"],
+    "preserved_depth": ["Current supplier availability","public catalog publication","online versus phone booking priority","regional expansion","truthful empty and error states"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-live-slider-api-parity-20261103.json",
+    "lesson_bundle_ids": ["VII-PROJECT-001","ADIR-DATA-001","ADIR-CONSISTENCY-001","ADIR-QA-001","ADIR-WEB-001","ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public VII visitor"],
+  "natural_destination": "Homepage and dedicated vacation and event last-minute pages",
+  "facts": [
+    {"claim":"The public vacation API currently returns complete verified deals for all five named periods.","evidence":"Direct public API responses on 2026-11-03"},
+    {"claim":"The current client applies document-seeded orderDiscoveryRail to verified vacation and event offers.","evidence":"app/components/home-live-deals.tsx and app/components/event-last-minute.tsx"},
+    {"claim":"The legacy first rail and current API differ in membership and order.","evidence":"Visible legacy homepage slider compared with the public home-deals API"}
+  ],
+  "assumptions": [
+    {"claim":"The supplier-backed API is the source of truth for current availability and price.","validation":"Trace route construction and compare complete supplier result fields with rendered card fields."},
+    {"claim":"Legacy UI is authoritative only for tab semantics and intended presentation.","validation":"Classify stale dates and publication differences instead of copying them."}
+  ],
+  "in_scope": [
+    "All five vacation period tabs",
+    "All three event preset tabs",
+    "Date-window semantics in Israel timezone",
+    "Offer completeness, public entity join, deduplication and stable ordering",
+    "API-to-render identity, dates, price and booking mode",
+    "Desktop and mobile reload and tab-switch verification"
+  ],
+  "out_of_scope": [
+    "Changing supplier inventory or prices",
+    "Publishing, DNS or domain changes without separate authorization",
+    "CMS, database, schema, secret or permission changes"
+  ],
+  "invariants": [
+    "No card claims availability without a complete supplier-confirmed offer",
+    "No unpublished public entity appears",
+    "Identical input produces identical output",
+    "Online-bookable vacation offers remain ahead of phone-only available offers",
+    "A card price, date and room or slot belong to that exact displayed entity"
+  ],
+  "affected_family": ["home-deals API","HomeLiveDeals","live-search events API","EventLastMinute","date helpers","public catalog joins","desktop and mobile rails"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Each named tab resolves to the intended deterministic date window in the Israel timezone.","source":"User request and legacy semantics"},
+    {"id":"REQ-2","statement":"Only complete verified supplier offers joined to published public entities are displayed.","source":"Data truth requirement"},
+    {"id":"REQ-3","statement":"One canonical offer per entity is selected and ordered identically in API and UI.","source":"Recurring mismatch report"},
+    {"id":"REQ-4","statement":"The contract remains stable across reload, desktop, mobile and future code changes.","source":"Permanent lock requirement"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Clock fixtures before, during and after Thursday and Friday in Asia/Jerusalem","action":"Resolve all vacation and event tabs","observable_result":"Every tab returns the documented from, till and night count without server/client drift"},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"failure","setup":"Offers include missing price, unavailable, missing room or slot, unpublished and unknown identities","action":"Build canonical slider candidates","observable_result":"Every invalid candidate is excluded with no false card"},
+    {"id":"AC-3","requirement_ids":["REQ-3"],"kind":"success","setup":"Multiple complete offers and duplicate offers for the same entity","action":"Build API response and rendered rail","observable_result":"Exactly one canonical offer per entity appears in the same stable order with matching price, dates and booking mode"},
+    {"id":"AC-4","requirement_ids":["REQ-3","REQ-4"],"kind":"persistence","setup":"One accepted API payload","action":"Render twice with different document seeds and at desktop and mobile widths","observable_result":"Card identities, order and commercial fields remain identical"},
+    {"id":"AC-5","requirement_ids":["REQ-1","REQ-2","REQ-3","REQ-4"],"kind":"success","setup":"Local production build and parity audit","action":"Switch every tab, reload and open the first card","observable_result":"The rail remains useful, truthful and links with the exact selected supplier parameters"}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local diagnosis, source repair and verification are authorized; production publication is excluded until separately authorized.",
+  "ready_for_implementation": true
+}

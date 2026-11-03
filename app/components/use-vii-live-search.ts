@@ -8,6 +8,7 @@ import { discoveryJson } from "../lib/discovery-client-cache.ts";
 export type LiveSearchState = {
   status: "idle" | "loading" | "ready" | "error";
   results: Record<number, LiveSearchResult>;
+  resultOrder: number[];
   checkedAt: string | null;
   places?: EventDealPlace[];
   expandedRegion?: boolean;
@@ -15,7 +16,7 @@ export type LiveSearchState = {
   stale?: boolean;
 };
 
-const idle: LiveSearchState = { status: "idle", results: {}, checkedAt: null };
+const idle: LiveSearchState = { status: "idle", results: {}, resultOrder: [], checkedAt: null };
 
 export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, till: string | null, guests: number, hours?: number, rooms?: LiveSearchRoom[], slot?: EventSlot, retry = 0, includePlaces = false, region?: string, datedDiscovery = false) {
   const roomKey = rooms?.map((room) => `${room.adults}-${room.children || 0}-${room.infants || 0}`).join(",") || "";
@@ -42,13 +43,14 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       if (!controller.signal.aborted) setValue({ key, state: {
         status: "ready",
         results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
+        resultOrder: result.results.map((item) => item.siteID),
         checkedAt: result.checkedAt,
         ...(result.cache ? { stale: result.cache.status === "stale" } : {}),
         ...(includePlaces ? { places: Array.isArray(result.places) ? result.places : [] } : {}),
         ...(includePlaces && region ? { expandedRegion: result.expandedRegion === true, regionalOrder: Array.isArray(result.regionalOrder) ? result.regionalOrder : [] } : {}),
       } });
     }).catch(() => {
-      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, checkedAt: null } });
+      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, resultOrder: [], checkedAt: null } });
     });
     return () => controller.abort();
   }, [key, world, from, till, guests, hours, rooms, slot, includePlaces, region, datedDiscovery]);
@@ -81,11 +83,12 @@ export function useViiFlexibleLiveSearch(candidates: Array<{ from: string; till:
       if (!controller.signal.aborted) setValue({ key, state: {
         status: "ready",
         results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
+        resultOrder: result.results.map((item) => item.siteID),
         checkedAt: result.checkedAt,
         ...(result.cache ? { stale: result.cache.status === "stale" } : {}),
       } });
     }).catch(() => {
-      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, checkedAt: null } });
+      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, resultOrder: [], checkedAt: null } });
     });
     return () => controller.abort();
   }, [candidateKey, candidates, guests, key, roomKey]);

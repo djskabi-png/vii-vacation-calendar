@@ -90,11 +90,15 @@ test("both discovery surfaces use real event deals, preserving slot and particip
   assert.match(readFileSync(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"), /<EventLastMinute places=\{eventPlaces\}/);
   assert.match(readFileSync(new URL("../app/events/page.tsx", import.meta.url), "utf8"), /<EventLastMinute places=\{eventPlaces\}/);
   assert.match(readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"), /params.set\("slot", selectedEventSlot\)/);
-  assert.match(slider, /search.places \|\| places/);
+  assert.match(slider, /const availablePlaces = search\.places \|\| places/);
+  assert.match(slider, /search\.resultOrder\.length/);
+  assert.match(slider, /canonicalVerifiedSliderItems/);
   const route = readFileSync(new URL("../app/api/vii/live-search/route.ts", import.meta.url), "utf8");
   assert.match(route, /body.includePlaces === true/);
   assert.match(route, /publicCatalogSelectedSummaries<EventDealPlace>\("events", ids\)/);
   assert.match(route, /slice\(0, 20\)/);
+  assert.match(route, /visibleOffers/);
+  assert.match(route, /visiblePlaces/);
 });
 
 test("event rail keeps only quick date tabs while further event refinement stays in search", () => {

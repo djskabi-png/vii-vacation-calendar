@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-live-slider-api-parity-20261103",
+  "project": "VII",
+  "task_type": "production data-parity diagnosis and root repair",
+  "requested_outcome": "The vacation and event availability sliders use one deterministic supplier-authoritative contract, match the intended legacy tab semantics, and remain correct across dates, reloads and future code changes.",
+  "natural_destination": "The public VII homepage vacation and event availability sliders and their dedicated landing pages",
+  "authorization_boundary": "Read the legacy site and supplier-backed public APIs, change VII source and tests, and verify locally; do not mutate supplier data, CMS, database, secrets, DNS or publish without separate authorization.",
+  "lesson_bundle": [
+    {"lesson_id":"VII-PROJECT-001","reason":"The task is VII-specific and depends on canonical project behavior.","acceptance_impact":"Treat the API as availability truth and the legacy site as a semantic reference, not as an unverified source of current inventory."},
+    {"lesson_id":"ADIR-DATA-001","reason":"The defect is a data identity, filtering and ordering mismatch.","acceptance_impact":"Prove every displayed card maps to a public catalog entity and a complete verified supplier offer."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"The same data must remain consistent across API, slider, landing and reload.","acceptance_impact":"Use one shared deterministic ordering and deduplication contract across the affected family."},
+    {"lesson_id":"ADIR-QA-001","reason":"The user explicitly reports recurring regressions.","acceptance_impact":"Add automated contract tests for all vacation tabs, all event tabs, duplicates, missing entities, stale dates and repeatability."},
+    {"lesson_id":"ADIR-WEB-001","reason":"Both desktop and mobile public sliders are affected.","acceptance_impact":"Verify loading, success, empty, error, tab switch and reload on desktop and mobile."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"A later release must preserve exact candidate identity and evidence.","acceptance_impact":"Do not claim public completion from local code or tests."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The first visible cards still change between reloads even though the API response is stable.","prevention":"Remove document-seeded client reshuffling from verified availability rails and use a shared stable comparator.","acceptance_check":"Two renders of identical API data produce identical identities, order, prices and dates."},
+    {"rejection":"A legacy venue is missing or a new venue appears without a clear reason.","prevention":"Classify each delta as supplier availability, public publication, identity join, completeness or stale legacy evidence.","acceptance_check":"The audit reports an explicit reason for every legacy/API/display delta."},
+    {"rejection":"Events show a venue with the wrong offer when the supplier returns more than one offer for the same venue.","prevention":"Select one canonical complete offer per venue before joining to the public catalog.","acceptance_check":"Duplicate-offer fixtures always choose the same best complete offer."},
+    {"rejection":"The fix works for one tab but fails for Thursday, Friday or weekend boundaries.","prevention":"Bind every tab to a named date-window contract using the Israel timezone.","acceptance_check":"All five vacation periods and all three event presets pass date-boundary tests."}
+  ],
+  "affected_family": [
+    "vacation home-deals API and cache",
+    "vacation home slider and dedicated last-minute landing",
+    "event live-search API and cache",
+    "event last-minute slider and landing",
+    "public catalog identity joins",
+    "date-window and Israel timezone logic",
+    "desktop and mobile reload and tab-switch states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Legacy VII availability sliders","source":"https://www.vii.co.il/"},
+      {"label":"Public supplier-backed vacation API","source":"https://vii.spaplus.co/api/vii/home-deals"},
+      {"label":"Public supplier-backed event API","source":"https://vii.spaplus.co/api/vii/live-search"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the root mechanism is proven and shared selection functions pass focused tests, before broad build or any release action",
+    "checks": [
+      "All vacation and event tab date windows are deterministic",
+      "Verified offer order is stable across repeated renders",
+      "Identity, completeness and deduplication fixtures pass",
+      "Every observed legacy/API delta has a classified cause"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a document seed or reload still reorder verified offers?",
+      "Can two offers for one venue produce a mismatched card or price?",
+      "Can a stale, incomplete or unpublished entity leak into a slider?",
+      "Do Israel timezone boundaries change a tab date unexpectedly?",
+      "Does the same API payload produce different desktop and mobile cards?"
+    ],
+    "natural_destination_evidence": "Rendered local production build at desktop and mobile plus direct API response comparison for every tab",
+    "affected_family_evidence": "Focused contract tests, production build and a machine-readable parity audit"
+  },
+  "effectiveness": {
+    "baseline": "Legacy and new sliders differ in membership and order, and verified offer rails are reshuffled in the browser using a document seed.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "Every tab has deterministic dates, one canonical complete offer per public entity, stable API-to-render order and zero unexplained parity deltas."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

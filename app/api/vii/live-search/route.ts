@@ -8,6 +8,7 @@ import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 import { cachedDiscovery, readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { EVENT_DISCOVERY_POLICY, validEventDiscoveryResult } from "../../../lib/warm-event-discovery-cache.ts";
+import { canonicalVerifiedSliderItems } from "../../../lib/verified-slider-offers.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 type LiveSearchPayload = Awaited<ReturnType<typeof liveSupplierSearch>>;
@@ -82,14 +83,24 @@ export async function POST(request: Request) {
     }) : null;
     const result = discovery ? cached!.value : dated ? dated.value : await load();
     if (world === "events" && body.includePlaces === true) {
-      const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true && offer.total && offer.slot).sort((a, b) => a.total! - b.total!);
+      const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true
+        && typeof offer.total === "number" && offer.total > 0 && Boolean(offer.slot) && Boolean(offer.from)
+        && Number.isSafeInteger(offer.roomID) && Number(offer.roomID) > 0)
+        .sort((a, b) => a.total! - b.total! || a.siteID - b.siteID || String(a.slot).localeCompare(String(b.slot)));
       const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;
-      const offers = selected?.offers ?? liveOffers.slice(0, 20);
+      const selectedOffers = selected?.offers ?? liveOffers.slice(0, 20);
+      const offers = canonicalVerifiedSliderItems(selectedOffers, offer => offer.siteID);
       const ids = offers.map(offer => offer.siteID);
       const places = await publicCatalogSelectedSummaries<EventDealPlace>("events", ids);
+      const placeById = new Map(places.flatMap((place) => {
+        const match = /^event-(\d+)$/.exec(place.slug);
+        return match && place.image ? [[Number(match[1]), place] as const] : [];
+      }));
+      const visibleOffers = offers.filter(offer => placeById.has(offer.siteID));
+      const visiblePlaces = visibleOffers.map(offer => placeById.get(offer.siteID)!);
       // Join only the matching offers. The homepage's five editorial picks must
       // not limit availability, and its initial HTML must not carry all venues.
-      return Response.json({ ...result, cache: cached!.cache, results: offers, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: selected!.order } : {}), places: places.filter((place) => place.image).map((place) => ({
+      return Response.json({ ...result, cache: cached!.cache, results: visibleOffers, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: visibleOffers.map(offer => offer.siteID) } : {}), places: visiblePlaces.map((place) => ({
         slug: place.slug, name: place.name, location: place.location, type: place.type, guests: place.guests,
         image: place.image, images: (place.images || []).slice(0, 10),
         ...(place.area ? { area: place.area } : {}),

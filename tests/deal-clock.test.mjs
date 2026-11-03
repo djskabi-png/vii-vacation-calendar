@@ -6,6 +6,8 @@ import {todayDealsVisible,firstDealDate,eligibleDealDate,dealRailDays,dealClockK
 import {eventDealDate} from '../app/lib/event-deal-dates.ts';
 import {homeDealDates} from '../app/lib/vii-home-deals.ts';
 import {getHomeHolidays} from '../app/lib/vii-home-holidays.ts';
+import {canonicalVerifiedSliderItems} from '../app/lib/verified-slider-offers.ts';
+import {validEventDiscoveryResult} from '../app/lib/warm-event-discovery-cache.ts';
 
 for(const [day,offset] of [['2026-10-17','+03:00'],['2026-12-17','+02:00'],['2026-03-27','+03:00'],['2026-10-25','+02:00']]) {
   for(const [time,visible] of [['00:00:00',false],['00:00:59',false],['00:01:00',true],['13:59:59',true],['14:00:00',true],['14:00:59',true],['14:01:00',false],['23:59:59',false]]) {
@@ -52,7 +54,7 @@ test('futureholiday isnot hidden; ongoingholiday beginsatfirsteligibleday',async
 });
 
 function route(path,method,dependencies){
- dependencies={firstDealDate,runtimeCatalogDatabase:async()=>null,cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:'2026-10-17T10:00:00Z'}}),...dependencies};
+ dependencies={firstDealDate,canonicalVerifiedSliderItems,validEventDiscoveryResult,EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},runtimeCatalogDatabase:async()=>null,cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:'2026-10-17T10:00:00Z'}}),...dependencies};
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
  const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
  return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));

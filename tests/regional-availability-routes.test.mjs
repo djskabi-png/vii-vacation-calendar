@@ -12,9 +12,10 @@ import { homeDealDates } from '../app/lib/vii-home-deals.ts';
 import { prioritizeOnlineFirst,isHomeDealOnlineEligible } from '../app/lib/vacation-online-first.ts';
 import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
 import { validEventDiscoveryResult } from '../app/lib/warm-event-discovery-cache.ts';
+import { canonicalVerifiedSliderItems } from '../app/lib/verified-slider-offers.ts';
 
 function handler(path, method, dependencies) {
-  dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
+  dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,canonicalVerifiedSliderItems,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
     VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     validEventDiscoveryResult,
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
@@ -85,7 +86,7 @@ test('actual event handler selects regional public IDs before national top12 and
     supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set(places.slice(0,-1).map(place=>place.supplierId)),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(place=>ids.includes(place.supplierId)),
-    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'both']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{checkedAt:'2026-10-17T12:00:00Z',results:Array.from({length:25},(_,index)=>({siteID:index+1,total:(index+1)*100,available:true,slot:'evening',from:'2026-10-18'}))}};},
+    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'both']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{checkedAt:'2026-10-17T12:00:00Z',results:Array.from({length:25},(_,index)=>({siteID:index+1,total:(index+1)*100,available:true,slot:'evening',from:'2026-10-18',roomID:index+1}))}};},
     EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     liveSupplierSearch:async()=>{throw new Error('visitor_must_not_call_provider');},
   });

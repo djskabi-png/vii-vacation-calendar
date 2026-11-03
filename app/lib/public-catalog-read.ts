@@ -93,7 +93,9 @@ function catalogIdentity(world: SupplierCatalogWorld, value: unknown) {
 }
 
 export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWorld, supplierIds: readonly number[]): Promise<T[]> {
-  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 8);
+  // A verified discovery rail can expose up to twenty cards. Callers such as
+  // the gallery endpoint still enforce their own smaller request limit.
+  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 20);
   if (!ids.length) return [];
   const cacheKey = `${world}:${ids.slice().sort((a, b) => a - b).join(",")}`;
   const cached = selectedCatalogCache.get(cacheKey);

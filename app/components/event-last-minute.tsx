@@ -25,6 +25,7 @@ import { useDocumentSeed } from "./use-document-seed";
 import { useStartingPrices } from "../lib/use-starting-prices";
 import { supplierStartingPrice } from "../lib/supplier-starting-price";
 import { CatalogStartingPrice } from "./catalog-starting-price";
+import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers";
 
 const copy = {
   he: { title: "מקומות לאירועים בתאריכים הקרובים", all: "לכל המקומות לאירועים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לרענן זמינות כרגע", retry: "לנסות שוב", empty: "אין כרגע הצעה מאומתת לתאריך הזה.", fallbackTitle: "מקומות נוספים שכדאי לבדוק", fallbackStatus: "הזמינות לתאריך הזה עדיין לא אומתה. אפשר לפנות ישירות למקום.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", today: "פנוי להיום", tomorrow: "פנוי למחר", thursday: "פנוי לחמישי", friday: "פנוי לשישי" },
@@ -64,13 +65,25 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, undefined, retry, true, scope?.label);
   const startingPrices = useStartingPrices("events", true);
-  const candidates = orderDiscoveryRail((search.places || places).flatMap((place) => {
-    if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
+  const availablePlaces = search.places || places;
+  const placeBySupplierId = new Map(availablePlaces.flatMap((place) => {
     const match = /^event-(\d+)$/.exec(place.slug);
-    const offer = match ? search.results[Number(match[1])] : null;
+    return match ? [[Number(match[1]), place] as const] : [];
+  }));
+  const supplierOrder = search.resultOrder.length
+    ? search.resultOrder
+    : availablePlaces.flatMap((place) => {
+      const match = /^event-(\d+)$/.exec(place.slug);
+      return match ? [Number(match[1])] : [];
+    });
+  const candidates = canonicalVerifiedSliderItems(supplierOrder.flatMap((siteID) => {
+    const place = placeBySupplierId.get(siteID);
+    if (!place) return [];
+    if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
+    const offer = search.results[siteID];
     if (offer?.available !== true || !offer.total || !offer.from || !offer.slot) return [];
     return [{ place, offer }];
-  }), { id: item => item.place.slug, seed: `${documentSeed}:${sectionId}:${date}`, priority: item => scope && search.regionalOrder?.length ? Math.max(0, search.regionalOrder.indexOf(item.offer.siteID)) : undefined });
+  }), item => item.place.slug);
   const confirmed = new Set(candidates.map(({ place }) => place.slug));
   const additionalPlaces = orderDiscoveryRail(places.flatMap((place) => {
     if (!place.image || confirmed.has(place.slug)) return [];

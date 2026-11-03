@@ -79,7 +79,15 @@ test("SSR seed and API both project the existing published management priority",
 test("all vacation discovery surfaces use the shared online-first comparator", () => {
   for (const file of ["app/search/page.tsx", "app/components/home-live-deals.tsx", "app/components/holiday-live-deals.tsx"]) {
     const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
-    assert.match(source, file.includes("search") ? /prioritizeOnlineFirst/ : /orderDiscovery(?:Rail|Items)\(/);
-    assert.match(source, file.includes("search") ? /matchesVacationOnlineBooking/ : /isHomeDealOnlineEligible/);
+    if (file.includes("search")) {
+      assert.match(source, /prioritizeOnlineFirst/);
+      assert.match(source, /matchesVacationOnlineBooking/);
+    } else if (file.includes("home-live-deals")) {
+      assert.match(source, /canonicalVerifiedSliderItems/);
+      assert.doesNotMatch(source, /useDocumentSeed|orderDiscoveryRail/);
+    } else {
+      assert.match(source, /orderDiscoveryItems\(/);
+      assert.match(source, /isHomeDealOnlineEligible/);
+    }
   }
 });

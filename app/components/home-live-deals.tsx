@@ -15,13 +15,10 @@ import { PropertyCard, type ResolvedAvailability } from "./property-card";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { eligibleDealDate } from "../lib/deal-clock";
-import { isHomeDealOnlineEligible } from "../lib/vacation-online-first";
-import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
-import { orderDiscoveryRail } from "../lib/discovery-slider-order.ts";
-import { useDocumentSeed } from "./use-document-seed.ts";
 import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
+import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 
 type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -90,7 +87,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const { language, translate } = useSiteLanguage();
-  const documentSeed = useDocumentSeed();
   const [period, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
   const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
   const [dealRetry, setDealRetry] = useState(0);
@@ -195,7 +191,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
 
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
-  const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
+  // The API already applies publication, online-booking and editorial order.
+  // Keep that exact commercial order at the final browser boundary. A
+  // document seed here made identical API responses render differently.
+  const displayedDeals = canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID);
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);

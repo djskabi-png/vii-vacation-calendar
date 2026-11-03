@@ -13,6 +13,8 @@ import { regionalExpansionCopy } from '../app/i18n/regional-availability-copy.ts
 import { prioritizeOnlineFirst,isHomeDealOnlineEligible } from '../app/lib/vacation-online-first.ts';
 import { dailyRotationCompare } from '../app/lib/daily-rotation.ts';
 import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
+import { canonicalVerifiedSliderItems } from '../app/lib/verified-slider-offers.ts';
+import { validEventDiscoveryResult } from '../app/lib/warm-event-discovery-cache.ts';
 
 const places = [
   {supplierId:1,name:'Local1',location:'צפת',area:'צפון',lat:33.0,lng:35.4,image:'https://example.test/1.jpg'},
@@ -27,7 +29,7 @@ const options={placeId:o=>o.siteID,key:o=>String(o.siteID)};
 const offers=[{siteID:5,total:10},{siteID:1,total:100},{siteID:2,total:200},{siteID:6,total:900}];
 const publicPlaces=places.filter(p=>p.supplierId!==7);
 function handler(path,method,dependencies){
-  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
+  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,canonicalVerifiedSliderItems,validEventDiscoveryResult,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));
@@ -70,7 +72,7 @@ test('actual event API excludes unavailable/missing images before expansion and 
     regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,validDate:()=>true,supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set([1,2,3,4,5,6]),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(p=>ids.includes(p.supplierId)).map(p=>({...p,slug:`event-${p.supplierId}`,images:[]})),
-    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'evening']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{results:[...offers.map(o=>({...o,available:true,slot:'evening',from:'2026-10-18'})),{siteID:3,available:false,total:1},{siteID:7,available:true,total:1,slot:'evening'}]}};},
+    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'evening']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{results:[...offers.map(o=>({...o,available:true,slot:'evening',from:'2026-10-18',roomID:o.siteID})),{siteID:3,available:false,total:1},{siteID:7,available:true,total:1,slot:'evening'}]}};},
     EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     liveSupplierSearch:async()=>{throw new Error('visitor_must_not_call_provider');},
   });
@@ -95,7 +97,7 @@ test('all four visitor locales disclose geography only, without technical explan
   for(const p of ['home-live-deals','event-last-minute','spa-package-deals'])assert.match(read(p),/regionalExpansionCopy\[language\]/);
   assert.match(read('spa-package-deals'),/expandedRegions\?\.\[date\]\?\.\[audience\]/);
   assert.match(read('event-last-minute'),/!search.expandedRegion && !matchesSearchLocation/);
-  assert.match(read('home-live-deals'),/orderDiscoveryRail/);
+  assert.match(read('home-live-deals'),/canonicalVerifiedSliderItems/);
   assert.match(read('home-live-deals'),/eligibleDeals = clock/);
 });
 test('regional rails span the whole results grid on desktop rather than one property cell',()=>{

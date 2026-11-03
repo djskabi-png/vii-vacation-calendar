@@ -62,8 +62,9 @@ test('event API applies regional eligibility before top20; scope travels through
   assert.match(hook,/\$\{region \|\| ""\}/);
   assert.match(hook,/includePlaces && result.region !== region/);
   const rail=read('app/components/event-last-minute.tsx');
-  assert.match(rail,/orderDiscoveryRail\(\(search.places \|\| places\).flatMap/);
-  assert.ok(rail.indexOf('matchesSearchLocation(place, scope.label)')<rail.indexOf('}), { id: item => item.place.slug'));
+  assert.match(rail,/canonicalVerifiedSliderItems/);
+  assert.match(rail,/search\.resultOrder\.length/);
+  assert.ok(rail.indexOf('matchesSearchLocation(place, scope.label)')<rail.indexOf('item => item.place.slug'));
   assert.match(rail,/eventSearchHref\(scope\?\.label\)/);
 });
 
