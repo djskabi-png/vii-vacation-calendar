@@ -22,6 +22,15 @@ test("event last-minute landing fixes the verified preset and exposes SEO", asyn
   assert.match(page, /faqSchema/);
 });
 
+test("event last-minute verified cards eagerly load the first visible images", async () => {
+  const [component, preview] = await Promise.all([
+    read("app/components/event-last-minute.tsx"),
+    read("app/components/place-preview-card.tsx"),
+  ]);
+  assert.match(component, /priority=\{index < 2\}/);
+  assert.match(preview, /priority=\{priority\}/);
+});
+
 test("spa slider links today and tomorrow to dedicated localized landings", async () => {
   const source = await read("app/components/spa-package-deals.tsx");
   assert.match(source, /date === today \? "\/spas\/today" : date === tomorrow \? "\/spas\/tomorrow"/);
