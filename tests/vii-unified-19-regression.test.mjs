@@ -54,7 +54,7 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(gallery, /topicTabs\.map/);
   assert.match(gallery, /const defaultTopic = useMemo/);
   assert.doesNotMatch(gallery, />\{tabLabels\.all\}<small>/);
-  assert.match(gallery, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
+  assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
   assert.match(selection, /if \(topic\) return items\.filter/);
   assert.match(hook, /params\.set\("topic", topic\)/);
   assert.match(page, /openGallery\("units", unitGalleryStart, room\.name\)/);
@@ -100,13 +100,39 @@ test("partially refreshed accepted detail rows keep every supplier gallery topic
 });
 
 test("a unit deep-link keeps a supplier-named gallery after media deduplication", async () => {
-  const { visibleGalleryItems } = await import("../app/components/gallery-selection.ts");
+  const { uniqueGalleryItems, visibleGalleryItems } = await import("../app/components/gallery-selection.ts");
   const items = [
-    { src: "/suite.jpg", label: "סוויטה", category: "place", topic: "סוויטת אקווה" },
+    { src: "/suite.jpg", label: "גלריה כללית", category: "place", topic: "גלריה כללית" },
+    { src: "/suite.jpg", label: "סוויטה", category: "units", topic: "סוויטת אקווה" },
     { src: "/pool.jpg", label: "בריכה", category: "place", topic: "מתחם חוץ" },
   ];
-  assert.deepEqual(visibleGalleryItems(items, "units", "סוויטת אקווה"), [items[0]]);
-  assert.deepEqual(visibleGalleryItems(items, "place", "מתחם חוץ"), [items[1]]);
+  const unique = uniqueGalleryItems(items);
+  assert.equal(unique.length, 3);
+  assert.deepEqual(visibleGalleryItems(unique, "units", "סוויטת אקווה"), [items[1]]);
+  assert.deepEqual(visibleGalleryItems(unique, "place", "גלריה כללית"), [items[0]]);
+  assert.deepEqual(visibleGalleryItems(unique, "place", "מתחם חוץ"), [items[2]]);
+});
+
+test("current runtime media rejects stale bundled photos while hydrating supplier groups", async () => {
+  const { mergeBundledDetail } = await import("../app/lib/public-catalog-read.ts");
+  const accepted = {
+    images: ["/cover.jpg", "/shared.jpg", "/pool.jpg"],
+    galleryGroups: [],
+    rooms: [{ id: 7, name: "סוויטה", images: ["/shared.jpg"] }],
+  };
+  const bundled = {
+    images: ["/stale.jpg", "/shared.jpg", "/cover.jpg", "/pool.jpg"],
+    galleryGroups: [
+      { title: "גלריה כללית", images: ["/stale.jpg", "/shared.jpg", "/cover.jpg"] },
+      { title: "מתחם הבריכה", images: ["/pool.jpg", "/shared.jpg", "/stale.jpg"] },
+    ],
+    rooms: [{ id: 7, name: "סוויטה", images: ["/shared.jpg", "/stale.jpg"] }],
+  };
+  const merged = mergeBundledDetail(accepted, bundled);
+  assert.deepEqual(merged.images, accepted.images);
+  assert.deepEqual(merged.galleryGroups[0].images, ["/cover.jpg", "/shared.jpg"]);
+  assert.deepEqual(merged.galleryGroups[1].images, ["/pool.jpg", "/shared.jpg"]);
+  assert.deepEqual(merged.rooms[0].images, ["/shared.jpg"]);
 });
 
 test("public review, accessibility and contact sources preserve their approved boundaries", async () => {

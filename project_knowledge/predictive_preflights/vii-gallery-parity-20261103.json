@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-gallery-parity-20261103",
+  "project": "VII",
+  "task_type": "supplier gallery parity and regression prevention",
+  "requested_outcome": "Make the new page for vila_maagel_hashmash match the legacy general gallery and both unit galleries exactly, and prevent shared images or an older bundled fallback from corrupting gallery identity, membership or order again.",
+  "natural_destination": "The VII place page for vacation-2367, including the main gallery and every unit gallery on desktop and mobile.",
+  "authorization_boundary": "Local diagnosis, code changes and verification are authorized. Production publication is excluded until Adir explicitly authorizes this release after verification.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-QA-001", "reason": "A code change is not proof that the visible gallery is correct.", "acceptance_impact": "Requires exact natural-destination checks on desktop and mobile in addition to tests."},
+    {"lesson_id": "ADIR-CONTROL-001", "reason": "A recurring regression needs a shared invariant rather than another place-specific patch.", "acceptance_impact": "Requires a shared classification rule and an affected-family regression fixture."},
+    {"lesson_id": "ADIR-MEDIA-001", "reason": "The reported defect concerns media identity, membership and order.", "acceptance_impact": "Requires exact comparison with approved legacy media and rejection of stale fallback media."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The example looks fixed but another unit that shares images with the general gallery still opens the wrong topic.",
+      "prevention": "Preserve gallery identity by category, topic and source instead of globally removing a shared source.",
+      "acceptance_check": "A regression fixture proves the same source remains selectable in both the supplier gallery and the unit gallery."
+    },
+    {
+      "rejection": "An older bundled snapshot silently restores a deleted photo or changes the legacy order.",
+      "prevention": "Treat a non-empty accepted runtime image list as authoritative and use the bundle only to hydrate missing grouping metadata.",
+      "acceptance_check": "A regression fixture drops stale bundled media, orders the general gallery by the accepted runtime list and preserves named-gallery order."
+    },
+    {
+      "rejection": "The room card has the right count but clicking it still opens the general gallery.",
+      "prevention": "Test the actual room-topic selection path and URL state, not only the data count.",
+      "acceptance_check": "Both units open their own named topics with exactly 5 and 7 images."
+    },
+    {
+      "rejection": "Desktop passes while mobile, reload or a deep link loses the selected unit topic.",
+      "prevention": "Exercise desktop and mobile natural destinations and verify the topic survives URL state.",
+      "acceptance_check": "Desktop and mobile checks open the correct unit topic and retain it after reload."
+    }
+  ],
+  "affected_family": ["vacation general galleries", "supplier named gallery topics", "vacation unit cards", "unit gallery dialog", "gallery deep links", "accepted runtime catalog hydration", "desktop place pages", "mobile place pages"],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "Legacy production gallery membership and order", "source": "https://www.vii.co.il/vila_maagel_hashmash"},
+      {"label": "Current runtime supplier detail", "source": "public catalog vacation-2367"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The shared classification and catalog hydration fixes are implemented.",
+    "checks": ["Shared sources retain both place and unit identities", "Stale bundled media is not restored", "Exact 28, 5 and 7 image inventories match the legacy page"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "What happens when every unit image is also present in a supplier gallery?",
+      "What happens when runtime images are current but galleryGroups are missing?",
+      "Can a stale bundled image reappear in the main gallery?",
+      "Does a unit click open the unit topic after reload on mobile?"
+    ],
+    "natural_destination_evidence": "Exact local candidate page for vacation-2367 on desktop and mobile, compared with the legacy page.",
+    "affected_family_evidence": "Focused regression tests, production build and exact gallery inventory comparison."
+  },
+  "effectiveness": {
+    "baseline": "The public page currently opens a unit click as the general gallery and the hydrated general group contains one stale image in the wrong position.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time", "legacy_general_count", "unit_4058_count", "unit_4064_count", "wrong_topic_open_rate", "stale_media_count"],
+    "target": "28 legacy general images in exact order, unit counts 5 and 7 in exact order, zero wrong-topic opens and zero stale media."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

@@ -15,13 +15,16 @@ test("live availability requests have bounded exits instead of permanent loading
   assert.match(spa, /6_000/);
 });
 
-test("unit gallery sources keep one classification and the supplier group titles", () => {
+test("unit gallery sources keep every supplier and unit classification", () => {
   const gallery = read("../app/components/gallery-experience.tsx");
+  const selection = read("../app/components/gallery-selection.ts");
   assert.match(gallery, /property\.galleryGroups\?\.length/);
   assert.match(gallery, /group\.title/);
   assert.match(gallery, /const groupedSources = new Set/);
   assert.match(gallery, /\.\.\.groupedPlaceItems/);
-  assert.match(gallery, /unitItems\.filter\(\(item\) => !groupedSources\.has\(item\.src\)\)/);
+  assert.match(gallery, /\.\.\.unitItems,/);
+  assert.doesNotMatch(gallery, /unitItems\.filter/);
+  assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
   assert.match(gallery, /topicTabs\.map/);
   assert.doesNotMatch(gallery, /groupedPlaceItems\.map\(\(item\) => unitBySource/);
 });

@@ -227,10 +227,27 @@ function normalizedGalleryGroups(value: unknown): unknown[] | undefined {
   return normalized.length ? normalized : undefined;
 }
 
-function mergedGalleryGroups(acceptedValue: unknown, bundledValue: unknown): unknown[] | undefined {
+function isGeneralGalleryTitle(title: string) {
+  const normalized = title.toLocaleLowerCase("he-IL");
+  return normalized === "גלריה כללית" || normalized === "general gallery" || normalized === "general";
+}
+
+function mergedGalleryGroups(acceptedValue: unknown, bundledValue: unknown, acceptedImagesValue?: unknown): unknown[] | undefined {
   const accepted = normalizedGalleryGroups(acceptedValue) || [];
   const bundled = normalizedGalleryGroups(bundledValue) || [];
-  if (!accepted.length) return bundled.length ? bundled : undefined;
+  if (!accepted.length) {
+    const acceptedImages = normalizedMediaArray(acceptedImagesValue) || [];
+    if (!acceptedImages.length) return bundled.length ? bundled : undefined;
+    const acceptedOrder = new Map(acceptedImages.map((image, index) => [image, index]));
+    const hydrated = bundled.flatMap((group) => {
+      const record = group as Record<string, unknown>;
+      const title = galleryGroupTitle(group);
+      const images = (normalizedMediaArray(record.images) || []).filter((image) => acceptedOrder.has(image));
+      if (isGeneralGalleryTitle(title)) images.sort((left, right) => (acceptedOrder.get(left) || 0) - (acceptedOrder.get(right) || 0));
+      return images.length ? [{ ...record, images }] : [];
+    });
+    return hydrated.length ? hydrated : undefined;
+  }
   if (!bundled.length) return accepted;
   const bundledByTitle = new Map<string, unknown>(bundled.map((group): [string, unknown] => [galleryGroupTitle(group), group]).filter(([title]) => Boolean(title)));
   const acceptedTitles = new Set(accepted.map(galleryGroupTitle).filter(Boolean));
@@ -271,7 +288,7 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     return {
       ...fallback,
       ...room,
-      images: [...new Set([...(normalizedMediaArray(room.images) || []), ...(normalizedMediaArray(fallback.images) || [])])],
+      images: normalizedMediaArray(room.images) || normalizedMediaArray(fallback.images) || [],
       featureGroups: nonEmptyArray(room.featureGroups) || fallback.featureGroups || [],
       features: nonEmptyArray(room.features) || fallback.features || [],
     };
@@ -280,8 +297,8 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     ...bundled,
     ...accepted,
   };
-  merged.images = [...new Set([...(normalizedMediaArray(accepted.images) || []), ...(normalizedMediaArray(bundled.images) || [])])];
-  const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups);
+  merged.images = normalizedMediaArray(accepted.images) || normalizedMediaArray(bundled.images) || [];
+  const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups, accepted.images);
   const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
   const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);
   if (galleryGroups) merged.galleryGroups = galleryGroups;

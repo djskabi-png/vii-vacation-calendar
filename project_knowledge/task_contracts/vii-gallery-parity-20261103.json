@@ -1,0 +1,209 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-gallery-parity-20261103",
+  "project": "VII",
+  "task_type": "supplier gallery parity and regression prevention",
+  "goal": "Make vacation-2367 general and unit galleries match legacy exactly and lock the shared behavior",
+  "created_at": "2026-11-03T18:23:23.181674Z",
+  "updated_at": "2026-11-03T18:30:38.829870Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v786-home-state\\project_knowledge\\predictive_preflights\\vii-gallery-parity-20261103.json",
+      "sha256": "0e263bc63eaa0b3b4db382ee54836dedc355ad0afd9f18c5347e2b1f9a79b772"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v786-home-state\\project_knowledge\\predictive_preflights\\vii-gallery-parity-20261103.json",
+    "sha256": "0e263bc63eaa0b3b4db382ee54836dedc355ad0afd9f18c5347e2b1f9a79b772",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 3,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time",
+      "legacy_general_count",
+      "unit_4058_count",
+      "unit_4064_count",
+      "wrong_topic_open_rate",
+      "stale_media_count"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MEDIA-001",
+      "title": "זהות מדיה ומותג מאומתת לפני פרסום",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Make vacation-2367 general and unit galleries match legacy exactly and lock the shared behavior",
+      "acceptance_check": "Exact 28, 5 and 7 inventories; correct unit topic on desktop and mobile; focused tests and production build pass",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "The local candidate is fixed and verified, but the exact corrected desktop and mobile public destination cannot be observed until production publication is explicitly authorized.",
+      "updated_at": "2026-11-03T18:30:38.205023Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v786-home-state\\project_knowledge\\predictive_preflights\\vii-gallery-parity-20261103.json validated with sha256 0e263bc63eaa0b3b4db382ee54836dedc355ad0afd9f18c5347e2b1f9a79b772"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:23:23.181622Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "The shared classification and catalog hydration fixes are implemented.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "19 of 19 focused tests passed; exact merged live payload produced 28 general images in legacy order, 5 images for room 4058 and 7 for room 4064; stale media count 0"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:34.831676Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Legacy and current public pages were inspected to reproduce the defect; the exact live payload passed the corrected local merge. The corrected public UI cannot be observed until publication is separately authorized.",
+        "80 of 80 affected-family tests passed, TypeScript passed, production build passed, 34 of 34 media paths were available and catalog fallback parity passed for 576 vacations and 132 events.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:35.488042Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=2, elapsed_minutes=25.0; The preflight caught both the shared-source classification loss and stale bundle reintroduction before any release."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:36.112445Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Code, tests and build passed, but post-deploy desktop and mobile evidence is intentionally pending because the current request did not authorize publication.",
+      "updated_at": "2026-11-03T18:30:38.829846Z"
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה. בכל פרויקט, פעולה זמינה חייבת להיראות כהה, מלאה וברורה ולהיות ניתנת להפעלה; פעולה שאינה זמינה חייבת להיראות בהירה ומוחלשת, לא להיות ניתנת להפעלה ולהיחשף גם כמצב סמנטי אמיתי. צבע לבדו אינו מספיק, ומראה הרכיב חייב להתאים תמיד להתנהגות בפועל.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, אם לא נבדקו כל המופעים במשפחה שנכשלה, אם פעולה זמינה אינה מודגשת וניתנת להפעלה, אם פעולה לא זמינה אינה מוחלשת או עדיין מגיבה, אם המראה וההתנהגות סותרים זה את זה, או אם ההבחנה נשענת על צבע בלבד ללא מצב סמנטי נגיש.",
+      "status": "passed",
+      "evidence": [
+        "Unit gallery selection retains the room topic when its image is shared with the general gallery; regression fixture verifies both identities remain selectable."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:37.680900Z"
+    },
+    {
+      "id": "lesson:ADIR-MEDIA-001",
+      "source": "lesson:ADIR-MEDIA-001",
+      "statement": "כל לוגו, פאבילקון, תמונת עסק, תמונת כרטיס והמחשה ציבורית נלקחים ממקור מאושר, תואמים לזהות ולתפקיד הנכונים ומוצגים בחיתוך תקין. המחשה, מאגר או יצירה מלאכותית מסומנים ביושר ואינם מתחזים לעבודה או ללקוח אמיתיים.",
+      "acceptance_check": "שער הראיות נכשל ללא מלאי מדיה, מקור מאושר, התאמת זהות ותווית אמת לכל חזותי ציבורי שהשתנה, או כאשר לוגו, עסק, תמונת כרטיס, חיתוך או כיתוב אינם תואמים למקור המאומת.",
+      "status": "passed",
+      "evidence": [
+        "Exact legacy comparison: general 28 in exact order; unit inventories 5 and 7; 34 of 34 media paths available; stale media count 0."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:36.616951Z"
+    },
+    {
+      "id": "project:legacy gallery parity",
+      "source": "project_guidance",
+      "statement": "shared classification|runtime fallback hydration|desktop and mobile",
+      "acceptance_check": "shared classification|runtime fallback hydration|desktop and mobile",
+      "status": "passed",
+      "evidence": [
+        "Shared identity and runtime fallback hydration fixed; 19 focused and 80 family tests passed; production build passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T18:30:37.129014Z"
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-03T18:30:34.831647Z",
+      "evidence": [
+        "19 of 19 focused tests passed; exact merged live payload produced 28 general images in legacy order, 5 images for room 4058 and 7 for room 4064; stale media count 0"
+      ],
+      "findings": [
+        "The shared classification and fallback hydration mechanisms are corrected before broader regression."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-03T18:30:35.488004Z",
+      "attacks": [
+        "Shared source across general and unit topics",
+        "Runtime images current while galleryGroups are absent",
+        "Stale bundled image and wrong general order",
+        "Room media present at runtime but stale in bundle"
+      ],
+      "natural_destination_evidence": "Legacy and current public pages were inspected to reproduce the defect; the exact live payload passed the corrected local merge. The corrected public UI cannot be observed until publication is separately authorized.",
+      "affected_family_evidence": "80 of 80 affected-family tests passed, TypeScript passed, production build passed, 34 of 34 media paths were available and catalog fallback parity passed for 576 vacations and 132 events."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-03T18:30:36.112398Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 2,
+      "elapsed_minutes": 25.0,
+      "baseline_note": "The preflight caught both the shared-source classification loss and stale bundle reintroduction before any release."
+    }
+  }
+}

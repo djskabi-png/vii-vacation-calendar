@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
-import { visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
+import { uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
 
 type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "galleryGroups" | "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
 
@@ -39,19 +39,6 @@ const tabLabels: Record<GalleryTab, string> = {
   videos: "סרטונים",
 };
 
-function uniqueItems(items: GalleryItem[]) {
-  const seen = new Set<string>();
-  return items.filter((item) => {
-    // A supplier may intentionally place one photograph in more than one
-    // named gallery. De-duplicate only inside the same supplier topic so a
-    // shared image cannot erase an entire topic tab.
-    const identity = `${item.category}\u0000${item.topic}\u0000${item.src}`;
-    if (seen.has(identity)) return false;
-    seen.add(identity);
-    return true;
-  });
-}
-
 function resolvedInitialTopic(items: GalleryItem[], property: GallerySubject, requested?: string | null) {
   if (!requested) return null;
   if (items.some((item) => item.topic === requested)) return requested;
@@ -73,14 +60,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     const ungroupedPlaceItems = property.galleryGroups?.length
       ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: galleryItemLabel("תמונות נוספות", property.name, index), category: "place" as const, topic: "תמונות נוספות" }))
       : [];
-    return uniqueItems([
+    return uniqueGalleryItems([
       // Supplier galleries are the editorial source of truth. Keep their
       // exact title and membership instead of replacing them with the broad
-      // generic "place" or "units" buckets. A room-only image is appended
-      // only when the supplier did not put it in a named gallery.
+      // generic "place" or "units" buckets. Unit membership remains a
+      // separate identity even when the supplier reuses the same photograph.
       ...groupedPlaceItems,
       ...ungroupedPlaceItems,
-      ...unitItems.filter((item) => !groupedSources.has(item.src)),
+      ...unitItems,
       ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
       ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
     ]);

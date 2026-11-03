@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-gallery-parity-20261103",
+  "status": "fixed_locally_not_published",
+  "observed_symptoms": [
+    "The public unit card for room 4058 opened the topic גלריה כללית instead of the unit topic.",
+    "The merged general gallery contained 29 images, including stale media 36a7dbc119305d.jpg, while the legacy page contains 28 images.",
+    "The merged general gallery placed 40698c5cb050d7a.jpeg last while the legacy page places it first."
+  ],
+  "reproduction": {
+    "legacy_url": "https://www.vii.co.il/vila_maagel_hashmash",
+    "new_url": "https://vii.spaplus.co/business?id=vacation-2367",
+    "public_unit_hash_before_fix": "#gallery=units&photo=1&topic=גלריה+כללית",
+    "legacy_counts": {"general": 28, "room_4058": 5, "room_4064": 7}
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "The supplier API is missing or misclassifying the unit images.",
+      "result": "rejected",
+      "evidence": "The live supplier detail exposes the exact legacy unit inventories: 5 images for room 4058 and 7 images for room 4064 in the correct order."
+    },
+    {
+      "id": "H2",
+      "statement": "Source-level de-duplication removes unit identity whenever the same image exists in a supplier gallery.",
+      "result": "supported",
+      "evidence": "gallery-experience filtered unitItems against groupedSources before topic selection, so every shared unit image disappeared and resolvedInitialTopic fell back to the general gallery."
+    },
+    {
+      "id": "H3",
+      "statement": "Bundled presentation hydration can restore stale media and bundled order even when runtime images are current.",
+      "result": "supported",
+      "evidence": "The accepted runtime summary contains 34 current images without 36a7dbc119305d.jpg, while the bundled general group contained the stale image and a different order. The previous merge returned that bundled group wholesale."
+    },
+    {
+      "id": "H4",
+      "statement": "The gallery mismatch is caused by unavailable image files.",
+      "result": "rejected",
+      "evidence": "All 34 unique current media paths returned HTTP 200 or 206."
+    }
+  ],
+  "root_causes": ["H2", "H3"],
+  "fix": [
+    "Gallery identity is now de-duplicated by category, topic and source, and unit items are retained even when their source is shared with a supplier gallery.",
+    "A non-empty accepted runtime image list is authoritative. Bundled groups may hydrate missing metadata only after stale media is removed.",
+    "The general group is ordered by the accepted runtime list, while named supplier groups keep their editorial order.",
+    "Non-empty runtime room images are authoritative and bundled room media is used only when runtime room media is absent."
+  ],
+  "verification": {
+    "focused_tests": "19/19 passed",
+    "affected_family_tests": "80/80 passed",
+    "typescript": "passed",
+    "production_build": "passed",
+    "exact_general_inventory": {"expected": 28, "actual": 28, "exact_order": true, "first_mismatch": -1, "stale_media_count": 0},
+    "room_inventories": {"4058": 5, "4064": 7},
+    "media_paths": {"checked": 34, "available": 34, "failed": 0},
+    "catalog_fallback_parity": {"vacations": 576, "events": 132, "missing": 0, "stale": 0}
+  },
+  "publication": "not_authorized_in_current_request"
+}
