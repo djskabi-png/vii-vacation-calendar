@@ -8,4 +8,11 @@ test("an unavailable property quote prevents every unit from claiming availabili
   assert.match(business, /overallStayUnavailable = hasSelectedDates && effectiveVacationAvailability\?\.availability === "unavailable"/);
   assert.match(business, /roomAvailable = vacationAvailabilityMode !== "inquiry" && !overallStayUnavailable/);
   assert.match(business, /roomUnavailable = vacationAvailabilityMode !== "inquiry" && \(overallStayUnavailable \|\|/);
+  assert.match(business, /roomStatus = overallStayUnavailable\s+\? unitCopy\.unavailable/);
+});
+
+test("supplier quote transitions use a neutral checking state instead of a false inquiry state", () => {
+  assert.match(business, /supplierQuoteUnsettled = Boolean\(supplierSiteID && hasSelectedDates && \(supplierQuote\.status === "loading" \|\| supplierQuote\.status === "error"\)\)/);
+  assert.match(business, /property\.onlineAvailability === true \|\| hasVerifiedSupplierQuote \|\| supplierQuoteUnsettled/);
+  assert.match(business, /supplierQuote\.status === "loading" \|\| supplierUnitQuotes\.status === "loading"/);
 });

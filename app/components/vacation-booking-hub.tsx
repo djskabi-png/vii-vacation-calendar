@@ -35,7 +35,7 @@ type VacationBookingHubProps = {
   onRetryAvailability?: () => void;
 };
 
-type BookingState = "choose-dates" | "available-price" | "price-only" | "available-no-price" | "inquiry-only" | "check-error" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price" | "too-many-guests";
+type BookingState = "choose-dates" | "checking" | "available-price" | "price-only" | "available-no-price" | "inquiry-only" | "check-error" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price" | "too-many-guests";
 
 function countNights(from: string, till: string) {
   const arrival = Date.parse(`${from}T00:00:00Z`);
@@ -71,6 +71,7 @@ function bookingState(hasDates: boolean, guests: number, property: Property, ava
   if (availabilityMode === "inquiry") return "inquiry-only";
   if (!hasDates) return "choose-dates";
   if (property.capacityScope !== "unit" && guests > property.guests) return "too-many-guests";
+  if (availabilityStatus === "loading") return "checking";
   if (availabilityStatus === "error") return "check-error";
   if (!availability) return "no-data";
   if (availability.availability === "available") return nightlyPrice > 0 ? "available-price" : "available-no-price";
@@ -83,6 +84,7 @@ function bookingState(hasDates: boolean, guests: number, property: Property, ava
 
 function stateCopy(state: BookingState) {
   if (state === "choose-dates") return { title: "בדיקת תאריך", text: "בחרו תאריכים כדי לראות זמינות ומחיר" };
+  if (state === "checking") return { title: "בודקים זמינות ומחיר", text: "הבדיקה מתבצעת מול מערכת ההזמנות של המקום" };
   if (state === "available-price") return { title: "פנוי ויש מחיר", text: "אפשר להמשיך עכשיו להזמנה מהירה" };
   if (state === "available-no-price") return { title: "פנוי, המחיר דורש אישור", text: "פונים למקום לקבלת מחיר מדויק" };
   if (state === "price-only") return { title: "יש מחיר, הזמינות טרם אושרה", text: "נבדוק מול המקום לפני הזמנה" };
