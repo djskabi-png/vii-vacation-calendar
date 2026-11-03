@@ -24,7 +24,6 @@ import { useOnlineCapabilities } from "../lib/use-online-capabilities";
 import { hasOnlineCapability } from "../lib/online-booking-capability";
 import { useStartingPrices } from "../lib/use-starting-prices";
 import { hasSearchDate, supplierStartingPrice } from "../lib/supplier-starting-price";
-import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
@@ -612,9 +611,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const matchesPool = !pool || matchesVacationSearchFilter(property, "pool");
       const matchesSpa = !spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id));
       const matchesWhole = !whole || (property.capacityScope !== "unit" && property.scenario === "single");
-      const matchesAccessibility = !accessibleOnly || hasVerifiedAccessibilityFeature(property.features);
+      const matchesAccessibility = !accessibleOnly || matchesVacationSearchFilter(property, "accessible");
       const matchesExtras = selectedExtras.every((id) => {
-        if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
         return matchesVacationSearchFilter(property, id);
       });
       return matchesType && matchesGuests && matchesBedrooms && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
@@ -833,7 +831,6 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(propertyAccommodationTypes(property), shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
-      if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
       return matchesVacationSearchFilter(property, id);
     });
     const priceFilterActive = shownFilters.minPrice > VACATION_PRICE_MIN || shownFilters.maxPrice < VACATION_PRICE_MAX;
@@ -847,7 +844,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (!shownFilters.pool || matchesVacationSearchFilter(property, "pool"))
       && (!shownFilters.spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id)))
       && (!shownFilters.whole || (property.capacityScope !== "unit" && property.scenario === "single"))
-      && (!shownFilters.accessibleOnly || hasVerifiedAccessibilityFeature(property.features))
+      && (!shownFilters.accessibleOnly || matchesVacationSearchFilter(property, "accessible"))
       && matchesExtras;
   });
   const draftUsesLandingSet = Boolean(landing?.listingSlugs?.length

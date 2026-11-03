@@ -1,0 +1,86 @@
+{
+  "goal": "The vacation accessibility filter must return catalog places that carry the verified accessibility attribute.",
+  "intent_model": {
+    "literal_request": "Correct the accessibility feature association because the filter shows no results even though the attribute exists.",
+    "implied_outcome": "One canonical accessibility truth must flow from the supplier API through the compact catalog and every vacation search state.",
+    "likely_rejections": [
+      "Only the reported desktop state is repaired",
+      "The filter relies on truncated card copy instead of the source attribute",
+      "The public site is claimed fixed without publication authorization or live evidence"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "again it broke",
+        "operational_meaning": "Treat the correction as a shared-contract regression and lock the causal boundary with tests.",
+        "acceptance_impact": "Applied, draft, compact payload and reload states are all required."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The person selects accessibility and sees actual matching places.",
+    "current_decision": "Accessibility is either verified in the catalog or it is not; shortened card copy cannot override it.",
+    "next_action": "Apply the filter and compare matching places.",
+    "deferred_complexity": ["Detailed accessibility arrangements remain on the place page when supplied."],
+    "preserved_depth": ["Source amenity hierarchy", "Compact search payload", "Feature-specific SEO and analytics state"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-accessibility-filter-mapping-20261103.json",
+    "lesson_bundle_ids": ["ADIR-CONTROL-001", "ADIR-QA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII vacation visitor"],
+  "natural_destination": "Desktop and mobile vacation search with the accessibility filter applied.",
+  "facts": [
+    {
+      "claim": "The compact catalog contains 4 vacation places with searchFilterIds including accessible.",
+      "evidence": "Node diagnostic against app/data/sergey-public-catalog.json and publicVacationSearchProperties on 2026-11-03."
+    },
+    {
+      "claim": "The current UI predicate finds 0 because compact card features contain only the first 3 display labels.",
+      "evidence": "The same diagnostic returned projectedVisibleExact=0 while projectedAccessibleIds=4."
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The current bundled catalog represents the intended local release candidate data.",
+      "validation": "Verify the filter identity through the same public-catalog projection used by the app and inspect the local route."
+    }
+  ],
+  "in_scope": [
+    "Canonical accessibility matching in applied vacation results",
+    "Canonical accessibility matching in draft filter preview",
+    "Regression tests for compacted feature data"
+  ],
+  "out_of_scope": ["Changing supplier data", "Changing accessibility claims", "Public deployment"],
+  "invariants": [
+    "Only supplier-derived verified accessibility attributes qualify",
+    "Other vacation filters keep their current behavior",
+    "No catalog, database or supplier mutation"
+  ],
+  "affected_family": [
+    "app/search/page.tsx applied filtering",
+    "app/search/page.tsx draft filtering",
+    "app/lib/public-vacation-search.ts compact projection",
+    "app/lib/vacation-search-filter-index.ts canonical matcher",
+    "accessible query and features selections"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "A verified accessible catalog property must remain filterable after compact projection.", "source": "User correction"},
+    {"id": "REQ-2", "statement": "Applied and draft filter states must use the same canonical accessibility predicate.", "source": "Affected-family requirement"},
+    {"id": "REQ-3", "statement": "Unverified properties must not be included only because of unrelated display text.", "source": "Project data-integrity invariant"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Compact the bundled vacation catalog", "action": "Match properties by accessible", "observable_result": "All properties carrying the accessible ID match even when their three display features omit accessibility."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Open applied results and the draft filter drawer", "action": "Enable accessibility", "observable_result": "Both paths call the same canonical matcher and produce the same eligible set."},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Use a property without the accessible ID or a verified source label", "action": "Evaluate the accessibility filter", "observable_result": "The property is excluded."},
+    {"id": "AC-4", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "persistence", "setup": "Load a URL with accessible=1", "action": "Reload the search page", "observable_result": "The filter stays selected and the verified result set remains nonzero."},
+    {"id": "AC-5", "requirement_ids": ["REQ-1", "REQ-2", "REQ-3"], "kind": "rollback", "setup": "The repair causes an affected-family regression", "action": "Revert the single causal commit", "observable_result": "No supplier or catalog data rollback is required."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local repair, verification and commit only. Publishing remains a separate explicit action.",
+  "ready_for_implementation": true
+}

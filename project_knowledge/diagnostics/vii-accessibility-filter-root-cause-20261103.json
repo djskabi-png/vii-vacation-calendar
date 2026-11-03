@@ -1,0 +1,99 @@
+{
+  "status": "fixed",
+  "symptom": "Applying the vacation accessibility filter showed 0 places and an empty state even though the supplier-derived catalog contains accessible places.",
+  "expected_behavior": "Every vacation place carrying the verified accessible search identity appears in applied results and the filter-drawer preview, while unverified places remain excluded.",
+  "environment": "Local release worktree fix/home-transient-state-20261103 on 2026-11-03, bundled 573-place vacation catalog, desktop 1440x1000 and mobile 390x844.",
+  "reproduction": {
+    "steps": [
+      "Project the bundled vacation catalog through publicVacationSearchProperties.",
+      "Count properties carrying searchFilterIds=accessible.",
+      "Apply the former UI predicate hasVerifiedAccessibilityFeature to the compact three-feature cards."
+    ],
+    "evidence": "The diagnostic produced projectedAccessibleIds=4 and projectedVisibleExact=0, reproducing the screenshot's false empty result."
+  },
+  "observations": [
+    {
+      "observation": "Four projected vacation entries retain the canonical accessible ID.",
+      "evidence": "vacation-1805, vacation-1977, vacation-1982 and vacation-2500 in the Node catalog diagnostic."
+    },
+    {
+      "observation": "The public search projection intentionally keeps only the first three display features but preserves all search filter IDs.",
+      "evidence": "app/lib/public-vacation-search.ts and tests/vacation-search-payload.test.mjs."
+    },
+    {
+      "observation": "The search page used the truncated display features for accessibility in two applied and two draft paths instead of the canonical matcher.",
+      "evidence": "Pre-fix app/search/page.tsx accessibility predicates."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The UI bypasses canonical searchFilterIds and re-evaluates a truncated display-feature list.",
+      "prediction": "Canonical IDs remain nonzero while the UI feature predicate returns zero.",
+      "discriminating_test": "Compare projected searchFilterIds against hasVerifiedAccessibilityFeature on projected features.",
+      "result": "4 canonical accessible entries versus 0 matches from the former UI predicate.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The supplier catalog contains no accessible vacation places.",
+      "prediction": "No original or projected property carries the accessible identity.",
+      "discriminating_test": "Generate vacationSearchFilterIds for all bundled vacation places.",
+      "result": "Four source and projected properties carry accessible, rejecting an empty supplier inventory.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The URL parameter is not restored into filter state.",
+      "prediction": "accessible=1 would not remain selected after load or reload.",
+      "discriminating_test": "Open and reload the local URL with accessible=1 on desktop and mobile.",
+      "result": "The accessibility control remained pressed and the same four cards persisted on both viewports.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Use matchesVacationSearchFilter for accessibility in both applied and draft filtering, allowing the preserved canonical ID to lead and source text to remain only a fallback.",
+    "evidence": "After the change, the focused suite passed 18 of 18 tests and local desktop, mobile and mobile draft checks all returned four verified places."
+  },
+  "affected_family": [
+    "Top-level accessible query filter",
+    "Additional-feature accessibility selection",
+    "Applied vacation result set",
+    "Mobile filter drawer draft count",
+    "Compact public vacation payload",
+    "Reload persistence"
+  ],
+  "regression_checks": [
+    {
+      "check": "Compact accessibility identity survives display-feature truncation and excludes unverified properties.",
+      "status": "passed",
+      "evidence": "tests/vacation-search-payload.test.mjs"
+    },
+    {
+      "check": "Applied and draft UI paths use the canonical matcher.",
+      "status": "passed",
+      "evidence": "tests/vacation-filter-contract.test.mjs"
+    },
+    {
+      "check": "Desktop and mobile accessible=1 render all four catalog matches and persist after reload.",
+      "status": "passed",
+      "evidence": "project_knowledge/diagnostics/verify-accessibility-filter.mjs output and viewport screenshots."
+    },
+    {
+      "check": "Mobile draft preview displays 4 places and applies to the semantic results route.",
+      "status": "passed",
+      "evidence": "verify-accessibility-filter.mjs output: mobile-draft label 'הצגת 4 מקומות', applied=true."
+    },
+    {
+      "check": "Production build completes.",
+      "status": "passed",
+      "evidence": "pnpm build completed with manifestsAgree=true."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The public environment still contains the old implementation until a separately authorized deployment occurs."
+  ],
+  "authorization_boundary": "Local code repair, tests and commit only. No public deployment or supplier data mutation."
+}

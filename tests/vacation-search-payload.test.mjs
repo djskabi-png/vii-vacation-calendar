@@ -27,3 +27,18 @@ test("vacation search projection preserves filter truth with a bounded payload",
   const compactBytes = Buffer.byteLength(JSON.stringify(projected));
   assert.ok(compactBytes < originalBytes * 0.6, `${compactBytes} should be under 60% of ${originalBytes}`);
 });
+
+test("verified accessibility survives compact display-feature truncation", () => {
+  const projected = publicVacationSearchProperties(vacations);
+  const accessible = projected.filter((property) => property.searchFilterIds?.includes("accessible"));
+
+  assert.ok(accessible.length > 0, "the supplier catalog should expose verified accessible properties");
+  assert.ok(accessible.some((property) => !property.features.some((feature) => feature.includes("נגיש"))),
+    "the regression needs a compact card whose visible features omit accessibility");
+  for (const property of accessible) assert.equal(matchesVacationSearchFilter(property, "accessible"), true);
+
+  const unverified = projected.find((property) => !property.searchFilterIds?.includes("accessible")
+    && !property.features.some((feature) => feature.includes("נגיש")));
+  assert.ok(unverified);
+  assert.equal(matchesVacationSearchFilter(unverified, "accessible"), false);
+});

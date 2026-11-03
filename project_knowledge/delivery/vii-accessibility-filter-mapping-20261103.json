@@ -1,0 +1,12 @@
+{
+  "outcomes": [
+    {
+      "name": "Vacation accessibility filter mapping repair",
+      "status": "completed",
+      "addressable": false,
+      "links": [],
+      "no_link_reason": "The request authorized a local repair and verification but did not authorize public deployment; the temporary local verification server was closed after testing.",
+      "location": "C:/Users/Adir/Documents/vii.co.il/.release-v786-home-state on branch fix/home-transient-state-20261103"
+    }
+  ]
+}

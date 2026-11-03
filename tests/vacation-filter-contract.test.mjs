@@ -36,6 +36,14 @@ test("vacation search includes the complete legacy additional filters", async ()
   assert.match(source, /label: "מבודדת", matches: \["מבודד", "מבודדת"\]/);
 });
 
+test("vacation accessibility uses canonical filter identity in applied and draft states", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  assert.equal((source.match(/matchesVacationSearchFilter\(property, "accessible"\)/g) || []).length, 2);
+  assert.doesNotMatch(source, /hasVerifiedAccessibilityFeature\(property\.features\)/);
+  assert.match(source, /const matchesExtras = selectedExtras\.every\(\(id\) => \{\s*return matchesVacationSearchFilter\(property, id\)/);
+  assert.match(source, /const matchesExtras = shownFilters\.selectedExtras\.every\(\(id\) => \{\s*return matchesVacationSearchFilter\(property, id\)/);
+});
+
 test("mobile vacation filters use a draft and apply contract", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
   assert.match(source, /const \[draftFilters, setDraftFilters\]/);

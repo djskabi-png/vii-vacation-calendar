@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-accessibility-filter-mapping-20261103",
+  "project": "VII",
+  "task_type": "search-filter-root-cause-repair",
+  "requested_outcome": "The vacation accessibility filter returns every catalog place carrying the verified accessibility attribute instead of an incorrect empty result.",
+  "natural_destination": "VII vacation search on desktop and mobile with accessible=1, including the filter drawer preview and applied results.",
+  "authorization_boundary": "Local diagnosis, code repair, tests and commit are authorized. Public deployment is not authorized by this request.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "The visible accessibility filter promises a real action but currently returns a false empty result.",
+      "acceptance_impact": "Apply and preview states must both use the canonical catalog filter identity and return verified matching places."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The defect is in shared filtering logic and cannot be closed from the reported screenshot alone.",
+      "acceptance_impact": "Verify compact payload preservation, applied results, draft preview, reload persistence and adjacent feature filters."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The chip is corrected but the filter drawer preview still reports zero.",
+      "prevention": "Replace every accessibility predicate in both applied and draft filtering paths.",
+      "acceptance_check": "Source assertion and functional test cover all four shared call sites."
+    },
+    {
+      "rejection": "The repair matches free text but ignores the canonical API-derived filter ID after payload compaction.",
+      "prevention": "Use matchesVacationSearchFilter, which prioritizes searchFilterIds and only then falls back to source text.",
+      "acceptance_check": "A compact property whose visible features omit accessibility still matches accessible through searchFilterIds."
+    },
+    {
+      "rejection": "Accessibility starts working but another vacation feature filter regresses.",
+      "prevention": "Run the complete vacation filter and compact-payload regression families plus the production build.",
+      "acceptance_check": "Focused and affected-family test suites pass without modifying unrelated filter identities."
+    }
+  ],
+  "affected_family": [
+    "Vacation search applied accessibility filter",
+    "Vacation filter drawer draft preview",
+    "Top-level accessible query parameter",
+    "Additional-features accessibility selection",
+    "Compact public vacation catalog searchFilterIds",
+    "Desktop and mobile vacation search"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "User screenshot showing the false zero-result state with accessibility selected",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-17c9be39-36ac-45ed-a599-06004840765a.png"
+      },
+      {
+        "label": "Canonical API-derived filter IDs retained in the compact search payload",
+        "source": "app/lib/public-vacation-search.ts"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After reproducing the mismatch between canonical accessible IDs and visible feature labels, before editing the UI filter.",
+    "checks": [
+      "Count source and projected places with the accessible ID",
+      "Count projected places that pass the current visible-feature predicate",
+      "Confirm the mismatch explains the exact empty state"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a compact card with no visible accessibility label still match its verified accessible ID?",
+      "Do both applied and draft-preview paths use the same canonical predicate?",
+      "Do unrelated pool, spa and additional feature filters still pass their contracts?",
+      "Does accessible=1 persist and recover the same result set after reload?"
+    ],
+    "natural_destination_evidence": "Local desktop and mobile search opened with accessible=1 and a nonzero result count matching the catalog identity count.",
+    "affected_family_evidence": "Focused payload, filter contract, URL persistence and production build results."
+  },
+  "effectiveness": {
+    "baseline": "Before repair, 4 of 573 vacation properties carried accessible in searchFilterIds, while the search page returned 0 because it inspected only three display features.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All 4 verified accessible properties survive compact projection and both UI filter paths, with zero regressions in the focused family."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
