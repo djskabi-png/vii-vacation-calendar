@@ -28,6 +28,7 @@ import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
 import { runQualityChecks } from "../app/lib/quality-platform.ts";
 import { deploymentMediaAliases } from "../app/lib/deployment-media-aliases.generated.ts";
+import { optimizedMediaSource } from "./optimized-media-source.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -283,7 +284,8 @@ const worker = {
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
-        fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
+        fetchAsset: async (path) => (await optimizedMediaSource(path, env.UPLOADS))
+          || env.ASSETS.fetch(new Request(new URL(path, request.url))),
         transformImage: async (body, { width, format, quality }) => {
           const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-responsive-media-performance-20261103",
+  "project": "VII",
+  "task_type": "public responsive image delivery and navigation performance",
+  "requested_outcome": "Deliver sharper card photography through responsive Cloudflare image derivatives, preserve verified media identity and fallbacks, and reduce unnecessary image bytes without changing approved VII content or flows.",
+  "natural_destination": "Public VII search and shared card families on desktop and 390-pixel mobile, backed by the existing R2 media store and Cloudflare Images binding.",
+  "authorization_boundary": "Implement, test and publish one verified performance release after v774. Do not change source media, business data, DNS, schemas, secrets, permissions or content identity.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"Performance exists only when the exact public release loads and navigates correctly.","acceptance_impact":"Require exact-version public HTTP, visual and interaction evidence after deployment."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"The change affects public venue photography.","acceptance_impact":"Preserve the approved source image and crop, and never invent or upscale venue content."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Responsive image selection must work at the primary mobile viewport.","acceptance_impact":"Verify chosen derivative, crop, loading and fallback at 390 pixels."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"PreviewCardGallery is shared by several public worlds.","acceptance_impact":"Verify the shared card family across vacation, event, spa, discovery and map selection."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"This is a delivery optimization, not a redesign.","acceptance_impact":"Preserve layout, copy, galleries, booking actions, URLs and source media order."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Images look sharper in one card but fail or change identity elsewhere.","prevention":"Use one allowlisted responsive image component with original-source fallback and apply it only to shared result-card media.","acceptance_check":"Vacation and shared preview cards retain the same original image identity and recover to the original URL when optimization fails."},
+    {"rejection":"The optimizer works for static assets but returns 404 for migrated R2 gallery images.","prevention":"Teach the Worker optimizer to read only validated local gallery filenames directly from the existing R2 binding.","acceptance_check":"A real R2 gallery derivative returns 200 with an image content type and immutable cache headers."},
+    {"rejection":"Quality improves by downloading oversized images and the site becomes slower.","prevention":"Emit bounded 384, 640, 750 and 828 pixel derivatives with sizes metadata and no source upscaling beyond the card need.","acceptance_check":"Browser selects a viewport-appropriate derivative and transferred bytes are lower than the original for representative cards."},
+    {"rejection":"Above-the-fold images remain late while every card is eagerly downloaded.","prevention":"Prioritize only the first three non-map search cards and keep all later and map-card images lazy.","acceptance_check":"First three result images are eager or high priority, later images remain lazy, and no bulk eager load occurs."},
+    {"rejection":"A focused image fix breaks galleries, sliders, booking, navigation or mobile layout.","prevention":"Keep component structure and interactions unchanged and run focused plus affected-family regression and production build.","acceptance_check":"Gallery arrows, swipe, links, booking actions, desktop and mobile layouts continue to work."}
+  ],
+  "affected_family": [
+    "vacation result cards",
+    "event result cards",
+    "spa deal cards",
+    "discovery cards",
+    "managed landing cards",
+    "map selection cards",
+    "R2 gallery media source",
+    "Cloudflare Images optimizer",
+    "desktop and 390-pixel mobile"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Verified best-known release v774","source":"project_knowledge/release_evidence/v774-known-good-release.json"},
+      {"label":"Existing immutable R2 gallery route","source":"app/api/vii/media/[filename]/route.ts"},
+      {"label":"Existing Cloudflare Images optimizer","source":"worker/index.ts"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the secure R2 optimizer source and shared responsive card image component are implemented, before broad replacement or build.",
+    "checks": [
+      "unsafe and unknown media paths are rejected",
+      "a valid R2 object becomes an optimizer source response",
+      "responsive card markup contains bounded srcset and sizes with original fallback",
+      "only above-the-fold search cards receive priority"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can path traversal or a non-image object be fetched through the optimizer?",
+      "Can a derivative failure leave a broken card instead of the original image?",
+      "Can the shared change swap a venue's approved cover or crop mode?",
+      "Can mobile download an 828-pixel derivative when 384 is sufficient?",
+      "Can priority loading trigger for every card or map result?"
+    ],
+    "natural_destination_evidence": "Inspect exact public candidate cards and optimizer responses on desktop and 390-pixel mobile after deployment.",
+    "affected_family_evidence": "Focused security and markup tests, shared-family regression, production build and public sampling across the changed worlds."
+  },
+  "effectiveness": {
+    "baseline": "Public card images use raw R2 files with no srcset, dynamic R2 optimizer requests return 404, and only some shared card families can mark images as priority.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time","representative_original_bytes","representative_derivative_bytes"],
+    "target": "Zero broken or mismatched changed-family images, valid responsive derivatives, and lower representative card-image transfer size than v774."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

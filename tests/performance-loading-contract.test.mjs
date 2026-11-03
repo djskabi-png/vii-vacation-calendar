@@ -76,7 +76,8 @@ test("below-fold media does not compete with the first screen", async () => {
     readFile(new URL("app/components/preview-card-gallery.tsx", root), "utf8"),
   ]);
   assert.match(home, /preload="none"/);
-  for (const source of [home, page, property]) assert.match(source, /loading="lazy"/);
+  for (const source of [home, page]) assert.match(source, /loading="lazy"/);
+  assert.match(property, /loading=\{priority \? "eager" : "lazy"\}/);
   assert.match(discovery, /PreviewCardGallery/);
   assert.match(previewGallery, /loading=\{priority \? "eager" : "lazy"\}/);
 });

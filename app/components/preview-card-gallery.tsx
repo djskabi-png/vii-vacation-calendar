@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
+import { ResponsiveCardImage } from "./responsive-card-image";
 
 const galleryCopy: Record<SiteLanguage, { previous: string; next: string; image: string }> = {
   he: { previous: "התמונה הקודמת", next: "התמונה הבאה", image: "תמונה" },
@@ -107,7 +108,7 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onError={() => {
+      <ResponsiveCardImage src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onOriginalFailure={() => {
         const failed = new Set(brokenImages).add(currentImage);
         setBrokenImages(failed);
         const nextIndex = galleryImages.findIndex((image) => !failed.has(image));

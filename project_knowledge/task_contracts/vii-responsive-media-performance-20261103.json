@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-responsive-media-performance-20261103",
+  "project": "VII",
+  "task_type": "public responsive image delivery and navigation performance",
+  "goal": "Serve verified venue card photography through secure responsive Cloudflare derivatives with original fallback and targeted above-fold priority, without changing business content or approved flows.",
+  "actors": ["A public VII visitor browsing cards on desktop", "A public VII visitor browsing cards on a 390-pixel mobile viewport", "The Cloudflare Worker serving approved VII media"],
+  "natural_destination": "The public VII search, event, spa, discovery, managed-landing and map-selection cards plus the production /_vinext/image endpoint.",
+  "authorization_boundary": "Local implementation, verification and one public release after all gates pass are authorized. Business data, source media, DNS, schemas, secrets, permissions and content identity must not change.",
+  "in_scope": ["Secure R2-backed image optimizer source", "Responsive card srcset and sizes", "Original-image recovery", "First-three search-card priority", "Shared card-family verification", "One gated public deployment"],
+  "out_of_scope": ["AI image upscaling", "Replacing venue photography", "Business data edits", "Detail-page gallery redesign", "DNS changes", "Database or schema changes"],
+  "invariants": ["v774 remains the rollback and best-known baseline until a new candidate is publicly verified", "The approved source image order and identity do not change", "Card layout, copy, booking, galleries, filters and URLs do not change", "Only safe local raster media can reach R2 through the optimizer", "Later and map-card images remain lazy"],
+  "affected_family": ["vacation result cards", "event result cards", "spa deal cards", "discovery cards", "managed landing cards", "map selection cards", "PreviewCardGallery", "PropertyCard", "R2 gallery media", "Cloudflare Images optimizer", "desktop and 390-pixel mobile"],
+  "intent_model": {
+    "literal_request": "Publish the waiting version, save it as the best version so far, then improve image sharpness, CDN delivery and page response speed.",
+    "implied_outcome": "Keep a proven rollback while making the public card experience visibly sharper and lighter without another lost feature or media mismatch.",
+    "likely_rejections": ["Only one card family improves", "The optimizer returns broken images", "Media identity or crop changes", "The site downloads larger files", "A new release regresses v774"],
+    "interpretation_rules": [{"phrase":"אחרי שתעלה גרסה ונשמור בזיכרון","operational_meaning":"Treat v774 as an immutable verified baseline and do not replace its status until a newer exact release passes live verification.","acceptance_impact":"The release record and rollback remain explicit, and a new version is published only after build and family gates pass."}]
+  },
+  "cognitive_flow": {
+    "current_layer": "Visitors see the same approved venue card with a sharper, correctly sized image and immediate above-fold loading.",
+    "current_decision": "No new visitor decision is introduced.",
+    "next_action": "The existing card opens the same place or booking flow.",
+    "deferred_complexity": ["R2 lookup, format negotiation and responsive source selection remain internal"],
+    "preserved_depth": ["Gallery navigation", "Original image fallback", "Booking actions", "Map selection", "All current card worlds"]
+  },
+  "predictive_preflight": {"manifest_path":"project_knowledge/predictive_preflights/vii-responsive-media-performance-20261103.json","lesson_bundle_ids":["ADIR-QA-001","ADIR-MEDIA-001","ADIR-MOBILE-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001"],"no_applicable_lessons_reason":null,"midpoint_requirement":"preflight:midpoint","adversarial_requirement":"preflight:adversarial","effectiveness_requirement":"preflight:effectiveness"},
+  "created_at": "2026-11-03T00:00:00Z",
+  "updated_at": "2026-11-03T00:00:00Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {"path":"C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md","sha256":"a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"},
+    "lesson_register": {"path":"C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json","sha256":"c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"},
+    "cognitive_model": {"path":"C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md","sha256":"708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"},
+    "rulebook": {"path":"C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md","sha256":"1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"}
+  },
+  "applicable_lessons": ["ADIR-QA-001","ADIR-MEDIA-001","ADIR-MOBILE-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001"],
+  "facts": [
+    {"claim":"v774 is the verified current public baseline and has a recorded v773 rollback.","evidence":"project_knowledge/release_evidence/v774-known-good-release.json"},
+    {"claim":"Local R2 gallery media is immutable and stored under legacy-gallery/v1/.","evidence":"app/api/vii/media/[filename]/route.ts and app/data/legacy-gallery-media.json"},
+    {"claim":"The existing Worker image optimizer reads only ASSETS, so local R2 media optimizer requests return 404.","evidence":"worker/index.ts fetchAsset implementation and a public optimizer request for /api/vii/media/..."}
+  ],
+  "assumptions": [{"claim":"The Cloudflare Images binding can transform R2 object streams in the same way it transforms ASSETS streams.","validation":"Run focused fake-R2 tests, a production build and then request a real public derivative before approving the release."}],
+  "requirements": [
+    {"id":"secure-r2-optimizer","source":"user_request","statement":"Serve validated local VII gallery media to the existing Cloudflare image optimizer without exposing arbitrary R2 keys or remote fetches.","acceptance_check":"Valid allowlisted image filenames return a source image, while traversal, nested paths, queries and non-image filenames do not reach R2.","status":"pending","evidence":[],"reason":null},
+    {"id":"responsive-card-images","source":"user_request","statement":"Use responsive, high-quality image derivatives on the shared public card family with the original verified source as fallback.","acceptance_check":"Changed cards emit bounded srcset and sizes, preserve alt, title, fit and source order, and restore the original source after optimizer failure.","status":"pending","evidence":[],"reason":null},
+    {"id":"above-fold-priority","source":"user_request","statement":"Prioritize only the first visible non-map vacation results and keep the remainder lazy.","acceptance_check":"First three non-map results use eager high priority; later and map results remain lazy or auto priority.","status":"pending","evidence":[],"reason":null},
+    {"id":"preserve-v774","source":"ADIR-SCOPE-001","statement":"Preserve v774 content, business logic, card design, booking behavior, URLs, data and rollback evidence.","acceptance_check":"Focused and affected-family tests, build, source diff and live candidate inspection show no unrelated regression.","status":"pending","evidence":[],"reason":null},
+    {"id":"preflight:midpoint","source":"predictive_preflight.midpoint_gate","statement":"Pass secure source and responsive markup checks before broad verification.","acceptance_check":"All midpoint checks in the linked predictive preflight pass.","status":"pending","evidence":[],"reason":null},
+    {"id":"preflight:adversarial","source":"predictive_preflight.adversarial_close","statement":"Try to disprove media security, fallback, identity, responsive selection and bounded priority.","acceptance_check":"All adversarial questions have exact evidence or a precise blocker.","status":"pending","evidence":[],"reason":null},
+    {"id":"preflight:effectiveness","source":"predictive_preflight.effectiveness","statement":"Compare a representative original image with its derivative and record task effectiveness.","acceptance_check":"Record original and derivative byte sizes plus first-pass, repeated correction, prevented failure and elapsed-time outcomes.","status":"pending","evidence":[],"reason":null}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","kind":"success","requirement_ids":["secure-r2-optimizer","preflight:midpoint"],"setup":"A valid local gallery filename exists in R2.","action":"Request its /_vinext/image derivative at an allowed width and quality.","observable_result":"The response is 200, a safe image type, immutable and transformed through the existing Images binding."},
+    {"id":"AC-2","kind":"failure","requirement_ids":["secure-r2-optimizer","preflight:adversarial"],"setup":"Use traversal, a nested path, query manipulation, an unsupported extension or a missing object.","action":"Request an optimized source.","observable_result":"The unsafe or missing path does not expose an R2 object and returns a bounded failure."},
+    {"id":"AC-3","kind":"success","requirement_ids":["responsive-card-images","preflight:midpoint"],"setup":"Render a card with an approved /api/vii/media image.","action":"Inspect its image attributes on desktop and mobile.","observable_result":"The card emits bounded responsive sources and sizes while preserving alt, title, fit and original source identity."},
+    {"id":"AC-4","kind":"recovery","requirement_ids":["responsive-card-images","preflight:adversarial"],"setup":"Make the optimized derivative fail while the original source remains valid.","action":"Allow the image error handler to run.","observable_result":"The same card retries the original approved source without marking the gallery media unavailable."},
+    {"id":"AC-5","kind":"success","requirement_ids":["above-fold-priority"],"setup":"Open non-map vacation results with more than three cards.","action":"Inspect first and later image loading attributes.","observable_result":"Only the first three result cards are eager and high priority; later cards remain lazy and map results are not bulk-prioritized."},
+    {"id":"AC-6","kind":"persistence","requirement_ids":["preserve-v774","preflight:effectiveness"],"setup":"Build and publish the exact candidate after all local checks pass.","action":"Reload representative vacation, event, spa, discovery and map-selection routes on desktop and mobile.","observable_result":"The same approved media, cards, links, gallery controls and booking behavior remain usable, and the release identity plus byte comparison are recorded."},
+    {"id":"AC-7","kind":"rollback","requirement_ids":["preserve-v774"],"setup":"The new candidate has a high or critical public regression.","action":"Apply the release decision.","observable_result":"Do not mark the candidate best-known and retain v774 as the explicit rollback target."}
+  ],
+  "characteristics": {"stateful": true},
+  "open_questions": [],
+  "ready_for_implementation": true,
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

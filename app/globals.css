@@ -7549,6 +7549,26 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .vacation-route-loading p { margin: 8px 0 24px; color: var(--ink-soft); }
 .vacation-route-loading__cards { display: grid; width: min(680px,84vw); grid-template-columns: repeat(3,1fr); gap: 12px; }
 .vacation-route-loading__cards span { height: 92px; border: 1px solid rgba(6,105,119,.1); border-radius: 18px; background: linear-gradient(105deg,#e9f1f1 20%,#f8fbfb 38%,#e9f1f1 56%); background-size: 220% 100%; animation: vacation-route-shimmer 1.2s ease-in-out infinite; }
+.global-route-loading { min-height: 72vh; width: min(1180px,calc(100% - 32px)); margin: 0 auto; padding: 104px 0 64px; }
+.global-route-loading__mark { display: flex; justify-content: center; gap: 12px; height: 32px; margin-bottom: 24px; }
+.global-route-loading__mark span { width: 10px; height: 10px; border-radius: 50%; background: var(--teal); animation: vacation-route-pulse 1s ease-in-out infinite; }
+.global-route-loading__mark span:nth-child(1) { animation-delay: -.2s; }
+.global-route-loading__mark span:nth-child(3) { animation-delay: .2s; }
+.global-route-loading__hero,.global-route-loading__cards { display: grid; gap: 16px; }
+.global-route-loading__hero { grid-template-columns: 1.2fr .8fr; margin-bottom: 22px; }
+.global-route-loading__cards { grid-template-columns: repeat(3,1fr); }
+.global-route-loading__hero i,.global-route-loading__cards i { display: block; border: 1px solid rgba(6,105,119,.08); background: linear-gradient(105deg,#e9f1f1 20%,#f8fbfb 38%,#e9f1f1 56%); background-size: 220% 100%; animation: vacation-route-shimmer 1.2s ease-in-out infinite; }
+.global-route-loading__hero i { min-height: 180px; border-radius: 28px; }
+.global-route-loading__cards i { min-height: 270px; border-radius: 24px; }
+@media (max-width:760px) {
+  .global-route-loading { width: calc(100% - 24px); padding-top: 86px; }
+  .global-route-loading__hero { grid-template-columns: 1fr; }
+  .global-route-loading__hero i:last-child { display: none; }
+  .global-route-loading__hero i { min-height: 150px; }
+  .global-route-loading__cards { grid-template-columns: 1fr; }
+  .global-route-loading__cards i { min-height: 220px; }
+  .global-route-loading__cards i:not(:first-child) { display: none; }
+}
 @keyframes vacation-route-pulse { 0%,100% { transform: translateY(0) scale(.8); opacity: .45; } 50% { transform: translateY(-7px) scale(1); opacity: 1; } }
 @keyframes vacation-route-shimmer { to { background-position-x: -220%; } }
 
@@ -7585,7 +7605,7 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 @keyframes search-submit-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .global-action-feedback.is-visible > span,.search-submit__icon > i,.home-vacation-card__pending i { animation-duration: 1.8s; }
-  .vacation-route-loading__mark span,.vacation-route-loading__cards span { animation: none; }
+  .vacation-route-loading__mark span,.vacation-route-loading__cards span,.global-route-loading__mark span,.global-route-loading__hero i,.global-route-loading__cards i { animation: none; }
   button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pressed { transform: none; }
 }
 
