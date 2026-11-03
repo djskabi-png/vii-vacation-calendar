@@ -5,7 +5,7 @@
   "task_type": "corrective feedback, implementation and release-integrity audit",
   "goal": "Reconstruct every VII request, correction and recommendation from the exact last 72 hours, distinguish requested, implemented, tested and publicly deployed states, repair the proven systemic causes of recurring regressions, and install release gates that prevent stale or partial sources from erasing accepted behavior.",
   "created_at": "2026-11-03T19:18:04.832066Z",
-  "updated_at": "2026-11-03T19:28:17.838578Z",
+  "updated_at": "2026-11-03T19:49:19.441514Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -128,18 +128,26 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Clean candidate 0181a25c93dc04c781a7d03643000811f48e7329, tree fe32107dd1e41080d34646c0103ad4de2ad0e725, passed production build and clean release-source gate. It is intentionally not claimed as public because no publication was authorized.",
+        "Clean candidate passed 19 release-baseline tests, 18 language and typography tests, 62 critical public-family tests and 20 accessibility tests.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T19:49:19.008858Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=2, prevented_failures=3, elapsed_minutes=90.0; The prior process had no cumulative-source failure metric. This audit demonstrably blocked one stale public source and caught two additional family defects before publication."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T19:49:19.441507Z"
     },
     {
       "id": "lesson:ADIR-LEARN-001",
@@ -234,6 +242,24 @@
       "findings": [
         "Three verified fixes are local only; four weekend pages and cumulative release-source enforcement were missing; supplier video mapping, 10+10 live parity evidence and complete admin click-through remain open."
       ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-03T19:49:19.008827Z",
+      "attacks": [
+        "Tested public v788 as a deliberately stale candidate; it was rejected for missing protected ancestors and required capability files.",
+        "Ran localization completeness and found 58 missing phrases per public language before the candidate could pass.",
+        "Ran the contact-only family and found positive availability copy could precede inquiry truth; corrected the shared ordering and reran the family."
+      ],
+      "natural_destination_evidence": "Clean candidate 0181a25c93dc04c781a7d03643000811f48e7329, tree fe32107dd1e41080d34646c0103ad4de2ad0e725, passed production build and clean release-source gate. It is intentionally not claimed as public because no publication was authorized.",
+      "affected_family_evidence": "Clean candidate passed 19 release-baseline tests, 18 language and typography tests, 62 critical public-family tests and 20 accessibility tests."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-03T19:49:19.441447Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 2,
+      "prevented_failures": 3,
+      "elapsed_minutes": 90.0,
+      "baseline_note": "The prior process had no cumulative-source failure metric. This audit demonstrably blocked one stale public source and caught two additional family defects before publication."
     }
   }
 }
