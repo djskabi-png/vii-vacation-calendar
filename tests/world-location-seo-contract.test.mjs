@@ -11,6 +11,8 @@ test("the approved location registry covers every world and keeps labels unique"
     assert.ok(registry[world].includes("ראשון לציון"));
     assert.equal(new Set(registry[world]).size, registry[world].length);
   }
+  assert.ok(registry.hourly.includes("צפון"));
+  assert.match(read("app/data/search-taxonomy.ts"), /hourly:\s*\["כל הארץ", "צפון"/);
 });
 
 test("all four worlds expose clean semantic location routes", () => {
