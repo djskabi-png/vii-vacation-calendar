@@ -47,11 +47,11 @@ test('vacation route performs one bounded live recovery when a configured snapsh
  assert.deepEqual(payload.deals.map(deal=>deal.siteID),[11]);
  assert.equal(recoveries,1,'snapshot failure may trigger only one bounded provider recovery');
 });
-test('detail and booking adapters never import discovery cache; event discovery is read-only and explicit',()=>{
+test('detail and booking adapters never import discovery cache; event discovery is explicit with one lease-protected cold recovery',()=>{
  for(const path of ['app/lib/vii-confirm-home-deal.ts','app/api/vii/confirm-home-deal/route.ts','app/api/spa/availability/route.ts','app/lib/vii-live-search.ts']){
   const text=readFileSync(new URL(`../${path}`,import.meta.url),'utf8');assert.doesNotMatch(text,/cachedDiscovery|discoveryJson|discovery-offer-cache/);
  }
- const text=readFileSync(new URL('../app/api/vii/live-search/route.ts',import.meta.url),'utf8');assert.match(text,/world === "events" && body.includePlaces === true/);assert.match(text,/readCachedDiscovery/);assert.match(text,/policy: EVENT_DISCOVERY_POLICY/);assert.doesNotMatch(text,/cachedDiscovery\(/);
+ const text=readFileSync(new URL('../app/api/vii/live-search/route.ts',import.meta.url),'utf8');assert.match(text,/world === "events" && body.includePlaces === true/);assert.match(text,/readCachedDiscovery/);assert.match(text,/policy: EVENT_DISCOVERY_POLICY/);assert.match(text,/readCachedDiscovery<LiveSearchPayload>\(discoveryOptions\)\.catch\(\(\) => cachedDiscovery<LiveSearchPayload>/);assert.match(text,/load,/);
 });
 test('browser navigation cache does not cross URL/body/clock selections or store failures',async()=>{
  const original=globalThis.fetch;let calls=0;

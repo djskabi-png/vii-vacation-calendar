@@ -30,6 +30,10 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ world, from, till, guests, ...(datedDiscovery ? { discoverySearch: true } : {}), ...(world === "events" && slot ? { slot } : {}), ...(world === "events" && includePlaces ? { includePlaces: true, ...(region ? { region } : {}) } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
       cache: "no-store" as const,
+      // A cold event-discovery snapshot may perform one server-side,
+      // lease-protected recovery. Give that bounded recovery enough time while
+      // keeping transactional detail and booking checks on the shorter default.
+      ...(world === "events" && includePlaces ? { timeoutMs: 12_000 } : {}),
       signal: controller.signal,
     };
     const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}`, init);

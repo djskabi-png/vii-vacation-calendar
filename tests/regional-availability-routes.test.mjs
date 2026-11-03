@@ -11,10 +11,12 @@ import { dealRailDays, eligibleDealDate, firstDealDate } from '../app/lib/deal-c
 import { homeDealDates } from '../app/lib/vii-home-deals.ts';
 import { prioritizeOnlineFirst,isHomeDealOnlineEligible } from '../app/lib/vacation-online-first.ts';
 import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
+import { validEventDiscoveryResult } from '../app/lib/warm-event-discovery-cache.ts';
 
 function handler(path, method, dependencies) {
   dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
     VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
+    validEventDiscoveryResult,
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
@@ -96,6 +98,29 @@ test('actual event handler selects regional public IDs before national top12 and
   assert.deepEqual(body.places.find(place=>place.slug==='event-22').contact,{phone:'050-333-3333'});
   assert.equal(body.places.find(place=>place.slug==='event-23').contact,undefined);
   assert.doesNotMatch(JSON.stringify(body.places),/privateNote|must-not-be-projected/);
+});
+
+test('actual event handler performs one coordinated cold recovery and returns a valid empty result as 200',async()=>{
+  let providerCalls=0, cacheRecoveries=0;
+  const post=handler('vii/live-search','POST',{
+    Date:class extends Date {constructor(...args){super(...(args.length?args:['2026-10-17T12:00:00Z']));}},
+    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,validDate:value=>/^\d{4}-\d{2}-\d{2}$/.test(value),
+    supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set([1]),
+    publicCatalogSummaries:async()=>[],publicCatalogSelectedSummaries:async()=>[],
+    readCachedDiscovery:async()=>{throw new Error('missing_snapshot');},
+    cachedDiscovery:async({load,validate})=>{cacheRecoveries++;const value=await load();assert.equal(validate(value),true);return{cache:{status:'refreshed',checkedAt:'2026-10-17T12:00:00Z'},value};},
+    validEventDiscoveryResult,
+    EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
+    liveSupplierSearch:async()=>{providerCalls++;return{checkedAt:'2026-10-17T12:00:00Z',results:[]};},
+  });
+  const response=await post(request('/',{world:'events',from:'2026-10-18',till:'2026-10-18',guests:30,includePlaces:true}));
+  const body=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get('x-vii-discovery-cache'),'refreshed');
+  assert.deepEqual(body.results,[]);
+  assert.deepEqual(body.places,[]);
+  assert.equal(providerCalls,1);
+  assert.equal(cacheRecoveries,1);
 });
 
 test('actual spa handler filters source sites before cap and returns honest empty/error states',async()=>{
