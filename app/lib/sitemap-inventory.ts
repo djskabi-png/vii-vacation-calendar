@@ -63,7 +63,8 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts"), import("./world-location-pages.ts")]);
     const properties = await publicCatalogSummaries<Property>("vacations");
     return unique(expand([
-      { path: "/search" }, ...indexableAccommodationLandings(properties).map(({ path }) => ({ path })), ...indexableVacationLandings(properties).map(({ path }) => ({ path })),
+      { path: "/search" }, { path: "/last-minute" }, { path: "/weekend/thursday-to-saturday" }, { path: "/weekend/friday-to-sunday" }, { path: "/weekend/thursday-night" }, { path: "/weekend/friday-night" },
+      ...indexableAccommodationLandings(properties).map(({ path }) => ({ path })), ...indexableVacationLandings(properties).map(({ path }) => ({ path })),
       ...(await worldLocationInventory("vacation")).map(({ path }) => ({ path })),
       ...properties.filter((place) => place.indexable !== false).map((place) => ({ path: `/business?id=${place.slug}`, images: [place.image, ...place.images] })),
     ]));

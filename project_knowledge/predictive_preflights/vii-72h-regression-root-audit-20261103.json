@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-72h-regression-root-audit-20261103",
+  "project": "VII",
+  "task_type": "corrective feedback, implementation and release-integrity audit",
+  "requested_outcome": "Reconstruct every VII request, correction and recommendation from the exact last 72 hours, distinguish requested, implemented, tested and publicly deployed states, repair the proven systemic causes of recurring regressions, and install release gates that prevent a stale or partial source from erasing accepted behavior.",
+  "natural_destination": "The canonical VII source branch and the exact public product at https://vii.spaplus.co, with a machine-readable closure ledger and release gate in the repository.",
+  "authorization_boundary": "Read active and archived conversations, QERA state, Git history, local worktrees, release evidence and the public site; make safe reversible local code and test changes. Do not publish, deploy, alter production data, DNS, domains, secrets, schedules, permissions, supplier data or external systems without current explicit authorization.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-LEARN-001",
+      "reason": "The explicitly named 72-hour conversation is unusually large and was omitted by the first bounded analyzer pass.",
+      "acceptance_impact": "Run a targeted full-size scan for the exact thread and require zero missing explicit threads and zero parse errors."
+    },
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "reason": "Many reported failures are lost parity between the old VII product, accepted new behavior and later releases.",
+      "acceptance_impact": "Every requested capability and legacy behavior receives an explicit preserved, intentionally replaced, blocked or missing classification."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Local fixes and passing builds have repeatedly been confused with a complete public outcome.",
+      "acceptance_impact": "Separate source, test, release and public evidence for every outcome and block any readiness claim with an unverified family item."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "Multiple worktrees and release sources can deploy to the same production project and can overwrite newer accepted capabilities.",
+      "acceptance_impact": "Inventory every deploy-capable source, identify the exact public baseline and add a stale-source overwrite guard."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "The reported regressions include dead controls, misleading availability controls and inconsistent shared components.",
+      "acceptance_impact": "Expand each observed control defect to the whole shared family and require executable control-family evidence."
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "Search, filters, canonical routes, sorting, sliders and maps are the largest repeated failure family.",
+      "acceptance_impact": "Require one state contract across URL, filters, counts, ordering, cards, sliders and map results for dated and undated cases."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "The required booking, world, last-minute and place-data semantics are specific to VII.",
+      "acceptance_impact": "Keep the repaired rules in VII project guidance and executable VII tests instead of promoting business facts to account rules."
+    },
+    {
+      "lesson_id": "ADIR-LEARN-004",
+      "reason": "Many corrections arrived in the same long-running task and were not durably reconciled before later releases.",
+      "acceptance_impact": "Route every unique 72-hour theme to an existing lesson, VII project requirement or justified deferral, with no silent omissions."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The report summarizes visible messages but misses the oversized active thread, Liran evidence, archived tasks or QERA recommendations.",
+      "prevention": "Use the explicit thread ID with no file-size cap, search archives for Liran and QERA, and reconcile all sources into one deduplicated ledger.",
+      "acceptance_check": "The targeted analyzer reports the exact thread, zero parse errors and all unique themes have a source and destination."
+    },
+    {
+      "rejection": "A request is marked done because code or tests exist even though the change was never deployed or disappeared in a later release.",
+      "prevention": "Track requested, committed, merged into release baseline, deployed and live-observed as separate fields.",
+      "acceptance_check": "No item is called public without exact version or source evidence and a live destination observation."
+    },
+    {
+      "rejection": "Only the newest screenshots are fixed while the same data-mapping or component bug remains elsewhere.",
+      "prevention": "Cluster symptoms by causal boundary and add family-level fixtures and release gates, not page-specific patches.",
+      "acceptance_check": "Each root fix names its affected family and an adversarial test fails on the old mechanism and passes on the repaired mechanism."
+    },
+    {
+      "rejection": "A later publication from another worktree silently removes accepted fixes again.",
+      "prevention": "Create a canonical cumulative baseline and a deterministic stale-source guard bound to accepted commits and release evidence.",
+      "acceptance_check": "A deliberately incomplete candidate is rejected and the complete candidate passes."
+    },
+    {
+      "rejection": "The audit becomes a long plan while known safe local fixes and missing release controls remain unimplemented.",
+      "prevention": "After the midpoint inventory, implement the highest-evidence systemic repairs and tests within the current authorization.",
+      "acceptance_check": "The repository contains the verified ledger, root-cause evidence and executable prevention gates, with remaining external actions explicitly separated."
+    }
+  ],
+  "affected_family": [
+    "active and archived user messages in the exact 72-hour window",
+    "messages and screenshots attributed to Liran",
+    "QERA recommendations and project audit state",
+    "all Git worktrees, branches and commits that can feed production",
+    "production versions, deployments and rollback identities",
+    "search, filters, canonical URLs, redirects, sorting and maps",
+    "dated and undated availability, price and booking truth",
+    "home and world sliders including weekend and last-minute pages",
+    "business pages, rooms, galleries, media and cancellation policy",
+    "WhatsApp, phone, spa booking and gift-card conversion flows",
+    "mobile, desktop, loading, retry, back and responsive transitions",
+    "Professor AI and administration surfaces",
+    "SEO, sitemap, canonical route and legacy 301 coverage",
+    "release evidence, regression tests and cumulative acceptance gates"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "accepted VII behavior and repeated corrections",
+        "source": "explicit user messages, screenshots and videos in thread 01a155bb-4d49-7062-9983-04e73a490a20 during the audited window"
+      },
+      {
+        "label": "existing project release and task evidence",
+        "source": "project_knowledge task contracts, release evidence and Git history in the VII worktrees"
+      },
+      {
+        "label": "legacy parity reference",
+        "source": "the old VII public routes explicitly cited by Adir during the audited window"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the full conversation, QERA, Git and production inventory is reconciled but before broad code changes.",
+    "checks": [
+      "Every unique request has a source, expected outcome and separate local, release and public status.",
+      "The public deployment source is identified and compared to every local commit made in the window.",
+      "Recurring symptoms are grouped under tested causal boundaries rather than treated as isolated screenshots."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a request still be absent from the ledger because it appeared only in the oversized thread, a screenshot, Liran attribution or a QERA recommendation?",
+      "Can a stale worktree still pass the release gate and overwrite an accepted behavior?",
+      "Can a local passing test be mistaken for public delivery?",
+      "Can a shared search, media, availability or conversion defect still pass because only one example route was tested?",
+      "Can the same public route show a different result after reload, mobile transition or a later deployment?"
+    ],
+    "natural_destination_evidence": "Exact public version and live route observations are required for any public claim; otherwise the item is explicitly local, unmerged, undeployed or unverified.",
+    "affected_family_evidence": "A machine-readable ledger, causal family matrix, deliberately incomplete gate failure and complete-candidate pass are required before any readiness verdict."
+  },
+  "effectiveness": {
+    "baseline": "At least 128 unique messages in the exact active thread over 72 hours, repeated recurrence across search, media, availability, conversion and release families, and at least two tested local commits not yet proven public.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "unique_requirements_routed",
+      "missing_public_evidence_count",
+      "stale_source_candidates_blocked",
+      "elapsed_time"
+    ],
+    "target": "Zero unrouted unique themes, zero false public-completion claims, and an executable release gate that rejects every known stale or partial source candidate."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -24,7 +24,10 @@ test("QQQAAA retains every broad VII suite and the approved exclusions", () => {
   for (const suite of ["qa:auth-boundaries", "test", "qa:regression-guards", "audit:search", "audit:availability", "qa:icon-geometry", "qa:overlay-geometry", "qa:map", "qa:locales", "qa:responsive-transitions", "qa:site", "qa:production"]) {
     assert.match(runner, new RegExp(suite.replaceAll(":", "\\:")));
   }
-  assert.match(runner, /exclusions: \["accessibility", "typography"\]/);
+  assert.match(runner, /exclusions: \[\]/);
+  assert.match(runner, /release-source-integrity/);
+  assert.match(runner, /accessibility-contract/);
+  assert.match(runner, /hebrew-and-directionality-contract/);
 });
 
 test("QQQAAA permanently guards flexible online-booking searches", () => {

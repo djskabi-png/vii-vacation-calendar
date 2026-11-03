@@ -1,0 +1,67 @@
+{
+  "diagnosis_id": "vii-72h-recurring-regression-root-cause-20261103",
+  "observed_window": {
+    "from": "2026-10-31T21:12:07.6673488+02:00",
+    "to": "2026-11-03T21:12:07.6673488+02:00",
+    "thread_messages": 129,
+    "unique_messages": 128
+  },
+  "symptom": "Accepted VII behavior repeatedly disappeared or returned in a different broken form after later releases.",
+  "hypotheses": [
+    {
+      "id": "parallel-partial-release-sources",
+      "status": "confirmed_primary",
+      "evidence": [
+        "Public v788 source 9e324b6636f31a87475f7057d513f743c09c7332 does not contain the three later verified commits 58ce9ed8, 66f15f52 and 8a05b581.",
+        "The adversarial release-source check rejects public v788 because it lacks protected ancestors and required weekend and release-gate files.",
+        "The cumulative local branch passes the same ancestry and file checks."
+      ],
+      "root_fix": "A protected-capability manifest plus qa:release-source now blocks any candidate that is not descended from every accepted repair or omits a required file."
+    },
+    {
+      "id": "component-state-and-api-truth-diverged",
+      "status": "confirmed_contributor",
+      "evidence": [
+        "Accepted corrections repeatedly concerned availability, online-booking labels, galleries, accessibility and canonical filters where presentation state was inferred independently from supplier or normalized state.",
+        "The current branch contains separate repairs for supplier gallery identity, approved filter canonicalization and supplier accessibility identity."
+      ],
+      "root_fix": "Each repaired family is now represented by a protected ancestor and a family regression contract. Remaining families must be migrated to the same normalized source-of-truth pattern before release approval."
+    },
+    {
+      "id": "static-presence-tests-were-treated-as-release-proof",
+      "status": "confirmed_contributor",
+      "evidence": [
+        "Several suites verify source contracts while the audit still lacks complete natural-destination evidence for 10 dated and 10 undated searches, every administration action and public WhatsApp handoff.",
+        "QQQAAA previously excluded accessibility and typography despite visible failures in those families."
+      ],
+      "root_fix": "Accessibility, typography, localization and release-source integrity are now mandatory QQQAAA suites. Public release approval remains blocked until exact-version natural-destination scenarios pass."
+    },
+    {
+      "id": "accepted-requirements-had-no-single-durable-ledger",
+      "status": "confirmed_contributor",
+      "evidence": [
+        "The 72-hour reconstruction produced 30 normalized requirement families with separate implementation, test, release and public status.",
+        "Required project master-plan and feedback-standard files were absent at the beginning of the audit."
+      ],
+      "root_fix": "The project now has evidence-limited master-plan and feedback-standard sources plus a machine-readable requirement ledger. Future accepted corrections must update both the ledger and protected capability manifest."
+    },
+    {
+      "id": "supplier-instability-alone-caused-regressions",
+      "status": "not_sufficient",
+      "evidence": [
+        "Supplier 503 responses explain some intermittent loading states but cannot explain why later source commits omitted already verified code changes.",
+        "The stale-source gate fails without making any supplier request."
+      ],
+      "root_fix": "Supplier fallback and performance work remain necessary, but they do not replace cumulative source control."
+    }
+  ],
+  "release_invariant": "A VII candidate is not releasable unless it is a clean descendant of every protected accepted repair, contains every required capability file, passes family contracts including localization, and survives exact-version public journey checks.",
+  "remaining_unverified": [
+    "Supplier video field and media contract",
+    "Ten dated and ten undated legacy-to-new searches including 301 destinations",
+    "Every administration control at its live natural destination",
+    "Public WhatsApp handoff on the exact candidate",
+    "Real-device P75 cold, warm and navigation performance",
+    "Full QERA release seal including mobile landscape map behavior"
+  ]
+}

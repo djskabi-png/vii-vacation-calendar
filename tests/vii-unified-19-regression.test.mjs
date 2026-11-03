@@ -238,6 +238,7 @@ test("QQQAAA explains findings and exposes honest persisted progress", async () 
   assert.match(platform, /updateQualitySchedule/);
   assert.match(page, /changeCadence/);
   assert.match(runner, /vii-unified-19/);
-  assert.match(runner, /exclusions: \["accessibility", "typography"\]/);
+  assert.match(runner, /exclusions: \[\]/);
+  assert.match(runner, /release-source-integrity/);
 });
 

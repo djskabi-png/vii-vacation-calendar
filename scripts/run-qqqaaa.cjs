@@ -9,12 +9,15 @@ const startedAt = new Date().toISOString();
 const outputDir = process.env.QA_OUTPUT_DIR || join(process.cwd(), "qa-reports", "qqqaaa");
 mkdirSync(outputDir, { recursive: true });
 const suites = [
+  ["release-source-integrity", ["qa:release-source"]],
   ["vii-unified-19", ["qa:vii-unified-19"]],
   ["vii-unified-19-public", ["qa:vii-unified-19-public"]],
   ["navigation-and-unit-results", ["qa:navigation-unit-results"]],
   ["flexible-online-search", ["qa:flexible-online-search"]],
   ["admin-customer-auth-boundaries", ["qa:auth-boundaries"]],
   ["administration-control-inventory", ["qa:admin-controls"]],
+  ["accessibility-contract", ["qa:accessibility-contract"]],
+  ["hebrew-and-directionality-contract", ["qa:typography-contract"]],
   ["protected-release-baseline", ["qa:release-baseline"]],
   ["critical-public-families", ["qa:critical-public-families"]],
   ["pre-professor-production-repairs", ["qa:pre-professor-repairs"]],
@@ -32,7 +35,7 @@ const suites = [
   ["sitewide-release", ["qa:site"]],
   ["public-production-matrix", ["qa:production"]],
 ];
-const report = { schemaVersion: 1, trigger: "QQQAAA", startedAt, baseUrl: process.env.BASE_URL || "https://vii.spaplus.co", exclusions: ["accessibility", "typography"], suites: [] };
+const report = { schemaVersion: 2, trigger: "QQQAAA", startedAt, baseUrl: process.env.BASE_URL || "https://vii.spaplus.co", exclusions: [], suites: [] };
 async function runSuite(id, args) {
   const started = Date.now();
   const command = process.platform === "win32" ? "cmd.exe" : "pnpm";

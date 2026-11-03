@@ -541,10 +541,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     ? `נדרשים לפחות ${roomAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
                     : "";
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
-                  const roomStatus = overallStayUnavailable
-                    ? unitCopy.unavailable
-                    : vacationAvailabilityMode === "inquiry"
+                  const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
+                    : overallStayUnavailable
+                    ? unitCopy.unavailable
                     : availableIdenticalUnits !== undefined && availableIdenticalUnits > 0
                     ? "יש זמינות בתאריכים שבחרתם"
                     : supplierSiteID && supplierUnitQuotes.status === "loading" && roomFitsParty

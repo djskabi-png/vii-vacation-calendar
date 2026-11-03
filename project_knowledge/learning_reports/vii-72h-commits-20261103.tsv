@@ -1,0 +1,71 @@
+8a05b5817da79ca07d8ad9c531d8fb0610052532	2026-11-03T21:10:59+02:00	fix vacation accessibility filter mapping
+66f15f522a42fc46fdb534cb6a41ccba93de45f7	2026-11-03T20:52:09+02:00	fix approved vacation filter canonical pages
+58ce9ed8f060762467df836e4565bc1889cf192e	2026-11-03T20:30:52+02:00	fix gallery and unit media parity
+9e324b6636f31a87475f7057d513f743c09c7332	2026-11-03T19:52:25+02:00	fix: stabilize supplier availability transitions
+3d575d78c3d3a0138b23693166c01bae145029a0	2026-11-03T19:37:23+02:00	fix: align unit availability with stay quote
+1457aa31c2403ff2a50f080f44e25256ffe283b9	2026-11-03T19:12:17+02:00	fix: stabilize vacation detail state transitions
+37d91c9b3970047d9386c598d63153a095713441	2026-11-03T18:20:14+02:00	fix: keep WhatsApp handoff independent from lead storage
+d9123c4b6c8e938e7505386cb5d47dcfe6e761b8	2026-11-03T16:52:33+02:00	fix: lock verified availability slider parity
+f38de9ca5de08a0d0311964bc972ad5cb7c5c412	2026-11-03T16:29:59+02:00	Prioritize visible event deal images
+7d04ad3591a98888be416a4a6c490f395af1c6bf	2026-11-03T16:18:00+02:00	Degrade optional starting prices safely
+60ae44b4e5a447d318c6f1647a178b45c453cf8d	2026-11-03T16:09:38+02:00	Accept empty accepted event price catalog
+d092c8bde259af2294c4ff1b9b4ded218026d27b	2026-11-03T15:58:24+02:00	Treat empty event starting prices as valid
+fd4d9e266405ad868f49fa72a3f6c0849efcfc45	2026-11-03T15:46:23+02:00	Repair last-minute event discovery recovery
+fcd3c68d9ea2e74508f7d2788bdcca90ec7002e4	2026-11-03T14:07:07+02:00	Repair public map and slider stability
+d1467fda5bf42683ec21611a2d15cd220fcd9cbd	2026-11-03T12:59:11+02:00	Reduce responsive image release footprint
+0ff037fa9d6034ac7d0bd6470f65437988430273	2026-11-03T12:48:53+02:00	Add verified responsive image fallback
+ee7a5719d76e04729a74e07bc65a9c13e2261b2a	2026-11-03T12:25:56+02:00	Fix event fallback and responsive gallery delivery
+b46db39908ef5f1f925655095ee021cae39308a3	2026-11-03T05:07:31+02:00	Improve responsive card media delivery
+42558222a7cfaac0139c5796fbc4fa4adf332b7f	2026-11-03T04:39:59+02:00	fix: align vacation price sorting with displayed prices
+5bd4c4e6c5c97ff9fd840db6e0122bfce4fdc6fe	2026-11-03T03:58:34+02:00	fix(search): refresh price order and restore hourly north
+adb951508edfe02f873f8f496b6b68e96c89fc5e	2026-11-03T03:12:16+02:00	fix(search): stabilize discovery maps and mobile flows
+d1e6f053327e012c211200bc247d3e07bc206573	2026-11-03T00:42:35+02:00	fix(release): deduplicate deployment media safely
+83638d2c128e097e08f83db0b52efde6b357e107	2026-11-03T00:18:54+02:00	fix require intentional image alt text
+dc48698ba7492db7dee171b6a4134bb9cdc3b94f	2026-11-02T23:45:53+02:00	fix canonical migrated search intents
+5e08c8dc4feb0a3575f28c84a75d841339e49c22	2026-11-02T23:34:32+02:00	fix critical booking and event discovery families
+8ad23b3f3d01bf3cd35f97436970237cbd16a050	2026-11-02T22:01:19+02:00	fix: route south searches to canonical landing
+61e9fa184b0ff92cceb2e1b463a704fc49fe801c	2026-11-02T21:50:57+02:00	fix: migrate current VII unit media safely
+11ef6cedf115b2fbbc98701b81adc27d74a52914	2026-11-02T21:05:46+02:00	feat: publish canonical location pages across worlds
+98c7777e169decce8682cd8192647b5019d2a515	2026-11-02T20:32:54+02:00	fix: keep deployment bundle below Sites limit
+79e15a95584fb40d8f4c276aea70da2c60be9bf6	2026-11-02T19:26:30+02:00	fix: keep popular searches in one slider row
+23e19e06847c954edf50786b5d0a9c51d90051bb	2026-11-02T19:16:00+02:00	docs: record responsive search verification
+ec8d452b1089c925cf4e233e1ae270bc4b9480b5	2026-11-02T19:14:19+02:00	fix: preserve staged mobile search flow
+a4934089167aab2705053d5fae4df62b2b61c1cf	2026-11-02T18:53:56+02:00	fix: seal reconciled VII release baseline
+fc2f23a2ec38938675293906ffbfe19266bbe58e	2026-11-01T23:12:45+02:00	fix search parity and booking confirmation copy
+5f948da76b83dfc1cbd00d367894258370e66b58	2026-11-01T18:00:00+02:00	fix(admin): restore Professor data answers
+e07dc3b2c1c7d0cbc5a713f53f8a3c14f8d17bed	2026-11-01T17:54:23+02:00	fix(admin): make world shutdown take effect
+d9ff3c310c8eb43e37d6548343cb185ba2fda5cc	2026-11-01T17:52:25+02:00	fix(bookings): restore place cancellation policies
+1891b5a521f2ccb7f1144a69272a065a7a239996	2026-11-01T17:46:31+02:00	fix(vacations): restore complete bedroom previews
+c736f47c5e89368bcfc15fdbffcf1423667b0602	2026-11-01T17:39:53+02:00	fix: preserve supplier representative media
+7c10d3a26d69793a6423acd6ca87fb4832990be6	2026-11-01T17:37:48+02:00	fix: keep business actions readable
+b2650773d94918cb9c50e4930fe92bdd534af547	2026-11-01T17:32:41+02:00	fix: recover from broken unit images
+8b136a92f8e4eaaae867e33fc8e8f0f997bd9a42	2026-11-01T17:30:12+02:00	fix: align games feature icon color
+b71a9562172fa21e8bdb62c4536cf93fc1474c1b	2026-11-01T17:27:52+02:00	fix: show property description toggle only on overflow
+68d14a850dd75065f869622f9d7f60e08a024cfc	2026-11-01T17:14:22+02:00	fix: open gallery on first supplier group
+fb1b4d5ad452e52f49e338321294c8432f79159e	2026-11-01T17:11:13+02:00	fix: attach Hebrew preposition in date labels
+900604cc203a70399215df56c40d11cc0745031e	2026-11-01T16:52:33+02:00	fix: place shekel symbol before amounts
+b6a398fcbfa1d2eb35c2f1cf97617783ce83e799	2026-11-01T16:43:39+02:00	fix: fully gate gift card world
+e634f658c2e7effab5f679ed6492490e18521039	2026-11-01T16:31:57+02:00	Clarify telephone-only vacation availability
+5e3d18f1439fb3658656f2910e0d63546e8fbea2	2026-11-01T16:16:18+02:00	fix: require priced dated proof for online badge
+cb3c373a524128eb4445293ca12b1e90777bfdba	2026-11-01T16:04:35+02:00	fix: expand place description on desktop
+00d48b92158a175cf0d8ff639dbf52624c2e23b7	2026-11-01T15:39:50+02:00	fix: open WhatsApp after saved enquiry
+1f2fbe72a53baf3b38aec8030f01cdd3b2fe1b3c	2026-11-01T15:35:58+02:00	fix: keep mobile header logo fully visible
+37206db80802630c80784243aacee2bbae032738	2026-11-01T14:44:44+02:00	fix: simplify vacation room details
+168e2372fc3ed304e83df3234ab33287eb15d4ec	2026-11-01T13:30:48+02:00	fix: keep spa booking inside VII
+752cfabe021d0808b4c1dd808a4ded1b0984ab01	2026-11-01T12:48:44+02:00	Fix dated vacation result ranking
+844812071b4e3be277819776e8de6e4646a679b4	2026-11-01T12:36:45+02:00	fix(vacations): render supplier bedroom details
+789cad2bae0c09d1797fadd2d8b5bba171b6e3c5	2026-11-01T12:31:20+02:00	Align site spacing with vacation rhythm
+5d4736bd60e6b79afb825fdb12ce5d3f22d29780	2026-11-01T12:26:27+02:00	fix: keep place navigation fast and visible
+d6618b8f5e99b2ee7e685898eec7520a75cc3172	2026-11-01T12:17:20+02:00	feat: add contextual event and spa deal landings
+6f0df60e342602e236528d60c2d7eb17188f936e	2026-11-02T16:27:15+02:00	fix(admin): fall back for catalog dashboard reads
+999753f156267fe4ba92e893cf8545d0bb29d700	2026-11-02T16:13:16+02:00	fix: restore resilient catalog dashboard
+a8b11fd6e8c9e717dba02ef6190500cb14315e2c	2026-11-02T15:25:11+02:00	Fix mixed Hebrew and English direction in Professor
+00bb00f997376f155a65a7a28a68109389eb8300	2026-11-02T15:01:51+02:00	feat: complete VII search SEO and professor API parity
+c6f5f04919a8654e7e2e05bddc4b013489e0bc2f	2026-11-01T11:52:03+02:00	Open contextual search from header
+9ce2a5ebc78f5a06a74549529a40e0cbb7482f6d	2026-11-01T02:58:40+02:00	Fix spa media integrity projection
+21769e3f8b55305d49a7d07f457cfd4d0563e70c	2026-10-31T22:25:21+02:00	Promote verified spa gallery covers
+9b5774571441f8faf42bdb9760e745384a6698c5	2026-10-31T22:07:21+02:00	Finalize independent media serving
+31802e349239d5ce1bbe57e2f031df0e1a200d3e	2026-10-31T21:57:36+02:00	fix: migrate legacy images without mime headers
+f822455b5287923d028ebafbc44e9684f40d5db8	2026-10-31T21:48:43+02:00	fix: authorize current API gallery media
+ebc89b9c969f40a752ce01ed25461d43d219353e	2026-10-31T21:41:24+02:00	chore: reopen bounded gallery migration
+b53c5c6af02ec17b0882a522bfc068836fbb3c6d	2026-10-31T21:12:11+02:00	fix: close domain launch catalog gaps

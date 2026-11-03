@@ -55,3 +55,16 @@ test("later SEO, Professor, administration and policy work remains in the same b
   assert.match(read("app/admin/professor/page.tsx"), /ProfessorBidiText/);
   assert.match(read("app/admin/catalog-sync/page.tsx"), /catalog/i);
 });
+
+test("the release source gate and every accepted capability manifest remain present", () => {
+  const manifest = JSON.parse(read("project_knowledge/release_controls/vii-accepted-capabilities.json"));
+  assert.equal(manifest.schemaVersion, 1);
+  assert.ok(manifest.protectedAncestors.length >= 5);
+  assert.ok(manifest.requiredCapabilities.length >= 10);
+  for (const capability of manifest.requiredCapabilities) {
+    assert.ok(capability.id);
+    for (const path of capability.files) assert.equal(existsSync(new URL(path, root)), true, `${capability.id} lost ${path}`);
+  }
+  assert.match(read("scripts/run-qqqaaa.cjs"), /release-source-integrity/);
+  assert.match(read("scripts/run-qqqaaa.cjs"), /exclusions: \[\]/);
+});

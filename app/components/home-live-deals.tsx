@@ -19,6 +19,7 @@ import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
+import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
 
 type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -108,8 +109,8 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const selectionKey = mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`;
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
-    : mode === "near" && !fixedPeriod && !regionLabel && period === "tomorrow"
-      ? "/last-minute"
+    : mode === "near" && !fixedPeriod && !regionLabel
+      ? permanentHomePeriodLandings[period]
       : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
 
   useEffect(() => {
@@ -178,6 +179,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
+    // A deliberate visitor choice always wins over a late homepage-settings
+    // response from the initial tab. Without this boundary, the first API
+    // completion could silently reset the selected tab to the CMS default.
+    displaySettingsApplied.current = true;
     if (value !== period) setState("loading");
     setPeriod(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
