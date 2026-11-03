@@ -14,6 +14,7 @@ import { activityRegion, activityType } from "../lib/activity-discovery-taxonomy
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
+import { MapSplitResultList } from "../components/map-split-result-list";
 
 const areas = ["הכל", "צפון", "כנרת", "מרכז ותל אביב", "ירושלים", "דרום ונגב", "אילת והסביבה"];
 const types = ["הכל", "שטח ואדרנלין", "טבע ורכיבה", "ים ושיט", "מים ומשפחה", "נחלים ומים", "אוכל ותרבות", "מדבר ושטח", "יצירה וקבוצות"];
@@ -127,7 +128,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
     </div>
     {resultItems.length
       ? mapOpen
-        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="activities" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div>
+        ? <div className="airbnb-map-split world-map-split"><MapSplitResultList items={displayed} getId={(item) => item.id} activeId={activeMapPlaceId} className="airbnb-map-split__results discovery-grid attraction-grid">{(item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />}</MapSplitResultList><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="activities" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div>
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

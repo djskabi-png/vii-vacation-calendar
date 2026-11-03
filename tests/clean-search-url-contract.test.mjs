@@ -13,12 +13,12 @@ test("vacation search URLs never write localized date display text", () => {
 });
 
 test("exact dates use ISO parameters and flexible searches use stable identifiers", () => {
-  assert.match(searchBox, /params\.set\("from", vacationDateRange\.from\)/);
-  assert.match(searchBox, /params\.set\("till", vacationDateRange\.till\)/);
+  assert.match(searchBox, /params\.set\("from", selectedVacationDateRange\.from\)/);
+  assert.match(searchBox, /params\.set\("till", selectedVacationDateRange\.till\)/);
   assert.match(searchBox, /params\.set\("dateMode", "flexible"\)/);
-  assert.match(searchBox, /params\.set\("stay", vacationFlexibleSearch\.stay\)/);
-  assert.match(searchBox, /params\.set\("month", vacationFlexibleSearch\.month\)/);
-  assert.match(searchBox, /params\.set\("flexDays", String\(vacationFlexibleSearch\.days\)\)/);
+  assert.match(searchBox, /params\.set\("stay", selectedVacationFlexibleSearch\.stay\)/);
+  assert.match(searchBox, /params\.set\("month", selectedVacationFlexibleSearch\.month\)/);
+  assert.match(searchBox, /params\.set\("flexDays", String\(selectedVacationFlexibleSearch\.days\)\)/);
 });
 
 test("calendar returns flexible IDs separately from localized summary text", () => {

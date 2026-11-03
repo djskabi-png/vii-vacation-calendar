@@ -86,11 +86,12 @@ test("rejection diagnostics persist counts and IDs privately without changing th
     const run = dashboard.runs.find((item) => item.id === "private-reject");
     assert.equal(run.beforeCount, 2);
     assert.equal(run.candidateCount, 2);
-    assert.deepEqual(run.diagnostics.addedIds, [3]);
-    assert.deepEqual(run.diagnostics.removedIds, [2]);
-    assert.equal(run.diagnostics.units.removedTotal, 2);
-    assert.equal(run.diagnostics.units.removedWithPlaces, 1);
-    assert.equal(run.diagnostics.units.removedFromRetainedPlaces, 1);
+    const storedDiagnostics = JSON.parse((await db.prepare("SELECT diagnostics_json AS diagnosticsJson FROM supplier_catalog_runs WHERE id = ?").bind("private-reject").first()).diagnosticsJson);
+    assert.deepEqual(storedDiagnostics.addedIds, [3]);
+    assert.deepEqual(storedDiagnostics.removedIds, [2]);
+    assert.equal(storedDiagnostics.units.removedTotal, 2);
+    assert.equal(storedDiagnostics.units.removedWithPlaces, 1);
+    assert.equal(storedDiagnostics.units.removedFromRetainedPlaces, 1);
     assert.doesNotMatch(JSON.stringify(run), /must-not-be-stored|contact|"key"|diagnosticsJson/);
     const publicDB = { prepare(sql) {
       assert.doesNotMatch(sql, /supplier_catalog_runs|diagnostics_json/);
@@ -131,9 +132,10 @@ test("redirect diagnostics store only status and hostname, never credentials or 
     assert.equal(result.status, "failed");
     assert.deepEqual(result.diagnostics.redirect, { status: 302, hostname: "abuse.spd.co.il" });
     assert.deepEqual(result.diagnostics.failure, { stage: "source_fetch", category: "unknown", elapsedMs: 0, retryable: true });
-    const run = (await readSupplierCatalogDashboard(db)).runs.find((item) => item.id === "redirect-private");
-    assert.deepEqual(run.diagnostics, result.diagnostics);
-    assert.doesNotMatch(JSON.stringify(run.diagnostics), /private|https|\?|#/);
+    const stored = await db.prepare("SELECT diagnostics_json AS diagnosticsJson FROM supplier_catalog_runs WHERE id = ?").bind("redirect-private").first();
+    const storedDiagnostics = JSON.parse(stored.diagnosticsJson);
+    assert.deepEqual(storedDiagnostics, result.diagnostics);
+    assert.doesNotMatch(JSON.stringify(storedDiagnostics), /private|https|\?|#/);
     assert.equal(await readSupplierCatalog(db, "spa"), null);
   } finally { db.close(); }
 });
@@ -151,11 +153,11 @@ test("spa parse failures persist private metadata without staging or changing th
     assert.equal(result.status, "failed");
     assert.equal(result.errorCode, "invalid_spa_response");
     assert.deepEqual(await readSupplierCatalog(db, "spa"), before);
-    const run = (await readSupplierCatalogDashboard(db)).runs.find((item) => item.id === "json-failed");
-    assert.deepEqual(run.diagnostics, result.diagnostics);
-    assert.equal(run.diagnostics.spaJsonFailure.firstCharacterKind, "html-like");
-    const stored = await db.prepare("SELECT diagnostics_json FROM supplier_catalog_runs WHERE id = ?").bind("json-failed").first();
-    assert.doesNotMatch(stored.diagnostics_json, /private|contact|body|prefix|Location/);
+    const stored = await db.prepare("SELECT diagnostics_json AS diagnosticsJson FROM supplier_catalog_runs WHERE id = ?").bind("json-failed").first();
+    const storedDiagnostics = JSON.parse(stored.diagnosticsJson);
+    assert.deepEqual(storedDiagnostics, result.diagnostics);
+    assert.equal(storedDiagnostics.spaJsonFailure.firstCharacterKind, "html-like");
+    assert.doesNotMatch(stored.diagnosticsJson, /private|contact|body|prefix|Location/);
     assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("json-failed").first()).n, 0);
     const publicDB = { prepare(sql) { assert.doesNotMatch(sql, /supplier_catalog_runs|diagnostics_json/); return db.prepare(sql); } };
     const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);

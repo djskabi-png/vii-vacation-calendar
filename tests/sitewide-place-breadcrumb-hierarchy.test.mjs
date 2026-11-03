@@ -18,10 +18,10 @@ test("events exposes region then city with working world-specific search destina
   ]);
 });
 
-test("spa exposes region then city without inventing an unsupported semantic city route", () => {
+test("spa exposes region then city through the canonical semantic city route", () => {
   assert.deepEqual(spaBreadcrumbsForLocation("מרכז", "פתח תקווה"), [
     { name: "ספא במרכז", path: "/spas/search/center" },
-    { name: "ספא בפתח תקווה", path: "/spas?location=%D7%A4%D7%AA%D7%97%20%D7%AA%D7%A7%D7%95%D7%95%D7%94" },
+    { name: "ספא בפתח תקווה", path: "/spas/search/petah-tikva" },
   ]);
 });
 

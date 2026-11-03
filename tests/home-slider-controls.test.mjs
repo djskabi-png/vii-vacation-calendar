@@ -30,7 +30,7 @@ test("every homepage content rail uses the shared controls", () => {
   const rail = readFileSync(new URL("../app/components/event-rail.tsx", import.meta.url), "utf8");
   assert.match(spa, /<EventRail/);
   assert.match(rail, /<SliderRailControls/);
-  assert.equal((discovery.match(/<HomeSliderControls/g) || []).length, 1);
+  assert.equal((discovery.match(/<HomeSliderControls/g) || []).length, 2);
   assert.equal((deals.match(/<HomeSliderControls/g) || []).length, 1);
   assert.doesNotMatch(showcase, /function SliderControls/);
   assert.doesNotMatch(discovery, /const move =/);

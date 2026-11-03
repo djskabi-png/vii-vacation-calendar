@@ -6,9 +6,10 @@ const root = new URL("../", import.meta.url);
 
 test("vacation search keeps machine-readable arrival and departure dates", async () => {
   const source = await readFile(new URL("app/components/search-box.tsx", root), "utf8");
-  assert.match(source, /setVacationDateRange\(\{ from: result\.checkIn, till: result\.checkOut \}\)/);
-  assert.match(source, /params\.set\("from", vacationDateRange\.from\)/);
-  assert.match(source, /params\.set\("till", vacationDateRange\.till\)/);
+  assert.match(source, /const selection = \{ from: result\.checkIn, till: result\.checkOut \}/);
+  assert.match(source, /setVacationDateRange\(selection\)/);
+  assert.match(source, /params\.set\("from", selectedVacationDateRange\.from\)/);
+  assert.match(source, /params\.set\("till", selectedVacationDateRange\.till\)/);
 });
 
 test("result cards support verified price and all availability states", async () => {

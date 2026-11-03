@@ -6,6 +6,7 @@ const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
 
 test("mobile guest selection flows directly below its summary without duplicate actions", () => {
   assert.match(css, /\.search-box-shell\.mobile-expanded \.search-step--guests \.search-popover\s*\{[^}]*position:\s*static;[^}]*max-height:\s*none;[^}]*overflow:\s*visible;/);
-  assert.match(css, /\.search-box-shell\.mobile-expanded \.vacation-party-picker \.popover-done\s*\{\s*display:\s*none;/);
+  assert.doesNotMatch(css, /\.search-box-shell\.mobile-expanded \.vacation-party-picker \.popover-done\s*\{\s*display:\s*none;/);
+  assert.match(css, /\.search-box-shell\.mobile-expanded \.search-box\.mobile-step-guests:not\(\.search-box--hourly\) \.search-submit\s*\{\s*display:\s*none;/);
   assert.match(css, /\.search-box-shell\.mobile-expanded \.search-submit\s*\{[^}]*position:\s*fixed;/);
 });

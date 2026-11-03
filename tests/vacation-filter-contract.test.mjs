@@ -109,8 +109,11 @@ test("vacation price fields support natural mobile editing without per-keystroke
   assert.match(source, /window\.requestAnimationFrame\(\(\) => input\.select\(\)\)/);
   assert.match(source, /selectOnNextClickRef\.current = false;\s+event\.currentTarget\.select\(\)/);
   assert.match(source, /event\.currentTarget\.value\.replace\(\/\\D\/g, ""\)/);
-  assert.match(source, /if \(digitsOnly === ""\) return/);
+  const inputChange = source.match(/onChange=\{\(event\) => \{([\s\S]*?)\}\}\s+onBlur=\{commitDraft\}/)?.[1] || "";
+  assert.match(inputChange, /setDraftValue\(digitsOnly\)/);
+  assert.doesNotMatch(inputChange, /onValueChange/);
   assert.match(source, /onBlur=\{commitDraft\}/);
+  assert.match(source, /onValueChange\(committedValue\)/);
   assert.match(source, /event\.key === "Escape"/);
   assert.match(source, /event\.stopPropagation\(\)/);
   assert.doesNotMatch(source, /Math\.round\(parsed \/ VACATION_PRICE_STEP\)/);

@@ -4,7 +4,7 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("mobile vacation and event headings use the single quick-filter entry", async () => {
+test("mobile vacation and event results expose compact filters and visible sorting", async () => {
   const sources = await Promise.all([
     readFile(new URL("app/search/page.tsx", root), "utf8"),
     readFile(new URL("app/events/search/page.tsx", root), "utf8"),
@@ -16,8 +16,8 @@ test("mobile vacation and event headings use the single quick-filter entry", asy
     assert.match(source, /className="filter-panel__mobile-sort"/);
     assert.match(source, /className="results-toolbar__sort"/);
   });
-  assert.match(css, /\.results-toolbar \{[\s\S]*min-height: 0;[\s\S]*height: 0;[\s\S]*background: transparent;[\s\S]*box-shadow: none/);
-  assert.match(css, /\.results-toolbar > \.results-toolbar__sort \{ display: none; \}/);
+  assert.match(css, /\.results-toolbar \{[\s\S]*min-height: 52px;[\s\S]*height: auto;[\s\S]*background: transparent;[\s\S]*box-shadow: none/);
+  assert.match(css, /\.results-toolbar > \.results-toolbar__sort \{[\s\S]*display: grid;[\s\S]*width: min\(100%, 420px\);/);
   assert.match(css, /\.filter-panel__mobile-sort \{ display: block;/);
 });
 

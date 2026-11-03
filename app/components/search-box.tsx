@@ -21,7 +21,7 @@ import { canonicalSearchLocation, uniqueSearchLocations } from "../lib/geographi
 import { eventSearchHref, hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
-import { useManagedGeography } from "./use-managed-geography";
+import { loadManagedGeography, useManagedGeography } from "./use-managed-geography";
 import { destinationInventory, matchingDestinations, destinationChildren, destinationPage, recentDestinations, QUICK_DESTINATIONS, DESTINATION_PAGE_SIZE } from "../lib/destination-picker";
 import { destinationPickerCopy } from "../i18n/destination-picker-copy";
 import { nearestSearchLocation } from "../lib/nearby-search-location.ts";
@@ -170,7 +170,7 @@ function normalizeHourlyPrice(value: string | null) {
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
 }
 
-export function SearchBox({ mode = "vacation", compact = false, forceExpanded = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [], openDatesRequest = 0 }: { mode?: SearchMode; compact?: boolean; forceExpanded?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[]; openDatesRequest?: number }) {
+export function SearchBox({ mode = "vacation", compact = false, forceExpanded = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [], openDatesRequest = 0, openLocationRequest = 0 }: { mode?: SearchMode; compact?: boolean; forceExpanded?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[]; openDatesRequest?: number; openLocationRequest?: number }) {
   const router = useRouter();
   const { enabled } = useWorldAvailability();
   const searchParams = useSearchParams();
@@ -277,6 +277,18 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
     setCalendarOpen(true);
   }, [openDatesRequest, mode]);
+  useEffect(() => {
+    if (!openLocationRequest) return;
+    const frame = window.requestAnimationFrame(() => {
+      setCalendarOpen(false);
+      setGuestOpen(false);
+      setPriceOpen(false);
+      setMobileStep("location");
+      if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
+      setLocationOpen(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [openLocationRequest]);
   const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
     // Render with the provider language so the server and the first client render
     // stay identical. LocaleProvider synchronizes the route language after hydration.
@@ -606,17 +618,21 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       fallbackStarted = true;
       setLocationStatus("מנסים לזהות את האזור הקרוב...");
       try {
-        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(1800) });
+        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3500) });
         const payload = await response.json() as { location?: string };
         select(response.ok && typeof payload.location === "string" ? payload.location : null);
       } catch { select(null); }
     };
     if (!navigator.geolocation) { await approximate(); return; }
-    watchdog = window.setTimeout(() => { void approximate(); }, 2200);
+    watchdog = window.setTimeout(() => { void approximate(); }, 8500);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => select(nearestSearchLocation(coords.latitude, coords.longitude)),
+      ({ coords }) => {
+        void (managedGeography.length ? Promise.resolve(managedGeography) : loadManagedGeography())
+          .then((nodes) => select(nearestSearchLocation(coords.latitude, coords.longitude, nodes)))
+          .catch(() => select(nearestSearchLocation(coords.latitude, coords.longitude)));
+      },
       () => { void approximate(); },
-      { enableHighAccuracy: false, timeout: 2000, maximumAge: 300000 },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
     );
   }
   function expandMobileSearch() {

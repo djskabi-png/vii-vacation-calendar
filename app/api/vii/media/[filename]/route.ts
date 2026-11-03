@@ -5,7 +5,7 @@ const files = new Set<string>(manifest.files);
 const prefix = manifest.objectPrefix;
 // This is enabled only for the bounded migration release. The final release
 // flips it off after every allowlisted object is verified in R2.
-const ALLOW_LEGACY_ORIGIN_FETCH = true;
+const ALLOW_LEGACY_ORIGIN_FETCH = false;
 const immutable = "public, max-age=31536000, immutable";
 
 function validFilename(filename: string) {

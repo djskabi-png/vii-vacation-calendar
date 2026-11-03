@@ -37,6 +37,7 @@ import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
 import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
+import { MapSplitResultList } from "../components/map-split-result-list";
 import { useViiFlexibleLiveSearch, useViiLiveSearch } from "../components/use-vii-live-search";
 import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
@@ -57,6 +58,7 @@ import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
 import type { MapPriceQuote } from "../lib/map-price";
+import { compareVacationDisplayedPrices, orderVacationResultsByDisplayedPrice } from "../lib/vacation-price-sort";
 
 export type SearchLandingContext = {
   path: string;
@@ -310,9 +312,6 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
         onChange={(event) => {
           const digitsOnly = event.currentTarget.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
           setDraftValue(digitsOnly);
-          if (digitsOnly === "") return;
-          const nextValue = Number(digitsOnly);
-          if (nextValue >= minimum && nextValue <= maximum) onValueChange(nextValue);
         }}
         onBlur={commitDraft}
         onKeyDown={(event) => {
@@ -325,7 +324,6 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
             event.stopPropagation();
             cancelNextBlurRef.current = true;
             setDraftValue(String(initialValueRef.current));
-            onValueChange(initialValueRef.current);
             event.currentTarget.blur();
           }
         }}
@@ -363,6 +361,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const searchQuery = searchParams.toString();
   const onlineOnly = searchParams.get("online") === "1";
   const [openDatesRequest, setOpenDatesRequest] = useState(0);
+  const [openLocationRequest, setOpenLocationRequest] = useState(0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
   const documentSeed = useDocumentSeed();
   const managedGeography = useManagedGeography();
@@ -696,6 +695,15 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   );
   const searchPrice = (property: Property) => liveAvailabilityFor(property.slug)?.quote?.nightlyPrice
     ?? supplierStartingPrice(startingPrices[property.slug]) ?? property.price;
+  const displayedSearchPrice = (property: Property) => {
+    const quote = liveAvailabilityFor(property.slug)?.quote;
+    const liveDisplayedPrice = quote?.priceMode === "stay_total" ? quote.totalPrice : quote?.nightlyPrice;
+    return liveDisplayedPrice ?? supplierStartingPrice(startingPrices[property.slug]) ?? property.price;
+  };
+  const propertyOrderBySlug = useMemo(
+    () => new Map(properties.map((property, index) => [property.slug, index])),
+    [properties],
+  );
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length
@@ -720,14 +728,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return datedSearchResultTier({ availability, hasPrice, onlineBookable: matchesOnline(property) });
     };
     const compareMatches = (a: typeof properties[number], b: typeof properties[number]) => {
+      if (sort === "price-asc" || sort === "price-desc") {
+        return compareVacationDisplayedPrices(displayedSearchPrice(a), displayedSearchPrice(b), sort === "price-asc" ? "asc" : "desc")
+          || (propertyOrderBySlug.get(a.slug) ?? Number.MAX_SAFE_INTEGER) - (propertyOrderBySlug.get(b.slug) ?? Number.MAX_SAFE_INTEGER);
+      }
       if (selectedStay) {
         const tierPriority = datedTier(a) - datedTier(b);
         if (tierPriority) return tierPriority;
-      }
-      if (undatedSearch && (sort === "price-asc" || sort === "price-desc")) {
-        const aPrice = searchPrice(a), bPrice = searchPrice(b);
-        if (!aPrice || !bPrice) return Number(!aPrice) - Number(!bPrice);
-        return sort === "price-asc" ? aPrice - bPrice : bPrice - aPrice;
       }
       if (sort === "recommended") {
         return Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
@@ -751,7 +758,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, documentSeed, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, documentSeed, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, propertyOrderBySlug, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || isWholeCountrySelection(area)) return [];
@@ -770,9 +777,23 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     });
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (property) => property.slug });
   }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
-  // Keep the exact location cohort first. The exact cohort is already ranked by
-  // the selected sort and booking priority; nearby recovery is distance-ranked.
-  const resultSet = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
+  // Default discovery keeps the exact location cohort first. An explicit price
+  // choice ranks the complete displayed set so progressively revealed nearby
+  // results cannot break the promised numeric order.
+  const resultSet = useMemo(() => {
+    const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
+    if (sort !== "price-asc" && sort !== "price-desc") return complete;
+    return orderVacationResultsByDisplayedPrice(
+      complete,
+      sort === "price-asc" ? "asc" : "desc",
+      displayedSearchPrice,
+      property => propertyOrderBySlug.get(property.slug) ?? Number.MAX_SAFE_INTEGER,
+    );
+  // filtered and nearbyRecovery already carry every live and catalog price
+  // dependency used by displayedSearchPrice. Listing the render-local function itself
+  // would invalidate this memo on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, nearbyRecovery, propertyOrderBySlug, sort]);
   const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((property) => {
     const availability = liveAvailabilityFor(property.slug)?.quote;
     if (selectedStay || flexibleSearch) {
@@ -1006,7 +1027,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         {!landing ? <StructuredData data={collectionSchema("מקומות נופש בישראל", "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
         {!landing ? <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }])} /> : null}
         <UnavailablePlaceNotice world="vacations" />
-        <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
+        <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} openLocationRequest={openLocationRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
         <BreadcrumbTrail items={breadcrumbItems} />
         <div className={`shell results-layout airbnb-results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות" role={filtersOpen ? "dialog" : undefined} aria-modal={filtersOpen || undefined}>
@@ -1090,8 +1111,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {!mapOpen && <ProgressiveResults autoLoad initialCount={initialResultWindow} className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setResultWindow((current) => ({ key: resultWindowKey, count: Math.min(displayedResults.length, (current.key === resultWindowKey ? current.count : initialResultWindow) + 9) }))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
-              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} mapActive={activeMapPropertyId === property.slug} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
-              <div className="airbnb-map-split__map"><DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} priceById={mapPriceById} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} /></div>
+              <MapSplitResultList items={displayedResults} getId={(property) => property.slug} activeId={activeMapPropertyId} className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{(property) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} mapActive={activeMapPropertyId === property.slug} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />}</MapSplitResultList>
+              <div className="airbnb-map-split__map">
+                <div className="map-pane-toolbar">
+                  <button type="button" className="map-location-control" onClick={() => { closeResultsMap(); window.requestAnimationFrame(() => setOpenLocationRequest((value) => value + 1)); }} aria-label={`שינוי אזור החיפוש, כרגע ${area === "הכל" ? "כל הארץ" : area}`}><PinIcon /><span>אזור החיפוש</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong><small>שינוי</small></button>
+                </div>
+                <DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} priceById={mapPriceById} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} />
+              </div>
             </div>}
             {!onlineOnly && !selectedStay && !catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {!mapOpen && !selectedStay && !flexibleSearch && selectedTypes.length === 0 && !pool && !spa && !whole && !accessibleOnly && !onlineOnly && !selectedExtras.length ? <RegionalAvailability world="vacation" region={area} guests={guests} embedded /> : null}

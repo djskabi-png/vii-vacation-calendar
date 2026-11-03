@@ -6,7 +6,7 @@ import type { PublicGeographyNode } from "../lib/geography-search";
 let acceptedNodes: PublicGeographyNode[] | null = null;
 let activeRequest: Promise<PublicGeographyNode[]> | null = null;
 
-function loadManagedGeography() {
+export function loadManagedGeography() {
   if (acceptedNodes) return Promise.resolve(acceptedNodes);
   if (!activeRequest) {
     activeRequest = fetch("/api/vii/geography")

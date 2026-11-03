@@ -36,7 +36,7 @@ test("public supplier descriptions normalize markup and encoded spacing", () => 
 });
 
 test("event search, place HTML and metadata do not publish event-711's unverified promotion", async () => {
-  for (const path of ["/events/search", "/events/search?location=%D7%A0%D7%AA%D7%A0%D7%99%D7%94", "/events/place/event-711"]) {
+  for (const path of ["/events/search", "/events/search/netanya", "/events/place/event-711"]) {
     const response = await render(path);
     assert.equal(response.status, 200);
     const html = await response.text();

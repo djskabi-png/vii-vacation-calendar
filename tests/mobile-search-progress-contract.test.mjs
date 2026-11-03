@@ -13,5 +13,6 @@ test("mobile search opens as one complete editor instead of forcing a location s
 
 test("mobile search action remains reachable in every edit state", () => {
   assert.match(css, /\.search-box-shell\.mobile-expanded \.search-submit,[\s\S]*?mobile-step-overview \.search-submit \{ display: flex; \}/);
+  assert.match(source, /className="popover-done" onClick=\{\(\) => search\(\{ vacationParty \}\)\}>שמירת ההרכב/);
   assert.match(css, /\.search-box-shell\.mobile-expanded \.location-list \{[\s\S]*?position: static;[\s\S]*?max-height: none;[\s\S]*?overflow: visible;/);
 });

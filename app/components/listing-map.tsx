@@ -341,8 +341,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     let createdMap: import("leaflet").Map | null = null;
     let resizeObserver: ResizeObserver | undefined;
     let resizeFrame: number | undefined;
+    let programmaticViewportTimer: number | undefined;
     let layoutReady = false;
     let tilesReady = false;
+    let initialViewportReported = false;
     suppressViewportPrompt.current = true;
     setViewportDirty(false);
     setPendingVisibleIds([]);
@@ -497,19 +499,44 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         const zoom = map.getZoom();
         const threshold = zoom < 8 ? 76 : zoom < 10 ? 52 : zoom < 12 ? 32 : 18;
         const clusters: Array<{ entries: MapPlace[]; point: import("leaflet").Point }> = [];
+        const clusterGrid = new Map<string, number[]>();
+
+        const cellKey = (x: number, y: number) => `${x}:${y}`;
+        const gridCell = (point: import("leaflet").Point) => ({
+          x: Math.floor(point.x / threshold),
+          y: Math.floor(point.y / threshold),
+        });
+        const addClusterToGrid = (index: number, point: import("leaflet").Point) => {
+          const cell = gridCell(point);
+          const key = cellKey(cell.x, cell.y);
+          const indexes = clusterGrid.get(key) || [];
+          indexes.push(index);
+          clusterGrid.set(key, indexes);
+        };
 
         currentPlaces.forEach((place) => {
           const point = map.latLngToContainerPoint([place.lat, place.lng]);
-          const cluster = single ? undefined : clusters.find((entry) => entry.point.distanceTo(point) < threshold);
-          if (cluster) {
+          const cell = gridCell(point);
+          const nearbyIndexes = single ? [] : [-1, 0, 1].flatMap((offsetX) => [-1, 0, 1].flatMap((offsetY) => clusterGrid.get(cellKey(cell.x + offsetX, cell.y + offsetY)) || []));
+          const clusterIndex = nearbyIndexes.find((index) => clusters[index].point.distanceTo(point) < threshold);
+          const cluster = clusterIndex === undefined ? undefined : clusters[clusterIndex];
+          if (cluster && clusterIndex !== undefined) {
+            const previousCell = gridCell(cluster.point);
             cluster.entries.push(place);
             const count = cluster.entries.length;
             cluster.point = L.point(
               (cluster.point.x * (count - 1) + point.x) / count,
               (cluster.point.y * (count - 1) + point.y) / count,
             );
+            const nextCell = gridCell(cluster.point);
+            if (previousCell.x !== nextCell.x || previousCell.y !== nextCell.y) {
+              const previousKey = cellKey(previousCell.x, previousCell.y);
+              clusterGrid.set(previousKey, (clusterGrid.get(previousKey) || []).filter((index) => index !== clusterIndex));
+              addClusterToGrid(clusterIndex, cluster.point);
+            }
           } else {
             clusters.push({ entries: [place], point });
+            addClusterToGrid(clusters.length - 1, point);
           }
         });
 
@@ -565,6 +592,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
               const paddedClusterBounds = clusterBounds.pad(0.65);
               const currentZoom = map.getZoom();
               const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 12);
+              suppressProgrammaticViewportPrompt();
               if (clusterDistance < 120 || targetZoom <= currentZoom) {
                 // Nearby or already maximally zoomed places need a decision,
                 // not another animated zoom that can leave the same cluster
@@ -603,11 +631,22 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         const ids = visiblePlaceIds();
         setPendingVisibleIds(ids);
         if (prompt && !suppressViewportPrompt.current) setViewportDirty(true);
-        else {
+        else if (!initialViewportReported && ids.length > 0) {
           visibleCountCallback.current?.(ids.length);
-          if (!prompt) visiblePlaceIdsCallback.current?.(ids);
+          visiblePlaceIdsCallback.current?.(ids);
+          initialViewportReported = true;
         }
       };
+      function suppressProgrammaticViewportPrompt() {
+        suppressViewportPrompt.current = true;
+        setViewportDirty(false);
+        if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
+        programmaticViewportTimer = window.setTimeout(() => {
+          if (cancelled || mapInstance.current !== map) return;
+          setPendingVisibleIds(visiblePlaceIds());
+          suppressViewportPrompt.current = false;
+        }, 520);
+      }
 
       const initialPlaces = placesRef.current;
       const focusPlaces = initialPlaceIds?.length
@@ -654,7 +693,13 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         resizeFrame = window.requestAnimationFrame(() => {
           if (cancelled || mapInstance.current !== map || !container.isConnected) return;
           map.invalidateSize({ animate: false, pan: false });
-          reportVisiblePlaces(true);
+          const ids = visiblePlaceIds();
+          setPendingVisibleIds(ids);
+          if (!initialViewportReported && ids.length > 0) {
+            visibleCountCallback.current?.(ids.length);
+            visiblePlaceIdsCallback.current?.(ids);
+            initialViewportReported = true;
+          }
         });
       });
       resizeObserver.observe(container);
@@ -683,6 +728,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       cancelled = true;
       if (readyTimer) window.clearTimeout(readyTimer);
       if (layoutTimer) window.clearTimeout(layoutTimer);
+      if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
       if (settleFrame) window.cancelAnimationFrame(settleFrame);
       resizeObserver?.disconnect();
       if (resizeFrame) window.cancelAnimationFrame(resizeFrame);

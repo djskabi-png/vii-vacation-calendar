@@ -226,7 +226,7 @@ test("removed places stay out of the public catalogs and magazine", async () => 
 });
 
 test("hourly search starts with location and exposes filters only with the results", async () => {
-  const response = await render("/hourly?location=מרכז");
+  const response = await render("/hourly/search/center");
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /חיפוש חדרים לפי שעה/);
@@ -259,10 +259,10 @@ test("vacation search keeps a complete Airbnb-style party breakdown", async () =
 
 test("search result bars preserve the submitted criteria", async () => {
   const [vacationResponse, eventResponse, spaResponse, hourlyResponse] = await Promise.all([
-    render("/search?location=אילת&dates=10%20באוג׳%20עד%2012%20באוג׳&guests=4"),
-    render("/events/search?location=מרכז&dates=15%20באוג׳&guests=80&from=2026-08-15&to=2026-08-15"),
-    render("/spas?location=תל%20אביב&dates=18%20באוג׳&guests=2&spaFor=couple&date=2026-08-18&withoutDate=0"),
-    render("/hourly?location=חיפה"),
+    render("/vacations/eilat?from=2026-08-10&till=2026-08-12&guests=4"),
+    render("/events/search/center?guests=80&from=2026-08-15&to=2026-08-15"),
+    render("/spas/search/tel-aviv?guests=2&spaFor=couple&date=2026-08-18&withoutDate=0"),
+    render("/hourly/search/haifa"),
   ]);
   const [vacationHtml, eventHtml, spaHtml, hourlyHtml] = await Promise.all([
     vacationResponse.text(),
@@ -280,7 +280,7 @@ test("search result bars preserve the submitted criteria", async () => {
   assert.match(spaHtml, /תל אביב/);
   assert.match(spaHtml, /18 באוג׳/);
   assert.match(spaHtml, /זוגי/);
-  assert.match(hourlyHtml, /חיפה/);
+  assert.match(hourlyHtml, /hourly\/search\/haifa/);
 });
 
 test("vacation search uses a curated geography and descriptive breadcrumbs", async () => {
@@ -377,7 +377,8 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /מפה בעברית/);
   assert.match(mapSource, /map\.getBounds\(\)\.pad/);
   assert.match(mapSource, /visibleCountCallback\.current/);
-  assert.match(mapSource, /clusters\.find/);
+  assert.match(mapSource, /const clusterGrid = new Map/);
+  assert.match(mapSource, /nearbyIndexes\.find/);
   assert.match(mapSource, /is-cluster/);
   assert.match(mapSource, /initialPlaceIds/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
@@ -1440,20 +1441,20 @@ test("all public sorting and filtering controls use the branded modern selector"
   assert.match(styles, /\.filter-panel input\[type="checkbox"\]:checked/);
 });
 
-test("mobile result filtering and sorting use the single quick-filter entry", async () => {
+test("mobile result filtering and sorting keep a compact entry and visible sort control", async () => {
   const [styles, vacationSearch, eventSearch] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(styles, /Mobile results use one compact app-style entry/);
-  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*0;[^}]*height:\s*0/s);
+  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*52px;[^}]*height:\s*auto/s);
   assert.match(vacationSearch, /className="search-quick-filters"/);
   assert.match(vacationSearch, /className=\{activeFilters\.length \? "primary-filter active" : "primary-filter"\}/);
   assert.doesNotMatch(vacationSearch, /mobile-filter--compact/);
   assert.doesNotMatch(eventSearch, /mobile-filter--compact/);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
-  assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
+  assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*grid;[^}]*width:\s*min\(100%, 420px\);/s);
   assert.match(styles, /\.filter-panel__mobile-sort\s*\{[^}]*display:\s*block;/s);
 });
 

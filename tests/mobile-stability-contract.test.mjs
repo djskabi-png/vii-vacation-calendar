@@ -80,5 +80,6 @@ test("search restores a readable vacation date label from the submitted range", 
   assert.match(search, /activeRouteLanguage\(language\)/);
   assert.match(search, /languageFromPathname\(window\.location\.pathname\)/);
   assert.match(search, /setDates\(dateLabelFromSearch\(searchParams, mode, languageFromPathname\(window\.location\.pathname\)\)\)/);
-  assert.match(search, /setLocationValue\(requestedLocation[\s\S]*?isWholeCountrySelection\(requestedLocation\)[\s\S]*?: initialLocation \|\| "כל הארץ"\)/);
+  assert.match(search, /const committedLocation = requestedLocation[\s\S]*?isWholeCountrySelection\(requestedLocation\)[\s\S]*?: initialLocation \|\| "כל הארץ"/);
+  assert.match(search, /setLocationValue\(committedLocation\)/);
 });

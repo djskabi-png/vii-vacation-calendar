@@ -47,6 +47,24 @@ test("map selection is keyboard-safe, localized, and responsive", () => {
   assert.match(styles, /saturate\(\.76\) contrast\(\.94\) brightness\(1\.06\)/);
 });
 
+test("desktop vacation map uses the shared bounded rail and reuses the main destination picker", () => {
+  const search = read("app/search/page.tsx");
+  const searchBox = read("app/components/search-box.tsx");
+  const map = read("app/components/listing-map.tsx");
+  const styles = read("app/globals.css");
+  assert.match(search, /<MapSplitResultList items=\{displayedResults\}/);
+  assert.match(search, /activeId=\{activeMapPropertyId\}/);
+  assert.match(search, /className="map-location-control"/);
+  assert.match(search, /setOpenLocationRequest\(\(value\) => value \+ 1\)/);
+  assert.match(searchBox, /openLocationRequest = 0/);
+  assert.match(searchBox, /setMobileStep\("location"\)/);
+  assert.match(searchBox, /setLocationOpen\(true\)/);
+  assert.match(map, /const clusterGrid = new Map<string, number\[\]>\(\)/);
+  assert.doesNotMatch(map, /clusters\.find\(\(entry\) => entry\.point\.distanceTo\(point\) < threshold\)/);
+  assert.match(styles, /\.map-location-control \{/);
+  assert.match(styles, /@media \(max-width: 1100px\)[\s\S]*\.map-pane-toolbar \{ display: none; \}/);
+});
+
 test("all map result worlds apply viewport ids to their list", () => {
   for (const path of [
     "app/search/page.tsx",

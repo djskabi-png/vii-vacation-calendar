@@ -11,7 +11,7 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'
 test('all current broad region labels have a scope, cities and nationwide selections do not', () => {
   for (const label of ['צפון','מרכז','דרום','דרום ונגב','כנרת','גליל מערבי','גליל עליון','רמת הגולן','חיפה והכרמל','חיפה','השרון','שרון','מישור החוף והשפלה','תל אביב','ירושלים והסביבה','ירושלים והרי יהודה','ים המלח','אילת והערבה','אילת והסביבה']) {
     const region = regionalAvailabilityRegion(label);
-    assert.equal(region?.label, label);
+    assert.equal(region?.label, label === 'דרום' ? 'דרום ונגב' : label);
     for (const world of ['vacation','events','spa']) for (const language of ['he','en','ru','fr']) {
       const title = regionalAvailabilityTitle(world,region,language);
       assert.ok(title.length > 10);
