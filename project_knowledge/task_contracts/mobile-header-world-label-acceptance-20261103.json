@@ -1,0 +1,83 @@
+{
+  "goal": "Keep the current world label fully readable in the mobile global header without breaking routes that also include the search shortcut.",
+  "intent_model": {
+    "literal_request": "Repair and lock the upper header because the page type is not visible, while accounting for pages with a search icon.",
+    "implied_outcome": "One robust shared mobile header composition for every public route variant.",
+    "likely_rejections": [
+      "Only the events route is fixed.",
+      "The search icon variant still crowds the label.",
+      "The logo or another utility control is hidden or cropped.",
+      "The label fits only by becoming unreadably small or losing the chooser indicator."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "לנעול אותו",
+        "operational_meaning": "Add an explicit shared layout contract and regression tests across affected route variants and breakpoints.",
+        "acceptance_impact": "A screenshot-only CSS tweak is insufficient."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The visitor must immediately recognize the current world and all available header actions.",
+    "current_decision": "Open the current-world chooser or use another visible header action.",
+    "next_action": "Activate the chosen header control.",
+    "deferred_complexity": ["World destinations inside the opened chooser"],
+    "preserved_depth": ["Global search on routes without an in-page search surface", "Language selection through the menu at the narrowest search-header widths"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/mobile-header-world-label-preflight-20261103.json",
+    "lesson_bundle_ids": ["ADIR-MOBILE-001", "ADIR-QA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Mobile visitor"],
+  "natural_destination": "VII global header on mobile world pages and place-detail pages",
+  "facts": [
+    {
+      "claim": "The compact events label currently wraps because narrow media rules force the trigger down to 56 or 44 pixels and allow wrapping anywhere.",
+      "evidence": "app/globals.css compact world selector rules and supplied screenshots"
+    },
+    {
+      "claim": "Some routes render an additional header search action when no in-page search surface exists.",
+      "evidence": "app/site-header.tsx hasInPageSearch conditional"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Language access may move into the existing main menu only on extremely narrow routes that also need the header search action.",
+      "validation": "Verify the main menu retains language choices and the header no longer overflows."
+    }
+  ],
+  "in_scope": [
+    "Shared compact world selector sizing and wrapping rules",
+    "Space-priority behavior when the header search icon is present",
+    "Regression tests and rendered checks at 390, 360 and 340 pixels"
+  ],
+  "out_of_scope": ["Public deployment", "Header redesign on desktop", "Changes to world labels or destinations"],
+  "invariants": [
+    "Logo remains completely visible.",
+    "Visible action touch targets remain at least 44 pixels high.",
+    "World chooser chevron remains visible and the chooser still opens.",
+    "Header search remains available on routes that require it.",
+    "Modern Hebrew font stack remains unchanged."
+  ],
+  "affected_family": ["events landing", "other world landings", "business detail routes", "mobile header breakpoints", "world chooser"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "The compact current-world label is fully visible on one line at every supported narrow width.", "source": "User request"},
+    {"id": "REQ-2", "statement": "The header-search route variant fits without horizontal overflow or missing required controls.", "source": "User request"},
+    {"id": "REQ-3", "statement": "The world chooser remains identifiable and interactive after the layout repair.", "source": "Existing product behavior"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Open the events page at 390, 360 and 340 pixels.", "action": "Inspect and measure the compact current-world trigger.", "observable_result": "The complete label appears on one line inside the trigger with no clipping or overflow."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Open a business page at the same widths where the header search icon is rendered.", "action": "Inspect all visible header actions and page horizontal geometry.", "observable_result": "Search, current-world selector and menu remain visible, the logo is intact and document width does not exceed viewport width."},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Open and close the current-world chooser and change the viewport width.", "action": "Repeat the interaction after the transition.", "observable_result": "The trigger retains its label and chevron, and the chooser continues to open and close correctly."},
+    {"id": "AC-FAIL-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "failure", "setup": "Render the most crowded header variant at 340 pixels.", "action": "Measure the selector label, header controls and document width.", "observable_result": "The layout fails the gate if the label wraps or clips, any required control is outside the viewport, or horizontal overflow is present."},
+    {"id": "AC-4", "requirement_ids": ["REQ-1", "REQ-2", "REQ-3"], "kind": "recovery", "setup": "Reload both route variants at a narrow width.", "action": "Wait for hydration and inspect the header again.", "observable_result": "No transient or final state reintroduces the clipped two-line label."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and verification only. A production publication requires separate explicit authorization.",
+  "ready_for_implementation": true
+}

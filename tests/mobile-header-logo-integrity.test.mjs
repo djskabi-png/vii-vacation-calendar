@@ -9,10 +9,11 @@ test("the mobile header reserves a complete uncropped logo slot beside all utili
   assert.match(styles, /\.site-header:has\(\.world-dock\) \.brand \{ flex: 0 0 54px; overflow: visible; \}/);
   assert.match(styles, /\.site-header:has\(\.world-dock\) \.brand img \{ object-fit: contain; \}/);
   assert.match(styles, /\.site-header:has\(\.world-dock\) \.header-actions \{ min-width: 0; gap: 2px; \}/);
-  assert.match(styles, /\.site-header:has\(\.world-dock\) \.world-dock > summary \{[\s\S]*?width: 64px;[\s\S]*?min-width: 64px;[\s\S]*?max-width: 64px;/);
+  assert.match(styles, /\.site-header:has\(\.world-dock\) \.world-dock > summary \{[\s\S]*?width: 80px;[\s\S]*?min-width: 80px;[\s\S]*?max-width: 80px;/);
 });
 
 test("the narrowest supported header keeps forty-four pixel controls without sacrificing the logo", () => {
   assert.match(styles, /@media \(max-width: 360px\) \{[\s\S]*?grid-template-columns: 48px minmax\(0,1fr\); gap: 1px;[\s\S]*?width: 44px; min-width: 44px; min-height: 44px;/);
-  assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?grid-template-columns: 44px minmax\(0,1fr\);[\s\S]*?\.brand img \{ width: 44px; max-width: 44px; \}[\s\S]*?\.header-actions > \.language-switcher \{ display: none; \}/);
+  assert.match(styles, /@media \(max-width: 360px\) \{[\s\S]*?\.world-dock > summary \{ width: 74px; min-width: 74px; max-width: 74px;/);
+  assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?grid-template-columns: 44px minmax\(0,1fr\);[\s\S]*?\.brand img \{ width: 44px; max-width: 44px; \}[\s\S]*?\.header-actions > \.language-switcher \{ display: none; \}[\s\S]*?\.world-dock > summary \{ width: 70px; min-width: 70px; max-width: 70px;/);
 });

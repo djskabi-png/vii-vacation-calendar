@@ -22,3 +22,11 @@ test("the mobile world switcher exposes the current topic and a chevron with a f
   assert.match(switcher, /className="world-toggle-icon"/);
   assert.doesNotMatch(switcher, /localizedPath\("\/search", language\)/);
 });
+
+test("the narrow header never wraps the world label and reserves room for the optional search action", () => {
+  assert.match(styles, /\.world-dock > summary strong \{ font-size: \.72rem; line-height: 1\.25; overflow-wrap: normal; white-space: nowrap; \}/);
+  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.world-dock > summary \{[\s\S]*?width: 80px;[\s\S]*?min-width: 80px;[\s\S]*?max-width: 80px;/);
+  assert.match(styles, /@media \(max-width: 380px\) \{\s*\.site-header:has\(\.header-search\) \.header-actions > \.language-switcher \{ display: none; \}\s*\}/);
+  assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?\.world-dock > summary \.world-toggle-icon \{ display: block; \}/);
+  assert.doesNotMatch(styles, /\.world-dock > summary strong \{[^}]*overflow-wrap: anywhere/);
+});

@@ -1,0 +1,217 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-mobile-header-world-label-20261103",
+  "project": "VII",
+  "task_type": "responsive-ui-repair",
+  "goal": "The mobile global header always shows the complete current world label, including routes with a header search action.",
+  "created_at": "2026-11-03T20:58:04.184022Z",
+  "updated_at": "2026-11-03T21:10:35.856205Z",
+  "completed_at": "2026-11-03T21:10:35.856224Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v789-final\\project_knowledge\\task_contracts\\mobile-header-world-label-preflight-20261103.json",
+      "sha256": "403de2f0b26ae621670a6d646962faa7fe78d44d5b3057462aec3013ef16c580"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v789-final\\project_knowledge\\task_contracts\\mobile-header-world-label-preflight-20261103.json",
+    "sha256": "403de2f0b26ae621670a6d646962faa7fe78d44d5b3057462aec3013ef16c580",
+    "predicted_rejection_count": 3,
+    "affected_family_count": 6,
+    "lesson_bundle_count": 2,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "The mobile global header always shows the complete current world label, including routes with a header search action.",
+      "acceptance_check": "Rendered events and business headers pass at 390, 360 and 340 pixels without label wrapping or viewport overflow.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/mobile-header-world-label-local-20261103.json: both target route variants pass rendered geometry at 390, 360 and 340 pixels."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:13.077184Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v789-final\\project_knowledge\\task_contracts\\mobile-header-world-label-preflight-20261103.json validated with sha256 403de2f0b26ae621670a6d646962faa7fe78d44d5b3057462aec3013ef16c580"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T20:58:04.183904Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After CSS and static contract tests pass, before rendered browser verification.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "CSS contract and focused header tests: world label is nowrap, mobile selector widths are 80/74/70 pixels, search-header variant hides only the duplicate header language action below 380 pixels, and menu retains its language switcher."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T20:59:20.410790Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/mobile-header-world-label-local-20261103.json",
+        "15 focused header tests passed, pnpm build exited 0, and both /events and /business route variants passed three rendered widths.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:15.058924Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=3, elapsed_minutes=18.0; Baseline screenshot and computed CSS showed a two-line clipped events label in a 64-pixel trigger with overflow-wrap:anywhere."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:15.607869Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "passed",
+      "evidence": [
+        "Rendered mobile route family at 390x844, 360x740 and 340x680; measured one-line label containment, no horizontal overflow, logo containment and breakpoint transitions."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:34.600829Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "passed",
+      "evidence": [
+        "Exact local candidate opened on /events and /business, selector and search interactions exercised, 15 focused tests passed, production build exited 0, typography audit passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:35.216080Z"
+    },
+    {
+      "id": "project:header-label",
+      "source": "project_guidance",
+      "statement": "The complete compact world label remains visible on one line.",
+      "acceptance_check": "The complete compact world label remains visible on one line.",
+      "status": "passed",
+      "evidence": [
+        "app/globals.css and release evidence: compact label is nowrap and fully contained on one line at all tested breakpoints."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:13.604082Z"
+    },
+    {
+      "id": "project:search-variant",
+      "source": "project_guidance",
+      "statement": "Routes with the header search action retain search, world selector, menu and logo without overflow.",
+      "acceptance_check": "Routes with the header search action retain search, world selector, menu and logo without overflow.",
+      "status": "passed",
+      "evidence": [
+        "Rendered /business?id=vacation-2482 at 390, 360 and 340 pixels: search, selector, menu and logo remained visible with document width below viewport width."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:14.051537Z"
+    },
+    {
+      "id": "project:chooser",
+      "source": "project_guidance",
+      "statement": "The world chooser chevron and interaction remain functional.",
+      "acceptance_check": "The world chooser chevron and interaction remain functional.",
+      "status": "passed",
+      "evidence": [
+        "At 340 pixels the world switcher panel opened and the header search dialog opened and closed; chevron remained visible."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-03T21:10:14.606232Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-03T20:59:20.410755Z",
+      "evidence": [
+        "CSS contract and focused header tests: world label is nowrap, mobile selector widths are 80/74/70 pixels, search-header variant hides only the duplicate header language action below 380 pixels, and menu retains its language switcher."
+      ],
+      "findings": [
+        "Root cause removed from all compact breakpoints rather than patched per route."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-03T21:10:15.058889Z",
+      "attacks": [
+        "Measured label wrapping and containment at 340, 360 and 390 pixels.",
+        "Measured the crowded detail-header variant with the extra search action and checked document width against viewport width.",
+        "Opened the world chooser and header search overlay at the narrowest viewport, then closed them.",
+        "Reloaded the exact local candidate and visually inspected the first 150 pixels of the events page."
+      ],
+      "natural_destination_evidence": "project_knowledge/release_evidence/mobile-header-world-label-local-20261103.json",
+      "affected_family_evidence": "15 focused header tests passed, pnpm build exited 0, and both /events and /business route variants passed three rendered widths."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-03T21:10:15.607834Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 18.0,
+      "baseline_note": "Baseline screenshot and computed CSS showed a two-line clipped events label in a 64-pixel trigger with overflow-wrap:anywhere."
+    }
+  },
+  "last_freshness_check_at": "2026-11-03T21:10:12.540920Z",
+  "last_freshness_check_errors": []
+}

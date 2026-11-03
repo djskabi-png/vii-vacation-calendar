@@ -8495,7 +8495,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
     justify-content: center;
     border-radius: 14px;
   }
-  .world-dock > summary strong { font-size: .72rem; line-height: 1.25; overflow-wrap: anywhere; }
+  .world-dock > summary strong { font-size: .72rem; line-height: 1.25; overflow-wrap: normal; white-space: nowrap; }
   .world-dock > summary .world-label-full { display: none; }
   .world-dock > summary .world-label-compact { display: block; }
   .world-dock > summary > span { flex: 1; }
@@ -8524,12 +8524,15 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .site-header:has(.world-dock) .brand img { object-fit: contain; }
   .site-header:has(.world-dock) .header-actions { min-width: 0; gap: 2px; }
   .site-header:has(.world-dock) .world-dock > summary {
-    width: 64px;
-    min-width: 64px;
-    max-width: 64px;
-    padding-inline: 6px;
-    gap: 3px;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    padding-inline: 7px;
+    gap: 4px;
   }
+}
+@media (max-width: 380px) {
+  .site-header:has(.header-search) .header-actions > .language-switcher { display: none; }
 }
 @media (max-width: 360px) {
   .site-header:has(.world-dock) .brand, .site-header:has(.world-dock) .brand img { width: 48px; }
@@ -8539,7 +8542,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .site-header:has(.world-dock) .header-actions :is(.icon-button,.menu-button,.language-trigger) { width: 44px; min-width: 44px; min-height: 44px; padding-inline: 0; flex: 0 0 44px; }
   .site-header:has(.world-dock) .accessibility-trigger { font-size: 1.15rem; }
   .site-header:has(.world-dock) .header-gift { display: none; }
-  .site-header:has(.world-dock) .world-dock > summary { width: 56px; min-width: 56px; max-width: 56px; padding-inline: 4px; gap: 1px; }
+  .site-header:has(.world-dock) .world-dock > summary { width: 74px; min-width: 74px; max-width: 74px; padding-inline: 6px; gap: 3px; }
 }
 @media (max-width: 340px) {
   .site-header:has(.world-dock) .site-header__inner { width: 100%; grid-template-columns: 44px minmax(0,1fr); }
@@ -8547,8 +8550,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .site-header:has(.world-dock) .brand img { width: 44px; max-width: 44px; }
   .site-header:has(.world-dock) .brand { flex-basis: 44px; }
   .site-header:has(.world-dock) .header-actions > .language-switcher { display: none; }
-  .site-header:has(.world-dock) .world-dock > summary { width: 44px; min-width: 44px; max-width: 44px; padding-inline: 4px; }
-  .site-header:has(.world-dock) .world-dock > summary .world-toggle-icon { display: none; }
+  .site-header:has(.world-dock) .world-dock > summary { width: 70px; min-width: 70px; max-width: 70px; padding-inline: 5px; gap: 2px; }
+  .site-header:has(.world-dock) .world-dock > summary .world-toggle-icon { display: block; }
 }
 
 @media (max-width: 360px) {

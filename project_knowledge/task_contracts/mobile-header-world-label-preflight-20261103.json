@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-mobile-header-world-label-20261103",
+  "project": "VII",
+  "task_type": "responsive-ui-repair",
+  "requested_outcome": "The mobile global header always shows the complete current world label on one readable line, including routes that also show the header search action.",
+  "natural_destination": "VII mobile header on world landing and place-detail routes",
+  "authorization_boundary": "Local code, tests and local rendered verification are authorized. Public deployment is not authorized by this request.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "The reported defect is a mobile readability and breakpoint-transition failure.",
+      "acceptance_impact": "Requires rendered first-viewport checks at 390, 360 and 340 pixel widths, including overflow measurements."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The shared header affects every public route and needs affected-family regression evidence.",
+      "acceptance_impact": "Requires testing both header variants, chooser interaction and preservation of all utility controls."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The events label is still split, clipped or abbreviated at a narrow breakpoint.",
+      "prevention": "Reserve a measured non-shrinking selector width and prohibit word wrapping in the compact label.",
+      "acceptance_check": "Rendered label has one line and its bounding box remains inside the trigger at 390, 360 and 340 pixels."
+    },
+    {
+      "rejection": "The fix works on events but fails on a detail page that also shows the search icon.",
+      "prevention": "Define an explicit narrow-header priority rule for the header-search variant.",
+      "acceptance_check": "On a place-detail route, search, world selector and menu remain visible without horizontal overflow."
+    },
+    {
+      "rejection": "Making the label fit crops the logo, removes the chooser chevron or reduces touch targets.",
+      "prevention": "Preserve logo sizing, the chevron and 44-pixel utility controls in the shared header contract.",
+      "acceptance_check": "Logo, chevron and all visible actions remain contained and interactive at every tested width."
+    }
+  ],
+  "affected_family": [
+    "global site header",
+    "world switcher trigger and panel",
+    "routes with in-page search",
+    "routes with header search",
+    "mobile widths 340 through 560 pixels",
+    "Hebrew compact world labels"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Reported broken mobile events header",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-8f6b2548-9e93-4464-a5e5-5918a77bcc23.png"
+      },
+      {
+        "label": "VII accepted mobile staged-flow and shared-product standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After CSS and static contract tests pass, before rendered browser verification.",
+    "checks": [
+      "The label is explicitly non-wrapping.",
+      "All narrow breakpoints reserve sufficient selector width.",
+      "The route variant with header search has a documented space-priority rule."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the label escape or wrap at 340, 360 or 390 pixels?",
+      "Does adding the header search icon force any action or logo outside the viewport?",
+      "Does the selector still open and retain its chevron and touch height?",
+      "Does the header overflow during a width transition?"
+    ],
+    "natural_destination_evidence": "Local rendered screenshots and DOM geometry from the actual events and business routes.",
+    "affected_family_evidence": "Static regression tests for both header variants plus rendered checks across three narrow widths."
+  },
+  "effectiveness": {
+    "baseline": "At narrow mobile width the compact events label wraps and is visibly clipped because the trigger is forced down to 56 or 44 pixels and overflow-wrap is anywhere.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero label wraps, zero header horizontal overflow and zero missing required controls across both header variants."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
