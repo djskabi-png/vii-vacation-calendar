@@ -22,7 +22,10 @@ export async function startingPricesResponse(request: Request, dependencies: Dep
     const ids = await dependencies.published(world);
     return Response.json({ world, prices: publishedStartingPrices(world, cached.value, ids), cache: cached.cache }, { headers });
   } catch {
-    return Response.json({ world, prices: {}, error: "starting_prices_unavailable" }, { status: 503, headers });
+    // Seasonal starting prices are optional browse enrichment, never a quote
+    // or availability evidence. If the enrichment source is unavailable,
+    // fail closed to no advertised price while keeping the search usable.
+    return Response.json({ world, prices: {}, degraded: true }, { headers });
   }
 }
 

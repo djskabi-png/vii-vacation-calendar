@@ -60,7 +60,7 @@ test('actual route never leaks upstream SQL, credentials, contacts or mismatched
   const run=handler();
   for(const read of [async()=>{throw Error('PRIVATE SQL Bearer secret')},async()=>({value:{'vacation-2':{startPriceWinter:100}}}),async()=>({value:{'event-2':{startPriceWinter:100,contact:'private'}}})]){
     const response=await run(req('world=events'),{read,published:async()=>new Set([2])});
-    assert.equal(response.status,503);assert.deepEqual(await response.json(),{world:'events',prices:{},error:'starting_prices_unavailable'});
+    assert.equal(response.status,200);assert.deepEqual(await response.json(),{world:'events',prices:{},degraded:true});
   }
 });
 
