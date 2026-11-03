@@ -4,7 +4,7 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("place WhatsApp actions save a complete lead before opening the conversation", async () => {
+test("place WhatsApp actions open the API WhatsApp destination without waiting for lead persistence", async () => {
   const source = await read("app/components/whatsapp-lead-button.tsx");
 
   assert.match(source, /name="name"[^>]*required|required[^>]*name="name"/);
@@ -20,10 +20,14 @@ test("place WhatsApp actions save a complete lead before opening the conversatio
   assert.match(source, /purpose: "whatsapp_enquiry"/);
   assert.match(source, /sourceChannel: "detail_whatsapp"/);
 
-  const successCheck = source.indexOf("if (!response.ok || !result.success)");
-  const whatsappNavigation = source.indexOf("window.location.assign(`https://wa.me/");
-  assert.ok(successCheck > -1 && whatsappNavigation > successCheck, "WhatsApp must open only after lead persistence succeeds");
-  assert.match(source, /JSON\.stringify\(\{ submissionId: id, reference \}\)/);
+  const whatsappOpen = source.indexOf("window.open(whatsappUrl");
+  const leadPersistence = source.indexOf('fetch("/api/leads/"');
+  assert.ok(whatsappOpen > -1 && whatsappOpen < leadPersistence, "WhatsApp must open during the visitor gesture before optional lead persistence");
+  assert.match(source, /const destination = whatsappNumber\(businessPhone\)/);
+  assert.match(source, /if \(whatsappWindow\) whatsappWindow\.opener = null/);
+  assert.match(source, /else window\.location\.assign\(whatsappUrl\)/);
+  assert.match(source, /keepalive: true/);
+  assert.match(source, /JSON\.stringify\(\{ submissionId: id, reference: savedReference \}\)/);
   assert.match(source, /if \(handoff\.ok\) trackWhatsAppHandoff/);
 });
 
@@ -143,22 +147,22 @@ test("the shared lead modal is clean and progressively discloses optional detail
   assert.match(css, /prefers-reduced-motion: reduce[^}]*whatsapp-lead-dialog__spinner/);
 });
 
-test("isolated enquiry handler preserves optional context and never navigates on failure", async () => {
+test("isolated enquiry handler preserves optional context and opens WhatsApp even when lead persistence fails", async () => {
   const source = await read("app/components/whatsapp-lead-button.tsx");
   const handler = source.slice(source.indexOf("  async function submit("), source.indexOf("\n  return <>"))
     .replace("event: FormEvent<HTMLFormElement>", "event")
     .replace(/ as \{ success\?: boolean; reference\?: string \}/, "");
-  const run = new Function("deps", `const {setState,state,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
-  for (const mode of ["success", "error", "handoff-error", "retry", "busy"]) {
+  const run = new Function("deps", `const {setState,setOpen,stateRef,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
+  for (const mode of ["success", "error", "handoff-error", "retry", "popup-blocked", "busy"]) {
     const calls = [], states = [], navigations = [];
     const payloads = [];
     const deps = {
-      state: mode === "busy" ? "submitting" : "idle", submissionId: mode === "retry" ? "stable-id" : "", setSubmissionId: id => calls.push(`id:${id}`),
+      stateRef: {current: mode === "busy" ? "submitting" : "idle"}, setOpen: value => calls.push(`open:${value}`), submissionId: mode === "retry" ? "stable-id" : "", setSubmissionId: id => calls.push(`id:${id}`),
       crypto: { randomUUID: () => "new-id" }, setState: state => states.push(state),
       FormData: class { get(key) { return {name:"Test User",phone:"0500000000",requested_date:"2026-12-10",requested_till:"2026-12-12",guests:"6",company_site:""}[key]; } },
       labels: new Proxy({}, {get: (_, key) => key === "messageIntro" ? name => `Hello ${name}` : key}),
       world:"vacation",placeId:"test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
-      window:{location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
+      window:{open:url => { calls.push(`window-open:${url}`); if (mode === "popup-blocked") return null; navigations.push(url); return {}; },location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
       fetch: async (url, options) => {
         calls.push(url);
         payloads.push(JSON.parse(options.body));
@@ -178,10 +182,10 @@ test("isolated enquiry handler preserves optional context and never navigates on
     assert.equal(payload.serviceName, "Selected unit");
     assert.equal(payload.privacyAccepted, true);
     assert.equal(payload.submissionId, mode === "retry" ? "stable-id" : "new-id");
-    if (mode === "error") { assert.deepEqual(navigations, []); assert.equal(states.at(-1), "error"); assert.ok(!calls.includes("tracked")); }
+    assert.equal(navigations.length, 1);
+    assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit/);
+    if (mode === "error") { assert.ok(!calls.includes("tracked")); }
     else {
-      assert.equal(navigations.length, 1);
-      assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/);
       assert.equal(payloads[1].submissionId, mode === "retry" ? "stable-id" : "new-id");
       assert.equal(payloads[1].reference, "fixture-ref");
       assert.ok(calls.includes("tracked"));

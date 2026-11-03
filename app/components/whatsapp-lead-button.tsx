@@ -46,10 +46,10 @@ const copy: Record<SiteLanguage, Copy> = {
     appName: "\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4",
     conversationWith: (placeName) => `\u05e9\u05d9\u05d7\u05d4 \u05e2\u05dd ${placeName}`,
     previewMessage: "\u05e9\u05dc\u05d5\u05dd, \u05d0\u05e9\u05de\u05d7 \u05dc\u05d1\u05d3\u05d5\u05e7 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05e9\u05de\u05d5\u05e2 \u05e4\u05e8\u05d8\u05d9\u05dd.",
-    previewStatus: "\u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05ea\u05d9\u05e4\u05ea\u05d7 \u05d0\u05d7\u05e8\u05d9 \u05e9\u05de\u05d9\u05e8\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd",
+    previewStatus: "\u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05ea\u05d9\u05e4\u05ea\u05d7 \u05de\u05d9\u05d9\u05d3 \u05d1\u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d9\u05ea WhatsApp",
     eyebrow: "\u05e4\u05e0\u05d9\u05d9\u05d4 \u05de\u05ea\u05d5\u05e2\u05d3\u05ea \u05dc\u05de\u05e7\u05d5\u05dd",
     title: "\u05e4\u05e8\u05d8\u05d9\u05dd \u05dc\u05e4\u05ea\u05d9\u05d7\u05ea \u05e9\u05d9\u05d7\u05d4",
-    description: "\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e0\u05e9\u05de\u05e8\u05d9\u05dd \u05dc\u05e4\u05e0\u05d9 \u05d4\u05de\u05e2\u05d1\u05e8 \u05dc\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4, \u05db\u05d3\u05d9 \u05e9\u05d4\u05de\u05e7\u05d5\u05dd \u05d5\u05d0\u05e0\u05d7\u05e0\u05d5 \u05e0\u05d5\u05db\u05dc \u05dc\u05e2\u05e7\u05d5\u05d1 \u05d0\u05d7\u05e8\u05d9 \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4.",
+    description: "\u05d4\u05e9\u05d9\u05d7\u05d4 \u05ea\u05d9\u05e4\u05ea\u05d7 \u05de\u05d9\u05d9\u05d3. \u05d0\u05ea \u05e4\u05e8\u05d8\u05d9 \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4 \u05e0\u05e9\u05de\u05d5\u05e8 \u05d1\u05e8\u05e7\u05e2 \u05dc\u05e6\u05d5\u05e8\u05da \u05d8\u05d9\u05e4\u05d5\u05dc \u05d5\u05de\u05e2\u05e7\u05d1.",
     name: "\u05e9\u05dd \u05de\u05dc\u05d0",
     phone: "\u05d8\u05dc\u05e4\u05d5\u05df",
     date: "\u05ea\u05d0\u05e8\u05d9\u05da \u05de\u05d1\u05d5\u05e7\u05e9",
@@ -59,10 +59,10 @@ const copy: Record<SiteLanguage, Copy> = {
     privacyPrefix: "\u05d1\u05dc\u05d7\u05d9\u05e6\u05d4 \u05e2\u05dc \u05d4\u05db\u05e4\u05ea\u05d5\u05e8 \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05d9\u05d9\u05e9\u05de\u05e8\u05d5 \u05dc\u05e6\u05d5\u05e8\u05da \u05d8\u05d9\u05e4\u05d5\u05dc \u05d1\u05e4\u05e0\u05d9\u05d9\u05d4, \u05d1\u05d4\u05ea\u05d0\u05dd \u05dc",
     privacyLink: "\u05de\u05d3\u05d9\u05e0\u05d9\u05d5\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea",
     submit: "\u05e9\u05de\u05d9\u05e8\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05e4\u05ea\u05d9\u05d7\u05ea \u05e9\u05d9\u05d7\u05d4",
-    submitting: "\u05e9\u05d5\u05de\u05e8\u05d9\u05dd \u05d0\u05ea \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4...",
+    submitting: "\u05e4\u05d5\u05ea\u05d7\u05d9\u05dd \u05d0\u05ea WhatsApp...",
     close: "\u05e1\u05d2\u05d9\u05e8\u05ea \u05d7\u05dc\u05d5\u05df \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4",
-    errorTitle: "\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e2\u05d3\u05d9\u05d9\u05df \u05dc\u05d0 \u05e0\u05e9\u05de\u05e8\u05d5",
-    errorBody: "\u05dc\u05d0 \u05e4\u05ea\u05d7\u05e0\u05d5 \u05e9\u05d9\u05d7\u05d4. \u05d1\u05d3\u05e7\u05d5 \u05d0\u05ea \u05d4\u05d7\u05d9\u05d1\u05d5\u05e8 \u05d5\u05e0\u05e1\u05d5 \u05e9\u05d5\u05d1.",
+    errorTitle: "\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0 \u05de\u05e1\u05e4\u05e8 WhatsApp \u05ea\u05e7\u05d9\u05df",
+    errorBody: "\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05dc\u05e4\u05ea\u05d5\u05d7 \u05e9\u05d9\u05d7\u05d4 \u05db\u05e8\u05d2\u05e2. \u05d0\u05e4\u05e9\u05e8 \u05dc\u05e1\u05d2\u05d5\u05e8 \u05d5\u05dc\u05d4\u05e9\u05ea\u05de\u05e9 \u05d1\u05db\u05e4\u05ea\u05d5\u05e8 \u05d4\u05d8\u05dc\u05e4\u05d5\u05df.",
     messageIntro: (placeName) => `\u05e9\u05dc\u05d5\u05dd ${placeName}, \u05d4\u05d2\u05e2\u05ea\u05d9 \u05d3\u05e8\u05da \u05d0\u05ea\u05e8 V \u05d5\u05d0\u05e9\u05de\u05d7 \u05dc\u05d1\u05d3\u05d5\u05e7 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea.`,
     messageName: "\u05e9\u05dd \u05de\u05dc\u05d0",
     messagePhone: "\u05d8\u05dc\u05e4\u05d5\u05df",
@@ -74,8 +74,8 @@ const copy: Record<SiteLanguage, Copy> = {
     messageOutro: "\u05d0\u05e9\u05de\u05d7 \u05dc\u05e7\u05d1\u05dc \u05e4\u05e8\u05d8\u05d9\u05dd.",
   },
   en: {
-    appName: "WhatsApp", conversationWith: (placeName) => `Chat with ${placeName}`, previewMessage: "Hello, I would like to check availability and receive more details.", previewStatus: "The message will open after your details are saved",
-    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Details to start the chat", description: "We save the enquiry before opening WhatsApp so the business and our team can follow it up.", name: "Full name", phone: "Phone", date: "Check-in", checkout: "Check-out", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "By submitting, your details will be saved to handle this enquiry under the", privacyLink: "privacy policy", submit: "Save details and open chat", submitting: "Saving your enquiry...", close: "Close enquiry dialog", errorTitle: "Your details have not been saved yet", errorBody: "We did not open WhatsApp. Check your connection and try again.", messageIntro: (placeName) => `Hello ${placeName}, I came through the V website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Check-in", messageCheckout: "Check-out", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
+    appName: "WhatsApp", conversationWith: (placeName) => `Chat with ${placeName}`, previewMessage: "Hello, I would like to check availability and receive more details.", previewStatus: "The message will open immediately in WhatsApp",
+    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Details to start the chat", description: "The chat opens immediately while we save the enquiry in the background for follow-up.", name: "Full name", phone: "Phone", date: "Check-in", checkout: "Check-out", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "By submitting, your details will be saved to handle this enquiry under the", privacyLink: "privacy policy", submit: "Open WhatsApp", submitting: "Opening WhatsApp...", close: "Close enquiry dialog", errorTitle: "No valid WhatsApp number was found", errorBody: "The chat cannot be opened right now. Please use the phone button instead.", messageIntro: (placeName) => `Hello ${placeName}, I came through the V website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Check-in", messageCheckout: "Check-out", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
   },
   ru: {
     appName: "WhatsApp", conversationWith: (placeName) => `Чат с ${placeName}`, previewMessage: "Здравствуйте, хочу уточнить наличие мест и получить подробности.", previewStatus: "Сообщение откроется после сохранения данных",
@@ -95,7 +95,7 @@ const newTabLabel: Record<SiteLanguage, string> = {
 };
 
 const dialogCopy: Record<SiteLanguage, { title: string; intro: string; optional: string; submit: string; submitting: string }> = {
-  he: { title: "פנייה בוואטסאפ", intro: "רק שם וטלפון, את השאר אפשר לתאם בשיחה.", optional: "תאריכים ואורחים (לא חובה)", submit: "המשך לוואטסאפ", submitting: "רגע, שומרים את הפנייה..." },
+  he: { title: "פנייה בוואטסאפ", intro: "רק שם וטלפון, את השאר אפשר לתאם בשיחה.", optional: "תאריכים ואורחים (לא חובה)", submit: "המשך לוואטסאפ", submitting: "פותחים את WhatsApp..." },
   en: { title: "Enquire on WhatsApp", intro: "Just your name and phone. You can arrange the rest in the chat.", optional: "Dates and guests (optional)", submit: "Continue to WhatsApp", submitting: "Saving your enquiry..." },
   ru: { title: "Связаться в WhatsApp", intro: "Только имя и телефон. Остальное можно обсудить в чате.", optional: "Даты и гости (необязательно)", submit: "Перейти в WhatsApp", submitting: "Сохраняем запрос..." },
   fr: { title: "Contacter par WhatsApp", intro: "Votre nom et votre téléphone suffisent. Le reste peut se discuter dans le chat.", optional: "Dates et voyageurs (facultatif)", submit: "Continuer sur WhatsApp", submitting: "Enregistrement en cours..." },
@@ -192,7 +192,8 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (state === "submitting") return;
+    if (stateRef.current === "submitting") return;
+    stateRef.current = "submitting";
     setState("submitting");
     const values = new FormData(event.currentTarget);
     const id = submissionId || crypto.randomUUID();
@@ -211,10 +212,41 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
       serviceName ? `${labels.messageService}: ${serviceName}` : "",
     ].filter(Boolean).join("\n");
 
+    const destination = whatsappNumber(businessPhone);
+    if (destination.length < 7) {
+      stateRef.current = "error";
+      setState("error");
+      return;
+    }
+
+    const reference = id;
+    const whatsappMessage = [
+      labels.messageIntro(localizedPlaceName),
+      `${labels.messageName}: ${name}`,
+      `${labels.messagePhone}: ${visitorPhone}`,
+      requestedDate ? `${labels.messageDate}: ${requestedDate}` : "",
+      requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
+      guests ? `${labels.messageGuests}: ${guests}` : "",
+      serviceName ? `${labels.messageService}: ${serviceName}` : "",
+      `${labels.messageReference}: ${reference}`,
+      labels.messageOutro,
+    ].filter(Boolean).join("\n");
+    const whatsappUrl = `https://wa.me/${destination}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    // The visitor's primary action must never depend on optional CRM persistence.
+    // Open during the submit gesture so browsers do not treat it as a delayed popup.
+    const whatsappWindow = window.open(whatsappUrl, "_blank");
+    if (whatsappWindow) whatsappWindow.opener = null;
+    else window.location.assign(whatsappUrl);
+    setOpen(false);
+    stateRef.current = "idle";
+    setState("idle");
+
     try {
       const response = await fetch("/api/leads/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        keepalive: true,
         body: JSON.stringify({
           submissionId: id,
           purpose: "whatsapp_enquiry",
@@ -235,29 +267,17 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         }),
       });
       const result = await response.json() as { success?: boolean; reference?: string };
-      if (!response.ok || !result.success) throw new Error("lead_not_saved");
-      const reference = result.reference || id;
-      const whatsappMessage = [
-        labels.messageIntro(localizedPlaceName),
-        `${labels.messageName}: ${name}`,
-        `${labels.messagePhone}: ${visitorPhone}`,
-        requestedDate ? `${labels.messageDate}: ${requestedDate}` : "",
-        requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
-        guests ? `${labels.messageGuests}: ${guests}` : "",
-        serviceName ? `${labels.messageService}: ${serviceName}` : "",
-        `${labels.messageReference}: ${reference}`,
-        labels.messageOutro,
-      ].filter(Boolean).join("\n");
-      trackWhatsAppLeadSaved({ placeId, placeName, world, reference });
+      if (!response.ok || !result.success) return;
+      const savedReference = result.reference || reference;
+      trackWhatsAppLeadSaved({ placeId, placeName, world, reference: savedReference });
       try {
-        const handoff = await fetch("/api/leads/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ submissionId: id, reference }) });
-        if (handoff.ok) trackWhatsAppHandoff({ placeId, placeName, world, reference });
+        const handoff = await fetch("/api/leads/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", keepalive: true, body: JSON.stringify({ submissionId: id, reference: savedReference }) });
+        if (handoff.ok) trackWhatsAppHandoff({ placeId, placeName, world, reference: savedReference });
       } catch {
-        // The lead is already saved. A secondary audit failure must not block the visitor's conversation.
+        // The conversation is already open. Secondary audit failure is intentionally non-blocking.
       }
-      window.location.assign(`https://wa.me/${whatsappNumber(businessPhone)}?text=${encodeURIComponent(whatsappMessage)}`);
     } catch {
-      setState("error");
+      // The conversation is already open. Optional lead persistence is best effort.
     }
   }
 
