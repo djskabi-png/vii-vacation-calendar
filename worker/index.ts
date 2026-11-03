@@ -29,6 +29,7 @@ import { awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
 import { runQualityChecks } from "../app/lib/quality-platform.ts";
 import { deploymentMediaAliases } from "../app/lib/deployment-media-aliases.generated.ts";
 import { optimizedMediaSource } from "./optimized-media-source.ts";
+import { transformResponsiveImage, type NativeImageBinding } from "./responsive-image-transform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -147,13 +148,7 @@ interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   UPLOADS: R2Bucket;
-  IMAGES: {
-    input(stream: ReadableStream): {
-      transform(options: Record<string, unknown>): {
-        output(options: { format: string; quality: number }): Promise<{ response(): Response }>;
-      };
-    };
-  };
+  IMAGES?: NativeImageBinding;
   VII_AWS_DB_ENDPOINT?: string;
   VII_AWS_DB_TOKEN?: string;
   VII_AWS_DB_MODE?: string;
@@ -286,10 +281,7 @@ const worker = {
       return handleImageOptimization(request, {
         fetchAsset: async (path) => (await optimizedMediaSource(path, env.UPLOADS))
           || env.ASSETS.fetch(new Request(new URL(path, request.url))),
-        transformImage: async (body, { width, format, quality }) => {
-          const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
-          return result.response();
-        },
+        transformImage: (body, options) => transformResponsiveImage(body, options, env.IMAGES),
       }, allowedWidths);
     }
 
