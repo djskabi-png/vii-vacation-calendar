@@ -125,17 +125,18 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     })
     .slice(0, 10)
     .map((candidate) => ({ label: candidate.title, href: candidate.path }));
+  const initialListings = landing.listings.slice(0, 60);
 
   return <>
     <StructuredData data={collectionSchema(
       landing.title,
       landing.description,
       landing.path,
-      landing.listings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })),
+      initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })),
     )} />
     <StructuredData data={breadcrumbSchema(breadcrumbs)} />
     <StructuredData data={faqSchema(faqs)} />
-    <PublishedCatalogSeed world="vacations" entries={publishedProperties}><SearchExperience landing={{
+    <PublishedCatalogSeed world="vacations" entries={initialListings} complete={false}><SearchExperience landing={{
       path: landing.path,
       title: landing.title,
       description: landing.description,

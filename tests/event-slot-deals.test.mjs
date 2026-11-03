@@ -10,9 +10,18 @@ test("dedicated last-minute page keeps a truthful browse fallback without claimi
   const source = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
   assert.match(source, /fallbackTitle/);
   assert.match(source, /fallbackStatus/);
-  assert.match(source, /fixedPreset && !busy && !candidates\.length/);
+  assert.match(source, /!busy && !candidates\.length && additionalPlaces\.length/);
   assert.doesNotMatch(source, /const additionalPlaces = fixedPreset \? \[\] :/);
-  assert.match(source, /selectedPreset === "lastminute" \? text\.fallbackStatus/);
+  assert.match(source, /className="event-deals__check">\{text\.fallbackStatus\}/);
+  assert.doesNotMatch(source, /event-deals__check[^\n]+selectedAvailability/);
+});
+
+test("event discovery exposes exactly one truthful result family after a failed live check", () => {
+  const source = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
+  assert.match(source, /const showBrowseFallback = Boolean\(!busy && !candidates\.length && additionalPlaces\.length && \(search\.status === "ready" \|\| search\.status === "error"\)\)/);
+  assert.match(source, /const visibleAdditionalPlaces = showBrowseFallback \? additionalPlaces : \[\]/);
+  assert.match(source, /role=\{showBrowseFallback \? "status" : "alert"\}/);
+  assert.match(source, /title=\{showBrowseFallback \? text\.fallbackTitle : title\}/);
 });
 
 test("dated event offers preserve their supplier identity instead of joining a second query to a vacation link", () => {
@@ -104,11 +113,12 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /supplierStartingPrice\(startingPrices\[place\.slug\] \|\| place\)/);
   assert.match(slider, /priority: place => supplierStartingPrice\(startingPrices\[place\.slug\] \?\? place\) \? 0 : 1/);
   assert.match(slider, /<CatalogStartingPrice amount=\{startingPrice\}/);
-  assert.match(slider, /selectedAvailability/);
-  assert.match(slider, /text\.today/);
-  assert.match(slider, /text\.tomorrow/);
-  assert.match(slider, /text\.thursday/);
-  assert.match(slider, /text\.friday/);
+  assert.match(slider, /showBrowseFallback/);
+  assert.match(slider, /className="event-deals__check">\{text\.fallbackStatus\}/);
+  assert.match(slider, /today: /);
+  assert.match(slider, /tomorrow: /);
+  assert.match(slider, /thursday: /);
+  assert.match(slider, /friday: /);
   assert.match(slider, /eventPlaceHref\(place\)/);
   assert.match(slider, /busy && !visibleAdditionalPlaces\.length/);
   assert.match(slider, /search\.status === "error"/);

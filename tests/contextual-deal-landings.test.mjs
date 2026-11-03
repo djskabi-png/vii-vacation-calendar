@@ -8,7 +8,7 @@ test("event last-minute slider links to its dedicated localized landing", async 
   const source = await read("app/components/event-last-minute.tsx");
   assert.match(source, /selectedPreset === "lastminute" \? "\/events\/last-minute"/);
   assert.match(source, /localizedPath\(searchPath, language\)/);
-  assert.match(source, /visibleAdditionalPlaces = fixedPreset \? \(showFixedPresetFallback \? additionalPlaces : \[\]\)/);
+  assert.match(source, /visibleAdditionalPlaces = showBrowseFallback \? additionalPlaces : \[\]/);
   assert.match(source, /fallbackStatus/);
 });
 

@@ -53,15 +53,15 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const guests = initialGuests > 0 ? initialGuests : 20;
   const [retry, setRetry] = useState(0);
   useEffect(() => {
-    const preset = eventDealPresets().find((item) => item.id === (fixedPreset || "lastminute"));
-    setDate(preset?.date || eventDealDate(1));
-    setInitialized(true);
+    const timer = window.setTimeout(() => {
+      const preset = eventDealPresets().find((item) => item.id === (fixedPreset || "lastminute"));
+      setDate(preset?.date || eventDealDate(1));
+      setInitialized(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [fixedPreset]);
   const presets = clock ? eventDealPresets(clock.now) : [];
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
-  const selectedAvailability = selectedPreset === "thursday" ? text.thursday
-    : selectedPreset === "friday" ? text.friday
-    : clock && date === eventDealDate(0, clock.now) ? text.today : text.tomorrow;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, undefined, retry, true, scope?.label);
   const startingPrices = useStartingPrices("events", true);
   const candidates = orderDiscoveryRail((search.places || places).flatMap((place) => {
@@ -87,8 +87,11 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const searchPath = !scope && selectedPreset === "lastminute" ? "/events/last-minute" : eventSearchHref(scope?.label);
   const allLabel = selectedPreset === "lastminute" ? ({ he: "לכל אירועי הרגע האחרון", en: "All last-minute event venues", ru: "Все площадки в последний момент", fr: "Tous les lieux de dernière minute" } as const)[language] : text.all;
   const busy = search.status === "loading" || !initialized;
-  const showFixedPresetFallback = Boolean(fixedPreset && !busy && !candidates.length && (search.status === "ready" || search.status === "error"));
-  const visibleAdditionalPlaces = fixedPreset ? (showFixedPresetFallback ? additionalPlaces : []) : additionalPlaces;
+  // Browse cards are useful only as a clearly labelled fallback. They must
+  // never sit beside verified offers or inherit a selected-date availability
+  // label when the live supplier check failed or returned no verified offer.
+  const showBrowseFallback = Boolean(!busy && !candidates.length && additionalPlaces.length && (search.status === "ready" || search.status === "error"));
+  const visibleAdditionalPlaces = showBrowseFallback ? additionalPlaces : [];
 
   function choosePreset(id: string, presetDate: string) {
     setDate(presetDate);
@@ -109,11 +112,11 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     <div id={`${sectionId}-results`} role="tabpanel" aria-busy={busy} aria-live="polite">
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy && !visibleAdditionalPlaces.length ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
-      {search.status === "error" ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
+      {search.status === "error" ? <div className="event-rail-status" role={showBrowseFallback ? "status" : "alert"}><p>{text.error}{showBrowseFallback ? `. ${text.fallbackStatus}` : ""}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
       {search.status === "ready" && !candidates.length && !visibleAdditionalPlaces.length ? <p className="event-rail-status">{text.empty}</p> : null}
       {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
-      {showFixedPresetFallback ? <h3 className="event-deals__fallback-title">{text.fallbackTitle}</h3> : null}
-      {candidates.length || visibleAdditionalPlaces.length ? <EventRail key={`${date}-${guests}`} title={showFixedPresetFallback ? text.fallbackTitle : title}>{candidates.map(({ place, offer }) => {
+      {showBrowseFallback ? <h3 className="event-deals__fallback-title">{text.fallbackTitle}</h3> : null}
+      {candidates.length || visibleAdditionalPlaces.length ? <EventRail key={`${date}-${guests}`} title={showBrowseFallback ? text.fallbackTitle : title}>{candidates.map(({ place, offer }) => {
         place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));
@@ -121,7 +124,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
       })}{visibleAdditionalPlaces.map((place) => {
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const startingPrice = supplierStartingPrice(startingPrices[place.slug] || place);
-        return <PlacePreviewCard className="event-rail-card event-deals__card event-deals__card--browse" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={localizedPath(eventPlaceHref(place), language)}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span>{startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}<span className="event-deals__check">{showFixedPresetFallback && selectedPreset === "lastminute" ? text.fallbackStatus : selectedAvailability}</span></span></PlacePreviewCard>;
+        return <PlacePreviewCard className="event-rail-card event-deals__card event-deals__card--browse" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={localizedPath(eventPlaceHref(place), language)}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span>{startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}<span className="event-deals__check">{text.fallbackStatus}</span></span></PlacePreviewCard>;
       })}</EventRail> : null}
     </div>
   </section>;

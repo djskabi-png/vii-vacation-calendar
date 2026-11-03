@@ -93,6 +93,11 @@ test("desktop search combines a synchronized result list, sticky map and quick f
   assert.match(styles, /\.airbnb-map-split__map \{[^}]*position: sticky/);
 });
 
+test("desktop map canvas keeps a real row with or without an optional toolbar", () => {
+  assert.match(styles, /\.airbnb-map-split__map \{[^}]*grid-template-rows: minmax\(0,1fr\)/);
+  assert.match(styles, /\.airbnb-map-split__map:has\(> \.map-pane-toolbar\) \{ grid-template-rows: auto minmax\(0,1fr\); \}/);
+});
+
 test("vacation markers prioritize verified price and map zoom is direct", () => {
   assert.match(component, /priceById\?\.\[listing\.slug\]/);
   assert.match(component, /validMapPrice\(listing\.price\)/);

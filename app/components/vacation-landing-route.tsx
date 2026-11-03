@@ -33,6 +33,10 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
     key: (property) => property.slug,
     origin: { location, area: location },
   }), (property) => property.slug);
+  // Keep the first document useful and indexable without serializing hundreds
+  // of repeated catalog records into both HTML and Flight. The client refreshes
+  // the complete cached search view immediately after hydration.
+  const initialListings = represented.slice(0, 60);
   const path = locationOverride ? worldLocationPath("vacation", location) : `/vacations/${region!.slug}`;
   const title = `נופש ב${location}`;
   const description = `מקומות נופש פעילים ב${location}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
@@ -48,8 +52,8 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
   ];
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
-    <StructuredData data={collectionSchema(title, description, path, represented.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
-    <PublishedCatalogSeed world="vacations" entries={publishedProperties}><SearchExperience landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, listingSlugs: listings.map((property) => property.slug), guideTitle, guideParagraphs, faqs }} /></PublishedCatalogSeed>
+    <StructuredData data={collectionSchema(title, description, path, initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
+    <PublishedCatalogSeed world="vacations" entries={initialListings} complete={false}><SearchExperience landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, listingSlugs: listings.map((property) => property.slug), guideTitle, guideParagraphs, faqs }} /></PublishedCatalogSeed>
   </>;
 }
 
