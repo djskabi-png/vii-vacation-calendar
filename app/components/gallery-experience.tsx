@@ -24,6 +24,12 @@ export type GuestPhoto = {
   author: string;
 };
 
+function galleryItemLabel(topic: string, placeName: string, index: number) {
+  return index === 0
+    ? `${topic} ב${placeName}`
+    : `${topic} ב${placeName}, מבט נוסף ${index + 1}`;
+}
+
 const tabLabels: Record<GalleryTab, string> = {
   all: "גלריית תמונות",
   place: "המקום והמתקנים",
@@ -59,13 +65,13 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const dialog = useRef<HTMLDivElement>(null);
   const gestureStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const allItems = useMemo(() => {
-    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
+    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: galleryItemLabel(room.name, property.name, index), category: "units" as const, topic: room.name })));
     const groupedPlaceItems = property.galleryGroups?.length
-      ? property.galleryGroups.flatMap((group) => group.images.map((src, index) => ({ src, label: `${group.title} ב${property.name}, תמונה ${index + 1}`, category: "place" as const, topic: group.title })))
-      : property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" }));
+      ? property.galleryGroups.flatMap((group) => group.images.map((src, index) => ({ src, label: galleryItemLabel(group.title, property.name, index), category: "place" as const, topic: group.title })))
+      : property.images.map((src, index) => ({ src, label: galleryItemLabel("המקום והמתקנים", property.name, index), category: "place" as const, topic: "המקום והמתקנים" }));
     const groupedSources = new Set(groupedPlaceItems.map((item) => item.src));
     const ungroupedPlaceItems = property.galleryGroups?.length
-      ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: `תמונות נוספות ב${property.name}, תמונה ${index + 1}`, category: "place" as const, topic: "תמונות נוספות" }))
+      ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: galleryItemLabel("תמונות נוספות", property.name, index), category: "place" as const, topic: "תמונות נוספות" }))
       : [];
     return uniqueItems([
       // Supplier galleries are the editorial source of truth. Keep their

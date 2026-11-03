@@ -37,6 +37,9 @@ const localBindingConfig = {
         },
       ]
     : [],
+  // The public responsive-image endpoint uses Cloudflare's native transform
+  // binding. Without this declaration it cannot reduce the R2 source bytes.
+  images: { binding: "IMAGES" },
 };
 
 export default defineConfig(async () => {
