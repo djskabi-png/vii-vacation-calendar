@@ -5,7 +5,7 @@
   "task_type": "performance-implementation-release",
   "goal": "Implement measured speed improvements and publish preserving all data and capabilities",
   "created_at": "2026-11-04T14:44:01.231093Z",
-  "updated_at": "2026-11-04T16:15:11.122276Z",
+  "updated_at": "2026-11-04T16:18:33.082775Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -180,6 +180,52 @@
         "verified_result": "Production diagnostic facts obtained in owning Work conversation; native Cloudflare image Worker deployed and actual output verified. Continue main publication."
       },
       "updated_at": "2026-11-04T16:15:11.122248Z"
+    },
+    {
+      "id": "access:publication_turn_stop",
+      "source": "access_obstacle",
+      "statement": "Recover turn-scoped browser safety stop without bypassing the guard",
+      "acceptance_check": "Resume owner publication in a permitted turn or document exact human-only boundary",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Computer-use turn stopped by Windows URL safety verification; connector wrong workspace. Exact prepared publication must resume in permitted owner-session turn.",
+      "access_recovery": {
+        "observed_error": "CUA stopped computer use for this turn because Windows current browser URL could not be confidently verified. Direct Sites get_site returned project_not_found.",
+        "category": "capability",
+        "diagnosis": "Turn-scoped browser safety stop prevents owning Work conversation interaction. Generic Sites connector is connected to a different project workspace. Existing Cloudflare CLI cannot save managed Site versions.",
+        "authorization_boundary": "Publish existing VII only through its supported owner route, preserving exact source/env/access. Do not bypass CUA safety stop or write unmanaged main Worker directly.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "Direct Sites get_site existing project ID returned project_not_found after browser stop."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Owning Work conversation was authenticated and read diagnostics, but CUA explicitly stopped all computer use for the turn during native mobile fallback. No main publication was submitted."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Git exact source pushed/fetched and Cloudflare existing OAuth deployed isolated Images. No supported managed Site save/deploy CLI available; direct main Worker overwrite would bypass managed provenance and is excluded."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Existing owner conversation is the proven official publication route; resume it in a new allowed computer-use turn and inspect pending readonly job before one v799 publication."
+          }
+        ],
+        "outcome": "human_required",
+        "ready_work_remaining": false,
+        "minimum_human_action": "Start a fresh browser-control turn for the existing owning VII publication conversation; no new permission or credentials requested.",
+        "resume_when": "Computer-use safety permits reading the existing owner publication tab again."
+      },
+      "updated_at": "2026-11-04T16:18:33.082734Z"
     }
   ],
   "verification_status": "in_progress",

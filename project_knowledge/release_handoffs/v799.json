@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "release": "v799",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "9c1600f64d87ef20c31b7e1f3593bbdf2026ce5c",
+  "tree": "074a5d10c54b4dfbe1ee0f3394ed5415fd9e58ef",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_763c53d18b188191aac5ecbd3c319869",
+  "rollback_deployment_id": "appgdep_6aeb402dda308191b3bac4377d520767",
+  "environment_revision": 32,
+  "focused_tests": 61,
+  "full_tests": 2040,
+  "publication_chat": "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v799 לאחר v798. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nMeasured performance: thin lazy Worker startup, manifest-bound R2 media fast path, bounded single-mode navigation speculation, responsive gallery using independently verified isolated native Cloudflare Images with same-source fallback. All accepted v798 data/booking/search behavior preserved. Remote full production build of EXACT source below is mandatory before save/deploy, not reuse of prior dist.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v791-complete-20261104, source commit מדויק 9c1600f64d87ef20c31b7e1f3593bbdf2026ce5c, tree מדויק 074a5d10c54b4dfbe1ee0f3394ed5415fd9e58ef. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 61 בדיקות ממוקדות עברו ו-2040 בדיקות עברו מתוך 2041, בדיקה אחת דולגה, אפס כשלונות ואפס ביטולים. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v798 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_763c53d18b188191aac5ecbd3c319869, Deployment ID appgdep_6aeb402dda308191b3bac4377d520767. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 32. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.\nRemote build exact source required. Main publication has NOT been attempted; prepublication readonly owner query might need terminal inspection before proceeding. Do not create a duplicate operation. Isolated image service already deployed2edfd8ed-b124-4e58-98ec-638671ee727e; main source integration pending.",
+  "state": "prepared_not_published_browser_safety_stop",
+  "prepared_at": "2026-11-04T16:18:06.1925998Z",
+  "full_tests_total": 2041,
+  "full_tests_skipped": 1
+}
