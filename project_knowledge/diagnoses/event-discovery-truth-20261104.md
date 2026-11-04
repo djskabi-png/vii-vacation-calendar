@@ -1,6 +1,6 @@
 # Event discovery: inventory independent of price
 
-Status: implemented and focused tests pass; exact public verification pending.
+Status: event inventory and preset-navigation repair verified on publicv796. Whole-site launch readiness is not approved.
 
 ## Root cause and primary contract
 
@@ -51,3 +51,11 @@ v795 deployed successfully from973fbf1c9c2a2ca80741d185cfde32620a307e27 with env
 Natural-destination navigation exposed a separate retained-client-state defect: Thursday to Friday changed the heading but still queried Thursday. The route fixedPreset must win immediately over selectedPreset retained in React state, before effects run. The v796 candidate derives date and pagePath from activePreset=fixedPreset||selectedPreset. A harness executes the actual client TSX with retained Thursday/date/party50 state across forward/back preset changes and the14:00 boundary. Final v796 public navigation verification remains required.
 
 Separate platform risk: Sites logs recorded exceededMemory on six requests across starting-prices and public/RSC routes after v795. No allocation cause was exposed; this is not attributed to the event adapter without evidence and prevents a whole-site launch-readiness claim. The Russian Thursday route had one20s probe timeout; a later focused read returned200with Russian title/canonical in7032ms. Platform-wide memory and latency need the separately requested performance investigation.
+
+## Final v796 result
+
+Public deployment appgdep_6aeb1f925d10819197d0b4a6a0b9d2b1 succeeded with source1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b, manageddf816f755cf8929a2a063f84d1d53702f0100711 and environment32. The retained-state navigation defect is closed in the actual390px browser: Thursday50/25venues/Nov5 to Friday50/24/Nov6, backThursday50/25/Nov5, lastminuteafter14Nov5, thenreload20/36venues. Desktop event rail35Fridaycards advances beyond the first visible cards and links to its uniqueFridaypage. All3presetlinks were observed. UnpricedStarLoftcontactmodalopenedcorrectly; noleadmessagewas submitted.
+
+Exactv796 discovery read returned36Nov5/35Nov6 with34/33unpriced,no missingpubliccards andzero invalidoffers. The FridayD1snapshot survived deployment, was servedstale once, then backgroundrefreshed from11:51:20Z to12:11:30Z andreadfresh. This proves on-demand background recovery, not scheduled execution. Independentpublic3page200/title/canonical/FAQ review passed. Productionbuild and1987-case suitepassed1986/0fail/1existingskip.
+
+Accepted-capability source protection now includesv796 plus the eventinventory and actualretained-client-state tests. QQQAAA already invokes the expandedlegacy/source/cardidentity comparison. The broaderplatformmemory/latencyfinding remainsopen and is not hidden by this scopedfunctionalapproval.

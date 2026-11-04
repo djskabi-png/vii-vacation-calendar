@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "release": "v796",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b",
+  "tree": "ca2381b3edd1baf2619de63ed22915fcaae816ab",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_0a44cad6fc9481919170db95f6b392a4",
+  "rollback_deployment_id": "appgdep_6aeb1b3cd1688191a2218ca820406b75",
+  "environment_revision": 32,
+  "focused_tests": 23,
+  "full_tests": 1986,
+  "publication_chat": "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v796 לאחר v795. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nRetained-client navigation correction on top of v795: fixed route preset immediately owns queried date and link identity, even when Thursday local state survives Friday navigation. Two actual TSX harness tests cover forward/back and14:00 with retained party50. Build passed; full1987case suite passed1986, zero failed, one existing skip. Independent exact-source review passed. v795 inventory proved36Thursday/35Friday, all12legacy and all confirmed APIIDs each; lastminute36after initial oracle503 recovered. Separate platform memory/latency risk and unverified scheduled invocation remain open; no whole-site launch claim.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v791-complete-20261104, source commit מדויק 1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b, tree מדויק ca2381b3edd1baf2619de63ed22915fcaae816ab. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 23 בדיקות ממוקדות עברו ו-1986 מתוך 1986 בדיקות האתר עברו. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v795 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_0a44cad6fc9481919170db95f6b392a4, Deployment ID appgdep_6aeb1b3cd1688191a2218ca820406b75. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 32. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "published_event_fix_verified",
+  "prepared_at": "2026-11-04T12:03:22.8631741Z",
+  "deployment_id": "appgdep_6aeb1f925d10819197d0b4a6a0b9d2b1",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d1db92c513b88191b5738e5c376b403e",
+  "managed_commit": "df816f755cf8929a2a063f84d1d53702f0100711",
+  "url": "https://vii.spaplus.co",
+  "public_evidence": {
+    "default20": {
+      "November5": 36,
+      "November6": 35
+    },
+    "unpriced": {
+      "November5": 34,
+      "November6": 33
+    },
+    "retained50": {
+      "Thursday": {
+        "date": "2026-11-05",
+        "count": 25
+      },
+      "Friday": {
+        "date": "2026-11-06",
+        "count": 24
+      },
+      "backThursday": {
+        "date": "2026-11-05",
+        "count": 25
+      }
+    },
+    "lastminute_after14": "2026-11-05;reload20returned36",
+    "slider_links": [
+      "/events/last-minute",
+      "/events/thursday",
+      "/events/friday"
+    ],
+    "backgroundRefresh": "Fridaystale11:51:20Z to fresh12:11:30Z observed",
+    "independent": "three public pages200/selfcanonical/uniqueHebrewtitle/FAQ",
+    "suite": {
+      "total": 1987,
+      "passed": 1986,
+      "failed": 0,
+      "skipped": 1
+    },
+    "scope_limit": "event inventory/navigation repair only; platform memory/latency and scheduled invocation remain open"
+  }
+}

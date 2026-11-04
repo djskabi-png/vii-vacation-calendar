@@ -5,8 +5,8 @@
   "task_type": "supplier-discovery-repair",
   "goal": "Restore all supplier-confirmed event venues including unpriced availability and unique preset pages",
   "created_at": "2026-11-04T10:44:46.720722Z",
-  "updated_at": "2026-11-04T11:07:42.008419Z",
-  "completed_at": null,
+  "updated_at": "2026-11-04T12:18:02.674232Z",
+  "completed_at": "2026-11-04T12:18:02.674278Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -62,9 +62,12 @@
       "source": "user_request",
       "statement": "Restore all supplier-confirmed event venues including unpriced availability and unique preset pages",
       "acceptance_check": "Exact source/API/slider/page parity, correct contact actions, unique canonical pages",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "v796 publichttps://vii.spaplus.co/events/last-minute, /events/thursday and /events/friday.36Nov5/35Nov6,34/33unpriced; all source IDs and12legacy each confirmed in unchangedv795API; exactv796APIversion3,no exclusions/invalidstates. Navigation,partyfilters,railscroll andcontactmodalpassed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:40.050860Z"
     },
     {
       "id": "preflight:prediction",
@@ -95,39 +98,99 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exactv796 publicThursday36/Friday35 including34/33unpriced; mobile50Thu25Nov5->Fri24Nov6->backThu25Nov5; lastminuteafter14Nov5,reload20/36. Three links and WhatsAppmodalobserved.",
+        "Actualroute35venuefixture,bothslot/rawdays/malformed/unknown/zero tests; full1987suite1986pass0fail1skip; exactpublic3page200canonsFAQindependent; desktoprailscrolls35,390mobilecontrolsfit; D1stale-to-freshobserved.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:34.543384Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=0, prevented_failures=3, elapsed_minutes=94.0; No comparable historicaltimingbaseline. Self QA rejectedv795 retained-client navigation; actualTSXstateharness andv796 publicretest closed it before final delivery. Guards now cover unpricedinventory,20cardtruncation and fixed-route state."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:37.019250Z"
     },
     {
       "id": "lesson:ADIR-DATA-001",
       "source": "lesson:ADIR-DATA-001",
       "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
       "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Countidentity/source/date/partychecked: exactv796default20Nov5=36/Nov6=35; retained50Thu25/Fri24. PositivefreeUnitswithoutprice staysunpriced,never fabricatedroom/quote; providerunknown staysunknown; no lead/message claimed orsent."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:41.607899Z"
     },
     {
       "id": "lesson:ADIR-QA-001",
       "source": "lesson:ADIR-QA-001",
       "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exactv796 inspected desktop+390mobile;10representative scenarios across customer20/customer50/contentSEO/operations in .qa-output/event-discovery-release-evidence.json. Independent3pageHTTP/canonical/FAQpassed. Full1987tests1986pass0fail1skip. Delivery3directlinksvalidated. Whole-siteperformance/memory/scheduler readiness explicitlyexcluded/open."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:42.407404Z"
+    },
+    {
+      "id": "access:publication",
+      "source": "access_obstacle",
+      "statement": "Recover the VII publication session route without asking for repeated access",
+      "acceptance_check": "Inspect original uncertain draft, recover authorized route, verify exact deployment once",
+      "status": "passed",
+      "evidence": [
+        "Recovered existing IAB owning Sites conversation; original draft verified unsent before use. Exactv796 succeeded deploymentappgdep_6aeb1f925d10819197d0b4a6a0b9d2b1 source1d56f95d env32PUBLIC, no access request or duplicate mutation."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T12:17:31.921667Z",
+      "access_recovery": {
+        "observed_error": "IAB tab205 accessibility reads timed out; hidden native-app element actions did not target the publication composer.",
+        "category": "capability",
+        "diagnosis": "Route failure, not missing authorization. After opening the tab pane, the IAB DOM locator route recovered. The original read-only prompt was still a draft, verified before submission. Timeout cause unconfirmed.",
+        "authorization_boundary": "Existing authorized VII Site context; user authorized public fixes/publication. No credential/access/settings expansion.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "unavailable",
+            "evidence": "Available generic Sites connector is the previously evidenced wrong workspace for VII; owning Site local conversation retained the correct project context."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "IAB205 owning conversation verified v794/env32, then terminalv795 andv796 with exact source/tree; no duplicate uncertain mutation."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing Git CLI pushed/fetched exact release branch; clean protected-source gate passed. CLI proves source identity, not a separate publication route."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing official Sites owning conversation performed one save/deploy for each distinct causal repair; finalv796 deploymentappgdep_6aeb1f925d10819197d0b4a6a0b9d2b1 succeeded/env32PUBLIC."
+          }
+        ],
+        "outcome": "recovered",
+        "ready_work_remaining": false,
+        "verified_result": "Exactv796 public pages and event data/navigation were inspected at vii.spaplus.co; no human action needed."
+      }
     }
   ],
-  "verification_status": "in_progress",
+  "verification_status": "verified",
   "verification_errors": [],
   "predictive_results": {
     "midpoint": {
@@ -138,6 +201,26 @@
       "findings": [
         "Two independent cuts: days inventory ignored and generic selected-summary projection capped20; both addressed with event-specific complete projection"
       ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-04T12:17:34.543211Z",
+      "attacks": [
+        "Try dropping unpriced and more-than20 event venues",
+        "Navigate Thursday to Friday and back with retained50participant state",
+        "Try stale cache, reload and14:00 context leakage"
+      ],
+      "natural_destination_evidence": "Exactv796 publicThursday36/Friday35 including34/33unpriced; mobile50Thu25Nov5->Fri24Nov6->backThu25Nov5; lastminuteafter14Nov5,reload20/36. Three links and WhatsAppmodalobserved.",
+      "affected_family_evidence": "Actualroute35venuefixture,bothslot/rawdays/malformed/unknown/zero tests; full1987suite1986pass0fail1skip; exactpublic3page200canonsFAQindependent; desktoprailscrolls35,390mobilecontrolsfit; D1stale-to-freshobserved."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-04T12:17:37.019200Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 94.0,
+      "baseline_note": "No comparable historicaltimingbaseline. Self QA rejectedv795 retained-client navigation; actualTSXstateharness andv796 publicretest closed it before final delivery. Guards now cover unpricedinventory,20cardtruncation and fixed-route state."
     }
-  }
+  },
+  "last_freshness_check_at": "2026-11-04T12:15:05.486995Z",
+  "last_freshness_check_errors": []
 }

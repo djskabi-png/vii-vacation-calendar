@@ -1,0 +1,315 @@
+{
+  "release": "v796",
+  "source": "1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b",
+  "evidence_manifest": {
+    "verdict": "ready",
+    "release": "v796 source1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b deploymentappgdep_6aeb1f925d10819197d0b4a6a0b9d2b1",
+    "target": "https://vii.spaplus.co/events/last-minute; /events/thursday; /events/friday",
+    "baseline": "v794 source17add00d9dd0cc1e87d9528e3741520c15618001 env32 Cloudflare D1",
+    "requested_outcome": "All supplier-confirmed event venues, including unpriced inventory, in sliders and unique preset pages without repeated truncation",
+    "changed_components": [
+      "event supplier adapter",
+      "D1 discovery snapshot and warmer",
+      "live-search route",
+      "browser cache and event rail",
+      "three event preset landings",
+      "sitemap and recurring quality checks"
+    ],
+    "affected_family": [
+      {
+        "id": "api",
+        "surface": "event discovery and dated search"
+      },
+      {
+        "id": "cache",
+        "surface": "both-slot snapshot, source age, cold/stale/failure"
+      },
+      {
+        "id": "event-ui",
+        "surface": "homepage/world/regional event rails and grid filters"
+      },
+      {
+        "id": "seo",
+        "surface": "three unique canonical localized pages and sitemap"
+      },
+      {
+        "id": "baseline",
+        "surface": "vacations, booking boundaries and Cloudflare authority"
+      }
+    ],
+    "characteristics": {
+      "stateful": true,
+      "responsive": true
+    },
+    "checks": [
+      {
+        "id": "source",
+        "family_ids": [
+          "api",
+          "cache",
+          "event-ui",
+          "seo",
+          "baseline"
+        ],
+        "state": "success",
+        "status": "passed",
+        "evidence": "Exactv796 productionbuild passed;1987-case suite1986pass/0fail/1existing skip. Independent source review and public3page200/canonical/title/FAQ review passed."
+      },
+      {
+        "id": "host-failures",
+        "family_ids": [
+          "cache",
+          "api"
+        ],
+        "state": "failure",
+        "status": "passed",
+        "evidence": "Raw day fixtures,35-venue actual route fixture, duplicate/malformed/unknown/occupied states, one cold load, stale coordinated refresh, old snapshot rejection."
+      },
+      {
+        "id": "public-parity",
+        "family_ids": [
+          "api",
+          "event-ui"
+        ],
+        "state": "success",
+        "status": "passed",
+        "evidence": "Exactv796 APIgeneration3:November5/36venues34unpriced,November6/35venues33unpriced,missingPublicCardIds empty,invalid0. APIimplementationunchangedfromv795 legacy/sourceidentitycomparison,which includedall12legacyeachdate andeveryconfirmedsourceID. Initialnormaloracle503recovered200;causenotexposed."
+      },
+      {
+        "id": "public-reload",
+        "family_ids": [
+          "cache",
+          "event-ui"
+        ],
+        "state": "reload",
+        "status": "passed",
+        "evidence": "Exactv796 reused D1Friday snapshot fromv795, then backgroundrefreshed stale11:51:20Z to fresh12:11:30Z/35venues. Reloadlastminuteafter14returneddefault20/36venues/November5. Mobile50Thu25/Nov5 ->Fri24/Nov6 ->backThu25/Nov5;no dateleak."
+      },
+      {
+        "id": "public-responsive",
+        "family_ids": [
+          "event-ui",
+          "seo"
+        ],
+        "state": "responsive",
+        "status": "passed",
+        "evidence": "Exactv796 390pxmobileFridaypage35venues and full-width controls without horizontaloverflow; desktopworldrail35Fridaycards, linksdistinctperpreset, nextarrowchanges scrollLeft1to-261 and enablesprevious. UnpricedStarLoftWhatsAppmodalcorrect;noformsubmission/send."
+      },
+      {
+        "id": "durable-refresh",
+        "family_ids": [
+          "cache",
+          "event-ui"
+        ],
+        "state": "persistence",
+        "status": "passed",
+        "evidence": "Exactv796 Fridayreadacceptedv795D1snapshot checkedAt11:51:20Z,35venues afterdeployment. Subsequentread observed fresh12:11:30Z/35aftercoordinatedbackgroundrefresh; report .qa-output/event-discovery-background-refresh-v796.json."
+      }
+    ],
+    "rollback": {
+      "available": true,
+      "method": "Redeploy saved v794 appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d38ab7177e9881918b9ccf8487f852bf retaining env32",
+      "verification": "Owning Sites context verified active succeeded v794, revision32, PUBLIC and no pending action before v795 publication."
+    },
+    "authorization_boundary": "User authorized fixing and public release; no bookings, leads, messages, payments, env/schema/access/DNS changes.",
+    "remaining_blockers": [],
+    "approval_scope": "Event inventory/preset navigation correction only. Not whole-site launch or service-level approval.",
+    "known_platform_risks": [
+      "Observedv795memoryfailuresonpublicRSC/startingprice requests;allocationcauseunresolved and broad performanceworkstreamopen.",
+      "Scheduledinvocationnotverified; on-demandbackgroundrefreshobserved.",
+      "Fullsite launch,backuprestoreandalladministrationUIremainoutsidethislimitedfixapproval."
+    ],
+    "representative_scenarios": [
+      {
+        "actor": "customer20desktop",
+        "scenario": "eventworldlastminute36andlinklast-minute",
+        "status": "passed"
+      },
+      {
+        "actor": "customer20desktop",
+        "scenario": "Thursdaytabuniquelinkand36datedvenues",
+        "status": "passed"
+      },
+      {
+        "actor": "customer20desktop",
+        "scenario": "Fridaytab35/Nov6 andnextarrow",
+        "status": "passed"
+      },
+      {
+        "actor": "customer50mobile",
+        "scenario": "applypartyonlyonsubmitThursday25",
+        "status": "passed"
+      },
+      {
+        "actor": "customer50mobile",
+        "scenario": "Thu->Fri24/Nov6 retains50",
+        "status": "passed"
+      },
+      {
+        "actor": "customer50mobile",
+        "scenario": "backThursday25/Nov5",
+        "status": "passed"
+      },
+      {
+        "actor": "customer50mobile",
+        "scenario": "lastminuteafter14Nov5",
+        "status": "passed"
+      },
+      {
+        "actor": "customer20mobile",
+        "scenario": "reloadlastminute36/default20/nooverflow",
+        "status": "passed"
+      },
+      {
+        "actor": "contentSEOreviewer",
+        "scenario": "3canonicalpages/titleFAQandlocalizedsitemap",
+        "status": "passed"
+      },
+      {
+        "actor": "operationsowner",
+        "scenario": "unpricedcontactmodalandstale-to-freshD1refresh",
+        "status": "passed"
+      }
+    ]
+  },
+  "public_api": {
+    "release": "v796",
+    "checkedAt": "2026-11-04T12:11:24.842Z",
+    "presets": [
+      {
+        "id": "lastminute",
+        "date": "2026-11-05",
+        "status": 200,
+        "elapsedMs": 4547,
+        "version": 3,
+        "scope": {
+          "date": "2026-11-05",
+          "guests": 20
+        },
+        "count": 36,
+        "unpricedCount": 34,
+        "cache": {
+          "status": "fresh",
+          "checkedAt": "2026-11-04T12:09:17.845Z"
+        },
+        "missing": [],
+        "invalid": 0
+      },
+      {
+        "id": "thursday",
+        "date": "2026-11-05",
+        "status": 200,
+        "elapsedMs": 4547,
+        "version": 3,
+        "scope": {
+          "date": "2026-11-05",
+          "guests": 20
+        },
+        "count": 36,
+        "unpricedCount": 34,
+        "cache": {
+          "status": "fresh",
+          "checkedAt": "2026-11-04T12:09:17.845Z"
+        },
+        "missing": [],
+        "invalid": 0
+      },
+      {
+        "id": "friday",
+        "date": "2026-11-06",
+        "status": 200,
+        "elapsedMs": 1288,
+        "version": 3,
+        "scope": {
+          "date": "2026-11-06",
+          "guests": 20
+        },
+        "count": 35,
+        "unpricedCount": 33,
+        "cache": {
+          "status": "stale",
+          "checkedAt": "2026-11-04T11:51:20.377Z"
+        },
+        "missing": [],
+        "invalid": 0
+      }
+    ]
+  },
+  "background_refresh": {
+    "release": "v796",
+    "status": 200,
+    "count": 35,
+    "cache": {
+      "status": "fresh",
+      "checkedAt": "2026-11-04T12:11:30.855Z"
+    },
+    "previousCheckedAt": "2026-11-04T11:51:20.377Z",
+    "backgroundRefreshObserved": true
+  },
+  "legacy_parity_v795": {
+    "checkedAt": "2026-11-04T11:50:42.376Z",
+    "origin": "https://vii.spaplus.co",
+    "legacy": "https://www.vii.co.il",
+    "guests": 20,
+    "verdict": "not_verified",
+    "presets": [
+      {
+        "preset": "lastminute",
+        "date": "2026-11-04",
+        "error": "current_http_503"
+      },
+      {
+        "preset": "thursday",
+        "path": "/events/thursday",
+        "date": "2026-11-05",
+        "legacyCount": 12,
+        "confirmedCount": 36,
+        "discoveryCount": 36,
+        "unpricedCount": 34,
+        "cache": {
+          "status": "refreshed",
+          "checkedAt": "2026-11-04T11:51:13.504Z"
+        },
+        "unresolved": [],
+        "missingSourceIds": [],
+        "declaredExclusions": [],
+        "failures": []
+      },
+      {
+        "preset": "friday",
+        "path": "/events/friday",
+        "date": "2026-11-06",
+        "legacyCount": 12,
+        "confirmedCount": 35,
+        "discoveryCount": 35,
+        "unpricedCount": 33,
+        "cache": {
+          "status": "refreshed",
+          "checkedAt": "2026-11-04T11:51:20.377Z"
+        },
+        "unresolved": [],
+        "missingSourceIds": [],
+        "declaredExclusions": [],
+        "failures": []
+      }
+    ]
+  },
+  "lastminute_recovery_v795": {
+    "date": "2026-11-04",
+    "legacyStatus": 200,
+    "discoveryStatus": 200,
+    "legacyCount": 12,
+    "confirmedCount": 36,
+    "discoveryCount": 36,
+    "unpricedCount": 34,
+    "cache": {
+      "status": "fresh",
+      "checkedAt": "2026-11-04T11:52:02.209Z"
+    },
+    "missingLegacyIds": [],
+    "missingSourceIds": [],
+    "version": 3,
+    "initialColdProbe": "503; discriminating serial probe recovered200 without code change",
+    "verdict": "passed_after_recovery"
+  }
+}
