@@ -105,7 +105,6 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const searchPath = scope ? `${pagePath}?${new URLSearchParams({ region: scope.label })}` : pagePath;
   const allLabel = ({ he: ["לכל אירועי הרגע האחרון", "לכל המקומות הפנויים לחמישי", "לכל המקומות הפנויים לשישי"], en: ["All last-minute event venues", "All Thursday venues", "All Friday venues"], ru: ["Все площадки в последний момент", "Все площадки в четверг", "Все площадки в пятницу"], fr: ["Tous les lieux de dernière minute", "Tous les lieux du jeudi", "Tous les lieux du vendredi"] } as const)[language][selectedPreset === "thursday" ? 1 : selectedPreset === "friday" ? 2 : 0];
   const applyLabel = ({ he: "בדיקת זמינות להרכב", en: "Check this party", ru: "Проверить состав", fr: "Vérifier ce groupe" } as const)[language];
-  const staleLabel = ({ he: "הזמינות מוצגת מהבדיקה האחרונה. לפני סגירה יש לאמת אותה מול המקום.", en: "Showing the last checked availability. Confirm it with the venue before booking.", ru: "Показана последняя проверенная доступность. Подтвердите её у площадки.", fr: "Disponibilités de la dernière vérification. Confirmez-les auprès du lieu avant de réserver." } as const)[language];
   const busy = search.status === "loading" || !initialized;
   // Browse cards are useful only as a clearly labelled fallback. They must
   // never sit beside verified offers or inherit a selected-date availability
@@ -136,7 +135,6 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     </form> : null}
     <div id={`${sectionId}-results`} role="tabpanel" aria-busy={busy} aria-live="polite">
       {layout === "grid" && search.status === "ready" ? <p className="event-deals__summary"><bdi>{candidates.length}</bdi> {({he:"מקומות עם זמינות שנבדקה",en:"venues with checked availability",ru:"площадок с проверенной доступностью",fr:"lieux avec disponibilité vérifiée"} as const)[language]}</p> : null}
-      {search.stale && candidates.length > 0 ? <p className="regional-availability__expansion">{staleLabel}</p> : null}
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy && !visibleAdditionalPlaces.length ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
       {search.status === "error" ? <div className={`event-rail-status${showBrowseFallback ? " event-rail-status--with-fallback" : ""}`} role={showBrowseFallback ? "status" : "alert"}><p>{showBrowseFallback ? text.fallbackStatus : text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}

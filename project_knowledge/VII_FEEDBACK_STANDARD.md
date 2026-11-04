@@ -73,3 +73,9 @@ The detailed status of each accepted item is maintained in the 72-hour closure l
 ### Verification lesson from v797/v798
 
 A complete API is not proof of a complete page. The full SPA response in v797 was rendered through the shared20-card rail helper. v798 uses the uncapped ordering helper for full grids and retains the cap only for rails. Future acceptance must execute the actual component selection/ordering functions and compare rendered card identities/counts against the same selected-date supplier generation. Same-weekday audience changes must settle locally and survive reload; cross-weekday navigation and browser back must restore the correct title, date, audience and inventory. Record actual mobile viewport width before claiming a mobile visual pass.
+
+## Successful discovery rail copy, 4 November 2026
+
+- Valid event, vacation, holiday and spa offer rails must not print generic cache-age explanations or instruct visitors to confirm with the venue before continuing. Remove the rejected event stale paragraph in every language, without replacement copy.
+- Preserve bounded data freshness, genuine loading/error/empty states, authoritative availability and price revalidation in the detail/booking flow. Removing redundant prose never extends snapshot validity or upgrades unknown data to available.
+- The user requested this copy correction be saved only. No publication is authorized for it in this task.

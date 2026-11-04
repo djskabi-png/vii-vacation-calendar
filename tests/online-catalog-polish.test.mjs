@@ -131,8 +131,8 @@ test("new-tab business navigation warms only the bounded document path", async (
 });
 
 test("public deal rails do not print cache implementation notes", async () => {
-  for (const path of ["app/components/home-live-deals.tsx", "app/components/spa-package-deals.tsx", "app/components/holiday-live-deals.tsx"]) {
+  for (const path of ["app/components/home-live-deals.tsx", "app/components/spa-package-deals.tsx", "app/components/holiday-live-deals.tsx", "app/components/event-last-minute.tsx"]) {
     const source = await read(path);
-    assert.doesNotMatch(source, /discoveryCacheCopy|ההצעות מהבדיקה האחרונה/);
+    assert.doesNotMatch(source, /discoveryCacheCopy|staleLabel|ההצעות מהבדיקה האחרונה|הזמינות מוצגת מהבדיקה האחרונה/);
   }
 });
