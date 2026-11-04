@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "task_id": "v791-qqqaaa-public-release-20261104",
+  "project": "VII",
+  "task_type": "production regression repair and controlled release",
+  "requested_outcome": "Repair the complete candidate, pass QQQAAA against the exact build, publish once, and verify the public version without regressing approved VII behavior",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local repair, testing, one controlled public publication after green gates, and live verification are authorized; destructive data changes and uncertain repeated publication are not authorized",
+  "lesson_bundle": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "The release spans VII search, availability, galleries, sliders, administration and public page contracts",
+      "acceptance_impact": "Use the master plan and accepted feedback standard as the product truth and test the affected family"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A public release cannot be approved from build success alone",
+      "acceptance_impact": "Require full automated gates, exact candidate browser checks and representative public journeys"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The previous managed publication failed and the public site must remain recoverable",
+      "acceptance_impact": "Freeze a clean commit, publish once, verify exact public routes and retain the v789 rollback reference"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "A local fix passes while another requested VII family silently regresses",
+      "prevention": "Run all unit contracts plus the complete QQQAAA matrix across public, administration, search, availability, media and localization",
+      "acceptance_check": "All release suites pass on the frozen candidate and no affected-family exclusion is unexplained"
+    },
+    {
+      "rejection": "The managed build fails again because the deploy artifact exceeds the provider boundary",
+      "prevention": "Keep the deterministic media reachability prune and fail-closed artifact budget in the production build",
+      "acceptance_check": "The exact final build is below 220 MiB and every referenced asset remains resolvable"
+    },
+    {
+      "rejection": "Tests pass against stale code or a different URL than the version that is published",
+      "prevention": "Use a clean commit, run local production browser checks on its build, publish that frozen source once and inspect the public destination",
+      "acceptance_check": "Commit identity, QQQAAA report, managed version and live URL evidence refer to the same release"
+    },
+    {
+      "rejection": "A retry or second deployment overwrites a known-good public version after an uncertain result",
+      "prevention": "Use one deployment operation identity, verify its outcome before any further action and retain the previous public rollback version",
+      "acceptance_check": "There is exactly one confirmed publication attempt and a verified rollback target"
+    }
+  ],
+  "affected_family": [
+    "production build and asset packaging",
+    "vacation availability and booking states",
+    "home and holiday offer sliders",
+    "property and unit galleries",
+    "administration and Professor data flows",
+    "search, redirects, localization and public navigation",
+    "desktop and mobile browser behavior",
+    "managed deployment and rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform source of truth",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "Accepted VII product behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Last verified public rollback",
+        "source": "project_knowledge/release_handoffs/v790.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the clean build and full unit suite, before browser expansion and publication",
+    "checks": [
+      "Build completes below the artifact budget",
+      "All unit contracts pass",
+      "Candidate production server returns a complete homepage"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the exact public version still show a failed or partial page after refresh?",
+      "Can mobile and desktop disagree on the repaired search, gallery or booking state?",
+      "Can a missing supplier response create invented availability or an empty unstable slider?",
+      "Can the release be rolled back immediately if the live destination differs from the candidate?"
+    ],
+    "natural_destination_evidence": "Live route, refresh, mobile and desktop evidence from https://vii.spaplus.co after publication",
+    "affected_family_evidence": "QQQAAA report plus targeted public route checks covering the affected families"
+  },
+  "effectiveness": {
+    "baseline": "v790 provider publication failed before deployment and earlier checks exposed stale test contracts that masked the exact release state",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One frozen release, zero failed public journeys in the representative matrix, and no repeated uncertain deployment"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

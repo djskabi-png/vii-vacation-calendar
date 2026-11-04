@@ -1405,7 +1405,8 @@ test("provider pages demonstrate tracked WhatsApp and full-site booking modes", 
   assert.match(fullHtml, /\/booking\?world=providers&amp;place=nissan-mukhtar/);
   assert.match(source, /<WhatsAppLeadButton/);
   assert.doesNotMatch(source, /https:\/\/wa\.me/);
-  assert.match(leadFlow, /https:\/\/wa\.me\/\$\{whatsappNumber\(businessPhone\)\}/);
+  assert.match(leadFlow, /const destination = whatsappNumber\(businessPhone\)/);
+  assert.match(leadFlow, /https:\/\/wa\.me\/\$\{destination\}\?text=/);
   assert.match(leadFlow, /role="dialog" aria-modal="true"/);
   assert.match(details, /"maor-natan":[\s\S]*bookingMode: "whatsapp"/);
   assert.match(details, /"nissan-mukhtar":[\s\S]*bookingMode: "full"/);

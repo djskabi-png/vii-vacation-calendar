@@ -132,7 +132,7 @@ test("decoded cache has a bounded LRU of48 entries", async () => {
 
 test("both card families retain displayed index until success with latest-request and unmount guards", () => {
   const hook = fs.readFileSync(new URL("../app/components/use-preview-gallery.tsx", import.meta.url), "utf8");
-  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?previewImageLoader\.load\(previewLoadSource\(src\)\)\)/);
   assert.match(hook, /index: readyIndex \?\? imageIndex/);
   assert.match(hook, /token !== request\.current/);
   assert.match(hook, /!alive\.current/);

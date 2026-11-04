@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 
 const gallery = await readFile(new URL("../app/components/property-gallery.tsx", import.meta.url), "utf8");
 const galleryExperience = await readFile(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8");
+const gallerySelection = await readFile(new URL("../app/components/gallery-selection.ts", import.meta.url), "utf8");
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const events = await readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -39,8 +40,10 @@ test("full-screen unit galleries expose visible mobile controls and keep grid an
 
 test("supplier cover remains first while repeated unit media keeps one consistent unit count", () => {
   assert.match(business, /const placeGalleryImages = property\.images;/);
-  assert.match(galleryExperience, /const groupedSources = new Set\(groupedPlaceItems\.map\(\(item\) => item\.src\)\)/);
-  assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.unitItems\.filter\(\(item\) => !groupedSources\.has\(item\.src\)\)/);
+  assert.match(galleryExperience, /return uniqueGalleryItems\(\[/);
+  assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.ungroupedPlaceItems,[\s\S]*?\.\.\.unitItems,/);
+  assert.match(gallerySelection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
+  assert.match(gallerySelection, /if \(topic\) return items\.filter\(\(item\) => item\.topic === topic\)/);
 });
 
 test("desktop gallery remains a five-image composition", () => {

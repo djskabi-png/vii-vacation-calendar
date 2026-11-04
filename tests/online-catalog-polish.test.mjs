@@ -58,7 +58,8 @@ test("event discovery is prewarmed for a rolling week and visitor requests never
   assert.match(warmer, /offset < 7/);
   assert.match(warmer, /for \(const preset of eventDealPresets\(clock\)\)/);
   assert.match(warmer, /key: \["events-discovery", date, date, guests, "both"\]/);
-  assert.match(warmer, /some\(\(offer\) => offer\?\.available === true/);
+  assert.match(warmer, /validate: validEventDiscoveryResult/);
+  assert.match(warmer, /results\.filter\(\(offer\) => offer\.available === true\)\.length/);
   assert.match(route, /readCachedDiscovery/);
   assert.doesNotMatch(route, /cachedDiscovery\(/);
   assert.match(worker, /warmVacationDiscoveryCache\(database, scheduledAt\)[\s\S]*warmEventDiscoveryCache\(database, scheduledAt\)/);
@@ -88,7 +89,7 @@ test("card galleries advance past broken supplier images and withdraw media afte
     read("app/globals.css"),
   ]);
   assert.match(gallery, /onOriginalFailure=\{\(\) => \{[\s\S]*const failed = new Set\(brokenImages\)\.add\(currentImage\)[\s\S]*setImageIndex\(nextIndex\)/);
-  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?previewImageLoader\.load\(previewLoadSource\(src\)\)\)/);
   assert.match(loader, /for \(let index = startIndex; index >= 0 && index < images\.length; index \+= direction\)/);
   assert.match(gallery, /galleryImages\.every\(\(image\) => brokenImages\.has\(image\)\)/);
   assert.match(gallery, /onMediaUnavailable\?\.\(\)/);

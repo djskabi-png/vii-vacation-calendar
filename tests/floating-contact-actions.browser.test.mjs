@@ -6,12 +6,24 @@ import { chromium } from "playwright";
 
 const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const proofDir = process.env.VII_VISUAL_PROOF_DIR;
-const browserExecutable = [
+const browserExecutables = [
   process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
   chromium.executablePath(),
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-].find((candidate) => candidate && fs.existsSync(candidate));
+].filter((candidate, index, values) => candidate && fs.existsSync(candidate) && values.indexOf(candidate) === index);
+
+async function launchAvailableBrowser() {
+  let lastError;
+  for (const executablePath of browserExecutables) {
+    try {
+      return await chromium.launch({ headless: true, executablePath });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("No Chromium-family browser is available for rendered CSS verification");
+}
 
 const markup = `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><style>${globals}</style></head>
 <body><main style="min-height:1200px;background:#f6fbfa"></main><div class="floating-contact-actions" role="group" aria-label="יצירת קשר עם מקום לדוגמה">
@@ -44,8 +56,8 @@ async function inspectAt(page, width, html = markup) {
 }
 
 test("floating phone and WhatsApp dock is polished on desktop and mobile widths", async (t) => {
-  if (!browserExecutable) return t.skip("No Chromium-family browser is available for rendered CSS verification");
-  const browser = await chromium.launch({ headless: true, executablePath: browserExecutable });
+  if (!browserExecutables.length) return t.skip("No Chromium-family browser is available for rendered CSS verification");
+  const browser = await launchAvailableBrowser();
   const page = await browser.newPage();
   try {
     const desktop = await inspectAt(page, 768);

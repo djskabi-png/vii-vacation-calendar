@@ -14,11 +14,13 @@ test('every static place/trail recommendation family explicitly opts in, semanti
  assert.doesNotMatch(read('events/page.tsx'),/<EventRail shufflePlaces title="סוגי מקומות/);
 });
 test('quote rails reuse proof and managed rank without a daily tiebreaker shadowing refresh',()=>{
- for(const path of ['components/home-live-deals.tsx','components/holiday-live-deals.tsx']){
-  const source=read(path);assert.match(source,/orderDiscovery(?:Rail|Items)/);assert.match(source,/useDocumentSeed/);
-  assert.match(source,/isHomeDealOnlineEligible/);assert.match(source,/managedVacationPriority/);
-  assert.doesNotMatch(source,/compareVacationPriority/);
- }
+ const homeDeals=read('components/home-live-deals.tsx');
+ assert.match(homeDeals,/canonicalVerifiedSliderItems/);
+ assert.doesNotMatch(homeDeals,/useDocumentSeed|orderDiscoveryRail/);
+ const holidayDeals=read('components/holiday-live-deals.tsx');
+ assert.match(holidayDeals,/orderDiscoveryItems/);assert.match(holidayDeals,/useDocumentSeed/);
+ assert.match(holidayDeals,/isHomeDealOnlineEligible/);assert.match(holidayDeals,/managedVacationPriority/);
+ assert.doesNotMatch(holidayDeals,/compareVacationPriority/);
  const home=read('components/home-showcase.tsx');
  assert.match(home,/const featuredHourly = orderDiscoveryRail/);
  assert.match(home,/const featuredRatings = orderDiscoveryRail/);

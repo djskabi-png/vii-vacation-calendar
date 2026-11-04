@@ -5,6 +5,7 @@ import test from "node:test";
 const client = fs.readFileSync(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8");
 const projector = fs.readFileSync(new URL("../app/lib/event-place-detail.ts", import.meta.url), "utf8");
 const gallery = fs.readFileSync(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8");
+const gallerySelection = fs.readFileSync(new URL("../app/components/gallery-selection.ts", import.meta.url), "utf8");
 const booking = fs.readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 const publicCatalogRead = fs.readFileSync(new URL("../app/lib/public-catalog-read.ts", import.meta.url), "utf8");
 const businessClient = fs.readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
@@ -24,7 +25,7 @@ test("event projection preserves supplier gallery groups, grouped facilities and
 });
 
 test("supplier-defined gallery topics remain distinct even when one image belongs to several topics", () => {
-  assert.match(gallery, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
+  assert.match(gallerySelection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
   assert.match(gallery, /property\.images\.filter\(\(src\) => !groupedSources\.has\(src\)\)/);
   assert.match(gallery, /topic: "תמונות נוספות"/);
   for (const id of ["event-2", "event-65", "event-70", "event-124", "event-210"]) {

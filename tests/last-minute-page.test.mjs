@@ -4,10 +4,18 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("homepage last-minute link opens the permanent page", async () => {
-  const component = await read("app/components/home-live-deals.tsx");
-  assert.match(component, /period === "tomorrow"[\s\S]*?"\/last-minute"/);
+test("every homepage near-period link opens its permanent landing page", async () => {
+  const [component, landings] = await Promise.all([
+    read("app/components/home-live-deals.tsx"),
+    read("app/lib/home-period-landings.ts"),
+  ]);
+  assert.match(component, /permanentHomePeriodLandings\[period\]/);
   assert.match(component, /!fixedPeriod/);
+  assert.match(landings, /tomorrow:\s*"\/last-minute"/);
+  assert.match(landings, /weekend:\s*"\/weekend\/thursday-to-saturday"/);
+  assert.match(landings, /"friday-weekend":\s*"\/weekend\/friday-to-sunday"/);
+  assert.match(landings, /thursday:\s*"\/weekend\/thursday-night"/);
+  assert.match(landings, /friday:\s*"\/weekend\/friday-night"/);
 });
 
 test("permanent last-minute page uses verified tomorrow offers without a holiday identity", async () => {
