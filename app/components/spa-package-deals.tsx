@@ -20,7 +20,7 @@ import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-land
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { spaWeekdayDate, spaWeekdayPath, spaWeekdaySlugs, type SpaWeekdaySlug } from "../lib/spa-weekday-pages";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
-import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import { orderDiscoveryItems, orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 type DealResponse = { cache?:{status:string}; availabilityStatus?:"verified"|"refreshing"; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
 const catalogNote = {
@@ -50,7 +50,9 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  const resolvedWeekdayDate = clock && fixedWeekday ? spaWeekdayDate(fixedWeekday,clock.now) : "";
  const requestedDate = resolvedWeekdayDate || fixedDate || presetDate || params.get("spaDealDate") || "";
  const requestedAudience = params.get("spaDealFor") as SpaDealAudience;
- const audience:SpaDealAudience = audiences.includes(requestedAudience) ? requestedAudience : "single";
+ const requestedAudienceValue:SpaDealAudience = audiences.includes(requestedAudience) ? requestedAudience : "single";
+ const [audience,setAudience] = useState<SpaDealAudience>(requestedAudienceValue);
+ useEffect(()=>{setAudience(requestedAudienceValue);},[requestedAudienceValue,pathname]);
  const days = clock ? data?.days.filter(day=>eligibleDealDate(day,clock.now)) || [] : [];
  const date = resolvedWeekdayDate || fixedDate || presetDate || (days.includes(requestedDate) ? requestedDate : days[0] || "");
  useEffect(()=>{
@@ -73,9 +75,18 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
  },[data]);
  function select(nextDate:string,nextAudience:SpaDealAudience){
+  setAudience(nextAudience);
   if (fixedDateOffset===undefined && !scope) {
    const weekday = spaWeekdaySlugs[new Date(`${nextDate}T12:00:00Z`).getUTCDay()];
-   router.push(`${localizedPath(spaWeekdayPath(weekday),language)}?spaDealFor=${encodeURIComponent(nextAudience)}`);
+   const targetPath = localizedPath(spaWeekdayPath(weekday),language);
+   if (targetPath === pathname) {
+    const query = new URLSearchParams(params.toString());
+    query.delete("spaDealDate");
+    query.set("spaDealFor",nextAudience);
+    window.history.pushState(null,"",`${targetPath}?${query.toString()}`);
+    return;
+   }
+   router.push(`${targetPath}?spaDealFor=${encodeURIComponent(nextAudience)}`);
    return;
   }
   const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);query.set("spaDealFor",nextAudience);
@@ -83,7 +94,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  }
  const requestPending=status==="loading" || Boolean(data && data.region!==regionLabel);
  const refreshing=requestPending && data!==null;
- const offers=data ? orderDiscoveryRail(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
+ const offers=data ? (layout === "grid" ? orderDiscoveryItems : orderDiscoveryRail)(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
  const visibleOffers=offers.filter(offer=>!unavailableMedia.has(`${offer.siteId}:${offer.packageId}:${offer.image}`));
  const expandedRegion=!!scope && status==="ready" && data?.region===regionLabel && data?.expandedRegions?.[date]?.[audience]===true;
  const linkDate=date || (clock && validSpaDealDate(requestedDate)?normalizeDealDate(requestedDate,clock.now):"");

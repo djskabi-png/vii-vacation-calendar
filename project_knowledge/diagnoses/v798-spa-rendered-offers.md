@@ -1,0 +1,13 @@
+# v798: verify full SPA inventory at the rendered destination
+
+Public v797 from32021965391f07b36063c08db5ff82313d92c6b0 deployed successfully. HTTP checks proved seven weekday pages, localized metadata/FAQ/canonicals, sitemap membership and a selected-day uncapped API. Independent comparison on one checkedAt generation found Friday rail20offers as subsets of full102single/131couple/62group offers.
+
+The browser then disproved end-to-end completeness: the Friday page mounted only20cards. `SpaPackageDeals` passed the full payload through `orderDiscoveryRail`, whose shared cap is20. A complete API therefore did not establish a complete page. The grid now uses the existing uncapped `orderDiscoveryItems`; slider layout retains `orderDiscoveryRail`. No inventory, source, schema, availability or price policy changes.
+
+Audience selection on the same weekday is a local filter over already loaded audiences. It now sets the selected audience immediately and uses the existing history integration instead of a slow server navigation. Selecting another weekday still navigates to that weekday's canonical page. Query-derived state resynchronizes on route/back/reload.
+
+The independent test initially returned by a specialist used fixture slicing and source regexes, which could not establish component behavior. It was rejected and replaced with AST extraction and execution of the actual component initializer and nested select function against real ordering helpers. The35-offer fixture proves grid35and rail20; history/router spies exercise same-day and cross-day selections. Public card counts and audience state must still be observed after the exact v798 deployment before accepting this repair.
+
+v797 authenticated report verification recovered through the in-app browser after the Chrome provider became unavailable: overview544DOMnodes/zero table rows; business view50rows; next page51to100of921; history, sales and business-detail sections reachable. No leads, messages, bookings or writes were performed. Seven public result families displayed the nearest sort option. The available browser denied geolocation; live origin-success remains unobserved, while actual geolocation-helper and submitted-search tests cover valid origin, rejection/retry and global ordering. Do not claim a real-device GPS-success observation from those fixtures.
+
+This is a causally distinct follow-up repair, not a retry of an uncertain deployment. v797 is a terminal succeeded operation. v798 must get one frozen source, exact remote build and at most one deployment, with v797 as rollback and environment32 unchanged.
