@@ -1,0 +1,44 @@
+{
+  "deploymentId": "appgdep_6aeaaddf02fc81919dbe57394b64c1b5",
+  "workerVersion": "ff87beb2-beb0-4fb1-af13-3bedc6f95077",
+  "observedAtUtc": "2026-11-04T05:28:58Z",
+  "status": "root_cause_confirmed_and_repaired_in_candidate",
+  "confirmedFindings": [
+    {
+      "path": "/_vinext/image?url=/api/vii/media/36a7dbc119305d.jpg&w=640&q=82",
+      "outcome": "exceededMemory",
+      "message": "Worker exceeded memory limit.",
+      "rayId": "a55137db5eaaf486",
+      "requestId": "e26e4dab1ce9890f6098967d80feef1b"
+    },
+    {
+      "path": "/corporate.rsc",
+      "outcome": "exceededMemory",
+      "message": "Worker exceeded memory limit.",
+      "rayId": "a55137e2ad66f486",
+      "requestId": "a115e27c4f02366ce04069d1b21d94aa"
+    },
+    {
+      "path": "/business.rsc?id=vacation-2608",
+      "outcome": "database_fallback",
+      "message": "VII AWS database bridge returned 404; D1 fallback engaged",
+      "rayId": "a55137e23bf0f486"
+    }
+  ],
+  "causalMechanism": "The in-Worker jpeg-js fallback decoded up to 24 million pixels into RGBA with a 96 MB decoder allowance inside a 128 MB Worker isolate. Additional application and output allocations could terminate the isolate and a concurrent RSC request. This matches the paired image and corporate failures 376 milliseconds apart.",
+  "candidateRepair": {
+    "files": [
+      "worker/responsive-image-transform.ts",
+      "tests/responsive-image-transform.test.mjs",
+      "scripts/audit-responsive-image-transform.ts"
+    ],
+    "behavior": "Image bodies stream directly to the Cloudflare Images binding. The Worker no longer buffers, decodes, resizes or re-encodes photography. A native transform failure is delegated to vinext's existing source-image recovery path."
+  },
+  "candidateVerification": {
+    "build": "passed, 158.96 MiB",
+    "unitTests": "1954 passed, 0 failed, 1 skipped",
+    "focusedTests": "17 passed, 0 failed",
+    "streamingAudit": "passed; cloudflare-images engine and original stream verified"
+  },
+  "separateObservedIssue": "The AWS database bridge returned 404 and the application activated its accepted D1 fallback. The sampled log did not prove that this caused any 500 response."
+}
