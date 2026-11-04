@@ -34,6 +34,6 @@
     { "check": "Fixed-copy prevention", "status": "passed", "evidence": "The latent fixed two-guest homepage copy is absent and the owner-review test enforces the new invariant." }
   ],
   "confidence": "high",
-  "remaining_unknowns": ["Final live rendering evidence after publication"],
+  "remaining_unknowns": [],
   "authorization_boundary": "Diagnose, repair, test and publish the public card correction only."
 }

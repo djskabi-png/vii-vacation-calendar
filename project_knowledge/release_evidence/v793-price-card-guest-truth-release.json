@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "release": "v793",
+  "verified_at": "2026-11-04T09:06:00Z",
+  "public_url": "https://vii.spaplus.co",
+  "public_search_url": "https://vii.spaplus.co/search?from=2026-11-26&till=2026-11-28&guests=6",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_75b6ff0bb3908191a4537af8d5f1b69d",
+  "deployment_id": "appgdep_6aeaf31d852c8191b86cdd68c61c0dee",
+  "managed_commit": "61559285cf71b7916a44124a066b3b2b8f7ce89e",
+  "source_commit": "d429a8381c52907a9d2cb16882dc4efa74d520c0",
+  "tree": "377ffd30e26ddbabad9296208d5f7e7dc2319c94",
+  "environment_revision": 31,
+  "access": "PUBLIC",
+  "status": "succeeded",
+  "publication_cardinality": {
+    "versions_created": 1,
+    "deployments_created": 1,
+    "retries": 0
+  },
+  "public_api_proof": {
+    "request": {
+      "world": "vacations",
+      "from": "2026-11-26",
+      "till": "2026-11-28",
+      "guests": 6,
+      "discoverySearch": true
+    },
+    "representative_quote": {
+      "siteID": 1395,
+      "total": 2400,
+      "supplier_priceGuests": 2,
+      "roomID": 2563,
+      "available": true
+    },
+    "interpretation": "The supplier still exposes basis occupancy two for this six-guest quote, which proves the visible card must use the requested quoted party rather than supplier basis occupancy."
+  },
+  "natural_destination_proof": {
+    "desktop": {
+      "expected_text_found": "המחיר עבור 6 אורחים",
+      "old_incorrect_text_absent": "בסיס המחיר: 2 אורחים",
+      "representative_place": "שיר החורש",
+      "result": "passed"
+    },
+    "mobile_390x844": {
+      "expected_text_found": "המחיר עבור 6 אורחים",
+      "old_incorrect_text_absent": "בסיס המחיר: 2 אורחים",
+      "result": "passed_after_visible_retry"
+    },
+    "unpriced_search": {
+      "url": "https://vii.spaplus.co/search?guests=6",
+      "quoted_party_claim_absent": true,
+      "old_incorrect_text_absent": true,
+      "visible_state": "לא נבחרו תאריכים",
+      "result": "passed"
+    }
+  },
+  "source_verification": {
+    "targeted_family": "18 passed, 0 failed",
+    "full_suite": "1958 passed, 1 skipped, 0 failed",
+    "production_build": "passed",
+    "release_source_gate": "passed",
+    "release_baseline": "23 passed, 0 failed",
+    "critical_public_families": "62 passed, 0 failed",
+    "flexible_online_search": "17 passed, 0 failed",
+    "typography_contract": "18 passed, 0 failed"
+  },
+  "rollback": {
+    "release": "v792",
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_727c937cbb9c8191909d231ca4333c35",
+    "deployment_id": "appgdep_6aeac7f3a13c8191b6cab1bb798df22c"
+  },
+  "known_observation": "The first mobile dated-search load exposed the existing retry state once. The visible retry succeeded and then rendered the correct six-guest quote. This release changes price-copy truth only and does not claim to repair that separate transient availability request."
+}
