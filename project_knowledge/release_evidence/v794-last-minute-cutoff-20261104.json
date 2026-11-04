@@ -1,0 +1,39 @@
+{
+  "verdict": "not_ready",
+  "release": "Local candidate commit 5cda861dbb3f79112eb6f0248868393b954fd0d0",
+  "target": "Local built VII candidate and eventual public vii.spaplus.co last-minute surfaces",
+  "baseline": "Public v793 source d429a838 and local parent ecd46ee7, where last minute always selected tomorrow and the shared cutoff was 14:01.",
+  "requested_outcome": "Vacation last-minute uses today before 14:00 Israel time and tomorrow from 14:00.",
+  "changed_components": [
+    "app/lib/deal-clock.ts",
+    "app/lib/vii-home-deals.ts",
+    "app/components/home-live-deals.tsx",
+    "Exact boundary and affected-family regression tests"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Vacation last-minute date and deal request"},
+    {"id": "FAM-2", "surface": "Shared event, spa and holiday deal clock"},
+    {"id": "FAM-3", "surface": "Four near-weekend vacation periods"},
+    {"id": "FAM-4", "surface": "Browser and edge request cache identity"}
+  ],
+  "characteristics": {"stateful": true, "responsive": false},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2"], "state": "success", "status": "passed", "evidence": "13:59:59 uses today and 14:00:00 uses tomorrow across winter, summer and transition dates in tests/deal-clock.test.mjs."},
+    {"id": "CHK-2", "family_ids": ["FAM-3"], "state": "success", "status": "passed", "evidence": "Thursday-to-Saturday, Friday-to-Sunday, Thursday-night and Friday-night remain correct in focused and full regression suites."},
+    {"id": "CHK-3", "family_ids": ["FAM-4"], "state": "failure", "status": "passed", "evidence": "The home-deals HTTP URL now includes clock.key, so the first post-cutoff request cannot share the pre-cutoff URL cache identity."},
+    {"id": "CHK-4", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "reload", "status": "passed", "evidence": "Local built /last-minute returned HTTP 200 with the correct Hebrew last-minute page after a fresh browser load."},
+    {"id": "CHK-5", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "persistence", "status": "passed", "evidence": "node --test tests/*.test.mjs passed 1958, failed 0, skipped 1; pnpm build succeeded; release baseline passed 23/23."},
+    {"id": "CHK-6", "family_ids": ["FAM-1"], "state": "recovery", "status": "passed", "evidence": "Focus, visibility and minute tick re-evaluate dealClockKey at the boundary in tests/deal-clock.test.mjs."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "permission", "status": "blocked", "evidence": "The current correction did not authorize production publication, so no exact public deployed version or public deal payload was changed or verified."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "rollback", "status": "passed", "evidence": "The repair is isolated in commit 5cda861d and can be reverted to parent ecd46ee7 without rewriting history."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Revert commit 5cda861dbb3f79112eb6f0248868393b954fd0d0 if the candidate fails production verification.",
+    "verification": "The commit is a clean descendant of the five protected ancestors and changes only the clock, last-minute date helper, request identity, tests and evidence."
+  },
+  "authorization_boundary": "Local repair and candidate verification were authorized. Production deployment was not authorized in the current correction.",
+  "remaining_blockers": [
+    "Production publication authorization and exact post-deploy public verification are still required before a public-ready verdict."
+  ]
+}
