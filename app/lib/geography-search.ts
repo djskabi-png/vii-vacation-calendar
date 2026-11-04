@@ -46,7 +46,7 @@ export function nearbyPlacesForSelection<T extends CoordinatePlace>(
   places: readonly T[],
   nodes: readonly PublicGeographyNode[],
   selection: string,
-  options: { limit?: number; maximumDistanceKm?: number; minimumResults?: number } = {},
+  options: { limit?: number; maximumDistanceKm?: number; minimumResults?: number; origin?: { lat: number; lng: number } | null } = {},
 ): NearbyPlace<T>[] {
   const target = geographyNodeForSelection(nodes, selection);
   if (!target) return [];
@@ -63,6 +63,8 @@ export function nearbyPlacesForSelection<T extends CoordinatePlace>(
     && node.gpsLat !== null && node.gpsLong !== null && Number.isFinite(node.gpsLat) && Number.isFinite(node.gpsLong)) : null;
   const origin = target.gpsLat !== null && target.gpsLong !== null && Number.isFinite(target.gpsLat) && Number.isFinite(target.gpsLong)
     ? { lat: target.gpsLat!, lng: target.gpsLong! }
+    : target.level !== "city" && options.origin && Number.isFinite(options.origin.lat) && Number.isFinite(options.origin.lng)
+      && Math.abs(options.origin.lat) <= 90 && Math.abs(options.origin.lng) <= 180 ? options.origin
     : childPoints.length ? {
       lat: childPoints.reduce((sum, node) => sum + node.gpsLat!, 0) / childPoints.length,
       lng: childPoints.reduce((sum, node) => sum + node.gpsLong!, 0) / childPoints.length,

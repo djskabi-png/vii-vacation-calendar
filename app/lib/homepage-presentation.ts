@@ -1,7 +1,8 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { readPublishedContent, type ContentLocale } from "./content-studio";
-import { resolvePublicSliderMedia } from "./public-media-policy";
-import { normalizeHomepageSearchHref } from "./homepage-search-href";
+import { readPublishedContent, type ContentLocale } from "./content-studio.ts";
+import { resolvePublicSliderMedia } from "./public-media-policy.ts";
+import { normalizeHomepageSearchHref } from "./homepage-search-href.ts";
+import { popularSearchesForWorld, popularSearchWorlds, type PopularSearchWorld } from "./world-popular-search-defaults.ts";
 
 export type HomeDiscoveryItem = {
   id: string;
@@ -11,6 +12,7 @@ export type HomeDiscoveryItem = {
   image: string;
   imageAlt?: string;
   visible: boolean;
+  action?: "nearby";
 };
 
 const vacationSearchHref = (params: Record<string, string>) => `/search?${new URLSearchParams(params).toString()}`;
@@ -51,7 +53,7 @@ function isRetiredPopularSearchList(items: HomeDiscoveryItem[]) {
     && retiredPopularSearchIds.every((id, index) => items[index]?.id === id);
 }
 
-function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
+export function parseHomepageItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
   if (!value) return fallback;
   try {
     const parsed = JSON.parse(value) as unknown;
@@ -62,7 +64,7 @@ function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
       const label = typeof row.label === "string" ? row.label.trim().slice(0, 70) : "";
       const href = typeof row.href === "string" ? row.href.trim().slice(0, 240) : "";
       const requestedImage = typeof row.image === "string" ? row.image.trim().slice(0, 300) : "";
-      if (!label || !href.startsWith("/") || !requestedImage.startsWith("/")) return [];
+      if (!label || !/^\/(?!\/)/.test(href) || /[\\\u0000-\u001f]/.test(href) || !/^\/(?!\/)/.test(requestedImage)) return [];
       const id = typeof row.id === "string" && row.id.trim() ? row.id.trim().slice(0, 60) : `item-${index + 1}`;
       const matchedFallback = fallback.find((item) => item.id === id) || fallback[index];
       const media = resolvePublicSliderMedia({ image: requestedImage, topic: `${id} ${label} ${href}`, fallback: matchedFallback?.image });
@@ -75,9 +77,11 @@ function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
         image: media.image,
         imageAlt: media.fallbackApplied ? `${label}, תמונת אווירה` : (typeof row.imageAlt === "string" ? row.imageAlt.trim().slice(0, 160) : undefined),
         visible: row.visible !== false,
+        ...(row.action === "nearby" ? { action: "nearby" as const } : {}),
       }];
     });
-    return items.length ? items : fallback;
+    const ids = new Set<string>();
+    return items.filter(item => { if (ids.has(item.id)) return false; ids.add(item.id); return true; });
   } catch {
     return fallback;
   }
@@ -91,26 +95,35 @@ export const defaultHomepagePresentation = {
   editorialBody: "אפשר להתחיל מסוג המקום, מהעיר או מהתאריך. כל בחירה שומרת את הכיוון שלכם ומובילה לתוצאות שאפשר להמשיך לסנן ולהשוות.",
 };
 
-export function parseHomepagePresentation(attributes?: Record<string, string>) {
-  const managedPopular = parseItems(attributes?.homePopularSearches, defaults.popular);
+export function worldPopularSearchItems(attributes?: Record<string, string>, world: PopularSearchWorld = "vacation") {
+  const definition = popularSearchWorlds.find(item => item.id === world)!;
+  const fallback = world === "vacation" ? [{ ...popularSearchesForWorld(world)[0] }, ...defaults.popular] : popularSearchesForWorld(world);
+  const managedPopular = parseHomepageItems(attributes?.[definition.attribute], fallback);
+  if (isRetiredPopularSearchList(managedPopular)) return fallback;
+  // Upgrade legacy vacation lists once. The editor writes a schema marker,
+  // so later deliberate hiding/removal remains under the publisher's control.
+  if (world === "vacation" && attributes?.[definition.attribute] && !attributes[`${definition.attribute}Version`] && managedPopular.length && !managedPopular.some(item => item.action === "nearby")) return [fallback[0], ...managedPopular];
+  return managedPopular;
+}
+export function parseHomepagePresentation(attributes?: Record<string, string>, world: PopularSearchWorld = "vacation") {
   return {
-    popular: (isRetiredPopularSearchList(managedPopular) ? defaults.popular : managedPopular).filter((item) => item.visible),
-    cities: parseItems(attributes?.homeCitySearches, defaults.cities).filter((item) => item.visible),
-    types: parseItems(attributes?.homeTypeSearches, defaults.types).filter((item) => item.visible),
+    popular: worldPopularSearchItems(attributes, world).filter((item) => item.visible),
+    cities: parseHomepageItems(attributes?.homeCitySearches, defaults.cities).filter((item) => item.visible),
+    types: parseHomepageItems(attributes?.homeTypeSearches, defaults.types).filter((item) => item.visible),
     editorialTitle: attributes?.homeEditorialTitle?.trim().slice(0, 120) || defaultHomepagePresentation.editorialTitle,
     editorialBody: attributes?.homeEditorialBody?.trim().slice(0, 700) || defaultHomepagePresentation.editorialBody,
   };
 }
 
-export async function readHomepagePresentation(db: D1Database | undefined, locale: ContentLocale = "he") {
-  if (!db) return defaultHomepagePresentation;
+export async function readHomepagePresentation(db: D1Database | undefined, locale: ContentLocale = "he", world: PopularSearchWorld = "vacation") {
+  if (!db) return parseHomepagePresentation(undefined, world);
   const published = await readPublishedContent(db, "homepage", "vacation-sliders", locale).catch(() => null);
-  if (published) return parseHomepagePresentation(published.content.attributes);
+  if (published) return parseHomepagePresentation(published.content.attributes, world);
   if (locale !== "he") {
     const hebrew = await readPublishedContent(db, "homepage", "vacation-sliders", "he").catch(() => null);
-    if (hebrew) return parseHomepagePresentation(hebrew.content.attributes);
+    if (hebrew) return parseHomepagePresentation(hebrew.content.attributes, world);
   }
-  return defaultHomepagePresentation;
+  return parseHomepagePresentation(undefined, world);
 }
 
 export function serializeHomepageItems(items: HomeDiscoveryItem[]) {

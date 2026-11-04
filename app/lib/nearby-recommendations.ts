@@ -72,7 +72,7 @@ export function nearbySearchRecommendations<T extends CoordinatePlace>(
   options: { key: (item: T) => string; origin?: CoordinatePlace },
 ): T[] {
   const managed = nearbyPlacesForSelection(pool, nodes, selection,
-    { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: PLACE_SEARCH_NEARBY_RADIUS_KM, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS });
+    { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: PLACE_SEARCH_NEARBY_RADIUS_KM, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS, origin: options.origin ? exactPoint(options.origin) : null });
   // A ranked managed candidate proves that the authoritative origin was
   // resolved, even when all candidates lie outside the local radius. Keep
   // that empty result rather than retrying from a different coarse center.

@@ -30,5 +30,5 @@ test("homepage popular searches contain the requested ten destinations", () => {
 
 test("the published four-card legacy list is upgraded without overriding future managed lists", () => {
   assert.match(source, /retiredPopularSearchIds = \["vacations", "pool", "events", "north"\]/);
-  assert.match(source, /isRetiredPopularSearchList\(managedPopular\) \? defaults\.popular : managedPopular/);
+  assert.match(source, /if \(isRetiredPopularSearchList\(managedPopular\)\) return fallback/);
 });

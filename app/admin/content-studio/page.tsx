@@ -5,7 +5,8 @@ import { useAdminCanEdit } from "../admin-access-context.tsx";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
-import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
+import { defaultHomepagePresentation, worldPopularSearchItems, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
+import { popularSearchWorlds, popularSearchesForWorld, type PopularSearchWorld } from "../../lib/world-popular-search-defaults";
 import { homepageContentInventory } from "../../data/homepage-content-inventory";
 import { defaultEventLandingPresentation, eventLandingSourceAttributes, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
 import { defaultWorldLandingPresentations, isManagedWorldLandingType, worldLandingSourceAttributes } from "../../lib/world-landing-presentation";
@@ -37,9 +38,13 @@ function discoveryItems(value: string | undefined, fallback: HomeDiscoveryItem[]
 
 export default function ContentStudioPage() {
   const canEdit = useAdminCanEdit();
+  const [popularWorld, setPopularWorld] = useState<PopularSearchWorld>("vacation");
+  const popularDefinition = popularSearchWorlds.find(item => item.id === popularWorld)!;
+
   const [type, setType] = useState("spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
   const [data, setData] = useState<Payload | null>(null); const [selected, setSelected] = useState<(Item & { versions: Version[] }) | null>(null);
-  const [draft, setDraft] = useState<Content | null>(null); const [tab, setTab] = useState<"content" | "seo" | "links" | "preview" | "history">("content");
+  const [draft, setDraft] = useState<Content | null>(null);
+  const popularFallback = worldPopularSearchItems(draft?.attributes, popularWorld); const [tab, setTab] = useState<"content" | "seo" | "links" | "preview" | "history">("content");
   const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [forbidden, setForbidden] = useState(false);
   const [error, setError] = useState(""); const [message, setMessage] = useState("");
   const [creating, setCreating] = useState(false); const [newTitle, setNewTitle] = useState(""); const [newKey, setNewKey] = useState("");
@@ -96,18 +101,18 @@ export default function ContentStudioPage() {
   }
   function restore(version: Version) { setDraft(structuredClone(version.content)); setRestoring(true); setTab("content"); setMessage(`גרסה ${version.version} נטענה לעורך. שמירה תיצור גרסה חדשה ולא תמחק היסטוריה.`); }
   function updateLink(index: number, key: keyof LinkItem, value: string | number | boolean) { if (!draft) return; update("links", draft.links.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item)); }
-  function updateAttribute(key: string, value: string) { if (!draft) return; update("attributes", { ...draft.attributes, [key]: value }); }
+  function updateAttribute(key: string, value: string) { if (!draft) return; update("attributes", { ...draft.attributes, [key]: value, ...(key.startsWith("homePopularSearches") && !key.endsWith("Version") ? { [`${key}Version`]: "2" } : {}) }); }
   function updateDiscoveryItem(key: string, fallback: HomeDiscoveryItem[], index: number, field: keyof HomeDiscoveryItem, value: string | boolean) {
-    if (!draft) return; const items = discoveryItems(draft.attributes[key], fallback).map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item); updateAttribute(key, JSON.stringify(items));
+    if (!draft) return; const items = (key === popularDefinition.attribute ? popularFallback : discoveryItems(draft.attributes[key], fallback)).map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item); updateAttribute(key, JSON.stringify(items));
   }
   function moveDiscoveryItem(key: string, fallback: HomeDiscoveryItem[], index: number, direction: -1 | 1) {
-    if (!draft) return; const items = [...discoveryItems(draft.attributes[key], fallback)]; const target = index + direction; if (target < 0 || target >= items.length) return; [items[index], items[target]] = [items[target], items[index]]; updateAttribute(key, JSON.stringify(items));
+    if (!draft) return; const items = [...(key === popularDefinition.attribute ? popularFallback : discoveryItems(draft.attributes[key], fallback))]; const target = index + direction; if (target < 0 || target >= items.length) return; [items[index], items[target]] = [items[target], items[index]]; updateAttribute(key, JSON.stringify(items));
   }
   function addDiscoveryItem(key: string, fallback: HomeDiscoveryItem[]) {
-    if (!draft) return; const items = [...discoveryItems(draft.attributes[key], fallback), { id: `item-${Date.now()}`, label: "חיפוש חדש", note: "תיאור קצר", href: "/events/search", image: "/media/f18d7c0469633ca0.jpeg", imageAlt: "תמונה המתארת את החיפוש", visible: true }]; updateAttribute(key, JSON.stringify(items));
+    if (!draft) return; const items = [...(key === popularDefinition.attribute ? popularFallback : discoveryItems(draft.attributes[key], fallback)), { id: `item-${Date.now()}`, label: "חיפוש חדש", note: "תיאור קצר", href: key.startsWith("homePopularSearches") ? popularDefinition.href : "/events/search", image: fallback[0]?.image || "/media/f18d7c0469633ca0.jpeg", imageAlt: "תמונה המתארת את החיפוש", visible: true }]; updateAttribute(key, JSON.stringify(items));
   }
   function removeDiscoveryItem(key: string, fallback: HomeDiscoveryItem[], index: number) {
-    if (!draft) return; const items = discoveryItems(draft.attributes[key], fallback).filter((_, itemIndex) => itemIndex !== index); updateAttribute(key, JSON.stringify(items));
+    if (!draft) return; const items = (key === popularDefinition.attribute ? popularFallback : discoveryItems(draft.attributes[key], fallback)).filter((_, itemIndex) => itemIndex !== index); updateAttribute(key, JSON.stringify(items));
   }
   function updateHomeDealPlacement(id: string, checked: boolean) {
     if (!draft) return;
@@ -170,11 +175,12 @@ export default function ContentStudioPage() {
             <legend>שליטה בחיפושים ובסליידרים בעמוד הבית</legend>
             <p>כל פריט כולל תמונה, טקסט ויעד. אפשר להסתיר, לערוך ולשנות סדר. רק פרסום מעדכן את האתר.</p>
             <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>מפת כל רכיבי עמוד הבית</strong><small>כך יודעים מה מנוהל כאן, מה מגיע חי ממקור נתונים ואיפה מכבים עולם שלם.</small></div></div><div className={extras.discoveryControlList}>{homepageContentInventory.map((item) => <div className={extras.periodControlRow} key={item.id}><strong>{item.label}</strong><span>{item.owner}</span><span className={extras.visibilityToggle}>{item.mode === "managed" ? "מנוהל תוכן" : item.mode === "live" ? "נתונים חיים" : item.mode === "managed-live" ? "ניהול + נתונים חיים" : "טקסט מערכת"}</span></div>)}</div></section>
+            <label className={extras.periodLabel}><span>עולם החיפושים הפופולריים</span><select value={popularWorld} onChange={event => setPopularWorld(event.target.value as PopularSearchWorld)}>{popularSearchWorlds.map(world => <option key={world.id} value={world.id}>{world.label}</option>)}</select></label>
             {([
-              ["homePopularSearches", "חיפושים פופולריים", defaultHomepagePresentation.popular],
+              [popularDefinition.attribute, "חיפושים פופולריים", popularFallback],
               ["homeCitySearches", "חיפוש לפי עיר ואזור", defaultHomepagePresentation.cities],
               ["homeTypeSearches", "סוגי מקומות נופש", defaultHomepagePresentation.types],
-            ] as const).map(([key, title, fallback]) => <section className={extras.controlSection} key={key}><div className={extras.controlHead}><div><strong>{title}</strong><small>עריכת טקסט, תמונה, קישור, תצוגה וסדר</small></div></div><div className={extras.discoveryControlList}>{discoveryItems(draft.attributes[key], [...fallback]).map((item, index, rows) => <div className={extras.discoveryControlRow} key={item.id}><label className={extras.visibilityToggle}><input type="checkbox" checked={item.visible !== false} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "visible", event.target.checked)} /><span>{item.visible === false ? "מוסתר" : "מוצג"}</span></label><label><span>כותרת</span><input value={item.label} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "label", event.target.value)} /></label><label><span>טקסט קצר</span><input value={item.note} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "note", event.target.value)} /></label><label><span>קישור</span><input dir="ltr" value={item.href} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "href", event.target.value)} /></label><label><span>תמונה</span><input dir="ltr" value={item.image} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "image", event.target.value)} /></label><div className={extras.orderButtons}><button type="button" disabled={index === 0} onClick={() => moveDiscoveryItem(key, [...fallback], index, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveDiscoveryItem(key, [...fallback], index, 1)}>הורדה</button></div></div>)}</div></section>)}
+            ] as const).map(([key, title, fallback]) => <section className={extras.controlSection} key={key}><div className={extras.controlHead}><div><strong>{title}</strong><small>עריכת טקסט, תמונה, קישור, תצוגה וסדר</small></div></div><div className={extras.discoveryControlList}>{(key.startsWith("homePopularSearches") ? popularFallback : discoveryItems(draft.attributes[key], [...fallback])).map((item, index, rows) => <div className={extras.discoveryControlRow} key={item.id}><label className={extras.visibilityToggle}><input type="checkbox" checked={item.visible !== false} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "visible", event.target.checked)} /><span>{item.visible === false ? "מוסתר" : "מוצג"}</span></label><label><span>כותרת</span><input value={item.label} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "label", event.target.value)} /></label><label><span>טקסט קצר</span><input value={item.note} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "note", event.target.value)} /></label><label><span>קישור</span><input dir="ltr" value={item.href} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "href", event.target.value)} /></label><label><span>תמונה</span><input dir="ltr" value={item.image} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "image", event.target.value)} /></label>{key.startsWith("homePopularSearches") ? <label><span>פעולת החיפוש</span><select value={item.action || "link"} onChange={event => updateDiscoveryItem(key, [...fallback], index, "action", event.target.value === "nearby" ? "nearby" : "")}><option value="link">פתיחת קישור</option><option value="nearby">מיקום נוכחי ומיון לפי מרחק</option></select></label> : null}<div className={extras.orderButtons}><button type="button" disabled={index === 0} onClick={() => moveDiscoveryItem(key, [...fallback], index, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveDiscoveryItem(key, [...fallback], index, 1)}>הורדה</button><button type="button" onClick={() => removeDiscoveryItem(key, [...fallback], index)}>הסרה</button></div></div>)}</div><button type="button" className={extras.createButton} onClick={() => addDiscoveryItem(key, [...fallback])}>הוספת חיפוש</button></section>)}
             <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>אזור תוכן חופשי</strong><small>מופיע אחרי אזורי הגילוי ולפני המשך עמוד הבית</small></div></div><div className={extras.editorialFields}><label><span>כותרת</span><input value={draft.attributes.homeEditorialTitle || defaultHomepagePresentation.editorialTitle} onChange={(event) => updateAttribute("homeEditorialTitle", event.target.value)} /></label><label><span>תוכן</span><textarea rows={4} value={draft.attributes.homeEditorialBody || defaultHomepagePresentation.editorialBody} onChange={(event) => updateAttribute("homeEditorialBody", event.target.value)} /></label></div></section>
           </fieldset> : null}
           {selected.contentType === "events" && selected.entityKey === "landing" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>

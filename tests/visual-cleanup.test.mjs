@@ -5,10 +5,10 @@ const read=p=>readFileSync(p,'utf8');
 test('popular searches has one centered heading and preserves all managed quick links',()=>{
  const source=read('app/components/home-discovery-sections.tsx');
  assert.doesNotMatch(source,/קיצורי דרך|home-popular-rail/);
- assert.match(source,/<Search aria-hidden="true" \/><h2 id="home-popular-searches-title">חיפושים פופולריים/);
+ assert.match(source,/<Search aria-hidden="true" \/><h2 id=\{`\$\{id\}-title`\}>\{translate\("חיפושים פופולריים"\)\}/);
  assert.match(source,/presentation\.popular\.map/);
  assert.match(source,/href=\{localizedPath\(item\.href, language\)\}/);
- assert.match(source,/HomeSliderControls railId="home-popular-searches-track"/);
+ assert.match(source,/HomeSliderControls railId=\{`\$\{id\}-track`\}/);
  assert.match(source,/className="home-visual-searches__track"[^>]*data-horizontal-rail/);
  assert.match(source,/home-city-rail/);assert.match(source,/home-type-rail/);
  assert.match(read('app/globals.css'),/\.home-visual-searches__head\s*\{[^}]*justify-content:\s*center/);

@@ -2,6 +2,9 @@ import type { EventPlace } from "../data/site-data.ts";
 
 type EventSearchSource = Pick<EventPlace, "name" | "description" | "features" | "audiences" | "type" | "eventTypes">;
 type FacetDefinition = { label: string; pattern: RegExp };
+export function normalizeEventVenueType(value: string | null) {
+  return value === "לופט" ? "לופטים" : value === "וילה" ? "וילות" : value || "הכל";
+}
 
 const venueTypes: FacetDefinition[] = [
   { label: "וילות", pattern: /וילה|villa/i },

@@ -1,3 +1,4 @@
+import { HomeQuickSearches } from "../components/home-discovery-sections";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MasuExperience } from "../components/masu-experience";
@@ -40,6 +41,7 @@ export default async function CorporatePage() {
 
       <section className="section shell corporate-solutions" aria-labelledby="corporate-solutions-title"><div className="section-head"><div><h2 id="corporate-solutions-title">רעיונות שאפשר להפוך לתוכנית אמיתית</h2><p>כל מסלול מתחבר למקומות ולשירותים שכבר נמצאים בתוך האתר.</p></div></div><div>{visibleSolutions.map((solution) => <Link key={solution.number} href={solution.href}><span>{solution.number}</span><h3>{solution.title}</h3><p>{solution.text}</p><strong>לפתיחת האפשרויות</strong></Link>)}</div></section>
 
+      <div className="shell world-popular-searches"><HomeQuickSearches world="corporate" /></div>
       <CorporatePackageBuilder />
 
       <section className="section shell corporate-clubs"><div><span className="eyebrow">מועדוני צרכנות וארגונים</span><h2>מייצרים הטבה שנראית כמו מוצר, לא כמו קופון אבוד</h2><p>עמוד ייעודי, תוכן ברור, קהל מתאים ומסלול בקשה שנשאר בתוך אתר וי.</p></div><div><article><b>עמוד הטבה</b><p>הצעה ממותגת עם תנאים, קהל יעד ותאריכים.</p></article><article><b>מבחר חוויות</b><p>נופש, ספא, אירועים, אטרקציות ושירותים.</p></article><article><b>לקהל שלכם</b><p>בוחרים הטבה שמתאימה לעובדים או לחברי המועדון.</p></article><article><b>תנאים ברורים</b><p>בודקים מה כלול בהטבה, למי היא מיועדת ועד מתי אפשר לממש אותה.</p></article></div></section>

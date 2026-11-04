@@ -192,6 +192,21 @@
         "tests/local-candidate-read-only-quotes.test.mjs",
         "tests/liran-2697-gallery-evidence.test.mjs"
       ]
+    },
+    {
+      "id": "managed-popular-searches-all-worlds",
+      "files": [
+        "app/lib/world-popular-search-defaults.ts",
+        "app/lib/homepage-presentation.ts",
+        "app/components/home-discovery-sections.tsx",
+        "tests/world-popular-cms-roundtrip.test.mjs",
+        "tests/world-popular-nearby-actual.test.mjs",
+        "tests/world-popular-region-facets.test.mjs",
+        "tests/world-popular-rendered.test.mjs",
+        "project_knowledge/VII_WORLD_POPULAR_SEARCHES_20261104.md",
+        "tests/world-popular-regional-origin.test.mjs",
+        "project_knowledge/task_contracts/vii-world-popular-regional-origin-diagnosis.json"
+      ]
     }
   ]
 }

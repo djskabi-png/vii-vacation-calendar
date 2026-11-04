@@ -5,6 +5,7 @@ import { orderByProximity } from "../lib/proximity-sort";
 import "./search-tablet.css";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { HomeQuickSearches } from "../components/home-discovery-sections";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap, preloadListingMap } from "../components/deferred-listing-map";
@@ -1037,6 +1038,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         <UnavailablePlaceNotice world="vacations" />
         <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} openLocationRequest={openLocationRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
         <BreadcrumbTrail items={breadcrumbItems} />
+        <div className="shell world-popular-searches"><HomeQuickSearches /></div>
         {vacationRegionByLabel(area) ? <div className="shell"><VacationGeographyNav region={vacationRegionByLabel(area)!} inventory={properties} /></div> : null}
         <div className={`shell results-layout airbnb-results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות" role={filtersOpen ? "dialog" : undefined} aria-modal={filtersOpen || undefined}>

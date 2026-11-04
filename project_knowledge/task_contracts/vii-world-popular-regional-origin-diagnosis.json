@@ -1,0 +1,85 @@
+{
+  "status": "fixed",
+  "symptom": "Hourly Jerusalem-area shortcut rendered13 places including Herzliya and Rishon despite matching only Jerusalem catalog record.",
+  "expected_behavior": "Keep exact matches and only eligible nearby supplements within35km of the selected local origin.",
+  "environment": "Saved candidate, loopback4191, final corrected-hourly build, Nov4 2026 20:40 Israel, IAB216.",
+  "reproduction": {
+    "steps": [
+      "Open /hourly",
+      "Click southern popular link",
+      "Click Jerusalem regional popular link",
+      "Inspect visible place locations after hydration",
+      "Run source helper with current public geography nodes and bundledhourlycatalog"
+    ],
+    "evidence": "IAB216 selected Jerusalem-and-Harei-Yehuda but firstcards Rishon/Herzliya; CLI matches only Lago, nearby13central."
+  },
+  "observations": [
+    {
+      "observation": "Exact location predicate returns only LagoSuite inJerusalem.",
+      "evidence": "CLI actual matchesSearchLocation with bundledhourlysource."
+    },
+    {
+      "observation": "area:7 has no ownGPS; city:20 Jerusalem has31.768319,35.21371. Helper ranks supplements fromchildcentroid instead of caller matchingcatalogpoint.",
+      "evidence": "Read-only /api/vii/geography and actual nearbySearchRecommendations returned13central."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Invalid popular shortcut slug causesunfilteredcountryresults.",
+      "prediction": "URLorrequestedlocation remainscountry.",
+      "discriminating_test": "Click correctedapprovedJerusalem link and inspectheading/location.",
+      "result": "CorrectcanonicalURL andJerusalemlabel retained.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Loose exactlocationpredicate admitscentralcities.",
+      "prediction": "matchesSearchLocation includesRishon/Herzliya.",
+      "discriminating_test": "Runactualpredicate againsthourlycatalog.",
+      "result": "OnlyLagoJerusalem matched.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Regionwithoutownpoint uses displacedchildcentroid despite explicitmatchingcatalogorigin.",
+      "prediction": "Exactmatch remainslocal but recommendations become central; validoriginpriority removescentralplaces.",
+      "discriminating_test": "Actualsource helper withlivehierarchy; deterministic shiftedchildfixture with callerJerusalemorigin.",
+      "result": "Before13central; newfixture returnsonlyJerusalem andcityauthority regressionpasses.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H3",
+  "fix": {
+    "change": "Pass exact callerorigin to managed geography. For noncity target without ownGPS, prefer valid explicitorigin over childcentroid. Own city orregionpoint keepspriority.",
+    "evidence": "20focusedpassed; rebuilt IAB216reload onlyLagoJerusalem1result, no centralplaces."
+  },
+  "affected_family": [
+    "hourly nearby completion",
+    "spa nearby completion",
+    "event nearby completion",
+    "vacation nearby completion"
+  ],
+  "regression_checks": [
+    {
+      "check": "Displacedregioncentroid andauthoritativecitypoint",
+      "status": "passed",
+      "evidence": "tests/world-popular-regional-origin.test.mjs2passed; relatednearbyandLiranactual20totalpassed."
+    },
+    {
+      "check": "Exact rebuilt Jerusalem UI",
+      "status": "passed",
+      "evidence": "IAB216 reload Nov4 20:46 showed1LagoJerusalem instead of13central."
+    },
+    {
+      "check": "Final rebuilt fullfamilyregression",
+      "status": "passed",
+      "evidence": "2088passed,1skipped,0failed in .qa-output/world-popular-root-final-tests.log;58destinationsincludinglegacyvacationlinks."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "No productiongeographyrecordsmodified; publicdeploymentnotauthorized."
+  ],
+  "authorization_boundary": "Localfix/saveonly, read-onlypublicgeography, no publish orliveCMSwrite."
+}

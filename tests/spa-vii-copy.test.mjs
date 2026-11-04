@@ -7,7 +7,7 @@ import audit from "../docs/spa-editorial-review.json" with { type: "json" };
 import { projectSpaViiSite, validateSpaEditorialCandidate, spaEditorialSourceHash } from "../app/lib/spa-editorial-policy.ts";
 import { catalogResponse } from "../app/api/catalog/route.ts";
 import { GET } from "../app/api/spa/description/route.ts";
-import { spaLandings } from "../app/data/spa-landings.ts";
+import { spaLandings, spaSourceServiceTerms, spaItemMatches } from "../app/data/spa-landings.ts";
 import { spaEditorialSummary } from "../app/data/spa-editorial.ts";
 import { spaViiCopyOrNull } from "../app/data/spa-vii-copy.ts";
 
@@ -22,7 +22,13 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
     assert.deepEqual([...new Set(review.coverage.map(x=>x.sourceParagraph))].sort((a,b)=>a-b), site.about.map((_,i)=>i));
     assert.notEqual(copy.cardSummary, site.shortDescription);
     const oldCard = site.shortDescription || site.about[0] || "";
-    for (const facet of spaLandings) assert.equal(facet.terms.some(x=>copy.filterText.includes(x)), facet.terms.some(x=>oldCard.includes(x)), `${site.id}: preserve ${facet.id} filter`);
+    for (const facet of spaLandings.filter(facet => !["lodging", "hourly-room"].includes(facet.id))) assert.equal(facet.terms.some(x=>copy.filterText.includes(x)), facet.terms.some(x=>oldCard.includes(x)), `${site.id}: preserve ${facet.id} filter`);
+    // New service facets use source facts, independently of rewritten display prose.
+    const searchTerms = [...site.packages.map(pack => pack.title), ...spaSourceServiceTerms(site)];
+    for (const facet of spaLandings.filter(facet => ["lodging", "hourly-room"].includes(facet.id))) {
+      const original = { name: site.title, description: site.shortDescription, features: [], searchTerms };
+      assert.equal(spaItemMatches({ ...original, filterText: copy.filterText }, facet), spaItemMatches(original, facet), `${site.id}: preserve ${facet.id} source facts`);
+    }
     assert.notDeepEqual(copy.paragraphs, site.about);
     for (const paragraph of copy.paragraphs) {
       if (paragraph.length>40) assert.ok(!site.about.includes(paragraph), `${site.id}: original paragraph returned`);

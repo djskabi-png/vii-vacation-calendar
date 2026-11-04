@@ -2,6 +2,7 @@ import verifiedCatalog from "./verified-catalog.json";
 import { spaViiCopyOrNull } from "./spa-vii-copy";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
 import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
+import { spaSourceServiceTerms } from "./spa-landings.ts";
 import { supplierContactNumber } from "../lib/supplier-contact";
 import type { WorldId } from "./world-navigation";
 import { safeHourlyDescription } from "../lib/hourly-description";
@@ -70,7 +71,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     description: site.shortDescription || approvedCopy?.cardSummary || `${site.title}, מתחם ספא ב${site.city || "ישראל"}.`,
     filterText: approvedCopy?.filterText || [site.title, site.city, ...site.packages.map((pack) => pack.title)].filter(Boolean).join(" "),
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
-    searchTerms: site.packages.map((pack) => pack.title),
+    searchTerms: [...site.packages.map((pack) => pack.title), ...spaSourceServiceTerms(site)],
     image: site.image || undefined,
     images: [...new Set([
       site.image,

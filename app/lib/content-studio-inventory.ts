@@ -64,7 +64,7 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     catalogRows(db, "vacations"), catalogRows(db, "events"), catalogRows(db, "rooms"), catalogRows(db, "spa"),
   ]);
   const sources: ContentSource[] = [
-    { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "V homepage controls", title: "סליידרים של נופש בעמוד הבית",
+    { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "V homepage controls", title: "עמוד הבית וחיפושים פופולריים בכל העולמות",
       summary: "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.", indexable: false,
       attributes: { homePeriodOrder: "tomorrow,weekend,friday-weekend,thursday,friday", homePeriodDefault: "tomorrow", homePeriodHidden: "", homePeriodLabels: "{}", homeHolidayLimit: "6", homeHolidayHidden: "", homeHolidayDates: "{}" } },
     { type: "events", key: "landing", world: "events", locale, sourceLabel: "V events landing controls", title: defaultEventLandingPresentation.title,

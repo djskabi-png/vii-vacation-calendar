@@ -8,8 +8,10 @@ const page = readFileSync(new URL("../app/spas/[slug]/page.tsx", import.meta.url
 const sitemap = readFileSync(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8");
 const searchLandings = readFileSync(new URL("../app/data/spa-search-landings.ts", import.meta.url), "utf8");
 
-test("all nine spa feature controls are crawlable clean links", () => {
-  assert.equal((taxonomy.match(/slug: "/g) || []).length, 9);
+test("all eleven spa feature controls are crawlable clean links", () => {
+  assert.equal((taxonomy.match(/slug: "/g) || []).length, 11);
+  assert.match(taxonomy, /slug: "spa-with-lodging"/);
+  assert.match(taxonomy, /slug: "spa-hourly-room"/);
   assert.match(results, /<Link key=\{filter\.id\} href=\{spaLandingContext\(filter\.id\)\}/);
   assert.match(results, /href=\{spaLandingContext\(filter\.id\)\} scroll=\{false\}/);
   assert.match(results, /params\.delete\("features"\)/);

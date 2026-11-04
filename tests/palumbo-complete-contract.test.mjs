@@ -10,12 +10,12 @@ test("homepage discovery is visual, managed and complete", async () => {
     source("app/components/home-showcase.tsx"),
     source("app/components/home-discovery-sections.tsx"),
     source("app/admin/content-studio/page.tsx"),
-    source("app/lib/homepage-presentation.ts"),
+    Promise.all([source("app/lib/homepage-presentation.ts"), source("app/lib/world-popular-search-defaults.ts")]).then(parts => parts.join("\n")),
   ]);
   assert.match(home, /<HomeQuickSearches/);
   assert.match(showcase, /<HomeManagedDiscovery/);
   for (const key of ["homePopularSearches", "homeCitySearches", "homeTypeSearches", "homeEditorialTitle", "homeEditorialBody"]) {
-    assert.match(admin, new RegExp(key));
+    assert.match(admin + presentation, new RegExp(key));
     assert.match(presentation, new RegExp(key));
   }
   assert.match(discovery, /חיפוש לפי עיר ואזור/);

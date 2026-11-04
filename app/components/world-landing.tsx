@@ -1,3 +1,4 @@
+import { HomeQuickSearches } from "./home-discovery-sections";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { WorldTopicImage } from "./world-topic-image";
@@ -138,6 +139,7 @@ export async function WorldLanding({
           {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
         </section>
       </>}
+      <div className="shell world-popular-searches"><HomeQuickSearches world={world === "activities" ? "attractions" : world} /></div>
       {beforeResults}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}

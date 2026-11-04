@@ -41,7 +41,7 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
-import { eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
+import { normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
@@ -76,7 +76,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const initialEventFrom = initialParams.get("from");
   const initialGuests = Number(initialParams.get("guests") || 0);
   const [area, setArea] = useState(initialParams.get("location") || initialArea || "הכל");
-  const [type, setType] = useState(initialParams.get("type") || "הכל");
+  const [type, setType] = useState(normalizeEventVenueType(initialParams.get("type")));
   const [eventType, setEventType] = useState(initialParams.get("eventType") || "הכל");
   const [facility, setFacility] = useState(initialParams.get("features") || "הכל");
   const [guests, setGuests] = useState(Number.isFinite(initialGuests) && initialGuests > 0 ? Math.max(10, initialGuests) : initialEventFrom ? 20 : 0);
@@ -121,7 +121,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       const requestedGuests = Number(params.get("guests") || 0);
       setArea(requestedArea && requestedArea !== "כל הארץ" ? requestedArea : initialArea || "הכל");
       setGuests(Number.isFinite(requestedGuests) && requestedGuests > 0 ? Math.max(10, requestedGuests) : params.get("from") ? 20 : 0);
-      setType(params.get("type") || "הכל");
+      setType(normalizeEventVenueType(params.get("type")));
       setEventType(params.get("eventType") || "הכל");
       setFacility(params.get("features") || "הכל");
       setNoNoiseLimit(params.get("noise") === "1");

@@ -20,6 +20,7 @@ const suites = [
   ["hebrew-and-directionality-contract", ["qa:typography-contract"]],
   ["protected-release-baseline", ["qa:release-baseline"]],
   ["critical-public-families", ["qa:critical-public-families"]],
+  ["managed-world-popular-searches", ["qa:world-popular"]],
   ["liran-shared-data-and-selection-regressions", ["qa:liran-stability"]],
   ["pre-professor-production-repairs", ["qa:pre-professor-repairs"]],
   ["production-build-and-all-tests", ["test"]],

@@ -1,3 +1,4 @@
+import { HomeQuickSearches } from "../components/home-discovery-sections";
 /* eslint-disable @next/next/no-img-element */
 
 import type { Metadata } from "next";
@@ -110,7 +111,8 @@ export default async function EventsPage() {
             <div className="events-hero__search"><SearchBox mode="events" compact showWorlds /></div>
           </div>
         </section>
-        <EventQuickSearches eyebrow={presentation.quickSearchEyebrow} title={presentation.quickSearchTitle} items={presentation.quickSearches} />
+        <div className="shell world-popular-searches"><HomeQuickSearches world="events" /></div>
+      <EventQuickSearches eyebrow={presentation.quickSearchEyebrow} title={presentation.quickSearchTitle} items={presentation.quickSearches} />
         <EventLastMinute places={eventPlaces} />
         <section className="section shell event-region-section">
           <div className="section-head">

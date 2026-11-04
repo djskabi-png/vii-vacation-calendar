@@ -36,7 +36,7 @@ const server = http.createServer(async (request, response) => {
       quoteBody = Buffer.concat(chunks);
     }
     let result = await assets.fetch(new Request(incoming));
-    if (result.status === 404 && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
+    if (result.status === 404 && incoming.pathname !== "/api/vii/homepage-presentation" && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
       result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: quoteRead ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(quoteRead ? { "Content-Type": "application/json" } : {}) }, ...(quoteRead ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
     } else if (result.status === 404) {
       result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);

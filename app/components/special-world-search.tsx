@@ -1,3 +1,4 @@
+import { HomeQuickSearches } from "./home-discovery-sections";
 import { SearchWorldTabs, type PublicWorldId } from "./world-switcher";
 import { TranslatedText } from "./translated-text";
 
@@ -22,5 +23,6 @@ export function SpecialWorldSearch({ active, targetId, description }: SpecialWor
         </a>
       </div>
     </details>
+    <div className="world-popular-searches"><HomeQuickSearches world={active} /></div>
   </div></section>;
 }
