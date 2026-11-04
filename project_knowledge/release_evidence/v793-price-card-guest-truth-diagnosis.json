@@ -1,0 +1,39 @@
+{
+  "status": "fixed",
+  "symptom": "Vacation result cards can display a two-guest price basis beside a total quote requested for a different party size.",
+  "expected_behavior": "The card must describe the exact guest composition represented by the displayed quote, and make no composition claim without a verified quote.",
+  "environment": "Public VII v792 and cumulative release branch release/v791-complete-20261104 on 2026-11-04",
+  "reproduction": {
+    "steps": [
+      "POST a six-guest dated vacation search to the public live-search API.",
+      "Observe a positive quote where priceGuests is two because it was derived from room basisGuests.",
+      "Render the corresponding shared PropertyCard."
+    ],
+    "evidence": "Public live-search returned positive six-guest quotes with priceGuests values 2, 4, 8, 10 and 12; source maps priceGuests to includedGuests and renders it as the card price basis."
+  },
+  "observations": [
+    { "observation": "The supplier search request payload contains the visitor's requested party composition.", "evidence": "app/lib/vii-live-search.ts" },
+    { "observation": "priceGuests is computed from supplier room basisGuests, not from the party used to request the quote.", "evidence": "app/lib/vii-live-search.ts lines around selectedRooms reduction" },
+    { "observation": "PropertyCard renders includedGuests as the visible price basis.", "evidence": "app/components/property-card.tsx commercial summary" }
+  ],
+  "hypotheses": [
+    { "id": "H1", "mechanism": "The card receives supplier base-occupancy metadata in a field interpreted as the composition represented by the total quote.", "prediction": "A six-guest request can render two when the selected room has basisGuests two.", "discriminating_test": "Compare request guests, selected room basisGuests and rendered label for the same positive quote.", "result": "Public API returned a six-guest positive quote for site 1395 with priceGuests two, matching the selected room basis rather than the request.", "status": "supported" },
+    { "id": "H2", "mechanism": "The label is hardcoded to two in PropertyCard.", "prediction": "Source would render literal two regardless of the quote object.", "discriminating_test": "Inspect the shared card render and provide a non-two includedGuests fixture.", "result": "The card interpolates includedGuests and public API returns several non-two values, so the literal is not hardcoded in the component.", "status": "rejected" }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Separated the visitor party represented by a quote into explicit quotedGuests, retained supplier basis occupancy only as supplier metadata, rendered localized quote-party copy only beside a positive quote, and removed the latent fixed two-guest homepage copy.",
+    "evidence": "tests/quoted-price-guests.test.mjs and tests/home-live-deals-owner-review.test.mjs cover non-two parties, singular and plural copy, unpriced states, shared-card consumption, and every quote-producing path. The targeted family passed 18 of 18 tests, the production build passed, release baseline passed 23 of 23, critical public families passed 62 of 62, flexible online search passed 17 of 17, and typography contract passed 18 of 18."
+  },
+  "affected_family": ["exact search", "flexible search", "legacy availability", "homepage deals", "holiday deals", "four locales", "desktop and mobile"],
+  "regression_checks": [
+    { "check": "Six-guest quote truth", "status": "passed", "evidence": "The targeted regression test renders six from quotedGuests and rejects supplier basis occupancy two." },
+    { "check": "Unpriced state truth", "status": "passed", "evidence": "The helper returns no label for unpriced, unavailable and invalid requests." },
+    { "check": "Affected producer family", "status": "passed", "evidence": "Source-contract tests cover exact search, flexible search, legacy availability, homepage deals and last-minute deals." },
+    { "check": "All public locales", "status": "passed", "evidence": "Singular and plural copy passed for Hebrew, English, Russian and French." },
+    { "check": "Fixed-copy prevention", "status": "passed", "evidence": "The latent fixed two-guest homepage copy is absent and the owner-review test enforces the new invariant." }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Final live rendering evidence after publication"],
+  "authorization_boundary": "Diagnose, repair, test and publish the public card correction only."
+}

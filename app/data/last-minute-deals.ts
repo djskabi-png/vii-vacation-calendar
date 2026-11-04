@@ -104,5 +104,5 @@ export function publishedLastMinuteDeal({ slug, period, from, till, guests, nigh
   const deal = lastMinutePeriods.find((candidate) => candidate.id === period);
   const offer = deal?.offers.find((candidate) => candidate.slug === slug && candidate.from === from && candidate.till === till && candidate.nightlyPrice === nightlyPrice);
   if (!offer || nightlyPrice <= 0) return null;
-  return { from: offer.from, till: offer.till, availability: "available", nightlyPrice: offer.nightlyPrice, includedGuests: Math.max(1, guests), showSelectedDates: true };
+  return { from: offer.from, till: offer.till, availability: "available", nightlyPrice: offer.nightlyPrice, includedGuests: Math.max(1, guests), quotedGuests: Math.max(1, guests), showSelectedDates: true };
 }

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task_id": "v793-price-card-guest-truth-20261104",
+  "project": "VII",
+  "task_type": "public website data-truth repair and release",
+  "requested_outcome": "Every vacation result card describes the guest composition for which its displayed quote was calculated, never a hardcoded or unrelated supplier basis count, and the verified fix is published without regressing booking, availability, sorting or other card families.",
+  "natural_destination": "https://vii.spaplus.co vacation search and homepage vacation deal cards on desktop and mobile",
+  "authorization_boundary": "Diagnose, implement, test and publish this correction to the existing VII public site. No supplier data mutation, schema change, credential change, DNS change or unrelated redesign.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "This correction must be translated from one observed card into the complete quote and card family.",
+      "acceptance_impact": "Requires a predictive family inventory, midpoint check and natural-destination proof."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "The visible guest count is a public numeric claim tied to a quoted price.",
+      "acceptance_impact": "Requires the displayed count to reconcile with the exact request and supplier quote, with no invented fallback."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The same shared card is used across search, flexible search, homepage and holiday rails.",
+      "acceptance_impact": "Requires the shared family to use one truthful formatter and consistent behavior across desktop and mobile."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A local code fix is insufficient without complete flow and deployed evidence.",
+      "acceptance_impact": "Requires exact deployed-version checks, representative scenarios, reload and direct result links."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The user explicitly authorized publication to the public VII site.",
+      "acceptance_impact": "Requires clean cumulative source, rollback identity, public route verification and deployed identity evidence."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only one card is fixed while another search or homepage rail still shows an unrelated count.",
+      "prevention": "Change the shared quote presentation contract and inventory every PropertyCard producer.",
+      "acceptance_check": "Automated family tests and live checks cover dated search, flexible search, homepage deals and holiday deals."
+    },
+    {
+      "rejection": "The number is replaced with the searched count even when no verified price exists.",
+      "prevention": "Render the guest-price label only beside a verified numeric quote and never in unknown or catalog-only states.",
+      "acceptance_check": "Missing-price and unknown-availability fixtures contain no guest-price claim."
+    },
+    {
+      "rejection": "The card still says base price and implies a supplier basis rather than the composition used for this quote.",
+      "prevention": "Use explicit localized copy that says the displayed price is for the quoted guest composition.",
+      "acceptance_check": "Rendered Hebrew, English, Russian and French fixtures show the correct singular or plural composition."
+    },
+    {
+      "rejection": "The fix publishes from a stale or incomplete branch and removes prior accepted work.",
+      "prevention": "Run protected release-source, baseline and affected-family gates on a clean cumulative descendant before one bounded publication.",
+      "acceptance_check": "Release evidence records source commit, tree, deployment, version, environment revision and rollback."
+    }
+  ],
+  "affected_family": [
+    "PropertyCard dated vacation search results",
+    "PropertyCard flexible weekend search results",
+    "homepage live vacation deal cards",
+    "holiday live deal cards",
+    "legacy availability cards",
+    "Hebrew, English, Russian and French card copy",
+    "desktop and 390px mobile rendering",
+    "loading, unknown, unavailable and priced states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Supplier facts and one shared truth model",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "Visible price sorting and availability truth",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After proving which request and supplier fields generated the card count and rendering the first corrected card fixture",
+    "checks": [
+      "A six-guest priced request renders six and not the supplier basis value two",
+      "A priced one-guest request uses singular localized copy",
+      "A missing-price state renders no guest-price claim"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any priced card still display two when the exact quote was requested for a different party size?",
+      "Can a card claim a guest composition when the displayed amount is only a catalog starting price or no price was returned?",
+      "Do homepage, holiday, exact search and flexible search disagree for the same quote contract?",
+      "Did the release preserve availability, online booking, sorting and contact-only states?"
+    ],
+    "natural_destination_evidence": "Open the exact public version on representative priced and unpriced vacation routes, verify the rendered copy and request/API values on desktop and 390px mobile, then reload.",
+    "affected_family_evidence": "Automated shared-component and producer tests plus live representative card scenarios from search and deal rails."
+  },
+  "effectiveness": {
+    "baseline": "Observed production behavior repeatedly displays a supplier basis value such as two beside a quote calculated for another requested composition.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero mismatches between the quoted request composition and visible guest-price label across the affected family, with one publication and no regression."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -40,6 +40,7 @@ function toResolvedAvailability(result: LegacyAvailabilityResponse, from: string
     availability: result.availability,
     nightlyPrice: result.nightlyPrice > 0 ? result.nightlyPrice : undefined,
     includedGuests: result.includedGuests,
+    quotedGuests: result.nightlyPrice > 0 ? result.includedGuests : undefined,
     showSelectedDates: true,
     units: (Array.isArray(result.units) ? result.units : []).map((unit) => ({
       index: unit.index,

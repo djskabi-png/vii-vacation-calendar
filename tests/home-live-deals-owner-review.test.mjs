@@ -4,13 +4,15 @@ import { test } from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("live deal cards communicate availability, price basis and the requested Hebrew singular", async () => {
+test("live deal cards communicate availability and bind the price copy to the quoted party", async () => {
   const [component, sharedCard] = await Promise.all([read("app/components/home-live-deals.tsx"), read("app/components/property-card.tsx")]);
   assert.match(component, /פנוי לתאריכים שבחרתם/);
-  assert.match(component, /עבור 2 אורחים/);
+  assert.match(component, /quotedGuests: deal\.priceGuests/);
+  assert.doesNotMatch(component, /עבור 2 אורחים/);
   assert.match(component, /priceMode: "stay_total"/);
   assert.match(component, /<PropertyCard/);
   assert.match(sharedCard, /priceMode === "stay_total"/);
+  assert.match(sharedCard, /quotedPriceGuestLabel\(language, resolvedAvailability\?\.quotedGuests, hasQuotedPrice\)/);
   assert.match(sharedCard, /<DirectPhoneLink phone=\{property\.contact\?\.phone\} placeName=\{property\.name\}/);
   assert.match(sharedCard, /placement: "property_card"/);
   assert.doesNotMatch(sharedCard, /phoneRevealed|setPhoneRevealed|הצגת מספר/);

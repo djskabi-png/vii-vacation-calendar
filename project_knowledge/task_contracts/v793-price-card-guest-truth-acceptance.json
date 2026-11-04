@@ -1,0 +1,97 @@
+{
+  "goal": "A visitor sees the exact guest composition represented by every displayed dated vacation quote, without an unrelated default or supplier basis value, across all shared card surfaces.",
+  "intent_model": {
+    "literal_request": "Fix result cards that keep showing a price basis of two guests, find comparable mistakes, lock the behavior and publish.",
+    "implied_outcome": "Make the public price claim truthful at its data boundary across the complete card family, and prevent recurrence with executable tests and deployed verification.",
+    "likely_rejections": [
+      "A six-guest quote still says two guests on any card surface.",
+      "A missing or starting price is presented as if it were a personalized quote.",
+      "Only Hebrew search is fixed while another locale, homepage rail or flexible search remains wrong.",
+      "The fix is tested locally but not visible on the exact public deployment."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "find more mistakes like this, lock and publish",
+        "operational_meaning": "Inventory the shared producers and data states, repair the causal contract once, add regression tests and verify the public release.",
+        "acceptance_impact": "Every affected family item must have passed evidence or an explicit justified exclusion before release."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The card shows one price and the guest composition that exact price represents.",
+    "current_decision": "Compare the displayed quote for the selected dates and party.",
+    "next_action": "Open the place or continue to booking with the same preserved dates and party.",
+    "deferred_complexity": ["Supplier room basis and surcharge internals", "Detailed room allocation"],
+    "preserved_depth": ["Booking breakdown", "Room recommendation", "Availability and contact fallback"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/v793-price-card-guest-truth-preflight.json",
+    "lesson_bundle_ids": ["ADIR-MIND-001", "ADIR-DATA-001", "ADIR-CONSISTENCY-001", "ADIR-QA-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Vacation search visitor", "Homepage deal visitor"],
+  "natural_destination": "Public VII vacation result and deal cards on desktop and mobile",
+  "facts": [
+    {
+      "claim": "The live supplier search receives the requested party composition and returns a total quote for that request.",
+      "evidence": "app/lib/vii-live-search.ts and public POST /api/vii/live-search"
+    },
+    {
+      "claim": "The current card label is driven by includedGuests, while live search maps supplier room basisGuests into that field.",
+      "evidence": "app/search/page.tsx, app/lib/vii-live-search.ts and app/components/property-card.tsx"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The visible card should describe the party for which the displayed total quote was requested, not the room's base occupancy metadata.",
+      "validation": "Compare request payload, supplier response, rendered card and booking navigation for one, two and six guests."
+    }
+  ],
+  "in_scope": [
+    "Truthful guest-price label for numeric dated quotes",
+    "Shared result, flexible, homepage and holiday card family",
+    "Localized singular and plural copy",
+    "Regression tests and public publication"
+  ],
+  "out_of_scope": ["Supplier price calculation changes", "Supplier catalog mutations", "Visual redesign", "Unrelated booking policy changes"],
+  "invariants": [
+    "Displayed amount, availability and booking eligibility remain supplier-driven.",
+    "Dates and party continue through place and booking navigation.",
+    "Unknown, unavailable, contact-only and catalog-starting-price states remain truthful.",
+    "Price sorting remains based on the amount displayed to the visitor."
+  ],
+  "affected_family": [
+    "PropertyCard",
+    "exact dated supplier search mapping",
+    "flexible supplier search mapping",
+    "legacy availability mapping",
+    "homepage live deals",
+    "holiday live deals",
+    "four supported locales",
+    "desktop and mobile"
+  ],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "A numeric dated quote displays the exact positive guest count represented by its request.", "source": "User correction and VII data-truth invariant" },
+    { "id": "REQ-2", "statement": "No default or supplier basis count is substituted for the quote composition.", "source": "User correction" },
+    { "id": "REQ-3", "statement": "Unpriced and catalog-only states do not make a personalized guest-price claim.", "source": "VII feedback standard" },
+    { "id": "REQ-4", "statement": "The behavior is consistent across every shared card producer, locale and responsive surface.", "source": "User request to find comparable errors and lock the family" },
+    { "id": "REQ-5", "statement": "The cumulative clean candidate is published once with rollback and verified publicly.", "source": "User publication authorization and release protocol" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "A supplier dated search requested for six guests returns a positive quote for a room whose basisGuests is two.", "action": "Render the result card.", "observable_result": "The card says the price is for six guests and does not show two as the quote composition." },
+    { "id": "AC-2", "requirement_ids": ["REQ-1", "REQ-4"], "kind": "success", "setup": "A positive quote is requested for one guest in each supported locale.", "action": "Render the shared card.", "observable_result": "Each locale uses a grammatically correct singular composition label." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "empty", "setup": "Availability is unknown or only a catalog starting price exists.", "action": "Render the card.", "observable_result": "No personalized guest-price label is shown." },
+    { "id": "AC-3B", "requirement_ids": ["REQ-1", "REQ-2", "REQ-3"], "kind": "failure", "setup": "The supplier response has no trustworthy positive quote composition or the quote request fails.", "action": "Render the error or fallback card state.", "observable_result": "The card shows the existing truthful retry, contact or catalog fallback and never invents a guest-price composition." },
+    { "id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "persistence", "setup": "Search, flexible and deal cards are loaded with dates and a party.", "action": "Open the route, resize to 390 pixels, reload and navigate to details.", "observable_result": "The same dates, party and truthful label persist without contradictory copy." },
+    { "id": "AC-5", "requirement_ids": ["REQ-5"], "kind": "rollback", "setup": "The candidate passes all required gates.", "action": "Publish the frozen source and verify the exact public deployment.", "observable_result": "The public URL shows the fix, release identity is recorded and the prior v792 deployment remains the rollback."
+    }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, tests and publication are authorized. No supplier, schema, DNS, credential or unrelated product changes.",
+  "ready_for_implementation": true
+}
+

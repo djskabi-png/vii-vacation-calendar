@@ -25,16 +25,17 @@ import { OnlineBookingBadge } from "./online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { hasSearchDate, supplierStartingPrice, type SeasonalStartingPrices } from "../lib/supplier-starting-price";
 import { CatalogStartingPrice } from "./catalog-starting-price";
+import { quotedPriceGuestLabel } from "../lib/quoted-price-guests";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
 }
 
-const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; searchedDates: string; noDates: string; from: string; night: string; stayTotal: string; nightlyAverage: string; to: string; inquirePrice: string; checking: string; unavailableSource: string; includedGuests: (count: number) => string; minimumNights: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
-  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", searchedDates: "התאריכים שחיפשת", noDates: "לא נבחרו תאריכים", from: "החל מ־", night: "ללילה", stayTotal: "לכל השהייה", nightlyAverage: "ממוצע ללילה", to: "עד", inquirePrice: "פנו למקום לקבלת הצעת מחיר", checking: "בודקים זמינות ומחיר", unavailableSource: "לא הצלחנו לאמת זמינות ומחיר כרגע", includedGuests: (count) => `בסיס המחיר: ${count} אורחים`, minimumNights: (count) => `נדרשים לפחות ${count} לילות`, availability: { available: "פנוי בתאריכים שבחרת", unavailable: "לא פנוי בתאריכים שבחרת", unknown: "לבירור זמינות ומחיר פנו למקום" } },
-  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", searchedDates: "Your searched dates", noDates: "No dates selected", from: "From ", night: "per night", stayTotal: "for the whole stay", nightlyAverage: "average per night", to: "to", inquirePrice: "Contact the property for availability and price", checking: "Checking live availability and price", unavailableSource: "We could not verify availability and price right now", includedGuests: (count) => `Price basis: ${count} guests`, minimumNights: (count) => `Minimum stay: ${count} nights`, availability: { available: "Available for your dates", unavailable: "Unavailable for your dates", unknown: "Contact the property for availability and price" } },
-  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", searchedDates: "Даты вашего поиска", noDates: "Даты не выбраны", from: "От ", night: "за ночь", stayTotal: "за весь период", nightlyAverage: "в среднем за ночь", to: "по", inquirePrice: "Уточните наличие и цену у объекта", checking: "Проверяем актуальные наличие и цену", unavailableSource: "Не удалось проверить наличие и цену", includedGuests: (count) => `Цена рассчитана для ${count} гостей`, minimumNights: (count) => `Минимум ${count} ночи`, availability: { available: "Свободно на ваши даты", unavailable: "Нет мест на ваши даты", unknown: "Уточните наличие и цену у объекта" } },
-  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", searchedDates: "Dates de votre recherche", noDates: "Aucune date sélectionnée", from: "À partir de ", night: "par nuit", stayTotal: "pour tout le séjour", nightlyAverage: "moyenne par nuit", to: "au", inquirePrice: "Contactez l'établissement pour la disponibilité et le prix", checking: "Vérification des disponibilités et du prix", unavailableSource: "Impossible de vérifier la disponibilité et le prix pour le moment", includedGuests: (count) => `Prix calculé pour ${count} personnes`, minimumNights: (count) => `Séjour minimum : ${count} nuits`, availability: { available: "Disponible à vos dates", unavailable: "Indisponible à vos dates", unknown: "Contactez l'établissement pour la disponibilité et le prix" } },
+const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; searchedDates: string; noDates: string; from: string; night: string; stayTotal: string; nightlyAverage: string; to: string; inquirePrice: string; checking: string; unavailableSource: string; minimumNights: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
+  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", searchedDates: "התאריכים שחיפשת", noDates: "לא נבחרו תאריכים", from: "החל מ־", night: "ללילה", stayTotal: "לכל השהייה", nightlyAverage: "ממוצע ללילה", to: "עד", inquirePrice: "פנו למקום לקבלת הצעת מחיר", checking: "בודקים זמינות ומחיר", unavailableSource: "לא הצלחנו לאמת זמינות ומחיר כרגע", minimumNights: (count) => `נדרשים לפחות ${count} לילות`, availability: { available: "פנוי בתאריכים שבחרת", unavailable: "לא פנוי בתאריכים שבחרת", unknown: "לבירור זמינות ומחיר פנו למקום" } },
+  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", searchedDates: "Your searched dates", noDates: "No dates selected", from: "From ", night: "per night", stayTotal: "for the whole stay", nightlyAverage: "average per night", to: "to", inquirePrice: "Contact the property for availability and price", checking: "Checking live availability and price", unavailableSource: "We could not verify availability and price right now", minimumNights: (count) => `Minimum stay: ${count} nights`, availability: { available: "Available for your dates", unavailable: "Unavailable for your dates", unknown: "Contact the property for availability and price" } },
+  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", searchedDates: "Даты вашего поиска", noDates: "Даты не выбраны", from: "От ", night: "за ночь", stayTotal: "за весь период", nightlyAverage: "в среднем за ночь", to: "по", inquirePrice: "Уточните наличие и цену у объекта", checking: "Проверяем актуальные наличие и цену", unavailableSource: "Не удалось проверить наличие и цену", minimumNights: (count) => `Минимум ${count} ночи`, availability: { available: "Свободно на ваши даты", unavailable: "Нет мест на ваши даты", unknown: "Уточните наличие и цену у объекта" } },
+  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", searchedDates: "Dates de votre recherche", noDates: "Aucune date sélectionnée", from: "À partir de ", night: "par nuit", stayTotal: "pour tout le séjour", nightlyAverage: "moyenne par nuit", to: "au", inquirePrice: "Contactez l'établissement pour la disponibilité et le prix", checking: "Vérification des disponibilités et du prix", unavailableSource: "Impossible de vérifier la disponibilité et le prix pour le moment", minimumNights: (count) => `Séjour minimum : ${count} nuits`, availability: { available: "Disponible à vos dates", unavailable: "Indisponible à vos dates", unknown: "Contactez l'établissement pour la disponibilité et le prix" } },
 };
 
 const propertyCardInterfaceCopy: Record<SiteLanguage, { stay: string; location: string; open: string; details: string; image: string; previous: string; next: string; choose: string; units: (count: number) => string; whole: string; capacity: (count: number, perUnit: boolean) => string; pending: string; highlights: string }> = {
@@ -57,6 +58,8 @@ export type ResolvedAvailability = ListingDateQuote & {
   supplierRoomID?: number;
   alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>;
   illustrative?: boolean;
+  /** Party composition used to calculate the displayed quote. */
+  quotedGuests?: number;
   units?: Array<{
     index: number;
     availability: "available" | "unavailable";
@@ -190,10 +193,11 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): (L
       availability: available ? "available" : "unavailable",
       nightlyPrice: weekend ? property.demoOperations.weekendNightlyPrice : property.demoOperations.weekdayNightlyPrice,
       includedGuests: property.guests,
+      quotedGuests: selectedStay.guests,
     };
   }
   const exactQuote = property.dateQuotes?.find((quote) => quote.from === selectedStay.from && quote.till === selectedStay.till);
-  if (exactQuote) return exactQuote;
+  if (exactQuote) return { ...exactQuote, ...(exactQuote.nightlyPrice && selectedStay.guests ? { quotedGuests: selectedStay.guests } : {}) };
   if (property.dailyAvailability?.length) {
     const byDate = new Map(property.dailyAvailability.map((day) => [day.date, day]));
     const cursor = new Date(`${selectedStay.from}T12:00:00Z`);
@@ -216,6 +220,7 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): (L
         availability: selectedDays.every((day) => day.availableUnits > 0) && satisfiesMinimumStay ? "available" : "unavailable",
         nightlyPrice: oneNightlyPrice,
         includedGuests,
+        ...(oneNightlyPrice && selectedStay.guests ? { quotedGuests: selectedStay.guests } : {}),
         minimumNights,
       };
     }
@@ -254,12 +259,12 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   const kind = demoAvailabilityScenarios[period][property.slug] || demoAvailabilityKinds[(stableIndex + period) % demoAvailabilityKinds.length];
   const nightlyPrice = demoNightlyPrices[property.slug] || property.price || demoPriceRange[stableIndex % demoPriceRange.length];
   const common = { ...selectedStay, illustrative: true };
-  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: true };
-  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: false };
+  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.guests || 2, quotedGuests: selectedStay.guests, showSelectedDates: true };
+  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.guests || 2, quotedGuests: selectedStay.guests, showSelectedDates: false };
   if (kind === "available-no-price") return { ...common, availability: "available", showSelectedDates: true };
   if (kind === "no-data") return { ...common, availability: "unknown", showSelectedDates: false };
   if (kind === "unavailable") return { ...common, availability: "unavailable", showSelectedDates: true };
-  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: true };
+  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice, includedGuests: property.guests || 2, quotedGuests: selectedStay.guests, showSelectedDates: true };
   const alternativeOffsets = period === 3 ? [-7, 2] : [3, 7];
   return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: alternativeOffsets.map((days, index) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: nightlyPrice + (index * 200) })) };
 }
@@ -332,6 +337,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const displayPrice = resolvedAvailability?.priceMode === "stay_total" ? resolvedAvailability.totalPrice : resolvedAvailability?.nightlyPrice;
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
+  const quotedGuestLabel = quotedPriceGuestLabel(language, resolvedAvailability?.quotedGuests, hasQuotedPrice);
   const undatedSearch = !selectedStay && !hasSearchDate(searchParams);
   const catalogStartingPrice = !promotional ? supplierStartingPrice(catalogStartingPrices ?? property) : null;
   const startingPrice = undatedSearch && !resolvedAvailability ? catalogStartingPrice : null;
@@ -408,7 +414,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional && (resolvedAvailability || startingPrice || (undatedSearch && property.price)) ? <div className="stay-card__commercial-summary">
-            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
+            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{quotedGuestLabel ? <em>{quotedGuestLabel}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : null}

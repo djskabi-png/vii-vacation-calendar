@@ -649,7 +649,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
         ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
-        ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
+        ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}),
+        ...(result.total ? { quotedGuests: guests } : {}) }, status: "ready" };
     }
     if (flexibleSearch && /^vacation-\d+$/.test(slug)) {
       if (flexibleSupplierSearch.status === "loading") return { quote: null, status: "loading" };
@@ -663,7 +664,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
         ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
-        ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
+        ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}),
+        ...(result.total ? { quotedGuests: guests } : {}) }, status: "ready" };
     }
     if (flexibleSearch && !legacyAvailabilitySourceFor(slug)) return flexibleLocalAvailabilityBySlug[slug];
     if (!legacyAvailabilitySourceFor(slug)) return undefined;
