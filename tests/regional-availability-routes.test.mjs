@@ -141,9 +141,10 @@ test('actual spa handler filters source sites before cap and returns honest empt
 
 test('event rail date guard respects Israel cutoff and midnight with an explicit clock',async()=>{
   for(const [clock,date,status] of [
-    ['2026-10-18T11:00:59Z','2026-10-18',200],
+    ['2026-10-18T10:59:59Z','2026-10-18',200],
+    ['2026-10-18T11:00:00Z','2026-10-18',400],
     ['2026-10-18T11:01:00Z','2026-10-18',400],
-    ['2026-10-18T21:00:00Z','2026-10-19',400],
+    ['2026-10-18T21:00:00Z','2026-10-19',200],
     ['2026-10-18T21:01:00Z','2026-10-19',200],
   ]){
     let reads=0;

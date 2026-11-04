@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "task_id": "v794-last-minute-cutoff-20261104",
+  "project": "VII",
+  "task_type": "time-bound availability correction",
+  "requested_outcome": "Vacation last-minute deals use today until 14:00 Israel time and tomorrow from 14:00, with automatic refresh and no regression to the four weekend periods.",
+  "natural_destination": "The vacation last-minute tab and permanent last-minute page.",
+  "authorization_boundary": "Local source repair and verification are authorized. Publication is not authorized by this correction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The prior implementation encoded the wrong time behavior and needs an exact boundary regression.",
+      "acceptance_impact": "The precise pre-cutoff, boundary and post-cutoff states must pass, together with the affected family."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The same shared deal clock drives multiple discovery rails and period tabs.",
+      "acceptance_impact": "The correction must preserve the four weekend periods and shared refresh behavior."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "The displayed stay date is a time-zone-sensitive public data promise.",
+      "acceptance_impact": "Tests must use Asia/Jerusalem and verify exact returned dates rather than labels alone."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The card still requests tomorrow before 14:00.",
+      "prevention": "Make the last-minute period derive from the shared first eligible date.",
+      "acceptance_check": "At 13:59:59 Israel time the period returns today's date."
+    },
+    {
+      "rejection": "The switch happens at 14:01 or remains stale after 14:00.",
+      "prevention": "Move the shared cutoff to exactly 14:00 and bind the request cache identity to the deal clock.",
+      "acceptance_check": "At 14:00:00 the period returns tomorrow and the client request identity changes."
+    },
+    {
+      "rejection": "Fixing last minute moves Thursday or Friday weekend tabs incorrectly.",
+      "prevention": "Keep weekday period computation separate and run boundary tests for all four tabs.",
+      "acceptance_check": "All four weekend period dates remain correct before and after the cutoff."
+    }
+  ],
+  "affected_family": [
+    "app/lib/deal-clock.ts",
+    "app/lib/vii-home-deals.ts",
+    "app/components/home-live-deals.tsx",
+    "vacation last-minute tab",
+    "permanent /last-minute page",
+    "Thursday-to-Saturday period",
+    "Friday-to-Sunday period",
+    "Thursday-night period",
+    "Friday-night period",
+    "shared event and spa deal-clock consumers"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Current user correction",
+        "source": "Active conversation: show today and switch to tomorrow at 14:00"
+      },
+      {
+        "label": "VII product invariant",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The date helper and boundary unit tests pass before the component cache behavior is changed.",
+    "checks": [
+      "13:59:59 returns today",
+      "14:00:00 returns tomorrow",
+      "weekend dates remain unchanged"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any second at or after 14:00 still return today?",
+      "Can a mounted page retain the pre-cutoff API response after the clock changes?",
+      "Did the shared cutoff break event, spa or weekend-period date eligibility?"
+    ],
+    "natural_destination_evidence": "A rendered local last-minute rail must request the expected date on both sides of the cutoff.",
+    "affected_family_evidence": "Focused tests for shared clock, home-deal dates, client request cache identity and all period tabs must pass."
+  },
+  "effectiveness": {
+    "baseline": "Current code always selects tomorrow for period tomorrow and switches the shared clock at 14:01.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One causal implementation with exact boundary coverage and no repeated correction for this rule."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

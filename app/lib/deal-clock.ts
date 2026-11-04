@@ -6,7 +6,9 @@ export function todayDealsVisible(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).formatToParts(now);
   const part = (type: string) => Number(parts.find(value => value.type === type)?.value);
   const minute = part("hour") * 60 + part("minute");
-  return minute >= 1 && minute < 14 * 60 + 1;
+  // Today is the last-minute arrival throughout the morning. At the exact
+  // 14:00 Israel-time boundary the rail advances to tomorrow.
+  return minute < 14 * 60;
 }
 
 export function firstDealDate(now = new Date()) {

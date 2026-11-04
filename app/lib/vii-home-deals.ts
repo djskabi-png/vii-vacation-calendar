@@ -1,7 +1,7 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
 import { supplierContactNumber } from "./supplier-contact.ts";
-import { eligibleDealDate } from "./deal-clock.ts";
+import { eligibleDealDate, firstDealDate } from "./deal-clock.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
@@ -56,8 +56,12 @@ function checkoutDate(from: unknown, nights: number) {
 export function homeDealDates(periodId: HomeDealPeriod, now = new Date()) {
   const period = homeDealPeriods.find((item) => item.id === periodId);
   if (!period) throw new Error("invalid_period");
+  if (period.weekday === null) {
+    const arrival = new Date(`${firstDealDate(now)}T00:00:00Z`);
+    return { from: dateString(arrival), till: dateString(addDays(arrival, period.nights)), nights: period.nights };
+  }
   const today = israelToday(now);
-  let offset = period.weekday === null ? 1 : (period.weekday - today.getUTCDay() + 7) % 7;
+  let offset = (period.weekday - today.getUTCDay() + 7) % 7;
   if (offset === 0 && !eligibleDealDate(dateString(today), now)) offset = 7;
   const arrival = addDays(today, offset);
   return { from: dateString(arrival), till: dateString(addDays(arrival, period.nights)), nights: period.nights };

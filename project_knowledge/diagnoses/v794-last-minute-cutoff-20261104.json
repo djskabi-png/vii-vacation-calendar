@@ -1,0 +1,98 @@
+{
+  "status": "fixed",
+  "symptom": "Vacation last-minute deals returned tomorrow before 14:00 and the shared date boundary changed only at 14:01.",
+  "expected_behavior": "Use today's Israel date before 14:00 and tomorrow's Israel date from 14:00:00 onward, with a visible rail refresh at the boundary.",
+  "environment": "VII cumulative candidate branch release/v791-complete-20261104 at ecd46ee7 before repair, local Node 22 tests, Asia/Jerusalem winter and summer clocks.",
+  "reproduction": {
+    "steps": [
+      "Call homeDealDates('tomorrow') at 13:59:59 Israel time.",
+      "Call todayDealsVisible and dealClockKey at 14:00:00 and 14:00:59 Israel time.",
+      "Inspect the home-deals client URL across the boundary."
+    ],
+    "evidence": "Before repair, 13:59:59 returned the following day, 14:00:00 and 14:00:59 retained the today clock key, and the HTTP URL had no clock dimension."
+  },
+  "observations": [
+    {
+      "observation": "homeDealDates used a fixed offset of one whenever the period weekday was null.",
+      "evidence": "Pre-fix app/lib/vii-home-deals.ts: period.weekday === null ? 1"
+    },
+    {
+      "observation": "todayDealsVisible treated 14:00 through 14:00:59 as today and excluded 00:00 through 00:00:59.",
+      "evidence": "Pre-fix app/lib/deal-clock.ts: minute >= 1 && minute < 14 * 60 + 1"
+    },
+    {
+      "observation": "The component scope changed with clock.key but its HTTP URL did not, allowing browser or edge response caching to reuse the pre-cutoff request URL.",
+      "evidence": "Pre-fix app/components/home-live-deals.tsx home-deals URL parameters"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Hard-coded date and cutoff offsets, plus a time-invariant request URL, encode the wrong business boundary.",
+      "prediction": "Pure helper calls reproduce tomorrow before 14:00 and a today key at 14:00 without any supplier I/O.",
+      "discriminating_test": "Run homeDealDates, todayDealsVisible and dealClockKey at 13:59:59, 14:00:00 and 14:00:59.",
+      "result": "Prediction observed exactly before repair; after repair 13:59:59 uses today and 14:00:00 uses tomorrow with a new URL clock value.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The supplier API returns a wrong stay date.",
+      "prediction": "The defect requires a supplier response and date helpers are correct in isolation.",
+      "discriminating_test": "Reproduce using only local date helpers without a network call.",
+      "result": "The defect reproduced without any supplier request, so supplier data is not the cause.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A daylight-saving conversion error shifts the local hour.",
+      "prediction": "Boundary behavior differs between +02:00 and +03:00 dates.",
+      "discriminating_test": "Run the boundary matrix on winter, summer and both 2026 Israel transition dates.",
+      "result": "The same exact 14:00 boundary passes on all four dates, so the formatter is not the causal defect.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Use firstDealDate for the last-minute period, define today as 00:00 through 13:59 Israel time, and add dealClockKey to the home-deals request URL so the response identity changes at 14:00.",
+    "evidence": "Focused tests pass 58/58, the two discovered family regressions were updated to the explicit rule and pass 10/10, the full suite passes 1958 with zero failures, and pnpm build succeeds."
+  },
+  "affected_family": [
+    "Shared deal clock",
+    "Vacation last-minute period",
+    "Home deal HTTP cache identity",
+    "Event last-minute date guard",
+    "Spa deal days",
+    "Ongoing holiday start date",
+    "Four near-weekend periods"
+  ],
+  "regression_checks": [
+    {
+      "check": "Exact Israel boundary and DST matrix",
+      "status": "passed",
+      "evidence": "tests/deal-clock.test.mjs"
+    },
+    {
+      "check": "Vacation last-minute and weekend periods",
+      "status": "passed",
+      "evidence": "tests/vii-home-deals.test.mjs and tests/deal-clock.test.mjs"
+    },
+    {
+      "check": "Event, spa and holiday shared consumers",
+      "status": "passed",
+      "evidence": "tests/regional-availability-routes.test.mjs, tests/vii-home-holidays.test.mjs and tests/deal-clock.test.mjs"
+    },
+    {
+      "check": "Complete repository unit regression",
+      "status": "passed",
+      "evidence": "node --test tests/*.test.mjs: 1958 passed, 0 failed, 1 skipped"
+    },
+    {
+      "check": "Production build",
+      "status": "passed",
+      "evidence": "pnpm build completed successfully"
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["The corrected candidate has not been published or verified on the public site because this correction did not authorize publication."],
+  "authorization_boundary": "Local diagnosis, repair, tests and candidate preparation only."
+}

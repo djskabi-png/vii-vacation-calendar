@@ -10,7 +10,7 @@ import {canonicalVerifiedSliderItems} from '../app/lib/verified-slider-offers.ts
 import {validEventDiscoveryResult} from '../app/lib/warm-event-discovery-cache.ts';
 
 for(const [day,offset] of [['2026-10-17','+03:00'],['2026-12-17','+02:00'],['2026-03-27','+03:00'],['2026-10-25','+02:00']]) {
-  for(const [time,visible] of [['00:00:00',false],['00:00:59',false],['00:01:00',true],['13:59:59',true],['14:00:00',true],['14:00:59',true],['14:01:00',false],['23:59:59',false]]) {
+  for(const [time,visible] of [['00:00:00',true],['00:00:59',true],['00:01:00',true],['13:59:59',true],['14:00:00',false],['14:00:59',false],['14:01:00',false],['23:59:59',false]]) {
     // Transition-day midnight uses the offset actually in effect at midnight.
     const zone=time.startsWith('00:')&&day==='2026-03-27'?'+02:00':time.startsWith('00:')&&day==='2026-10-25'?'+03:00':offset;
     test(`${day} Israel${time} Today=${visible}`,()=>{
@@ -27,29 +27,32 @@ for(const [day,offset] of [['2026-10-17','+03:00'],['2026-12-17','+02:00'],['202
   }
 }
 
-test('14:01 hides onlycurrent-day deals; tomorrow/future remains eligible and 00:01 restoresToday',()=>{
- const before=new Date('2026-10-17T14:00:59+03:00'),after=new Date('2026-10-17T14:01:00+03:00');
+test('14:00 advances only current-day deals; tomorrow and future remain eligible',()=>{
+ const before=new Date('2026-10-17T13:59:59+03:00'),after=new Date('2026-10-17T14:00:00+03:00');
  assert.notEqual(dealClockKey(before),dealClockKey(after));
  assert.equal(eligibleDealDate('2026-10-17',after),false);
  assert.equal(eligibleDealDate('2026-10-18',after),true);
  assert.equal(normalizeDealDate('2026-10-19',after),'2026-10-19');
  assert.equal(dealRailDays(6,after)[0],'2026-10-18');
- assert.equal(dealRailDays(6,new Date('2026-10-18T00:01:00+03:00'))[0],'2026-10-18');
+ assert.equal(dealRailDays(6,new Date('2026-10-18T00:00:00+03:00'))[0],'2026-10-18');
 });
 
-test('vacationweekday period rolls to nextweek aftercutoff withoutremoving futureperiods',()=>{
- const early=new Date('2026-10-15T14:00:59+03:00'),late=new Date('2026-10-15T14:01:00+03:00');
+test('vacation last-minute uses today before 14:00 and tomorrow at 14:00 while weekday periods remain correct',()=>{
+ const early=new Date('2026-10-15T13:59:59+03:00'),late=new Date('2026-10-15T14:00:00+03:00');
+ assert.equal(homeDealDates('tomorrow',early).from,'2026-10-15');
+ assert.equal(homeDealDates('tomorrow',late).from,'2026-10-16');
  assert.equal(homeDealDates('thursday',early).from,'2026-10-15');
  assert.equal(homeDealDates('thursday',late).from,'2026-10-22');
  assert.equal(homeDealDates('friday',late).from,'2026-10-16');
- assert.equal(homeDealDates('tomorrow',late).from,'2026-10-16');
+ assert.deepEqual(homeDealDates('weekend',late),{from:'2026-10-22',till:'2026-10-24',nights:2});
+ assert.deepEqual(homeDealDates('friday-weekend',late),{from:'2026-10-16',till:'2026-10-18',nights:2});
 });
 
 test('futureholiday isnot hidden; ongoingholiday beginsatfirsteligibleday',async()=>{
  const source={holidays:[{holidayID:1,holidayName:'Ongoing',shown:1,dateStart:'2026-10-16',dateEnd:'2026-10-20'},{holidayID:2,holidayName:'Future',shown:1,dateStart:'2026-12-04',dateEnd:'2026-12-11'}]};
  const get=now=>getHomeHolidays({now:new Date(now),token:'synthetic',fetchImpl:async()=>Response.json(source)});
- assert.equal((await get('2026-10-17T14:00:59+03:00'))[0].from,'2026-10-17');
- const late=await get('2026-10-17T14:01:00+03:00');
+ assert.equal((await get('2026-10-17T13:59:59+03:00'))[0].from,'2026-10-17');
+ const late=await get('2026-10-17T14:00:00+03:00');
  assert.equal(late[0].from,'2026-10-18'); assert.equal(late[1].from,'2026-12-04');
 });
 
@@ -61,8 +64,8 @@ function route(path,method,dependencies){
 }
 const fixed=iso=>class extends Date {constructor(...args){super(...(args.length?args:[iso]));}static now(){return Date.parse(iso);}};
 
-test('actualSPAAPI excludesToday after14:01 andnevercachesboundary-sensitive days',async()=>{
- for(const [time,visible] of [['14:00:59',true],['14:01:00',false],['00:00:59',false],['00:01:00',true]]){
+test('actual SPA API excludes today from 14:00 and never caches boundary-sensitive days',async()=>{
+ for(const [time,visible] of [['13:59:59',true],['14:00:00',false],['00:00:00',true],['00:01:00',true]]){
   const GET=route('spa/deals','GET',{Date:fixed(`2026-10-17T${time}+03:00`),dealRailDays,regionalAvailabilityRegion:()=>null,publicCatalogSummaries:async()=>[],readSpaAvailability:async()=>[],selectSpaPackageDeals:()=>[]});
   const response=await GET(new Request('https://example.test/api/spa/deals')); const body=await response.json();
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(body.days.includes('2026-10-17'),visible);assert.equal(Object.hasOwn(body.offers,'2026-10-17'),visible);
@@ -71,14 +74,14 @@ test('actualSPAAPI excludesToday after14:01 andnevercachesboundary-sensitive day
 
 test('eventrail rejects expiredToday beforeupstream work; normaldatedsearch remainsauthoritative',async()=>{
  let reads=0;
- const POST=route('vii/live-search','POST',{Date:fixed('2026-10-17T14:01:00+03:00'),eligibleDealDate,regionalAvailabilityRegion:()=>null,validDate:()=>true,publishedSupplierIds:async()=>{reads++;return new Set();},supplierToken:async()=>'synthetic',liveSupplierSearch:async()=>({results:[]})});
+ const POST=route('vii/live-search','POST',{Date:fixed('2026-10-17T14:00:00+03:00'),eligibleDealDate,regionalAvailabilityRegion:()=>null,validDate:()=>true,publishedSupplierIds:async()=>{reads++;return new Set();},supplierToken:async()=>'synthetic',liveSupplierSearch:async()=>({results:[]})});
  const request=includePlaces=>new Request('https://example.test/api/vii/live-search',{method:'POST',body:JSON.stringify({world:'events',from:'2026-10-17',till:'2026-10-17',guests:20,includePlaces})});
  assert.equal((await POST(request(true))).status,400);assert.equal(reads,0);
  assert.equal((await POST(request(false))).status,200);assert.equal(reads,1);
 });
 
-test('sharedclock ticks/focus re-evaluatescutoff and00:01, sharesonetimer andcleansup',()=>{
- let now='2026-10-17T14:00:59+03:00',nextId=0;const pending=new Map();const window=new EventTarget(),document=new EventTarget();
+test('shared clock ticks and focus re-evaluate the 14:00 cutoff, share one timer and clean up',()=>{
+ let now='2026-10-17T13:59:59+03:00',nextId=0;const pending=new Map();const window=new EventTarget(),document=new EventTarget();
  class ClockDate extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return Date.parse(now);}}
  const raw=readFileSync(new URL('../app/components/use-deal-clock.ts',import.meta.url),'utf8');
  const js=stripTypeScriptTypes(raw.replace(/^import .*;\r?$/gm,'').replace('export function useDealClock','function useDealClock'),{mode:'strip'});
@@ -86,10 +89,10 @@ test('sharedclock ticks/focus re-evaluatescutoff and00:01, sharesonetimer andcle
  const useClock=load(ClockDate,window,document,fn=>{pending.set(++nextId,fn);return nextId;},id=>pending.delete(id),dealClockKey,(subscribe,getSnapshot,getServerSnapshot)=>({subscribe,getSnapshot,getServerSnapshot}));
  const clock=useClock();assert.equal(clock.getServerSnapshot(),null);let updates=0;const stop=clock.subscribe(()=>updates++),stop2=clock.subscribe(()=>updates++);
  assert.equal(pending.size,1);assert.match(clock.getSnapshot().key,/:today$/);
- now='2026-10-17T14:01:00+03:00';const tick=pending.values().next().value;pending.clear();tick();assert.match(clock.getSnapshot().key,/:future$/);assert.equal(pending.size,1);
- now='2026-10-18T00:00:59+03:00';window.dispatchEvent(new Event('focus'));assert.equal(clock.getSnapshot().key,'2026-10-18:future');
- now='2026-10-18T00:01:00+03:00';document.dispatchEvent(new Event('visibilitychange'));assert.equal(clock.getSnapshot().key,'2026-10-18:today');
- assert.ok(updates>=4);stop();assert.equal(pending.size,1);stop2();assert.equal(pending.size,0);
+ now='2026-10-17T14:00:00+03:00';const tick=pending.values().next().value;pending.clear();tick();assert.match(clock.getSnapshot().key,/:future$/);assert.equal(pending.size,1);
+ now='2026-10-18T00:00:00+03:00';window.dispatchEvent(new Event('focus'));assert.equal(clock.getSnapshot().key,'2026-10-18:today');
+ document.dispatchEvent(new Event('visibilitychange'));assert.equal(clock.getSnapshot().key,'2026-10-18:today');
+ assert.ok(updates>=3);stop();assert.equal(pending.size,1);stop2();assert.equal(pending.size,0);
 });
 
 test('SPA labelsfollowactualdates notfilteredindices; allsharedrail clientsuseclock',()=>{

@@ -62,7 +62,9 @@ test("a selected holiday stay is rechecked by its exact dates", async () => {
 
 test("an ongoing holiday uses the remaining dates and a one-night holiday is searchable", async () => {
   const holidays = await getHomeHolidays({ token: "test", now: new Date("2026-12-10T12:00:00Z"), fetchImpl: async () => Response.json(list) });
-  assert.deepEqual(holidays.find((item) => item.id === 140), { id: 140, name: "חנוכה", from: "2026-12-10", till: "2026-12-11", nights: 1, windowSearch: false });
+  assert.deepEqual(holidays.find((item) => item.id === 140), { id: 140, name: "חנוכה", from: "2026-12-11", till: "2026-12-12", nights: 1, windowSearch: false });
+  const beforeCutoff = await getHomeHolidays({ token: "test", now: new Date("2026-12-10T11:59:59Z"), fetchImpl: async () => Response.json(list) });
+  assert.deepEqual(beforeCutoff.find((item) => item.id === 140), { id: 140, name: "חנוכה", from: "2026-12-10", till: "2026-12-11", nights: 1, windowSearch: false });
   const oneDay = holidays.find((item) => item.id === 150);
   assert.deepEqual([oneDay?.from, oneDay?.till, oneDay?.nights], ["2027-01-01", "2027-01-02", 1]);
 });

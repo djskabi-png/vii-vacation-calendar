@@ -145,7 +145,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
-      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
     const recover = () => {
       const attempts = automaticRetries.current.get(selectionKey) || 0;
       const delay = automaticRecoveryDelays[attempts];

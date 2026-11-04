@@ -32,9 +32,11 @@ test("canonical metadata never substitutes base prices for a failed search", asy
 test("home deal periods follow Israel dates and the upcoming weekend", () => {
   const monday = new Date("2026-10-05T12:00:00Z");
   assert.deepEqual(homeDealDates("tomorrow", monday), { from: "2026-10-06", till: "2026-10-07", nights: 1 });
+  assert.deepEqual(homeDealDates("tomorrow", new Date("2026-10-05T10:59:59Z")), { from: "2026-10-05", till: "2026-10-06", nights: 1 });
+  assert.deepEqual(homeDealDates("tomorrow", new Date("2026-10-05T11:00:00Z")), { from: "2026-10-06", till: "2026-10-07", nights: 1 });
   assert.deepEqual(homeDealDates("weekend", monday), { from: "2026-10-08", till: "2026-10-10", nights: 2 });
   assert.deepEqual(homeDealDates("friday-weekend", monday), { from: "2026-10-09", till: "2026-10-11", nights: 2 });
-  assert.deepEqual(homeDealDates("tomorrow", new Date("2026-10-05T22:00:00Z")), { from: "2026-10-07", till: "2026-10-08", nights: 1 });
+  assert.deepEqual(homeDealDates("tomorrow", new Date("2026-10-05T22:00:00Z")), { from: "2026-10-06", till: "2026-10-07", nights: 1 });
 });
 
 test("home deals use only supplier-confirmed availability and live totals", async () => {

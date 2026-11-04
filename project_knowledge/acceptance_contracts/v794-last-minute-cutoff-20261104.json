@@ -1,0 +1,91 @@
+{
+  "goal": "Vacation last-minute deals show today before 14:00 Israel time and tomorrow from 14:00 onward.",
+  "intent_model": {
+    "literal_request": "Show today and at 14:00 switch to tomorrow.",
+    "implied_outcome": "The displayed last-minute date, supplier request and automatic refresh all agree at the exact business cutoff.",
+    "likely_rejections": [
+      "Tomorrow still appears before 14:00.",
+      "The switch happens one minute late.",
+      "The helper changes but the visible rail remains cached.",
+      "A weekend tab is moved by the last-minute rule."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "at 14:00",
+        "operational_meaning": "14:00:00 Israel time is the first instant that uses tomorrow.",
+        "acceptance_impact": "Test 13:59:59 and 14:00:00 as opposite states."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The visitor sees the nearest bookable night appropriate to the current Israel time.",
+    "current_decision": "Before 14:00 use today; from 14:00 use tomorrow.",
+    "next_action": "The visitor opens a returned deal for the displayed dates.",
+    "deferred_complexity": ["Supplier booking confirmation remains in the existing booking flow."],
+    "preserved_depth": ["All four near-weekend tabs remain separately available."]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/v794-last-minute-cutoff-20261104.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-CONSISTENCY-001", "ADIR-DATA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Vacation visitor"],
+  "natural_destination": "Vacation last-minute rail and /last-minute page",
+  "facts": [
+    {
+      "claim": "The current last-minute period always adds one day.",
+      "evidence": "app/lib/vii-home-deals.ts homeDealDates"
+    },
+    {
+      "claim": "The current shared clock changes at 14:01.",
+      "evidence": "app/lib/deal-clock.ts and tests/deal-clock.test.mjs"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The cutoff uses Asia/Jerusalem for daylight-saving correctness.",
+      "validation": "Existing shared clock implementation and boundary tests use Asia/Jerusalem."
+    }
+  ],
+  "in_scope": [
+    "Exact 14:00 cutoff",
+    "Today before cutoff and tomorrow from cutoff",
+    "Automatic client refresh and cache identity",
+    "Regression coverage for weekend tabs and shared consumers"
+  ],
+  "out_of_scope": ["Production publication", "Changes to supplier availability or pricing"],
+  "invariants": [
+    "Supplier data remains authoritative for availability and price.",
+    "The four weekend periods retain their weekday and night counts.",
+    "Explicitly dated searches remain unchanged."
+  ],
+  "affected_family": [
+    "Shared deal clock",
+    "Home deal date selection",
+    "Home last-minute API request",
+    "Permanent last-minute page",
+    "Weekend period tabs",
+    "Event and spa shared clock consumers"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Before 14:00 Israel time last-minute uses today.", "source": "User correction"},
+    {"id": "REQ-2", "statement": "At 14:00 Israel time last-minute switches to tomorrow.", "source": "User correction"},
+    {"id": "REQ-3", "statement": "The visible rail refreshes across the cutoff without stale cached dates.", "source": "Implied complete outcome"},
+    {"id": "REQ-4", "statement": "Weekend periods and shared deal consumers do not regress.", "source": "Project invariant and accepted lessons"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Israel time is 13:59:59", "action": "Resolve the last-minute period", "observable_result": "Arrival is today's Israel date."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Israel time is 14:00:00", "action": "Resolve the last-minute period", "observable_result": "Arrival is tomorrow's Israel date."},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "The rail is mounted before 14:00", "action": "The shared clock ticks to 14:00", "observable_result": "The request cache identity changes and a fresh date request is made."},
+    {"id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Dates immediately before and at the cutoff", "action": "Resolve every weekend period and run shared clock tests", "observable_result": "Weekend dates remain correct and shared consumers pass their date guards."},
+    {"id": "AC-5", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "recovery", "setup": "A tab regains focus after crossing 14:00", "action": "Focus or visibility event refreshes the clock", "observable_result": "The current post-cutoff date is requested."},
+    {"id": "AC-6", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "A pre-cutoff response exists in the client discovery cache", "action": "The clock crosses 14:00", "observable_result": "The post-cutoff request uses a different cache identity and cannot reuse the pre-cutoff date payload."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and verification only. No production publication.",
+  "ready_for_implementation": true
+}
