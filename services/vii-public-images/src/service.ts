@@ -62,7 +62,7 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
     let stage = "source";
     try {
       const sourceMs = options.sourceMs ?? 8000;
-      const source = await bounded((options.sourceFetch ?? fetch)(`${ORIGIN}${path}`, { headers: { Accept: "image/*" }, redirect: "error", signal: AbortSignal.timeout(sourceMs) }), sourceMs);
+      const source = await bounded((options.sourceFetch ?? fetch)(`${ORIGIN}${path}`, { headers: { Accept: "image/*" }, redirect: "manual", signal: AbortSignal.timeout(sourceMs) }), sourceMs);
       if (!source.ok) return fallback(path, `source-${source.status}`);
       if (!source.body || !/^image\/(?:jpeg|png|webp|avif)(?:;|$)/i.test(source.headers.get("Content-Type") || "") || Number(source.headers.get("Content-Length") || 0) > MAX_SOURCE_BYTES) return fallback(path, "source-content");
       stage = "transform";

@@ -28,7 +28,7 @@ test('native options preserve source identity and prohibit upscaling; output use
   assert.deepEqual(f.native,[{transform:{width:640,fit:'scale-down'},output:{format:'image/webp',quality:85}}]);
   assert.equal(f.sources[0].url,'https://vii.spaplus.co'+path);
   assert.deepEqual(f.sources[0].init.headers,{Accept:'image/*'});
-  assert.equal(f.sources[0].init.redirect,'error');
+  assert.equal(f.sources[0].init.redirect,'manual');
 });
 test('cache key canonicalizes actual format, survives HEAD, and writes through waitUntil',async()=>{
   const store=new Map(),keys=[];
