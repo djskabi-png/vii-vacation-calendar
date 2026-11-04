@@ -87,5 +87,5 @@ test('second authentication failure stops after one safe refresh', async () => {
 test('worker preserves a route-provided data-origin header', async () => {
   const source = await import('node:fs/promises').then(fs => fs.readFile(new URL('../worker/index.ts', import.meta.url), 'utf8'));
   assert.match(source, /if \(!response\.headers\.has\("X-VII-Data-Origin"\)\)/);
-  assert.match(source, /response\.headers\.set\("X-VII-Data-Origin", awsDatabaseMode\(env\)\)/);
+  assert.match(source, /response\.headers\.set\("X-VII-Data-Origin", "cloudflare-d1"\)/);
 });

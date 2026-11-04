@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-cloudflare-authority-20261104",
+  "project": "VII",
+  "task_type": "backend-recovery",
+  "requested_outcome": "Restore administration on one Cloudflare D1 authority",
+  "natural_destination": "https://vii.spaplus.co/admin",
+  "authorization_boundary": "Repair and publish VII; no AWS access, paid plans, outbound messages or permission changes",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Shared admin outage","acceptance_impact":"Authenticated family and save/readback"},
+    {"lesson_id":"ADIR-QA-001","reason":"Repeated regressions","acceptance_impact":"Exact public release evidence"}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Saved environment is not deployed","prevention":"Deploy revision32 once","acceptance_check":"Exact receipt and live admin"},
+    {"rejection":"Direct routes still use AWS","prevention":"Recursive source scan","acceptance_check":"Source guard and independent review"},
+    {"rejection":"Reads work but writes fail","prevention":"Safe draft roundtrip","acceptance_check":"Fresh readback after saving"}
+  ],
+  "affected_family": ["runtime and grants","eleven failed admin APIs","reports and catalog","scheduled maintenance","map snapshots","review storage","public routes"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"Approved Cloudflare authority","source":"project_knowledge/diagnoses/admin-primary-connection-20261104.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"Focused policy tests","checks":["Independent call-site review","Stale primary makes zero AWS calls"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can stale primary reactivate AWS?","Can missing D1 create fake success?","Do saves survive reload?"],"natural_destination_evidence":"Deployed admin APIs and visible UI","affected_family_evidence":"Family route matrix and regression suite"},
+  "effectiveness": {"baseline":"Eleven authenticated APIs fail on AWS primary","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Restore observed reads and verify saves"},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

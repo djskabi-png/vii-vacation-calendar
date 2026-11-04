@@ -139,7 +139,7 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.match(page, /undatedCapabilityUnavailable[\s\S]*?\? true[\s\S]*?matchesVacationOnlineBooking/);
   assert.match(page, /מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
-  assert.match(worker, /scheduled[\s\S]*databaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
+  assert.match(worker, /scheduled[\s\S]*cloudflareDatabaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
   const route = readFileSync(new URL("../app/api/vii/online-capabilities/route.ts", import.meta.url), "utf8");
   assert.match(route, /readCachedOnlineCapabilities/);
   assert.doesNotMatch(route, /read: async \(\) => cachedOnlineCapabilities/);

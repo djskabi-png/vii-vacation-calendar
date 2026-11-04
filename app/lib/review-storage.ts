@@ -1,5 +1,5 @@
 import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
-import { databaseForRuntimeEnv } from "./aws-database.ts";
+import { cloudflareDatabaseForEnv } from "./runtime-database.ts";
 
 export type PendingReviewRecord = { id: string; author: string; body: string; rating: number; createdAt: string; photoCount: number };
 
@@ -7,7 +7,7 @@ export async function reviewRuntimeEnv() {
   const runtimeName = "cloudflare:workers";
   const runtime = await import(/* @vite-ignore */ runtimeName);
   const env = runtime.env as unknown as { DB: D1Database; UPLOADS: R2Bucket; VII_AWS_DB_ENDPOINT?: string; VII_AWS_DB_TOKEN?: string; VII_AWS_DB_MODE?: string };
-  return { DB: databaseForRuntimeEnv(env) as D1Database, UPLOADS: env.UPLOADS };
+  return { DB: cloudflareDatabaseForEnv(env) as D1Database, UPLOADS: env.UPLOADS };
 }
 
 export async function ensureReviewSchema() {

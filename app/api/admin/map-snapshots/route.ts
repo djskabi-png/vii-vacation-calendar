@@ -1,5 +1,5 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { databaseForRuntimeEnv } from "../../../lib/aws-database.ts";
+import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
 import { bundledMapSnapshotCandidates } from "../../../lib/map-snapshot-catalog.ts";
 import { readMapSnapshotDashboard, reconcileMapSnapshots, type MapSnapshotProviderEnvironment } from "../../../lib/map-snapshot-store.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
@@ -14,7 +14,7 @@ async function runtime() {
   const moduleName = "cloudflare:workers";
   const runtimeModule = await import(/* @vite-ignore */ moduleName);
   const env = runtimeModule.env as unknown as { DB?: D1Database; UPLOADS?: R2Bucket } & MapSnapshotProviderEnvironment;
-  const db = databaseForRuntimeEnv(env);
+  const db = cloudflareDatabaseForEnv(env);
   if (!db || !env.UPLOADS) throw new Error("map_snapshot_storage_unavailable");
   return { db, bucket: env.UPLOADS, env };
 }

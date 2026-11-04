@@ -1,6 +1,6 @@
 import type { D1Database, R2Bucket } from "../../../types/cloudflare-runtime";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
-import { databaseForRuntimeEnv } from "../../lib/aws-database";
+import { cloudflareDatabaseForEnv } from "../../lib/runtime-database";
 import { bundledMapSnapshotCandidates } from "../../lib/map-snapshot-catalog";
 import { readMapSnapshot, reconcileMapSnapshots, type MapSnapshotProviderEnvironment } from "../../lib/map-snapshot-store";
 
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const runtimeName = "cloudflare:workers";
     const runtime = await import(/* @vite-ignore */ runtimeName);
     const env = runtime.env as unknown as { DB?: D1Database; UPLOADS?: R2Bucket; VII_AWS_DB_ENDPOINT?: string; VII_AWS_DB_TOKEN?: string; VII_AWS_DB_MODE?: string } & MapSnapshotProviderEnvironment;
-    const db = databaseForRuntimeEnv(env);
+    const db = cloudflareDatabaseForEnv(env);
     if (!db || !env.UPLOADS) throw new Error("map_snapshot_storage_unavailable");
     const record = await readMapSnapshot(db, world, placeId);
     if (!record?.objectKey) {

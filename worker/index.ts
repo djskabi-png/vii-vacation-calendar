@@ -25,7 +25,7 @@ import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
-import { awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
+import { cloudflareDatabaseForEnv } from "../app/lib/runtime-database.ts";
 import { runQualityChecks } from "../app/lib/quality-platform.ts";
 import { deploymentMediaAliases } from "../app/lib/deployment-media-aliases.generated.ts";
 import { optimizedMediaSource } from "./optimized-media-source.ts";
@@ -175,7 +175,8 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
-    const database = databaseForEnv(env);
+    const database = cloudflareDatabaseForEnv(env);
+    if (!database) throw new Error("scheduled_database_unavailable");
     const scheduledAt = new Date(controller.scheduledTime);
     ctx.waitUntil(runQualityChecks(database, {
       origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,
@@ -228,7 +229,7 @@ const worker = {
     // Keep the public bundled-data paths testable locally while production
     // continues to receive the real Env object from Cloudflare.
     env = env || ({} as Env);
-    const database = databaseForEnv(env);
+    const database = cloudflareDatabaseForEnv(env);
     const url = new URL(request.url);
     const mediaAlias = deploymentMediaAliases[url.pathname];
     if ((request.method === "GET" || request.method === "HEAD") && mediaAlias) {
@@ -307,7 +308,7 @@ const worker = {
     // D1 fallback used during an Aurora incident. Preserve that evidence and
     // only supply the configured database mode when the route did not.
     if (!response.headers.has("X-VII-Data-Origin")) {
-      response.headers.set("X-VII-Data-Origin", awsDatabaseMode(env));
+      response.headers.set("X-VII-Data-Origin", "cloudflare-d1");
     }
     const contentType = response.headers.get("content-type") || "";
     if (!contentType.includes("text/html")) {
