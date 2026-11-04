@@ -1,0 +1,45 @@
+# Event discovery: inventory independent of price
+
+Status: implemented and focused tests pass; exact public verification pending.
+
+## Root cause and primary contract
+
+The current primary supplier guide at https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#ev-search defines `days[].morning/evening.freeUnits`. The cell's `available` flag combines inventory and price. A positive free-unit count can therefore coexist with `available:false`, `reason:no_prices` and no price. The old adapter read only top-level availability, minPrice and cheapest, dropping these real free venues. This explains the observed two priced offers versus twelve legacy cards.
+
+The guide's event calendar and final vacancy contracts are at #ev-calendar and #ev-stay. The earlier inference that no supported price-independent signal existed was incorrect. The old AJAX was checked on two dates and changed venue identities, contradicting a fixed-card-cohort hypothesis. It remains comparison evidence, not a production dependency.
+
+Guest eligibility is already applied by bulk search: below ten guests it does not filter halls; from ten upward maxGuests must be strictly greater than requested guests. Do not reinterpret public display capacity or apply a different >= comparison locally.
+
+## Truth model
+
+| Source evidence | Normalized result | Action |
+| --- | --- | --- |
+| Positive freeUnits, cell.available=true, valid positive price and roomID | Available with verified quote | Preserve exact venue/date/slot/party/room |
+| Positive freeUnits without that verified quote | Available without price | Venue-level phone/WhatsApp; no price or room identity invented |
+| All requested slots have zero freeUnits | Unavailable | Exclude from availability discovery |
+| Null/missing/invalid freeUnits or no_availability | Unknown | Never label available |
+| Conflicting duplicate day identity | Unknown contract failure | Do not choose arbitrary positive data |
+
+Crucially, roomID and price can describe an occupied advertising floor when no priced free room exists. Positive freeUnits alone must not attach that room ID or price to another free room. Search/calendar still require final vacancy confirmation for a whole booking block; this change does not add event checkout or place a booking.
+
+## Cloudflare data and cache design
+
+Reuse the existing durable D1 discovery cache rather than add a second writable source. Each version3 snapshot is keyed by exact date and party size, owns both slots and retains normalized per-slot evidence. Region and requested slot are local projections of one bulk event search. The same loader serves the scheduler and a lease-protected cold recovery; visitors never fan out over venue calendars.
+
+Freshness is five minutes, with accepted stale data bounded to one hour and disclosed in the UI. A stale read goes through the coordinated refresh path. The provider deadline for discovery is eight seconds, with no extra provider retry added. A failed refresh preserves only the same still-valid context; successful empty inventory replaces old availability. Detail/transactional search remains outside discovery caching.
+
+Versioned backend keys and a version marker in browser request identity reject the old two-offer generation. Backend and browser validators check date, party and source-evidence age. The browser rejects cross-region and expired data. Existing cache leases, admission limits, cooldown, payload bounds and last-owner checks remain in place.
+
+The complete matching set is retained through both API and UI. Event-specific deduplication has no editorial20 cap. For more than20 offers the API reads the complete accepted catalog once, because the shared selected-summary reader intentionally limits previews to20. The response records matched and visible cardinalities and missing-public-card exclusions. No private notes are projected.
+
+## Pages and public controls
+
+Preserve /events/last-minute and add /events/thursday and /events/friday, each with its own preset, canonical, title, metadata, content and visible FAQ/schema. All three are linked and included in localized sitemaps and recurring quality checks. Regional discovery links preserve their validated region on the target page. Transactional party/slot filters do not create duplicate indexable pages.
+
+Homepage, event-world and regional rails keep their quick tabs. Full pages expose party and morning/evening controls. Submission applies the complete filter selection. Confirmed unpriced venues retain phone and WhatsApp actions, and card links carry date, slot and party without a made-up room ID.
+
+## Verification contract
+
+Focused tests cover real raw provider day shapes, absent price/room, occupied-floor quotes, zero/null/malformed inventory, exact dates and slots, conflicting days, both-slot retention, wrong party, expired/old-generation snapshots and35-venue API-to-card completeness despite the preview-reader cap. Existing event, region, date-boundary, transactional-cache and landing contracts are expanded rather than removed.
+
+Before public completion: final build and full suite, independent review, one frozen cumulative release, three-preset old/current/API identity comparison, desktop/mobile visible card and contact checks, unique link navigation, full-page slot/party application and exact release provenance. Existing administration/Cloudflare authority and vacation behavior must remain protected.

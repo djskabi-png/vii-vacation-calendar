@@ -54,7 +54,8 @@ test('spa scope is applied before price sorting and national cap, without invent
 test('event API applies regional eligibility before top20; scope travels through state and response',()=>{
   const route=read('app/api/vii/live-search/route.ts');
   assert.ok(route.indexOf('publishedSupplierIds(world)')<route.indexOf('liveSupplierSearch({'));
-  assert.ok(route.indexOf('selectRegionalOffers(')<route.indexOf('.slice(0, 20)'));
+  assert.doesNotMatch(route,/liveOffers\.slice\(0, 20\)/);
+  assert.ok(route.indexOf('eventOffersForSlot(')<route.indexOf('selectRegionalOffers('));
   assert.match(route,/publishedIds: publicIds/);
   assert.match(route,/region: region.label/);
   assert.match(route,/area: place.area/);
@@ -62,10 +63,10 @@ test('event API applies regional eligibility before top20; scope travels through
   assert.match(hook,/\$\{region \|\| ""\}/);
   assert.match(hook,/includePlaces && result.region !== region/);
   const rail=read('app/components/event-last-minute.tsx');
-  assert.match(rail,/canonicalVerifiedSliderItems/);
+  assert.match(rail,/uniqueEventVenueItems/);
   assert.match(rail,/search\.resultOrder\.length/);
   assert.ok(rail.indexOf('matchesSearchLocation(place, scope.label)')<rail.indexOf('item => item.place.slug'));
-  assert.match(rail,/eventSearchHref\(scope\?\.label\)/);
+  assert.match(rail,/eventDealPagePath/);
 });
 
 test('shared integration covers the supported families but never claims availability for other worlds',()=>{

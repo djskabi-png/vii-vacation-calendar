@@ -3,19 +3,8 @@ import { eventDealPresets } from "./event-deal-dates.ts";
 import { cachedDiscovery } from "./discovery-offer-cache.ts";
 import { publishedSupplierIds } from "./published-supplier-ids.ts";
 import { supplierToken } from "./vii-supplier-token.ts";
-import { liveSupplierSearch } from "./vii-live-search.ts";
-
-export const EVENT_DISCOVERY_POLICY = { freshMs: 30 * 60_000, staleMs: 30 * 86_400_000 } as const;
-
-export function validEventDiscoveryResult(value: unknown) {
-  if (!value || typeof value !== "object" || !Array.isArray((value as { results?: unknown }).results)) return false;
-  return (value as { results: unknown[] }).results.every((entry) => {
-    if (!entry || typeof entry !== "object") return false;
-    const offer = entry as { siteID?: unknown; available?: unknown };
-    return Number.isSafeInteger(offer.siteID)
-      && (offer.available === true || offer.available === false || offer.available === null);
-  });
-}
+import { eventDiscoveryKey, eventDiscoveryValidator, loadEventDiscovery, EVENT_DISCOVERY_POLICY } from "./event-discovery-offers.ts";
+export { EVENT_DISCOVERY_POLICY, validEventDiscoveryResult } from "./event-discovery-offers.ts";
 
 /**
  * Prepare every date shown by the public event rail before a visitor asks for
@@ -33,15 +22,15 @@ export async function warmEventDiscoveryCache(db: D1Database, now = new Date(), 
   for (const date of dates) {
     try {
       const cached = await cachedDiscovery({
-        key: ["events-discovery", date, date, guests, "both"],
+        key: eventDiscoveryKey(date, guests),
         db,
         policy: EVENT_DISCOVERY_POLICY,
-        load: () => liveSupplierSearch({ world: "events", from: date, till: date, guests, token, publishedIds }),
+        load: () => loadEventDiscovery({ date, guests, token, publishedIds }),
         // A successful supplier response with no available venue is a valid
         // empty business result, not an infrastructure failure. Persist it so
         // the public rail can explain the empty date and offer truthful browse
         // alternatives instead of oscillating between cards and a 503 panel.
-        validate: validEventDiscoveryResult,
+        validate: eventDiscoveryValidator(date, guests),
       });
       warmed.push({ date, status: cached.cache.status, count: cached.value.results.filter((offer) => offer.available === true).length });
     } catch {

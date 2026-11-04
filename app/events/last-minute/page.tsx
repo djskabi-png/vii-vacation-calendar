@@ -1,35 +1,14 @@
 import type { Metadata } from "next";
-import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
-import { EventLastMinute } from "../../components/event-last-minute";
-import { PageShell } from "../../components/page-shell";
-import { StructuredData } from "../../components/structured-data";
-import type { EventPlace } from "../../data/site-data";
-import { localizedPath } from "../../i18n/locale-routing";
+import { EventDealPresetPage, eventPresetMetadata } from "../deal-preset-page";
 import { serverPublicCopy } from "../../i18n/server-public-copy";
-import { publicCatalogSummaries } from "../../lib/public-catalog-read";
-import { breadcrumbSchema, faqSchema } from "../../lib/seo";
-import { worldTopicMedia } from "../../lib/world-topic-media";
-import "../../holidays/holiday-world.css";
-import "../../last-minute/last-minute.css";
-import "../deal-landing.css";
 
-const copy = {
-  he: { title:"אירועים ברגע האחרון", metaTitle:"אירועים ברגע האחרון | מקומות פנויים לתאריך הקרוב", description:"מקומות לאירועים עם זמינות מאומתת לתאריך הקרוב, מחיר ופרטים להמשך בדיקה ישירה מול המקום.", eyebrow:"חוגגים בקרוב", intro:"רואים רק הצעות עם זמינות ומחיר שנבדקו לתאריך הקרוב, ומשם ממשיכים לפרטי המקום.", proof:["זמינות לתאריך הקרוב","מחיר לאירוע","בדיקה נוספת לפני סגירה"], results:"מקומות פנויים לאירועים ברגע האחרון", storyTitle:"איך בוחרים מקום לאירוע קרוב?", storyBody:"משווים קיבולת, מיקום, תמונות והמחיר להרכב שנבדק. הזמינות והמחיר נבדקים שוב מול המקום לפני הסגירה.", faqTitle:"שאלות על אירועים ברגע האחרון", faqs:[["מה פירוש זמינות ברגע האחרון?","ההצעות בעמוד נבדקו לתאריך הקרוב שמופיע בכרטיס."],["האם המחיר סופי?","המחיר מתייחס להרכב ולמועד שנבדקו. פרטים נוספים ותוספות מאומתים מול המקום."],["האם אפשר להזמין מיד?","פותחים את פרטי המקום וממשיכים בערוץ ההזמנה הזמין. לפני אישור מתבצעת בדיקה נוספת."]] },
-  en: { title:"Last-minute events", metaTitle:"Last-minute events | Venues available soon", description:"Event venues with verified near-term availability, pricing and a direct path to confirm with the venue.", eyebrow:"Celebrate soon", intro:"Browse offers with verified availability and pricing for the upcoming date, then continue to the venue details.", proof:["Near-term availability","Event price","Rechecked before confirmation"], results:"Available last-minute event venues", storyTitle:"How do you choose a venue at short notice?", storyBody:"Compare capacity, location, photos and the price for the checked party. Availability and pricing are confirmed again before booking.", faqTitle:"Last-minute event questions", faqs:[["What does last-minute availability mean?","Offers were checked for the upcoming date shown on each card."],["Is the price final?","The price refers to the checked date and party. Extras and final terms are confirmed with the venue."],["Can I book immediately?","Open the venue details and use the available booking channel. Availability is checked again before confirmation."]] },
-  ru: { title:"Мероприятия в последний момент", metaTitle:"Мероприятия в последний момент | Свободные площадки", description:"Площадки с проверенной доступностью на ближайшую дату, ценой и прямым переходом к подтверждению.", eyebrow:"Праздник уже близко", intro:"Смотрите предложения с проверенной доступностью и ценой на ближайшую дату.", proof:["Ближайшая дата","Цена мероприятия","Повторная проверка"], results:"Свободные площадки в последний момент", storyTitle:"Как выбрать площадку в короткий срок?", storyBody:"Сравните вместимость, расположение, фотографии и цену. Перед подтверждением доступность и цена проверяются снова.", faqTitle:"Вопросы о мероприятиях", faqs:[["Что значит доступность в последний момент?","Предложения проверены на ближайшую дату, указанную в карточке."],["Цена окончательная?","Цена относится к проверенной дате и числу гостей. Дополнения подтверждаются площадкой."],["Можно забронировать сразу?","Откройте страницу площадки и используйте доступный способ бронирования. Перед подтверждением данные проверяются снова."]] },
-  fr: { title:"Événements de dernière minute", metaTitle:"Événements de dernière minute | Lieux disponibles", description:"Des lieux avec disponibilité vérifiée à court terme, prix et accès direct à la confirmation.", eyebrow:"Célébrez bientôt", intro:"Consultez les offres dont la disponibilité et le prix ont été vérifiés pour la prochaine date.", proof:["Disponibilité proche","Prix de l’événement","Nouvelle vérification"], results:"Lieux disponibles en dernière minute", storyTitle:"Comment choisir un lieu à court terme?", storyBody:"Comparez la capacité, l’emplacement, les photos et le prix. La disponibilité et le tarif sont revérifiés avant confirmation.", faqTitle:"Questions sur les événements", faqs:[["Que signifie dernière minute?","Les offres ont été vérifiées pour la date proche indiquée sur chaque carte."],["Le prix est-il définitif?","Le prix correspond à la date et au groupe vérifiés. Les suppléments sont confirmés avec le lieu."],["Peut-on réserver immédiatement?","Ouvrez la fiche du lieu et utilisez le canal disponible. Les données sont revérifiées avant confirmation."]] },
-} as const;
+export async function generateMetadata(): Promise<Metadata> {
+  const { language } = await serverPublicCopy();
+  return eventPresetMetadata("lastminute", language);
+}
 
-export async function generateMetadata():Promise<Metadata>{ const {language}=await serverPublicCopy(); const text=copy[language]; const canonical=localizedPath("/events/last-minute",language); return {title:text.metaTitle,description:text.description,alternates:{canonical},openGraph:{type:"website",url:canonical,title:text.metaTitle,description:text.description}}; }
-
-export default async function EventLastMinutePage(){
-  const [{language,translate},places]=await Promise.all([serverPublicCopy(),publicCatalogSummaries<EventPlace>("events")]);
-  const text=copy[language]; const faqs=text.faqs.map(([question,answer])=>({question,answer})); const hero=worldTopicMedia.events.src;
-  return <PageShell variant="events"><main id="main-content" className="holiday-world last-minute-world deal-landing deal-landing--events">
-    <StructuredData data={breadcrumbSchema([{name:translate("ראשי"),path:"/"},{name:translate("אירועים"),path:"/events"},{name:text.title,path:"/events/last-minute"}])}/><StructuredData data={faqSchema(faqs)}/>
-    <section className="holiday-hero last-minute-hero"><div className="shell holiday-hero__frame"><div className="holiday-hero__content"><BreadcrumbTrail items={[{name:translate("ראשי"),path:"/"},{name:translate("אירועים"),path:"/events"},{name:text.title}]}/><span className="eyebrow">{text.eyebrow}</span><h1>{text.title}</h1><p>{text.intro}</p><div className="holiday-hero__proof" aria-label={text.title}>{text.proof.map(item=><span key={item}>{item}</span>)}</div></div>{hero?<div className="holiday-hero__media"><img src={hero} alt="" title="" data-image-role="decorative" width="1200" height="800" loading="eager" fetchPriority="high"/></div>:null}</div></section>
-    <EventLastMinute places={places} fixedPreset="lastminute" sectionId="event-last-minute-page" sectionTitle={text.results} layout="grid"/>
-    <section className="section shell holiday-story last-minute-story"><div><h2>{text.storyTitle}</h2><p>{text.storyBody}</p></div></section>
-    <section className="section section-tint holiday-faq last-minute-faq"><div className="shell"><div className="holiday-section-head"><h2>{text.faqTitle}</h2></div><div className="holiday-faq__list">{faqs.map(item=><details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></div></section>
-  </main></PageShell>;
+export default async function LastMinuteEventsPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const region = typeof params?.region === "string" ? params.region : undefined;
+  return <EventDealPresetPage preset="lastminute" region={region} />;
 }

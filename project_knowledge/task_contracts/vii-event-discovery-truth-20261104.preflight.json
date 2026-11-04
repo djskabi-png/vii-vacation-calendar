@@ -1,0 +1,20 @@
+{
+  "schema_version":1,
+  "task_id":"vii-event-discovery-truth-20261104",
+  "project":"VII",
+  "task_type":"supplier-discovery-repair",
+  "requested_outcome":"Restore all supplier-confirmed event venues including unpriced availability and unique preset pages",
+  "natural_destination":"Public event slider and last-minute, Thursday and Friday pages",
+  "authorization_boundary":"Repair integration, D1 derived snapshots and pages; publish tested cumulative source; no supplier writes, messages, payments or access changes",
+  "lesson_bundle":[{"lesson_id":"ADIR-DATA-001","reason":"Availability and price are independent facts","acceptance_impact":"Normalize exact date/slot/freeUnits with provenance"},{"lesson_id":"ADIR-QA-001","reason":"Repeated slider regressions","acceptance_impact":"Live source/API/slider/page parity and independent review"}],
+  "no_applicable_lessons_reason":null,
+  "predicted_rejections":[{"rejection":"Unpriced free slots disappear","prevention":"Read supplier days freeUnits","acceptance_check":"Live formerly missing identities and regression fixtures"},{"rejection":"Full results silently capped","prevention":"Separate data completeness from presentation","acceptance_check":"More than20 venues retained"},{"rejection":"Old two-offer cache survives deployment","prevention":"Version snapshot identity and validate scope","acceptance_check":"Old generation rejected"},{"rejection":"Tabs link to generic search","prevention":"Unique permanent pages","acceptance_check":"Matching canonical, sitemap and fixed preset"}],
+  "affected_family":["event supplier normalization","D1 snapshot and scheduler","public projection and regional filters","home/event/regional sliders","three preset landings and sitemap","event search/detail continuation","QQQAAA parity"],
+  "family_inventory_complete":true,
+  "approved_precedents":{"sources":[{"label":"Supplier event search/calendar contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#ev-search"},{"label":"VII product standard","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate":{"required":true,"trigger":"Days-based adapter and focused tests","checks":["Independent supplier schema comparison","Unpriced free survives while zero/null/mismatched dates do not"],"not_required_reason":null},
+  "adversarial_close":{"attack_questions":["Can absent price hide real free units?","Can unknown or occupied slots become available?","Can stale scope or a hard cap drop venues?","Does each tab open its own matching page?"],"natural_destination_evidence":"Exact public version desktop/mobile","affected_family_evidence":"Old/source/API/slider/page identity matrix and cache failures"},
+  "effectiveness":{"baseline":"Old12 cards versus new2; adapter discards supplier days","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Every confirmed matching venue survives without false price or booking claims"},
+  "privacy":{"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start":true
+}

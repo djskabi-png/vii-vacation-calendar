@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { EventSlot, LiveSearchResult, LiveSearchRoom, LiveSearchWorld } from "../lib/vii-live-search";
 import type { EventDealPlace } from "../lib/event-deal-labels";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
+import { EVENT_DISCOVERY_VERSION, EVENT_DISCOVERY_MAX_AGE_MS, eventDiscoveryResponseMatches } from "../lib/event-discovery-contract.ts";
 
 export type LiveSearchState = {
   status: "idle" | "loading" | "ready" | "error";
@@ -14,6 +15,7 @@ export type LiveSearchState = {
   expandedRegion?: boolean;
   regionalOrder?: number[];
   stale?: boolean;
+  snapshotCheckedAt?: string;
 };
 
 const idle: LiveSearchState = { status: "idle", results: {}, resultOrder: [], checkedAt: null };
@@ -29,28 +31,33 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ world, from, till, guests, ...(datedDiscovery ? { discoverySearch: true } : {}), ...(world === "events" && slot ? { slot } : {}), ...(world === "events" && includePlaces ? { includePlaces: true, ...(region ? { region } : {}) } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
+      body: JSON.stringify({ world, from, till, guests, ...(datedDiscovery ? { discoverySearch: true } : {}), ...(world === "events" && slot ? { slot } : {}), ...(world === "events" && includePlaces ? { includePlaces: true, discoveryVersion: EVENT_DISCOVERY_VERSION, ...(region ? { region } : {}) } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
       cache: "no-store" as const,
       // A cold event-discovery snapshot may perform one server-side,
       // lease-protected recovery. Give that bounded recovery enough time while
       // keeping transactional detail and booking checks on the shorter default.
-      ...(world === "events" && includePlaces ? { timeoutMs: 12_000 } : {}),
+      ...(world === "events" && includePlaces ? { timeoutMs: 12_000, freshMs: 60_000, staleMs: EVENT_DISCOVERY_MAX_AGE_MS } : {}),
+      shouldCache: (value: unknown) => !includePlaces || eventDiscoveryResponseMatches(value, from, guests, region),
       signal: controller.signal,
     };
     const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}`, init);
-    (request as Promise<{ cache?:{status:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
+    (request as Promise<{ discoveryVersion?: number; scope?: {date:string;guests:number}; cache?:{status:string;checkedAt?:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
       if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
+      if (includePlaces && !eventDiscoveryResponseMatches(result, from, guests, region)) throw new Error("expired_event_snapshot");
       if (!controller.signal.aborted) setValue({ key, state: {
         status: "ready",
         results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
         resultOrder: result.results.map((item) => item.siteID),
         checkedAt: result.checkedAt,
-        ...(result.cache ? { stale: result.cache.status === "stale" } : {}),
+        ...(result.cache ? { stale: result.cache.status === "stale", snapshotCheckedAt: result.cache.checkedAt } : {}),
         ...(includePlaces ? { places: Array.isArray(result.places) ? result.places : [] } : {}),
         ...(includePlaces && region ? { expandedRegion: result.expandedRegion === true, regionalOrder: Array.isArray(result.regionalOrder) ? result.regionalOrder : [] } : {}),
       } });
     }).catch(() => {
-      if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, resultOrder: [], checkedAt: null } });
+      if (!controller.signal.aborted) setValue(previous => previous?.key === key && previous.state.status === "ready"
+        && (!includePlaces || Date.now() - Date.parse(previous.state.snapshotCheckedAt || "") <= EVENT_DISCOVERY_MAX_AGE_MS)
+        ? { key, state: { ...previous.state, stale: true } }
+        : { key, state: { status: "error", results: {}, resultOrder: [], checkedAt: null } });
     });
     return () => controller.abort();
   }, [key, world, from, till, guests, hours, rooms, slot, includePlaces, region, datedDiscovery]);

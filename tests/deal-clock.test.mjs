@@ -1,3 +1,4 @@
+import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -58,6 +59,7 @@ test('futureholiday isnot hidden; ongoingholiday beginsatfirsteligibleday',async
 
 function route(path,method,dependencies){
  dependencies={firstDealDate,canonicalVerifiedSliderItems,validEventDiscoveryResult,EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},runtimeCatalogDatabase:async()=>null,cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:'2026-10-17T10:00:00Z'}}),...dependencies};
+ dependencies=eventRouteDependencies(dependencies);
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
  const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
  return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));

@@ -15,7 +15,8 @@ test("the approved contextual landing family cannot disappear from a release sou
   const events = read("app/events/last-minute/page.tsx");
   const spaToday = read("app/spas/today/page.tsx");
   const spaTomorrow = read("app/spas/tomorrow/page.tsx");
-  assert.match(events, /EventLastMinute/);
+  assert.match(events, /EventDealPresetPage/);
+  assert.match(read("app/events/deal-preset-page.tsx"), /EventLastMinute/);
   assert.match(spaToday, /SpaDealDayPage/);
   assert.match(spaTomorrow, /SpaDealDayPage/);
 });

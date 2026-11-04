@@ -54,11 +54,11 @@ test("event discovery is prewarmed for a rolling week and visitor requests never
     read("worker/index.ts"),
     read("app/mcp/route.ts"),
   ]);
-  assert.match(warmer, /freshMs: 30 \* 60_000, staleMs: 30 \* 86_400_000/);
+  assert.match(warmer, /EVENT_DISCOVERY_POLICY/);
   assert.match(warmer, /offset < 7/);
   assert.match(warmer, /for \(const preset of eventDealPresets\(clock\)\)/);
-  assert.match(warmer, /key: \["events-discovery", date, date, guests, "both"\]/);
-  assert.match(warmer, /validate: validEventDiscoveryResult/);
+  assert.match(warmer, /eventDiscoveryKey\(date, guests\)/);
+  assert.match(warmer, /validate: (?:validEventDiscoveryResult|eventDiscoveryValidator\(date, guests\))/);
   assert.match(warmer, /results\.filter\(\(offer\) => offer\.available === true\)\.length/);
   assert.match(route, /readCachedDiscovery/);
   assert.doesNotMatch(route, /cachedDiscovery\(/);

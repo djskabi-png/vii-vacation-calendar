@@ -24,14 +24,15 @@ test("verified vacation and event rails cannot reshuffle an accepted API payload
 
   const events = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
   assert.match(events, /const supplierOrder = search\.resultOrder\.length/);
-  assert.match(events, /canonicalVerifiedSliderItems\(supplierOrder\.flatMap/);
+  assert.match(events, /uniqueEventVenueItems\(supplierOrder\.flatMap/);
   const verifiedSection = events.slice(events.indexOf("const supplierOrder"), events.indexOf("const confirmed"));
   assert.doesNotMatch(verifiedSection, /documentSeed|orderDiscoveryRail/);
 });
 
 test("event API returns only complete offers with matching public cards in the same order", () => {
   const route = readFileSync(new URL("../app/api/vii/live-search/route.ts", import.meta.url), "utf8");
-  assert.match(route, /Number\.isSafeInteger\(offer\.roomID\)/);
+  assert.match(route, /eventOffersForSlot/);
+  assert.match(readFileSync(new URL("../app/lib/event-discovery-offers.ts", import.meta.url), "utf8"), /Number\.isSafeInteger\(offer\.roomID\)/);
   assert.match(route, /const visibleOffers = offers\.filter\(offer => placeById\.has\(offer\.siteID\)\)/);
   assert.match(route, /const visiblePlaces = visibleOffers\.map\(offer => placeById\.get\(offer\.siteID\)!\)/);
   assert.match(route, /results: visibleOffers/);

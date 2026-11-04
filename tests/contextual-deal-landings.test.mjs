@@ -6,18 +6,19 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("event last-minute slider links to its dedicated localized landing", async () => {
   const source = await read("app/components/event-last-minute.tsx");
-  assert.match(source, /selectedPreset === "lastminute" \? "\/events\/last-minute"/);
+  assert.match(source, /eventDealPagePath/);
   assert.match(source, /localizedPath\(searchPath, language\)/);
   assert.match(source, /visibleAdditionalPlaces = showBrowseFallback \? additionalPlaces : \[\]/);
   assert.match(source, /fallbackStatus/);
 });
 
 test("event last-minute landing fixes the verified preset and exposes SEO", async () => {
-  const page = await read("app/events/last-minute/page.tsx");
+  const page = await read("app/events/deal-preset-page.tsx");
+  assert.match(await read("app/events/last-minute/page.tsx"), /preset="lastminute"/);
   assert.match(page, /אירועים ברגע האחרון/);
-  assert.match(page, /fixedPreset="lastminute"/);
+  assert.match(page, /fixedPreset=\{preset\}/);
   assert.match(page, /layout="grid"/);
-  assert.match(page, /alternates:\{canonical\}/);
+  assert.match(page, /alternates:\s*\{\s*canonical/);
   assert.match(page, /breadcrumbSchema/);
   assert.match(page, /faqSchema/);
 });
@@ -54,7 +55,7 @@ test("spa today and tomorrow pages share the fixed-date landing contract", async
 
 test("new contextual landings are included in sitemap and recurring QA", async () => {
   const [sitemap, quality] = await Promise.all([read("app/lib/sitemap-inventory.ts"), read("app/lib/quality-platform.ts")]);
-  for (const route of ["/events/last-minute", "/spas/today", "/spas/tomorrow"]) {
+  for (const route of ["/events/last-minute", "/events/thursday", "/events/friday", "/spas/today", "/spas/tomorrow"]) {
     assert.ok(sitemap.includes(route), `${route} missing from sitemap`);
     assert.ok(quality.includes(route), `${route} missing from quality registry`);
   }

@@ -75,7 +75,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       import("./public-catalog-read.ts"), import("./world-location-pages.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
     return unique(expand([
-      { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/search" },
+      { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/thursday" }, { path: "/events/friday" }, { path: "/events/search" },
       ...(await worldLocationInventory("events")).map(({ path }) => ({ path })),
       ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => ({ path: `/events/place/${place.slug}`, images: [place.image, ...place.images] })),
     ]));

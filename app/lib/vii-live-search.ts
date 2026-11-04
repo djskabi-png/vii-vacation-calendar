@@ -17,7 +17,67 @@ export type LiveSearchResult = {
   priceMode: "stay_total" | "nightly_average" | "event_total";
   slot?: EventSlot;
   roomID?: number;
+  freeUnits?: number;
+  availabilitySource?: "supplier_days" | "supplier_cheapest";
 };
+
+/** Event search's top-level availability also depends on prices. The calendar
+ * cells retain independent inventory even when reason=no_prices. Never infer
+ * inventory from a missing price or from a null calendar cell. */
+function eventSlotOffers(site: Record<string, unknown>, options: { from: string; till: string; guests: number; slot?: EventSlot }): LiveSearchResult[] {
+  const siteID = Number(site.siteID);
+  const reason = typeof site.reason === "string" ? site.reason : null;
+  const base = { siteID, onlineBooking: false, total: null, from: null, till: null, start: null,
+    reason, roomCount: 1, priceGuests: options.guests, priceMode: "event_total" as const };
+  const cells: LiveSearchResult[] = [];
+  if (reason === "not_events") return [{ ...base, available: false }];
+  const seenDays = new Set<string>();
+  let knownCells = 0, selectedCells = 0;
+  for (const raw of Array.isArray(site.days) ? site.days : []) {
+    const day = object(raw);
+    if (!validDate(day.date) || day.date < options.from || day.date > options.till) continue;
+    if (seenDays.has(day.date)) return [{ ...base, available: null, reason: "invalid_supplier_response" }];
+    seenDays.add(day.date);
+    for (const slot of ["morning", "evening"] as const) {
+      if (options.slot && options.slot !== slot) continue;
+      const cell = object(day[slot]);
+      selectedCells++;
+      if (reason === "no_availability" || !Number.isSafeInteger(cell.freeUnits) || Number(cell.freeUnits) < 0) continue;
+      knownCells++;
+      if (Number(cell.freeUnits) === 0) continue;
+      const roomID = Number.isSafeInteger(cell.roomID) && Number(cell.roomID) > 0 ? Number(cell.roomID) : undefined;
+      // With no priced free room, the provider may return an occupied room's
+      // price/ID as a floor. Only cell.available=true verifies that quote.
+      const price = cell.available === true && roomID && typeof cell.price === "number" && Number.isFinite(cell.price) && cell.price > 0 ? cell.price : null;
+      cells.push({ ...base, available: true, from: day.date,
+        till: slot === "evening" ? new Date(Date.parse(`${day.date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10) : day.date,
+        start: slot === "morning" ? "08:00" : "17:00", slot,
+        total: price, onlineBooking: price !== null && site.onlineBooking === true,
+        freeUnits: Number(cell.freeUnits), availabilitySource: "supplier_days", ...(price !== null && roomID ? { roomID } : {}),
+      });
+    }
+  }
+  if (cells.length) return cells;
+  // An explicit occupied calendar wins over an inconsistent cheapest quote.
+  if (selectedCells && knownCells === selectedCells) return [{ ...base, available: false, reason: "occupied" }];
+  if (selectedCells) return [{ ...base, available: null }];
+  if (Array.isArray(site.days) && site.days.length) return [{ ...base, available: null, reason: "invalid_supplier_response" }];
+  const cheapest = object(site.cheapest);
+  const slot = cheapest.slot === "morning" || cheapest.slot === "evening" ? cheapest.slot : undefined;
+  const price = site.minPrice;
+  const unpriced = (price === null || price === undefined) && (cheapest.price === null || cheapest.price === undefined);
+  const validOffer = validDate(cheapest.date) && cheapest.date >= options.from && cheapest.date <= options.till && slot
+    && (!options.slot || options.slot === slot) && Number.isSafeInteger(cheapest.roomID) && Number(cheapest.roomID) > 0
+    && (unpriced || typeof price === "number" && Number.isFinite(price) && price > 0 && cheapest.price === price);
+  if (site.available === true && validOffer && reason !== "no_availability") {
+    return [{ ...base, available: true, total: unpriced ? null : price as number,
+      onlineBooking: !unpriced && site.onlineBooking === true,
+      from: cheapest.date as string, till: slot === "evening" ? new Date(Date.parse(`${cheapest.date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10) : cheapest.date as string,
+      start: slot === "morning" ? "08:00" : "17:00", slot, roomID: Number(cheapest.roomID), availabilitySource: "supplier_cheapest" }];
+  }
+  return [{ ...base, available: reason === "no_prices" || reason === "no_availability" ? null : site.available === false ? false : null,
+    reason: reason || (site.available === true ? "invalid_supplier_response" : null) }];
+}
 
 type RoomBasis = Map<number, Map<number, number>>;
 let vacationRoomBasisCache: { expires: number; promise: Promise<RoomBasis> } | null = null;
@@ -90,6 +150,8 @@ export async function liveSupplierSearch(options: {
   publishedIds: ReadonlySet<number>;
   candidates?: Array<{ from: string; till: string }>;
   fetchImpl?: typeof fetch;
+  providerTimeoutMs?: number;
+  includeEventSlots?: boolean;
 }) {
   const { world, from, till, guests, publishedIds } = options;
   const days = daysBetween(from, till);
@@ -129,7 +191,7 @@ export async function liveSupplierSearch(options: {
       headers: { Authorization: `Bearer ${options.token}`, Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify(body),
       cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(options.providerTimeoutMs ?? 20_000),
     });
     if (!response.ok) throw new Error("supplier_unavailable");
     const payload = object(await response.json());
@@ -142,30 +204,7 @@ export async function liveSupplierSearch(options: {
     const siteID = site.siteID;
     if (!Number.isSafeInteger(siteID) || !publishedIds.has(siteID as number)) return [];
     const cheapest = object(site.cheapest);
-    if (world === "events") {
-      // The current provider sells morning/evening blocks, not hourly stays.
-      // Only an exact, supplier-confirmed block may be advertised as available.
-      const slot = cheapest.slot === "morning" || cheapest.slot === "evening" ? cheapest.slot : undefined;
-      const date = cheapest.date;
-      const price = site.minPrice;
-      const roomID = cheapest.roomID;
-      const unpriced = (price === null || price === undefined) && (cheapest.price === null || cheapest.price === undefined);
-      const validOffer = validDate(date) && date >= from && date <= till && slot
-        && (!options.slot || slot === options.slot) && Number.isSafeInteger(roomID) && Number(roomID) > 0
-        && (unpriced || typeof price === "number" && Number.isFinite(price) && price > 0 && cheapest.price === price);
-      const reported = site.available === true ? true : site.available === false ? false : null;
-      const available = reported === true && !validOffer ? null : reported;
-      const endDate = validDate(date) && slot === "evening"
-        ? new Date(Date.parse(`${date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10) : date;
-      return [{ siteID: Number(siteID), available, onlineBooking: site.onlineBooking === true,
-        total: available === true && !unpriced ? price as number : null,
-        from: validDate(date) ? date : null, till: validDate(endDate) ? endDate : null,
-        start: slot === "morning" ? "08:00" : slot === "evening" ? "17:00" : null,
-        reason: typeof site.reason === "string" ? site.reason : reported === true && !validOffer ? "invalid_supplier_response" : null,
-        roomCount: 1, priceGuests: guests, priceMode: "event_total" as const,
-        ...(slot ? { slot } : {}), ...(Number.isSafeInteger(roomID) && Number(roomID) > 0 ? { roomID: Number(roomID) } : {}),
-      } satisfies LiveSearchResult];
-    }
+    if (world === "events") return eventSlotOffers(site, { from, till, guests, slot: options.slot });
     const reportedAvailable = site.available === true ? true : site.available === false ? false : null;
     const alternatives = Array.isArray(site.alternatives) ? site.alternatives.map(object) : [];
     const offeredStays = [cheapest, ...alternatives];
@@ -208,14 +247,16 @@ export async function liveSupplierSearch(options: {
   }));
   const ids = new Set(parsed.flatMap((items) => items.map((item) => item.siteID)));
   const results: LiveSearchResult[] = [...ids].map((siteID) => {
-    const answers = parsed.map((items) => items.find((item) => item.siteID === siteID));
+    const answers = parsed.flatMap((items) => items.filter((item) => item.siteID === siteID));
     const available = answers.filter((item): item is LiveSearchResult => item?.available === true);
     if (available.length) return [...available].sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity))[0];
-    if (answers.every((item) => item?.available === false)) return answers[0]!;
+    if (answers.length === parsed.length && answers.every((item) => item?.available === false)) return answers[0]!;
     const reason = answers.find((item) => item?.reason)?.reason || "unknown";
     return { siteID, available: null, onlineBooking: false, total: null, from: null, till: null, start: null, reason,
       roomCount: requestedRooms.length, priceGuests: null,
       priceMode: world === "events" ? "event_total" as const : requestedRooms.length > 1 ? "nightly_average" as const : "stay_total" as const };
   });
-  return { checkedAt: typeof payloads[0].created === "string" ? payloads[0].created : null, world, results };
+  return { checkedAt: typeof payloads[0].created === "string" ? payloads[0].created : null, world, results,
+    ...(world === "events" && options.includeEventSlots ? { eventSlots: parsed.flat().filter(offer => offer.available === true) } : {}),
+  };
 }

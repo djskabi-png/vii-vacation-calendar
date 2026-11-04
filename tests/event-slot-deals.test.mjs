@@ -104,11 +104,11 @@ test("both discovery surfaces use real event deals, preserving slot and particip
   assert.match(readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"), /params.set\("slot", selectedEventSlot\)/);
   assert.match(slider, /const availablePlaces = search\.places \|\| places/);
   assert.match(slider, /search\.resultOrder\.length/);
-  assert.match(slider, /canonicalVerifiedSliderItems/);
+  assert.match(slider, /uniqueEventVenueItems/);
   const route = readFileSync(new URL("../app/api/vii/live-search/route.ts", import.meta.url), "utf8");
   assert.match(route, /body.includePlaces === true/);
   assert.match(route, /publicCatalogSelectedSummaries<EventDealPlace>\("events", ids\)/);
-  assert.match(route, /slice\(0, 20\)/);
+  assert.doesNotMatch(route, /liveOffers\.slice\(0, 20\)/);
   assert.match(route, /visibleOffers/);
   assert.match(route, /visiblePlaces/);
 });
@@ -120,8 +120,9 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /role="tab"/);
   assert.match(slider, /role="tabpanel"/);
   assert.match(slider, /event\.key === "Home"/);
-  assert.doesNotMatch(slider, /ModernSelect|type="date"|<input/);
-  assert.match(slider, /eventSearchHref\(scope\?\.label\)/);
+  assert.match(slider, /layout === "grid" \? <form/);
+  assert.doesNotMatch(slider, /type="date"/);
+  assert.match(slider, /eventDealPagePath/);
   assert.match(slider, /additionalPlaces[\s\S]*20 - candidates\.length/);
   assert.match(slider, /confirmed\.has\(place\.slug\)/);
   assert.match(slider, /event-deals__card--browse/);

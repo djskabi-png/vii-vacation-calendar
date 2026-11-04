@@ -64,7 +64,7 @@ test("dated discovery cache is explicit and booking/detail calls remain realtime
   const route = await read("app/api/vii/live-search/route.ts");
   assert.match(hook, /datedDiscovery \? \{ discoverySearch: true \} : \{\}/);
   assert.match(route, /body\.discoverySearch === true && body\.includePlaces !== true/);
-  assert.match(route, /\["dated-search", world, body\.from, body\.till, Number\(body\.guests\)/);
+  assert.match(route, /\["dated-search", world, \.\.\.\(world === "events" \? \[EVENT_DISCOVERY_VERSION\] : \[\]\), body\.from, body\.till, Number\(body\.guests\)/);
 });
 
 test("search summary shows committed dates for vacation, events and spa", async () => {

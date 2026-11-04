@@ -1,3 +1,4 @@
+import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -20,7 +21,8 @@ function handler(path, method, dependencies) {
     validEventDiscoveryResult,
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
-  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
+  dependencies=eventRouteDependencies(dependencies);
+ const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled}; return ${method};`)(...Object.values(dependencies));
 }
@@ -86,7 +88,7 @@ test('actual event handler selects regional public IDs before national top12 and
     supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set(places.slice(0,-1).map(place=>place.supplierId)),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(place=>ids.includes(place.supplierId)),
-    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'both']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{checkedAt:'2026-10-17T12:00:00Z',results:Array.from({length:25},(_,index)=>({siteID:index+1,total:(index+1)*100,available:true,slot:'evening',from:'2026-10-18',roomID:index+1}))}};},
+    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery',3,'2026-10-18',30]);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{checkedAt:'2026-10-17T12:00:00Z',results:Array.from({length:25},(_,index)=>({siteID:index+1,total:(index+1)*100,available:true,slot:'evening',from:'2026-10-18',roomID:index+1}))}};},
     EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     liveSupplierSearch:async()=>{throw new Error('visitor_must_not_call_provider');},
   });

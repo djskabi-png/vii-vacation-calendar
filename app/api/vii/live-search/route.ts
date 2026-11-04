@@ -7,8 +7,8 @@ import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/r
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 import { cachedDiscovery, readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
-import { EVENT_DISCOVERY_POLICY, validEventDiscoveryResult } from "../../../lib/warm-event-discovery-cache.ts";
-import { canonicalVerifiedSliderItems } from "../../../lib/verified-slider-offers.ts";
+import { EVENT_DISCOVERY_POLICY, eventDiscoveryKey, eventDiscoveryValidator, loadEventDiscovery, eventOffersForSlot, type EventDiscoverySnapshot } from "../../../lib/event-discovery-offers.ts";
+import { EVENT_DISCOVERY_VERSION } from "../../../lib/event-discovery-contract.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 type LiveSearchPayload = Awaited<ReturnType<typeof liveSupplierSearch>>;
@@ -62,20 +62,21 @@ export async function POST(request: Request) {
       publishedIds: publicIds,
     });
     const discoveryOptions = {
-      key: ["events-discovery", body.from, body.till, Number(body.guests), body.slot ?? "both"] as const,
+      key: eventDiscoveryKey(body.from as string, Number(body.guests)),
       db: cacheDb,
       policy: EVENT_DISCOVERY_POLICY,
-      validate: validEventDiscoveryResult,
+      validate: eventDiscoveryValidator(body.from as string, Number(body.guests)),
     };
-    const cached = discovery ? await readCachedDiscovery<LiveSearchPayload>(discoveryOptions).catch(() => cachedDiscovery<LiveSearchPayload>({
+    const accepted = discovery ? await readCachedDiscovery<EventDiscoverySnapshot>(discoveryOptions).catch(() => null) : null;
+    const cached = discovery ? accepted?.cache.status === "fresh" ? accepted : await cachedDiscovery({
       ...discoveryOptions,
-      // Cold or rejected scheduled snapshots get exactly one cache-coordinated
-      // recovery. The durable lease and cooldown prevent a visitor stampede;
-      // detail and booking checks remain realtime and outside this cache.
-      load,
-    })) : null;
+      // Fresh snapshots are local reads. Stale snapshots refresh under one D1
+      // lease while the accepted result remains visible; a cold request has
+      // one bounded bulk recovery. No request fans out over individual venues.
+      load: () => loadEventDiscovery({ date: body.from as string, guests: Number(body.guests), token, publishedIds: publicIds }),
+    }) : null;
     const dated = datedDiscovery ? await cachedDiscovery<LiveSearchPayload>({
-      key: ["dated-search", world, body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both", candidates.length ? candidates : null],
+      key: ["dated-search", world, ...(world === "events" ? [EVENT_DISCOVERY_VERSION] : []), body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both", candidates.length ? candidates : null],
       db: cacheDb,
       load,
       policy: { freshMs: 60_000, staleMs: 30 * 60_000 },
@@ -83,24 +84,28 @@ export async function POST(request: Request) {
     }) : null;
     const result = discovery ? cached!.value : dated ? dated.value : await load();
     if (world === "events" && body.includePlaces === true) {
-      const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true
-        && (offer.total === null || typeof offer.total === "number" && offer.total > 0) && Boolean(offer.slot) && Boolean(offer.from)
-        && Number.isSafeInteger(offer.roomID) && Number(offer.roomID) > 0)
-        .sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity) || a.siteID - b.siteID || String(a.slot).localeCompare(String(b.slot)));
-      const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;
-      const selectedOffers = selected?.offers ?? liveOffers.slice(0, 20);
-      const offers = canonicalVerifiedSliderItems(selectedOffers, offer => offer.siteID);
+      const liveOffers = eventOffersForSlot((result.eventSlots ?? result.results).filter(offer => publicIds.has(offer.siteID)), body.slot as "morning" | "evening" | undefined);
+      const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID) }) : null;
+      const offers = selected?.offers ?? liveOffers;
       const ids = offers.map(offer => offer.siteID);
-      const places = await publicCatalogSelectedSummaries<EventDealPlace>("events", ids);
+      // The selected-summary reader is intentionally bounded for editorial
+      // previews. Larger event result sets need one complete catalog read,
+      // rather than silently dropping every venue after the twentieth.
+      const places = ids.length > 20
+        ? (await publicCatalogSummaries<EventDealPlace>("events")).filter(place => ids.includes(Number(/^event-(\d+)$/.exec(place.slug)?.[1])))
+        : await publicCatalogSelectedSummaries<EventDealPlace>("events", ids);
       const placeById = new Map(places.flatMap((place) => {
         const match = /^event-(\d+)$/.exec(place.slug);
         return match && place.image ? [[Number(match[1]), place] as const] : [];
       }));
       const visibleOffers = offers.filter(offer => placeById.has(offer.siteID));
       const visiblePlaces = visibleOffers.map(offer => placeById.get(offer.siteID)!);
+      const { eventSlots: _eventSlots, ...publicResult } = result;
       // Join only the matching offers. The homepage's five editorial picks must
       // not limit availability, and its initial HTML must not carry all venues.
-      return Response.json({ ...result, cache: cached!.cache, results: visibleOffers, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: visibleOffers.map(offer => offer.siteID) } : {}), places: visiblePlaces.map((place) => ({
+      return Response.json({ ...publicResult, cache: cached!.cache, matchedCount: visibleOffers.length,
+        selectionDiagnostics: { matchedSupplierVenues: offers.length, visibleVenues: visibleOffers.length, missingPublicCardIds: offers.filter(offer => !placeById.has(offer.siteID)).map(offer => offer.siteID) },
+        results: visibleOffers, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: visibleOffers.map(offer => offer.siteID) } : {}), places: visiblePlaces.map((place) => ({
         slug: place.slug, name: place.name, location: place.location, type: place.type, guests: place.guests,
         image: place.image, images: (place.images || []).slice(0, 10),
         ...(place.area ? { area: place.area } : {}),
