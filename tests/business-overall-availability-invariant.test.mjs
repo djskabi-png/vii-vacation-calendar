@@ -13,6 +13,6 @@ test("an unavailable property quote prevents every unit from claiming availabili
 
 test("supplier quote transitions use a neutral checking state instead of a false inquiry state", () => {
   assert.match(business, /supplierQuoteUnsettled = Boolean\(supplierSiteID && hasSelectedDates && \(supplierQuote\.status === "loading" \|\| supplierQuote\.status === "error"\)\)/);
-  assert.match(business, /property\.onlineAvailability === true \|\| hasVerifiedSupplierQuote \|\| supplierQuoteUnsettled/);
+  assert.match(business, /property\.onlineAvailability !== false \|\| hasVerifiedSupplierQuote \|\| supplierQuoteUnsettled/);
   assert.match(business, /supplierQuote\.status === "loading" \|\| supplierUnitQuotes\.status === "loading"/);
 });

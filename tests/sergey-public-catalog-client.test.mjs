@@ -227,3 +227,16 @@ test("a failing detail refresh preserves the accepted place instead of failing t
   assert.equal(result.entries.length, 1);
   assert.deepEqual(result.entries[0].detail, old[0].detail);
 });
+
+test('representative list gallery wins card order while detail and room media retain separate ownership', async () => {
+  const result = await client({
+    galleries: { general: { title: 'General', pictures: ['/gallery/general-a.jpg','/gallery/general-b.jpg'] } },
+    rooms: [{roomID:55,roomName:'Unit',roomCount:1,maxGuests:2,galleries:{unit:{title:'Unit',pictures:['/gallery/unit-only.jpg']}}}],
+  }, false, {galleries:{representative:{title:'Cover',pictures:['/gallery/cover-a.jpg','/gallery/cover-b.jpg']}}}).fetchCandidate('vacations');
+  const {summary,detail}=result.entries[0];
+  assert.ok(summary.images[0].endsWith('/cover-a.jpg'));assert.ok(summary.images[1].endsWith('/cover-b.jpg'));
+  assert.ok(summary.images.some(src=>src.endsWith('/general-a.jpg')));
+  assert.ok(!summary.images.some(src=>src.endsWith('/unit-only.jpg')));
+  assert.ok(detail.images[0].endsWith('/general-a.jpg'));
+  assert.ok(detail.rooms[0].images.some(src=>src.endsWith('/unit-only.jpg')));
+});

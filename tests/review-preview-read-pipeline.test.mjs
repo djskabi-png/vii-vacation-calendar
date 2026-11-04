@@ -108,9 +108,9 @@ test('preview fallbacks pin generation across publication and never resurrect mi
 test('public detail wrapper permits bundled fallback only before first accepted generation', async () => {
   const source = stripTypeScriptTypes((await readFile(new URL('../app/lib/public-catalog-read.ts', import.meta.url), 'utf8')).replace(/^import .*;\r?$/gm, ''));
   let entry; let activeRunId = null; let entryReads = 0; let stateReads = 0;
-  const readDetail = new Function('sergeyDetails', 'publicCatalogDatabase', 'readSupplierCatalogEntry', 'readSupplierCatalogState', 'projectSergeyPublicCatalogValue',
+  const readDetail = new Function('acceptedSergeyDetail', 'publicCatalogDatabase', 'readSupplierCatalogEntry', 'readSupplierCatalogState', 'projectSergeyPublicCatalogValue',
     source.replace(/export /g, '') + '; return publicCatalogDetail;')(
-      { details: { 'vacation-1': { name: 'bundled' } } }, async () => ({ database: {} }),
+      (_world,id) => id === 1 ? { name: 'bundled' } : null, async () => ({ database: {} }),
       async () => { entryReads++; return entry; }, async () => { stateReads++; return activeRunId ? { activeRunId } : null; },
       (value) => value);
   assert.deepEqual(await readDetail('vacations', 1), { name: 'bundled' });
@@ -148,9 +148,9 @@ test('public review wrapper never revives old bundled reviews for accepted missi
   const source = stripTypeScriptTypes((await readFile(new URL('../app/lib/public-catalog-read.ts', import.meta.url), 'utf8')).replace(/^import .*;\r?$/gm, ''));
   let snapshot; let reads = 0;
   const review = valid('bundled review'.repeat(4));
-  const readPreview = new Function('sergeyDetails', 'runtimeCatalogDatabase', 'readSupplierCatalogReviewPreviews',
+  const readPreview = new Function('acceptedSergeyDetail', 'runtimeCatalogDatabase', 'readSupplierCatalogReviewPreviews',
     source.replace(/export /g, '') + '; return publicCatalogReviewPreviews;')(
-      { details: { 'vacation-1': { reviews: [valid('short'), review] } } }, async () => ({}), async () => { reads++; return snapshot; });
+      (_world,id) => id === 1 ? { reviews: [valid('short'),review] } : null, async () => ({}), async () => { reads++; return snapshot; });
   assert.deepEqual((await readPreview('vacations', [1])).get(1), { reviews: [review] });
   snapshot = { activeRunId: 'accepted', previews: new Map() };
   assert.equal((await readPreview('vacations', [1])).get(1), null);

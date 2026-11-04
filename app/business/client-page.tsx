@@ -6,7 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
-import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
+import { vacationBreadcrumbForLocation, vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
 import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
@@ -308,7 +308,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
   const hasVerifiedSupplierQuote = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.quote !== null);
   const supplierQuoteUnsettled = Boolean(supplierSiteID && hasSelectedDates && (supplierQuote.status === "loading" || supplierQuote.status === "error"));
-  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = ((supplierSiteID && (property.onlineAvailability === true || hasVerifiedSupplierQuote || supplierQuoteUnsettled)) || usesLiveLegacyAvailability) ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
+  // Missing catalog capability is unknown, not proof of telephone-only service.
+  // The live workflow still requires the dated supplier quote before booking.
+  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = ((supplierSiteID && (property.onlineAvailability !== false || hasVerifiedSupplierQuote || supplierQuoteUnsettled)) || usesLiveLegacyAvailability) ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
   const effectiveVacationAvailability = vacationAvailabilityMode !== "inquiry" ? resolvedAvailability : null;
   // A quote supplied in a link is useful only for properties without a live source.
   // For migrated listings the source response always wins, so an old shared link
@@ -417,9 +419,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
             ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...localizedLocationBreadcrumbs(spaBreadcrumbsForLocation(property.area, property.location), breadcrumbPrefixes.spa), { name: localizedPropertyName }]
             : activeWorld === "hourly"
               ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...localizedLocationBreadcrumbs(hourlyBreadcrumbsForLocation(property.area, property.location), breadcrumbPrefixes.hourly), { name: localizedPropertyName }]
-              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { ...vacationBreadcrumbForLocation(property.area), name: `${breadcrumbPrefixes.vacation}${localizedArea}` },
-                ...(property.location && property.location !== property.area ? [{ name: `${breadcrumbPrefixes.vacation}${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
-                { name: localizedPropertyName }]} />
+              : [...vacationBreadcrumbTrailForProperty(property, [property, ...(relatedProperties || [])]), { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
           <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1>{typeof property.lat === "number" && typeof property.lng === "number" ? <button className="property-location-action" type="button" onClick={openLocationMap} aria-label={`${translate("פתיחת מפת המקום")}: ${localizedLocation}, ${localizedArea}`}><PinIcon />{localizedLocation}, {localizedArea}</button> : <p><PinIcon />{localizedLocation}, {localizedArea}</p>}<div className="property-title__trust-signals"><OnlineBookingBadge eligible={onlineBookingEligible} /><ListingAccessibility slug={property.slug} features={property.features} compact /></div>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>

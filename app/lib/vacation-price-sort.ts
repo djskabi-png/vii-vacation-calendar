@@ -46,3 +46,8 @@ export function orderVacationResultsByDisplayedPrice<T>(
     direction,
   ) || stableIndexFor(first) - stableIndexFor(second));
 }
+
+/** Range controls must cover the same known catalog prices displayed on cards. */
+export function vacationPriceRangeMaximum<T extends { slug: string; price?: number }>(properties: readonly T[], prices: Record<string, unknown>) {
+  return Math.max(5000, ...properties.map(property => vacationCatalogDisplayedPrice(property, prices[property.slug], property.price) || 0));
+}

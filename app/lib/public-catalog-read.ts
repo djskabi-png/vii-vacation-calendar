@@ -1,8 +1,6 @@
-import sergey from "../data/sergey-public-catalog.json" with { type: "json" };
 import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../data/spaplus-catalog.json" with { type: "json" };
-import sergeyDetails from "../data/sergey-place-details.json" with { type: "json" };
-import acceptedRuntimeCatalog from "../data/accepted-runtime-catalog-state.json" with { type: "json" };
+import { acceptedSergeySummaries, acceptedSergeyDetail } from "./accepted-bundled-catalog.ts";
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
@@ -21,16 +19,7 @@ const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise
 function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "spa") return spa.sites;
   if (world === "rooms") return hourly.places;
-  const accepted = acceptedRuntimeCatalog.worlds[world];
-  const activeIds = new Set(accepted.ids);
-  // Preserve the immutable, fully detailed base while layering only suppliers
-  // introduced by the newer accepted generation. Active IDs remain the final
-  // authority, so neither source can resurrect a withdrawn supplier.
-  const bySupplier = new Map<number, unknown>();
-  for (const place of [...sergey.places, ...accepted.additions]) {
-    if (place.world === world && activeIds.has(place.supplierId)) bySupplier.set(place.supplierId, place);
-  }
-  return [...bySupplier.values()];
+  return acceptedSergeySummaries(world);
 }
 
 /**
@@ -172,8 +161,7 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
 }
 
 export async function publicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
-  const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
-  const bundledDetail = (sergeyDetails.details as unknown as Record<string, T>)[slug] || null;
+  const bundledDetail = acceptedSergeyDetail<T>(world, supplierId);
   try {
     // Public place pages must use the same resilient, read-only source as
     // /api/catalog. When Aurora is unavailable this selector serves the same
@@ -315,8 +303,7 @@ export async function publicCatalogReviewPreviews<T>(world: "vacations" | "event
   const snapshot = db ? await readSupplierCatalogReviewPreviews(db, world, ids) : null;
   if (snapshot) return new Map(ids.map((id) => [id, (snapshot.previews.get(id) as T | undefined) || null]));
   return new Map(ids.map((id) => {
-    const slug = `${world === "vacations" ? "vacation" : "event"}-${id}`;
-    const detail = (sergeyDetails.details as unknown as Record<string, { reviews?: { text?: string }[] }>)[slug];
+    const detail = acceptedSergeyDetail<{ reviews?: { text?: string }[] }>(world, id);
     const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
     return [id, detail ? { reviews: review ? [review] : [] } as T : null];
   }));
@@ -333,8 +320,7 @@ export async function publicCatalogReviewDetails<T>(world: "vacations" | "events
 async function catalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[], reviewsOnly: boolean): Promise<Map<number, T | null>> {
   const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
   const fallback = new Map(ids.map((supplierId) => {
-    const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
-    return [supplierId, ((sergeyDetails.details as unknown as Record<string, T>)[slug] || null) as T | null];
+    return [supplierId, acceptedSergeyDetail<T>(world, supplierId)];
   }));
   try {
     const db = await runtimeCatalogDatabase();

@@ -8,8 +8,8 @@ test("vacation search keeps accommodation type and price range visible", () => {
   const search = read("app/search/page.tsx");
   assert.match(search, />סוג מקום<\/button>/);
   assert.match(search, />טווח מחיר<\/button>/);
-  assert.match(search, /טווח המחיר ייפתח כשהמחירים המעודכנים ייטענו/);
-  assert.match(search, /supplierStartingPrice\(startingPrices\[property\.slug\]\)/);
+  assert.doesNotMatch(search, /<fieldset className="vacation-price-filter" disabled/);
+  assert.match(search, /vacationCatalogDisplayedPrice\(property, startingPrices\[property\.slug\], property\.price\)/);
   assert.match(search, /const inferredType = \/וילה\//);
 });
 

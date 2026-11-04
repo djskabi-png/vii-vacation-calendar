@@ -427,5 +427,10 @@
   "בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.": { "en": "Choose the package that suits you and check an available date before booking.", "ru": "Выберите подходящий пакет и проверьте доступную дату перед бронированием.", "fr": "Choisissez le forfait qui vous convient et vérifiez une date disponible avant de réserver." },
   "המדיניות המקורית של המקום": { "en": "The property policy is shown below in its original Hebrew", "ru": "Ниже приведены правила объекта в оригинале на иврите", "fr": "La politique de l’établissement est affichée ci-dessous dans sa version originale en hébreu" },
   "המחיר עבור אורח אחד": { "en": "Price for 1 guest", "ru": "Цена для 1 гостя", "fr": "Prix pour 1 personne" },
-  "המחיר עבור": { "en": "Price for", "ru": "Цена для", "fr": "Prix pour" }
+  "המחיר עבור": { "en": "Price for", "ru": "Цена для", "fr": "Prix pour" },
+  "אזורים ויישובים בנופש": {"en":"Vacation regions and towns","ru":"Регионы и города для отдыха","fr":"Régions et villes pour les séjours"},
+  "יישובים באזור": {"en":"Towns in this region","ru":"Города в регионе","fr":"Villes de la région"},
+  "נגיש לנכים": {"en":"Wheelchair accessible","ru":"Доступно для людей на инвалидных колясках","fr":"Accessible en fauteuil roulant"},
+  "מקום נגיש לנכים": {"en":"Wheelchair accessible property","ru":"Объект с доступом для людей на инвалидных колясках","fr":"Établissement accessible en fauteuil roulant"},
+  "עד 14:00 לפי שעון ישראל מוצגות הצעות להיום, ומ־14:00 הצעות למחר. התאריכים המדויקים מופיעים בכל כרטיס ובעמוד המקום.": {"en":"Until 14:00 Israel time, offers are for today; from 14:00, they are for tomorrow. Exact dates appear on every card and place page.","ru":"До 14:00 по времени Израиля показаны предложения на сегодня, с 14:00 на завтра. Точные даты указаны в карточке и на странице места.","fr":"Avant 14 h, heure d’Israël, les offres concernent ce soir; à partir de 14 h, elles concernent demain. Les dates exactes figurent sur chaque carte et page de lieu."}
 }

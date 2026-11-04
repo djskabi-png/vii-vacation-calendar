@@ -1,0 +1,335 @@
+{
+  "task_id": "vii-liran-daily-stability-20261104",
+  "date": "2026-11-04",
+  "timezone": "Asia/Jerusalem",
+  "source_coverage": [
+    {
+      "kind": "whatsapp",
+      "contact": "Liran Suissa",
+      "window": "today09:52-10:28",
+      "observed_boundaries": "Today09:52greeting after Yesterday divider through latest10:28; captions and all relevant still screenshots inspected in authenticated Chrome.09:53video caption inspected; actual playback unavailable in viewer (no video element), not claimed watched.",
+      "privacy": "No raw messages, contacts, unrelated financial/personal rows or private photos persisted in project."
+    },
+    {
+      "kind": "codex_thread",
+      "id": "01a155bb-4d49-7062-9983-04e73a490a20",
+      "window": "2026-11-04midnight to current",
+      "coverage": "Two paginated10turn source reads cross midnight boundary, including requests merged into turns; only normalized VII requirements retained."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "L01",
+      "source_time": "09:53",
+      "requirement": "Representative gallery navigation must respond promptly",
+      "mechanism_family": "gallery_navigation",
+      "status": "fixed_local",
+      "evidence": [
+        "Actual retained preview-hook test: visible index changes before network completion, late prior response cannot overwrite next selection; collection replacement resets index."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L02",
+      "source_time": "09:54",
+      "requirement": "Last-minute vacation is today before14:00Israel and tomorrow thereafter",
+      "mechanism_family": "discovery_cutoff",
+      "status": "fixed_local",
+      "evidence": [
+        "Exact14:00Israel boundary test and scope-keyed HomeLiveDeals state; expected period dates enforced before accepting response, fixedPeriod prop wins retained state synchronously."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L03",
+      "source_time": "09:56",
+      "requirement": "Shekel symbol visually precedes number on its left across public price displays",
+      "mechanism_family": "currency_direction",
+      "status": "fixed_local",
+      "evidence": [
+        "Source screenshot identified discovery/spa cards. currencyLabelParts isolates supplier currency text in LTR bdi; direct component contract and shared shekel tests."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    },
+    {
+      "id": "L04",
+      "source_time": "09:56",
+      "requirement": "Gallery previous/next arrows match RTL/LTR visual movement",
+      "mechanism_family": "gallery_direction",
+      "status": "fixed_local",
+      "evidence": [
+        "Source screenshot identified full gallery chevrons. Desktop bidi isolation and removal of extra mobile mirror, logical button positions and locale-specific glyphs."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L05",
+      "source_time": "09:57",
+      "requirement": "Representative image and general/unit galleries preserve supplier ownership and order",
+      "mechanism_family": "gallery_identity",
+      "status": "partially_verified_source_refresh_required",
+      "evidence": [
+        "Supplier2697 old/new cover296aa7c5ed92d8e.jpeg matches. Remaining old gallery object IDs differ from accepted snapshot; no unproven reorder. Actual ingestion test preserves representative priority and separates unit ownership. Full fresh upstream parity remains unverified."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L06",
+      "source_time": "10:07",
+      "requirement": "Regional vacation pages expose subregions and their cities near page start",
+      "mechanism_family": "geographic_navigation",
+      "status": "fixed_local",
+      "evidence": [
+        "Catalog-derived subregions and town links integrated near top of regional SearchExperience; native disclosure limits initial visual density."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    },
+    {
+      "id": "L07",
+      "source_time": "10:12",
+      "requirement": "City breadcrumbs retain vacation > macroregion > subregion > city with correct canonical links",
+      "mechanism_family": "geographic_breadcrumbs",
+      "status": "fixed_local",
+      "evidence": [
+        "Actual Netua singleton/full-catalog function tests produce vacation > north > WesternGalilee > Netua. Same-region subregion/selflink excluded. Shared server JSON-LD and client breadcrumbs integrated."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    },
+    {
+      "id": "L08",
+      "source_time": "10:12",
+      "requirement": "Supplier CMS preview_text reaches visible public card and survives hydration",
+      "mechanism_family": "catalog_projection",
+      "status": "fixed_local_pending_source_refresh",
+      "evidence": [
+        "Actual compact projection parity test retains previewText for vacation/event; upstream ingestion already parses preview_text. Current generation needs refresh to populate absent historical fields."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L09",
+      "source_time": "10:13,10:14",
+      "requirement": "Nesia Suite supported online inventory must not be presented as phone-only; verify price and bookability live",
+      "mechanism_family": "booking_capability",
+      "status": "fixed_local_live_quote_verified",
+      "evidence": [
+        "Unknown capability no longer means telephone-only. Explicitfalse retained, actual dated supplier quote and single room identity still mandatory before booking. Site618 room1339 positive source evidence observed separately; local end-to-end supplier success pending connected source.",
+        "Actual final local Worker+assets with read-only production supplier quote:618,Nov5-6,2guests,₪3000,room1339; quickbookinglink shown. No reservation submitted.",
+        "Quick booking destination opened correct bookingrequest form withprice3000 androom1339; no submit."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L10",
+      "source_time": "10:25",
+      "requirement": "Kinneret accommodation-type results respect source memberships, location and active predicates",
+      "mechanism_family": "search_type_scope",
+      "status": "fixed_local_live_id_parity_pending",
+      "evidence": [
+        "Empty accommodation type no longer matches every type; primary/secondary source memberships retained. Full Kinneret old/API/new ID-set parity requires current upstream generation; no hardcoded count."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L11",
+      "source_time": "10:26",
+      "requirement": "Price range input can be edited while price data loads and cannot be silently reset or ignored",
+      "mechanism_family": "search_price_state",
+      "status": "fixed_local",
+      "evidence": [
+        "Editable while prices load; requested URL range survives hydration; dated search waits for dated quote instead of filtering on marketing price; max includes displayed seasonal prices above5000."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "L12",
+      "source_time": "10:27",
+      "requirement": "Amenity filter results preserve complete source assignments rather than truncated display fields",
+      "mechanism_family": "catalog_filter_truth",
+      "status": "saved_local_pending_source_refresh",
+      "evidence": [
+        "853a0421 preserves full searchFilterIds and uses exact source identity, not truncated feature chips. Source backfill plus independent ID-set parity required before publication."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "A01",
+      "source_time": "today",
+      "requirement": "Preserve accessibility source identities across vacation/events compact payloads",
+      "mechanism_family": "catalog_filter_truth",
+      "status": "saved_local_pending_source_refresh",
+      "evidence": [
+        "853a0421 and accessibility-filter-completeness tests; no full supplier sync performed."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "A02",
+      "source_time": "today",
+      "requirement": "Do not emit redundant successful-rail cache disclaimers",
+      "mechanism_family": "public_copy",
+      "status": "saved_local",
+      "evidence": [
+        "8795cd22 removed redundant event disclaimer in4languages; no replacement."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    },
+    {
+      "id": "A03",
+      "source_time": "today",
+      "requirement": "Sparse filtered Jerusalem query cannot become national northern result list",
+      "mechanism_family": "search_geographic_scope",
+      "status": "saved_local",
+      "evidence": [
+        "bf468f12 bounded supplemental search to35km, authoritative origin, no forced national minimum; previous accepted northern4ID Jerusalem counterexample nowempty."
+      ],
+      "recurrence": "recurring_family"
+    },
+    {
+      "id": "A04",
+      "source_time": "today",
+      "requirement": "Preserve content and speed across public/admin navigation and reports",
+      "mechanism_family": "performance",
+      "status": "saved_local_not_public",
+      "evidence": [
+        "Earlier9c1600f6 speed candidate retained; exact pending main release not published. This task does not certify production performance or entire admin."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    },
+    {
+      "id": "R01",
+      "source_time": "review",
+      "requirement": "Accepted fallback manifest must exclude withdrawn source details and reviews during outage",
+      "mechanism_family": "publication_authority",
+      "status": "fixed_local",
+      "evidence": [
+        "Accepted-build identity authority shared by list/detail/batch/review/API outage fallback;7withdrawn IDs cannot resurrect; accepted detail resilience retained."
+      ],
+      "recurrence": "new_or_expanded_scope"
+    }
+  ],
+  "plan": [
+    {
+      "phase": 1,
+      "action": "Link every source requirement and distinguish recurrence/new symptom/saved-vs-public state."
+    },
+    {
+      "phase": 2,
+      "action": "Repair shared catalog projection and publication authority, source-scope/price/booking state, geographic hierarchy, gallery/currency and cutoff at causal boundaries."
+    },
+    {
+      "phase": 3,
+      "action": "Prove exact failing cases and negative cases, run family tests, sequential build then full suite against immutable artifact; independent scoped review."
+    },
+    {
+      "phase": 4,
+      "action": "Save cumulative commit and pending data/live-verification gates. No publication. Future release requires exact candidate, source backfill parity and natural-destination checks."
+    }
+  ],
+  "authorization": "SAVE_ONLY_NO_PUBLICATION",
+  "universal_never_break_claim": false,
+  "release_gates": [
+    "User explicitly authorizes a later publication; current authorization is save-only.",
+    "Fresh approved supplier catalog generation preserving source searchFilterIds,previewText,online flags; independent old/API/new identity parity for access,Kinneret types and gallery2697.",
+    "Exact local frozen build + all tests + desktop/mobile functional checks and independent review.",
+    "Freeze exact cumulative Git commit and run release-source integrity; never deploy an earlier branch/version.",
+    "After a future release, run5-10representative actor scenarios on that exact deployed version; keep old release rollback identity."
+  ],
+  "validation": {
+    "status": "local_code_verified_source_parity_pending",
+    "build": "Third sequential build after causal import/localization correction and independent self-region fix; no parallel dist mutation tests.",
+    "full_suite_first_run": {
+      "tests": 2063,
+      "passed": 2051,
+      "failed": 11,
+      "skipped": 1,
+      "finding": "8SSR failures from missing imported range helper,2obsolete code-location/condition contracts,1missing localization test; corrected before frozen rerun."
+    },
+    "source_guard": "11protected ancestors16capabilities passed with allow-dirty; final clean guard pending commit.",
+    "full_suite_second_run": {
+      "tests": 2068,
+      "passed": 2067,
+      "failed": 0,
+      "skipped": 1,
+      "duration_ms": 104415.9375,
+      "scope": "Exact frozen artifact before final observed mobile parent-area breadcrumb and price-chip direction fixes."
+    },
+    "required_family": {
+      "passed": 56,
+      "failed": 0,
+      "command": "pnpm qa:liran-stability"
+    },
+    "independent_review": {
+      "reviewer": "business_audit_seal_checker",
+      "status": "Scoped source fixes and QA read-only boundary approved, including final mobile followups",
+      "excluded": "No blanket production/source parity claim"
+    },
+    "observed_browser": [
+      {
+        "case": "Regional navigation on desktop",
+        "status": "passed",
+        "evidence": "Exact Worker+client assets via read-only preview; subregion links above results, native town disclosure."
+      },
+      {
+        "case": "Price editing/application",
+        "status": "passed",
+        "evidence": "Typed1200/2000, applied, URL preserved minPrice/maxPrice and3matching results; max6500 reflects loaded source."
+      },
+      {
+        "case": "Real mobile geometry/typography",
+        "status": "passed",
+        "evidence": "Chromeviewport390x844; innerWidth390, scrollWidth375, Rubik/Heebo/Assistantfont stack; no horizontal document overflow."
+      },
+      {
+        "case": "City search breadcrumbs",
+        "status": "found_and_fixed",
+        "evidence": "Netua UI omitted WesternGalilee. Actual locationhelper nowresolves source parentarea and tests it with singleton/fullcatalog."
+      },
+      {
+        "case": "Price chip currency direction",
+        "status": "found_and_fixed",
+        "evidence": "Mobile chipneeded independent currencyisolation. ReusestestedcurrencyLabelParts+bdi."
+      },
+      {
+        "case": "Nesia dated capability",
+        "status": "partial",
+        "evidence": "Actual card618opensbusinesslivecalendar;Nov5available andNov6allowedcheckout. QuotePOSTblocked405byread-onlypreview, not supplier failure. Preview nowonlyallows2verified read-onlyquotePOSThandlers; successfulquote flow recheck pending."
+      },
+      {
+        "case": "Final Nesia supplier quote",
+        "status": "passed",
+        "evidence": "Actual UI ready quote3000,room1339,available unit and quickbookinglink forNov5-6/2guests. No reservation/lead submitted."
+      },
+      {
+        "case": "Final corrected Netua breadcrumb",
+        "status": "passed",
+        "evidence": "Actual exact final UI shows home,vacation,north,WesternGalilee,Netua."
+      },
+      {
+        "case": "Final mobile currency persistence",
+        "status": "passed",
+        "evidence": "Reloaded minPrice1200/maxPrice2000 URL at390x844; price chip bidi fragments explicitlyltr; Rubikfontloaded true; scrollWidth375."
+      },
+      {
+        "case": "Nesia quick-booking destination",
+        "status": "passed",
+        "evidence": "Actual transition to /booking withplace618,Nov5-6,2guests,price3000,room1339; correct Suite bookingrequest form. No submission."
+      },
+      {
+        "case": "Fullscreen gallery arrows mobile",
+        "status": "passed",
+        "evidence": "Actual390px gallery:previousright glyph> x313,nextleftglyph< x14; bothisolatedltr; nextmoves2/43,previousreturns1/43. Viewportreset andowntabclosed."
+      }
+    ],
+    "final_full_suite": {
+      "tests": 2070,
+      "passed": 2069,
+      "failed": 0,
+      "skipped": 1,
+      "duration_ms": 94752.7599,
+      "artifact": "liran-ui-verified-build.log; immutable while alltests ran"
+    },
+    "preview_route_recovery": "vinext start lacksCloudflare ASSETS binding and returns404forpresentJS; resolved using existing purpose-built preview-built-candidate withactualclientassets. Not a proven production asset defect. Browser attachment during fullsuite recovered after workload completed; user tabs preserved.",
+    "resource_cleanup": "Ownedpreviewservers stopped,oldvinextserverdescendants verifiedandstopped;0ownedserversremaining. No usertabclosed."
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-liran-daily-stability-20261104",
+  "project": "VII",
+  "task_type": "cross-family-audit-save-only",
+  "requested_outcome": "Review all available Liran feedback dated4November2026, normalize requirements and fix confirmed root defects across affected families, save without publishing",
+  "natural_destination": "Source-linked daily ledger, local actual search/availability/media/admin flows and saved cumulative code",
+  "authorization_boundary": "Read project/history/authorized Liran messages only, local source/tests/commits; no sends, publication, DBwrites, supplier sync, billing or infrastructure changes",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Pagination must preserve complete report truth",
+      "acceptance_impact": "Compare totals, search, global sorting and complete export"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "An administration performance fix needs real authenticated evidence",
+      "acceptance_impact": "Desktop/mobile initial load and every deferred section must work in the exact deployed release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Messages or unresolved requirements omitted or falsely attributed to Liran",
+      "prevention": "Dated source inventory with message identities and scope confidence; no raw private message persistence",
+      "acceptance_check": "Source coverage ledger marks every observed item and missing source explicitly"
+    },
+    {
+      "rejection": "One component fixed while sibling SSR/client/API remains broken",
+      "prevention": "Trace shared data/identity/scope mechanism and test affected family",
+      "acceptance_check": "Actual pipeline tests with failurebefore/successafter and parity"
+    },
+    {
+      "rejection": "Tests mirror current limited payload or hide missing inventory",
+      "prevention": "Use source ID set and negative/error/retained-state cases",
+      "acceptance_check": "No fixed cardcounts or comparison of response against itself as completeness proof"
+    },
+    {
+      "rejection": "Allfixed claim despite old data, unverified real-device behavior or source gap",
+      "prevention": "Separate localfixed,alreadypublic,external/liveverificationneeded statuses",
+      "acceptance_check": "Every requirement evidence/blocker/justifiedexclusion, saveonly no deploy"
+    }
+  ],
+  "affected_family": [
+    "today source messages and requestledger",
+    "vacation/events/spa rails cutoff/dateparty scope",
+    "search amenities/geography/price/mapping/SSR client",
+    "detail and unit media source identity",
+    "admin/cloudflare/report performance",
+    "release baseline and pending supplier backfill"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII performance and administration invariants",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First measured delivery, navigation and catalog slice",
+    "checks": [
+      "Sourcecoverage and first cross-family mechanism verification before broad source edits"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Did alltodaymessages get traced without guessed authorship?",
+      "Does cache or projection lose current supplier identities?",
+      "Can changing location,date orparty leave contradictory results or prices?",
+      "Do prior saved fixes and known public behavior survive?"
+    ],
+    "natural_destination_evidence": "Source-linked dayledger and actual local source/runtime flow tests; public untouched",
+    "affected_family_evidence": "Independent scoped review, sourcegate, sequential build/test as needed, exact regression cases"
+  },
+  "effectiveness": {
+    "baseline": "Recurring corrections and accumulated public/local differences; no fullneverbreak proof possible",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Eachconfirmed issue has rootfix, regressionguard and exact saved status with no unnoticed sourcegap"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

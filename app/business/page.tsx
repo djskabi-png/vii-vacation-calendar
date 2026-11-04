@@ -8,7 +8,7 @@ import { supplierDisplayDescription } from "../data/supplier-display-text";
 import { bundledPublicCatalogSummaries, publicCatalogDetail, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
-import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
+import { vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
 import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
@@ -141,15 +141,14 @@ export default async function Page({ searchParams }: Props) {
     ? requestedWorld as BusinessWorld
     : getListingOfferings(property)[0].world;
   const primaryWorld = getListingOfferings(property)[0].world;
-  const vacationArea = vacationBreadcrumbForLocation(property.area);
+  const vacationTrail = vacationBreadcrumbTrailForProperty(property, properties);
   const hierarchy = primaryWorld === "events"
     ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(property.area, property.location)]
     : primaryWorld === "spa"
       ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...spaBreadcrumbsForLocation(property.area, property.location)]
       : primaryWorld === "hourly"
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location)]
-        : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea,
-          ...(property.location && property.location !== property.area ? [{ name: `נופש ב${property.location}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : [])];
+        : [...vacationTrail, { name: property.name, path: `/business?id=${property.slug}` }];
   return <>
     <ViewedItemBootstrap id={property.slug} world={initialWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${initialWorld === primaryWorld ? "" : `&mode=${initialWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה הגדולה" : ""}` : property.type} />
     {!property.demoOperations?.fictional ? <StructuredData data={lodgingSchema(property)} /> : null}

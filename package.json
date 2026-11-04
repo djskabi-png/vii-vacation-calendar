@@ -40,7 +40,8 @@
     "qa:qqqaaa": "node scripts/run-qqqaaa.cjs",
     "qa:spacing": "node scripts/audit-header-spacing.cjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "qa:liran-stability": "node --test tests/catalog-public-fact-parity.test.mjs tests/liran-search-input-facts.test.mjs tests/liran-retained-selection-booking.test.mjs tests/liran-preview-hook-actual.test.mjs tests/liran-price-gallery-direction.test.mjs tests/vacation-geography-hierarchy-contract.test.mjs tests/accessibility-filter-completeness.test.mjs tests/nearby-search-family.test.mjs tests/shekel-symbol-position.test.mjs tests/vacation-preview-text-card.test.mjs tests/liran-geography-actual.test.mjs tests/sergey-public-catalog-client.test.mjs tests/liran-2697-gallery-evidence.test.mjs"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.22",

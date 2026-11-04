@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { currencyLabelParts } from "../lib/currency-label";
 import { PinIcon } from "../site-header";
 import { FavoriteButton } from "./favorite-button";
 import { resolvePublicSliderMedia } from "../lib/public-media-policy";
@@ -73,6 +74,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const price = item.world === "hourly" && !item.priceLabel
     ? translate("למחיר, פנו למקום")
     : language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
+  const visiblePrice = currencyLabelParts(price).map((part, index) => part.amount ? <bdi dir="ltr" key={index}>{part.text}</bdi> : part.text);
 
   if (!item.image && item.world !== "hourly") return null;
 
@@ -112,10 +114,10 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
       <HorizontalChipRail className="discovery-card__chips" labels={features} ariaLabel={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]} />
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
         {item.world === "hourly" ? <>
-          <div className="preview-card-price-row"><strong>{price}</strong></div>
+          <div className="preview-card-price-row"><strong>{visiblePrice}</strong></div>
           <CardContactActions key={item.id} world="hourly" placeId={item.id} placeName={localizedName} phone={item.phone} whatsapp={item.whatsapp} serviceName={item.name} />
         </> : <>
-        <strong>{price}</strong>
+        <strong>{visiblePrice}</strong>
         </>}
       </footer>
     </div>

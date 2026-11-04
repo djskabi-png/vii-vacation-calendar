@@ -15,7 +15,7 @@ const vacationAccommodationTypeTerms: Record<string, readonly string[]> = {
 
 export function matchesVacationAccommodationType(property: Property, selectedType: string) {
   const propertyTypes = property.types?.length ? property.types : [property.type];
-  const normalizedPropertyTypes = propertyTypes.map((value) => value.trim().toLocaleLowerCase("he"));
+  const normalizedPropertyTypes = propertyTypes.map((value) => value.trim().toLocaleLowerCase("he")).filter(Boolean);
   const candidates = vacationAccommodationTypeTerms[selectedType] || [selectedType];
   return candidates.some((candidate) => {
     const normalizedCandidate = candidate.toLocaleLowerCase("he");

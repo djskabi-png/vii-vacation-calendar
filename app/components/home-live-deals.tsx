@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
+import { homeDealDates, homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import type { Property } from "../data/site-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -89,12 +89,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const { language, translate } = useSiteLanguage();
-  const [period, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
+  const [chosenPeriod, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
+  const period = fixedPeriod ?? chosenPeriod;
   const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
   const [dealRetry, setDealRetry] = useState(0);
   const [holidayListRetry, setHolidayListRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [data, setData] = useState<ResponseData | null>(null);
+  const [scopedData, setScopedData] = useState<{ key: string; value: ResponseData } | null>(null);
   const [holidays, setHolidays] = useState<HomeHoliday[]>([]);
   const [holidayId, setHolidayId] = useState<number | null>(null);
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
@@ -104,10 +105,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = sectionTitle || (scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title);
+  const selectionKey = `${language}:${clock?.key || "loading"}:` + (mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`);
+  const data = scopedData?.key === selectionKey ? scopedData.value : null;
+  function setData(value: ResponseData | null) { setScopedData(value ? { key: selectionKey, value } : null); }
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
-  const selectionKey = `${language}:${clock?.key || "loading"}:` + (mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`);
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
     : mode === "near" && !fixedPeriod && !regionLabel
@@ -121,6 +124,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setHolidayState("loading");
     discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?${new URLSearchParams({ locale: language, clock: clock.key })}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 1 })
       .then((result) => {
+        if (controller.signal.aborted) return;
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         // The API and CMS both cap the public rail, but a browser can still
         // hold a previously accepted pre-cap session snapshot. Enforce the
@@ -160,6 +164,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
         if (mode === "near" && result.period !== period) throw new Error("invalid_period_result");
+        if (mode === "near") {
+          const expected = homeDealDates(period, clock.now);
+          if (result.dates?.from !== expected.from || result.dates?.till !== expected.till || result.deals.some(deal => deal.from !== expected.from || deal.till !== expected.till)) throw new Error("invalid_dates_result");
+        }
         if (mode === "near" && !fixedPeriod && result.display?.periods?.length) {
           setPeriodTabs(result.display.periods);
           if (!displaySettingsApplied.current) {
@@ -202,7 +210,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   // Keep that exact commercial order at the final browser boundary. A
   // document seed here made identical API responses render differently.
   const displayedDeals = canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID);
-  const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
+  const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;

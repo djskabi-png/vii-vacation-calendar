@@ -1,5 +1,5 @@
 import sergey from "../../data/sergey-public-catalog.json" with { type: "json" };
-import sergeyDetails from "../../data/sergey-place-details.json" with { type: "json" };
+import { acceptedSergeySummaries, acceptedSergeyDetail } from "../../lib/accepted-bundled-catalog.ts";
 import hourly from "../../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../../data/spaplus-catalog.json" with { type: "json" };
 import { readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "../../lib/supplier-catalog-store.ts";
@@ -28,7 +28,7 @@ function worldFrom(value: string | null): SupplierCatalogWorld | null {
 function bundledEntries(world: SupplierCatalogWorld) {
   if (world === "spa") return spa.sites.map((site) => ({ supplierId: site.id, summary: site }));
   if (world === "rooms") return hourly.places.map((place) => ({ supplierId: place.supplierId, summary: place }));
-  return sergey.places.filter((place) => place.world === world)
+  return (acceptedSergeySummaries(world) as Array<{ supplierId: number; world: string }>)
     .map((place) => {
       const detail = bundledDetail(world, place.supplierId) as { rooms?: Array<{ bedrooms?: number; quantity?: number }> } | null;
       const bedrooms = detail?.rooms?.reduce((total, room) => total + (room.bedrooms || 0) * (room.quantity || 1), 0) || 0;
@@ -38,8 +38,7 @@ function bundledEntries(world: SupplierCatalogWorld) {
 
 function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
   if (world !== "vacations" && world !== "events") return null;
-  const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
-  return (sergeyDetails.details as Record<string, unknown>)[slug] || null;
+  return acceptedSergeyDetail(world, supplierId);
 }
 
 function publicEntryAllowed(world: SupplierCatalogWorld, entry: { summary: unknown }) {

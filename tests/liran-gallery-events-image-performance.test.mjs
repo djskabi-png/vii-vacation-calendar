@@ -18,6 +18,17 @@ test("preview navigation warms the responsive derivative", () => {
   assert.match(source, /previewImageLoader\.load\(previewLoadSource\(src\)/);
 });
 
+test("preview navigation changes the visible frame before derivative verification", () => {
+  const source = read("app/components/use-preview-gallery.tsx");
+  assert.match(source, /setState\(\{ key: imageKey, index: target, pending: true, error: false \}\)/);
+  assert.match(source, /The loader still verifies the target and can fall back/);
+});
+
+test("open gallery clamps a refreshed selection to the surviving representative images", () => {
+  const source = read("app/components/gallery-experience.tsx");
+  assert.match(source, /setSelected\(\(value\) => visibleItems\.length \? Math\.min\(value, visibleItems\.length - 1\) : 0\)/);
+});
+
 test("gallery captions use supplier topic and place context", () => {
   const source = read("app/components/gallery-experience.tsx");
   assert.match(source, /function galleryItemLabel\(topic: string, placeName: string, index: number\)/);

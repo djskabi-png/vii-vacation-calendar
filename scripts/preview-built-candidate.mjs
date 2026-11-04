@@ -1,5 +1,5 @@
 // Local release QA server for the exact built Worker and client assets.
-// It performs no writes. Read-only API/media calls are proxied to the current
+// It performs no business writes. Read-only API/media calls are proxied to the current
 // public application only when the local Worker does not have cloud bindings.
 import http from "node:http";
 import fs from "node:fs/promises";
@@ -20,14 +20,24 @@ const assets = {
   },
 };
 const context = { waitUntil(promise) { promise.catch(() => undefined); }, passThroughOnException() {} };
+// These POST handlers only calculate supplier quotes. Reservation, lead,
+// account and administration mutations remain unavailable in this preview.
+const quoteReadPaths = new Set(["/api/vii/stay-quote", "/api/vii/stay-unit-quotes"]);
 
 const server = http.createServer(async (request, response) => {
   try {
     const incoming = new URL(request.url || "/", publicOrigin);
-    if (request.method !== "GET" && request.method !== "HEAD") { response.writeHead(405); response.end(); return; }
+    const quoteRead = request.method === "POST" && quoteReadPaths.has(incoming.pathname);
+    if (request.method !== "GET" && request.method !== "HEAD" && !quoteRead) { response.writeHead(405); response.end(); return; }
+    let quoteBody;
+    if (quoteRead) {
+      const chunks = []; let bytes = 0;
+      for await (const chunk of request) { bytes += chunk.length; if (bytes > 65_536) { response.writeHead(413); response.end(); return; } chunks.push(chunk); }
+      quoteBody = Buffer.concat(chunks);
+    }
     let result = await assets.fetch(new Request(incoming));
     if (result.status === 404 && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
-      result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { headers: { Accept: request.headers.accept || "*/*" }, signal: AbortSignal.timeout(45_000) });
+      result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: quoteRead ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(quoteRead ? { "Content-Type": "application/json" } : {}) }, ...(quoteRead ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
     } else if (result.status === 404) {
       result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);
     }

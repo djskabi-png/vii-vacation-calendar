@@ -100,7 +100,7 @@ test("additional vacation filters replace duplicated search fields with a real p
   assert.match(source, /<legend>מחיר ללילה<\/legend>/);
   assert.doesNotMatch(source, /className="vacation-price-filter__range"/);
   assert.match(source, /className="vacation-price-filter__summary"/);
-  assert.match(source, /typeof property\.price === "number"/);
+  assert.match(source, /vacationCatalogDisplayedPrice\(property, startingPrices\[property\.slug\], property\.price\)/);
   assert.match(source, /minPrice: draftFilters\.minPrice === VACATION_PRICE_MIN/);
   assert.match(source, /maxPrice: draftFilters\.maxPrice === VACATION_PRICE_MAX/);
   assert.match(source, /params\.get\("minPrice"\)/);

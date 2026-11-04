@@ -38,7 +38,10 @@ export function usePreviewGallery(images: string[]) {
       setState({ key: imageKey, index: imageIndex, pending: false, error: false });
       return;
     }
-    setState({ key: imageKey, index: imageIndex, pending: true, error: false });
+    // Move the visible frame immediately. Waiting for the derivative before
+    // updating made every arrow tap feel stalled on a cold image/cache miss.
+    // The loader still verifies the target and can fall back if it is broken.
+    setState({ key: imageKey, index: target, pending: true, error: false });
     const direction: -1 | 1 = target >= imageIndex ? 1 : -1;
     void findReadyPreviewImage(imagesRef.current, target, direction,
       (src) => previewImageLoader.load(previewLoadSource(src))).then((readyIndex) => {

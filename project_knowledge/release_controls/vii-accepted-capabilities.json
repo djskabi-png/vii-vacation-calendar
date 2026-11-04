@@ -34,6 +34,18 @@
     {
       "capability": "public v798 canonical spa weekdays, uncapped day grids, proximity and progressive administration",
       "commit": "0fe4ed2a6ecc2982c7be60faaedcb8304b38b4a9"
+    },
+    {
+      "commit": "853a0421b0f63915faed9bbfa820d1c80500478d",
+      "capability": "saved supplier accessibility identity through compact vacation and event payloads"
+    },
+    {
+      "commit": "8795cd229e045d107141fc222adfb8c2068b24cf",
+      "capability": "saved removal of redundant event availability disclaimer"
+    },
+    {
+      "commit": "bf468f12e737883b6f381cd4e903bd6a480d82b7",
+      "capability": "saved bounded search supplementation with authoritative geographic origin"
     }
   ],
   "requiredCapabilities": [
@@ -159,6 +171,23 @@
         "tests/business-performance-progressive-client.test.mjs"
       ],
       "id": "progressive-business-report"
+    },
+    {
+      "id": "liran-shared-data-selection-stability",
+      "files": [
+        "app/lib/accepted-bundled-catalog.ts",
+        "app/components/vacation-geography-nav.tsx",
+        "app/lib/currency-label.ts",
+        "tests/catalog-public-fact-parity.test.mjs",
+        "tests/liran-search-input-facts.test.mjs",
+        "tests/liran-retained-selection-booking.test.mjs",
+        "tests/liran-preview-hook-actual.test.mjs",
+        "tests/liran-price-gallery-direction.test.mjs",
+        "tests/vacation-geography-hierarchy-contract.test.mjs",
+        "tests/liran-geography-actual.test.mjs",
+        "tests/local-candidate-read-only-quotes.test.mjs",
+        "tests/liran-2697-gallery-evidence.test.mjs"
+      ]
     }
   ]
 }

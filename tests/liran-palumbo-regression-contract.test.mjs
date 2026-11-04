@@ -68,7 +68,7 @@ test("verified physical accessibility is recognized narrowly and shown before th
 
 test("vacation price URL state survives supplier starting-price hydration", () => {
   const search = read("../app/search/page.tsx");
-  assert.match(search, /setMinPrice\(priceFilterAvailable \?/);
-  assert.match(search, /setMaxPrice\(priceFilterAvailable \?/);
-  assert.match(search, /priceFilterAvailable, properties/);
+  assert.match(search, /setMinPrice\(Math\.min\(requestedMinPrice, requestedMaxPrice\)\)/);
+  assert.match(search, /setMaxPrice\(Math\.max\(requestedMinPrice, requestedMaxPrice\)\)/);
+  assert.doesNotMatch(search, /set(?:Min|Max)Price\(priceFilterAvailable/);
 });

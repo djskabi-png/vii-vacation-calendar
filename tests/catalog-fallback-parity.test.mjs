@@ -13,8 +13,10 @@ test("the accepted runtime identity state filters withdrawals and QQQAAA guards 
   const keys = catalog.places.map((entry) => `${entry.world}:${entry.supplierId}`);
   assert.equal(new Set(keys).size, keys.length);
   assert.ok(accepted.worlds.vacations.ids.includes(2705));
-  assert.match(source, /activeIds\.has\(place\.supplierId\)/);
-  assert.match(source, /\.\.\.sergey\.places, \.\.\.accepted\.additions/);
+  assert.match(source, /acceptedSergeySummaries\(world\)/);
+  const authority = await readFile(new URL("../app/lib/accepted-bundled-catalog.ts", import.meta.url), "utf8");
+  assert.match(authority, /ids\.has\(place\.supplierId\)/);
+  assert.match(authority, /\.\.\.catalog\.places, \.\.\.state\.additions/);
   assert.match(audit, /accepted public IDs missing from the emergency snapshot/);
   assert.match(audit, /withdrawn public IDs remain in the emergency snapshot/);
   assert.match(qqqaaa, /catalog-fallback-parity/);
