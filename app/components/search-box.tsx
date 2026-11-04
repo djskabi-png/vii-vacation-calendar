@@ -21,10 +21,10 @@ import { canonicalSearchLocation, uniqueSearchLocations } from "../lib/geographi
 import { eventSearchHref, hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
-import { loadManagedGeography, useManagedGeography } from "./use-managed-geography";
+import { useManagedGeography } from "./use-managed-geography";
 import { destinationInventory, matchingDestinations, destinationChildren, destinationPage, recentDestinations, QUICK_DESTINATIONS, DESTINATION_PAGE_SIZE } from "../lib/destination-picker";
 import { destinationPickerCopy } from "../i18n/destination-picker-copy";
-import { nearestSearchLocation } from "../lib/nearby-search-location.ts";
+import { requestNearbyOrigin } from "./use-nearby-sort";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { useWorldAvailability } from "./world-availability-provider";
 
@@ -175,6 +175,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const { enabled } = useWorldAvailability();
   const searchParams = useSearchParams();
   const searchParamsKey = searchParams.toString();
+  const [nearbySelection, setNearbySelection] = useState(searchParams.get("sort") === "nearest");
+  const nearbySelectionRef = useRef(nearbySelection);
   const { language, translate } = useSiteLanguage();
   const dateDisplayLanguage = language;
   const isHourly = mode === "hourly";
@@ -309,6 +311,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     const committedEventRange = { from: committedParams.get("from"), to: committedParams.get("to") };
     const committedSpaDate = { date: committedParams.get("date"), withoutDate: committedParams.get("withoutDate") === "1" };
     const committedParty = initialVacationParty(committedParams, Number(committedParams.get("guests")) || initialGuests || 2);
+    nearbySelectionRef.current = committedParams.get("sort") === "nearest";
+    setNearbySelection(nearbySelectionRef.current);
     locationValueRef.current = committedLocation;
     vacationDateRangeRef.current = committedVacationRange;
     vacationFlexibleSearchRef.current = committedFlexibleSearch;
@@ -540,6 +544,11 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       }
       destination = mergeSearchHref(route, params);
     }
+    if (nearbySelectionRef.current) {
+      const nearbyDestination = new URL(destination, window.location.origin);
+      nearbyDestination.searchParams.set("sort", "nearest");
+      destination = `${nearbyDestination.pathname}${nearbyDestination.search}`;
+    }
     try {
       trackSearchSubmitted({ world: mode, location: selectedLocation, hasDate: Boolean(mode === "spa" ? selectedSpaDate.date : mode === "events" ? selectedEventDateRange.from : selectedVacationDateRange.from) });
       const target = localizedPath(destination, language);
@@ -590,7 +599,9 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     closeGuestPicker();
   }
 
-  function chooseLocation(place: string) {
+  function chooseLocation(place: string, nearest = false) {
+    nearbySelectionRef.current = nearest;
+    setNearbySelection(nearest);
     const selectedLocation = canonicalSearchLocation(place);
     locationValueRef.current = selectedLocation;
     setLocationValue(selectedLocation);
@@ -617,39 +628,15 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   async function chooseNearbyLocation() {
     if (locating) return;
     setLocating(true);
-    setLocationStatus("מאתרים את האזור הקרוב...");
-    let finished = false;
-    let fallbackStarted = false;
-    let watchdog = 0;
-    const select = (location: string | null) => {
-      if (finished) return;
-      finished = true;
-      window.clearTimeout(watchdog);
-      setLocating(false);
-      if (location) chooseLocation(location);
-      else setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
-    };
-    const approximate = async () => {
-      if (finished || fallbackStarted) return;
-      fallbackStarted = true;
-      setLocationStatus("מנסים לזהות את האזור הקרוב...");
-      try {
-        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3500) });
-        const payload = await response.json() as { location?: string };
-        select(response.ok && typeof payload.location === "string" ? payload.location : null);
-      } catch { select(null); }
-    };
-    if (!navigator.geolocation) { await approximate(); return; }
-    watchdog = window.setTimeout(() => { void approximate(); }, 8500);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        void (managedGeography.length ? Promise.resolve(managedGeography) : loadManagedGeography())
-          .then((nodes) => select(nearestSearchLocation(coords.latitude, coords.longitude, nodes)))
-          .catch(() => select(nearestSearchLocation(coords.latitude, coords.longitude)));
-      },
-      () => { void approximate(); },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
-    );
+    setLocationStatus("מאתרים את המיקום שלך...");
+    try {
+      await requestNearbyOrigin();
+      // Do not turn precise coordinates into a city-only filter. The complete
+      // country inventory is ranked by the retained browser point.
+      chooseLocation("כל הארץ", true);
+    } catch {
+      setLocationStatus("לא הצלחנו לקבל מיקום מהדפדפן. אפשר לאפשר גישה למיקום ולנסות שוב, או לבחור עיר ואזור.");
+    } finally { setLocating(false); }
   }
   function expandMobileSearch() {
     if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
@@ -664,7 +651,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     : mode === "spa"
       ? (SPA_AUDIENCES.find((option) => option.id === spaAudience)?.label ?? "לא חובה")
       : `${vacationGuestCount} אורחים · ${vacationRoomLabel}`;
-  const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
+  const displayedLocation = nearbySelection ? "קרוב אליי" : locationValue;
+  const mobileSummary = [displayedLocation, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
   const catalogDestinations = useMemo(() => placeInventory.flatMap((place) => [place.area, place.location]).filter(Boolean), [placeInventory]);
@@ -681,7 +669,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const searchSurface = (
       <div ref={searchSurfaceRef} className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`} role={mobileExpanded ? "dialog" : undefined} aria-modal={mobileExpanded ? true : undefined} aria-label={mobileExpanded ? translate(mobileSheetTitle) : undefined} data-search-surface={mobileExpanded ? "portal" : "inline"}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("overview"); setMobileExpanded(true); setLocationOpen(false); setCalendarOpen(false); setGuestOpen(false); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
-          <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{visibleDates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
+          <span className="search-mobile-summary__copy"><strong>{translate(displayedLocation)}</strong><small>{!isHourly && <><span>{visibleDates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={cancelMobileSearch} aria-label="סגירת החיפוש" />}
@@ -690,7 +678,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions">{enabled("gift-card") ? <Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link> : null}<button type="button" onClick={closeActiveMobileSection} aria-label={guestOpen ? "סגירת בחירת האורחים" : "סגירת אפשרויות החיפוש"}>×</button></div></div>}
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
-          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
+          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(displayedLocation)}</strong></span></button>
           {locationOpen && <div className="search-popover location-list location-list--progressive" role="dialog" aria-modal="true" aria-labelledby={`location-dialog-title-${mode}`}>
             <header className="location-list__header">
               <div><h2 id={`location-dialog-title-${mode}`}>{translate("חיפוש יעד")}</h2><small>{translate("הקלידו עיר, אזור או שם מקום")}</small></div>

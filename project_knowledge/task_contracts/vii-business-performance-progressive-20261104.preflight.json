@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-business-performance-progressive-20261104",
+  "project": "VII",
+  "task_type": "administration-performance-repair",
+  "requested_outcome": "Responsive business performance with progressive sections, bounded rows and complete totals, sorting, CSV and detail access",
+  "natural_destination": "https://vii.spaplus.co/admin/business-performance",
+  "authorization_boundary": "Repair and publish under standing VII authorization. No supplier bulk refresh, bookings, leads, messages or provider changes.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-DATA-001","reason":"Pagination must preserve complete report truth","acceptance_impact":"Compare totals, search, global sorting and complete export"},
+    {"lesson_id":"ADIR-QA-001","reason":"An administration performance fix needs real authenticated evidence","acceptance_impact":"Desktop/mobile initial load and every deferred section must work in the exact deployed release"}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Rows hidden but server still reads all contact payloads","prevention":"Separate lightweight base, saved summaries, history and explicit detail requests","acceptance_check":"Overview invokes no conversion, snapshot or history loader"},
+    {"rejection":"Paging silently changes totals, sorting or export","prevention":"Keep complete filtered data for calculations and bound only rendered rows","acceptance_check":"Find business beyond first50, sort globally, export every matching row"},
+    {"rejection":"Old date or business response overwrites current context","prevention":"Abort and scope asynchronous report/detail requests","acceptance_check":"Delayed-response tests and real scope changes"},
+    {"rejection":"Existing report tools disappear or loading zeros look real","prevention":"Named sections with independent loading/error states and preserved commands","acceptance_check":"All sections exercised without automatic supplier pulls"}
+  ],
+  "affected_family": ["base report and cached inventory","saved Biz summaries and history","overview/businesses/conversions/history sections","business/contact pagination sorting filtering CSV","date/world/abort/failure states","authenticated desktop/mobile and anonymous boundary"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII performance and administration invariants","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"First lean handler and bounded UI slice before full build","checks":["No eager provider/contact/history loading","All rows and totals survive bounded rendering"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can business921 be found, sorted and exported?","Can a prior date response replace the current report?","Does overview still fetch contact detail or history?"],"natural_destination_evidence":"Exact deployed authenticated desktop/mobile flows and DOM size","affected_family_evidence":"Handler and client behavior tests plus regression baseline"},
+  "effectiveness": {"baseline":"Observed v796:921 business rows and23727 DOM nodes plus automatic first-business detail fetch; precise request timing unavailable","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Overview below3000 DOM nodes, business page at most50rows and no eager contact/history/provider requests"},
+  "privacy":{"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start":true
+}

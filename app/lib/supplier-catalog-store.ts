@@ -392,6 +392,27 @@ export async function readSupplierCatalogSummaries(db: D1Database, world: Suppli
     entries: rows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })) };
 }
 
+/**
+ * Lightweight accepted-generation inventory projection for admin reports.
+ * Do not parse the full summary JSON when only identity fields are needed.
+ */
+export async function readSupplierCatalogInventory(db: D1Database, world: SupplierCatalogWorld) {
+  if (!validWorld(world)) return null;
+  const state = await db.prepare(`SELECT active_run_id AS activeRunId, activeCount, accepted_at AS acceptedAt
+    FROM supplier_catalog_state WHERE world = ?`).bind(world).first<StateRow & { activeCount?: number }>();
+  if (!state?.activeRunId) return null;
+  const rows = await db.prepare(`SELECT supplier_id AS supplierId,
+      json_extract(summary_json, '$.name') AS name,
+      json_extract(summary_json, '$.title') AS title,
+      json_extract(summary_json, '$.id') AS id
+    FROM supplier_catalog_entries WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
+    .bind(state.activeRunId, world).all<{ supplierId: number; name?: string | null; title?: string | null; id?: string | null }>();
+  if (typeof state.activeCount === "number" && rows.results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
+  return { acceptedAt: state.acceptedAt,
+    entries: rows.results.map((row) => ({ supplierId: row.supplierId, name: row.name || undefined,
+      title: row.title || undefined, id: row.id || undefined })) };
+}
+
 export async function readSupplierCatalogReviewDetails(db: D1Database,
   world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierIds: readonly number[]) {
   const ids = [...new Set(supplierIds)].filter((id) => Number.isSafeInteger(id) && id > 0);

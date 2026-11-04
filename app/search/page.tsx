@@ -1,4 +1,6 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "../components/use-nearby-sort";
+import { orderByProximity } from "../lib/proximity-sort";
 
 import "./search-tablet.css";
 
@@ -198,7 +200,7 @@ type LegacyExtraFilter = { id: string; label: string; matches: readonly string[]
 const legacyExtraFilters = legacyExtraFilterGroups.reduce<LegacyExtraFilter[]>((items, group) => [...items, ...group.options], []);
 
 const VACATION_PRICE_MIN = 0;
-const VACATION_SORT_VALUES = ["recommended", "popular", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
+const VACATION_SORT_VALUES = ["recommended", "nearest", "popular", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
 
 function compareOptionalNumber(first: number | undefined, second: number | undefined, direction: "asc" | "desc") {
   const firstKnown = typeof first === "number" && Number.isFinite(first);
@@ -346,7 +348,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const supplierTypeFilterAvailable = useMemo(() => properties.some((property) => property.type !== "מקום אירוח"), [properties]);
   const supplierPriceFilterAvailable = useMemo(() => properties.some((property) => typeof property.price === "number"), [properties]);
   const VACATION_PRICE_MAX = useMemo(() => Math.max(5000, ...properties.map((property) => property.price || 0)), [properties]);
+  const nearby = useNearbySort();
   const vacationSortOptions = [
+    { value: "nearest", label: discoverySortOptionLabel("nearest", language) },
     { value: "recommended", label: discoverySortOptionLabel("recommended", language) },
     { value: "popular", label: discoverySortOptionLabel("popular", language) },
     ...[{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }].map((option) => ({ ...option, label: translate(option.label) })),
@@ -782,6 +786,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // results cannot break the promised numeric order.
   const resultSet = useMemo(() => {
     const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
+    if (sort === "nearest") return orderByProximity(complete, nearby.distance);
     if (sort !== "price-asc" && sort !== "price-desc") return complete;
     return orderVacationResultsByDisplayedPrice(
       complete,
@@ -793,7 +798,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // starting prices load independently, so they remain an explicit dependency.
   // Listing the render-local function itself would invalidate this memo on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, nearbyRecovery, propertyOrderBySlug, sort, startingPrices]);
+  }, [filtered, nearbyRecovery, propertyOrderBySlug, sort, startingPrices, nearby.origin]);
   const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((property) => {
     const availability = liveAvailabilityFor(property.slug)?.quote;
     if (selectedStay || flexibleSearch) {
@@ -1020,7 +1025,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   return (
     <PageShell footerTopic={footerTopicForPropertyType(selectedTypes[0] || "הכל")}>
-      <main id="main-content" className="results-page">
+      <main id="main-content" className="results-page"><NearbySortStatus state={nearby} />
         {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         {!landing ? <StructuredData data={collectionSchema("מקומות נופש בישראל", "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}

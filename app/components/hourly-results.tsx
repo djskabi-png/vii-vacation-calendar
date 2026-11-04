@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -53,7 +54,8 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const managedGeography = useManagedGeography(location !== "כל הארץ");
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
-  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: twoHourPrice, rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2 }), []);
+  const nearby = useNearbySort();
+  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: twoHourPrice, rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2 }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
@@ -166,7 +168,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     closeMap();
   }
 
-  return <div className="hourly-results">
+  return <div className="hourly-results"><NearbySortStatus state={nearby} />
     {resultItems.length > filtered.length && <NearbySearchNotice />}
     <div className="hourly-results__toolbar" aria-label={translate("סינון תוצאות של חדרים לפי שעה")}>
       <div className="hourly-results__heading">

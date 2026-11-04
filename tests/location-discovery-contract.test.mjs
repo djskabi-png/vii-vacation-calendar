@@ -16,8 +16,10 @@ test("vacation destination picker preserves the complete legacy discovery set", 
 });
 
 test("destination picker offers nearby search, grouped discovery and useful filtering", () => {
-  assert.match(search, /navigator\.geolocation\.getCurrentPosition/);
-  assert.match(search, /\/api\/vii\/nearby-location/);
+  const nearby = readFileSync(new URL("../app/components/use-nearby-sort.tsx", import.meta.url), "utf8");
+  assert.match(nearby, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(search, /requestNearbyOrigin/);
+  assert.match(search, /searchParams\.set\("sort", "nearest"\)/);
   assert.match(search, /className="location-nearby"/);
   assert.match(search, /vacationLocationGroups\.flatMap/);
   assert.match(search, /className="location-search-results"/);
@@ -35,7 +37,7 @@ test("choosing a destination searches immediately on desktop and advances the st
   const chooseLocationBody = search.slice(search.indexOf("function chooseLocation"), search.indexOf("async function chooseNearbyLocation"));
   assert.match(
     chooseLocationBody,
-    /function chooseLocation\(place: string\)[\s\S]*?const selectedLocation = canonicalSearchLocation\(place\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?if \(isDesktopSearchViewport\(\)\) \{[\s\S]*?search\(\{ location: selectedLocation \}\);[\s\S]*?return;[\s\S]*?\}/,
+    /function chooseLocation\(place: string, nearest = false\)[\s\S]*?const selectedLocation = canonicalSearchLocation\(place\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?if \(isDesktopSearchViewport\(\)\) \{[\s\S]*?search\(\{ location: selectedLocation \}\);[\s\S]*?return;[\s\S]*?\}/,
   );
   assert.match(chooseLocationBody, /if \(isHourly\)[\s\S]*?setMobileStep\("overview"\)[\s\S]*?return;[\s\S]*?setMobileStep\("dates"\);[\s\S]*?setCalendarOpen\(true\);/);
 });

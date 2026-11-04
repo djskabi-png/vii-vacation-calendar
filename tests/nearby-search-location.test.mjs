@@ -26,14 +26,17 @@ test("prefers the nearest approved managed city without exposing coordinates", (
   assert.deepEqual(loaded.nearestSearchResolution(32.081, 34.79, cities).precision, "city");
 });
 
-test("nearby control has a server fallback and bounded browser request", () => {
-  assert.match(search, /fetch\("\/api\/vii\/nearby-location"/);
-  assert.match(search, /AbortSignal\.timeout\(3500\)/);
-  assert.match(search, /navigator\.geolocation\.getCurrentPosition/);
-  assert.match(search, /timeout:\s*8000/);
-  assert.match(search, /window\.setTimeout\(\(\) => \{ void approximate\(\); \}, 8500\)/);
-  assert.match(search, /loadManagedGeography\(\)/);
-  assert.match(search, /nearestSearchLocation\(coords\.latitude, coords\.longitude, nodes\)/);
+test("nearby control ranks browser coordinates rather than silently converting them into a city filter", () => {
+  const helper = readFileSync(new URL("../app/components/use-nearby-sort.tsx", import.meta.url), "utf8");
+  assert.match(search, /await requestNearbyOrigin\(\)/);
+  assert.match(search, /chooseLocation\("כל הארץ", true\)/);
+  assert.match(search, /searchParams\.set\("sort", "nearest"\)/);
+  assert.doesNotMatch(search, /select\(nearestSearchLocation/);
+  assert.match(helper, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(helper, /timeout:\s*8000/);
+  assert.match(helper, /8500/);
+  assert.match(helper, /sessionStorage/);
+  // The legacy approximate-region API remains private and truthful for its callers.
   assert.match(route, /cloudflareRequestCoordinates/);
   assert.match(route, /readGeography/);
   assert.match(route, /nearestSearchResolution/);

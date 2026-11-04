@@ -43,9 +43,9 @@ test("explicit numeric sorts are truthful and keep unknown values last", () => {
 
 test("sort options only expose signals present in the inventory", () => {
   const rich = discoverySortOptions(items, model, "he").map(option => option.value);
-  assert.deepEqual(rich, ["recommended", "popular", "price-asc", "price-desc", "rating-desc", "name"]);
+  assert.deepEqual(rich, ["recommended", "nearest", "popular", "price-asc", "price-desc", "rating-desc", "name"]);
   const sparse = discoverySortOptions(items.map(({ id, name }) => ({ id, name })), { id: item => item.id, name: item => item.name }, "he").map(option => option.value);
-  assert.deepEqual(sparse, ["recommended", "name"]);
+  assert.deepEqual(sparse, ["recommended", "nearest", "name"]);
 });
 
 test("every DiscoveryItem result family imports the shared truthful sort model", () => {

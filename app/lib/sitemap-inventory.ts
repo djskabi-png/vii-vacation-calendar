@@ -87,7 +87,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const spaPlaces = spaPlacesFromSites(spaSites);
     return unique(expand([
-      { path: "/spas" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
+      { path: "/spas" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => ({ path: `/spas/day/${day}` })), ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
       ...(await worldLocationInventory("spa")).map(({ path }) => ({ path })),
       ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => ({ path })),
       ...spaPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),

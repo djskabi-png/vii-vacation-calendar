@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -74,7 +75,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     const requested = (searchParams.get("features") || "").split(",").filter(Boolean);
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
-  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), []);
+  const nearby = useNearbySort();
+  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const requestedSort = searchParams.get("sort") || "recommended";
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
@@ -256,7 +258,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
 
   const availabilityNotice = publicAvailabilityNotice({ requestedDate, checkingDate, status: availability.status, dateCovered }, language);
-  return <div className="world-map-results world-map-results--spa spa-results">
+  return <div className="world-map-results world-map-results--spa spa-results"><NearbySortStatus state={nearby} />
     {resultItems.length > filtered.length && <NearbySearchNotice dated={Boolean(requestedDate)} regionalOnly />}
     {availabilityNotice && <p className="source-note" role="status" data-no-translate>{availabilityNotice.text}</p>}
     <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>

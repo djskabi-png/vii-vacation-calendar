@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "../components/use-nearby-sort";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,7 +31,8 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [area, setArea] = useState(areas.includes(requestedArea) ? requestedArea : "הכל");
   const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
-  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image ? 0 : 1 }), []);
+  const nearby = useNearbySort();
+  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image ? 0 : 1 }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const requestedSort = searchParams.get("sort") || "recommended";
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
@@ -115,7 +117,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
     return () => window.clearTimeout(timer);
   }, [searchQuery, initialArea, initialType, sortOptions]);
 
-  return <>
+  return <><NearbySortStatus state={nearby} />
     <form className="trail-filters attraction-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון אטרקציות בתשלום">
       <label><span>מה מתחשק לעשות?</span><input value={query} onChange={(event) => changeQuery(event.target.value)} placeholder="לדוגמה: סוסים, שיט, סדנה" /></label>
       <ModernSelect label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item }))} />

@@ -2,7 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
-import { readSupplierCatalogSummaries, type SupplierCatalogWorld } from "../../../lib/supplier-catalog-store.ts";
+import { readSupplierCatalogInventory, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "../../../lib/supplier-catalog-store.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions, loadCachedBizConversionFailures,
   readCachedBizConversionFailure, saveBizConversionFailure } from "../../../lib/biz-conversion-cache.ts";
 import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
@@ -44,11 +44,14 @@ function uniqueConversionRows<T extends { placeId: unknown; world: unknown }>(ro
 }
 
 async function adminCatalogSummaries(db: D1Database, world: SupplierCatalogWorld) {
-  const active = await readSupplierCatalogSummaries(db, world).catch(() => null);
-  if (active?.entries.length) return active.entries.map(({ supplierId, summary }) => ({
-    ...(summary as InventoryPlace),
-    supplierId,
+  const active = await readSupplierCatalogInventory(db, world).catch(() => null);
+  if (active?.entries.length) return active.entries.map(({ supplierId, name, title, id }) => ({
+    supplierId, name, title, id,
   }));
+  // Preserve the existing accepted-generation reader as a compatibility
+  // fallback for older deployments that lack the lightweight projection.
+  const legacy = await readSupplierCatalogSummaries(db, world).catch(() => null);
+  if (legacy?.entries.length) return legacy.entries.map(({ supplierId, summary }) => ({ ...(summary as InventoryPlace), supplierId }));
   // The reviewed public snapshot is a safe availability fallback, but it is
   // intentionally filtered. A healthy admin report always uses the complete
   // accepted supplier generation above, including businesses hidden from the
@@ -130,6 +133,7 @@ export async function GET(request: Request) {
   const from = url.searchParams.get("from") || "";
   const till = url.searchParams.get("till") || "";
   const basis = url.searchParams.get("basis") === "arrival" ? "arrival" : "created";
+  const mode = url.searchParams.get("mode") || "legacy";
   const forceRefresh = url.searchParams.get("refresh") === "1";
   if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers });
@@ -149,8 +153,42 @@ export async function GET(request: Request) {
       });
       return reporting.database;
     });
+    if (mode === "biz-snapshots") {
+      // This lazy branch must never rebuild the analytics report. The overview
+      // already owns the complete row set; snapshots only need cache tables and
+      // the run ledger for conservative inferred-failure semantics.
+      const database = await bizConversionDatabase(cacheDb).catch(() => null);
+      const [cached, cachedFailures, runHistory] = await Promise.all([
+        database ? loadCachedBizConversions(database, from, till).catch(() => []) : Promise.resolve([]),
+        database ? loadCachedBizConversionFailures(database, from, till).catch(() => []) : Promise.resolve([]),
+        database ? readBizReportRuns(database, 20).catch(() => []) : Promise.resolve([]),
+      ]);
+      const failureSnapshots = Object.fromEntries(cachedFailures.map((item) => {
+        const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
+        return [`${prefix}-${item.siteID}`, { error: item.error, cache: item.cache }];
+      }));
+      const successSnapshots = Object.fromEntries(cached.map((item) => {
+        const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
+        return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
+      }));
+      const inventory = await supportedInventory(cacheDb).catch(() => []);
+      const supportedRows = uniqueConversionRows(inventory as Array<Record<string, unknown> & { placeId: unknown; world: unknown }>);
+      const completedRun = runHistory.find((run) => run.from === from && run.till === till && run.scope === "all"
+        && run.status === "completed" && run.processed === run.total && run.total === supportedRows.length);
+      const inferredFailures = completedRun ? Object.fromEntries(supportedRows.flatMap((row) => {
+        const placeId = String(row.placeId);
+        if (successSnapshots[placeId] || failureSnapshots[placeId]) return [];
+        const savedAt = completedRun.updatedAt;
+        const retryAt = new Date(Date.parse(savedAt) + 6 * 60 * 60_000).toISOString();
+        return [[placeId, { error: "previous_run_failed", cache: { status: "failure_cached", savedAt, retryAt,
+          stale: Date.parse(retryAt) <= Date.now() } }]];
+      })) : {};
+      return Response.json({ from, till, bizSnapshots: { ...inferredFailures, ...failureSnapshots, ...successSnapshots },
+        runHistory, databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady,
+        ...(cacheDiagnostic ? { cacheDiagnostic } : {}) }, { headers });
+    }
     const historical = isClosedReportPeriod(till);
-    const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis, inventory: "accepted-generation-v2" },
+    const report = await cachedAdminReport({ db: cacheDb, family: "business-performance", parameters: { from, till, basis, inventory: "accepted-generation-v3" },
       freshForMs: historical ? 365 * 86400_000 : 2 * 60_000, immutable: historical, forceRefresh, loader: async () => {
     const analyticsDb = cacheDb;
     const operationsDb = cacheDb;
@@ -166,7 +204,7 @@ export async function GET(request: Request) {
       COUNT(DISTINCT session_id) AS uniqueBrowsers
       FROM vii_business_events WHERE created_at >= ? AND created_at < ? AND internal = 0
       GROUP BY place_id, world
-      ORDER BY pageViews DESC, impressions DESC LIMIT 500`).bind(since, until).all<Record<string, unknown>>(), reporting.degraded, "vii_business_events")
+      ORDER BY pageViews DESC, impressions DESC`).bind(since, until).all<Record<string, unknown>>(), reporting.degraded, "vii_business_events")
       : { results: [] as Record<string, unknown>[] };
     const bookings = basis === "arrival"
       ? await reportingRows(operationsDb.prepare(`SELECT a.place_id AS placeId, MAX(a.place_name) AS placeName, a.world, COUNT(*) AS viiBookings
@@ -183,6 +221,16 @@ export async function GET(request: Request) {
     for (const row of rows) row.reviews = reviewMap.get(String(row.placeId)) || 0;
     return { rows };
     }});
+    // Overview is intentionally independent of the potentially large Biz cache.
+    // Keep the historical response as the default for existing clients, while
+    // allowing the UI to request the Biz section only after it is needed.
+    if (mode === "overview") {
+      return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache,
+        databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady }, { headers });
+    }
+    if (mode !== "legacy" && mode !== "biz-snapshots") {
+      return Response.json({ error: "invalid_mode" }, { status: 400, headers });
+    }
     const database = await bizConversionDatabase(cacheDb).catch((error) => {
       console.warn("biz_conversion_cache_unavailable", { error: error instanceof Error ? error.name : "unknown" });
       return null;
@@ -196,7 +244,7 @@ export async function GET(request: Request) {
         console.warn("biz_conversion_failure_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
         return [];
       }) : Promise.resolve([]),
-      database ? readBizReportRuns(database, 20).catch((error) => {
+      mode === "legacy" && database ? readBizReportRuns(database, 20).catch((error) => {
         console.warn("biz_report_history_read_failed", { error: error instanceof Error ? error.name : "unknown" });
         return [];
       }) : Promise.resolve([]),
@@ -221,7 +269,8 @@ export async function GET(request: Request) {
         stale: Date.parse(retryAt) <= Date.now() } }]];
     })) : {};
     const bizSnapshots = { ...inferredFailures, ...failureSnapshots, ...successSnapshots };
-    return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots, runHistory,
+    return Response.json({ basis, from, till, rows: report.value.rows, reportCache: report.cache, bizSnapshots,
+      ...(mode === "legacy" ? { runHistory } : {}),
       databaseOrigin: reporting.origin, degraded: reporting.degraded, cacheReady,
       ...(cacheDiagnostic ? { cacheDiagnostic } : {}) }, { headers });
   } catch (error) {

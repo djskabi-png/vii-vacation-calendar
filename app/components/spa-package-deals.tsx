@@ -18,6 +18,7 @@ import { useDealClock } from "./use-deal-clock";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
+import { spaWeekdayDate, spaWeekdayPath, spaWeekdaySlugs, type SpaWeekdaySlug } from "../lib/spa-weekday-pages";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
@@ -29,7 +30,7 @@ const catalogNote = {
  fr:"Les forfaits et tarifs du catalogue s’affichent immédiatement. La disponibilité est actualisée en arrière-plan et revérifiée sur la page du spa.",
 } as const;
 const audiences:SpaDealAudience[] = ["single","couple","group"];
-export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,sectionTitle,layout="rail"}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;sectionTitle?:string;layout?:"rail"|"grid"}) {
+export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,fixedDate,fixedWeekday,sectionTitle,layout="rail"}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;fixedDate?:string;fixedWeekday?:SpaWeekdaySlug;sectionTitle?:string;layout?:"rail"|"grid"}) {
  const {language,translate} = useSiteLanguage();
  const clock = useDealClock();
  const documentSeed = useDocumentSeed();
@@ -39,38 +40,44 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  const regionLabel = scope?.label;
  const title = sectionTitle || (scope ? regionalAvailabilityTitle("spa",scope,language) : text.title);
  const clockKey=clock?.key;
- const requestKey = `${regionLabel || "all"}:${clockKey || "loading"}`;
+ const requestKey = `${regionLabel || "all"}:${clockKey || "loading"}:${fixedWeekday || fixedDate || (fixedDateOffset === undefined ? "rail" : fixedDateOffset)}:${params.get("spaDealDate") || "all"}`;
  const [result,setResult] = useState<{key:string;data:DealResponse|null;status:"loading"|"ready"|"error"}>({key:"",data:null,status:"loading"});
  const data = result.key === requestKey ? result.data : null;
  const status = result.key === requestKey ? result.status : "loading";
  const [unavailableMedia,setUnavailableMedia] = useState<Set<string>>(()=>new Set());
  const [attempt,setAttempt] = useState(0);
- const fixedDate = clock && fixedDateOffset !== undefined ? eventDealDate(fixedDateOffset,clock.now) : "";
- const requestedDate = fixedDate || params.get("spaDealDate") || "";
+ const presetDate = clock && fixedDateOffset !== undefined ? eventDealDate(fixedDateOffset,clock.now) : "";
+ const resolvedWeekdayDate = clock && fixedWeekday ? spaWeekdayDate(fixedWeekday,clock.now) : "";
+ const requestedDate = resolvedWeekdayDate || fixedDate || presetDate || params.get("spaDealDate") || "";
  const requestedAudience = params.get("spaDealFor") as SpaDealAudience;
  const audience:SpaDealAudience = audiences.includes(requestedAudience) ? requestedAudience : "single";
  const days = clock ? data?.days.filter(day=>eligibleDealDate(day,clock.now)) || [] : [];
- const date = fixedDate || (days.includes(requestedDate) ? requestedDate : days[0] || "");
+ const date = resolvedWeekdayDate || fixedDate || presetDate || (days.includes(requestedDate) ? requestedDate : days[0] || "");
  useEffect(()=>{
-  if(fixedDateOffset !== undefined || !clock || !requestedDate || (eligibleDealDate(requestedDate,clock.now) && (!data || data.days.includes(requestedDate)))) return;
+  if(fixedDateOffset !== undefined || fixedDate || fixedWeekday || !clock || !requestedDate || (eligibleDealDate(requestedDate,clock.now) && (!data || data.days.includes(requestedDate)))) return;
   const nextDate=date || normalizeDealDate(requestedDate,clock.now);
   const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
- },[clock,data,requestedDate,params,pathname,router,sectionId,date,fixedDateOffset]);
+ },[clock,data,requestedDate,params,pathname,router,sectionId,date,fixedDateOffset,fixedDate,fixedWeekday]);
  useEffect(()=>{
   if(!clockKey) return;
   const controller = new AbortController();
-  discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{})})}`,clockKey,{signal:controller.signal,
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setResult({key:requestKey,data:body,status:"ready"});}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
   return ()=>controller.abort();
- },[attempt,regionLabel,clockKey,requestKey]);
+ },[attempt,regionLabel,clockKey,requestKey,requestedDate,fixedDate,fixedWeekday,fixedDateOffset]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000){setResult(current=>({...current,status:"loading"}));setAttempt(value=>value+1);}};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
  },[data]);
  function select(nextDate:string,nextAudience:SpaDealAudience){
+  if (fixedDateOffset===undefined && !scope) {
+   const weekday = spaWeekdaySlugs[new Date(`${nextDate}T12:00:00Z`).getUTCDay()];
+   router.push(`${localizedPath(spaWeekdayPath(weekday),language)}?spaDealFor=${encodeURIComponent(nextAudience)}`);
+   return;
+  }
   const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);query.set("spaDealFor",nextAudience);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  }
@@ -82,7 +89,8 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  const linkDate=date || (clock && validSpaDealDate(requestedDate)?normalizeDealDate(requestedDate,clock.now):"");
  const today = clock ? eventDealDate(0,clock.now) : "";
  const tomorrow = clock ? eventDealDate(1,clock.now) : "";
- const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : date === today ? "/spas/today" : date === tomorrow ? "/spas/tomorrow" : "/spas";
+ const futureWeekday = date && date !== today && date !== tomorrow ? spaWeekdaySlugs[new Date(`${date}T12:00:00Z`).getUTCDay()] : "";
+ const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : date === today ? "/spas/today" : date === tomorrow ? "/spas/tomorrow" : futureWeekday ? `${spaWeekdayPath(futureWeekday)}?spaDealFor=${encodeURIComponent(audience)}` : "/spas";
  const allLabel = date === today ? ({he:"לכל חבילות הספא להיום",en:"All spa packages for today",ru:"Все спа-пакеты на сегодня",fr:"Tous les forfaits spa pour aujourd’hui"} as const)[language] : date === tomorrow ? ({he:"לכל חבילות הספא למחר",en:"All spa packages for tomorrow",ru:"Все спа-пакеты на завтра",fr:"Tous les forfaits spa pour demain"} as const)[language] : text.all;
  const formatDate=(value:string)=>new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}).format(new Date(`${value}T12:00:00Z`));
  return <section id={sectionId} className={`section shell spa-package-deals${layout==="grid"?" spa-package-deals--grid":""}`} aria-labelledby={`${sectionId}-title`} data-no-translate>

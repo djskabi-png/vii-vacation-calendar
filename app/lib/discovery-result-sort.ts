@@ -1,13 +1,15 @@
+import { orderByProximity } from "./proximity-sort";
 import type { SiteLanguage } from "../i18n/locale-provider";
 import { discoverySeedCompare } from "./discovery-slider-order";
 
-export type DiscoverySortKey = "recommended" | "popular" | "price-asc" | "price-desc" | "rating-desc" | "name";
+export type DiscoverySortKey = "recommended" | "popular" | "price-asc" | "price-desc" | "rating-desc" | "name" | "nearest";
 
 type NumericValue<T> = (item: T) => number | undefined;
 
 export type DiscoverySortModel<T> = {
   id: (item: T) => string | number;
   name: (item: T) => string;
+  distance?: NumericValue<T>;
   price?: NumericValue<T>;
   rating?: NumericValue<T>;
   popularity?: NumericValue<T>;
@@ -15,10 +17,10 @@ export type DiscoverySortModel<T> = {
 };
 
 const copy: Record<SiteLanguage, Record<DiscoverySortKey | "label", string>> = {
-  he: { label: "מיון לפי", recommended: "מומלצים מתחלפים", popular: "פופולריים", "price-asc": "מחיר מהנמוך לגבוה", "price-desc": "מחיר מהגבוה לנמוך", "rating-desc": "הכי מדורגים", name: "שם א-ב" },
-  en: { label: "Sort by", recommended: "Fresh recommendations", popular: "Most popular", "price-asc": "Price: low to high", "price-desc": "Price: high to low", "rating-desc": "Top rated", name: "Name A-Z" },
-  ru: { label: "Сортировка", recommended: "Новые рекомендации", popular: "Популярные", "price-asc": "Цена: по возрастанию", "price-desc": "Цена: по убыванию", "rating-desc": "С лучшим рейтингом", name: "Название А-Я" },
-  fr: { label: "Trier par", recommended: "Suggestions renouvelées", popular: "Les plus populaires", "price-asc": "Prix croissant", "price-desc": "Prix décroissant", "rating-desc": "Les mieux notés", name: "Nom A-Z" },
+  he: { nearest: "קרוב אליי", label: "מיון לפי", recommended: "מומלצים מתחלפים", popular: "פופולריים", "price-asc": "מחיר מהנמוך לגבוה", "price-desc": "מחיר מהגבוה לנמוך", "rating-desc": "הכי מדורגים", name: "שם א-ב" },
+  en: { nearest: "Nearest to me", label: "Sort by", recommended: "Fresh recommendations", popular: "Most popular", "price-asc": "Price: low to high", "price-desc": "Price: high to low", "rating-desc": "Top rated", name: "Name A-Z" },
+  ru: { nearest: "Ближе ко мне", label: "Сортировка", recommended: "Новые рекомендации", popular: "Популярные", "price-asc": "Цена: по возрастанию", "price-desc": "Цена: по убыванию", "rating-desc": "С лучшим рейтингом", name: "Название А-Я" },
+  fr: { nearest: "Les plus proches", label: "Trier par", recommended: "Suggestions renouvelées", popular: "Les plus populaires", "price-asc": "Prix croissant", "price-desc": "Prix décroissant", "rating-desc": "Les mieux notés", name: "Nom A-Z" },
 };
 
 export function discoverySortLabel(language: SiteLanguage) {
@@ -30,7 +32,7 @@ export function discoverySortOptionLabel(value: DiscoverySortKey, language: Site
 }
 
 export function discoverySortOptions<T>(items: readonly T[], model: DiscoverySortModel<T>, language: SiteLanguage) {
-  const options: DiscoverySortKey[] = ["recommended"];
+  const options: DiscoverySortKey[] = ["recommended", "nearest"];
   if (model.popularity && items.some((item) => finite(model.popularity?.(item)))) options.push("popular");
   if (model.price && items.some((item) => finite(model.price?.(item)))) options.push("price-asc", "price-desc");
   if (model.rating && items.some((item) => finite(model.rating?.(item)))) options.push("rating-desc");
@@ -52,6 +54,7 @@ export function compareKnownNumbers(first: number | undefined, second: number | 
 }
 
 export function orderDiscoveryResults<T>(items: readonly T[], sort: DiscoverySortKey, seed: string, model: DiscoverySortModel<T>): T[] {
+  if (sort === "nearest") return orderByProximity(items, item => model.distance?.(item));
   const stableFallback = (first: T, second: T) => discoverySeedCompare(model.id(first), model.id(second), seed);
   return [...items].sort((first, second) => {
     if (sort === "popular") return compareKnownNumbers(model.popularity?.(first), model.popularity?.(second), "desc")

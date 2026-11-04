@@ -57,7 +57,7 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(route, /includeContacts/);
   assert.match(route, /supportedInventory/);
   assert.match(route, /readSupplierCatalogSummaries/);
-  assert.match(route, /accepted-generation-v2/);
+  assert.match(route, /accepted-generation-v3/);
   assert.match(route, /publicCatalogSummaries/);
   assert.match(route, /adminCatalogSummaries\(db, "spa"\)/);
   assert.match(page, /useState\(today\)/);

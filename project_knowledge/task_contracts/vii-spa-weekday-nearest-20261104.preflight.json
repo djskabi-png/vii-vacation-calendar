@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-spa-weekday-nearest-20261104",
+  "project": "VII",
+  "task_type": "spa-discovery-and-proximity-repair",
+  "requested_outcome": "Seven canonical upcoming spa weekday pages and browser-origin nearest-first sorting across all result worlds, preserving inventory, date/party context and mobile stages",
+  "natural_destination": "https://vii.spaplus.co/spas/day/friday and public result families",
+  "authorization_boundary": "Implement and verify under existing VII publication authorization; no purchases, DNS, credentials, schema, messages, leads or bookings",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Pagination must preserve complete report truth",
+      "acceptance_impact": "Compare totals, search, global sorting and complete export"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "An administration performance fix needs real authenticated evidence",
+      "acceptance_impact": "Desktop/mobile initial load and every deferred section must work in the exact deployed release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Nearby chooses a city but remains recommended order",
+      "prevention": "Retain browser point in session, use nearest sort on whole-country query, globally order filtered results",
+      "acceptance_check": "Actual search submission in4modes; complete153-item distance order; all7families wired"
+    },
+    {
+      "rejection": "Spa date and slider disagree at14:00 or after retained navigation",
+      "prevention": "Shared Israel deal clock and client fixed weekday resolution, date-scoped request identity",
+      "acceptance_check": "Cutoff andDST helpers plus actualhandler seveneligible dates, selectedday only and retainedroute tests"
+    },
+    {
+      "rejection": "A full weekday page loses offers beyond20 or loads seven full days",
+      "prevention": "Uncapped selected-day API contract separate from rail20limit",
+      "acceptance_check": "Actualhandler30offers selectedday, sevenmetadata days, railcaps20"
+    },
+    {
+      "rejection": "Location denial hangs or private coordinates enter links",
+      "prevention": "Bounded deduplicated browser request, explicitretry, session-only coordinates",
+      "acceptance_check": "Deniedretry, no-origin order, no coordinateURL/analytics inactualsubmit tests"
+    },
+    {
+      "rejection": "Existing staged mobile search or prior fixes disappear",
+      "prevention": "Preserve mobile manualsubmit and cumulative protectedsource; global regression build/tests",
+      "acceptance_check": "Actualdesktop/mobile locationchoice, affectedfamily and exactpublicrelease checks"
+    }
+  ],
+  "affected_family": [
+    "spa7weekdayroutes metadataFAQ4languages sitemap invalidslug404",
+    "spaAPI rail/full selecteddateandclock",
+    "vacation/events/spa/hourly discovery",
+    "providers/attractions/trails discovery",
+    "searchbox browserlocation desktopmobile anddateparty",
+    "locationpermissionretrymissingcoordinates reloadback",
+    "cumulativeadminperformance andprotectedreleasecapabilities"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII performance and administration invariants",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First actual browser-coordinate sorting and scoped spa handler slice",
+    "checks": [
+      "Complete inventory sorted with unknownslast and coordskeptoutoflinks",
+      "Seveneligible dates and selected-dayfull offers while rail stayscapped"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a location choice silently retain recommended order?",
+      "Can retained Friday page show Saturday or lose >20offers?",
+      "Do denied coordinates or unknown place points fabricate distance?",
+      "Can this release regress protected v796 event behavior?"
+    ],
+    "natural_destination_evidence": "Exactpublicdesktop/mobileweekdaypages and nearest selectors with denial/retry; actualGPS helper tests wherebrowserpermissionnotavailable",
+    "affected_family_evidence": "Meaningfulactualhandler/clientfunction tests, fullsuite, productionbuild, cumulative sourcegate and independentreview"
+  },
+  "effectiveness": {
+    "baseline": "Nearby previouslyconvertedbrowserpointto nearestcity and selectedrecommendedorder; no weekday spa pages",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Nearestfirstcomplete inventory withno data loss;7trueweekday destinations and truthfulscopedavailability"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

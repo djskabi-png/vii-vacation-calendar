@@ -8885,5 +8885,14 @@
   "זמינות לתאריכים המדויקים": "Availability for the exact dates",
   "מקום נופש פנוי לסוף השבוע הקרוב": "A vacation spot is available for the coming weekend",
   "לכל התוצאות לתאריכים האלה": "For all results for these dates",
-  "שאלות על נופש בסוף השבוע הקרוב": "Questions about stays for the coming weekend"
+  "שאלות על נופש בסוף השבוע הקרוב": "Questions about stays for the coming weekend",
+  "קרוב אליי": "Nearest to me",
+  "מאתרים את המיקום שלך...": "Finding your location...",
+  "לא הצלחנו לקבל מיקום מהדפדפן. אפשר לאפשר גישה למיקום ולנסות שוב, או לבחור עיר ואזור.": "Your browser location is unavailable. Allow location access and retry, or select a city or region.",
+  "יום ראשון": "Sunday",
+  "יום רביעי": "Wednesday",
+  "יום שלישי": "Tuesday",
+  "יום שישי": "Friday",
+  "יום שני": "Monday",
+  "יום חמישי": "Thursday"
 }

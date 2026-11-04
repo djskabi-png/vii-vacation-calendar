@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "../../components/use-nearby-sort";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -47,7 +48,7 @@ import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type D
 import type { MapPriceQuote } from "../../lib/map-price";
 
 type EventSortKey = DiscoverySortKey | "capacity";
-const EVENT_SORT_VALUES: EventSortKey[] = ["recommended", "popular", "price-asc", "price-desc", "rating-desc", "capacity", "name"];
+const EVENT_SORT_VALUES: EventSortKey[] = ["recommended", "nearest", "popular", "price-asc", "price-desc", "rating-desc", "capacity", "name"];
 
 function runtimeEventPlace(value: unknown): EventPlace {
   const place = value as EventPlace;
@@ -138,7 +139,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const eventFrom = searchParams.get("from");
   const undatedSearch = !hasSearchDate(searchParams);
   const startingPrices = useStartingPrices("events", undatedSearch);
+  const nearby = useNearbySort();
   const sortModel = useMemo(() => ({
+    distance: nearby.distance,
     id: (place: EventPlace) => place.slug,
     name: (place: EventPlace) => place.name,
     price: (place: EventPlace) => supplierStartingPrice(startingPrices[place.slug] ?? place) || undefined,
@@ -151,7 +154,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       }
       return 0;
     },
-  }), [startingPrices, undatedSearch]);
+  }), [startingPrices, undatedSearch, nearby.origin]);
   const sortOptions = useMemo(() => {
     const common = discoverySortOptions(eventPlaces, sortModel, language);
     if (!eventPlaces.some((place) => place.capacityScope !== "unit")) return common;
@@ -287,7 +290,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   ];
 
   return (
-    <PageShell variant="events">
+    <PageShell variant="events"><NearbySortStatus state={nearby} />
       <main id="main-content" className="results-page events-results-page">
         {!initialArea ? <>
           <StructuredData data={breadcrumbSchema([

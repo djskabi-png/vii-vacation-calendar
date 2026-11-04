@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "../components/use-nearby-sort";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +9,7 @@ import { DeferredTrailMap } from "../components/deferred-listing-map";
 import { useMapViewState } from "../components/map-view-state";
 import { MapIcon } from "../site-header";
 import { ProgressiveResults } from "../components/progressive-results";
-import { completeNearbyResults } from "../lib/nearby-recommendations";
+import { completeNearbyResults, nearbyRegionCenters } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ModernSelect } from "../components/modern-select";
@@ -53,7 +54,8 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
   const [selectedNatures, setSelectedNatures] = useState(() => selectedValues(searchParams.get("nature") || initialFilters?.nature || null, natureOptions));
   const [selectedDifficulties, setSelectedDifficulties] = useState(() => selectedValues(searchParams.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
   const [query, setQuery] = useState(searchParams.get("q") || "");
-  const sortModel = useMemo(() => ({ id: (trail: Trail) => trail.slug, name: (trail: Trail) => trail.name }), []);
+  const nearby = useNearbySort();
+  const sortModel = useMemo(() => ({ distance: (trail: Trail) => nearby.distance(nearbyRegionCenters[trail.mainArea]), id: (trail: Trail) => trail.slug, name: (trail: Trail) => trail.name }), [nearby.origin]);
   const generalSortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const trailSortCopy = language === "he" ? { distance: "המסלולים הקצרים", difficulty: "הקלים קודם" } : language === "en" ? { distance: "Shortest distance", difficulty: "Easiest first" } : language === "ru" ? { distance: "Короткие маршруты", difficulty: "Сначала лёгкие" } : { distance: "Les plus courts", difficulty: "Les plus faciles" };
   const sortOptions = useMemo(() => [generalSortOptions[0], { value: "distance-asc", label: trailSortCopy.distance }, { value: "difficulty-asc", label: trailSortCopy.difficulty }, ...generalSortOptions.slice(1)], [generalSortOptions, trailSortCopy.difficulty, trailSortCopy.distance]);
@@ -136,7 +138,7 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
     return () => window.clearTimeout(timer);
   }, [searchQuery, initialFilters, sortOptions]);
 
-  return <>
+  return <><NearbySortStatus state={nearby} regionalOnly />
     <form className="trail-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון מסלולי טיול">
       <label><span>חיפוש לפי אזור או מסלול</span><input value={query} onChange={(event) => changeQuery(event.target.value)} placeholder="לדוגמה: כנרת, מפל, חוף" /></label>
       <MultiChoice label="אזור" options={regionOptions} selected={selectedRegions} onToggle={(value) => toggleValue(value, selectedRegions, setSelectedRegions, "area")} />

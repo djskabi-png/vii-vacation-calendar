@@ -34,7 +34,7 @@ test("Biz portfolio inventory uses the complete accepted supplier generation", a
   const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
   assert.match(source, /readSupplierCatalogSummaries\(db, world\)/);
   assert.match(source, /supportedInventory\(cacheDb\)/);
-  assert.match(source, /inventory: "accepted-generation-v2"/);
+  assert.match(source, /inventory: "accepted-generation-v3"/);
   assert.match(source, /intentionally filtered/);
 });
 
@@ -48,4 +48,30 @@ test("Biz reporting deduplicates one supplier that appears in several worlds", a
   assert.match(route, /const supportedRows = uniqueConversionRows\(report\.value\.rows as/);
   assert.match(route, /if \(requestedTargets\.length !== body\.targets\.length\)/);
   assert.match(route, /const targets = uniqueConversionRows\(requestedTargets\)/);
+});
+
+test("business performance exposes a lightweight overview without eager Biz snapshots or history", async () => {
+  const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(source, /if \(mode === "overview"\)/);
+  assert.match(source, /rows: report\.value\.rows, reportCache: report\.cache/);
+  assert.match(source, /if \(mode !== "legacy" && mode !== "biz-snapshots"\)/);
+  const overview = source.slice(source.indexOf('if (mode === "overview")'), source.indexOf('if (mode !== "legacy"'));
+  assert.doesNotMatch(overview, /loadCachedBizConversions|loadCachedBizConversionFailures|readBizReportRuns|bizSnapshots/);
+});
+
+test("Biz snapshots mode remains separate and legacy responses retain history", async () => {
+  const source = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(source, /mode === "legacy" && database \? readBizReportRuns/);
+  assert.match(source, /mode === "legacy" \? \{ runHistory \} : \{\}/);
+  assert.match(source, /mode !== "legacy" && mode !== "biz-snapshots"/);
+});
+
+test("admin inventory projection selects identity fields without loading full summary JSON", async () => {
+  const source = await readFile(new URL("../app/lib/supplier-catalog-store.ts", import.meta.url), "utf8");
+  assert.match(source, /export async function readSupplierCatalogInventory/);
+  assert.match(source, /json_extract\(summary_json, '\$\.name'\)/);
+  assert.match(source, /json_extract\(summary_json, '\$\.title'\)/);
+  assert.match(source, /json_extract\(summary_json, '\$\.id'\)/);
+  const route = await readFile(new URL("../app/api/admin/business-performance/route.ts", import.meta.url), "utf8");
+  assert.match(route, /readSupplierCatalogInventory\(db, world\)/);
 });

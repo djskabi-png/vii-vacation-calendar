@@ -18,3 +18,15 @@
 @media(max-width:1120px){.performanceChart>header{align-items:flex-start;flex-direction:column}.performanceChart nav{justify-content:flex-start}}
 @media(max-width:760px){.performanceChart{padding:16px 14px}.performanceChart nav{display:grid;grid-template-columns:1fr 1fr;width:100%}.performanceChart nav button{width:100%}.performanceBars>button{grid-template-columns:minmax(100px,1fr) minmax(90px,1.2fr) auto;gap:8px;padding:8px}.performanceBars em{font-size:.69rem}}
 @media(prefers-reduced-motion:reduce){.performanceChart nav button,.performanceBars>button,.performanceBars i b{animation:none;transition:none}}
+.sectionNav{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0 12px;margin-bottom:12px;border-bottom:1px solid #d4e5e0}
+.sectionNav a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border:1px solid #c6deda;border-radius:14px;background:#fff;color:#235c59;font:700 .86rem Heebo,Arial,sans-serif;text-decoration:none}
+.sectionNav a[aria-current=page]{background:#087e84;border-color:#087e84;color:#fff;box-shadow:0 4px 14px #087e841a}
+.sectionNav a:focus-visible,.pagination button:focus-visible,.topicButtons button:focus-visible,.businessLink:focus-visible{outline:3px solid #22a7aa;outline-offset:3px}
+.pagination{display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:wrap;padding:18px;border-top:1px solid #dbe9e5;color:#456961;font-size:.8rem}
+.pagination button,.topicButtons button{min-height:42px;border:1px solid #bdd8d1;border-radius:12px;padding:8px 16px;background:#fff;color:#145c59;font:700 .8rem Heebo,Arial,sans-serif;cursor:pointer}
+.pagination button:disabled{opacity:.45;cursor:default}
+.topicButtons{display:flex;gap:8px;margin-block:12px}
+.topicButtons button[aria-pressed=true]{background:#087e84;border-color:#087e84;color:#fff}
+.businessLink{border:0;background:transparent;color:#096a70;padding:0;text-align:start;font:700 .8rem Heebo,Arial,sans-serif;cursor:pointer}
+.businessLink:disabled{color:inherit;cursor:default}
+@media(max-width:760px){.sectionNav{display:grid;grid-template-columns:1fr 1fr}.sectionNav a{padding:10px;font-size:.8rem}.pagination{padding:14px;gap:8px}.pagination>span:first-child{flex-basis:100%}.topicButtons{flex-wrap:wrap}.topicButtons button{flex:1}}

@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-04",
+  "method": "Eight serial anonymous compressed HTML GETs with Accept: text/html,application/xhtml+xml; no cookie jar or authorization; two rounds; not a load test",
+  "limitations": [
+    "Single workstation via FRA; no population percentiles or Israel field-data claim",
+    "TTFB includes network, hosting, cache and app work; no server-allocation attribution",
+    "Initial default curl Accept bypassed document cache and is excluded from these comparisons"
+  ],
+  "admin": {
+    "url": "https://vii.spaplus.co/admin/business-performance",
+    "businessRows": 921,
+    "uniqueIds": 921,
+    "domNodes": 23727,
+    "source": "Authenticated read-only browser DOM"
+  },
+  "observations": [
+    {
+      "round": 1,
+      "path": "/",
+      "at": "2026-11-04T12:44:33.0785984+00:00",
+      "status": 200,
+      "ttfbSeconds": 3.414385,
+      "totalSeconds": 3.614125,
+      "downloadBytes": 57749,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=300",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "origin",
+        "x-vii-page-cache": "MISS",
+        "cf-ray": "a553b5dd8def1d86-FRA"
+      }
+    },
+    {
+      "round": 1,
+      "path": "/search",
+      "at": "2026-11-04T12:44:40.3299830+00:00",
+      "status": 200,
+      "ttfbSeconds": 6.896616,
+      "totalSeconds": 6.91839,
+      "downloadBytes": 31940,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "origin",
+        "x-vii-page-cache": "MISS",
+        "cf-ray": "a553b5f65e8c3831-FRA"
+      }
+    },
+    {
+      "round": 1,
+      "path": "/events",
+      "at": "2026-11-04T12:44:45.7764714+00:00",
+      "status": 200,
+      "ttfbSeconds": 5.069227,
+      "totalSeconds": 5.148535,
+      "downloadBytes": 83900,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "origin",
+        "x-vii-page-cache": "MISS",
+        "cf-ray": "a553b6220c44bb8b-FRA"
+      }
+    },
+    {
+      "round": 1,
+      "path": "/business?id=vacation-164",
+      "at": "2026-11-04T12:44:49.8281675+00:00",
+      "status": 200,
+      "ttfbSeconds": 3.674168,
+      "totalSeconds": 3.751217,
+      "downloadBytes": 57704,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=900",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "origin",
+        "x-vii-page-cache": "MISS",
+        "cf-ray": "a553b6452dc5579c-FRA"
+      }
+    },
+    {
+      "round": 2,
+      "path": "/",
+      "at": "2026-11-04T12:44:52.6622206+00:00",
+      "status": 200,
+      "ttfbSeconds": 2.438596,
+      "totalSeconds": 2.449402,
+      "downloadBytes": 57362,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=279",
+        "x-vii-cache-read-ms": "555",
+        "x-vii-cache-refresh": "fresh",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "r2",
+        "x-vii-page-cache": "HIT",
+        "cf-ray": "a553b65f1fb69771-FRA"
+      }
+    },
+    {
+      "round": 2,
+      "path": "/search",
+      "at": "2026-11-04T12:44:55.2930088+00:00",
+      "status": 200,
+      "ttfbSeconds": 2.470034,
+      "totalSeconds": 2.502618,
+      "downloadBytes": 31951,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=164",
+        "x-vii-cache-read-ms": "544",
+        "x-vii-cache-refresh": "fresh",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "r2",
+        "x-vii-page-cache": "HIT",
+        "cf-ray": "a553b66ee8541d94-FRA"
+      }
+    },
+    {
+      "round": 2,
+      "path": "/events",
+      "at": "2026-11-04T12:44:57.9432867+00:00",
+      "status": 200,
+      "ttfbSeconds": 2.468337,
+      "totalSeconds": 2.558291,
+      "downloadBytes": 83500,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=167",
+        "x-vii-cache-read-ms": "587",
+        "x-vii-cache-refresh": "fresh",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "r2",
+        "x-vii-page-cache": "HIT",
+        "cf-ray": "a553b67f7f82d375-FRA"
+      }
+    },
+    {
+      "round": 2,
+      "path": "/business?id=vacation-164",
+      "at": "2026-11-04T12:45:02.1183393+00:00",
+      "status": 200,
+      "ttfbSeconds": 4.029597,
+      "totalSeconds": 4.094157,
+      "downloadBytes": 56961,
+      "headers": {
+        "cache-control": "public, max-age=60, s-maxage=887",
+        "x-vii-cache-read-ms": "694",
+        "x-vii-cache-refresh": "fresh",
+        "x-vii-cache-build": "b8055104-f602-4e1e-bb57-46bcd36a054c",
+        "x-vii-cache-layer": "r2",
+        "x-vii-page-cache": "HIT",
+        "cf-ray": "a553b68fe8cb760d-FRA"
+      }
+    }
+  ],
+  "review": {
+    "reviewer": "site_performance_research",
+    "result": "No material blockers in plan; measurements, hypotheses and proposed targets separated; public cache privacy and rollback protected",
+    "scope": "Plan and source review only; not deployment or whole-site signoff"
+  }
+}

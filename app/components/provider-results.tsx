@@ -1,4 +1,5 @@
 "use client";
+import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -50,7 +51,8 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   const documentSeed = useDocumentSeed();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [region, setRegion] = useState(searchParams.get("region") || "כל הארץ");
-  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating }), []);
+  const nearby = useNearbySort();
+  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const requestedSort = searchParams.get("sort") || "recommended";
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
@@ -94,7 +96,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
     categoryNavRef.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "center" });
   }, [category]);
 
-  return <div className="provider-results">
+  return <div className="provider-results"><NearbySortStatus state={nearby} />
     <div className="provider-toolbar">
       <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }); }} placeholder="שם, שירות או תחום" /></label>
       <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
