@@ -84,9 +84,9 @@ export async function POST(request: Request) {
     const result = discovery ? cached!.value : dated ? dated.value : await load();
     if (world === "events" && body.includePlaces === true) {
       const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true
-        && typeof offer.total === "number" && offer.total > 0 && Boolean(offer.slot) && Boolean(offer.from)
+        && (offer.total === null || typeof offer.total === "number" && offer.total > 0) && Boolean(offer.slot) && Boolean(offer.from)
         && Number.isSafeInteger(offer.roomID) && Number(offer.roomID) > 0)
-        .sort((a, b) => a.total! - b.total! || a.siteID - b.siteID || String(a.slot).localeCompare(String(b.slot)));
+        .sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity) || a.siteID - b.siteID || String(a.slot).localeCompare(String(b.slot)));
       const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;
       const selectedOffers = selected?.offers ?? liveOffers.slice(0, 20);
       const offers = canonicalVerifiedSliderItems(selectedOffers, offer => offer.siteID);

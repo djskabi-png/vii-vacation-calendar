@@ -101,6 +101,27 @@ test('actual event handler selects regional public IDs before national top12 and
   assert.doesNotMatch(JSON.stringify(body.places),/privateNote|must-not-be-projected/);
 });
 
+test('actual event handler preserves confirmed unpriced offers after priced offers without upgrading unknown entries',async()=>{
+ const date='2026-11-05';
+ const post=handler('vii/live-search','POST',{
+  Date:class extends Date {constructor(...args){super(...(args.length?args:['2026-11-04T09:00:00Z']));}},
+  regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,validDate:()=>true,EVENT_DISCOVERY_POLICY:{freshMs:60_000,staleMs:60_000},
+  supplierToken:async()=>'fixture',publishedSupplierIds:async()=>new Set([1,2,3]),
+  publicCatalogSelectedSummaries:async(_world,ids)=>ids.map(id=>({slug:`event-${id}`,image:'/real.jpg',name:`Venue ${id}`})),
+  readCachedDiscovery:async()=>({cache:{status:'fresh'},value:{results:[
+   {siteID:1,available:true,total:null,from:date,slot:'morning',roomID:10},
+   {siteID:2,available:true,total:500,from:date,slot:'evening',roomID:20},
+   {siteID:3,available:null,total:null,from:date,reason:'no_prices'},
+  ]}}),
+ });
+ const response=await post(request('/',{world:'events',from:date,till:date,guests:20,includePlaces:true}));
+ assert.equal(response.status,200);
+ const body=await response.json();
+ assert.deepEqual(body.results.map(offer=>offer.siteID),[2,1]);
+ assert.deepEqual(body.places.map(place=>place.slug),['event-2','event-1']);
+ assert.equal(body.results[1].total,null);
+});
+
 test('actual event handler performs one coordinated cold recovery and returns a valid empty result as 200',async()=>{
   let providerCalls=0, cacheRecoveries=0;
   const post=handler('vii/live-search','POST',{

@@ -26,6 +26,7 @@ const suites = [
   ["search-state", ["audit:search"]],
   ["availability-matrix", ["audit:availability"]],
   ["catalog-fallback-parity", ["qa:catalog-fallback"]],
+  ["event-slider-legacy-api-parity", ["qa:event-slider-parity"]],
   ["feature-icon-geometry", ["qa:icon-geometry"]],
   ["header-control-spacing", ["qa:spacing"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],

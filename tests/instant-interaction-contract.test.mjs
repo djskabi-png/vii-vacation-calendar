@@ -16,8 +16,8 @@ test("live discovery families preserve last good content while refreshing", asyn
   assert.match(vacation, /const refreshing = displayState === "loading" && data !== null/);
   assert.doesNotMatch(spa, /setStatus\("loading"\);\s*setData\(null\)/);
   assert.match(spa, /status==="loading"&&!data/);
-  assert.match(holiday, /setResult\(\(current\) => \(\{ \.\.\.current, key, status: "loading" \}\)\)/);
-  assert.match(holiday, /setResult\(\(current\) => \(\{ \.\.\.current, key, status: "error" \}\)\)/);
+  assert.match(holiday, /deals: current\.key === key \? current\.deals : \[\]/);
+  assert.match(holiday, /status: current\.key === key && current\.deals\.length \? "ready" : "error"/);
   assert.match(styles, /\.home-live-deals__results\.is-refreshing/);
   assert.match(styles, /pointer-events: none/);
   assert.match(vacation, /inert=\{refreshing \|\| undefined\}/);

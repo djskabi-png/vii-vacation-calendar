@@ -75,10 +75,22 @@ test("event offers never turn unknown, mismatched or unapproved records into ava
   assert.ok(result.results.filter(r => r.available !== true).every(r => r.total === null));
 });
 
+test("explicit event availability survives a missing price while unknown no_prices stays unknown", async () => {
+  const result = await liveSupplierSearch({ world: "events", from: "2026-11-05", till: "2026-11-05", guests: 20, token: "fixture", publishedIds: new Set([1,2]), fetchImpl: async () => Response.json({ sites: [
+    {siteID:1,available:true,minPrice:null,cheapest:{date:"2026-11-05",slot:"morning",roomID:10,price:null}},
+    {siteID:2,available:null,reason:"no_prices"},
+  ] }) });
+  assert.equal(result.results[0].available,true);
+  assert.equal(result.results[0].total,null);
+  assert.equal(result.results[0].from,"2026-11-05");
+  assert.equal(result.results[1].available,null);
+  assert.equal(result.results[1].total,null);
+});
+
 test("event date presets use Israel date and never repeat a weekday that has started", () => {
   const now = new Date("2026-10-21T22:30:00Z");
   assert.equal(eventDealDate(0, now), "2026-10-22");
-  assert.deepEqual(eventDealPresets(now).map(p => p.date), ["2026-10-23", "2026-10-29", "2026-10-23"]);
+  assert.deepEqual(eventDealPresets(now).map(p => p.date), ["2026-10-22", "2026-10-29", "2026-10-23"]);
 });
 
 test("both discovery surfaces use real event deals, preserving slot and participant context", () => {

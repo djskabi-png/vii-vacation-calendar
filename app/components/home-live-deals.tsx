@@ -107,7 +107,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
-  const selectionKey = mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`;
+  const selectionKey = `${language}:${clock?.key || "loading"}:` + (mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`);
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
     : mode === "near" && !fixedPeriod && !regionLabel
@@ -119,7 +119,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
-    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 1 })
+    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?${new URLSearchParams({ locale: language, clock: clock.key })}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 1 })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         // The API and CMS both cap the public rail, but a browser can still
@@ -144,7 +144,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
-      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
+      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
     const recover = () => {
       const attempts = automaticRetries.current.get(selectionKey) || 0;
@@ -159,6 +159,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
+        if (mode === "near" && result.period !== period) throw new Error("invalid_period_result");
         if (mode === "near" && !fixedPeriod && result.display?.periods?.length) {
           setPeriodTabs(result.display.periods);
           if (!displaySettingsApplied.current) {

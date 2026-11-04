@@ -58,7 +58,7 @@ test("both homepage vacation rails recover through a bounded backoff from cold a
   const home = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   const cache = readFileSync(new URL("../app/lib/discovery-client-cache.ts", import.meta.url), "utf8");
   const publicAudit = readFileSync(new URL("../scripts/audit-search-state.cjs", import.meta.url), "utf8");
-  assert.match(home, /home-holidays\?locale=\$\{language\}`,[\s\S]*?timeoutMs: 4_000, retries: 1/);
+  assert.match(home, /home-holidays\?\$\{new URLSearchParams\(\{ locale: language, clock: clock\.key \}\)\}`,[\s\S]*?timeoutMs: 4_000, retries: 1/);
   assert.match(home, /verified-offers-v1`, \{ signal: controller\.signal,[\s\S]*?timeoutMs: 5_000, retries: 1/);
   assert.match(home, /automaticRecoveryDelays = \[1_250, 2_500, 5_000, 8_000\]/);
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);

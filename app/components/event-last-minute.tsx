@@ -81,7 +81,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     if (!place) return [];
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
     const offer = search.results[siteID];
-    if (offer?.available !== true || !offer.total || !offer.from || !offer.slot) return [];
+    if (offer?.available !== true || !offer.from || !offer.slot) return [];
     return [{ place, offer }];
   }), item => item.place.slug);
   const confirmed = new Set(candidates.map(({ place }) => place.slug));
@@ -133,7 +133,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
         place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));
-        return <PlacePreviewCard className="event-rail-card event-deals__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type, initialDate: offer.from || undefined, initialGuests: guests }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} priority={index < 2}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span><b><bdi dir="ltr">₪&nbsp;{offer.total!.toLocaleString(language === "he" ? "he-IL" : language)}</bdi> <small>{text.price}</small></b></span></PlacePreviewCard>;
+        return <PlacePreviewCard className="event-rail-card event-deals__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type, initialDate: offer.from || undefined, initialGuests: guests }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} priority={index < 2}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span>{offer.total !== null ? <b><bdi dir="ltr">₪&nbsp;{offer.total.toLocaleString(language === "he" ? "he-IL" : language)}</bdi> <small>{text.price}</small></b> : null}</span></PlacePreviewCard>;
       })}{visibleAdditionalPlaces.map((place) => {
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const startingPrice = supplierStartingPrice(startingPrices[place.slug] || place);

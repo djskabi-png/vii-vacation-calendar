@@ -22,6 +22,7 @@
     "qa:responsive-transitions": "node scripts/audit-responsive-transitions.cjs",
     "qa:map": "node scripts/audit-map-experience.cjs",
     "qa:catalog-fallback": "node scripts/audit-catalog-fallback-parity.mjs",
+    "qa:event-slider-parity": "node scripts/audit-event-slider-parity.mjs",
     "qa:auth-boundaries": "node --test tests/auth-audience-separation.test.mjs tests/admin-server-gate.test.mjs tests/logout-route.test.mjs tests/account-frontend-contract.test.mjs tests/admin-command-center.test.mjs tests/admin-permissions.test.mjs tests/launch-seo.test.mjs",
     "qa:admin-controls": "node --test tests/admin-control-inventory.test.mjs tests/admin-command-center.test.mjs tests/admin-permissions.test.mjs tests/admin-overview-route.test.mjs tests/catalog-admin-route.test.mjs tests/catalog-dashboard-resilience.test.mjs tests/operations-admin.test.mjs tests/search-analytics.test.mjs tests/world-availability-contract.test.mjs",
     "qa:release-source": "node scripts/verify-vii-release-source.mjs",

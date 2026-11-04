@@ -149,15 +149,16 @@ export async function liveSupplierSearch(options: {
       const date = cheapest.date;
       const price = site.minPrice;
       const roomID = cheapest.roomID;
+      const unpriced = (price === null || price === undefined) && (cheapest.price === null || cheapest.price === undefined);
       const validOffer = validDate(date) && date >= from && date <= till && slot
         && (!options.slot || slot === options.slot) && Number.isSafeInteger(roomID) && Number(roomID) > 0
-        && typeof price === "number" && Number.isFinite(price) && price > 0 && cheapest.price === price;
+        && (unpriced || typeof price === "number" && Number.isFinite(price) && price > 0 && cheapest.price === price);
       const reported = site.available === true ? true : site.available === false ? false : null;
       const available = reported === true && !validOffer ? null : reported;
       const endDate = validDate(date) && slot === "evening"
         ? new Date(Date.parse(`${date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10) : date;
       return [{ siteID: Number(siteID), available, onlineBooking: site.onlineBooking === true,
-        total: available === true ? price as number : null,
+        total: available === true && !unpriced ? price as number : null,
         from: validDate(date) ? date : null, till: validDate(endDate) ? endDate : null,
         start: slot === "morning" ? "08:00" : slot === "evening" ? "17:00" : null,
         reason: typeof site.reason === "string" ? site.reason : reported === true && !validOffer ? "invalid_supplier_response" : null,

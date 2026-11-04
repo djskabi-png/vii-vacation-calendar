@@ -1,18 +1,15 @@
-import { eventDealDate } from "./event-deal-dates.ts";
+import { eventDealDate, currentDealDate } from "./event-deal-dates.ts";
 
 // Discovery rails only. Final booking and explicitly dated searches retain
 // their own authoritative availability rules.
 export function todayDealsVisible(now = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", hourCycle: "h23", hour: "2-digit", minute: "2-digit" }).formatToParts(now);
-  const part = (type: string) => Number(parts.find(value => value.type === type)?.value);
-  const minute = part("hour") * 60 + part("minute");
   // Today is the last-minute arrival throughout the morning. At the exact
   // 14:00 Israel-time boundary the rail advances to tomorrow.
-  return minute < 14 * 60;
+  return currentDealDate(now) === eventDealDate(0, now);
 }
 
 export function firstDealDate(now = new Date()) {
-  return eventDealDate(todayDealsVisible(now) ? 0 : 1, now);
+  return currentDealDate(now);
 }
 
 export function eligibleDealDate(date: string, now = new Date()) {

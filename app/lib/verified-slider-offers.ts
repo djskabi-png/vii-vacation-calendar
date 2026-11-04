@@ -13,6 +13,7 @@ export function canonicalVerifiedSliderItems<T>(
   const accepted: T[] = [];
   const seen = new Set<string>();
   const boundedLimit = Number.isFinite(limit) ? Math.max(0, Math.min(20, Math.floor(limit))) : 20;
+  if (boundedLimit === 0) return accepted;
   for (const item of items) {
     if (!valid(item)) continue;
     const key = String(identity(item));

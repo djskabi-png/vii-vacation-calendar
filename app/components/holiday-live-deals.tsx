@@ -70,11 +70,11 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     if (!clock) return;
     const controller = new AbortController();
     const request = ++generation.current;
-    setResult((current) => ({ ...current, key, status: "loading" }));
+    setResult((current) => ({ key, status: "loading", deals: current.key === key ? current.deals : [] }));
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
-    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1" });
+    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1", clock: clock.key });
     discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true,
       shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" })
       .then((data) => {
@@ -85,7 +85,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         if (controller.signal.aborted || request !== generation.current) return;
         if (data.availabilityStatus === "refreshing" && data.deals.length === 0) {
           const attempts = automaticRetries.current.get(key) || 0;
-          if (attempts >= 3) setResult((current) => ({ ...current, key, status: "error" }));
+          if (attempts >= 3) setResult((current) => ({ ...current, key, status: current.key === key && current.deals.length ? "ready" : "error" }));
           else {
             automaticRetries.current.set(key, attempts + 1);
             retryTimer = setTimeout(() => setRetry((value) => value + 1), 1_500);
@@ -97,7 +97,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       })
       .catch(() => {
         if (!controller.signal.aborted && request === generation.current) {
-          setResult((current) => ({ ...current, key, status: "error" }));
+          setResult((current) => ({ ...current, key, status: current.key === key && current.deals.length ? "ready" : "error" }));
         }
       });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
