@@ -39,3 +39,5 @@ No statement here guarantees that future code changes cannot introduce bugs. The
 ## Final local validation
 
 The final production build passed, including manifest agreement, removal of duplicate deployment assets, startup budget and all literal server imports resolving. The final complete Node suite ran 2,104 tests: 2,103 passed, one skipped, zero failed or cancelled, in 139.8 seconds. The independent edge/source behavior family also passed 20 checks. Local logs are retained under `.qa-output/map-final-build.log`, `map-final-full-suite.log` and `map-final-behavior-edge.log`; they are supporting evidence, not a production receipt. The full QQQAAA browser/public matrix remains unverified as stated above.
+
+Implementation commit: `b8d335a664e47bd61ce640e5acddd3da35a8510c`. The following control-only commit protects it as a required ancestor. Public release remains conditional and not attempted.
