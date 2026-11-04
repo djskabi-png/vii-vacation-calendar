@@ -1,0 +1,1627 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "version": "v791",
+  "passed": true,
+  "failures": [],
+  "reports": [
+    {
+      "name": "home",
+      "route": "/",
+      "checks": [
+        {
+          "name": "home-availability-rails",
+          "state": [
+            {
+              "id": "home-live-deals-results",
+              "exists": true,
+              "busy": false,
+              "cards": 20,
+              "terminalError": false,
+              "status": ""
+            },
+            {
+              "id": "home-holiday-deals-results",
+              "exists": true,
+              "busy": false,
+              "cards": 20,
+              "terminalError": false,
+              "status": ""
+            }
+          ],
+          "failures": []
+        },
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 30692,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 20,
+            "meaningfulElements": 66,
+            "firstMeaningfulTop": 177.765625,
+            "largestUnexplainedEmptyBand": 0,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 30968,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": true,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-save",
+          "state": {
+            "bodyTextLength": 30766,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            },
+            "urlBeforeSave": "https://vii.spaplus.co/?v=v791",
+            "urlAfterSave": "https://vii.spaplus.co/?v=v791"
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 30766,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 30766,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 30720,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": -12900.765625,
+              "width": 56,
+              "height": 54,
+              "top": -12900.765625,
+              "right": 203,
+              "bottom": -12846.765625,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 73,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 950,
+                "scrollWidth": 2294,
+                "left": 245,
+                "right": 1195,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1180,
+                "scrollWidth": 7957,
+                "left": 130,
+                "right": 1310,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1180,
+                "scrollWidth": 7957,
+                "left": 130,
+                "right": 1310,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1180,
+                "scrollWidth": 1757,
+                "left": 130,
+                "right": 1310,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1142,
+                "scrollWidth": 5736,
+                "left": 149,
+                "right": 1291,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1180,
+                "scrollWidth": 7686,
+                "left": 130,
+                "right": 1310,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 15103,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 256.703125,
+              "width": 56,
+              "height": 54,
+              "top": 256.703125,
+              "right": 203,
+              "bottom": 310.703125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 21619,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "vacation-results",
+      "route": "/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-11-18&till=2026-11-20&adults=4",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 6748,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 1,
+            "meaningfulElements": 18,
+            "firstMeaningfulTop": 353.890625,
+            "largestUnexplainedEmptyBand": 269.78125,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 7024,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": true,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-save",
+          "state": {
+            "bodyTextLength": 6822,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            },
+            "urlBeforeSave": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-11-18&till=2026-11-20&adults=4&v=v791",
+            "urlAfterSave": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-11-18&till=2026-11-20&adults=4&v=v791"
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 6822,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 10211,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 10208,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 235.53125,
+              "width": 56,
+              "height": 54,
+              "top": 235.53125,
+              "right": 203,
+              "bottom": 289.53125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 24,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 344,
+                "scrollWidth": 361,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 644,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 542,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 410,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 627,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 682,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 502,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 553,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 393,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 385,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 570,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 371,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 591,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 452,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2678,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3574,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2006,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1334,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2678,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 10202,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 235.53125,
+              "width": 56,
+              "height": 54,
+              "top": 235.53125,
+              "right": 203,
+              "bottom": 289.53125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 10131,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "vacation-region",
+      "route": "/vacations/north?from=2026-11-18&till=2026-11-20&adults=4",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 7244,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 1,
+            "meaningfulElements": 18,
+            "firstMeaningfulTop": 353.890625,
+            "largestUnexplainedEmptyBand": 269.78125,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 10094,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": true,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-save",
+          "state": {
+            "bodyTextLength": 9892,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            },
+            "urlBeforeSave": "https://vii.spaplus.co/vacations/north?from=2026-11-18&till=2026-11-20&adults=4&v=v791",
+            "urlAfterSave": "https://vii.spaplus.co/vacations/north?from=2026-11-18&till=2026-11-20&adults=4&v=v791"
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 9892,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 9892,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 9895,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 235.53125,
+              "width": 56,
+              "height": 54,
+              "top": 235.53125,
+              "right": 203,
+              "bottom": 289.53125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 24,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 344,
+                "scrollWidth": 542,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 644,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 502,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 410,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 521,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 514,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 553,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 581,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 542,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 495,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 371,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 538,
+                "left": 948,
+                "right": 1292,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 426,
+                "left": 548,
+                "right": 892,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 344,
+                "scrollWidth": 383,
+                "left": 148,
+                "right": 492,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2006,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3574,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2006,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1334,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2678,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 9994,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 235.53125,
+              "width": 56,
+              "height": 54,
+              "top": 235.53125,
+              "right": 203,
+              "bottom": 289.53125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 9917,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "spa",
+      "route": "/spas",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 5273,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 2,
+            "meaningfulElements": 9,
+            "firstMeaningfulTop": 113.015625,
+            "largestUnexplainedEmptyBand": 10,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 5794,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 5606,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 8462,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 8456,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 187,
+              "y": -5316.46875,
+              "width": 56,
+              "height": 54,
+              "top": -5316.46875,
+              "right": 243,
+              "bottom": -5262.46875,
+              "left": 187
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 15,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 1142,
+                "scrollWidth": 5736,
+                "left": 149,
+                "right": 1291,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2006,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3574,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1558,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 5343,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 187,
+              "y": 507,
+              "width": 56,
+              "height": 54,
+              "top": 507,
+              "right": 243,
+              "bottom": 561,
+              "left": 187
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 5604,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "spa-region",
+      "route": "/spas/search/north",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 5427,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 2,
+            "meaningfulElements": 9,
+            "firstMeaningfulTop": 112.546875,
+            "largestUnexplainedEmptyBand": 10,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 5785,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 5597,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 7827,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 7823,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 187,
+              "y": -5641.46875,
+              "width": 56,
+              "height": 54,
+              "top": -5641.46875,
+              "right": 243,
+              "bottom": -5587.46875,
+              "left": 187
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 16,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 1142,
+                "scrollWidth": 3436,
+                "left": 149,
+                "right": 1291,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3350,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1558,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 5499,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 187,
+              "y": 507,
+              "width": 56,
+              "height": 54,
+              "top": 507,
+              "right": 243,
+              "bottom": 561,
+              "left": 187
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 5519,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "events",
+      "route": "/events/search",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 15818,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 1,
+            "meaningfulElements": 132,
+            "firstMeaningfulTop": 714.515625,
+            "largestUnexplainedEmptyBand": 154,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-open",
+          "state": {
+            "bodyTextLength": 16038,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-close-x",
+          "state": {
+            "bodyTextLength": 16019,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "guests-toggle-close",
+          "state": {
+            "bodyTextLength": 18915,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "hidden",
+            "bodyOverscroll": "none",
+            "expanded": true,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 14,
+              "y": 774,
+              "width": 362,
+              "height": 56,
+              "top": 774,
+              "right": 376,
+              "bottom": 830,
+              "left": 14
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 19020,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 235.53125,
+              "width": 56,
+              "height": 54,
+              "top": 235.53125,
+              "right": 203,
+              "bottom": 289.53125,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 6,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2678,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3574,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 5366,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1334,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 15998,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 147,
+              "y": 137.59375,
+              "width": 56,
+              "height": 54,
+              "top": 137.59375,
+              "right": 203,
+              "bottom": 191.59375,
+              "left": 147
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 15940,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    },
+    {
+      "name": "hourly",
+      "route": "/hourly",
+      "checks": [
+        {
+          "name": "mobile-fresh",
+          "state": {
+            "bodyTextLength": 5782,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-visual-content",
+          "state": {
+            "visibleMeaningfulElements": 2,
+            "meaningfulElements": 9,
+            "firstMeaningfulTop": 89.8125,
+            "largestUnexplainedEmptyBand": 0,
+            "viewportHeight": 844
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-after-mobile",
+          "state": {
+            "bodyTextLength": 6029,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 447.609375,
+              "y": -4621.46875,
+              "width": 56,
+              "height": 54,
+              "top": -4621.46875,
+              "right": 503.609375,
+              "bottom": -4567.46875,
+              "left": 447.609375
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-horizontal-rails",
+          "state": {
+            "count": 14,
+            "scrollMoved": true,
+            "rails": [
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 2678,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 3126,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              },
+              {
+                "clientWidth": 1114,
+                "scrollWidth": 1334,
+                "left": 163,
+                "right": 1277,
+                "insideViewport": true
+              }
+            ]
+          },
+          "failures": []
+        },
+        {
+          "name": "desktop-reload",
+          "state": {
+            "bodyTextLength": 5907,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": true,
+            "searchRect": {
+              "x": 447.609375,
+              "y": 504,
+              "width": 56,
+              "height": 54,
+              "top": 504,
+              "right": 503.609375,
+              "bottom": 558,
+              "left": 447.609375
+            }
+          },
+          "failures": []
+        },
+        {
+          "name": "mobile-return",
+          "state": {
+            "bodyTextLength": 5770,
+            "horizontalOverflow": false,
+            "scrollX": 0,
+            "bodyOverflow": "",
+            "bodyOverscroll": "",
+            "expanded": false,
+            "vacationGuestPickerVisible": false,
+            "searchVisible": false,
+            "searchRect": null
+          },
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1032 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "passed": true,
+  "checkedAt": "2026-11-04T04:09:22.427Z",
+  "total": 40,
+  "passedCount": 40,
+  "failedCount": 0,
+  "failures": [],
+  "checks": [
+    {
+      "profile": "mobile-touch",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-6",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "pageErrors": [],
+      "httpErrors": [
+        {
+          "status": 404,
+          "url": "https://vii.spaplus.co/api/map-snapshot?world=spa&id=spa-6"
+        }
+      ],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "hourly-place",
+      "route": "/discover/place/hourly-1915",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "pageErrors": [],
+      "httpErrors": [
+        {
+          "status": 404,
+          "url": "https://vii.spaplus.co/api/map-snapshot?world=hourly&id=hourly-1915"
+        }
+      ],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-6",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "pageErrors": [],
+      "httpErrors": [
+        {
+          "status": 404,
+          "url": "https://vii.spaplus.co/api/map-snapshot?world=spa&id=spa-6"
+        }
+      ],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "hourly-place",
+      "route": "/discover/place/hourly-1915",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 104,
+          "y": 32
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-compact",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-6",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "hourly-place",
+      "route": "/discover/place/hourly-1915",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 304.3046875,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-6",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "hourly-place",
+      "route": "/discover/place/hourly-1915",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 304.3046875,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "center": {
+          "x": 300.5625,
+          "y": 37
+        },
+        "topTag": "STRONG",
+        "topClass": "world-label-full",
+        "triggerIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "panelLinkCount": 8,
+      "destination": "/spas",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "httpErrors": [],
+      "unexpectedHttpErrors": []
+    }
+  ]
+}

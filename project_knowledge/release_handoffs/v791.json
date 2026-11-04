@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "release": "v791",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "4801f9fe0e42c8bdd482b06166bea40426b0f601",
+  "tree": "0993aa549ff3be0797aa4449c6bbe6a056ea4f5d",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_9646b6867bb48191a4e38ce232cc2d62",
+  "rollback_deployment_id": "appgdep_6aea435157748191bcd0ecd84d7c3ab3",
+  "environment_revision": 31,
+  "focused_tests": 173,
+  "full_tests": 1954,
+  "publication_chat": "https://chatgpt.com/g/g-p-6ab2e9ea51548191856f299d727d8611-vii/c/6ad6ad51-1850-83ed-9b72-689fddf553fb",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v791 לאחר v789. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nPublish the cumulative v791 candidate after v789. It locks mobile guest save behavior, semantic location pages and redirects, supplier cancellation copy, truthful availability audits, stable streamed home sliders, sitewide SEO sampling, complete responsive map behavior and an in-map desktop return control that cannot overlap Leaflet zoom controls.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v791-complete-20261104, source commit מדויק 4801f9fe0e42c8bdd482b06166bea40426b0f601, tree מדויק 0993aa549ff3be0797aa4449c6bbe6a056ea4f5d. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 173 בדיקות ממוקדות עברו ו-1954 מתוך 1954 בדיקות האתר עברו. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v789 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_9646b6867bb48191a4e38ce232cc2d62, Deployment ID appgdep_6aea435157748191bcd0ecd84d7c3ab3. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 31. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "published_succeeded",
+  "prepared_at": "2026-11-04T03:51:22.2896281Z",
+  "published_at": "2026-11-04T04:04:00Z",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a0a0153bf22c8191a7b9cec4ac77c94d",
+  "deployment_id": "appgdep_6aeaaddf02fc81919dbe57394b64c1b5",
+  "managed_commit": "cc823cba91cd48a146e781e03b1bf0749edcbf2d",
+  "public_url": "https://vii.spaplus.co",
+  "status": "succeeded"
+}

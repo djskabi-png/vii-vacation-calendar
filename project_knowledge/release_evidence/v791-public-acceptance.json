@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "release": "v791",
+  "public_url": "https://vii.spaplus.co",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a0a0153bf22c8191a7b9cec4ac77c94d",
+  "deployment_id": "appgdep_6aeaaddf02fc81919dbe57394b64c1b5",
+  "source_commit": "4801f9fe0e42c8bdd482b06166bea40426b0f601",
+  "managed_commit": "cc823cba91cd48a146e781e03b1bf0749edcbf2d",
+  "tree": "0993aa549ff3be0797aa4449c6bbe6a056ea4f5d",
+  "environment_revision": 31,
+  "publication_status": "succeeded",
+  "automated": {
+    "availability_matrix": "passed",
+    "search_state_clean_run": "passed",
+    "catalog_fallback": "passed",
+    "route_reliability": "16/16",
+    "header_first_action": "40/40",
+    "map_experience": "27/27",
+    "multilingual": "109/109",
+    "responsive_transitions": "14/14",
+    "overlay_geometry": "32/32",
+    "header_spacing": "168/168",
+    "full_unit_suite": "1954 passed, 0 failed, 1 skipped",
+    "regression_guards": "17/17",
+    "business_media": "passed on desktop and mobile"
+  },
+  "load_findings": {
+    "qqqaaa_initial_status": "failed_under_sustained_serial_load",
+    "passed_suites": 22,
+    "failed_suites": 3,
+    "cause_summary": "One untracked handoff file affected only the source-cleanliness gate. The other failures were isolated HTTP 500 or timeout observations during a long sustained public crawl. The same product families passed in clean standalone runs.",
+    "isolated_rechecks": [
+      { "url": "https://vii.spaplus.co/discover/place/masu-home-wellness", "status": 200 },
+      { "url": "https://vii.spaplus.co/en/attractions/explore/food-culture", "status": 200 },
+      { "url": "https://vii.spaplus.co/fr/spas", "status": 200 },
+      { "url": "https://vii.spaplus.co/_vinext/image?url=%2Fapi%2Fvii%2Fmedia%2F56a3388f3e1c66.JPG&w=640&q=82", "status": 200 }
+    ]
+  },
+  "rollback": {
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_9646b6867bb48191a4e38ce232cc2d62",
+    "deployment_id": "appgdep_6aea435157748191bcd0ecd84d7c3ab3"
+  }
+}

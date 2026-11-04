@@ -1,0 +1,34 @@
+{
+  "observed_error": "The selected Sites connector returned project_not_found for the existing VII project while the authenticated project settings and Site-specific workspace remained available.",
+  "category": "permission",
+  "diagnosis": "The generic connector route was not bound to the VII project. The existing authenticated Site settings opened the project-specific local workspace with the correct Site context and release history.",
+  "authorization_boundary": "Publish the exact tested and pushed v791 source once without changing code, database, data, schema, secrets, environment variables, schedules, DNS, domains, sharing, permissions, catalog, supplier data, CMS, AWS, payments or messages.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "unavailable",
+      "evidence": "The direct Sites connector returned project_not_found for appgprj_6a71ccdca27481918bf04dd329d3eb21."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The authenticated Site settings opened the Site-specific Codex workspace with the active VII Site context, public visibility and prior release history."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "GitHub origin exposed source commit 4801f9fe0e42c8bdd482b06166bea40426b0f601 on release/v791-complete-20261104 with tree 0993aa549ff3be0797aa4449c6bbe6a056ea4f5d."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The Site-specific workspace saved one Version and created one Deployment, which reached terminal succeeded without retry."
+    }
+  ],
+  "outcome": "recovered",
+  "verified_result": "Production v791 reached succeeded at https://vii.spaplus.co with Version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a0a0153bf22c8191a7b9cec4ac77c94d, Deployment appgdep_6aeaaddf02fc81919dbe57394b64c1b5, source commit 4801f9fe0e42c8bdd482b06166bea40426b0f601, managed commit cc823cba91cd48a146e781e03b1bf0749edcbf2d and environment revision 31.",
+  "ready_work_remaining": false
+}
