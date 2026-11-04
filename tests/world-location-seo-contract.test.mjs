@@ -17,6 +17,7 @@ test("the approved location registry covers every world and keeps labels unique"
 
 test("all four worlds expose clean semantic location routes", () => {
   const inventory = read("app/lib/world-location-pages.ts");
+  assert.match(inventory, /approvedLocations\[mode\]/);
   assert.match(inventory, /vacation:\s*"\/vacations\/search"/);
   assert.match(inventory, /events:\s*"\/events\/search"/);
   assert.match(inventory, /spa:\s*"\/spas\/search"/);

@@ -70,7 +70,19 @@ const completeUrls = [...new Set(allUrls)];
 const matchingUrls = requestedRoutePattern
   ? completeUrls.filter((url) => requestedRoutePattern.test(routeFor(url)))
   : completeUrls;
-const urls = requestedLimit > 0 ? matchingUrls.slice(0, requestedLimit) : matchingUrls;
+function evenlySample(values, limit) {
+  if (limit <= 0 || values.length <= limit) return values;
+  if (limit === 1) return [values[0]];
+  return [...new Set(Array.from({ length: limit }, (_, index) => values[Math.round(index * (values.length - 1) / (limit - 1))]))];
+}
+
+const urls = requestedLimit > 0 && !requestedRoutePattern
+  ? sitemapDocuments.flatMap((document, index) => {
+      const baseShare = Math.floor(requestedLimit / sitemapDocuments.length);
+      const share = baseShare + (index < requestedLimit % sitemapDocuments.length ? 1 : 0);
+      return evenlySample([...new Set(document.urls)], share);
+    })
+  : evenlySample(matchingUrls, requestedLimit);
 
 async function inspect(path) {
   const route = routeFor(path);
@@ -142,6 +154,7 @@ const report = {
   sitemapUrls: completeUrls.length,
   audited: results.length,
   limited: requestedLimit > 0,
+  sampling: requestedLimit > 0 && !requestedRoutePattern ? "evenly-stratified-by-sitemap-family" : requestedLimit > 0 ? "evenly-spaced-within-route-pattern" : "complete",
   routePattern: requestedRoutePattern?.source || "",
   duplicateUrls,
   sitemapFailures,

@@ -8,7 +8,7 @@ test("the release audit covers every search entry point and responsive transitio
   for (const route of ["home", "vacation-results", "vacation-region", "spa", "spa-region", "events", "hourly"]) {
     assert.match(audit, new RegExp(`\\[\"${route}\"`));
   }
-  for (const check of ["mobile-fresh", "guests-open", "guests-close-x", "guests-toggle-close", "desktop-after-mobile", "desktop-horizontal-rails", "desktop-reload", "mobile-return"]) {
+  for (const check of ["mobile-fresh", "guests-open", "guests-save", "guests-close-x", "guests-toggle-close", "desktop-after-mobile", "desktop-horizontal-rails", "desktop-reload", "mobile-return"]) {
     assert.match(audit, new RegExp(`\"${check}\"`));
   }
   assert.match(audit, /horizontal-viewport-drift/);
@@ -25,6 +25,8 @@ test("the release audit covers every search entry point and responsive transitio
   assert.match(audit, /function stablePageOperation\(/);
   assert.match(audit, /Execution context was destroyed/);
   assert.match(audit, /after-navigation/);
+  assert.match(audit, /process\.env\.BASE_URL/);
+  assert.match(audit, /vacationGuestPickerVisible/);
   assert.match(audit, /page-close/);
   assert.match(audit, /\["events", "\/events\/search"\]/);
   assert.match(audit, /\["hourly", "\/hourly"\]/);

@@ -14,7 +14,7 @@ test("the matrix covers every search world and critical responsive search state"
   for (const route of ["home", "vacation-results", "vacation-region", "spa", "spa-region", "events", "hourly"]) {
     assert.match(audit, new RegExp(`\\["${route}"`));
   }
-  for (const check of ["mobile-fresh", "guests-open", "guests-close-x", "guests-toggle-close", "desktop-after-mobile", "desktop-reload", "mobile-return"]) {
+  for (const check of ["mobile-fresh", "guests-open", "guests-save", "guests-close-x", "guests-toggle-close", "desktop-after-mobile", "desktop-reload", "mobile-return"]) {
     assert.match(audit, new RegExp(`"${check}"`));
   }
   assert.match(audit, /blank-page/);
@@ -27,6 +27,9 @@ test("the matrix covers every search world and critical responsive search state"
   assert.match(audit, /\[search-audit\] start/);
   assert.match(audit, /\[search-audit\] finish/);
   assert.match(audit, /argument\("route", ""\)/);
+  assert.match(audit, /process\.env\.BASE_URL/);
+  assert.match(audit, /guest-save-triggered-navigation/);
+  assert.match(audit, /guest-picker-still-visible/);
   assert.match(audit, /Unknown search audit route/);
   assert.match(audit, /home: "#home-live-deals-title"/);
   assert.match(audit, /const scrollContainers = rails\.filter/);

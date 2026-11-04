@@ -7,7 +7,7 @@ function argument(name, fallback = "") {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-const baseUrl = argument("base-url", "https://vii.spaplus.co").replace(/\/$/, "");
+const baseUrl = argument("base-url", process.env.BASE_URL || "https://vii.spaplus.co").replace(/\/$/, "");
 const reportFile = argument("report-file", "");
 const version = argument("version", "unversioned");
 const timeoutMs = 30_000;
@@ -36,7 +36,34 @@ const cases = [
   },
   {
     id: "TC-03", name: "hourly Haifa recovery route",
-    run: async () => { const paths = ["/hourly?location=%D7%97%D7%99%D7%A4%D7%94", "/hourly?location=%D7%97%D7%99%D7%A4%D7%94+%D7%95%D7%94%D7%9B%D7%A8%D7%9E%D7%9C"]; const responses = await Promise.all(paths.map((path) => request(path))); return { responses, observations: responses.map((response, index) => ({ path: paths[index], status: response.status, hasHeading: /<h1\b/i.test(response.text), bodyBytes: response.text.length })), failures: responses.flatMap((response, index) => [response.status !== 200 ? `${paths[index]}:http-${response.status}` : null, !/<h1\b/i.test(response.text) ? `${paths[index]}:missing-h1` : null].filter(Boolean)) }; },
+    run: async () => {
+      const paths = ["/hourly?location=%D7%97%D7%99%D7%A4%D7%94", "/hourly?location=%D7%97%D7%99%D7%A4%D7%94+%D7%95%D7%94%D7%9B%D7%A8%D7%9E%D7%9C"];
+      const expectedTargets = ["/hourly/search/haifa", "/hourly/search/haifa-carmel"];
+      const redirects = await Promise.all(paths.map((path) => request(path)));
+      const targets = await Promise.all(expectedTargets.map((path) => request(path)));
+      const observations = redirects.map((response, index) => {
+        const location = response.headers.location ? new URL(response.headers.location, baseUrl).pathname : null;
+        return {
+          path: paths[index],
+          redirectStatus: response.status,
+          location,
+          expectedTarget: expectedTargets[index],
+          targetStatus: targets[index].status,
+          targetHasHeading: /<h1\b/i.test(targets[index].text),
+        };
+      });
+      return {
+        redirects,
+        targets,
+        observations,
+        failures: observations.flatMap((observation) => [
+          ![301, 308].includes(observation.redirectStatus) ? `${observation.path}:expected-permanent-redirect-got-${observation.redirectStatus}` : null,
+          observation.location !== observation.expectedTarget ? `${observation.path}:wrong-canonical-target` : null,
+          observation.targetStatus !== 200 ? `${observation.expectedTarget}:http-${observation.targetStatus}` : null,
+          !observation.targetHasHeading ? `${observation.expectedTarget}:missing-h1` : null,
+        ].filter(Boolean)),
+      };
+    },
   },
   {
     id: "TC-04", name: "accepted discovery period fallback",

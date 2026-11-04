@@ -96,6 +96,7 @@ test("desktop search combines a synchronized result list, sticky map and quick f
 test("desktop map canvas keeps a real row with or without an optional toolbar", () => {
   assert.match(styles, /\.airbnb-map-split__map \{[^}]*grid-template-rows: minmax\(0,1fr\)/);
   assert.match(styles, /\.airbnb-map-split__map:has\(> \.map-pane-toolbar\) \{ grid-template-rows: auto minmax\(0,1fr\); \}/);
+  assert.match(styles, /@media \(max-width: 1100px\) \{[\s\S]*\.airbnb-map-split__map:has\(> \.map-pane-toolbar\) \{ grid-template-rows: minmax\(0,1fr\); \}[\s\S]*\.map-pane-toolbar \{ display: none; \}/);
 });
 
 test("vacation markers prioritize verified price and map zoom is direct", () => {

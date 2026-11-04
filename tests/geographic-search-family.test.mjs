@@ -10,6 +10,7 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('curated region routes remain approved even when catalog rows use cities instead of umbrella regions',()=>{
   assert.equal(approvedSearchLocationFromSlug('events','north'),'צפון');
   assert.equal(approvedSearchLocationFromSlug('events','center'),'מרכז');
+  assert.equal(approvedSearchLocationFromSlug('hourly','haifa'),'חיפה');
   assert.equal(approvedSearchLocationFromSlug('events','definitely-unknown'),null);
 });
 test('equivalent scopes use one clean route per world without dropping selection',()=>{

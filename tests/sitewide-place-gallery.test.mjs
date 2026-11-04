@@ -48,6 +48,7 @@ test("review summary thumbnails stay static while the review rail remains browsa
   assert.match(ratings, /<Link className="home-rating-card__gallery"[^>]*>[\s\S]*?<img src=\{place\.image\} alt=\{name\} title=\{name\}/);
   assert.doesNotMatch(ratings, /PreviewCardGallery|preview-card-gallery__(?:arrow|count)|onTouchStart|onTouchEnd/);
   assert.match(ratings, /<HomeSliderControls railId="home-ratings-rail"/);
+  assert.match(ratings, /id="home-ratings-rail"[^>]*dir=\{language === "he" \? "rtl" : "ltr"\}/);
 });
 
 test("selected map cards preserve the primary place photo without serializing full galleries", () => {

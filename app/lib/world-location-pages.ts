@@ -2,6 +2,7 @@ import { canonicalSearchLocation, uniqueSearchLocations } from "./geographic-nam
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
 import { isWholeCountrySelection, searchLocationOptions, type SearchMode } from "../data/search-taxonomy.ts";
 import { worldLocationSlug } from "./location-slug.ts";
+import approvedLocations from "../data/approved-world-locations.json" with { type: "json" };
 
 type CatalogLocation = {
   area?: string;
@@ -34,13 +35,13 @@ export async function worldLocationInventory(mode: SearchMode) {
   const values = entries.flatMap((entry) => mode === "spa"
     ? [entry.city || ""]
     : [entry.area || "", entry.location || ""]);
-  return uniqueSearchLocations(values.filter(Boolean))
+  return uniqueSearchLocations([...approvedLocations[mode], ...values.filter(Boolean)])
     .map((label) => ({ label, slug: worldLocationSlug(label), path: worldLocationPath(mode, label) }))
     .sort((left, right) => left.label.localeCompare(right.label, "he"));
 }
 
 export function approvedSearchLocationFromSlug(mode: SearchMode, slug: string) {
-  const match = searchLocationOptions(mode)
+  const match = uniqueSearchLocations([...approvedLocations[mode], ...searchLocationOptions(mode)])
     .filter((label) => !isWholeCountrySelection(label))
     .find((label) => worldLocationSlug(label) === slug);
   return match || null;
@@ -54,7 +55,7 @@ export async function approvedWorldLocation(mode: SearchMode, slug: string) {
 
 export async function approvedWorldLocationForLabel(mode: SearchMode, label: string) {
   const canonical = canonicalSearchLocation(label);
-  const approvedLabel = searchLocationOptions(mode)
+  const approvedLabel = uniqueSearchLocations([...approvedLocations[mode], ...searchLocationOptions(mode)])
     .filter((candidate) => !isWholeCountrySelection(candidate))
     .find((candidate) => canonicalSearchLocation(candidate) === canonical);
   if (approvedLabel) return { label: approvedLabel, slug: worldLocationSlug(approvedLabel), path: worldLocationPath(mode, approvedLabel) };

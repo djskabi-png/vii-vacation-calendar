@@ -5,7 +5,7 @@
   "task_type": "production regression repair and controlled release",
   "goal": "Repair the complete candidate, pass QQQAAA against the exact build, publish once, and verify the public version without regressing approved VII behavior",
   "created_at": "2026-11-04T01:22:08.570573Z",
-  "updated_at": "2026-11-04T01:22:17.277336Z",
+  "updated_at": "2026-11-04T02:02:38.802942Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -163,6 +163,15 @@
       "source": "project_guidance",
       "statement": "The previous verified public version remains an evidenced rollback target",
       "acceptance_check": "The previous verified public version remains an evidenced rollback target",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "correction:mobile-guest-save",
+      "source": "user_correction",
+      "statement": "On mobile, saving the guest composition closes only the guest popup, preserves the expanded search editor, and does not start a search automatically.",
+      "acceptance_check": "A real mobile-browser audit opens the guest picker, saves the composition, verifies the picker closed, verifies the main search action is visible, and confirms that no navigation occurred.",
       "status": "pending",
       "evidence": [],
       "reason": null

@@ -9,7 +9,7 @@ function argument(name, fallback = "") {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-const baseUrl = argument("base-url", "https://vii.spaplus.co").replace(/\/$/, "");
+const baseUrl = argument("base-url", process.env.BASE_URL || "https://vii.spaplus.co").replace(/\/$/, "");
 const executablePath = argument("executable-path", process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
 const version = argument("version", String(Date.now()));
 const screenshotDirectory = argument("screenshot-dir", "");
@@ -68,6 +68,7 @@ async function inspect(page) {
       bodyOverflow: document.body.style.overflow,
       bodyOverscroll: document.body.style.overscrollBehavior,
       expanded: Boolean(document.querySelector(".search-box-shell.mobile-expanded")),
+      vacationGuestPickerVisible: Boolean(document.querySelector(".vacation-party-picker")),
       searchVisible: searchButtons.some((button) => button.offsetWidth > 0 && button.offsetHeight > 0),
       searchRect: searchButtons.find((button) => button.offsetWidth > 0 && button.offsetHeight > 0)?.getBoundingClientRect().toJSON() || null,
     };
@@ -270,7 +271,26 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         await guestTrigger.click();
         await page.waitForTimeout(150);
         state = await stablePageOperation(`${name}:inspect-guests-open`, page, () => inspect(page));
-        report.checks.push({ name: "guests-open", state, failures: failuresFor(state, { requireExpanded: true, requireSearch: true }) });
+        report.checks.push({ name: "guests-open", state, failures: failuresFor(state, { requireExpanded: true }) });
+
+        const saveVacationGuests = page.locator(".vacation-party-picker .popover-done").first();
+        if (await saveVacationGuests.isVisible().catch(() => false)) {
+          const urlBeforeSave = page.url();
+          await saveVacationGuests.click();
+          await page.waitForTimeout(150);
+          state = await stablePageOperation(`${name}:inspect-guests-save`, page, () => inspect(page));
+          report.checks.push({
+            name: "guests-save",
+            state: { ...state, urlBeforeSave, urlAfterSave: page.url() },
+            failures: [
+              ...failuresFor(state, { requireExpanded: true, requireSearch: true }),
+              ...(state.vacationGuestPickerVisible ? ["guest-picker-still-visible"] : []),
+              ...(page.url() !== urlBeforeSave ? ["guest-save-triggered-navigation"] : []),
+            ],
+          });
+          await guestTrigger.click();
+          await page.waitForTimeout(150);
+        }
 
         const contextualClose = page.locator(`button[aria-label="${labels.closeGuests}"]`).first();
         if (await contextualClose.isVisible().catch(() => false)) {

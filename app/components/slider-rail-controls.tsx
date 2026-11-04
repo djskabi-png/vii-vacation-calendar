@@ -93,22 +93,48 @@ export function SliderRailControls({
   const { language } = useSiteLanguage();
   const state = useSliderRailBoundaries({ railId, railRef, itemSelector, disabled });
   useLayoutEffect(() => {
-    const rail = railRef?.current || (railId ? document.getElementById(railId) : null);
-    if (!rail || disabled) return;
+    const resolveRail = () => railRef?.current || (railId ? document.getElementById(railId) : null);
+    if (!resolveRail() || disabled) return;
     let settleFrame = 0;
     let settleTimer = 0;
-    const frame = window.requestAnimationFrame(() => {
+    let settleInterval = 0;
+    let userInteracted = false;
+    const normalize = () => {
+      if (userInteracted) return;
+      const rail = resolveRail();
+      if (!rail) return;
       rail.scrollLeft = 0;
-      settleFrame = window.requestAnimationFrame(state.update);
+      state.update();
+    };
+    const preserveUserPosition = (event: Event) => {
+      const rail = resolveRail();
+      if (rail && event.target instanceof Node && rail.contains(event.target)) userInteracted = true;
+    };
+    const frame = window.requestAnimationFrame(() => {
+      normalize();
+      settleFrame = window.requestAnimationFrame(normalize);
       settleTimer = window.setTimeout(() => {
-        rail.scrollLeft = 0;
-        state.update();
-      }, 250);
+        window.clearInterval(settleInterval);
+        normalize();
+      }, 3_000);
+      // React streaming can replace a server-rendered rail after the controls
+      // have mounted. Keep normalizing only during the initial settle window,
+      // and stop immediately if the visitor starts interacting with the rail.
+      settleInterval = window.setInterval(normalize, 100);
     });
+    document.addEventListener("pointerdown", preserveUserPosition, true);
+    document.addEventListener("touchstart", preserveUserPosition, true);
+    document.addEventListener("wheel", preserveUserPosition, true);
+    document.addEventListener("keydown", preserveUserPosition, true);
     return () => {
       window.cancelAnimationFrame(frame);
       window.cancelAnimationFrame(settleFrame);
       window.clearTimeout(settleTimer);
+      window.clearInterval(settleInterval);
+      document.removeEventListener("pointerdown", preserveUserPosition, true);
+      document.removeEventListener("touchstart", preserveUserPosition, true);
+      document.removeEventListener("wheel", preserveUserPosition, true);
+      document.removeEventListener("keydown", preserveUserPosition, true);
     };
   }, [disabled, language, railId, railRef, state.update]);
   const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];

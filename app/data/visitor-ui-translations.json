@@ -424,5 +424,6 @@
   "ארוחות ערב": { "en": "Dinner", "ru": "Ужин", "fr": "Dîner" },
   "מחיר החבילה": { "en": "Package price", "ru": "Стоимость пакета", "fr": "Prix du forfait" },
   "לבחירה קלה וברורה": { "en": "Easy to compare and choose", "ru": "Легко сравнить и выбрать", "fr": "Faciles à comparer et à choisir" },
-  "בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.": { "en": "Choose the package that suits you and check an available date before booking.", "ru": "Выберите подходящий пакет и проверьте доступную дату перед бронированием.", "fr": "Choisissez le forfait qui vous convient et vérifiez une date disponible avant de réserver." }
+  "בחרו את החבילה שמתאימה לכם ובדקו מועד פנוי לפני ההזמנה.": { "en": "Choose the package that suits you and check an available date before booking.", "ru": "Выберите подходящий пакет и проверьте доступную дату перед бронированием.", "fr": "Choisissez le forfait qui vous convient et vérifiez une date disponible avant de réserver." },
+  "המדיניות המקורית של המקום": { "en": "The property policy is shown below in its original Hebrew", "ru": "Ниже приведены правила объекта в оригинале на иврите", "fr": "La politique de l’établissement est affichée ci-dessous dans sa version originale en hébreu" }
 }

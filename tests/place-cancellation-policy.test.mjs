@@ -29,5 +29,8 @@ test("booking and business pages render the place policy separately from the sit
   assert.match(bookingClient, /למדיניות הביטול של המקום/);
   assert.match(bookingClient, /href="\/legal\/terms"/);
   assert.match(businessClient, /supplierDetail\?\.policy\.cancellationTerms/);
-  assert.match(businessClient, /מדיניות הביטול של \$\{localizedPropertyName\}/);
+  assert.match(businessClient, /cancellationTitle: \(name: string\)/);
+  assert.match(businessClient, /businessCopy\.cancellationTitle\(localizedPropertyName\)/);
+  assert.match(businessClient, /<p lang="he" dir="rtl" data-no-translate>/);
+  assert.match(businessClient, /businessCopy\.originalPolicy/);
 });

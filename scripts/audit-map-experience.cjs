@@ -59,8 +59,13 @@ async function snapshot(page) {
       const style = getComputedStyle(node);
       return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
     });
+    const anyShell = document.querySelector(".listing-map-shell");
     const shell = visible(".listing-map-shell")[0];
     const rect = shell?.getBoundingClientRect();
+    const anyShellRect = anyShell?.getBoundingClientRect();
+    const anyShellStyle = anyShell ? getComputedStyle(anyShell) : null;
+    const experience = document.querySelector(".map-results-experience");
+    const experienceStyle = experience ? getComputedStyle(experience) : null;
     return {
       ready: visible(".listing-map.is-ready").length,
       tiles: [...document.querySelectorAll(".leaflet-tile")].filter((image) => image.complete && image.naturalWidth > 0).length,
@@ -74,6 +79,9 @@ async function snapshot(page) {
       searchArea: visible(".map-search-area").length,
       viewport: { width: innerWidth, height: innerHeight },
       shell: rect ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height } : null,
+      shellDiagnostic: anyShellRect ? { width: anyShellRect.width, height: anyShellRect.height, display: anyShellStyle?.display, visibility: anyShellStyle?.visibility } : null,
+      experienceDiagnostic: experience ? { display: experienceStyle?.display, width: experience.getBoundingClientRect().width, height: experience.getBoundingClientRect().height } : null,
+      ancestorDiagnostics: anyShell ? [anyShell.parentElement, anyShell.parentElement?.parentElement, anyShell.parentElement?.parentElement?.parentElement].filter(Boolean).map((element) => ({ className: element.className, width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height, display: getComputedStyle(element).display, gridRows: getComputedStyle(element).gridTemplateRows })) : [],
       horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       bodyOverflow: document.body ? getComputedStyle(document.body).overflow : "document-transition",
     };
@@ -267,7 +275,9 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
       await close.waitFor({ timeout: 8_000 });
       await close.click({ force: true });
     } else {
-      await page.locator(".mobile-map-fab.active:visible, .map-mobile-close:visible").first().click({ force: true });
+      await close.waitFor({ timeout: 8_000 });
+      record.checks.desktopCloseInsideMap = await close.count();
+      await close.click({ force: true });
     }
     await page.waitForFunction(() => !document.querySelector(".map-results-experience"), null, { timeout: 10_000 });
     record.checks.toggleAfter = await visibleCount(page, ".mobile-map-fab");
