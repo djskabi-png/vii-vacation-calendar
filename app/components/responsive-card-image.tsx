@@ -10,15 +10,19 @@ const defaultSizes = "(max-width: 760px) calc(100vw - 32px), (max-width: 1180px)
 export function ResponsiveCardImage({
   src,
   sizes = defaultSizes,
+  imageWidths,
+  quality = 82,
   onOriginalFailure,
   ...props
 }: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
   src: string;
+  imageWidths?: readonly number[];
+  quality?: number;
   onOriginalFailure?: () => void;
 }) {
   const [failedOptimizedSource, setFailedOptimizedSource] = useState<string | null>(null);
   const optimizable = isOptimizableCardMedia(src);
-  const responsive = responsiveCardMedia(src);
+  const responsive = responsiveCardMedia(src, quality, imageWidths);
   const useOriginal = failedOptimizedSource === src;
 
   return <img

@@ -27,7 +27,7 @@ test("source boundaries apply the shared reviewed copy without broad body rewrit
   assert.match(source("app/holidays/[slug]/page.tsx"), /readHolidayWorld\(holiday, await database\(\), language\)/);
   assert.match(source("app/spas/page.tsx"), /title=\{translate\(page\?\.title/);
   assert.match(source("app/business/page.tsx"), /const name = translate\(property\.name\)/);
-  assert.match(source("worker/index.ts"), /Object\.entries\(publicReviewTranslations\)/);
+  assert.match(source("worker/localized-html.ts"), /Object\.entries\(publicReviewTranslations\)/);
   assert.match(source("app/i18n/locale-provider.tsx"), /lookupPublicCopy\(value, language, publicReviewByLanguage\[language\]\)/);
   assert.match(source("app/business/client-page.tsx"), /localizedPropertyName = safeBusinessText\(property\.name, latinBusinessAlias\(property\.name\) \|\| businessCopy\.name\)/);
   assert.match(source("app/contact/page.tsx"), /permanentRedirect\(localizedPath\("\/join", language\)\)/);

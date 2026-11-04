@@ -95,7 +95,7 @@ test("hourly data and localized visitor guidance preserve useful truth without i
     }
   }
   const client = await readFile(resolve(root, "app/i18n/locale-provider.tsx"), "utf8");
-  const server = await readFile(resolve(root, "worker/index.ts"), "utf8");
+  const server = await readFile(resolve(root, "worker/localized-html.ts"), "utf8");
   assert.match(client, /const exact = visitorExact \|\|/);
   assert.match(server, /Object\.entries\(visitorUiTranslations\)/);
 });

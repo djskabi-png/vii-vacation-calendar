@@ -121,11 +121,13 @@ test("business and event detail pages render accepted platform snapshots without
   assert.doesNotMatch(eventClient, /import \{[^}]*\bproviderProfiles\b[^}]*\} from "\.\.\/\.\.\/data\/world-data"/);
 });
 
-test("new-tab business navigation warms both app and document caches", async () => {
+test("new-tab business navigation warms only the bounded document path", async () => {
   const warmup = await read("app/components/smart-navigation-warmup.tsx");
+  const scheduler = await read("app/lib/navigation-intent-warmup.ts");
   assert.match(warmup, /isBusinessDepthRoute\(basePath\)/);
-  assert.match(warmup, /fetch\(destination,[\s\S]*cache: "force-cache"/);
-  assert.match(warmup, /Accept: "text\/html,application\/xhtml\+xml"/);
+  assert.match(warmup, /warmup\.warm\(destination, anchor\.target === "_blank"/);
+  assert.match(scheduler, /cache: "force-cache"/);
+  assert.match(scheduler, /Accept: "text\/html,application\/xhtml\+xml"/);
 });
 
 test("public deal rails do not print cache implementation notes", async () => {

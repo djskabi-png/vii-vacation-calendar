@@ -1,38 +1,26 @@
+import type { PublicLocale } from "./localized-html.ts";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
-import handler from "vinext/server/app-router-entry";
-import enTranslations from "../app/i18n/translations.en.generated.json";
-import ruTranslations from "../app/i18n/translations.ru.generated.json";
-import frTranslations from "../app/i18n/translations.fr.generated.json";
-import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
-import providerJoinTranslations from "../app/data/provider-join-translations.json";
-import spaUiTranslations from "../app/data/spa-ui-translations.json";
-import worldDepthTranslations from "../app/data/world-depth-translations.json";
-import visitorUiTranslations from "../app/data/visitor-ui-translations.json";
-import publicReviewTranslations from "../app/data/public-review-translations.json";
-import { lookupPublicCopy } from "../app/i18n/public-copy";
-import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
-import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
-import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
-import { warmVacationDiscoveryCache } from "../app/lib/warm-vacation-discovery-cache.ts";
-import { warmEventDiscoveryCache } from "../app/lib/warm-event-discovery-cache.ts";
-import { bundledMapSnapshotCandidates } from "../app/lib/map-snapshot-catalog.ts";
-import { isWeeklyMapSnapshotWindow, reconcileMapSnapshots } from "../app/lib/map-snapshot-store.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectRecordForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
-import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { cloudflareDatabaseForEnv } from "../app/lib/runtime-database.ts";
-import { runQualityChecks } from "../app/lib/quality-platform.ts";
 import { deploymentMediaAliases } from "../app/lib/deployment-media-aliases.generated.ts";
 import { optimizedMediaSource } from "./optimized-media-source.ts";
 import { transformResponsiveImage, type NativeImageBinding } from "./responsive-image-transform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
+let appHandlerPromise: Promise<any> | undefined;
+function appHandler() {
+  return appHandlerPromise ||= import("vinext/server/app-router-entry").then(module => module.default).catch(error => {
+    appHandlerPromise = undefined;
+    throw error;
+  });
+}
 
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
@@ -62,86 +50,6 @@ function withLaunchSeo(response: Response, url: URL, primary: boolean) {
   }
   const body = [204, 205, 304].includes(response.status) ? null : response.body;
   return Promise.resolve(new Response(body, { status: response.status, statusText: response.statusText, headers }));
-}
-
-type PublicLocale = "he" | "en" | "ru" | "fr";
-type TranslationDictionary = Record<string, string>;
-
-const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDictionary> = {
-  en: { ...enTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.en])) },
-  ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.ru])) },
-  fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.fr])) },
-};
-
-for (const locale of ["en", "ru", "fr"] as const) {
-  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(worldDepthTranslations).map(([key, value]) => [key, value[locale]])), Object.fromEntries(Object.entries(visitorUiTranslations).map(([key, value]) => [key, value[locale]])));
-  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(publicReviewTranslations).map(([key, value]) => [key, value[locale]])));
-}
-
-function translateServerText(value: string, locale: PublicLocale) {
-  if (locale === "he" || !/[\u0590-\u05ff]/.test(value)) return value;
-  const leading = value.match(/^\s*/)?.[0] || "";
-  const trailing = value.match(/\s*$/)?.[0] || "";
-  const core = value.slice(leading.length, value.length - trailing.length);
-  if (!core) return value;
-  // Metadata templates append the brand after the page title. Prefer the same
-  // reviewed headline as the UI over an older machine-translated full string.
-  const brandSuffix = " | וי פור ויקיישן";
-  const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
-  const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<PublicLocale, string>>>)[headline]?.[locale];
-  if (reviewedHeadline) return `${leading}${reviewedHeadline} | ${serverTranslations[locale]["וי פור ויקיישן"] || "VII Vacation"}${trailing}`;
-  const reviewedOrExact = lookupPublicCopy(core, locale, serverTranslations[locale]);
-  if (reviewedOrExact) return `${leading}${reviewedOrExact}${trailing}`;
-  if (headline) {
-    const localizedHeadline = localizedSpaSearchSource(headline, locale) || serverTranslations[locale][headline];
-    if (localizedHeadline) return `${leading}${localizedHeadline} | VII Vacation${trailing}`;
-  }
-  return `${leading}${localizedSpaSearchSource(core, locale) || serverTranslations[locale][core] || core}${trailing}`;
-}
-
-function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he">) {
-  try {
-    const url = new URL(value);
-    if (url.origin !== "https://vii.spaplus.co") return value;
-    if (/^\/(?:api|_next|assets|media|sitemaps)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
-    const basePath = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
-    url.pathname = `/${locale}${basePath === "/" ? "" : basePath}`;
-    return url.toString();
-  } catch {
-    return value;
-  }
-}
-
-function localizeStructuredData(value: unknown, locale: Exclude<PublicLocale, "he">, key?: string, parentType?: string): unknown {
-  if (key === "inLanguage") return locale;
-  if (typeof value === "string") {
-    const isPageUrl = ["@id", "mainEntityOfPage", "item", "urlTemplate"].includes(key || "")
-      || (key === "url" && !["Organization", "WebSite", "ImageObject"].includes(parentType || ""));
-    return translateServerText(isPageUrl ? localizeStructuredUrl(value, locale) : value, locale);
-  }
-  if (Array.isArray(value)) return value.map((item) => localizeStructuredData(item, locale, key, parentType));
-  if (value && typeof value === "object") {
-    const type = typeof (value as Record<string, unknown>)["@type"] === "string" ? (value as Record<string, string>)["@type"] : parentType;
-    return Object.fromEntries(Object.entries(value).map(([entryKey, entryValue]) => [entryKey, localizeStructuredData(entryValue, locale, entryKey, type)]));
-  }
-  return value;
-}
-
-function translateSeoHtml(html: string, locale: PublicLocale) {
-  if (locale === "he") return html;
-  return html
-    .replace(/<title>([^<]*)<\/title>/g, (_match, value: string) => `<title>${translateServerText(value, locale)}</title>`)
-    .replace(/<meta([^>]*?)content="([^"]*)"([^>]*)>/g, (_match, before: string, value: string, after: string) => {
-      const translated = translateServerText(value, locale).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-      return `<meta${before}content="${translated}"${after}>`;
-    })
-    .replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (match, value: string) => {
-      try {
-        return `<script type="application/ld+json">${JSON.stringify(localizeStructuredData(JSON.parse(value), locale))}</script>`;
-      } catch {
-        return match;
-      }
-    });
 }
 
 interface Env {
@@ -174,7 +82,14 @@ interface ExecutionContext {
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
 const worker = {
-  scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
+  async scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
+    const { runQualityChecks } = await import("../app/lib/quality-platform.ts");
+    const { runSupplierCatalogScheduleTick } = await import("../app/lib/supplier-catalog-retry-runner.ts");
+    const { cachedOnlineCapabilities } = await import("../app/lib/online-booking-capability-cache.ts");
+    const { bundledMapSnapshotCandidates } = await import("../app/lib/map-snapshot-catalog.ts");
+    const [{ warmVacationDiscoveryCache }, { warmEventDiscoveryCache }, { isWeeklyMapSnapshotWindow, reconcileMapSnapshots }] = await Promise.all([
+      import("../app/lib/warm-vacation-discovery-cache.ts"), import("../app/lib/warm-event-discovery-cache.ts"), import("../app/lib/map-snapshot-store.ts"),
+    ]);
     const database = cloudflareDatabaseForEnv(env);
     if (!database) throw new Error("scheduled_database_unavailable");
     const scheduledAt = new Date(controller.scheduledTime);
@@ -261,13 +176,24 @@ const worker = {
       return Response.redirect(`${primaryOrigin}${url.pathname}${url.search}`, 301);
     }
 
+    // Preserve the normal host/redirect policy before the manifest-bound
+    // public photo fast path. Streaming R2 bytes does not need the app router.
+    if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/api/vii/media/")) {
+      const { servePublicGalleryMedia } = await import("./public-gallery-media.ts");
+      return servePublicGalleryMedia(request, env.UPLOADS);
+    }
+
     const cachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
     if (cachePolicy && !refreshPublic) {
       const lookupStarted = performance.now();
       try {
         const cached = await readPublicCache(cachePolicy, env, ctx);
         if (cached) {
-          cached.headers.set("X-VII-Cache-Read-Ms", String(Math.round(performance.now() - lookupStarted)));
+          const cacheReadMs = Math.round(performance.now() - lookupStarted);
+          cached.headers.set("X-VII-Cache-Read-Ms", String(cacheReadMs));
+          // Keep the cache tier visible in browser/server timing traces. This
+          // is diagnostic only and does not alter cache eligibility or body.
+          cached.headers.set("Server-Timing", `vii-cache;dur=${cacheReadMs}`);
           cached.headers.set("X-VII-Cache-Refresh", refreshPublicCacheAhead(cached, cachePolicy, ctx,
             () => worker.fetch(request, env, ctx, true)));
           return cached;
@@ -303,7 +229,7 @@ const worker = {
     requestHeaders.set("x-vii-pathname", documentPathname);
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
-    const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    const response = await (await appHandler()).fetch(new Request(request, { headers: requestHeaders }), env, ctx);
     // API routes can report a more precise runtime origin such as the accepted
     // D1 fallback used during an Aurora incident. Preserve that evidence and
     // only supply the configured database mode when the route did not.
@@ -325,6 +251,11 @@ const worker = {
     }
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
+    // Cache hits and Hebrew origin responses never initialize language dictionaries.
+    const seo = locale === "he" ? undefined : await import("./localized-html.ts");
+    const translateServerText = seo?.translateServerText ?? ((text: string) => text);
+    const localizeStructuredData = seo?.localizeStructuredData ?? ((value: unknown) => value);
+    const translateSeoHtml = seo?.translateSeoHtml ?? ((html: string) => html);
     const makeLocaleLinks = (currentHref: string) => {
       const canonicalUrl = new URL(currentHref || documentPathname, url.origin);
       const basePathname = canonicalUrl.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";

@@ -72,7 +72,7 @@ test("localized routes translate the server response and retain safe hydration",
   const provider = await readFile(resolve(root, "app/i18n/locale-provider.tsx"), "utf8");
   const layout = await readFile(resolve(root, "app/layout.tsx"), "utf8");
   const card = await readFile(resolve(root, "app/components/discovery-card.tsx"), "utf8");
-  const worker = await readFile(resolve(root, "worker/index.ts"), "utf8");
+  const worker = await readFile(resolve(root, "worker/index.ts"), "utf8") + await readFile(resolve(root, "worker/localized-html.ts"), "utf8");
   assert.match(provider, /initialLanguage = "he"/);
   assert.match(layout, /<LocaleProvider initialLanguage=\{locale\}>/);
   assert.match(layout, /data-locale-pending/);

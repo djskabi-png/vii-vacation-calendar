@@ -53,6 +53,16 @@ test("worker optimizer source reads only the bounded gallery R2 prefix", async (
   }
   assert.equal(requested.length, 1);
 });
+test("verified native service retains the exact photo identity at card and full gallery widths", () => {
+  const src='/api/vii/media/5367d7dbf7eb447.jpeg';
+  const card=responsiveCardMedia(src);
+  assert.equal(new URL(card.src).origin,'https://vii-public-images.djskabi.workers.dev');
+  assert.equal(new URL(card.src).searchParams.get('url'),src);
+  assert.equal(new URL(card.src).searchParams.get('q'),'82');
+  const hero=responsiveCardMedia(src,88,[640,960,1280,1600]);
+  for(const width of [640,960,1280,1600])assert.ok(hero.srcSet.includes(`&w=${width}&q=88 ${width}w`));
+  assert.equal(new URL(hero.src).searchParams.get('url'),src);
+});
 
 test("shared cards use responsive sources, original recovery and bounded priority", async () => {
   const [component, preview, property, search, worker, loading] = await Promise.all([

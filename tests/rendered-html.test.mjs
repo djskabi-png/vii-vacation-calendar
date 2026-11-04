@@ -1352,7 +1352,7 @@ test("discovery depth pages expose only their visible verified FAQs as FAQPage d
 });
 
 test("translated structured data keeps entity URLs on the matching locale without relabeling media", async () => {
-  const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
+  const worker = await readFile(new URL("../worker/localized-html.ts", import.meta.url), "utf8");
 
   assert.match(worker, /function localizeStructuredUrl/);
   assert.match(worker, /url\.pathname = `\/\$\{locale\}\$\{basePath === "\/" \? "" : basePath\}`/);

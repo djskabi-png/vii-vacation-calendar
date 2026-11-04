@@ -217,7 +217,7 @@ test("internal destinations warm on real pointer, focus or touch intent", async 
   assert.match(warmup, /document\.addEventListener\("touchstart"/);
   assert.match(warmup, /router\.prefetch\(destination\)/);
   assert.match(warmup, /saveData/);
-  assert.match(warmup, /warmed\.size > 24/);
+  assert.match(warmup, /createNavigationIntentWarmup/);
   assert.match(warmup, /\^\\\/\(\?:admin\|account\|favorites\|booking\)/);
 });
 

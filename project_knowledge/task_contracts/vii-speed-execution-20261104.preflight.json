@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-speed-execution-20261104",
+  "project": "VII",
+  "task_type": "performance-implementation-release",
+  "requested_outcome": "Implement measured speed improvements and publish preserving all information and booking authority",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Scoped code, tests and verified public release authorized; retain Cloudflare and current bindings",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Pagination must preserve complete report truth",
+      "acceptance_impact": "Compare totals, search, global sorting and complete export"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "An administration performance fix needs real authenticated evidence",
+      "acceptance_impact": "Desktop/mobile initial load and every deferred section must work in the exact deployed release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "acceptance_check": "Public timings with cache telemetry",
+      "prevention": "Measure same routes/cache path before and after",
+      "rejection": "Only loaders changed while actual latency stays slow"
+    },
+    {
+      "acceptance_check": "Actual catalog authority, fallback and media parity",
+      "prevention": "Lazy data remains complete and accessible",
+      "rejection": "Faster by dropping data or detail"
+    },
+    {
+      "acceptance_check": "Actual scheduler concurrency, deduplication and excluded paths",
+      "prevention": "One navigation mechanism per destination and bounded document warmup",
+      "rejection": "Speculation causes duplicate requests and contention"
+    },
+    {
+      "acceptance_check": "Actual cache privacy, invalidation and deadlines",
+      "prevention": "Keep private exclusions, varying headers, hard expiry and build identity",
+      "rejection": "Cache leaks private content or stale build"
+    },
+    {
+      "acceptance_check": "Baseline, independent review and post-release journeys",
+      "prevention": "Cumulative protected source, exact build and rollback",
+      "rejection": "Prior v798 fixes disappear"
+    }
+  ],
+  "affected_family": [
+    "home/world/search/business HTML and RSC4locales",
+    "cache edge/R2/memory, miss/hit/private/error/expiry",
+    "accepted catalog summaries/detail/media authority",
+    "navigation same-tab/new-tab/focus/hover/touch/saveData/back",
+    "responsive images and source fallback",
+    "authenticated progressive report and private boundary",
+    "protected v798 capabilities, SEO and booking revalidation"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII performance and administration invariants",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First measured delivery, navigation and catalog slice",
+    "checks": [
+      "Cache critical path and private exclusions",
+      "Lazy details parity and built graph",
+      "One navigation mechanism per destination"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Is the public cache still slow or stale?",
+      "Does lazy detail lose galleries or units?",
+      "Does speculation overload requests?",
+      "Can protected v798 behavior regress?"
+    ],
+    "natural_destination_evidence": "Exact public before/after timings and customer operations SEO journeys; actual viewport measured",
+    "affected_family_evidence": "Actual cache/catalog/navigation tests, baseline, independent review and exact build"
+  },
+  "effectiveness": {
+    "baseline": "v798 prior four-path HTML3.4to6.9seconds, R2hit2.4to4seconds; report optimization already public",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Reduce measured avoidable critical-path latency and startup work without data loss"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

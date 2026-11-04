@@ -192,7 +192,10 @@ export async function readPublicCache(policy: PublicCachePolicy, env: CacheEnvir
   if (local) {
     if (local.expiresAt > Date.now()) {
       remember(policy.key, local);
-      return cacheHeaders(new Response(local.body.slice(0), { headers: local.headers }), policy, "HIT", "memory", local.expiresAt);
+      // ArrayBuffer bodies are immutable cache entries. Reusing the buffer
+      // avoids copying up to 2 MiB on every in-isolate hit; Response consumes
+      // its own body stream without mutating the backing bytes.
+      return cacheHeaders(new Response(local.body, { headers: local.headers }), policy, "HIT", "memory", local.expiresAt);
     }
     memoryBytes -= local.body.byteLength;
     memory.delete(policy.key);

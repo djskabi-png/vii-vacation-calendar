@@ -42,7 +42,7 @@ test('actual client dynamic counter and breadcrumb use reviewed geographic names
 });
 
 test('actual server metadata translates semantic spa headline before appending brand',()=>{
-  const source=read('worker/index.ts');
+  const source=read('worker/localized-html.ts');
   const snippet=source.slice(source.indexOf('function translateServerText('),source.indexOf('\nfunction localizeStructuredUrl('));
   const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource','lookupPublicCopy',compile(snippet)+'\nreturn translateServerText;')(visitor,empty,localizedSpaSearchSource,lookupPublicCopy);
   for(const locale of ['en','fr','ru']) {
@@ -53,7 +53,7 @@ test('actual server metadata translates semantic spa headline before appending b
 });
 
 test('semantic brand handling preserves reviewed legacy full-title translations',()=>{
-  const source=read('worker/index.ts');
+  const source=read('worker/localized-html.ts');
   const snippet=source.slice(source.indexOf('function translateServerText('),source.indexOf('\nfunction localizeStructuredUrl('));
   const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource','lookupPublicCopy',compile(snippet)+'\nreturn translateServerText;')(visitor,dictionaries,localizedSpaSearchSource,lookupPublicCopy);
   for(const locale of ['en','fr','ru']) {

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { languageFromPathname, localizedPath, stripLanguagePrefix } from "../i18n/locale-routing";
 import { isBusinessDepthRoute } from "../lib/new-tab-policy";
+import { createNavigationIntentWarmup, warmNavigationDocument } from "../lib/navigation-intent-warmup";
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string };
 
@@ -26,7 +27,10 @@ export function SmartNavigationWarmup() {
   useEffect(() => {
     const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
     if (connection?.saveData || connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") return;
-    const warmed = new Set<string>();
+    const warmup = createNavigationIntentWarmup({
+      prefetch: (destination) => router.prefetch(destination),
+      document: warmNavigationDocument,
+    });
     const warmAnchor = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return;
       const anchor = target.closest<HTMLAnchorElement>("a[href]");
@@ -35,20 +39,11 @@ export function SmartNavigationWarmup() {
       if (!href || !href.startsWith("/") || href.startsWith("//") || href.startsWith("/api/")) return;
       const destination = localizedPath(href, languageFromPathname(window.location.pathname));
       const basePath = stripLanguagePrefix(new URL(destination, window.location.origin).pathname);
-      if (/^\/(?:admin|account|favorites|booking)(?:\/|$)/.test(basePath) || warmed.has(destination)) return;
-      warmed.add(destination);
-      router.prefetch(destination);
+      if (/^\/(?:admin|account|favorites|booking)(?:\/|$)/.test(basePath)) return;
       // Detail routes that intentionally open in a new tab cannot reuse the
-      // current tab's App Router cache, so also warm the document response.
-      if (anchor.target === "_blank" || isBusinessDepthRoute(basePath)) {
-        void fetch(destination, {
-          method: "GET",
-          credentials: "same-origin",
-          cache: "force-cache",
-          headers: { Accept: "text/html,application/xhtml+xml" },
-        }).catch(() => undefined);
-      }
-      if (warmed.size > 24) warmed.delete(warmed.values().next().value!);
+      // current tab's App Router cache. Warm only the document for those
+      // destinations, rather than rendering both HTML and Flight on one hover.
+      warmup.warm(destination, anchor.target === "_blank" || isBusinessDepthRoute(basePath));
     };
     const onPointerOver = (event: PointerEvent) => warmAnchor(event.target);
     const onFocusIn = (event: FocusEvent) => warmAnchor(event.target);
@@ -57,6 +52,7 @@ export function SmartNavigationWarmup() {
     document.addEventListener("focusin", onFocusIn, true);
     document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
     return () => {
+      warmup.dispose();
       document.removeEventListener("pointerover", onPointerOver, true);
       document.removeEventListener("focusin", onFocusIn, true);
       document.removeEventListener("touchstart", onTouchStart, true);

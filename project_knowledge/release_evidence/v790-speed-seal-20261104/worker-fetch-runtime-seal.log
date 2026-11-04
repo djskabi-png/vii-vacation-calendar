@@ -1,0 +1,14 @@
+{
+  "verdict": "passed",
+  "firstMs": 25939.4,
+  "secondMs": 24.1,
+  "cache": {
+    "document": "HIT",
+    "private": "bypass",
+    "locale": "separate",
+    "navigation": "separate"
+  },
+  "appLoader": "not instrumented by candidate"
+}
+wallClockMs=51415
+environment=local built dist/server/index.js; env only ASSETS fallback; no D1/UPLOADER; no production network
