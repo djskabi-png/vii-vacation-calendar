@@ -5,8 +5,8 @@
   "task_type": "backend-recovery",
   "goal": "Restore administration on one Cloudflare D1 authority",
   "created_at": "2026-11-04T10:09:18.616098Z",
-  "updated_at": "2026-11-04T10:10:28.784348Z",
-  "completed_at": null,
+  "updated_at": "2026-11-04T10:36:01.511085Z",
+  "completed_at": "2026-11-04T10:36:01.511115Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -62,9 +62,12 @@
       "source": "user_request",
       "statement": "Restore administration on one Cloudflare D1 authority",
       "acceptance_check": "Deployed admin routes and safe draft readback",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "v794 deployment succeeded revision32. Eleven previously failed authenticated APIs recovered. Same D1 selection in app/worker/cron/map/reviews. Unchanged geography save version2 survived fresh API and UI reload. Scope is database recovery, not whole-site launch approval"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T10:35:43.544178Z"
     },
     {
       "id": "preflight:prediction",
@@ -95,39 +98,100 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Public v794 env32 authenticated owner route family and readback; independent live geography and catalog origin checks",
+        "All eleven original API failures recovered, map administration success, recursive app/worker bypass guard,1965 passing source tests with one skipped",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T10:36:00.942892Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=1, prevented_failures=3, elapsed_minutes=34.0; Eleven admin APIs originally unavailable. Independent midpoint found three bypasses; fixed before single deployment. No full-site readiness or performance success claimed"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T10:36:01.225138Z"
     },
     {
       "id": "lesson:ADIR-ADMIN-001",
       "source": "lesson:ADIR-ADMIN-001",
       "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
       "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Authenticated eleven-route family plus map admin; unchanged geography save and readback on exact public release; no unauthorized user roles or messages changed. Other individual admin actions not claimed certified"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T10:35:43.798158Z"
     },
     {
       "id": "lesson:ADIR-QA-001",
       "source": "lesson:ADIR-QA-001",
       "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Production build and1965 source tests passed, one skipped; independent scoped source and live verification passed; exact source/deployment receipt and explicit remaining image/performance/scheduling/backup limits recorded"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T10:35:44.248389Z"
+    },
+    {
+      "id": "access:cloudflare-operation-metadata",
+      "source": "access_obstacle",
+      "statement": "Managed Sites tools do not expose actual image binding, cron or D1 backup configuration",
+      "acceptance_check": "Inspect authenticated direct Cloudflare account and correct managed Site context; verify accessible resources or precise service boundary",
+      "status": "passed",
+      "evidence": [
+        "Authenticated official dashboard inventory and owning Site context inspected; exact production resource identity not established in direct account and unavailable operational metadata remains unverified, not represented as a login blocker"
+      ],
+      "reason": null,
+      "access_recovery": {
+        "observed_error": "Managed Sites tools do not expose actual native image bindings, applied cron triggers or D1 backup/restore metadata.",
+        "category": "capability",
+        "diagnosis": "Production D1 and deployment revision are accessible through the owning Sites context. The existing direct Cloudflare session is also accessible, but the matching production resource identity was not established in its inventory. This is a control-plane visibility boundary, not an expired user login.",
+        "authorization_boundary": "Read-only inventory and existing VII repair. No new roles, keys, paid plans, resource migration or unrelated business changes.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "The owning Sites context verified deployment v794 revision32 and DB structure; generic connector belongs to another Site collection. Exact backup/cron/native-binding metadata is not exposed."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Authenticated Cloudflare dashboard opened without login; VII search returned three historical staging workers. Direct account D1 inventory did not establish the active Site DB identity. Authenticated public administration reads and safe unchanged save succeeded."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Exact source and build configuration inspected. Local Cloudflare credential variable names and default Wrangler state were absent; no credential values were read. Correct Site context verified source and deployment through its existing native tools."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing authenticated official Cloudflare dashboard and Site Settings/Edit routes both worked. No human login or permission grant is currently needed to inspect those available surfaces."
+          }
+        ],
+        "outcome": "recovered",
+        "verified_result": "Recovered direct account inventory access and established the available service boundary. This does not certify native image operation, applied scheduling or backup restoration; those remain explicitly unverified in the operational ledger.",
+        "ready_work_remaining": false
+      },
+      "updated_at": "2026-11-04T10:35:43.270657Z"
     }
   ],
-  "verification_status": "in_progress",
+  "verification_status": "verified",
   "verification_errors": [],
   "predictive_results": {
     "midpoint": {
@@ -138,6 +202,24 @@
       "findings": [
         "Map snapshot and review storage paths bypassed initial shared selection; recursive guard added"
       ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-04T10:36:00.942857Z",
+      "attacks": [
+        "Stale primary variable: source tests prove canonical/report/catalog use bound D1 with zero AWS requests",
+        "Missing D1: selector fails closed, no remote or fabricated substitute",
+        "Save success without persistence: unchanged geography roundtrip verified by fresh API and full reload on public v794"
+      ],
+      "natural_destination_evidence": "Public v794 env32 authenticated owner route family and readback; independent live geography and catalog origin checks",
+      "affected_family_evidence": "All eleven original API failures recovered, map administration success, recursive app/worker bypass guard,1965 passing source tests with one skipped"
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-04T10:36:01.225102Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 1,
+      "prevented_failures": 3,
+      "elapsed_minutes": 34.0,
+      "baseline_note": "Eleven admin APIs originally unavailable. Independent midpoint found three bypasses; fixed before single deployment. No full-site readiness or performance success claimed"
     }
   }
 }

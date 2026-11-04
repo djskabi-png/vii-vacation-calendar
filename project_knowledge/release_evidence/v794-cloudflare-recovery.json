@@ -1,0 +1,45 @@
+{
+  "release": "v794",
+  "source_commit": "17add00d9dd0cc1e87d9528e3741520c15618001",
+  "managed_commit": "2115443f106bd4ed63cf798956df634dd3327163",
+  "tree": "7ac26f75f8e80ac3fdd13983eb8d127ff8b85562",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d38ab7177e9881918b9ccf8487f852bf",
+  "deployment_id": "appgdep_6aeb05de79508191821890ccbf64d383",
+  "environment_revision": 32,
+  "status": "succeeded",
+  "public_url": "https://vii.spaplus.co",
+  "authenticated_reads": {
+    "geography": {"success":true,"nodes":1273},
+    "content-queue": {"success":true,"queue":13},
+    "search-pages": {"success":true,"opportunities":2444},
+    "quality": {"success":true,"runs":0,"note":"Empty history is not proof that scheduling works"},
+    "whatsapp-leads": {"success":true,"leads":0},
+    "users": {"success":true,"grants":0,"protectedAccounts":2},
+    "search-analytics": {"success":true,"note":"Report arrays empty"},
+    "discovery-promotions": {"success":true,"drafts":1},
+    "redirects": {"success":true,"pageRows":100},
+    "operations": {"success":true,"warnings":0},
+    "content-studio?type=homepage&locale=he": {"success":true,"items":1},
+    "map-snapshots": {"success":true,"failures":0}
+  },
+  "write_readback": {
+    "path": "/admin/geography",
+    "operation": "Save existing district:3 fields unchanged once",
+    "result": "UI version advanced from1 to2; fresh API read and full browser reload both returned version2, original title/visibility retained",
+    "public_content_changed": false,
+    "permissions_changed": false
+  },
+  "public_probes": {
+    "vacation_catalog": {"status":200,"origin":"cloudflare-d1","degraded":false,"ms":7168},
+    "event_catalog": {"status":200,"origin":"cloudflare-d1","degraded":false,"ms":5833},
+    "image_sample": {"status":200,"contentType":"image/jpeg","bytes":114976,"ms":764},
+    "unauthenticated_geography": {"status":403}
+  },
+  "limits": [
+    "All admin buttons and every write type are not certified by one safe geography roundtrip",
+    "No complete history reconciliation or backup/restore drill claimed",
+    "Catalog response latency remains material; samples are not a performance benchmark",
+    "Upstream event slider parity remains open",
+    "Scheduled execution requires live runtime evidence beyond checked-in cron configuration"
+  ]
+}

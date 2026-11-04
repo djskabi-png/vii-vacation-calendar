@@ -36,3 +36,13 @@ The earlier AWS sign-in recovery instruction was incorrect for the approved arch
 ## Source verification before deployment
 
 Final production build passed. Complete source suite: 1,966 total, 1,965 passed, zero failures, one skipped. Focused authority/capability suite: 33 passed. Admin controls: 40 passed. Release baseline: 23 passed. Independent checker approved the final scoped source after identifying and fixing three direct adapter bypasses (both map snapshot APIs and review storage). The recursive guard now covers app and worker. These do not replace live deployment and save/readback evidence.
+
+## Public recovery evidence
+
+v794 reached succeeded at https://vii.spaplus.co, deployment appgdep_6aeb05de79508191821890ccbf64d383, version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d38ab7177e9881918b9ccf8487f852bf, source17add00d9dd0cc1e87d9528e3741520c15618001, managed2115443f106bd4ed63cf798956df634dd3327163, tree7ac26f75f8e80ac3fdd13983eb8d127ff8b85562, environment32.
+
+All eleven previously failing authenticated API reads succeeded; map-snapshot administration also succeeded. Geography returned1273 nodes. One unchanged geography save advanced district:3 version1 to2, and a fresh API read and full UI reload confirmed version2 and retained public fields. Desktop and390px mobile geography UI rendered real counts. Independent live checker confirmed geography and public event catalog on cloudflare-d1, degraded=false. Unauthenticated geography remained403.
+
+The exact sanitized matrix and public latency samples are in project_knowledge/release_evidence/v794-cloudflare-recovery.json. Some reports return empty arrays; this is not proof that their historical ingestion or scheduled jobs is complete.
+
+Post-release log sampling found no observed5xx, dedicated exceptions or memory violations, but did find transient redirect-lookup D1 stacks and continuing image-transform errors. The available log messages do not expose full causes. Redirect errors stopped after12:20:17 in later bounded samples through12:26:35; no causal claim is made. Three affected public URLs subsequently returned200. Native image service operation, actual cron execution and backup/restore coverage are not certified. Public catalog samples still took about6-7 seconds and need a separate measured performance repair. This release restores database authority and observed management connectivity; it is not whole-site launch approval.

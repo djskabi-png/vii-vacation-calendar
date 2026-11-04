@@ -7,7 +7,8 @@
     { "commit": "9e324b6636f31a87475f7057d513f743c09c7332", "capability": "public v788 supplier and UI stability baseline" },
     { "commit": "58ce9ed8f060762467df836e4565bc1889cf192e", "capability": "gallery and unit media parity" },
     { "commit": "66f15f522a42fc46fdb534cb6a41ccba93de45f7", "capability": "approved vacation filter canonical pages" },
-    { "commit": "8a05b5817da79ca07d8ad9c531d8fb0610052532", "capability": "vacation accessibility filter identity" }
+    { "commit": "8a05b5817da79ca07d8ad9c531d8fb0610052532", "capability": "vacation accessibility filter identity" },
+    { "commit": "17add00d9dd0cc1e87d9528e3741520c15618001", "capability": "public v794 Cloudflare-only canonical authority and administration recovery" }
   ],
   "requiredCapabilities": [
     { "id": "contextual-landings", "files": ["app/events/last-minute/page.tsx", "app/spas/today/page.tsx", "app/spas/tomorrow/page.tsx", "tests/contextual-deal-landings.test.mjs"] },
@@ -19,6 +20,7 @@
     { "id": "legacy-and-canonical-search", "files": ["app/lib/legacy-search-intent.ts", "app/data/legacy-redirect-inventory.json", "tests/legacy-search-canonical-intent.test.mjs"] },
     { "id": "whatsapp-handoff", "files": ["app/components/whatsapp-lead-button.tsx", "tests/whatsapp-lead-contract.test.mjs"] },
     { "id": "professor-and-administration", "files": ["app/lib/admin-professor.ts", "app/admin/professor/page.tsx", "tests/admin-control-inventory.test.mjs", "tests/admin-professor-intent.test.mjs"] },
-    { "id": "release-regression-gate", "files": ["scripts/verify-vii-release-source.mjs", "tests/release-baseline-integrity.test.mjs", "scripts/run-qqqaaa.cjs"] }
+    { "id": "release-regression-gate", "files": ["scripts/verify-vii-release-source.mjs", "tests/release-baseline-integrity.test.mjs", "scripts/run-qqqaaa.cjs"] },
+    { "id": "cloudflare-only-authority", "files": ["app/lib/runtime-database.ts", "tests/admin-reporting-database-fallback.test.mjs", "project_knowledge/VII_CLOUDFLARE_OPERATIONS.md"] }
   ]
 }

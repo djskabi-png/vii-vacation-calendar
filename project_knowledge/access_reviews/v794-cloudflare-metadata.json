@@ -1,0 +1,15 @@
+{
+  "observed_error": "Managed Sites tools do not expose actual native image bindings, applied cron triggers or D1 backup/restore metadata.",
+  "category": "capability",
+  "diagnosis": "Production D1 and deployment revision are accessible through the owning Sites context. The existing direct Cloudflare session is also accessible, but the matching production resource identity was not established in its inventory. This is a control-plane visibility boundary, not an expired user login.",
+  "authorization_boundary": "Read-only inventory and existing VII repair. No new roles, keys, paid plans, resource migration or unrelated business changes.",
+  "routes": [
+    {"kind":"connector","status":"checked","result":"succeeded","evidence":"The owning Sites context verified deployment v794 revision32 and DB structure; generic connector belongs to another Site collection. Exact backup/cron/native-binding metadata is not exposed."},
+    {"kind":"authorized_session","status":"checked","result":"succeeded","evidence":"Authenticated Cloudflare dashboard opened without login; VII search returned three historical staging workers. Direct account D1 inventory did not establish the active Site DB identity. Authenticated public administration reads and safe unchanged save succeeded."},
+    {"kind":"project_cli_api","status":"checked","result":"succeeded","evidence":"Exact source and build configuration inspected. Local Cloudflare credential variable names and default Wrangler state were absent; no credential values were read. Correct Site context verified source and deployment through its existing native tools."},
+    {"kind":"official_connection","status":"checked","result":"succeeded","evidence":"Existing authenticated official Cloudflare dashboard and Site Settings/Edit routes both worked. No human login or permission grant is currently needed to inspect those available surfaces."}
+  ],
+  "outcome":"recovered",
+  "verified_result":"Recovered direct account inventory access and established the available service boundary. This does not certify native image operation, applied scheduling or backup restoration; those remain explicitly unverified in the operational ledger.",
+  "ready_work_remaining":false
+}

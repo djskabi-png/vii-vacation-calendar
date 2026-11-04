@@ -31,3 +31,7 @@ Release checks include clean cumulative source, protected ancestors, full build,
 5. Resolve known upstream event-slider parity gaps separately. Database recovery is not proof of complete launch readiness.
 
 Historical AWS endpoint and token are retained masked during recovery for traceability. They are not read by production selection. Removing obsolete credentials is a separate deliberate cleanup after successful live recovery and inventory, not a prerequisite that risks the working release.
+
+## Direct account inventory boundary
+
+The existing authenticated Cloudflare dashboard was available without a new login. A Workers application search for vii returned three historical staging workers only. The direct account D1 inventory contains a supplier outbox with VII in its name; it must not be treated as the active Site DB. A matching production Worker/DB identity was not established in that inventory. The active production Site remains managed through its owning Sites context, where DB reads and revision32 were verified. No resources, roles, keys or DNS were created or changed in the direct account, and unrelated business resources were not inspected.
