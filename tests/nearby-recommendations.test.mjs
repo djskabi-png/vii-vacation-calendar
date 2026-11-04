@@ -15,7 +15,7 @@ test("a city absent from legacy coordinate dictionaries ranks from managed geogr
     title, titleEn: title, slug: String(index), featured: false, gpsLat, gpsLong, unassigned: false }));
   const pool = ["תל אביב", "נצרת", "חיפה", "טבריה"].map((location) => ({ id: location, location }));
   const result = nearbySearchRecommendations(pool, "נצרת", cities, { key });
-  assert.deepEqual(result.map(key), ["נצרת", "טבריה", "חיפה", "תל אביב"]);
+  assert.deepEqual(result.map(key), ["נצרת", "טבריה", "חיפה"]);
   assert.deepEqual(completeNearbyResults([pool[1]], result, key).map(key), ["נצרת", "טבריה", "חיפה"]);
 });
 
@@ -23,7 +23,7 @@ test("unknown cities without a managed or coarse anchor never imply nearest cata
   assert.deepEqual(nearbySearchRecommendations([make("one", 32), make("two", 33), make("three", 34)], "עיר לא ידועה", [], { key }), []);
 });
 
-test("known sparse regions still return the nearest eligible pool when venue city coordinates are incomplete", () => {
+test("sparse search never labels unknown city positions across Israel as nearby", () => {
   const nodes = [{ key: "area:eilat", level: "area", parentKey: null, title: "אילת והערבה", titleEn: "Eilat and Arava",
     slug: "eilat", featured: true, gpsLat: 29.56, gpsLong: 34.95, unassigned: false }];
   const eligible = [
@@ -31,7 +31,7 @@ test("known sparse regions still return the nearest eligible pool when venue cit
     { id: "center", location: "עיר ספק ללא נקודה", area: "מרכז" },
     { id: "north", location: "מיקום ספק ללא נקודה", area: "צפון" },
   ];
-  assert.deepEqual(nearbySearchRecommendations(eligible, "אילת והערבה", nodes, { key }).map(key), ["south", "center", "north"]);
+  assert.deepEqual(nearbySearchRecommendations(eligible, "אילת והערבה", nodes, { key }).map(key), []);
 });
 
 test("sparse geography expands to3 nearest eligible distinct recommendations", () => {

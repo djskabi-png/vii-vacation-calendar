@@ -18,6 +18,9 @@ export const nearbyRecommendationCopy = {
 
 const text = (value?: string) => canonicalSearchLocation(value).replace(/[־–-]/g, " ");
 export const PLACE_SEARCH_MINIMUM_RESULTS = 18;
+// Completion is a display target, never permission to expand across Israel.
+// Use the same local radius as the existing nearby recommendation default.
+export const PLACE_SEARCH_NEARBY_RADIUS_KM = 35;
 
 export function completeNearbyResults<T>(exact: readonly T[], nearby: readonly T[], key: (item: T) => string, minimum = 3): T[] {
   const seen = new Set<string>();
@@ -69,8 +72,12 @@ export function nearbySearchRecommendations<T extends CoordinatePlace>(
   options: { key: (item: T) => string; origin?: CoordinatePlace },
 ): T[] {
   const managed = nearbyPlacesForSelection(pool, nodes, selection,
-    { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: 100, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS });
-  if (managed.length) return managed.map((candidate) => candidate.place);
+    { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: PLACE_SEARCH_NEARBY_RADIUS_KM, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS });
+  // A ranked managed candidate proves that the authoritative origin was
+  // resolved, even when all candidates lie outside the local radius. Keep
+  // that empty result rather than retrying from a different coarse center.
+  if (managed.length) return managed.filter((candidate) => candidate.distanceKm <= PLACE_SEARCH_NEARBY_RADIUS_KM)
+    .map((candidate) => candidate.place);
   // The managed hierarchy is loaded independently in client searches. If it
   // is delayed or temporarily unavailable, an exact catalog match with valid
   // coordinates is still an authoritative anchor for the requested town.
@@ -79,12 +86,20 @@ export function nearbySearchRecommendations<T extends CoordinatePlace>(
     && (text(item.location) === selectionText || text(item.area) === selectionText));
   const origin = options.origin || exactCatalogAnchor || { location: selection, area: selection };
   // An unknown city is not a geographic anchor. Never fill it in catalog order.
-  if (!nearbyPoint(origin)) return [];
-  return nearbyRecommendations(pool, origin, {
-    key: options.key,
-    limit: PLACE_SEARCH_MINIMUM_RESULTS,
-    minimum: PLACE_SEARCH_MINIMUM_RESULTS,
-  }).items;
+  const point = nearbyPoint(origin);
+  if (!point) return [];
+  const seen = new Set<string>();
+  return pool.flatMap((item, index) => {
+    // A coarse region label cannot establish that an unknown town is nearby.
+    // Managed city-center enrichment is already handled by the path above.
+    const target = exactPoint(item);
+    const key = options.key(item);
+    if (!target || !key || seen.has(key)) return [];
+    seen.add(key);
+    const distance = distanceKm(point, target);
+    return distance <= PLACE_SEARCH_NEARBY_RADIUS_KM ? [{ item, distance, index }] : [];
+  }).sort((a, b) => a.distance - b.distance || a.index - b.index)
+    .slice(0, PLACE_SEARCH_MINIMUM_RESULTS).map((candidate) => candidate.item);
 }
 
 /** Only geography is relaxed. Callers must supply their already eligible public pool. */

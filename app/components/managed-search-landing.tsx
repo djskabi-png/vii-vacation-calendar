@@ -11,7 +11,7 @@ import type { SpaPlusSite } from "../data/spaplus";
 import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { matchesSearchLocation } from "../data/search-taxonomy";
 import { matchesVacationAccommodationType, matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
-import { completePlaceSearchResults, nearbyRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
+import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
@@ -35,11 +35,9 @@ async function resultsFor(world: string, location: string, filters: Record<strin
       (typeof filters.guests !== "number" || place.guests >= filters.guests) && featureIds.every((id) => matchesVacationSearchFilter(place, id)));
     const exact = eligible.filter((place) => matchesSearchLocation(place, location));
     const nearby = fallbackMode === "nearby" && exact.length < PLACE_SEARCH_MINIMUM_RESULTS
-      ? nearbyRecommendations(eligible, { location, area: location }, {
+      ? nearbySearchRecommendations(eligible, location, [], {
         key: (place) => place.slug,
-        limit: PLACE_SEARCH_MINIMUM_RESULTS,
-        minimum: PLACE_SEARCH_MINIMUM_RESULTS,
-      }).items : [];
+      }) : [];
     const selected = fallbackMode === "nearby" ? completePlaceSearchResults(exact, nearby, (place) => place.slug) : exact;
     return { items: selected.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/business?id=${encodeURIComponent(place.slug)}` })), expanded: selected.some((place) => !exact.includes(place)) };
   }

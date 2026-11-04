@@ -79,3 +79,10 @@ A complete API is not proof of a complete page. The full SPA response in v797 wa
 - Valid event, vacation, holiday and spa offer rails must not print generic cache-age explanations or instruct visitors to confirm with the venue before continuing. Remove the rejected event stale paragraph in every language, without replacement copy.
 - Preserve bounded data freshness, genuine loading/error/empty states, authoritative availability and price revalidation in the detail/booking flow. Removing redundant prose never extends snapshot validity or upgrades unknown data to available.
 - The user requested this copy correction be saved only. No publication is authorized for it in this task.
+
+## Sparse filtered city searches, 4 November 2026
+
+- A target of18results never overrides the selected city or nearby distance boundary. Do not substitute Tiberias/Safed for Jerusalem when accessibility leaves a sparse pool.
+- Preserve exact matches and every active amenity/date/price/capacity predicate. Supplemental place-search results are nearest-first within35km of the established origin, consistent with the existing local nearby radius. Fewer results or an empty state are valid.
+- A managed city origin returning no nearby candidates must not be retried from a different coarse regional center. Missing candidate coordinates cannot establish proximity; managed city-center enrichment remains supported.
+- Apply this to shared search expansion and SSR landings; generic recommendations on business pages retain their separate existing behavior. Save this correction only; do not publish in this task.

@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-local-search-radius-20261104",
+  "project": "VII",
+  "task_type": "geographic-bugfix-save-only",
+  "requested_outcome": "Preserve selected location and amenities when results are sparse; do not replace Jerusalem with national accessible inventory",
+  "natural_destination": "Actual shared search recommendation function and SSR/client result families, local save only",
+  "authorization_boundary": "Local code/tests/commit only; no publication or live data writes",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Pagination must preserve complete report truth",
+      "acceptance_impact": "Compare totals, search, global sorting and complete export"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "An administration performance fix needs real authenticated evidence",
+      "acceptance_impact": "Desktop/mobile initial load and every deferred section must work in the exact deployed release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Minimum18results still overrides geography",
+      "prevention": "Hard nearby distance limit in search paths including fallback",
+      "acceptance_check": "Jerusalem sparse filtered pool cannot include Tiberias,Safed,Eilat"
+    },
+    {
+      "rejection": "Missing city coordinates fall back to arbitrary regional/national rows",
+      "prevention": "Require measured point or managed city point for supplemental results",
+      "acceptance_check": "Unknown candidate coordinates excluded, catalog-anchor path bounded"
+    },
+    {
+      "rejection": "SSR and client or another world still expand nationally",
+      "prevention": "Route all search expansion through shared bounded helper",
+      "acceptance_check": "Family source wiring and actual helper tests, no deployment"
+    }
+  ],
+  "affected_family": [
+    "vacation applied and draft filters",
+    "vacation SSR landing",
+    "event region SSR/client",
+    "hourly SSR/client",
+    "spa client",
+    "managed search landing",
+    "business recommendations unchanged"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII performance and administration invariants",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First measured delivery, navigation and catalog slice",
+    "checks": [
+      "Reproduce sparse Jerusalem accessibility inventory before editing helper"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does18result target admit130kmvenue?",
+      "Does fallback without geography admit distant or unlocated places?",
+      "Can SSR retain old unbounded completion?"
+    ],
+    "natural_destination_evidence": "Actual local helper and search family functions, no public release requested",
+    "affected_family_evidence": "Source wiring, proximity/URL/filter regressions and protected release-source gate"
+  },
+  "effectiveness": {
+    "baseline": "Screenshots Jerusalem accessible query shows four northern properties; low-level minimum overrides distance",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "0supplemental search results beyond35km; preserve exact and all hard predicates"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

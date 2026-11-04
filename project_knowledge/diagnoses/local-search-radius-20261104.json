@@ -1,0 +1,71 @@
+{
+  "status": "fixed",
+  "symptom": "Jerusalem vacation search with accessibility shows Tiberias/Safed as surrounding-area matches.",
+  "expected_behavior": "Keep exact location results and add only genuinely local eligible places, without relaxing amenities or selecting far national inventory to reach a minimum.",
+  "environment": "Local branch release/v791-complete-20261104 after8795cd22,4November2026; no publication requested.",
+  "reproduction": {
+    "steps": [
+      "Call actual nearbySearchRecommendations with Jerusalem origin and sparse northern accessible inventory",
+      "Repeat with managed geography,delayed hierarchy,mixed near/far,35km boundary and authoritative zero-result origin"
+    ],
+    "evidence": ".qa-output/local-radius-before.log4/4failed before fix; origin adversarial case failed separately; final70/70family passed. Actual prior576public-summary snapshot: four eligible northern IDs,zero exact Jerusalem,zero bounded nearby after repair."
+  },
+  "observations": [
+    {
+      "observation": "Both managed and coarse search paths treated minimum18as permission to include remote candidates.",
+      "evidence": "nearbyPlacesForSelection chooses ranked when bounded.length<minimumResults; nearbyRecommendations likewise expands to minimum."
+    },
+    {
+      "observation": "URL and active city remained Jerusalem in both supplied screenshots.",
+      "evidence": "User screenshots show vacations/search/jerusalem-city?accessible=1 and Jerusalem chip/title retained."
+    },
+    {
+      "observation": "Managed zero-radius result could fall through to a different coarse center.",
+      "evidence": ".qa-output/local-radius-origin-adversarial-before.log; west36km candidate admitted from coarse center before origin-preservation fix."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Minimum-completion policy overrides local radius",
+      "prediction": "Sparse tagged pool returns northern entries even though all>100kmfromJerusalem",
+      "discriminating_test": "Actual shared helper with sparse northern pool",
+      "result": "Reproduced; now returns[]in managed and fallback branches",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Accessibility click clears the requested city/URL",
+      "prediction": "City route or active state would become national",
+      "discriminating_test": "Inspect both supplied URL/state screenshots and shared helper independently of UI route",
+      "result": "URL/title/chip retainJerusalem; helper alone reproduces failure, rejecting routing as cause",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Search completion uses hard35km supplemental radius, preserving existing default nearby radius. Rank with authoritative origin then reject outside-radius candidates; fallback requires real candidate coordinates. Managed SSR landing now uses same bounded search helper. Minimum18remains soft; generic business recommendation behavior remains unchanged.",
+    "evidence": "tests/local-search-radius.test.mjs5actual cases plus adjacent65tests pass; actual legacy4eligibleIDs excluded fromJerusalem local results."
+  },
+  "affected_family": [
+    "vacation applied/draft/SSR",
+    "events region SSR/client",
+    "hourly SSR/client",
+    "spa client",
+    "managed search SSR",
+    "unchanged generic business recommendations"
+  ],
+  "regression_checks": [
+    {
+      "check": "Radius/origin/identity/filter/URL/SSR-client wiring and generic recommendation preservation",
+      "status": "passed",
+      "evidence": ".qa-output/local-radius-family-final.log70pass0fail; protected8ancestor15capability gate passed."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Public site remains unchanged by explicit user request. No deployed/browser verification claimed.",
+    "Legacy accessibility generation still needs fresh source sync and identity parity before eventual publication, as recorded by previous repair."
+  ],
+  "authorization_boundary": "Local source/tests/commit only; no deployment,DBwrite,supplier sync,credentials or infrastructure changes."
+}

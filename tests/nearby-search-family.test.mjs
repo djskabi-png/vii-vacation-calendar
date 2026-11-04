@@ -35,7 +35,12 @@ test("SSR and managed place-search surfaces use the same minimum-eighteen invent
   const shared = await read("app/lib/nearby-recommendations.ts");
   assert.match(shared, /PLACE_SEARCH_MINIMUM_RESULTS = 18/);
   assert.match(shared, /limit: PLACE_SEARCH_MINIMUM_RESULTS/);
-  assert.match(shared, /minimumResults: PLACE_SEARCH_MINIMUM_RESULTS/);
+  assert.match(shared, /maximumDistanceKm: PLACE_SEARCH_NEARBY_RADIUS_KM/);
+  assert.match(shared, /managed\.filter\(\(candidate\) => candidate\.distanceKm <= PLACE_SEARCH_NEARBY_RADIUS_KM\)/);
+  assert.match(shared, /PLACE_SEARCH_NEARBY_RADIUS_KM = 35/);
+  const managed = await read("app/components/managed-search-landing.tsx");
+  assert.match(managed, /nearbySearchRecommendations\(eligible, location, \[\],/);
+  assert.doesNotMatch(managed, /minimum: PLACE_SEARCH_MINIMUM_RESULTS/);
 });
 
 test("event fallback reuses all hard predicates and updates on every filter", async () => {
