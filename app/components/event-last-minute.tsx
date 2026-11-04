@@ -63,7 +63,10 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     return () => window.clearTimeout(timer);
   }, [fixedPreset]);
   const presets = clock ? eventDealPresets(clock.now) : [];
-  const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
+  // A client component may survive navigation between preset pages. The route
+  // owns its preset immediately, before an effect can reset prior local state.
+  const activePreset = fixedPreset || selectedPreset;
+  const date = clock && chosenDate ? (presets.find(preset => preset.id === activePreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, selectedSlot, retry, true, scope?.label);
   const startingPrices = useStartingPrices("events", true);
   const availablePlaces = search.places || places;
@@ -98,7 +101,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     // daily rotation make the restored starting-price field look missing.
     priority: place => supplierStartingPrice(startingPrices[place.slug] ?? place) ? 0 : 1,
   }).slice(0, Math.max(0, 20 - candidates.length));
-  const pagePath = eventDealPagePath((selectedPreset || "lastminute") as EventDealPresetId);
+  const pagePath = eventDealPagePath((activePreset || "lastminute") as EventDealPresetId);
   const searchPath = scope ? `${pagePath}?${new URLSearchParams({ region: scope.label })}` : pagePath;
   const allLabel = ({ he: ["לכל אירועי הרגע האחרון", "לכל המקומות הפנויים לחמישי", "לכל המקומות הפנויים לשישי"], en: ["All last-minute event venues", "All Thursday venues", "All Friday venues"], ru: ["Все площадки в последний момент", "Все площадки в четверг", "Все площадки в пятницу"], fr: ["Tous les lieux de dernière minute", "Tous les lieux du jeudi", "Tous les lieux du vendredi"] } as const)[language][selectedPreset === "thursday" ? 1 : selectedPreset === "friday" ? 2 : 0];
   const applyLabel = ({ he: "בדיקת זמינות להרכב", en: "Check this party", ru: "Проверить состав", fr: "Vérifier ce groupe" } as const)[language];

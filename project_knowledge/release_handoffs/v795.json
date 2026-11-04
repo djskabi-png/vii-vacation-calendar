@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "release": "v795",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "973fbf1c9c2a2ca80741d185cfde32620a307e27",
+  "tree": "f6e904dd638407d37e5b0fd8292c2960b88f912b",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d38ab7177e9881918b9ccf8487f852bf",
+  "rollback_deployment_id": "appgdep_6aeb05de79508191821890ccbf64d383",
+  "environment_revision": 32,
+  "focused_tests": 21,
+  "full_tests": 1984,
+  "publication_chat": "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v795 לאחר v794. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nEvent discovery now reads supplier days/freeUnits independently of price, preserves both slots in one versioned D1 snapshot, removes both20-card cuts, and adds permanent last-minute/Thursday/Friday pages. No AWS or environment change. Full1985-case run:1983 passed, one outdated source assertion failed, one existing skip; corrected assertion file then passed8/8, so1984 active checks are verified. Production build passed before test-only followup. Independent source review passed. Public parity and desktop/mobile verification follow deployment; do not claim whole-site launch readiness.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v791-complete-20261104, source commit מדויק 973fbf1c9c2a2ca80741d185cfde32620a307e27, tree מדויק f6e904dd638407d37e5b0fd8292c2960b88f912b. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 21 בדיקות ממוקדות עברו ו-1984 מתוך 1984 בדיקות האתר עברו. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v794 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d38ab7177e9881918b9ccf8487f852bf, Deployment ID appgdep_6aeb05de79508191821890ccbf64d383. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 32. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "published_public_qa_in_progress",
+  "prepared_at": "2026-11-04T11:44:00.7576538Z",
+  "deployment_id": "appgdep_6aeb1b3cd1688191a2218ca820406b75",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_0a44cad6fc9481919170db95f6b392a4",
+  "managed_commit": "c53c79ddb9a86b275f648939009d3110c3cf2393",
+  "url": "https://vii.spaplus.co"
+}

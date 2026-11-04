@@ -11,13 +11,37 @@
     "endpoint": "POST /api/ai/vii/events/search",
     "request": {
       "date": "YYYY-MM-DD",
-      "window": {"from": "YYYY-MM-DD", "till": "YYYY-MM-DD"},
+      "window": {
+        "from": "YYYY-MM-DD",
+        "till": "YYYY-MM-DD"
+      },
       "guests": "integer; defaults to every hall base price",
-      "slot": ["morning", "evening"]
+      "slot": [
+        "morning",
+        "evening"
+      ]
     },
-    "siteFields": ["siteID", "available", "onlineBooking", "reason", "minPrice", "cheapest", "days"],
-    "dayFields": ["date", "weekend", "morning", "evening"],
-    "slotFields": ["available", "freeUnits", "roomID", "price"],
+    "siteFields": [
+      "siteID",
+      "available",
+      "onlineBooking",
+      "reason",
+      "minPrice",
+      "cheapest",
+      "days"
+    ],
+    "dayFields": [
+      "date",
+      "weekend",
+      "morning",
+      "evening"
+    ],
+    "slotFields": [
+      "available",
+      "freeUnits",
+      "roomID",
+      "price"
+    ],
     "reasonSemantics": {
       "no_prices": "No event price for the request; days still expose free-unit data.",
       "no_availability": "Availability is not managed online; freeUnits is null.",
@@ -27,49 +51,140 @@
   },
   "calendarContract": {
     "endpoint": "GET /api/ai/vii/events/{siteID}/calendar?from=&till=&roomID=",
-    "roomFields": ["roomID", "name", "roomCount", "baseGuests", "maxGuests"],
-    "daySlotFields": ["freeUnits", "price"],
+    "roomFields": [
+      "roomID",
+      "name",
+      "roomCount",
+      "baseGuests",
+      "maxGuests"
+    ],
+    "daySlotFields": [
+      "freeUnits",
+      "price"
+    ],
     "meaning": "Per date and hall, morning/evening free units and base-guest price; roomID optionally narrows the response."
   },
   "vacancyContract": {
     "endpoint": "POST /api/ai/vii/events/{siteID}/vacancy",
-    "requestFields": ["date", "slot", "rooms[].roomID", "rooms[].guests"],
+    "requestFields": [
+      "date",
+      "slot",
+      "rooms[].roomID",
+      "rooms[].guests"
+    ],
     "authority": "Final exact booking availability and price; use immediately before booking."
   },
   "guideSample": {
     "siteID": 4,
     "available": true,
     "minPrice": 3500,
-    "cheapest": {"date": "2026-11-02", "slot": "morning", "roomID": 40, "price": 3500},
-    "days": [{
+    "cheapest": {
       "date": "2026-11-02",
-      "morning": {"available": true, "freeUnits": 2, "roomID": 40, "price": 3500},
-      "evening": {"available": true, "freeUnits": 1, "roomID": 40, "price": 5500}
-    }]
+      "slot": "morning",
+      "roomID": 40,
+      "price": 3500
+    },
+    "days": [
+      {
+        "date": "2026-11-02",
+        "morning": {
+          "available": true,
+          "freeUnits": 2,
+          "roomID": 40,
+          "price": 3500
+        },
+        "evening": {
+          "available": true,
+          "freeUnits": 1,
+          "roomID": 40,
+          "price": 5500
+        }
+      }
+    ]
   },
   "guideNoAvailabilitySample": {
     "siteID": 20,
     "available": null,
     "reason": "no_availability",
-    "days": [{
-      "date": "2026-11-02",
-      "morning": {"available": null, "freeUnits": null, "roomID": 200, "price": 1500},
-      "evening": {"available": null, "freeUnits": null, "roomID": 200, "price": 2500}
-    }]
+    "days": [
+      {
+        "date": "2026-11-02",
+        "morning": {
+          "available": null,
+          "freeUnits": null,
+          "roomID": 200,
+          "price": 1500
+        },
+        "evening": {
+          "available": null,
+          "freeUnits": null,
+          "roomID": 200,
+          "price": 2500
+        }
+      }
+    ]
   },
   "legacyReadOnlyProbe": {
     "endpoint": "POST https://www.vii.co.il/events/ajax_popularDeals.php?mob=0",
-    "requestShape": {"tab": "last-minute", "fromDate": "YYYY-MM-DD", "tillDate": "YYYY-MM-DD"},
-    "2026-11-05": {"status": 200, "cardCount": 12, "ids": [287, 2, 1965, 711, 289, 1070, 922, 1085, 779, 921, 2725, 1167]},
-    "2026-11-12": {"status": 200, "cardCount": 12, "ids": [2, 1085, 922, 287, 1070, 1965, 921, 2242, 711, 289, 1167, 2725, 779]},
-    "observedMarkers": ["פנוי", "פנוי בבוקר"],
+    "requestShape": {
+      "tab": "last-minute",
+      "fromDate": "YYYY-MM-DD",
+      "tillDate": "YYYY-MM-DD"
+    },
+    "2026-11-05": {
+      "status": 200,
+      "cardCount": 12,
+      "ids": [
+        287,
+        2,
+        1965,
+        711,
+        289,
+        1070,
+        922,
+        1085,
+        779,
+        921,
+        2725,
+        1167
+      ]
+    },
+    "2026-11-12": {
+      "status": 200,
+      "cardCount": null,
+      "ids": [
+        2,
+        1085,
+        922,
+        287,
+        1070,
+        1965,
+        921,
+        2242,
+        711,
+        289,
+        1167,
+        2725,
+        779
+      ],
+      "uniqueIdentifierCount": 13
+    },
+    "observedMarkers": [
+      "פנוי",
+      "פנוי בבוקר"
+    ],
     "observedPriceBehavior": "Most cards had no displayed price; HTML data-lowprice was 999999 and is not authoritative.",
-    "dateSensitivity": "The cohorts differ by date: 2026-11-05 contains 1167 but not 2242; 2026-11-12 contains 2242 but not 1167. Ordering also changes.",
+    "dateSensitivity": "The November12 response includes2242, absent onNovember5; ordering also changes. Its retained ID list contains13unique IDs, so the earlier12-card count is not treated as verified.",
     "notProductionSource": true
   },
   "implementationImplication": {
     "rootCause": "The local event adapter reads site.available/minPrice/cheapest but drops days[].slot.freeUnits.",
-    "normalizedStates": ["available_priced", "available_unpriced", "unknown", "unavailable"],
+    "normalizedStates": [
+      "available_priced",
+      "available_unpriced",
+      "unknown",
+      "unavailable"
+    ],
     "availableUnpricedRule": "For exact date, slot and guest-compatible room, freeUnits > 0 with missing price becomes available_unpriced and routes to phone/WhatsApp, not fast booking.",
     "unknownRule": "freeUnits null or absent remains unknown; never infer availability from no_prices alone.",
     "finalCheck": "Use events/{siteID}/vacancy before any online booking."
