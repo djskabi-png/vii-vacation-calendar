@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "release": "v792",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "56f7b645b1e07a349b2a2f8733ab68cc639aa47a",
+  "tree": "8399f583e1afef38a75716ca99cd4df8f23543b4",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_727c937cbb9c8191909d231ca4333c35",
+  "deployment_id": "appgdep_6aeac7f3a13c8191b6cab1bb798df22c",
+  "managed_commit": "fdb0513beca728ba1a605ee843accd2fd9e12421",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a0a0153bf22c8191a7b9cec4ac77c94d",
+  "rollback_deployment_id": "appgdep_6aeaaddf02fc81919dbe57394b64c1b5",
+  "environment_revision": 31,
+  "public_url": "https://vii.spaplus.co",
+  "status": "succeeded",
+  "published_at": "2026-11-04T05:55:00Z",
+  "verification": {
+    "concurrent_image_and_rsc_requests": { "passed": 50, "failed": 0 },
+    "route_and_reload_checks": { "passed": 16, "failed": 0 },
+    "header_interaction_checks": { "passed": 40, "failed": 0 },
+    "post_release_log_sample": {
+      "exceeded_memory": 0,
+      "http_500": 0,
+      "image_optimization_errors": 28,
+      "image_fallback_errors": 0,
+      "note": "Native image transformation remains unavailable or rejects in the sampled runtime. Vinext returned the cached original image successfully, without the removed in-Worker JPEG decoder."
+    }
+  }
+}
