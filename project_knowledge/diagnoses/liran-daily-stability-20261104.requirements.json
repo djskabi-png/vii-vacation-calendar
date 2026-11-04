@@ -245,7 +245,7 @@
       "skipped": 1,
       "finding": "8SSR failures from missing imported range helper,2obsolete code-location/condition contracts,1missing localization test; corrected before frozen rerun."
     },
-    "source_guard": "11protected ancestors16capabilities passed with allow-dirty; final clean guard pending commit.",
+    "source_guard": "12protected ancestors16capabilities; final clean check required after control commit.",
     "full_suite_second_run": {
       "tests": 2068,
       "passed": 2067,
@@ -331,5 +331,7 @@
     },
     "preview_route_recovery": "vinext start lacksCloudflare ASSETS binding and returns404forpresentJS; resolved using existing purpose-built preview-built-candidate withactualclientassets. Not a proven production asset defect. Browser attachment during fullsuite recovered after workload completed; user tabs preserved.",
     "resource_cleanup": "Ownedpreviewservers stopped,oldvinextserverdescendants verifiedandstopped;0ownedserversremaining. No usertabclosed."
-  }
+  },
+  "saved_code_commit": "e442deb11ccd3857f642d42ec479d6b63c17aeb6",
+  "published": false
 }

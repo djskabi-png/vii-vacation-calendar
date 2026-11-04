@@ -5,7 +5,7 @@
   "task_type": "cross-family-audit-save-only",
   "goal": "Consolidate todays Liran feedback, fix confirmed systemic defects and save without publishing",
   "created_at": "2026-11-04T16:51:14.972762Z",
-  "updated_at": "2026-11-04T17:56:24.283824Z",
+  "updated_at": "2026-11-04T17:56:45.589304Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -189,5 +189,7 @@
       "natural_destination_evidence": "Exact built Worker plus assets in Chrome desktop/mobile390x844; typed1200/2000URL reload, correct Netua ancestors, Nesia3000quote room1339 and correct bookingrequest destination, mobile gallery2/43 then1/43. No submissions.",
       "affected_family_evidence": "2070tests:2069passed0failed1skip; independent scoped approval. Source ID parity and remaininggallerysequence explicitlynotverified."
     }
-  }
+  },
+  "last_freshness_check_at": "2026-11-04T17:56:45.589275Z",
+  "last_freshness_check_errors": []
 }

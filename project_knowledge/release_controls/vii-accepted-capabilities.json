@@ -46,6 +46,10 @@
     {
       "commit": "bf468f12e737883b6f381cd4e903bd6a480d82b7",
       "capability": "saved bounded search supplementation with authoritative geographic origin"
+    },
+    {
+      "commit": "e442deb11ccd3857f642d42ec479d6b63c17aeb6",
+      "capability": "saved local Liran daily fact projection, booking selection, price, gallery and geographic stability; not published"
     }
   ],
   "requiredCapabilities": [
