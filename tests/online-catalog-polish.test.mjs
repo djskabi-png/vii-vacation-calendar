@@ -47,7 +47,7 @@ test("vacation discovery keeps last-good rails and the authenticated scheduler w
   assert.match(rail, /lastGoodData\.current\.set\(selectionKey, result\)/);
 });
 
-test("event discovery is prewarmed for a rolling week and visitor requests never call the supplier", async () => {
+test("event discovery is prewarmed for a rolling week and cold recovery uses the shared bounded loader", async () => {
   const [route, warmer, worker, mcp] = await Promise.all([
     read("app/api/vii/live-search/route.ts"),
     read("app/lib/warm-event-discovery-cache.ts"),
@@ -61,7 +61,9 @@ test("event discovery is prewarmed for a rolling week and visitor requests never
   assert.match(warmer, /validate: (?:validEventDiscoveryResult|eventDiscoveryValidator\(date, guests\))/);
   assert.match(warmer, /results\.filter\(\(offer\) => offer\.available === true\)\.length/);
   assert.match(route, /readCachedDiscovery/);
-  assert.doesNotMatch(route, /cachedDiscovery\(/);
+  assert.match(route, /accepted\?\.cache\.status === "fresh" \? accepted : await cachedDiscovery/);
+  assert.match(route, /load: \(\) => loadEventDiscovery\(\{ date: body\.from as string, guests: Number\(body\.guests\), token, publishedIds: publicIds \}\)/);
+  assert.doesNotMatch(route, /\/calendar|Promise\.all\(.*publicIds/);
   assert.match(worker, /warmVacationDiscoveryCache\(database, scheduledAt\)[\s\S]*warmEventDiscoveryCache\(database, scheduledAt\)/);
   assert.match(mcp, /world === "events"[\s\S]*warmEventDiscoveryCache\(db\)/);
 });
