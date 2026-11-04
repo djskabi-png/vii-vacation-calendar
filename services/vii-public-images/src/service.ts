@@ -8,7 +8,7 @@ type Env = { IMAGES?: ImagesBinding };
 type Context = { waitUntil(promise: Promise<unknown>): void };
 type EdgeCache = { match(request: Request): Promise<Response | undefined>; put(request: Request, response: Response): Promise<void> };
 function sourcePath(value: string | null) { return value && /^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(value) ? value : null; }
-function fallback(path: string) { return new Response(null, { status: 302, headers: { Location: `${ORIGIN}${path}`, "Cache-Control": "no-store", "X-VII-Image-Engine": "source-fallback" } }); }
+function fallback(path: string, reason = "unavailable") { return new Response(null, { status: 302, headers: { Location: `${ORIGIN}${path}`, "Cache-Control": "no-store", "X-VII-Image-Engine": "source-fallback", "X-VII-Image-Fallback": reason } }); }
 function bad(message: string) { return new Response(message, { status: 400, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } }); }
 function forMethod(response: Response, method: string) { return method === "HEAD" ? new Response(null, { status: response.status, headers: response.headers }) : response; }
 function boundedBody(body: ReadableStream<Uint8Array>) {
@@ -50,7 +50,7 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
     const edge = options.edge?.() ?? (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default;
     const hit = edge ? await bounded(edge.match(key), options.cacheMs ?? 50).catch(() => undefined) : undefined;
     if (hit) return forMethod(hit, request.method);
-    if (!env.IMAGES) return fallback(path);
+    if (!env.IMAGES) return fallback(path, "binding");
     if (request.method === "HEAD") return fallback(path);
     const at = now();
     if (at - windowStart >= 60_000) { windowStart = at; admitted = 0; }
@@ -59,19 +59,26 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
     active.add(key.url); admitted++;
     recent.delete(key.url); recent.set(key.url, at);
     while (recent.size > 256) recent.delete(recent.keys().next().value!);
+    let stage = "source";
     try {
       const sourceMs = options.sourceMs ?? 8000;
       const source = await bounded((options.sourceFetch ?? fetch)(`${ORIGIN}${path}`, { headers: { Accept: "image/*" }, redirect: "error", signal: AbortSignal.timeout(sourceMs) }), sourceMs);
-      if (!source.ok || !source.body || !/^image\/(?:jpeg|png|webp|avif)(?:;|$)/i.test(source.headers.get("Content-Type") || "") || Number(source.headers.get("Content-Length") || 0) > MAX_SOURCE_BYTES) return fallback(path);
+      if (!source.ok) return fallback(path, `source-${source.status}`);
+      if (!source.body || !/^image\/(?:jpeg|png|webp|avif)(?:;|$)/i.test(source.headers.get("Content-Type") || "") || Number(source.headers.get("Content-Length") || 0) > MAX_SOURCE_BYTES) return fallback(path, "source-content");
+      stage = "transform";
       const outputFormat = `image/${format}`;
       const transformed = await bounded(env.IMAGES.input(boundedBody(source.body)).transform({ width, fit: "scale-down" }).output({ format: outputFormat, quality }), options.transformMs ?? 8000);
       const response = transformed.response();
-      if (!response.ok || !response.body || response.headers.get("Content-Type")?.split(";")[0] !== outputFormat) return fallback(path);
+      if (!response.ok || !response.body || response.headers.get("Content-Type")?.split(";")[0] !== outputFormat) return fallback(path, "transform-content");
       const headers = new Headers({ "Content-Type": outputFormat, "Cache-Control": "public, max-age=31536000, immutable", "Vary": "Accept", "X-VII-Image-Engine": "cloudflare-images", "Access-Control-Allow-Origin": "*" });
       const result = new Response(response.body, { status: 200, headers });
       if (edge && ctx) ctx.waitUntil(bounded(edge.put(key, result.clone()), options.cacheWriteMs ?? 1500).catch(() => undefined));
       return forMethod(result, request.method);
-    } catch { return fallback(path); }
+    } catch (error) {
+      const message = error instanceof Error ? `${error.name}: ${error.message}` : "unknown";
+      console.warn("VII image processing fallback", stage, message.replace(/https?:\/\/\S+/g, "[url]").slice(0, 240));
+      return fallback(path, stage);
+    }
     finally { active.delete(key.url); }
   } };
 }
