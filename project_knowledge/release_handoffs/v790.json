@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "release": "v790",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v790-safe-publication-20261104",
+  "source_commit": "dfaa75d01f9c09bda999f59a2c522d1a7202531b",
+  "tree": "a6bb06bc4e4b61fcedfec3d10fb09de868bbfb9c",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_9646b6867bb48191a4e38ce232cc2d62",
+  "rollback_deployment_id": "appgdep_6aea435157748191bcd0ecd84d7c3ab3",
+  "environment_revision": 31,
+  "focused_tests": 133,
+  "full_tests": 19,
+  "publication_chat": "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v790 לאחר v789. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nPublish the cumulative v790 candidate after v789: mobile guest composition Save closes the editor without launching a search, the explicit Search action remains available, and the shared mobile header keeps the current world label readable with verified spacing across Hebrew, English, Russian and French at mobile and narrow widths.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v790-safe-publication-20261104, source commit מדויק dfaa75d01f9c09bda999f59a2c522d1a7202531b, tree מדויק a6bb06bc4e4b61fcedfec3d10fb09de868bbfb9c. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 133 בדיקות ממוקדות עברו ו-19 מתוך 19 בדיקות האתר עברו. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v789 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_9646b6867bb48191a4e38ce232cc2d62, Deployment ID appgdep_6aea435157748191bcd0ecd84d7c3ab3. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 31. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "publication_blocked_cloudflare_build_stream",
+  "prepared_at": "2026-11-03T23:03:38.0719768Z",
+  "saved_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_45f2497c6f4081919d7f05ae79f37639",
+  "managed_commit": "76cb7b1f081506f9a4e132902e641e2175abaea5",
+  "initial_deployment_id": "appgdep_6aea6ac57d64819188eea38caa0df218",
+  "retry_deployment_id": "appgdep_6aea6c0af3388191afd4249caf3d9c08",
+  "initial_deployment_status": "failed",
+  "retry_deployment_status": "failed",
+  "deployment_error": "Cloudflare Sandbox build stream request failed",
+  "public_release_unchanged": "v789",
+  "public_verification": {
+    "checked_at": "2026-11-04T01:25:00+02:00",
+    "routes": {
+      "/": 200,
+      "/search": 200,
+      "/business?id=vacation-164": 200,
+      "/events": 200,
+      "/en/attractions": 200
+    }
+  }
+}

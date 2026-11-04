@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "task_id": "v790-build-artifact-root-fix-20261104",
+  "project": "VII",
+  "task_type": "deployment root-cause repair",
+  "requested_outcome": "Identify whether the failed Sites publication is caused by an account or server limit, remove the causal build risk without changing public behavior, and produce a verified release candidate without publishing it.",
+  "natural_destination": "The local VII release candidate build artifact and the managed Sites deployment pipeline.",
+  "authorization_boundary": "Read account and project state, change and test the local candidate. Do not publish to production without a new explicit publication instruction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "VII project guidance controls the release pipeline and accepted product invariants.",
+      "acceptance_impact": "The fix must preserve the complete VII candidate and its accepted release gates."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A successful build alone is not enough to claim the publication issue is solved.",
+      "acceptance_impact": "Verify output integrity, size, referenced assets and the affected release family before handoff."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The failed operation is a production deployment and must preserve rollback and exact source identity.",
+      "acceptance_impact": "Keep v789 as rollback, freeze the new source and do not publish without explicit authorization."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The diagnosis blames the account without evidence.",
+      "prevention": "Compare account usage, project state, successful baseline and failed deployment telemetry.",
+      "acceptance_check": "Evidence distinguishes account limits from build artifact risk."
+    },
+    {
+      "rejection": "The cleanup removes a live image or changes a supplier gallery.",
+      "prevention": "Prune only verified-media output paths with no explicit runtime reference and fail when any referenced path is missing.",
+      "acceptance_check": "Every explicit verified-media reference resolves after the build."
+    },
+    {
+      "rejection": "The build remains close enough to the platform ceiling to fail again.",
+      "prevention": "Add a fail-closed artifact size budget well below the known 256 MiB ceiling.",
+      "acceptance_check": "The final dist size is below the configured budget."
+    },
+    {
+      "rejection": "A local repair is reported as public even though it was not deployed.",
+      "prevention": "Keep publication outside the authorization boundary and report the exact local state.",
+      "acceptance_check": "No new managed Version or Deployment is created during this task."
+    }
+  ],
+  "affected_family": [
+    "build pipeline",
+    "static verified media",
+    "generated duplicate aliases",
+    "Sites deployment artifact",
+    "release source gates",
+    "rollback identity"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII release protocol and product invariants",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted media behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first clean build with reachability pruning and before the broader release gates.",
+    "checks": [
+      "Measure final dist size and file count.",
+      "Verify every explicit verified-media reference exists in dist.",
+      "Confirm only unreferenced output copies were removed."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a dynamic verified-media path bypass the reference inventory?",
+      "Can an explicit verified-media reference be absent from dist after pruning?",
+      "Can the artifact exceed the safety budget without failing the build?",
+      "Did any unrelated source or public deployment change?"
+    ],
+    "natural_destination_evidence": "A clean local production build with exact size, asset-integrity and source-gate output.",
+    "affected_family_evidence": "Tests cover reachability, missing references, budget failure, existing aliases and the release gates."
+  },
+  "effectiveness": {
+    "baseline": "The v790 dist contains 1933 files and 253.67 MiB after existing duplicate pruning, while both managed deployments failed during building.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Reduce the artifact by at least 80 MiB, remain below 220 MiB and preserve every referenced verified-media asset."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -1,0 +1,120 @@
+{
+  "status": "fixed",
+  "symptom": "Two deployments of the saved v790 Sites version failed during building with Cloudflare Sandbox build stream request failed and never reached provider publishing or activation.",
+  "expected_behavior": "The cumulative VII candidate should build inside the managed Sites pipeline with enough resource margin to reach publishing and activation.",
+  "environment": "VII Sites production project appgprj_6a71ccdca27481918bf04dd329d3eb21, Business workspace, saved v790 version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_45f2497c6f4081919d7f05ae79f37639, environment revision 31, investigated 2026-11-04 Asia/Jerusalem.",
+  "reproduction": {
+    "steps": [
+      "Inspect the two terminal failed v790 deployment records.",
+      "Build the frozen candidate locally with the same project build command.",
+      "Measure the complete dist output after the existing duplicate-media pruning."
+    ],
+    "evidence": "Both managed attempts failed at building with provider_deployment_id, URL and archive storage unset. The local v790 output contained 1,933 files and 253.67 MiB after existing pruning."
+  },
+  "observations": [
+    {
+      "observation": "No normal account usage or credit limit is active.",
+      "evidence": "The authenticated Business account showed 100 percent of the five-hour and weekly limits remaining and 5,121 workspace credits."
+    },
+    {
+      "observation": "The project is active and its configuration was not suspended or missing.",
+      "evidence": "Sites settings showed an active PUBLIC project, connected database, unchanged environment revision 31 and disabled_by null."
+    },
+    {
+      "observation": "The failed deployments never entered provider publishing.",
+      "evidence": "Both records reached failed from building with provider_deployment_id null, URL null and archive_storage null."
+    },
+    {
+      "observation": "The candidate artifact was within about 2.33 MiB of the known 256 MiB extracted deployment ceiling.",
+      "evidence": "The final local dist measured 253.67 MiB. Earlier project deployments had returned explicit extracted-size failures at the same 256 MiB boundary."
+    },
+    {
+      "observation": "Most of the risk came from unused verified-media copies.",
+      "evidence": "A runtime reachability inventory found 736 files under dist/client/media/verified with no explicit reference in app, worker or build sources, totaling 94.66 MiB."
+    },
+    {
+      "observation": "Removing only unreachable output copies restores substantial deployment margin.",
+      "evidence": "Three clean production builds completed at 159.00 MiB while every explicit verified-media reference resolved and all source media remained unchanged."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The Business account is blocked by usage, credit, plan or project suspension limits.",
+      "prediction": "The account or project settings would expose an exhausted quota, disabled project or missing required configuration.",
+      "discriminating_test": "Inspect authenticated account usage and the VII Sites project settings.",
+      "result": "Usage limits were fully available, credits remained, the project was active and required configuration was present.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A broad OpenAI Sites or Cloudflare outage is preventing all deployments.",
+      "prediction": "Official provider status would report an active relevant incident.",
+      "discriminating_test": "Inspect current official OpenAI and Cloudflare status pages.",
+      "result": "No broad relevant incident was reported during the failure window.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The application cannot compile or its release baseline is broken.",
+      "prediction": "The frozen source would fail the local production build or release baseline.",
+      "discriminating_test": "Run the production build and the release baseline locally.",
+      "result": "The application compiled and the 23-test release baseline passed.",
+      "status": "rejected"
+    },
+    {
+      "id": "H4",
+      "mechanism": "The deployment artifact is so close to the managed 256 MiB extraction ceiling that sandbox packaging or streaming fails before provider publication.",
+      "prediction": "The frozen output will be nearly 256 MiB, unused static media will dominate the excess, and deterministic removal of unreachable copies will restore large margin without breaking references.",
+      "discriminating_test": "Measure the frozen output, inventory static-media reachability, add fail-closed pruning and rebuild repeatedly.",
+      "result": "The output was 253.67 MiB. Exactly 736 unreachable verified-media copies totaled 94.66 MiB. The repaired build completed repeatedly at 159.00 MiB with all explicit references intact.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H4",
+  "fix": {
+    "change": "At the deployment artifact boundary, remove only verified-media output files with no explicit runtime reference, retain every alias target, reject dynamic verified-media construction, verify every reference resolves and fail the build above a 220 MiB output budget.",
+    "evidence": "The final build removed 94.66 MiB across 736 unreachable files, retained referenced and alias-target media, finished at 159.00 MiB and passed the four negative and positive artifact tests plus the 23-test release baseline."
+  },
+  "affected_family": [
+    "production build pipeline",
+    "static verified media",
+    "legacy media aliases",
+    "Sites deployment artifact",
+    "release baseline",
+    "v789 rollback continuity"
+  ],
+  "regression_checks": [
+    {
+      "check": "Explicit verified-media reference remains present",
+      "status": "passed",
+      "evidence": "The positive fixture kept the referenced file and every real candidate reference resolved after the full build."
+    },
+    {
+      "check": "Missing referenced media blocks release",
+      "status": "passed",
+      "evidence": "The negative fixture failed closed with Referenced verified media is missing after pruning."
+    },
+    {
+      "check": "Dynamic verified-media construction blocks unsafe pruning",
+      "status": "passed",
+      "evidence": "The dynamic-path fixture failed closed before deleting unknown assets."
+    },
+    {
+      "check": "Oversized output blocks release",
+      "status": "passed",
+      "evidence": "The budget fixture failed closed above its configured limit and the real output passed at 159.00 MiB against 220 MiB."
+    },
+    {
+      "check": "Existing VII release baseline remains intact",
+      "status": "passed",
+      "evidence": "pnpm qa:release-baseline passed 23 of 23 tests."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The managed service does not expose its internal sandbox termination reason, so the exact provider exception remains unavailable.",
+    "A real managed deployment of the repaired candidate still requires explicit publication authorization and is the final proof of provider acceptance."
+  ],
+  "authorization_boundary": "Account and project inspection, local code repair and candidate verification were authorized. No new public Version or Deployment was created in this task."
+}
