@@ -1,0 +1,71 @@
+{
+  "status": "fixed",
+  "symptom": "Accessible listings disappear from search despite supplier amenity assignment. Previous diagnostic assumed four cards.",
+  "expected_behavior": "Every accepted supplier accessibility filter identity survives compact payloads and applied/draft result predicates, without deriving a claim from generic or negative prose.",
+  "environment": "Local cumulative branch release/v791-complete-20261104 after da343dfa,4November2026; save-only, no publication.",
+  "reproduction": {
+    "steps": [
+      "Normalize four supplier places including >24displayfeatures,hidden child ancestry,room amenity and an untagged control",
+      "Project actual summaries twice and run actual catalogResponse search for vacations and events"
+    ],
+    "evidence": ".qa-output/vii-accessibility-before-tests.log: all three initial regressions failed; final family60/60 and extra event/URL18/18passed."
+  },
+  "observations": [
+    {
+      "observation": "Vacation projection recomputed IDs from description/type/location/truncated features and ignored accepted IDs.",
+      "evidence": "app/lib/public-vacation-search.ts -> vacationSearchFilterIds; pre-fix fixture loses three tagged IDs."
+    },
+    {
+      "observation": "Event projection retained only event facility taxonomy, omitting accessibility and normalized IDs.",
+      "evidence": "app/lib/public-event-search.ts; actual event catalogResponse regression now preserves all three tagged identities."
+    },
+    {
+      "observation": "Public current generation has576visible vacation summaries and no searchFilterIds; old archives omit types definitions.",
+      "evidence": ".qa-output/vii-accessible-public-before.json; old archive guard rejects missing_sergey_amenity_definitions before output writes."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Search projections discard canonical supplier filter facts",
+      "prediction": "Full normalized summaries match but compact output loses tagged suppliers",
+      "discriminating_test": "Actual normalize->project twice and API tests",
+      "result": "Confirmed before repair; identity equality passes after",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Supplier normalized client never resolves shared/room parent amenity assignments",
+      "prediction": "Full normalized summaries would already omit all tagged fixtures",
+      "discriminating_test": "Check actual client output before compacting, including hidden child ancestry and room IDs",
+      "result": "Full normalized fixture correctly has all three tags, rejecting this as the projection failure cause. Historical generations remain a separate freshness prerequisite.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Preserve canonical accepted IDs during projection; exact positive label fallback; event projection/predicate use same filter truth; offline builder persists full amenity IDs and rejects absent definitions; old fixed-four diagnostic now requires independent generation expectations.",
+    "evidence": "tests/accessibility-filter-completeness.test.mjs actual client/API/build-expression regressions;60family+18additional checks passed."
+  },
+  "affected_family": [
+    "vacation applied/draft search",
+    "vacation compact API/SSR",
+    "events compact API/SSR and filter predicate",
+    "offline catalog builder",
+    "previous four-card diagnostic"
+  ],
+  "regression_checks": [
+    {
+      "check": "Actual supplier/API/build pipeline + adjacent data/filter/URL/taxonomy tests",
+      "status": "passed",
+      "evidence": ".qa-output/vii-accessibility-family-final.log60passed;vii-accessibility-event-close.log18passed (5overlap). Protected8ancestor/15capability gate passed."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Fresh full upstream types/list identity parity could not be read through the current managed read-only tools. No live full-inventory certification.",
+    "Before eventual publication, accept a fresh supplier generation using complete /types and confirm exact ID-set equality through both compact APIs. Existing legacy generation cannot regain discarded source facts solely from its summary.",
+    "No visual change, browser visual QA or public deployment performed; user requested save only."
+  ],
+  "authorization_boundary": "Local edits/tests/commit only. No DB writes, supplier sync, Site version, deployment, environment or infrastructure changes."
+}

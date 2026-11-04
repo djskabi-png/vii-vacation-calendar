@@ -5,8 +5,10 @@ import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts
 import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 import { sergeyPlaceGalleryGroups, sergeyRoomImages, sergeyRoomFeatureGroups } from "../app/lib/sergey-gallery.ts";
-import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "../app/lib/sergey-amenities.ts";
+import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType } from "../app/lib/sergey-amenities.ts";
 import { localGalleryMediaUrl } from "../app/lib/legacy-gallery-media.ts";
+
+import { vacationSearchFilterIdsFromText } from "../app/lib/vacation-search-filter-index.ts";
 
 const root = new URL("../", import.meta.url);
 const stageOnly = process.argv.includes("--stage-only");
@@ -17,6 +19,12 @@ const detailOutput = new URL("app/data/sergey-place-details.json", root);
 const previousCatalog = JSON.parse(await readFile(output, "utf8"));
 const report = new URL("tmp/vii-sergey-stage-20261005/public-catalog-report.json", root);
 const source = JSON.parse(gunzipSync(await readFile(input)));
+// Old archives omitted /types and therefore discarded numeric amenity facts.
+// Refuse to produce another incomplete fallback instead of accepting four
+// incidental text matches as the complete accessible supplier inventory.
+for (const world of new Set(source.details.map((entry) => entry.world))) {
+  if (!Array.isArray(source.types?.[world]?.amenities)) throw new Error(`missing_sergey_amenity_definitions:${world}`);
+}
 const cities = new Map(source.locations.cities.map((city) => [city.id, city]));
 const areas = new Map(source.locations.areas.map((area) => [area.id, area.title]));
 const rejected = [];
@@ -157,6 +165,16 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     images: images.slice(0, 12),
     description,
     features: featuresFor(raw),
+    // Search facts must be computed before display truncation and include
+    // numeric shared/room amenities plus the official ancestor/filter titles.
+    searchFilterIds: vacationSearchFilterIdsFromText([
+      ...sergeyAmenitySearchLabels(raw.shared_amenities, amenityIndex),
+      ...rooms.flatMap((room) => sergeyAmenitySearchLabels(room.amenities, amenityIndex)),
+      ...rooms.flatMap((room) => (room.spaces || []).flatMap((space) =>
+        (space.features || []).map((feature) => feature.description || ""))),
+      ...(raw.highlights || []).filter((value) => typeof value === "string"),
+      name, city.title, areas.get(city.area) || "", description,
+    ]),
     audiences: [],
     badges: [],
     ...(hasCoordinates ? { lat, lng } : {}),

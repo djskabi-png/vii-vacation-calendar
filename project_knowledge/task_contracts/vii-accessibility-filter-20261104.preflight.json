@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-accessibility-filter-20261104",
+  "project": "VII",
+  "task_type": "bugfix-save-only",
+  "requested_outcome": "All supplier-tagged accessible listings retain the filter through compact search projection; reject unverified claims; save only, do not publish",
+  "natural_destination": "Local supplier normalization to actual public search payload and predicate",
+  "authorization_boundary": "Local code/tests/commit only; no publication or production data writes",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Pagination must preserve complete report truth",
+      "acceptance_impact": "Compare totals, search, global sorting and complete export"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "An administration performance fix needs real authenticated evidence",
+      "acceptance_impact": "Desktop/mobile initial load and every deferred section must work in the exact deployed release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Supplier accessible IDs lost in compact payload",
+      "prevention": "Compare normalized supplier identity set before and after projection",
+      "acceptance_check": "Actual client->projection->predicate equality, repeated projection idempotence"
+    },
+    {
+      "rejection": "Generic or negative accessibility prose produces false positives",
+      "prevention": "Classify exact source amenity labels rather than free prose",
+      "acceptance_check": "Negative/partial/generic prose cases rejected"
+    },
+    {
+      "rejection": "Fix is accidentally published or prior work lost",
+      "prevention": "Preserve cumulative branch and commit only",
+      "acceptance_check": "Protected source gate and exact local saved commit, no deploy operation"
+    }
+  ],
+  "affected_family": [
+    "vacation supplier normalization",
+    "compact vacation payload",
+    "full and compact filter predicates",
+    "events accessibility shared feature matcher",
+    "bundled fallback and all other searchFilterIds"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII performance and administration invariants",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First measured delivery, navigation and catalog slice",
+    "checks": [
+      "Reproduce exact supplier filter ID loss before changing production source"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can projection lose upstream accessible IDs?",
+      "Can negative text create an accessible match?",
+      "Can primary/secondary or unit/shared amenities disappear?"
+    ],
+    "natural_destination_evidence": "Local pipeline through actual normalizer/projector/search predicate; no public change requested",
+    "affected_family_evidence": "Supplier tree/filter projection family tests and protected source gate"
+  },
+  "effectiveness": {
+    "baseline": "User reports missing places; exact supplier fixture and bundled catalog counts to measure",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "No supplier tagged accessible ID lost in compact pipeline and no false prose positives"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

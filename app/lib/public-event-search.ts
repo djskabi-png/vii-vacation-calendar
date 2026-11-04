@@ -1,4 +1,5 @@
 import type { EventPlace } from "../data/site-data.ts";
+import { vacationSearchFilterIds } from "./vacation-search-filter-index.ts";
 import { eventSearchTaxonomy } from "./event-search-taxonomy.ts";
 
 // Event discovery needs filter, contact, map and card data, not the complete
@@ -19,6 +20,7 @@ export function publicEventSearchPlaces(places: readonly EventPlace[], imageLimi
     images: (place.images?.length ? place.images : [place.image]).slice(0, Math.max(1, imageLimit)),
     description: "",
     features: taxonomy.features,
+    searchFilterIds: vacationSearchFilterIds(place),
     audiences: [],
     badges: [],
     lat: place.lat,

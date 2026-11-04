@@ -2,6 +2,8 @@ export const VERIFIED_ACCESSIBILITY_FEATURE = "נגישות לנכים";
 export const VERIFIED_ACCESSIBILITY_FEATURE_ALIASES = [
   VERIFIED_ACCESSIBILITY_FEATURE,
   "נגישות מלאה לנכים",
+  "נגיש לנכים",
+  "מקום נגיש לנכים",
 ] as const;
 
 export type PlaceAccessibility = {

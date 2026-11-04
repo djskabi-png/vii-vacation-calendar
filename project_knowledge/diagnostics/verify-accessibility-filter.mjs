@@ -1,7 +1,16 @@
 import { chromium } from "playwright";
+import { readFile } from "node:fs/promises";
 
 const baseUrl = "http://127.0.0.1:4186/search?accessible=1";
-const expectedNames = ["אחוזת רזים", "אחוזת קינג פאלאס", "סוויטת דרים בוטיק", "וילה אצולת טבריה בוטיק"];
+// Expectations must come from an independently verified supplier generation,
+// never from the same compact payload under test or a fixed four-card list.
+if (!process.env.VII_ACCESSIBILITY_EXPECTATIONS_PATH) throw new Error("Independent supplier accessibility expectations required");
+const expectations = JSON.parse(await readFile(process.env.VII_ACCESSIBILITY_EXPECTATIONS_PATH, "utf8"));
+if (!expectations.sourceGeneration || !Array.isArray(expectations.places) || !expectations.places.length
+  || expectations.places.some((place) => !Number.isSafeInteger(place.supplierId) || !place.name)) {
+  throw new Error("Invalid independent accessibility expectations");
+}
+const expectedNames = expectations.places.map((place) => place.name);
 const browser = await chromium.launch({ headless: true });
 
 try {

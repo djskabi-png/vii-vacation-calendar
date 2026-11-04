@@ -17,7 +17,7 @@ import type { EventPlace } from "../../data/site-data";
 import { eventOfferHref, eventPlaceHref } from "../../lib/event-place-href";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { usePublishedCatalog } from "../../lib/use-published-catalog";
-import { hasVerifiedAccessibilityFeature } from "../../data/accessibility-data";
+import { matchesVacationSearchFilter } from "../../lib/vacation-search-filter-index";
 import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -207,7 +207,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     && (!facilities.includes(facility) || facility === "הכל" || place.features.includes(facility))
     && (!guests || place.capacityScope === "unit" || place.guests >= guests)
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
-    && (!accessibleOnly || hasVerifiedAccessibilityFeature(place.features));
+    && (!accessibleOnly || matchesVacationSearchFilter(place, "accessible"));
   const filtered = useMemo(() => {
     return eventPlaces.filter((place) => matchesSearchLocation(place, area) && matchesHardFilters(place) && confirmedEventPlace(place));
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, guests, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);

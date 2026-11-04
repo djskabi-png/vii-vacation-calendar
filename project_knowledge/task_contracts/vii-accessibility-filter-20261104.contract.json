@@ -1,0 +1,236 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-accessibility-filter-20261104",
+  "project": "VII",
+  "task_type": "bugfix-save-only",
+  "goal": "Fix accessibility filter completeness and save without publishing",
+  "created_at": "2026-11-04T16:20:26.238445Z",
+  "updated_at": "2026-11-04T16:35:30.526246Z",
+  "completed_at": "2026-11-04T16:35:30.526290Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-accessibility-filter-20261104.preflight.json",
+      "sha256": "aaa42f75696f8ec3b879010cd4079fe2818b6f9d89ecf2b697eb315b5621d1c0"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-accessibility-filter-20261104.preflight.json",
+    "sha256": "aaa42f75696f8ec3b879010cd4079fe2818b6f9d89ecf2b697eb315b5621d1c0",
+    "predicted_rejection_count": 3,
+    "affected_family_count": 5,
+    "lesson_bundle_count": 2,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "כל מדד גלוי הוא חוזה נתונים אמיתי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Fix accessibility filter completeness and save without publishing",
+      "acceptance_check": "Actual supplier-to-projection identity equality, negative controls, family tests, saved commit and no publication",
+      "status": "passed",
+      "evidence": [
+        "Local actual client->API->filter regressions60+18passed (5overlap); source repair saved only. Diagnosis verified. Full live parity intentionally deferred until fresh supplier sync before eventual publication."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:35:23.195332Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-accessibility-filter-20261104.preflight.json validated with sha256 aaa42f75696f8ec3b879010cd4079fe2818b6f9d89ecf2b697eb315b5621d1c0"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:20:26.238383Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "First measured delivery, navigation and catalog slice",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Before-fix actual supplier->summary->compact fixture failed all3 cases:24-feature cutoff loses accessibility ID, second projection erases IDs, generic accessibility prose falsely matches. Public576summary generation lacks IDs, historical raw numeric amenities not resolved."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:27:07.707922Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Actual local catalogResponse API tests with supplier fixture both worlds; user expressly prohibits publication. Public current generation requires future refreshed source parity; no live completeness claimed.",
+        "60family+18eventURL tests passed,5overlap; protected source8ancestors15capabilities. Old four-card diagnostic now requires independent expectations.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:34:50.498091Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=unknown, repeated_corrections=0, prevented_failures=3, elapsed_minutes=20.0; Beforefix3actual regressions failed; full upstream parity unavailable and not certified. Additional event API fixture initially lacked eventTypes, repaired fixture then exposed event projection ID loss, now passes."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:34:51.703217Z"
+    },
+    {
+      "id": "lesson:ADIR-DATA-001",
+      "source": "lesson:ADIR-DATA-001",
+      "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
+      "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
+      "status": "passed",
+      "evidence": [
+        "Supplier normalized IDs retained; exact positive source feature fallback, no inferred generic prose or invented count. Old fixed-four diagnostic removed. Current public legacy generation limitation explicitly documented."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:35:24.380025Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "passed",
+      "evidence": [
+        "Save-only local target: actual API test in vacations/events, repeated compact projections, hidden/room/parent and negative cases; family tests passed. Public actor cohort/visual publication not applicable because user prohibits release and no layout changed. Direct saved-file evidence supplied."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:35:25.151432Z"
+    },
+    {
+      "id": "project:no-publish",
+      "source": "project_guidance",
+      "statement": "Save code only; no version, deployment or production writes",
+      "acceptance_check": "Save code only; no version, deployment or production writes",
+      "status": "passed",
+      "evidence": [
+        "No Site version/deployment, DB write, supplier sync, environment or infrastructure mutation. Only local source edits/tests/read-only diagnostics."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T16:35:27.132461Z"
+    },
+    {
+      "id": "access:source_diagnostics",
+      "source": "access_obstacle",
+      "statement": "Recover prior closed diagnostic tab and inspect available source routes without mutation",
+      "acceptance_check": "Verified owner diagnostic or exact limit, local save-only repair continues",
+      "status": "passed",
+      "evidence": [
+        "IAB212 recovered owner session and read-only diagnostic completed, mutations0; temporary tab closed. Fresh upstream identity parity not claimed."
+      ],
+      "reason": null,
+      "access_recovery": {
+        "observed_error": "Previous IAB owner tab no longer existed; direct upstream types requires authorization.",
+        "category": "capability",
+        "diagnosis": "Temporary prior-turn tab closed normally; raw supplier GET is available only with server credential, not in local process.",
+        "authorization_boundary": "Read-only existing owner session; no secret extraction, public writes or supplier synchronization.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "Managed owner tools expose catalog status/normalized accepted rows, no read-only raw upstream GET; generic Sites wrong workspace already established."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "New IAB212 recovered existing owner conversation; one read-only diagnostic returned accepted counts/timestamps and normalization semantics, mutations0."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "No supplier token in local process; direct types request403. Existing local historical raw archives lack definitions, confirmed and now rejected by builder."
+          },
+          {
+            "kind": "official_connection",
+            "status": "not_applicable",
+            "evidence": "Current task is local code/save-only; recovered owner diagnostics and actual local pipeline tests suffice for code repair. Fresh live parity remains an explicit pre-publication gate, not a request for credentials."
+          }
+        ],
+        "outcome": "recovered",
+        "ready_work_remaining": false,
+        "verified_result": "Existing authenticated owner diagnostic completed read-only and established exact accepted metadata/semantics. Source repair verified locally; no assertion of fresh full upstream parity."
+      },
+      "updated_at": "2026-11-04T16:35:28.587640Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-04T16:27:07.707888Z",
+      "evidence": [
+        "Before-fix actual supplier->summary->compact fixture failed all3 cases:24-feature cutoff loses accessibility ID, second projection erases IDs, generic accessibility prose falsely matches. Public576summary generation lacks IDs, historical raw numeric amenities not resolved."
+      ],
+      "findings": [
+        "Previous4-card assertion proved an incomplete payload rather than complete supplier matching"
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-04T16:34:50.498055Z",
+      "attacks": [
+        "24feature truncation and hidden parent/room assignments retain every canonical accessible ID through repeated projection",
+        "Generic/negative/partial prose alone cannot produce a verified full place feature",
+        "Both actual catalog API worlds preserve source identity sets; offline builder missing definitions fails before writes"
+      ],
+      "natural_destination_evidence": "Actual local catalogResponse API tests with supplier fixture both worlds; user expressly prohibits publication. Public current generation requires future refreshed source parity; no live completeness claimed.",
+      "affected_family_evidence": "60family+18eventURL tests passed,5overlap; protected source8ancestors15capabilities. Old four-card diagnostic now requires independent expectations."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-04T16:34:51.703133Z",
+      "first_pass_acceptance": "unknown",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 20.0,
+      "baseline_note": "Beforefix3actual regressions failed; full upstream parity unavailable and not certified. Additional event API fixture initially lacked eventTypes, repaired fixture then exposed event projection ID loss, now passes."
+    }
+  }
+}

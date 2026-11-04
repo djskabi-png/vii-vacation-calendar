@@ -1,3 +1,4 @@
+import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data.ts";
 import type { Property } from "../data/site-data.ts";
 
 const vacationAccommodationTypeTerms: Record<string, readonly string[]> = {
@@ -74,27 +75,30 @@ const vacationSearchFilterTerms: Record<string, readonly string[]> = {
   weddings: ["חתונה", "חתונות"],
 };
 
-function searchablePropertyText(property: Property) {
-  return [property.description, property.type, property.location, property.area, ...property.features]
-    .join(" ")
-    .toLocaleLowerCase("he");
-}
-
 export function vacationSearchFilterIdsFromText(values: readonly string[]) {
   const searchable = values.join(" ").toLocaleLowerCase("he");
   return Object.entries(vacationSearchFilterTerms)
-    .filter(([, terms]) => terms.some((term) => searchable.includes(term.toLocaleLowerCase("he"))))
+    .filter(([id, terms]) => id === "accessible"
+      ? hasVerifiedAccessibilityFeature(values)
+      : terms.some((term) => searchable.includes(term.toLocaleLowerCase("he"))))
     .map(([id]) => id);
 }
 
 export function vacationSearchFilterIds(property: Property) {
-  return vacationSearchFilterIdsFromText([searchablePropertyText(property)]);
+  // Supplier filters describe the complete amenity tree. Display features are
+  // deliberately truncated, so rebuilding solely from them loses valid facts.
+  const accepted = (property.searchFilterIds || []).filter((id) => Object.hasOwn(vacationSearchFilterTerms, id));
+  const derived = vacationSearchFilterIdsFromText([
+    ...property.features, property.description, property.type, property.location, property.area,
+  ]);
+  return [...new Set([...accepted, ...derived])];
 }
 
 export function matchesVacationSearchFilter(property: Property, id: string) {
   if (property.searchFilterIds?.includes(id)) return true;
+  if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
   const terms = vacationSearchFilterTerms[id];
   if (!terms) return false;
-  const searchable = searchablePropertyText(property);
+  const searchable = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
   return terms.some((term) => searchable.includes(term.toLocaleLowerCase("he")));
 }
