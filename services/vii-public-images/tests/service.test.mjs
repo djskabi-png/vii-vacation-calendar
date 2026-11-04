@@ -35,12 +35,13 @@ test('cache key canonicalizes actual format, survives HEAD, and writes through w
   const edge={match:async key=>store.get(key.url)?.clone(),put:async(key,response)=>{keys.push(key.url);store.set(key.url,response);}};
   const f=fixture({edge:()=>edge});
   const response=await f.handler.fetch(new Request(href(),{headers:{Accept:'image/avif,image/webp'}}),{IMAGES:f.IMAGES},f.ctx);
-  assert.equal(response.headers.get('Content-Type'),'image/avif');
+  assert.equal(response.status,302);assert.equal(response.headers.get('X-VII-Image-Fallback'),'warming');
   await Promise.all(f.writes);
   assert.match(keys[0],/format=avif/);
   const head=await f.handler.fetch(new Request(href(),{method:'HEAD',headers:{Accept:'image/avif'}}),{IMAGES:f.IMAGES},f.ctx);
   assert.equal((await head.arrayBuffer()).byteLength,0);assert.equal(f.sources.length,1);
   assert.equal(head.headers.get('X-VII-Image-Engine'),'cloudflare-images');
+  assert.equal(head.headers.get('Content-Type'),'image/avif');
 });
 test('network, invalid MIME and native failures fall back to the same public source, never another picture',async()=>{
   for(const options of [{sourceFetch:async()=>{throw Error('network');}},{sourceFetch:async()=>new Response('html',{headers:{'Content-Type':'text/html'}})}]){
@@ -86,4 +87,15 @@ test('per-isolate admission window is bounded, resets and never applies to store
   assert.equal((await f.handler.fetch(new Request(other),{IMAGES:f.IMAGES})).status,302);
   clock+=60001;
   assert.equal((await f.handler.fetch(new Request(other),{IMAGES:f.IMAGES})).status,200);
+});
+test('cold client gets the original before slow source work completes, then stored native output serves the next request',async()=>{
+  let release;const store=new Map();
+  const edge={match:async key=>store.get(key.url)?.clone(),put:async(key,value)=>{store.set(key.url,value);}};
+  const f=fixture({edge:()=>edge,sourceFetch:()=>new Promise(resolve=>{release=()=>resolve(new Response('source',{headers:{'Content-Type':'image/jpeg'}}));})});
+  const response=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);
+  assert.equal(response.status,302);assert.equal(f.writes.length,1);assert.equal(f.native.length,0);
+  assert.equal(response.headers.get('Location'),'https://vii.spaplus.co'+path);
+  release();await Promise.all(f.writes);
+  const warm=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);
+  assert.equal(warm.status,200);assert.equal(await warm.text(),'transformed');assert.equal(f.native.length,1);
 });
