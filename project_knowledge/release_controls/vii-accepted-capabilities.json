@@ -50,6 +50,10 @@
     {
       "commit": "e442deb11ccd3857f642d42ec479d6b63c17aeb6",
       "capability": "saved local Liran daily fact projection, booking selection, price, gallery and geographic stability; not published"
+    },
+    {
+      "commit": "b78678be7bffd877f007443ee2ec7329ba640978",
+      "capability": "managed popular searches all8worlds, complete CMS lists and local regional origin"
     }
   ],
   "requiredCapabilities": [

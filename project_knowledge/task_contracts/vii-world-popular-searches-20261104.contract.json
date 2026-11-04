@@ -5,8 +5,8 @@
   "task_type": "managed-world-search-save-only",
   "goal": "Managed popular searches all8worlds with real filters and nearby, preserving saved fixes, saveonly",
   "created_at": "2026-11-04T18:00:50.710802Z",
-  "updated_at": "2026-11-04T18:48:08.262651Z",
-  "completed_at": "2026-11-04T18:48:08.262674Z",
+  "updated_at": "2026-11-04T18:48:46.026931Z",
+  "completed_at": "2026-11-04T18:48:46.026953Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -64,10 +64,10 @@
       "acceptance_check": "8world rails, perworld CMS draft-save boundary, real intents and nearest action, desktop/mobile and actual state checks, local commit; no publication",
       "status": "passed",
       "evidence": [
-        "All8worldmanagedrails withadd/hide/order/action, browseroriginnearbyall, completeusersuggestions. Localbuildpassed;2088tests+58destinations;CMSdraftpublishlocalisolationreload;UIdesktop/mobile. Sourcewillbecommittedlocally,no publication."
+        "Localimplementationcommitted b78678be;8worldmanagedrails, allrequestedfilters, actualCMSroundtripanddesktop/mobile,2088passed1skip0fail;58built links;JerusalemUIrootfix;independentreview. No deploy orliveCMSwrite."
       ],
       "reason": null,
-      "updated_at": "2026-11-04T18:48:07.419096Z"
+      "updated_at": "2026-11-04T18:48:45.725858Z"
     },
     {
       "id": "preflight:prediction",
