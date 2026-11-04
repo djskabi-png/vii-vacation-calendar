@@ -30,6 +30,10 @@
     {
       "commit": "1d56f95d1319c6f49fcd1a76ec2e38c22ea07b0b",
       "capability": "publicv796 complete event inventory, distinct preset pages and retained-client date authority"
+    },
+    {
+      "capability": "public v798 canonical spa weekdays, uncapped day grids, proximity and progressive administration",
+      "commit": "0fe4ed2a6ecc2982c7be60faaedcb8304b38b4a9"
     }
   ],
   "requiredCapabilities": [
@@ -132,6 +136,29 @@
         "tests/event-discovery-route-completeness.test.mjs",
         "tests/event-preset-client-navigation.test.mjs"
       ]
+    },
+    {
+      "files": [
+        "app/spas/day/[weekday]/page.tsx",
+        "app/lib/spa-weekday-pages.ts",
+        "tests/spa-weekday-client-actual.test.mjs"
+      ],
+      "id": "spa-weekday-complete-grid"
+    },
+    {
+      "files": [
+        "app/lib/proximity-sort.ts",
+        "app/components/use-nearby-sort.tsx",
+        "tests/nearby-search-submit-actual.test.mjs"
+      ],
+      "id": "browser-origin-nearest"
+    },
+    {
+      "files": [
+        "app/lib/business-performance-view.ts",
+        "tests/business-performance-progressive-client.test.mjs"
+      ],
+      "id": "progressive-business-report"
     }
   ]
 }

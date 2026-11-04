@@ -1,0 +1,16 @@
+{
+  "observed_error": "Documented IAB viewport set390x844 acknowledged, but actual DOM innerWidth remained1280 on original tab, reload and a fresh owned tab.",
+  "category": "capability",
+  "diagnosis": "Public content and authenticated administration are accessible; this provider does not apply the requested viewport. This is a mobile visual verification gap, not a website access failure.",
+  "authorization_boundary": "Read-only public QA; no browser security, location permissions or user windows changed.",
+  "routes": [
+    {"kind":"connector","status":"unavailable","evidence":"Relevant Sites tools expose versions/deployments/logs, not a browser mobile viewport. Generic connector is also wrong workspace for this project; owning conversation publication succeeded."},
+    {"kind":"authorized_session","status":"checked","result":"human_required","evidence":"IAB desktop public and authenticated admin work. Both existing and fresh owned tabs remain1280wide. Chrome provider previously disappeared from inventory; unrelated native user windows were not touched."},
+    {"kind":"project_cli_api","status":"unavailable","evidence":"Actual component/handler and staged mobile-submit tests pass, but cannot establish a rendered mobile viewport. No configured alternate browser driver may replace the required CUA route."},
+    {"kind":"official_connection","status":"checked","result":"human_required","evidence":"Documented viewport capability set/reset executed; actual width measured and original viewport restored. No further unchanged retry authorized."}
+  ],
+  "outcome":"human_required",
+  "ready_work_remaining":false,
+  "minimum_human_action":"Observe the exact published Friday SPA page and nearby flow on a real mobile browser with granted location permission during the remaining release QA.",
+  "resume_when":"A supported mobile browser surface exposes its actual mobile width and a permitted real origin; no routine reconnect or permission prompt is being requested now."
+}

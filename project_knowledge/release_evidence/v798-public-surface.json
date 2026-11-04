@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "artifact": "VII v798 scoped SPA discovery and proximity change; not whole-site legal approval",
+  "natural_destination": "https://vii.spaplus.co/spas/day/friday",
+  "context": {
+    "operating_entity": "VII public brand; legal entity identity not reverified in this scoped repair",
+    "target_countries": [
+      "Israel"
+    ],
+    "service_type": "Discovery of existing leisure listings, weekday SPA offers and optional local distance ordering",
+    "current_primary_sources": [
+      "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition"
+    ]
+  },
+  "checks": {
+    "privacy_policy": {
+      "status": "not_applicable",
+      "reason": "No new controller, recipient or submission added. Optional existing browser location is retained only in tab session for15minutes; no coordinates in URLs or analytics. Full policy/legal audit remains separate."
+    },
+    "cookie_policy": {
+      "status": "not_applicable",
+      "reason": "No new cookie is introduced; location cache is tab-session storage, not cross-session tracking."
+    },
+    "refund_policy": {
+      "status": "not_applicable",
+      "reason": "This patch changes discovery and ordering, not booking, payment or cancellation terms."
+    },
+    "form_consent": {
+      "status": "not_applicable",
+      "reason": "No new form submission; browser location requires the user's explicit nearby action and browser permission."
+    },
+    "image_rights": {
+      "status": "not_applicable",
+      "reason": "No new media is generated, uploaded or substituted. Existing supplier offer images and identity are reused. This does not certify the entire inherited media library."
+    },
+    "terms_of_use": {
+      "status": "not_applicable",
+      "reason": "No account, transaction, contract or service obligation is introduced by this discovery repair."
+    },
+    "image_alt_text": {
+      "status": "not_applicable",
+      "reason": "The existing SPA card image/alt component is reused unchanged; no new informative image component is introduced."
+    },
+    "clear_button_labels": {
+      "status": "passed",
+      "evidence": [
+        "Exact public v798: Friday weekday controls, single/couple/group selection, canonical Saturday navigation and back/reload observed. Link names and package/date destinations match actions."
+      ],
+      "reason": null
+    },
+    "cookie_consent": {
+      "status": "not_applicable",
+      "reason": "No new tracking, advertising or persistent identifier added; existing consent implementation unchanged."
+    },
+    "third_party_embeds": {
+      "status": "not_applicable",
+      "reason": "No new map, processor, external script or embedded service added. Browser point is used locally for ordering."
+    },
+    "not_found_page": {
+      "status": "passed",
+      "evidence": [
+        "v797 public invalid weekday returned404; v798 only changes SPA offer grid/audience logic, preserving the route notFound guard."
+      ],
+      "reason": null
+    },
+    "shipping_delivery_policy": {
+      "status": "not_applicable",
+      "reason": "No goods shipment, digital delivery or fulfilment obligation added by discovery pages."
+    }
+  },
+  "unsupported_legal_compliance_claim": false
+}

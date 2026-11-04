@@ -5,7 +5,7 @@
   "task_type": "spa-discovery-and-proximity-repair",
   "goal": "Seven canonical upcoming spa weekday pages and browser-coordinate nearest-first sorting in all result worlds",
   "created_at": "2026-11-04T13:16:48.583865Z",
-  "updated_at": "2026-11-04T13:18:30.334585Z",
+  "updated_at": "2026-11-04T14:37:19.788249Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -62,9 +62,12 @@
       "source": "user_request",
       "statement": "Seven canonical upcoming spa weekday pages and browser-coordinate nearest-first sorting in all result worlds",
       "acceptance_check": "Exact weekday clock/API/slider/page parity; global known distances ascending with missing positions last; desktop mobile denied retry date-party reload and protected capability checks",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exact public v798 source0fe4ed2 tree50e7ce3; six customer scenarios Friday102single/130couple/62group matched API checkedAt14:28:51Z, Saturday81couple matched, reload/back and selection persisted. Operations progressive report544nodes/50rows/921inventory. Seven family selectors, API/canonical/sitemap/404, independent source+HTTP review and2016active aggregate plus29focused. Exact limits in release_evidence/v798-spa-nearby.md; mobile visual and real GPS success explicitly not claimed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T14:34:55.517045Z"
     },
     {
       "id": "preflight:prediction",
@@ -95,40 +98,102 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Public v798 single,couple,group,Saturday,reload,back journeys; operations report and data/SEO/privacy perspectives. Exact evidence v798-spa-nearby.md. Mobile visual and liveGPSsuccess explicitly unobserved.",
+        "Seven-family selectors plus86corrected family tests,12isolatedD1, aggregate2016active and29focused. Independent source and HTTP review scoped. Cumulative source preserved.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T14:37:14.844373Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=1, prevented_failures=6, elapsed_minutes=78.0; Elapsed approximation from contract13:16Z to public16:34Israel. Initial v797 API-only completeness failed at actual public grid; one causal v798 follow-up repaired it. Root review also caught cutoff7days, payload, staleSSRdate, invalidslug and copy defects. No claim of first-pass acceptance."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T14:35:08.674690Z"
     },
     {
       "id": "lesson:ADIR-DATA-001",
       "source": "lesson:ADIR-DATA-001",
       "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
       "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exact public v798 source0fe4ed2 tree50e7ce3; six customer scenarios Friday102single/130couple/62group matched API checkedAt14:28:51Z, Saturday81couple matched, reload/back and selection persisted. Operations progressive report544nodes/50rows/921inventory. Seven family selectors, API/canonical/sitemap/404, independent source+HTTP review and2016active aggregate plus29focused. Exact limits in release_evidence/v798-spa-nearby.md; mobile visual and real GPS success explicitly not claimed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T14:34:59.751751Z"
     },
     {
       "id": "lesson:ADIR-QA-001",
       "source": "lesson:ADIR-QA-001",
       "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exact public v798 source0fe4ed2 tree50e7ce3; six customer scenarios Friday102single/130couple/62group matched API checkedAt14:28:51Z, Saturday81couple matched, reload/back and selection persisted. Operations progressive report544nodes/50rows/921inventory. Seven family selectors, API/canonical/sitemap/404, independent source+HTTP review and2016active aggregate plus29focused. Exact limits in release_evidence/v798-spa-nearby.md; mobile visual and real GPS success explicitly not claimed."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T14:35:03.318623Z"
+    },
+    {
+      "id": "responsive_browser_observation",
+      "source": "access_obstacle",
+      "statement": "Viewport capability acknowledges390x844 but IAB actual innerWidth remains1280",
+      "acceptance_check": "Try documented viewport on existing and fresh owned tab, reset override, retain exact limitation rather than claim mobile visual pass",
+      "status": "blocked",
+      "evidence": [
+        "Existing tab then fresh owned tab both innerWidth1280/document1265 after viewport.set390x844; reload does not change. Override reset; no user tabs changed."
+      ],
+      "reason": "Actual mobile-size visual verification unavailable in this IAB provider. Desktop visual, layout source and actual mobile staged-submit tests pass; do not claim mobile visual verification.",
+      "updated_at": "2026-11-04T14:32:49.292881Z",
+      "access_recovery": {
+        "observed_error": "Documented IAB viewport set390x844 acknowledged, but actual DOM innerWidth remained1280 on original tab, reload and a fresh owned tab.",
+        "category": "capability",
+        "diagnosis": "Public content and authenticated administration are accessible; this provider does not apply the requested viewport. This is a mobile visual verification gap, not a website access failure.",
+        "authorization_boundary": "Read-only public QA; no browser security, location permissions or user windows changed.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "unavailable",
+            "evidence": "Relevant Sites tools expose versions/deployments/logs, not a browser mobile viewport. Generic connector is also wrong workspace for this project; owning conversation publication succeeded."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "IAB desktop public and authenticated admin work. Both existing and fresh owned tabs remain1280wide. Chrome provider previously disappeared from inventory; unrelated native user windows were not touched."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "unavailable",
+            "evidence": "Actual component/handler and staged mobile-submit tests pass, but cannot establish a rendered mobile viewport. No configured alternate browser driver may replace the required CUA route."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Documented viewport capability set/reset executed; actual width measured and original viewport restored. No further unchanged retry authorized."
+          }
+        ],
+        "outcome": "human_required",
+        "ready_work_remaining": false,
+        "minimum_human_action": "Observe the exact published Friday SPA page and nearby flow on a real mobile browser with granted location permission during the remaining release QA.",
+        "resume_when": "A supported mobile browser surface exposes its actual mobile width and a permitted real origin; no routine reconnect or permission prompt is being requested now."
+      }
     }
   ],
-  "verification_status": "in_progress",
-  "verification_errors": [],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "responsive_browser_observation: blocked: Actual mobile-size visual verification unavailable in this IAB provider. Desktop visual, layout source and actual mobile staged-submit tests pass; do not claim mobile visual verification."
+  ],
   "predictive_results": {
     "midpoint": {
       "observed_at": "2026-11-04T13:18:30.334529Z",
@@ -138,6 +203,24 @@
       "findings": [
         "Rootreview caught14cutoffcoverage, fullpayloadbloat, staleSSRfixeddate, invalidroutefallback andlocalizedFAQ defects; corrected before release build"
       ]
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-04T14:35:08.674622Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 1,
+      "prevented_failures": 6,
+      "elapsed_minutes": 78.0,
+      "baseline_note": "Elapsed approximation from contract13:16Z to public16:34Israel. Initial v797 API-only completeness failed at actual public grid; one causal v798 follow-up repaired it. Root review also caught cutoff7days, payload, staleSSRdate, invalidslug and copy defects. No claim of first-pass acceptance."
+    },
+    "adversarial": {
+      "observed_at": "2026-11-04T14:37:14.844315Z",
+      "attacks": [
+        "API complete but grid capped20: v797 public DOM disproved claim, v798 grid counts now match selected-day API",
+        "Retained weekday and audience stale on back or reload: settled Friday and Saturday title,date,selection and counts correct",
+        "Missing browser point fabricates nearest distances: live denial shows truthful retry and actual helper tests keep unknowns last"
+      ],
+      "natural_destination_evidence": "Public v798 single,couple,group,Saturday,reload,back journeys; operations report and data/SEO/privacy perspectives. Exact evidence v798-spa-nearby.md. Mobile visual and liveGPSsuccess explicitly unobserved.",
+      "affected_family_evidence": "Seven-family selectors plus86corrected family tests,12isolatedD1, aggregate2016active and29focused. Independent source and HTTP review scoped. Cumulative source preserved."
     }
   }
 }
