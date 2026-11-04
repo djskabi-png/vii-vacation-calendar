@@ -17,7 +17,8 @@ function resetHorizontalCollections() {
 }
 
 function releaseStaleViewportLocks() {
-  if (!window.matchMedia("(min-width: 821px)").matches) return;
+  // Maps retain their full-screen overlay through tablet and phone landscape.
+  if (!window.matchMedia("(min-width: 1101px)").matches) return;
   const body = document.body;
   if (body.hasAttribute("data-map-overlay-lock")) {
     body.style.position = "";

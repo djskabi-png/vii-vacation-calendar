@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-11-04",
+  "status": "verified_source_coordinate",
+  "scope": "read-only source investigation",
+  "source": {
+    "url": "https://www.spaplus.co.il/the_spa",
+    "httpStatus": 200,
+    "canonical": "https://www.spaplus.co.il/the_spa",
+    "title": "ספא במלון דיוויד אינטרקונטיננטל תל אביב - THE SPA",
+    "matchedCatalogSiteId": 6,
+    "matchedCatalogBookingUrl": "https://www.spaplus.co.il/packages.php?siteid=6&domainSrc=vii",
+    "matchedAddress": "פרופסור יחזקאל קויפמן 12, תל אביב"
+  },
+  "coordinates": {
+    "lat": 32.065362,
+    "lng": 34.7639802,
+    "evidence": "Official HTML of the canonical site contains the exact coordinate pair 32.065362,34.7639802. The page title, canonical URL, address and catalog booking URL all match site 6."
+  },
+  "limitations": [
+    "This verifies one official coordinate source (site 6), not all 159 SPA sites.",
+    "No geocoding or inferred coordinate was used.",
+    "No application source was changed and no publication was performed."
+  ]
+}

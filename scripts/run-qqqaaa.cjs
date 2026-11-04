@@ -32,6 +32,7 @@ const suites = [
   ["feature-icon-geometry", ["qa:icon-geometry"]],
   ["header-control-spacing", ["qa:spacing"]],
   ["overlay-geometry", ["qa:overlay-geometry"]],
+  ["map-source-coordinate-and-delivery-stability", ["qa:map-source-stability"]],
   ["map-experience", ["qa:map"]],
   ["multilingual-production", ["qa:locales"]],
   ["responsive-transitions", ["qa:responsive-transitions"]],

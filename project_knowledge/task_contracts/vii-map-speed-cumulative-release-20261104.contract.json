@@ -1,0 +1,247 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-map-speed-cumulative-release-20261104",
+  "project": "VII",
+  "task_type": "map-performance-cumulative-public-release",
+  "goal": "Complete savedrequestinventory, repairmapsallworldsandperformance, conditionalpublishexactcumulativecandidatewithoutlosingcapabilities",
+  "created_at": "2026-11-04T18:51:56.502900Z",
+  "updated_at": "2026-11-04T20:17:16.008202Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-map-speed-cumulative-release-20261104.preflight.json",
+      "sha256": "27b78c18225bdee90851635aff14dc7de151d3335c8e849bf9db241a59818309"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-map-speed-cumulative-release-20261104.preflight.json",
+    "sha256": "27b78c18225bdee90851635aff14dc7de151d3335c8e849bf9db241a59818309",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 7,
+    "lesson_bundle_count": 2,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "כל מדד גלוי הוא חוזה נתונים אמיתי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Complete savedrequestinventory, repairmapsallworldsandperformance, conditionalpublishexactcumulativecandidatewithoutlosingcapabilities",
+      "acceptance_check": "Observedallworlddesktop/mobile/landscapemapandnavigation, measuredspeed,sourceparity,reconciledledger,fullgates,independentcheck,exactpublicdeploymentandrollback",
+      "status": "blocked",
+      "evidence": [
+        "Final local build passed;2103of2104tests passed,1skipped,0failed; CUMULATIVE_STATUS.md distinguishes actual UI, isolated edge, unchanged main v798 and remaining public gates."
+      ],
+      "reason": "Conditional public release and fresh supplier/public acceptance cannot complete before authorized handoff to the owning publication context.",
+      "updated_at": "2026-11-04T20:16:22.450284Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-map-speed-cumulative-release-20261104.preflight.json validated with sha256 27b78c18225bdee90851635aff14dc7de151d3335c8e849bf9db241a59818309"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T18:51:56.502849Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "Firstsharedmapmarker/coordinatefix reproduced in actualdesktopandmobile plus currentperformancebaseline",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Actual Chrome map at390x844: centered price delta0, full-screen;844x390 revealed breakpoint mismatch; root corrected shared guard too. See cumulative report."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T20:00:04.734354Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Exact built candidate Chrome hourly, spa, vacation, event, attractions and trails; final desktop event pane and filter screenshot, narrow and landscape body lock. Public natural destination remains v798 and is not approved.",
+        "Shared five-tone renderer behavioral tests, compact viewport guard, source coordinate identity tests, approved legacy intention redirects, independent source review; full regression suite is recorded separately.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T20:14:47.671281Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=unknown, repeated_corrections=2, prevented_failures=6, elapsed_minutes=86.0; Elapsed from20:51taskmanifest to22:17. Public acceptance unknown; source/UI and isolated edge are not main-domain completion."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T20:17:15.611133Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "blocked",
+      "evidence": [
+        "CUMULATIVE_STATUS.md maps preserved capability families, actual local UI and exact remaining public gates."
+      ],
+      "reason": "Public original promise is not complete: owning-context source and post-deploy scenario gates remain open; no full release approval.",
+      "updated_at": "2026-11-04T20:16:50.790668Z"
+    },
+    {
+      "id": "lesson:ADIR-DATA-001",
+      "source": "lesson:ADIR-DATA-001",
+      "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
+      "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
+      "status": "passed",
+      "evidence": [
+        "spa-coordinate-evidence156verified plus3missing;155fixed-address pins and mobile68not fabricated; moved address invalidates exact point; counts and HTTP timings are scoped in CUMULATIVE_STATUS.md."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T20:16:51.188927Z"
+    },
+    {
+      "id": "project:release",
+      "source": "project_guidance",
+      "statement": "No deployment until prereleasegatespass; preserveallprotectedancestors; nooutboundmessages/bookings/payments",
+      "acceptance_check": "No deployment until prereleasegatespass; preserveallprotectedancestors; nooutboundmessages/bookings/payments",
+      "status": "passed",
+      "evidence": [
+        "13protectedancestors and17families preserved; no main deployment,DB/schema/env/DNS/permission or booking/message/payment mutation; build and2103passed tests; sourceguard completion receipt will follow frozen commit."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-04T20:16:51.682976Z"
+    },
+    {
+      "id": "hosting-access",
+      "source": "access_obstacle",
+      "statement": "Sites connector currentcontext returnsprojectnotfound for exactconfiguredVIIid",
+      "acceptance_check": "Diagnoseowningworkspace/session/sourceCLI; exactprojectpublicationroute verified or humanonlydependency evidenced",
+      "status": "blocked",
+      "evidence": [
+        "ACCESS_RECOVERY.json records connector, authorized owner UI, project CLI/API and official connection checks; no message or main deployment sent."
+      ],
+      "reason": "Owning Sites workspace is not connected to this task; cross-conversation handoff requires explicit human authorization still pending.",
+      "access_recovery": {
+        "observed_error": "Exact VII Sites project returns project-not-found in the current connector workspace.",
+        "category": "permission",
+        "diagnosis": "The connector lists another workspace. The authenticated owning Site is visible in the original Chrome publication chat, but no direct source/version upload exists in its settings UI.",
+        "authorization_boundary": "Conditional publication of exact VII cumulative source is authorized. Messaging another task requires separate explicit human authorization under the installed thread tool; none received.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "Exact project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned SitesConnectorError project-not-found. Complete list showed nine other-workspace sites and no VII."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Chrome original publication chat and Site settings show the actual VII owner project and verified origin. Edit returns that conversation; no direct publication/source upload UI. Prompting the other conversation awaits explicit consent."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "Git origin is readable and cumulative ancestry verified. Wrangler account and zone/route reads work, but do not provide the existing Sites managed DB/environment publication. No production VII route exists; DNS/settings reads denied. Native read_thread found no readable local Codex match for the ChatGPT publication thread."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "Verified original publication conversation is https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local. Tool explicitly requires direct user authorization before sending a follow-up to another task; no bypass used."
+          }
+        ],
+        "outcome": "human_required",
+        "ready_work_remaining": false,
+        "minimum_human_action": "Authorize sending the exact cumulative candidate and source-verification/publication instructions to the existing original VII publication conversation.",
+        "resume_when": "User explicitly authorizes that named cross-conversation handoff; then complete fresh source/provider gates and exact version publication before main edge activation."
+      },
+      "updated_at": "2026-11-04T20:16:21.812813Z"
+    }
+  ],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "goal: blocked: Conditional public release and fresh supplier/public acceptance cannot complete before authorized handoff to the owning publication context.",
+    "lesson:ADIR-QA-001: blocked: Public original promise is not complete: owning-context source and post-deploy scenario gates remain open; no full release approval.",
+    "hosting-access: blocked: Owning Sites workspace is not connected to this task; cross-conversation handoff requires explicit human authorization still pending."
+  ],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-04T20:00:04.734321Z",
+      "evidence": [
+        "Actual Chrome map at390x844: centered price delta0, full-screen;844x390 revealed breakpoint mismatch; root corrected shared guard too. See cumulative report."
+      ],
+      "findings": [
+        "Catalog growth remounted map; fixed stable geographic focus identity with actual wrapper tests.",
+        "Area coordinates incorrectly implied physical spa pins;155 fixed addresses verified,3 unresolved,1 mobile service excluded.",
+        "Landscape generic viewport guard released map body lock at821; aligned1101 and rebuilding/retesting."
+      ]
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-04T20:17:15.611080Z",
+      "first_pass_acceptance": "unknown",
+      "repeated_corrections": 2,
+      "prevented_failures": 6,
+      "elapsed_minutes": 86.0,
+      "baseline_note": "Elapsed from20:51taskmanifest to22:17. Public acceptance unknown; source/UI and isolated edge are not main-domain completion."
+    },
+    "adversarial": {
+      "observed_at": "2026-11-04T20:14:47.670887Z",
+      "attacks": [
+        "Distinct clustered business points at city zoom: actual AST renderer must zoom and retain original coordinates, not automatically spread at12.",
+        "Catalog growth and sorting must retain Leaflet identity: executed real wrappers; explicit geography and single-place changes refocus.",
+        "Cache with cookie, auth, duplicate or unknown query, wrong build, expired response, failed cache lookup: isolated runtime tests reject caching or fall through safely.",
+        "Landscape844x390 and event desktop1280x900: observed hidden breakpoint and squeezed grid; repaired shared cleanup/grid and reopened actual final interface."
+      ],
+      "natural_destination_evidence": "Exact built candidate Chrome hourly, spa, vacation, event, attractions and trails; final desktop event pane and filter screenshot, narrow and landscape body lock. Public natural destination remains v798 and is not approved.",
+      "affected_family_evidence": "Shared five-tone renderer behavioral tests, compact viewport guard, source coordinate identity tests, approved legacy intention redirects, independent source review; full regression suite is recorded separately."
+    }
+  },
+  "last_freshness_check_at": "2026-11-04T20:11:14.635980Z",
+  "last_freshness_check_errors": []
+}

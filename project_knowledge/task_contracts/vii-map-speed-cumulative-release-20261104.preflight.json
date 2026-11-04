@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-map-speed-cumulative-release-20261104",
+  "project": "VII",
+  "task_type": "map-performance-cumulative-public-release",
+  "requested_outcome": "Repair actual map geometry, coordinate precision and interaction across everyworld; measurable navigation speed; reconcile every saved capability and prior request; conditionalpublicrelease only afterprechecks thenexactpublicverification.",
+  "natural_destination": "Allworld publicmaps, search/place/navigation/admin, frozen cumulative candidate andexact publicdeployment.",
+  "authorization_boundary": "Usernowauthorizesreversibleimplementation andconditionalpublicrelease oncegatespass; no book/pay/send/delete/permission changes.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Popular labels must apply real filters and nearby must use actual browserorigin",
+      "acceptance_impact": "No fake keywordfilters or positionleakage, CMS draft/published distinction"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Sharedworld rail andeditorneed actualflowverification",
+      "acceptance_impact": "Testallworld defaults/parser/action and desktop/mobile plus persistence fixture; distinguishlocallysavedfrompublic"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Price pill shifted frommapanchor",
+      "prevention": "MeasureactualLeafletmarkerbox andgeopixel anchor;sharedcenteredCSS",
+      "acceptance_check": "Desktop/mobile labelcenter within2px"
+    },
+    {
+      "rejection": "Zoom revealsfakeorregionalpoint",
+      "prevention": "Auditcoordinateprovenance andstopoffsets masqueradingasrealpositions",
+      "acceptance_check": "Actualsourcepointandprecisionsignals acrossworlds"
+    },
+    {
+      "rejection": "Map pans/zoomsfreezeorrebuild",
+      "prevention": "Profilemarkerupdate/listviewport callbacks andinteraction",
+      "acceptance_check": "Densemap pan/zoom/card/listback measurednoreset"
+    },
+    {
+      "rejection": "Fastinitialscreenbutnavigationwaitsstilllong",
+      "prevention": "MeasureHTMLandRSCcold/warm;traceblockingawaits",
+      "acceptance_check": "Beforeaftertimings anderrorstates; no contentloss"
+    },
+    {
+      "rejection": "Savedfixesomittedorpublicstale",
+      "prevention": "Protectallancestors compareledger andversionidentity",
+      "acceptance_check": "Cleanfrozen source andpublicsource/treeverified"
+    },
+    {
+      "rejection": "Internaltestpassbutrealflowbroken",
+      "prevention": "NaturalUIallworlds andindependentchecker",
+      "acceptance_check": "Desktop390mobile+landscape andpostdeployactors"
+    }
+  ],
+  "affected_family": [
+    "vacation/events/spa/hourly/provider/attraction/trail listingmaps",
+    "business/place detailmaps andcoordinateprecision",
+    "sharedmarker price/cluster/spider/viewport/listselection",
+    "HTML/RSC/clientnavigation/Workerstartup/cache/images",
+    "all savedcapabilities booking/gallery/accessibility/canonical/CMS/admin",
+    "fourlanguages RTL/LTR desktop390mobilelandscape",
+    "Sites source/tree/environment binding/publicidentity rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "AcceptedVIIproductbehavior",
+        "source": "../calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Approvedsharedmapstandard",
+        "source": "C:/Users/Adir/.codex/skills/design-interactive-map-experiences/SKILL.md"
+      },
+      {
+        "label": "Protectedcumulativecapabilities",
+        "source": "project_knowledge/release_controls/vii-accepted-capabilities.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Firstsharedmapmarker/coordinatefix reproduced in actualdesktopandmobile plus currentperformancebaseline",
+    "checks": [
+      "Exactmarkerpricecenter/coordinatebeforeafter",
+      "Firstworldpanzoomselectionandlistcount",
+      "CurrentHTML/RSCbaselineandtrace"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Canzoomshowafakeexactbusinessposition?",
+      "Canpan/zoomlosefiltersorleaveemptyresults?",
+      "Canlegacy/savedfixorworldbreakincumulativecandidate?",
+      "Doespublicversionmatchfrozen source?"
+    ],
+    "natural_destination_evidence": "Actualallworlddesktop390mobilelandscapeUI plusexactpublicactorflows",
+    "affected_family_evidence": "Mapsourceandcoordinateidentity,allrequestledger,familytests/fullQQQAAA anddeploymentprovenance"
+  },
+  "effectiveness": {
+    "baseline": "Userreportsheavy map andslowpages; priorTTFB3.4-6.9s, freshmeasurementsrequired. RealdeviceP75baselineunavailable.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Observedlowernavigationcost andstablepanzoom; exactcoordinateshonest; completeconditionalreleaseevidence."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

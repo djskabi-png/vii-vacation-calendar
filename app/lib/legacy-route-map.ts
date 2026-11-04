@@ -4,6 +4,8 @@ export type LegacyDisposition = { status: 301; target: string } | { status: 410 
 
 const redirects = inventory.redirects as Record<string, string>;
 const gone = new Set(inventory.gone as string[]);
+const searchStateKeys = ["from", "till", "to", "dates", "guests", "adults", "children", "infants", "pets", "rooms", "roomID", "price", "minPrice", "maxPrice", "sort"];
+const legacyPriceKeys = new Set(["price", "minPrice", "maxPrice"]);
 
 export function normalizedLegacySource(input: URL | string) {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
@@ -18,7 +20,29 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const exact = normalizedLegacySource(url);
   const path = normalizedLegacySource(url.pathname);
-  const target = redirects[exact] || redirects[path];
+  let target = redirects[exact] || redirects[path];
+  // Legacy search pages were published without booking state. A dated legacy
+  // URL must still resolve to the same approved semantic page while retaining
+  // the visitor's dates and party for the new search experience.
+  if (!target && url.pathname.toLowerCase() === "/s") {
+    const semantic = new URL(url);
+    // A published legacy price combination is itself a registered intent.
+    // Try it before treating an added price as transactional state.
+    for (const key of searchStateKeys) if (!legacyPriceKeys.has(key)) semantic.searchParams.delete(key);
+    target = redirects[normalizedLegacySource(semantic)];
+    if (!target) {
+      for (const key of legacyPriceKeys) semantic.searchParams.delete(key);
+      target = redirects[normalizedLegacySource(semantic)];
+    }
+  }
+  if (target && /^\/s(?:\/|$)/i.test(url.pathname)) {
+      const destination = new URL(target, "https://vii.spaplus.co");
+      for (const key of searchStateKeys) {
+        const value = url.searchParams.get(key);
+        if (value) destination.searchParams.set(key, value);
+      }
+      target = `${destination.pathname}${destination.search}`;
+  }
   if (target) return { status: 301, target };
   if (gone.has(exact) || gone.has(path)) return { status: 410 };
   return null;

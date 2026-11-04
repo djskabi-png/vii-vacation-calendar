@@ -24,9 +24,10 @@ test("desktop map opening reveals the map and closing returns to the original po
   assert.match(read("app/globals.css"), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
 });
 
-test("a dense cluster expands immediately instead of requiring another zoom cycle", () => {
+test("coincident clusters expand immediately while distinct locations retain street zoom", () => {
   const map = read("app/components/listing-map.tsx");
-  assert.match(map, /if \(clusterDistance < 120 \|\| targetZoom <= currentZoom\) \{\s*\/\/[\s\S]*?spiderfyCluster\(cluster\.entries, clusterCenter\);/);
+  assert.match(map, /if \(spreadMapCluster\(cluster\.entries, currentZoom\)\) \{[\s\S]*?spiderfyCluster\(cluster\.entries, clusterCenter\);/);
+  assert.match(map, /else if \(targetZoom <= currentZoom\)[\s\S]*?map\.setView\(clusterCenter, Math\.min\(currentZoom \+ 1, 19\)\)/);
   assert.match(map, /map\.panInside\(clusterCenter, \{ padding: L\.point\(120, 120\), animate: true \}\)/);
 });
 

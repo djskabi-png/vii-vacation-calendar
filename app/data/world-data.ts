@@ -3,6 +3,7 @@ import { spaViiCopyOrNull } from "./spa-vii-copy";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
 import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
 import { spaSourceServiceTerms } from "./spa-landings.ts";
+import { verifiedSpaMapLocation } from "../lib/spa-map-location.ts";
 import { supplierContactNumber } from "../lib/supplier-contact";
 import type { WorldId } from "./world-navigation";
 import { safeHourlyDescription } from "../lib/hourly-description";
@@ -47,6 +48,8 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "רגבה": { lat: 32.977, lng: 35.099 },
   "כמון": { lat: 32.913, lng: 35.36 },
   "תל אביב": { lat: 32.085, lng: 34.781 },
+  // Accepted VII geography city center, checked 2026-11-04. This is never an exact business pin.
+  "רחובות": { lat: 31.892773, lng: 34.811272 },
   "הרצליה": { lat: 32.166, lng: 34.843 },
   "ירושלים": { lat: 31.778, lng: 35.223 },
   "רמת גן": { lat: 32.082, lng: 34.814 },
@@ -60,7 +63,8 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
 export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sites.map((site) => {
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
   const prices = site.packages.map((pack) => pack.price);
-  const coordinates = spaAreaCoordinates[site.city];
+  const verifiedCoordinates = verifiedSpaMapLocation(site);
+  const coordinates = verifiedCoordinates || spaAreaCoordinates[site.city];
   const approvedCopy = spaViiCopyOrNull(site.id);
   return {
     id: `spa-${site.id}`,
@@ -84,7 +88,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     sourceName: "ספא פלוס",
     lat: coordinates?.lat,
     lng: coordinates?.lng,
-    mapPrecision: coordinates ? "area" : undefined,
+    mapPrecision: verifiedCoordinates ? "exact" : coordinates ? "area" : undefined,
     indexable: true,
   };
 });

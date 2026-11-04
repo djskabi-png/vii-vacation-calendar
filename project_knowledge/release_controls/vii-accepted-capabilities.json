@@ -211,6 +211,20 @@
         "tests/world-popular-regional-origin.test.mjs",
         "project_knowledge/task_contracts/vii-world-popular-regional-origin-diagnosis.json"
       ]
+    },
+    {
+      "id": "map-source-coordinate-and-stream-stability",
+      "files": [
+        "app/lib/map-marker-layout.ts",
+        "app/lib/spa-map-location.ts",
+        "app/data/spa-coordinate-evidence.json",
+        "app/data/spa-map-locations.json",
+        "tests/map-cluster-renderer-actual.test.mjs",
+        "tests/map-stream-identity-actual.test.mjs",
+        "tests/map-source-location-behavior.test.mjs",
+        "tests/spa-source-coordinates.test.mjs",
+        "tests/legacy-dated-search-redirect.test.mjs"
+      ]
     }
   ]
 }

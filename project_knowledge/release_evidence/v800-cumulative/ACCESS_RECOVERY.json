@@ -1,0 +1,36 @@
+{
+  "observed_error": "Exact VII Sites project returns project-not-found in the current connector workspace.",
+  "category": "permission",
+  "diagnosis": "The connector lists another workspace. The authenticated owning Site is visible in the original Chrome publication chat, but no direct source/version upload exists in its settings UI.",
+  "authorization_boundary": "Conditional publication of exact VII cumulative source is authorized. Messaging another task requires separate explicit human authorization under the installed thread tool; none received.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "Exact project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned SitesConnectorError project-not-found. Complete list showed nine other-workspace sites and no VII."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "Chrome original publication chat and Site settings show the actual VII owner project and verified origin. Edit returns that conversation; no direct publication/source upload UI. Prompting the other conversation awaits explicit consent."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "Git origin is readable and cumulative ancestry verified. Wrangler account and zone/route reads work, but do not provide the existing Sites managed DB/environment publication. No production VII route exists; DNS/settings reads denied. Native read_thread found no readable local Codex match for the ChatGPT publication thread."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "Verified original publication conversation is https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045?hostId=local. Tool explicitly requires direct user authorization before sending a follow-up to another task; no bypass used."
+    }
+  ],
+  "outcome": "human_required",
+  "ready_work_remaining": false,
+  "minimum_human_action": "Authorize sending the exact cumulative candidate and source-verification/publication instructions to the existing original VII publication conversation.",
+  "resume_when": "User explicitly authorizes that named cross-conversation handoff; then complete fresh source/provider gates and exact version publication before main edge activation."
+}

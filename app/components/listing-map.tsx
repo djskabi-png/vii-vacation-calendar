@@ -14,6 +14,7 @@ import { PreviewCardGallery } from "./preview-card-gallery";
 import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
 import { formatMapPrice, priceModeFromLabel, validMapPrice, verifiedPriceFromLabel, type MapPriceQuote } from "../lib/map-price";
 import { trackMapInteraction } from "../lib/analytics";
+import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../lib/map-marker-layout";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -283,7 +284,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
 
     if (!activePlaceId || !activeMarker || !mapInstance.current) return;
     const activePlace = places.find((place) => place.id === activePlaceId);
-    if (activePlace && !mapInstance.current.getBounds().pad(-0.08).contains([activePlace.lat, activePlace.lng])) {
+    if (activePlace && selectedIdRef.current === activePlaceId && !mapInstance.current.getBounds().pad(-0.08).contains([activePlace.lat, activePlace.lng])) {
       mapInstance.current.panInside([activePlace.lat, activePlace.lng], {
         padding: [48, 48], animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       });
@@ -312,7 +313,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         }),
       }).addTo(mapInstance.current);
       previewMarker.getElement()?.setAttribute("data-map-place-id", place.id);
-      previewMarker.getElement()?.setAttribute("aria-label", place.name);
+      previewMarker.getElement()?.setAttribute("data-map-lat", String(place.lat));
+      previewMarker.getElement()?.setAttribute("data-map-lng", String(place.lng));
+      previewMarker.getElement()?.setAttribute("data-map-precision", place.precision || "area");
+      previewMarker.getElement()?.setAttribute("aria-label", place.precision === "area" ? `${place.name}, ${precisionCopy}` : place.name);
       previewMarker.on("click", (event) => {
         if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
         selectPlace(place.id);
@@ -370,6 +374,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         zoomControl: false,
         attributionControl: true,
         minZoom: 7,
+        maxZoom: 19,
         maxBounds: [[28.65, 33.55], [34.15, 36.45]],
         maxBoundsViscosity: 0.72,
       });
@@ -432,11 +437,16 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       const markerLayer = L.layerGroup().addTo(map);
       let expandedPlaceIds = new Set<string>();
       let clusterActivationEvent: Event | undefined;
-      const bindPlaceMarkerInteraction = (marker: import("leaflet").Marker, id: string) => {
+      const bindPlaceMarkerInteraction = (marker: import("leaflet").Marker, source: MapPlace) => {
+        const id = source.id;
         marker.on("mouseover", () => activePlaceCallback.current?.(id));
         marker.on("mouseout", () => activePlaceCallback.current?.(selectedIdRef.current || null));
         const element = marker.getElement();
         element?.setAttribute("data-map-place-id", id);
+        element?.setAttribute("data-map-lat", String(source.lat));
+        element?.setAttribute("data-map-lng", String(source.lng));
+        element?.setAttribute("data-map-precision", source.precision || "area");
+        if (source.precision === "area") element?.setAttribute("aria-label", `${source.name}, ${precisionCopy}`);
         element?.addEventListener("focus", () => activePlaceCallback.current?.(id));
         element?.addEventListener("blur", () => activePlaceCallback.current?.(selectedIdRef.current || null));
       };
@@ -446,21 +456,16 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           markerRegistry.clear();
         }
         const centerPoint = map.latLngToLayerPoint(center);
-        const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-
-        entries.forEach((entry, index) => {
-          const angle = -Math.PI / 2 + index * goldenAngle;
-          const radius = entries.length <= 3
-            ? 44 + index * 14
-            : 34 + Math.sqrt(index + 1) * 24;
-          const spiderPoint = centerPoint.add(L.point(Math.cos(angle) * radius, Math.sin(angle) * radius));
+        [...entries].sort((a, b) => a.id.localeCompare(b.id)).forEach((entry, index) => {
+          const offset = mapSpiderOffset(index, entries.length);
+          const spiderPoint = centerPoint.add(L.point(offset.x, offset.y));
           const spiderPosition = map.layerPointToLatLng(spiderPoint);
           const useTextLabel = entry.markerKind !== "category";
           const markerContent = useTextLabel
             ? `${entry.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
 
-          L.polyline([center, spiderPosition], {
+          L.polyline([[entry.lat, entry.lng], spiderPosition], {
             color: tone === "spa" ? "#a33a82" : "#087e8b",
             weight: 2,
             opacity: 0.72,
@@ -479,6 +484,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             }),
           }).addTo(markerLayer);
           spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
+          spiderMarker.getElement()?.setAttribute("data-map-layout", "expanded");
           spiderMarker.on("click", (event) => {
             if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
             // Ignore only the event which expanded the cluster, not a new tap
@@ -486,13 +492,14 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             if (event.originalEvent && event.originalEvent === clusterActivationEvent) return;
             selectPlace(entry.id);
           });
-          bindPlaceMarkerInteraction(spiderMarker, entry.id);
+          bindPlaceMarkerInteraction(spiderMarker, entry);
           enableMarkerKeyboardActivation(spiderMarker);
           markerRegistry.set(entry.id, spiderMarker);
         });
       };
 
       const renderMarkers = () => {
+        const startedAt = performance.now();
         markerLayer.clearLayers();
         markerRegistry.clear();
         const currentPlaces = placesRef.current;
@@ -552,7 +559,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
           const explicitlyExpanded = clustered && cluster.entries.every((entry) => expandedPlaceIds.has(entry.id));
-          if (clustered && (zoom >= 12 || explicitlyExpanded)) {
+          if (clustered && explicitlyExpanded && spreadMapCluster(cluster.entries, zoom)) {
             spiderfyCluster(cluster.entries, clusterCenter, false);
             return;
           }
@@ -586,20 +593,21 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
               clusterActivationEvent = event.originalEvent;
               selectedIdRef.current = "";
               setSelectedId("");
-              expandedPlaceIds = new Set(cluster.entries.map((entry) => entry.id));
+              expandedPlaceIds = new Set();
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
-              const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
               const currentZoom = map.getZoom();
-              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 12);
+              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 19);
               suppressProgrammaticViewportPrompt();
-              if (clusterDistance < 120 || targetZoom <= currentZoom) {
-                // Nearby or already maximally zoomed places need a decision,
-                // not another animated zoom that can leave the same cluster
-                // under the pointer. Expand them immediately and keep the
-                // complete spider inside the usable canvas.
+              if (spreadMapCluster(cluster.entries, currentZoom)) {
+                // Coincident source points or maximum street zoom need a
+                // readable selection. Every leg starts at that entry's source
+                // coordinate; distinct places otherwise keep zooming in place.
+                expandedPlaceIds = new Set(cluster.entries.map((entry) => entry.id));
                 spiderfyCluster(cluster.entries, clusterCenter);
                 map.panInside(clusterCenter, { padding: L.point(120, 120), animate: true });
+              } else if (targetZoom <= currentZoom) {
+                map.setView(clusterCenter, Math.min(currentZoom + 1, 19));
               } else {
                 map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
               }
@@ -610,7 +618,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
               if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
               selectPlace(place.id);
             });
-            bindPlaceMarkerInteraction(marker, place.id);
+            bindPlaceMarkerInteraction(marker, place);
             markerRegistry.set(place.id, marker);
           }
           enableMarkerKeyboardActivation(marker);
@@ -620,6 +628,9 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           activeMarker.getElement()?.classList.add("is-card-active");
           activeMarker.setZIndexOffset(1000);
         }
+        container.setAttribute("data-map-render-ms", (performance.now() - startedAt).toFixed(2));
+        container.setAttribute("data-map-zoom", String(map.getZoom()));
+        container.setAttribute("data-map-rendered-markers", String(new Set(markerRegistry.values()).size));
       };
       renderMarkersRef.current = renderMarkers;
 
@@ -822,7 +833,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   </div>;
 }
 
-export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, priceById, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; priceById?: Record<string, MapPriceQuote>; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
+export function ListingMap({ listings, initialListings, focusKey, mode = "vacation", single = false, autoLoad = false, detailQuery, priceById, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { listings: Listing[]; initialListings?: Listing[]; focusKey?: string; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; priceById?: Record<string, MapPriceQuote>; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
   const { language, translate } = useSiteLanguage();
   const units = useMemo(() => ({
     he: { bedrooms: "חדרי שינה", units: "יחידות", guests: "אורחים", upTo: "עד" },
@@ -836,7 +847,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     ru: { place: "Место", location: "Израиль", area: "Израиль" },
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
-  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => {
+  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => validMapCoordinate(listing.lat, listing.lng)).map((listing) => {
     const verifiedPrice = priceById?.[listing.slug] ?? (validMapPrice(listing.price) ? { amount: listing.price, mode: "from" as const } : undefined);
     const compactPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language) : "";
     const fullPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language, false) : "";
@@ -863,10 +874,10 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     precision: "exact",
   }); }), [detailQuery, fallback, language, listings, mode, priceById, translate, units]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
-  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
+  return <PlacesMap key={focusKey || (single ? places[0]?.id : "all")} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
 
-export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
+export function DiscoveryMap({ items, initialItems, focusKey, tone, single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; focusKey?: string; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
   const { language, translate } = useSiteLanguage();
   const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
@@ -881,7 +892,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
     ru: { place: "Место", location: "Израиль", area: "Израиль" },
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
-  const places = useMemo<MapPlace[]>(() => items.filter((item) => typeof item.lat === "number" && typeof item.lng === "number").map((item) => {
+  const places = useMemo<MapPlace[]>(() => items.filter((item) => validMapCoordinate(item.lat, item.lng)).map((item) => {
     const price = verifiedPriceFromLabel(item.priceLabel);
     const priceQuote = price ? { amount: price, mode: priceModeFromLabel(item.priceLabel) } satisfies MapPriceQuote : null;
     const compactPrice = priceQuote ? formatMapPrice(priceQuote, language) : "";
@@ -905,7 +916,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
     };
   }), [fallback, items, language, localized, tone, translate]);
   const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
-  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
+  return <PlacesMap key={focusKey || (single ? places[0]?.id : "all")} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
 
 const trailAreaCenters: Record<Trail["mainArea"], { lat: number; lng: number }> = {

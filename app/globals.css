@@ -8906,7 +8906,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .search-quick-filters svg { width: 17px; height: 17px; }
 .search-quick-filters b { min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 5px; border-radius: 999px; color: #093f48; background: #fff; font-size: .68rem; }
 
-.airbnb-map-split { min-width: 0; display: grid; grid-template-columns: minmax(500px, .92fr) minmax(480px, 1.08fr); gap: 18px; align-items: start; }
+.airbnb-map-split { min-width: 0; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 18px; align-items: start; }
 .airbnb-map-split__results { min-width: 0; max-height: calc(100vh - 24px); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-inline-end: 4px; align-content: start; }
 .airbnb-map-split__map { position: sticky; top: 12px; min-width: 0; height: calc(100vh - 24px); min-height: 620px; max-height: 900px; display: grid; grid-template-rows: minmax(0,1fr); gap: 10px; }
 .airbnb-map-split__map:has(> .map-pane-toolbar) { grid-template-rows: auto minmax(0,1fr); }
@@ -8947,7 +8947,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 
 .event-list--map-open { min-width: 0; }
 .event-list--map-open > .results-heading,.event-list--map-open > .results-toolbar,.event-list--map-open > .empty-state { grid-column: 1 / -1; }
-.event-list--map-open > .event-map-split { margin-top: 18px; }
+.event-list--map-open > .event-map-split { grid-column: 1 / -1; margin-top: 18px; }
 .event-map-results { display: grid; gap: 18px; }
 .event-map-pane { min-width: 0; }
 .event-map-pane .map-results-experience,.event-map-pane .map-results-canvas,.event-map-pane .listing-map-shell,.event-map-pane .listing-map { width: 100%; height: 100%; min-height: 100%; }
@@ -9178,6 +9178,10 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .vii-map-marker-wrap.is-text:not(.is-cluster) .vii-map-marker { gap: 5px; padding-inline: 9px 12px; }
 .vii-map-marker-wrap.is-text:not(.is-cluster) .vii-map-marker__icon { color: #087e8b; }
 .vii-map-marker-wrap.marker-kind--price:not(.is-cluster) .vii-map-marker {
+  grid-template-columns: 1fr;
+  grid-auto-flow: row;
+  justify-items: center;
+  gap: 0;
   min-width: 70px;
   padding-inline: 14px;
   border-color: rgba(12, 92, 103, .2);
@@ -9186,6 +9190,9 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   font-size: .88rem;
   font-variant-numeric: tabular-nums;
 }
+.vii-map-marker-wrap.marker-kind--price:not(.is-cluster) .vii-map-marker__label { min-width: max-content; text-align: center; direction: ltr; unicode-bidi: isolate; }
+.vii-map-marker-wrap[data-map-precision="area"] .vii-map-marker { border-style: dashed; }
+
 .vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker,
 .vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker,
 .vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker {
@@ -10963,3 +10970,36 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .world-popular-searches { margin-block:18px 24px; min-width:0; }
 .world-popular-searches .home-visual-searches { margin-block:0; }
 @media(max-width:600px) { .world-popular-searches .home-visual-searches { padding:12px; } }
+
+/* One compact map mode through tablet and phone landscape. Its breakpoint is
+   shared with map-view-state and the hidden result rail. */
+@media (max-width: 1100px) {
+  .airbnb-map-split__map .map-results-experience,.event-map-pane .map-results-experience {
+    position: fixed; inset: 0; z-index: 3600; display: block; width: 100%; height: 100dvh;
+    min-height: 0; border: 0; border-radius: 0; overflow: hidden; background: #edf5f4;
+  }
+  .map-results-experience .map-results-canvas,.map-results-experience .listing-map-shell,.map-results-experience .listing-map { width: 100%; height: 100%; min-height: 0; border-radius: 0; }
+  .map-results-experience .map-mobile-close { position: absolute; z-index: 1000; top: max(12px, env(safe-area-inset-top)); left: auto; right: 12px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid #d4e3e5; border-radius: 999px; background: #fff; color: #153e46; cursor: pointer; }
+  .map-results-experience .leaflet-control-zoom { margin-top: 12px; }
+  .map-results-experience .map-zoom-hint { display: none; }
+  .map-results-experience .map-results-summary { top: max(68px, calc(env(safe-area-inset-top) + 60px)); inset-inline-start: 12px; max-width: calc(100% - 130px); }
+  .map-results-experience .map-results-summary span { display: none; }
+  .map-results-experience .map-search-area { top: max(68px, calc(env(safe-area-inset-top) + 60px)); max-width: calc(100% - 100px); }
+  .map-results-experience .listing-map-shell:has(.map-search-area) .map-results-summary { display: none; }
+  .map-results-experience .map-selection-card { top: auto; inset-inline: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: min(440px, calc(100% - 24px)); max-height: calc(100dvh - 100px); grid-template-columns: 104px minmax(0, 1fr); overflow-y: auto; }
+  .map-results-experience .map-selection-card__media { min-height: 128px; }
+  .map-results-experience .map-selection-card__body { padding: 12px; }
+}
+
+/* The event sidebar must not squeeze a two-column map into the remaining
+   listing column. Filters remain available in the same explicit dialog. */
+@media (min-width: 1101px) {
+  .event-results-layout:has(.event-list--map-open) { display: block; width: min(1760px, calc(100% - 28px)); max-width: none; }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel:not(.open) { display: none; }
+  .event-list--map-open .event-filter-toggle { display: inline-flex; }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel.open { position: fixed; z-index: 4210; top: 50%; left: 50%; width: min(620px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); display: flex; flex-direction: column; overflow: hidden; padding: 0; border-radius: 24px; transform: translate(-50%, -50%); box-shadow: 0 30px 90px rgba(0,30,38,.28); }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-panel__scroll { flex: 1; overflow-y: auto; padding: 22px; overscroll-behavior: contain; }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-head button { display: grid; place-items: center; width: 44px; height: 44px; }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-panel__actions { flex: 0 0 auto; padding: 16px; }
+  .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-apply { display: inline-flex; }
+}

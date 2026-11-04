@@ -49,6 +49,7 @@ export const DeferredListingMap = dynamic(
 ) as ComponentType<{
   listings: Listing[];
   initialListings?: Listing[];
+  focusKey?: string;
   mode?: "vacation" | "events";
   single?: boolean;
   autoLoad?: boolean;
@@ -67,6 +68,7 @@ export const DeferredDiscoveryMap = dynamic(
 ) as ComponentType<{
   items: DiscoveryItem[];
   initialItems?: DiscoveryItem[];
+  focusKey?: string;
   tone: "spa" | "hourly" | "activities";
   single?: boolean;
   autoLoad?: boolean;

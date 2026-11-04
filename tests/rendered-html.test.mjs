@@ -383,11 +383,11 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /initialPlaceIds/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
-  assert.match(worldData, /mapPrecision: coordinates \? "area" : undefined/);
+  assert.match(worldData, /mapPrecision: verifiedCoordinates \? "exact" : coordinates \? "area" : undefined/);
   assert.match(worldData, /mapPrecision: "exact"/);
-  assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{resultItems\} tone="hourly" autoLoad onClose=/);
-  assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
-  assert.match(attractionResults, /<DeferredDiscoveryMap items=\{resultItems\} tone="activities" autoLoad onClose=/);
+  assert.match(hourlyResults, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\} tone="hourly" autoLoad onClose=/);
+  assert.match(worldResults, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{items\} tone=\{world\} autoLoad onClose=/);
+  assert.match(attractionResults, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\} tone="activities" autoLoad onClose=/);
   for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
@@ -692,7 +692,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
   assert.match(map, /autoLoad/);
-  assert.match(search, /<DeferredListingMap listings=\{resultSet\} initialListings=\{resultSet\} autoLoad/);
+  assert.match(search, /<DeferredListingMap(?: focusKey=\{area\})? listings=\{resultSet\} initialListings=\{resultSet\} autoLoad/);
   assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
   assert.match(map, /listing\.bedrooms/);
@@ -1372,17 +1372,17 @@ test("spa results expose working place and amenity filters before the result lis
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
   assert.match(source, /selectedFilters\.every/);
-  assert.match(source, /<DeferredDiscoveryMap items=\{resultItems\} initialItems=\{resultItems\}/);
+  assert.match(source, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\} initialItems=\{resultItems\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
 
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
-  assert.match(worldData, /const coordinates = spaAreaCoordinates\[site\.city\]/);
+  assert.match(worldData, /const coordinates = verifiedCoordinates \|\| spaAreaCoordinates\[site\.city\]/);
   assert.match(worldData, /const spaAreaCoordinates/);
   assert.match(worldData, /"חיפה": \{ lat: 32\.794, lng: 34\.989 \}/);
   assert.match(worldData, /"טבריה": \{ lat: 32\.794, lng: 35\.532 \}/);
   assert.match(worldData, /"ירושלים": \{ lat: 31\.778, lng: 35\.223 \}/);
-  assert.match(worldData, /mapPrecision: coordinates \? "area" : undefined/);
+  assert.match(worldData, /mapPrecision: verifiedCoordinates \? "exact" : coordinates \? "area" : undefined/);
 });
 
 test("provider pages demonstrate tracked WhatsApp and full-site booking modes", async () => {

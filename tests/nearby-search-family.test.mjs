@@ -66,8 +66,8 @@ test("vacation fallback keeps amenities, live price and excludes explicit unavai
 test("maps and lists use the same expanded inventory in all client worlds", async () => {
   for (const path of ["app/components/world-map-results.tsx", "app/components/hourly-results.tsx", "app/attractions/attractions-explorer.tsx"]) {
     const source = await read(path);
-    assert.match(source, /DeferredDiscoveryMap items=\{resultItems\}/, path);
-    assert.doesNotMatch(source, /DeferredDiscoveryMap items=\{filtered\}/, path);
+    assert.match(source, /DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\}/, path);
+    assert.doesNotMatch(source, /DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{filtered\}/, path);
   }
   const trails = await read("app/trails/trails-explorer.tsx");
   assert.match(trails, /DeferredTrailMap trails=\{resultTrails\}/);

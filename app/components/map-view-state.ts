@@ -97,7 +97,7 @@ export function useMapViewState() {
   const openMap = useCallback(() => {
     if (typeof window !== "undefined") rememberOpenIntent();
     if (typeof window !== "undefined") scrollPosition.current = window.scrollY;
-    if (typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches && !lockedStyles.current) {
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1100px)").matches && !lockedStyles.current) {
       lockPage();
     }
     setIsMapOpen(true);
@@ -124,7 +124,7 @@ export function useMapViewState() {
   useEffect(() => {
     if (hasFreshOpenIntent()) {
       setIsMapOpen(true);
-      if (window.matchMedia("(max-width: 820px)").matches) lockPage();
+      if (window.matchMedia("(max-width: 1100px)").matches) lockPage();
     }
     setMapInteractive(true);
     return () => unlockPage();
@@ -135,7 +135,7 @@ export function useMapViewState() {
     // has committed the open map. A bounded pair of follow-up alignments also
     // absorbs late result-count and filter layout changes without following or
     // fighting a visitor after the opening transition has settled.
-    if (!mapOpen || !window.matchMedia("(min-width: 821px)").matches) return;
+    if (!mapOpen || !window.matchMedia("(min-width: 1101px)").matches) return;
     const behavior: ScrollBehavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     const frame = window.requestAnimationFrame(() => scrollDesktopMapIntoView(behavior));
     const settleTimer = window.setTimeout(() => scrollDesktopMapIntoView("auto"), 180);
@@ -161,7 +161,7 @@ export function useMapViewState() {
 
   useEffect(() => {
     if (!mapOpen) return;
-    const desktop = window.matchMedia("(min-width: 821px)");
+    const desktop = window.matchMedia("(min-width: 1101px)");
     const releaseMobileLock = (event: MediaQueryListEvent | MediaQueryList) => {
       if (event.matches) unlockPage();
       else lockPage();

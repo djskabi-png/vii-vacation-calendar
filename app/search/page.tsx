@@ -1126,7 +1126,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                 <div className="map-pane-toolbar">
                   <button type="button" className="map-location-control" onClick={() => { closeResultsMap(); window.requestAnimationFrame(() => setOpenLocationRequest((value) => value + 1)); }} aria-label={`שינוי אזור החיפוש, כרגע ${area === "הכל" ? "כל הארץ" : area}`}><PinIcon /><span>אזור החיפוש</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong><small>שינוי</small></button>
                 </div>
-                <DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} priceById={mapPriceById} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} />
+                <DeferredListingMap focusKey={area} listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} priceById={mapPriceById} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} />
               </div>
             </div>}
             {!onlineOnly && !selectedStay && !catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}

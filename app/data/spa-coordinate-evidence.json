@@ -1,0 +1,2856 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-04T19:36:41.396Z",
+  "source": "official canonical pages identity-verified by main page siteid",
+  "totalCatalogSites": 159,
+  "verifiedCount": 156,
+  "missingCount": 3,
+  "verified": [
+    {
+      "id": 12,
+      "sourceUrl": "https://www.spaplus.co.il/royal_beach_tel_aviv_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=12&domainSrc=vii",
+      "title": "ספא יערות הכרמל במלון רויאל ביץ' תל אביב - Royal Beach tel aviv",
+      "address": "רחוב הירקון 19",
+      "city": "תל אביב",
+      "lat": 32.0704499,
+      "lng": 34.7647697,
+      "checkedAt": "2026-11-04T19:35:09.199Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "12",
+        "pageTitle": "ספא יערות הכרמל במלון רויאל ביץ' תל אביב -  Royal Beach tel aviv",
+        "pageAddress": "רחוב הירקון 19",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 19,
+      "sourceUrl": "https://www.spaplus.co.il/ahuzat_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=19&domainSrc=vii",
+      "title": "ספא במלון הבוטיק אחוזת הספא רחובות - Ahuzat Spa",
+      "address": "משה יתום 38",
+      "city": "רחובות",
+      "lat": 31.8904837,
+      "lng": 34.7878831,
+      "checkedAt": "2026-11-04T19:35:09.201Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "19",
+        "pageTitle": "ספא במלון הבוטיק אחוזת הספא רחובות - Ahuzat Spa",
+        "pageAddress": "משה יתום 38",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 6,
+      "sourceUrl": "https://www.spaplus.co.il/the_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=6&domainSrc=vii",
+      "title": "ספא במלון דיוויד אינטרקונטיננטל תל אביב - THE SPA",
+      "address": "פרופסור יחזקאל קויפמן 12",
+      "city": "תל אביב",
+      "lat": 32.065362,
+      "lng": 34.7639802,
+      "checkedAt": "2026-11-04T19:35:09.084Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "6",
+        "pageTitle": "ספא במלון דיוויד אינטרקונטיננטל תל אביב - THE SPA",
+        "pageAddress": "פרופסור יחזקאל קויפמן 12",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 8,
+      "sourceUrl": "https://www.spaplus.co.il/holmes_place_spa_rishon_lezion",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=8&domainSrc=vii",
+      "title": "ספא הולמס פלייס ראשון לציון - Holmes Place Rishon Lezion",
+      "address": "ילדי טהרן 5",
+      "city": "ראשון לציון",
+      "lat": 31.9848463,
+      "lng": 34.7694183,
+      "checkedAt": "2026-11-04T19:35:09.197Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "8",
+        "pageTitle": "ספא הולמס פלייס ראשון לציון - Holmes Place Rishon Lezion",
+        "pageAddress": "ילדי טהרן 5",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 25,
+      "sourceUrl": "https://www.spaplus.co.il/titanic_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=25&domainSrc=vii",
+      "title": "טיטאניק ספא ראשון לציון - Titanic Spa",
+      "address": "לישנסקי 17",
+      "city": "ראשון לציון",
+      "lat": 31.992687,
+      "lng": 34.7668541,
+      "checkedAt": "2026-11-04T19:35:10.562Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "25",
+        "pageTitle": "טיטאניק ספא ראשון לציון - Titanic Spa",
+        "pageAddress": "לישנסקי 17",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 31,
+      "sourceUrl": "https://www.spaplus.co.il/spa_bell",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=31&domainSrc=vii",
+      "title": "ספא במלון הבוטיק בל תל אביב - Spa Bell",
+      "address": "הירקון 50",
+      "city": "תל אביב",
+      "lat": 32.0731472,
+      "lng": 34.7661283,
+      "checkedAt": "2026-11-04T19:35:10.570Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "31",
+        "pageTitle": "ספא במלון הבוטיק בל תל אביב - Spa Bell",
+        "pageAddress": "הירקון 50",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 35,
+      "sourceUrl": "https://www.spaplus.co.il/spa_pnina_bacarmel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=35&domainSrc=vii",
+      "title": "ספא פנינה בכרמל חיפה -  Pnina Bacarmel",
+      "address": "שדרות הצבי 3",
+      "city": "חיפה",
+      "lat": 32.8032928,
+      "lng": 34.9826495,
+      "checkedAt": "2026-11-04T19:35:10.724Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "35",
+        "pageTitle": "ספא פנינה בכרמל חיפה -  Pnina Bacarmel",
+        "pageAddress": "שדרות הצבי 3",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 45,
+      "sourceUrl": "https://www.spaplus.co.il/ocean_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=45&domainSrc=vii",
+      "title": "ספא אושן במלון ג'ייקוב ריזורט חדרה - Ocean Spa",
+      "address": "מנחם בגין 1",
+      "city": "חדרה",
+      "lat": 32.4439299,
+      "lng": 34.8805397,
+      "checkedAt": "2026-11-04T19:35:10.747Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "45",
+        "pageTitle": "מלון ג'ייקוב ריזורט חדרה ספא אושן - Ocean Spa",
+        "pageAddress": "מנחם בגין 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 48,
+      "sourceUrl": "https://www.spaplus.co.il/jah_spa_dan_accadia",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=48&domainSrc=vii",
+      "title": "ספא במלון דן אכדיה הרצליה - jah spa At dan accaddia herzliya",
+      "address": "רמת ים 122",
+      "city": "הרצליה",
+      "lat": 32.1667184,
+      "lng": 34.7995374,
+      "checkedAt": "2026-11-04T19:35:11.677Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "48",
+        "pageTitle": "ספא במלון דן אכדיה הרצליה - jah spa At dan accaddia herzliya",
+        "pageAddress": "רמת ים 122",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 54,
+      "sourceUrl": "https://www.spaplus.co.il/darya_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=54&domainSrc=vii",
+      "title": "דריה ספא במלון רמדה נתניה - Darya Spa Netanya",
+      "address": "שד' בן עמי 41",
+      "city": "נתניה",
+      "lat": 32.321458,
+      "lng": 34.853196,
+      "checkedAt": "2026-11-04T19:35:11.728Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "54",
+        "pageTitle": "דריה ספא במלון רמדה נתניה - Darya Spa",
+        "pageAddress": "שד' בן עמי 41",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 66,
+      "sourceUrl": "https://www.spaplus.co.il/berdichevsky_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=66&domainSrc=vii",
+      "title": "ספא במלון הבוטיק ברדיצ'בסקי תל אביב - Berdichevsky Spa",
+      "address": "ברדיצ'בסקי 14",
+      "city": "תל אביב",
+      "lat": 32.0709163,
+      "lng": 34.7803151,
+      "checkedAt": "2026-11-04T19:35:11.861Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "66",
+        "pageTitle": "ספא במלון הבוטיק ברדיצ'בסקי תל אביב - Berdichevsky Spa",
+        "pageAddress": "ברדיצ'בסקי 14",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 68,
+      "sourceUrl": "https://www.spaplus.co.il/massage_to_the_house",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=68&domainSrc=vii",
+      "title": "עיסוי עד הבית",
+      "address": "",
+      "city": "עד לבית הלקוח",
+      "lat": 31.046051,
+      "lng": 34.851612,
+      "checkedAt": "2026-11-04T19:35:11.873Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "68",
+        "pageTitle": "עיסוי עד הבית - ספא עד הבית",
+        "pageAddress": "",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 75,
+      "sourceUrl": "https://www.spaplus.co.il/spa_tamar",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=75&domainSrc=vii",
+      "title": "ספא כפות תמר רמת גן - Spa Tamar",
+      "address": "מתיתיהו מנדל 12",
+      "city": "רמת גן",
+      "lat": 32.0688296,
+      "lng": 34.832903,
+      "checkedAt": "2026-11-04T19:35:12.805Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "75",
+        "pageTitle": "ספא כפות תמר רמת גן - Spa Tamar",
+        "pageAddress": "מתיתיהו מנדל 12",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 76,
+      "sourceUrl": "https://www.spaplus.co.il/Palm_Beach_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=76&domainSrc=vii",
+      "title": "חושן ספא חוף התמרים עכו - Spa Hoshen",
+      "address": "יהונתן החשמונאי 1",
+      "city": "עכו",
+      "lat": 32.920007,
+      "lng": 35.078313,
+      "checkedAt": "2026-11-04T19:35:13.016Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "76",
+        "pageTitle": "חושן ספא חוף התמרים עכו - Spa Hoshen",
+        "pageAddress": "יהונתן החשמונאי 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 80,
+      "sourceUrl": "https://www.spaplus.co.il/Crowne_Plaza_Haifa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=80&domainSrc=vii",
+      "title": "ספא במלון קראון פלאזה חיפה - SPA CROWNE PLAZA",
+      "address": "יפה נוף 111",
+      "city": "חיפה",
+      "lat": 32.804595,
+      "lng": 34.9900426,
+      "checkedAt": "2026-11-04T19:35:13.137Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "80",
+        "pageTitle": "ספא במלון קראון פלאזה חיפה - SPA CROWNE PLAZA",
+        "pageAddress": "יפה נוף 111",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 82,
+      "sourceUrl": "https://www.spaplus.co.il/mantra_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=82&domainSrc=vii",
+      "title": "מנטרה ספא רעננה - Mantra Spa",
+      "address": "הסדנא 11",
+      "city": "רעננה",
+      "lat": 32.1946764,
+      "lng": 34.8793394,
+      "checkedAt": "2026-11-04T19:35:13.977Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "82",
+        "pageTitle": "מנטרה ספא רעננה - Mantra Spa",
+        "pageAddress": "הסדנא 11",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 126,
+      "sourceUrl": "https://www.spaplus.co.il/Home_spa_in_the_Galilee",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=126&domainSrc=vii",
+      "title": "ספא במלון הבוטיק בית בגליל - Home Spa In The Galilee",
+      "address": "יער בירייה על יד",
+      "city": "ראש פינה",
+      "lat": 32.9945484,
+      "lng": 35.5003673,
+      "checkedAt": "2026-11-04T19:35:14.272Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "126",
+        "pageTitle": "ספא במלון הבוטיק בית בגליל - Home Spa In The Galilee",
+        "pageAddress": "יער בירייה על יד",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 108,
+      "sourceUrl": "https://www.spaplus.co.il/Crowne_Plaza_Tel_Aviv_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=108&domainSrc=vii",
+      "title": "ספא במלון קראון פלזה תל אביב - Crown Spa TLV",
+      "address": "הירקון 145",
+      "city": "תל אביב",
+      "lat": 32.0838289,
+      "lng": 34.7688932,
+      "checkedAt": "2026-11-04T19:35:14.179Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "108",
+        "pageTitle": "ספא במלון קראון פלזה תל אביב - Crown Spa TLV",
+        "pageAddress": "הירקון 145",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 143,
+      "sourceUrl": "https://www.spaplus.co.il/hod_hamidbar_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=143&domainSrc=vii",
+      "title": "ספא במלון הוד הרברט סמואל ים המלח - Hod Hamidbar Spa",
+      "address": "עין בוקק",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:14.968Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "143",
+        "pageTitle": "ספא במלון הוד הרברט סמואל ים המלח - Hod Hamidbar Spa",
+        "pageAddress": "עין בוקק",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 151,
+      "sourceUrl": "https://www.spaplus.co.il/canaan_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=151&domainSrc=vii",
+      "title": "ספא במלון כנען - Canaan Spa",
+      "address": "הגדוד השלישי 106",
+      "city": "צפת",
+      "lat": 32.9736197,
+      "lng": 35.5063105,
+      "checkedAt": "2026-11-04T19:35:15.353Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "151",
+        "pageTitle": "ספא במלון כנען - Canaan Spa",
+        "pageAddress": "הגדוד השלישי 106",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 155,
+      "sourceUrl": "https://www.spaplus.co.il/shizan_spa_dead_sea",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=155&domainSrc=vii",
+      "title": "ספא במלון בראון ים המלח -  spa in brown hotel",
+      "address": "עין בוקק",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:15.357Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "155",
+        "pageTitle": "ספא במלון בראון ים המלח -  spa in brown hotel",
+        "pageAddress": "עין בוקק",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 163,
+      "sourceUrl": "https://www.spaplus.co.il/mizpe_hayamim_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=163&domainSrc=vii",
+      "title": "ספא במלון מצפה הימים ראש פינה - Mizpe Hayamim",
+      "address": "מלון מצפה הימים",
+      "city": "ראש פינה",
+      "lat": 32.9583599,
+      "lng": 35.5316727,
+      "checkedAt": "2026-11-04T19:35:16.129Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "163",
+        "pageTitle": "ספא במלון מצפה הימים ראש פינה - Mizpe Hayamim",
+        "pageAddress": "מלון מצפה הימים",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 169,
+      "sourceUrl": "https://www.spaplus.co.il/sealife_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=169&domainSrc=vii",
+      "title": "ספא במלון בוטיק סי לייף נהריה - Sealife Spa",
+      "address": "העלייה 75",
+      "city": "נהריה",
+      "lat": 33.0193577,
+      "lng": 35.092895,
+      "checkedAt": "2026-11-04T19:35:16.453Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "169",
+        "pageTitle": "ספא במלון בוטיק סי לייף נהריה - Sealife Spa",
+        "pageAddress": "העלייה 75",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 173,
+      "sourceUrl": "https://www.spaplus.co.il/elma_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=173&domainSrc=vii",
+      "title": "ספא במלון אלמא זכרון יעקב - Elma Spa",
+      "address": "יאיר 1",
+      "city": "זכרון יעקב",
+      "lat": 32.5773696,
+      "lng": 34.9464553,
+      "checkedAt": "2026-11-04T19:35:16.664Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "173",
+        "pageTitle": "ספא במלון אלמא זכרון יעקב - Elma Spa",
+        "pageAddress": "יאיר 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 69,
+      "sourceUrl": "https://www.spaplus.co.il/club_hotel_eilat_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=69&domainSrc=vii",
+      "title": "ספא קלאב הוטל אילת - Club Hotel Eilat",
+      "address": "מלון קלאב הוטל",
+      "city": "אילת",
+      "lat": 29.5494499,
+      "lng": 34.9522146,
+      "checkedAt": "2026-11-04T19:35:12.773Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "69",
+        "pageTitle": "ספא קלאב הוטל אילת - Club Hotel Eilat",
+        "pageAddress": "מלון קלאב הוטל",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 174,
+      "sourceUrl": "https://www.spaplus.co.il/Caesar_Spa_1858",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=174&domainSrc=vii",
+      "title": "אחוזת ספא קיסר - Caesar Spa mansion",
+      "address": "שכונה 8",
+      "city": "קיסריה",
+      "lat": 32.5154686,
+      "lng": 34.9062798,
+      "checkedAt": "2026-11-04T19:35:17.168Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "174",
+        "pageTitle": "אחוזת ספא קיסר - Caesar Spa mansion",
+        "pageAddress": "שכונה 8",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 175,
+      "sourceUrl": "https://www.spaplus.co.il/armanni_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=175&domainSrc=vii",
+      "title": "ארמאנני ספא במלון לאונרדו אשדוד - Armanni Spa",
+      "address": "שדרות הים התיכון 1",
+      "city": "אשדוד",
+      "lat": 31.7708439,
+      "lng": 34.6212513,
+      "checkedAt": "2026-11-04T19:35:17.626Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "175",
+        "pageTitle": "ארמאנני ספא במלון לאונרדו אשדוד - Armanni Spa",
+        "pageAddress": "שדרות הים התיכון 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 177,
+      "sourceUrl": "https://www.spaplus.co.il/spa_6_sense",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=177&domainSrc=vii",
+      "title": "ספא לוטוס במלון יערים קיבוץ מעלה החמישה - Lotus Spa",
+      "address": "מלון יערים",
+      "city": "מעלה החמישה",
+      "lat": 31.8157291,
+      "lng": 35.1172027,
+      "checkedAt": "2026-11-04T19:35:17.803Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "177",
+        "pageTitle": "ספא לוטוס במלון יערים קיבוץ מעלה החמישה - Lotus Spa",
+        "pageAddress": "מלון יערים",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 179,
+      "sourceUrl": "https://www.spaplus.co.il/brown_beach_house_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=179&domainSrc=vii",
+      "title": "ספא בראון ביץ תל אביב מרשת אדמה - ADAMA SPA",
+      "address": "הירקון 64",
+      "city": "תל אביב",
+      "lat": 32.0752765,
+      "lng": 34.7668132,
+      "checkedAt": "2026-11-04T19:35:17.876Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "179",
+        "pageTitle": "ספא בראון ביץ תל אביב מרשת אדמה - ADAMA SPA",
+        "pageAddress": "הירקון 64",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 185,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_at_the_Starkman_Arena_Hotel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=185&domainSrc=vii",
+      "title": "ספא במלון שטרקמן ארנה נהריה -  Shtarkman Erna",
+      "address": "ז'בוטינסקי 29",
+      "city": "נהריה",
+      "lat": 33.0116059,
+      "lng": 35.091587,
+      "checkedAt": "2026-11-04T19:35:18.410Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "185",
+        "pageTitle": "ספא במלון שטרקמן ארנה נהריה -  Shtarkman Erna",
+        "pageAddress": "ז'בוטינסקי 29",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 193,
+      "sourceUrl": "https://www.spaplus.co.il/Herbert_Samuel_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=193&domainSrc=vii",
+      "title": "ספא במלון הרברט סמואל ירושלים - Herbert Samuel Spa",
+      "address": "שמאי 25",
+      "city": "ירושלים",
+      "lat": 31.7815448,
+      "lng": 35.2195985,
+      "checkedAt": "2026-11-04T19:35:18.813Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "193",
+        "pageTitle": "ספא במלון הרברט סמואל ירושלים - Herbert Samuel Spa",
+        "pageAddress": "שמאי 25",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 205,
+      "sourceUrl": "https://www.spaplus.co.il/Carmel_Forest_Spa_-_Royal_Beach_Eilat",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=205&domainSrc=vii",
+      "title": "ספא יערות הכרמל במלון רויאל ביץ' אילת - Royal Beach",
+      "address": "החוף הצפוני",
+      "city": "אילת",
+      "lat": 29.551181,
+      "lng": 34.965207,
+      "checkedAt": "2026-11-04T19:35:19.016Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "205",
+        "pageTitle": "ספא יערות הכרמל במלון רויאל ביץ' אילת - Royal Beach eilat",
+        "pageAddress": "החוף הצפוני",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 207,
+      "sourceUrl": "https://www.spaplus.co.il/caesar_spa_tiberias",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=207&domainSrc=vii",
+      "title": "ספא במלון חמת קיסר טבריה - Caesar Spa Tiberias",
+      "address": "הטיילת 103",
+      "city": "טבריה",
+      "lat": 32.7873239,
+      "lng": 35.5432162,
+      "checkedAt": "2026-11-04T19:35:19.516Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "207",
+        "pageTitle": "ספא במלון חמת קיסר טבריה - Caesar Spa Tiberias",
+        "pageAddress": "הטיילת 103",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 210,
+      "sourceUrl": "https://www.spaplus.co.il/Polyhaus_Boutique_Hotel_and_Spa_Tel_Aviv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=210&domainSrc=vii",
+      "title": "ספא במלון בוטיק פוליהאוס תל אביב  - Poli House Spa",
+      "address": "נחלת בנימין 1",
+      "city": "תל אביב",
+      "lat": 32.0693948,
+      "lng": 34.7704244,
+      "checkedAt": "2026-11-04T19:35:19.907Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "210",
+        "pageTitle": "ספא במלון בוטיק פוליהאוס תל אביב - Polyhaus Boutique Spa",
+        "pageAddress": "נחלת בנימין 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 220,
+      "sourceUrl": "https://www.spaplus.co.il/elevate_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=220&domainSrc=vii",
+      "title": "ספא אלוויט במלון וורט אילת - Elevate Spa",
+      "address": "קאמן 8",
+      "city": "אילת",
+      "lat": 29.5546909,
+      "lng": 34.9624342,
+      "checkedAt": "2026-11-04T19:35:20.162Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "220",
+        "pageTitle": "ספא אלוויט במלון וורט אילת - Elevate Spa",
+        "pageAddress": "קאמן 8",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 225,
+      "sourceUrl": "https://www.spaplus.co.il/galei_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=225&domainSrc=vii",
+      "title": "ספא במלון גלי כנרת - Galei Spa",
+      "address": "שדרות אליעזר קפלן 1",
+      "city": "טבריה",
+      "lat": 32.7831322,
+      "lng": 35.5439612,
+      "checkedAt": "2026-11-04T19:35:20.606Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "225",
+        "pageTitle": "ספא במלון גלי כנרת - Galei Spa",
+        "pageAddress": "שדרות אליעזר קפלן 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 228,
+      "sourceUrl": "https://www.spaplus.co.il/tomoko_japanese_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=228&domainSrc=vii",
+      "title": "טומוקו ספא יפני הרצליה - Tomoko Japanese Spa",
+      "address": "וינגייט 142",
+      "city": "הרצליה",
+      "lat": 32.1704903,
+      "lng": 34.8026486,
+      "checkedAt": "2026-11-04T19:35:20.636Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "228",
+        "pageTitle": "טומוקו ספא יפני הרצליה - Tomoko Japanese Spa",
+        "pageAddress": "וינגייט 142",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 231,
+      "sourceUrl": "https://www.spaplus.co.il/villa_brown_jerusalem_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=231&domainSrc=vii",
+      "title": "ספא במלון וילה בראון ירושלים - Villa Brown Spa",
+      "address": "הנביאים 54",
+      "city": "ירושלים",
+      "lat": 31.7838031,
+      "lng": 35.221313,
+      "checkedAt": "2026-11-04T19:35:20.965Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "231",
+        "pageTitle": "ספא במלון וילה בראון ירושלים - Villa Brown Spa",
+        "pageAddress": "הנביאים 54",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 233,
+      "sourceUrl": "https://www.spaplus.co.il/oasis_spa_dead_sea",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=233&domainSrc=vii",
+      "title": "ספא במלון קלאב אואזיס ים המלח - Oasis Spa",
+      "address": "עין בוקק",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:21.220Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "233",
+        "pageTitle": "ספא במלון קלאב אואזיס ים המלח - Oasis Spa",
+        "pageAddress": "עין בוקק",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 236,
+      "sourceUrl": "https://www.spaplus.co.il/calma_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=236&domainSrc=vii",
+      "title": "קאלמה ספא במלון כפר המכביה רמת גן - Calma Spa",
+      "address": "פרץ ברנשטיין 7",
+      "city": "רמת גן",
+      "lat": 32.0559498,
+      "lng": 34.8280499,
+      "checkedAt": "2026-11-04T19:35:21.749Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "236",
+        "pageTitle": "קאלמה ספא במלון כפר המכביה רמת גן - Calma Spa",
+        "pageAddress": "פרץ ברנשטיין 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 239,
+      "sourceUrl": "https://www.spaplus.co.il/jah_spa_dan_eilat",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=239&domainSrc=vii",
+      "title": "ספא במלון דן אילת - Jah Spa eilat",
+      "address": "טיילת החוף הצפוני",
+      "city": "אילת",
+      "lat": 29.551181,
+      "lng": 34.965207,
+      "checkedAt": "2026-11-04T19:35:21.807Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "239",
+        "pageTitle": "ספא במלון דן אילת -  Jah Spa eilat",
+        "pageAddress": "טיילת החוף הצפוני",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 240,
+      "sourceUrl": "https://www.spaplus.co.il/nea_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=240&domainSrc=vii",
+      "title": "ספא מלון בוטיק ניאה שבי ציון - NEA SPA",
+      "address": "האלה 3",
+      "city": "שבי ציון",
+      "lat": 32.9849832,
+      "lng": 35.0849722,
+      "checkedAt": "2026-11-04T19:35:22.008Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "240",
+        "pageTitle": "ספא מלון בוטיק ניאה שבי ציון - NEA SPA",
+        "pageAddress": "האלה 3",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 241,
+      "sourceUrl": "https://www.spaplus.co.il/ritz_carlton_herzliya_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=241&domainSrc=vii",
+      "title": "ספא במלון ריץ קרלטון הרצליה - Ritz Carlton",
+      "address": "השונית 4",
+      "city": "הרצליה",
+      "lat": 32.1625904,
+      "lng": 34.7969695,
+      "checkedAt": "2026-11-04T19:35:22.256Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "241",
+        "pageTitle": "ספא במלון ריץ קרלטון הרצליה - Ritz Carlton",
+        "pageAddress": "השונית 4",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 242,
+      "sourceUrl": "https://www.spaplus.co.il/isrotel_dead_sea_esprit_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=242&domainSrc=vii",
+      "title": "ספא אספרי במלון נבו ישרוטל ים המלח - Esprit Spa",
+      "address": "עין בוקק",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:22.918Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "242",
+        "pageTitle": "ספא אספרי במלון נבו ישרוטל ים המלח - Esprit Spa",
+        "pageAddress": "עין בוקק",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 243,
+      "sourceUrl": "https://www.spaplus.co.il/isrotel_ganim_esprit_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=243&domainSrc=vii",
+      "title": "ספא אספרי במלון נגה (גנים המחודש) ים המלח - Esprit Spa",
+      "address": "עין בוקק",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:22.978Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "243",
+        "pageTitle": "ספא אספרי במלון נגה (גנים המחודש) ים המלח - Esprit Spa",
+        "pageAddress": "עין בוקק",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 246,
+      "sourceUrl": "https://www.spaplus.co.il/dan_panorama_jerusalem_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=246&domainSrc=vii",
+      "title": "ספא במלון דן פנורמה ירושלים - Tamar Spa",
+      "address": "קרן היסוד 39",
+      "city": "ירושלים",
+      "lat": 31.7731383,
+      "lng": 35.2213078,
+      "checkedAt": "2026-11-04T19:35:23.255Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "246",
+        "pageTitle": "ספא במלון דן פנורמה ירושלים - Tamar Spa",
+        "pageAddress": "קרן היסוד 39",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 248,
+      "sourceUrl": "https://www.spaplus.co.il/ramada_nazareth_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=248&domainSrc=vii",
+      "title": "ספא במלון רמדה נצרת - Ramada Nazareth",
+      "address": "דרך הציונות 29",
+      "city": "נצרת",
+      "lat": 32.7031542,
+      "lng": 35.311761,
+      "checkedAt": "2026-11-04T19:35:23.555Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "248",
+        "pageTitle": "ספא במלון רמדה נצרת - Ramada Nazareth",
+        "pageAddress": "דרך הציונות 29",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 263,
+      "sourceUrl": "https://www.spaplus.co.il/u_boutique_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=263&domainSrc=vii",
+      "title": "ספא במלון יו בוטיק כנרת - U Boutique Spa",
+      "address": "דרך גדוד ברק 1",
+      "city": "טבריה",
+      "lat": 32.7888177,
+      "lng": 35.5413693,
+      "checkedAt": "2026-11-04T19:35:24.062Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "263",
+        "pageTitle": "ספא במלון יו בוטיק כנרת - U Boutique Spa",
+        "pageAddress": "דרך גדוד ברק 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 249,
+      "sourceUrl": "https://www.spaplus.co.il/orient_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=249&domainSrc=vii",
+      "title": "ספא יערות הכרמל במלון אוריינט ירושלים - Orient Spa",
+      "address": "עמק רפאים 3",
+      "city": "ירושלים",
+      "lat": 31.7665776,
+      "lng": 35.2231014,
+      "checkedAt": "2026-11-04T19:35:24.051Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "249",
+        "pageTitle": "ספא יערות הכרמל במלון אוריינט ירושלים - Orient Spa",
+        "pageAddress": "עמק רפאים 3",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 264,
+      "sourceUrl": "https://www.spaplus.co.il/leonardo_plaza_tiberias_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=264&domainSrc=vii",
+      "title": "ספא דקל במלון לאונרדו פלאזה טבריה - Leonardo Plaza",
+      "address": "הבנים 1",
+      "city": "טבריה",
+      "lat": 32.7878033,
+      "lng": 35.5403218,
+      "checkedAt": "2026-11-04T19:35:24.375Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "264",
+        "pageTitle": "ספא דקל במלון לאונרדו פלאזה טבריה - Leonardo Plaza",
+        "pageAddress": "הבנים 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 267,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_at_the_Leonardo_Hotel_Jerusalem_Boutique",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=267&domainSrc=vii",
+      "title": "ספא אדמה במלון לאונרדו בוטיק ירושלים - Leonardo Boutique",
+      "address": "מונבז 3",
+      "city": "ירושלים",
+      "lat": 31.7831599,
+      "lng": 35.2220793,
+      "checkedAt": "2026-11-04T19:35:24.686Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "267",
+        "pageTitle": "ספא אדמה במלון לאונרדו בוטיק ירושלים - Leonardo Boutique",
+        "pageAddress": "מונבז 3",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 275,
+      "sourceUrl": "https://www.spaplus.co.il/shizan_spa_herzliya",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=275&domainSrc=vii",
+      "title": "ספא שיזן במלון דניאל הרצליה - Shizen Spa",
+      "address": "רמת ים 60",
+      "city": "הרצליה",
+      "lat": 32.1714723,
+      "lng": 34.8005596,
+      "checkedAt": "2026-11-04T19:35:25.117Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "275",
+        "pageTitle": "ספא שיזן במלון דניאל הרצליה - Shizen Spa",
+        "pageAddress": "רמת ים 60",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 273,
+      "sourceUrl": "https://www.spaplus.co.il/breeut_pinuk_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=273&domainSrc=vii",
+      "title": "ספא בוטיק הבריאות שבפינוק תל אביב - Breeut Pinuk",
+      "address": "גרשון שץ 16",
+      "city": "תל אביב",
+      "lat": 32.0689628,
+      "lng": 34.7890336,
+      "checkedAt": "2026-11-04T19:35:25.094Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "273",
+        "pageTitle": "ספא בוטיק הבריאות שבפינוק תל אביב - Breeut Pinuk",
+        "pageAddress": "גרשון שץ 16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 276,
+      "sourceUrl": "https://www.spaplus.co.il/West_End_Spa_Netanya",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=276&domainSrc=vii",
+      "title": "ספא וורט לגון - SPA Vert Lagoon Netanya",
+      "address": "קהילת צפת 5",
+      "city": "נתניה",
+      "lat": 32.3052045,
+      "lng": 34.8444734,
+      "checkedAt": "2026-11-04T19:35:25.491Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "276",
+        "pageTitle": "ספא וורט לגון בנתניה - SPA Vert Lagoon Netanya",
+        "pageAddress": "קהילת צפת 5",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 278,
+      "sourceUrl": "https://www.spaplus.co.il/Hacienda_Mansion_Spa_in_the_forest",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=278&domainSrc=vii",
+      "title": "ספא אחוזת אסיינדה ביער מעלות תרשיחא - Hacienda Mansion Spa",
+      "address": "רחוב האשכולות 1",
+      "city": "מעלות תרשיחא",
+      "lat": 33.0071493,
+      "lng": 35.2770982,
+      "checkedAt": "2026-11-04T19:35:25.689Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "278",
+        "pageTitle": "ספא אחוזת אסיינדה ביער מעלות תרשיחא - Hacienda Mansion Spa",
+        "pageAddress": "רחוב האשכולות 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 280,
+      "sourceUrl": "https://www.spaplus.co.il/leonardo_negev_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=280&domainSrc=vii",
+      "title": "ספא במלון לאונרדו נגב באר שבע - Leonardo Negev",
+      "address": "הנרייטה סולד 4",
+      "city": "באר שבע",
+      "lat": 31.2475539,
+      "lng": 34.8012555,
+      "checkedAt": "2026-11-04T19:35:26.134Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "280",
+        "pageTitle": "ספא במלון לאונרדו נגב באר שבע - Leonardo Negev",
+        "pageAddress": "הנרייטה סולד 4",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 285,
+      "sourceUrl": "https://www.spaplus.co.il/spa_dan_caesarea",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=285&domainSrc=vii",
+      "title": "ספא במלון דן קיסריה ריזורט - Jah Spa Dan Caesarea",
+      "address": "רוטשילד 1",
+      "city": "קיסריה",
+      "lat": 32.4889727,
+      "lng": 34.9021248,
+      "checkedAt": "2026-11-04T19:35:26.160Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "285",
+        "pageTitle": "ספא במלון דן קיסריה ריזורט - Jah Spa Dan Caesarea",
+        "pageAddress": "רוטשילד 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 286,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_at_Carmela_Boutique_Haifa_Hotel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=286&domainSrc=vii",
+      "title": "ספא במלון כרמלה בוטיק חיפה - Carmela Boutique",
+      "address": "התשבי 130",
+      "city": "חיפה",
+      "lat": 32.8065219,
+      "lng": 34.985948,
+      "checkedAt": "2026-11-04T19:35:26.512Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "286",
+        "pageTitle": "ספא במלון כרמלה בוטיק חיפה - Carmela Boutique",
+        "pageAddress": "התשבי 130",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 289,
+      "sourceUrl": "https://www.spaplus.co.il/sarana_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=289&domainSrc=vii",
+      "title": "שרנא ספא במלון השרון הרצליה - Sarana Spa",
+      "address": "אלי לנדאו 4",
+      "city": "הרצליה",
+      "lat": 32.1794828,
+      "lng": 34.8030025,
+      "checkedAt": "2026-11-04T19:35:26.732Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "289",
+        "pageTitle": "שרנא ספא במלון השרון הרצליה - Sarana Spa",
+        "pageAddress": "אלי לנדאו 4",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 290,
+      "sourceUrl": "https://www.spaplus.co.il/zeuspa_ramat_gan",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=290&domainSrc=vii",
+      "title": "זאוספא רמת גן - Zeuspa",
+      "address": "ז'בוטינסקי 7",
+      "city": "רמת גן",
+      "lat": 32.0896818,
+      "lng": 34.7736605,
+      "checkedAt": "2026-11-04T19:35:27.130Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "290",
+        "pageTitle": "זאוספא רמת גן - Zeuspa",
+        "pageAddress": "ז'בוטינסקי 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 294,
+      "sourceUrl": "https://www.spaplus.co.il/flamingo_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=294&domainSrc=vii",
+      "title": "פלמינגו ספא במלון מרום חיפה - Flamingo Spa",
+      "address": "הפלמח 51",
+      "city": "חיפה",
+      "lat": 32.7887677,
+      "lng": 34.9989265,
+      "checkedAt": "2026-11-04T19:35:27.297Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "294",
+        "pageTitle": "פלמינגו ספא במלון מרום חיפה - Flamingo Spa",
+        "pageAddress": "הפלמח 51",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 299,
+      "sourceUrl": "https://www.spaplus.co.il/holmes_place_spa_haifa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=299&domainSrc=vii",
+      "title": "ספא הולמס פלייס גרנד קניון חיפה -Holmes Place Haifa",
+      "address": "גרנד קניון קומה (-4)",
+      "city": "חיפה",
+      "lat": 32.7891867,
+      "lng": 35.0080554,
+      "checkedAt": "2026-11-04T19:35:27.821Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "299",
+        "pageTitle": "ספא הולמס פלייס גרנד קניון חיפה -Holmes Place Haifa",
+        "pageAddress": "גרנד קניון קומה (-4)",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 301,
+      "sourceUrl": "https://www.spaplus.co.il/holmes_place_azrieli_tel_aviv_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=301&domainSrc=vii",
+      "title": "ספא הולמס פלייס קניון עזריאלי תל אביב - Holmes Place Azrieli",
+      "address": "מנחם בגין 132, קניון עזריאלי (קומה 3)",
+      "city": "תל אביב",
+      "lat": 32.0744294,
+      "lng": 34.7914801,
+      "checkedAt": "2026-11-04T19:35:28.190Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "301",
+        "pageTitle": "ספא הולמס פלייס קניון עזריאלי תל אביב - Holmes Place Azrieli",
+        "pageAddress": "מנחם בגין 132, קניון עזריאלי (קומה 3)",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 303,
+      "sourceUrl": "https://www.spaplus.co.il/holmes_place_spa_rehovot",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=303&domainSrc=vii",
+      "title": "ספא הולמס פלייס רחובות - Holmes Place Rehovot",
+      "address": "דרך הים 23, קניון אמריקן סיטי",
+      "city": "רחובות",
+      "lat": 31.894447,
+      "lng": 34.793326,
+      "checkedAt": "2026-11-04T19:35:28.395Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "303",
+        "pageTitle": "ספא הולמס פלייס רחובות - Holmes Place Rehovot",
+        "pageAddress": "דרך הים 23, קניון אמריקן סיטי",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 307,
+      "sourceUrl": "https://www.spaplus.co.il/gordons_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=307&domainSrc=vii",
+      "title": "גורדונס  ספא מול הים - Gordons Spa",
+      "address": "רציף העליה השניה",
+      "city": "יפו",
+      "lat": 32.0556,
+      "lng": 34.752942,
+      "checkedAt": "2026-11-04T19:35:28.861Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "307",
+        "pageTitle": "גורדונס  ספא מול הים - Gordons Spa",
+        "pageAddress": "רציף העליה השניה",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 333,
+      "sourceUrl": "https://www.spaplus.co.il/eva_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=333&domainSrc=vii",
+      "title": "אווה ספא טבריה - Eva Spa",
+      "address": "הבנים 9",
+      "city": "טבריה",
+      "lat": 32.7875361,
+      "lng": 35.5406814,
+      "checkedAt": "2026-11-04T19:35:29.297Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "333",
+        "pageTitle": "אווה ספא טבריה - Eva Spa",
+        "pageAddress": "הבנים 9",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 298,
+      "sourceUrl": "https://www.spaplus.co.il/west_and_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=298&domainSrc=vii",
+      "title": "ווסט אנד ספא במלון בראון סי סייד אשדוד - West And Spa",
+      "address": "הטיילת 21",
+      "city": "אשדוד",
+      "lat": 31.8085746,
+      "lng": 34.6378076,
+      "checkedAt": "2026-11-04T19:35:27.611Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "298",
+        "pageTitle": "ווסט אנד ספא במלון בראון סי סייד אשדוד - West And Spa",
+        "pageAddress": "הטיילת 21",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 341,
+      "sourceUrl": "https://www.spaplus.co.il/orchid_tlv_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=341&domainSrc=vii",
+      "title": "ספא במלון אורכידאה הרברט סמואל תל אביב - Orchid Spa TLV",
+      "address": "הירקון 79",
+      "city": "תל אביב",
+      "lat": 32.0772802,
+      "lng": 34.7669175,
+      "checkedAt": "2026-11-04T19:35:29.366Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "341",
+        "pageTitle": "ספא במלון אורכידאה הרברט סמואל תל אביב - Orchid Spa TLV",
+        "pageAddress": "הירקון 79",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 346,
+      "sourceUrl": "https://www.spaplus.co.il/olive_gilboa_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=346&domainSrc=vii",
+      "title": "ספא במלון בריאה",
+      "address": "מלון בריאה בגלבוע , מתחם סקי",
+      "city": "גלבוע",
+      "lat": 32.5525648,
+      "lng": 35.3340636,
+      "checkedAt": "2026-11-04T19:35:29.897Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "346",
+        "pageTitle": "ספא במלון בריאה",
+        "pageAddress": "מלון בריאה בגלבוע , מתחם סקי",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 348,
+      "sourceUrl": "https://www.spaplus.co.il/guerlain_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=348&domainSrc=vii",
+      "title": "ספא גארלן במלון וולדורף אסטוריה ירושלים - Guerlain Spa",
+      "address": "גרשון אגרון 26-28",
+      "city": "ירושלים",
+      "lat": 31.7773669,
+      "lng": 35.2216863,
+      "checkedAt": "2026-11-04T19:35:30.403Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "348",
+        "pageTitle": "ספא גארלן במלון וולדורף אסטוריה ירושלים - Guerlain Spa",
+        "pageAddress": "גרשון אגרון 26-28",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 349,
+      "sourceUrl": "https://www.spaplus.co.il/zamarin_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=349&domainSrc=vii",
+      "title": "ספא זמארין בזכרון יעקב - Zamarin Spa",
+      "address": "המייסדים 16",
+      "city": "זכרון יעקב",
+      "lat": 32.5702158,
+      "lng": 34.9543119,
+      "checkedAt": "2026-11-04T19:35:30.568Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "349",
+        "pageTitle": "ספא זמארין בזכרון יעקב - Zamarin Spa",
+        "pageAddress": "המייסדים 16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 353,
+      "sourceUrl": "https://www.spaplus.co.il/spa_bahar",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=353&domainSrc=vii",
+      "title": "ספא בהר מתחם פלטינום ירושלים -  Spa Bahar platinum",
+      "address": "אבני החושן 64, גבעת זאב",
+      "city": "ירושלים",
+      "lat": 31.8354638,
+      "lng": 35.1713926,
+      "checkedAt": "2026-11-04T19:35:30.654Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "353",
+        "pageTitle": "ספא בהר מתחם פלטינום ירושלים -  Spa Bahar platinum",
+        "pageAddress": "אבני החושן 64, גבעת זאב",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 356,
+      "sourceUrl": "https://www.spaplus.co.il/bobo_tlv_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=356&domainSrc=vii",
+      "title": "ספא בובו תל אביב מרשת אדמה - ADAMA SPA",
+      "address": "רחוב יבנה 42",
+      "city": "תל אביב",
+      "lat": 32.0628172,
+      "lng": 34.7741961,
+      "checkedAt": "2026-11-04T19:35:31.035Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "356",
+        "pageTitle": "ספא בובו תל אביב מרשת אדמה - ADAMA SPA",
+        "pageAddress": "רחוב יבנה 42",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 360,
+      "sourceUrl": "https://www.spaplus.co.il/synergy_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=360&domainSrc=vii",
+      "title": "ספא סינרגיה במלון עין גדי - Synergy Spa",
+      "address": "ים המלח מיקוד 86980",
+      "city": "עין גדי",
+      "lat": 31.451191,
+      "lng": 35.383571,
+      "checkedAt": "2026-11-04T19:35:31.449Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "360",
+        "pageTitle": "ספא סינרגיה במלון עין גדי - Synergy Spa",
+        "pageAddress": "ים המלח מיקוד 86980",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 365,
+      "sourceUrl": "https://www.spaplus.co.il/assemblage_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=365&domainSrc=vii",
+      "title": "ספא במלון הבוטיק אסמבלאז' תל אביב - Assemblage Spa",
+      "address": "אלנבי 48",
+      "city": "תל אביב",
+      "lat": 32.0714576,
+      "lng": 34.7693536,
+      "checkedAt": "2026-11-04T19:35:31.625Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "365",
+        "pageTitle": "ספא במלון הבוטיק אסמבלאז' תל אביב - Assemblage Spa",
+        "pageAddress": "אלנבי 48",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 366,
+      "sourceUrl": "https://www.spaplus.co.il/caesar_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=366&domainSrc=vii",
+      "title": "ספא במלון קיסר אילת - Caesar Spa",
+      "address": "החוף הצפוני 88107",
+      "city": "אילת",
+      "lat": 29.551181,
+      "lng": 34.965207,
+      "checkedAt": "2026-11-04T19:35:31.654Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "366",
+        "pageTitle": "ספא במלון קיסר אילת - Caesar Spa",
+        "pageAddress": "החוף הצפוני 88107",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 371,
+      "sourceUrl": "https://www.spaplus.co.il/milos_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=371&domainSrc=vii",
+      "title": "מלון ספא מילוס ים המלח - Milos Hotel & Spa",
+      "address": "עין בוקק, 86930",
+      "city": "ים המלח",
+      "lat": 31.200156,
+      "lng": 35.362522,
+      "checkedAt": "2026-11-04T19:35:32.026Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "371",
+        "pageTitle": "מלון ספא מילוס ים המלח - Milos Hotel & Spa",
+        "pageAddress": "עין בוקק, 86930",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 373,
+      "sourceUrl": "https://www.spaplus.co.il/spa_bahar_premium",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=373&domainSrc=vii",
+      "title": "ספא בהר מתחם פרימיום ירושלים - Spa Bahar Premium",
+      "address": "אבני החושן 64, גבעת זאב",
+      "city": "ירושלים",
+      "lat": 31.8354638,
+      "lng": 35.1713926,
+      "checkedAt": "2026-11-04T19:35:32.553Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "373",
+        "pageTitle": "ספא בהר מתחם פרימיום ירושלים - Spa Bahar Premium",
+        "pageAddress": "אבני החושן 64, גבעת זאב",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 374,
+      "sourceUrl": "https://www.spaplus.co.il/Yama_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=374&domainSrc=vii",
+      "title": "ימה ספא במרינה אשקלון - Yama Spa at Ashkelon Marina",
+      "address": "הנמל 9",
+      "city": "אשקלון",
+      "lat": 31.6820708,
+      "lng": 34.5560601,
+      "checkedAt": "2026-11-04T19:35:32.623Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "374",
+        "pageTitle": "ימה ספא במרינה אשקלון - Yama Spa at Ashkelon Marina",
+        "pageAddress": "הנמל 9",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 378,
+      "sourceUrl": "https://www.spaplus.co.il/edmond_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=378&domainSrc=vii",
+      "title": "ספא במלון אדמונד ראש פינה - Edmond Spa",
+      "address": "דרך הגליל 35",
+      "city": "ראש פינה",
+      "lat": 32.9707078,
+      "lng": 35.5507032,
+      "checkedAt": "2026-11-04T19:35:32.781Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "378",
+        "pageTitle": "ספא במלון אדמונד ראש פינה - Edmond Spa",
+        "pageAddress": "דרך הגליל 35",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 379,
+      "sourceUrl": "https://www.spaplus.co.il/urban_spa_tlv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=379&domainSrc=vii",
+      "title": "אורבן ספא תל אביב - URBAN SPA TLV",
+      "address": "איינשטיין 7",
+      "city": "תל אביב",
+      "lat": 32.112586,
+      "lng": 34.7871451,
+      "checkedAt": "2026-11-04T19:35:33.148Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "379",
+        "pageTitle": "אורבן ספא תל אביב - URBAN SPA TLV",
+        "pageAddress": "איינשטיין 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 385,
+      "sourceUrl": "https://www.spaplus.co.il/OKOA_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=385&domainSrc=vii",
+      "title": "OKOA Spa The David Kempinski - ספא אוקואה במלון קמפינסקי",
+      "address": "הירקון 51",
+      "city": "תל אביב",
+      "lat": 32.0747953,
+      "lng": 34.7659656,
+      "checkedAt": "2026-11-04T19:35:33.566Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "385",
+        "pageTitle": "ספא במלון דיוויד קמפינסקי תל אביב - OKOA SPA",
+        "pageAddress": "הירקון 51",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 394,
+      "sourceUrl": "https://www.spaplus.co.il/americana",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=394&domainSrc=vii",
+      "title": "ספא במלון אמריקנה אילת - Spa Americana",
+      "address": "קאמפן 7",
+      "city": "אילת",
+      "lat": 29.5565277,
+      "lng": 34.9634733,
+      "checkedAt": "2026-11-04T19:35:33.811Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "394",
+        "pageTitle": "ספא במלון אמריקנה אילת - Spa Americana",
+        "pageAddress": "קאמפן 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 391,
+      "sourceUrl": "https://www.spaplus.co.il/Jah_spa_eilat",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=391&domainSrc=vii",
+      "title": "ספא במלון דן פנורמה אילת - Jah spa",
+      "address": "החוף הצפוני",
+      "city": "אילת",
+      "lat": 29.551181,
+      "lng": 34.965207,
+      "checkedAt": "2026-11-04T19:35:33.808Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "391",
+        "pageTitle": "ספא דן פנורמה אילת - JAH SPA",
+        "pageAddress": "החוף הצפוני",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 398,
+      "sourceUrl": "https://www.spaplus.co.il/SPA_RAMAT_RACHEL",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=398&domainSrc=vii",
+      "title": "ספא רמת רחל בירושלים - Spa Ramat Rachel",
+      "address": "קיבוץ רמת רחל",
+      "city": "ירושלים",
+      "lat": 31.7403163,
+      "lng": 35.2178825,
+      "checkedAt": "2026-11-04T19:35:34.428Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "398",
+        "pageTitle": "ספא JLM רמת רחל בירושלים - Spa jlm Ramat Rachel",
+        "pageAddress": "קיבוץ רמת רחל",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 400,
+      "sourceUrl": "https://www.spaplus.co.il/tai_massage",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=400&domainSrc=vii",
+      "title": "יויו קליניקה לעיסוי תאילנדי בתל אביב - Yoyo Thai Massage",
+      "address": "מונטיפיורי 37",
+      "city": "תל אביב",
+      "lat": 32.0658283,
+      "lng": 34.7738299,
+      "checkedAt": "2026-11-04T19:35:34.684Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "400",
+        "pageTitle": "יויו קליניקה לעיסוי תאילנדי בתל אביב - Yoyo Thai Massage",
+        "pageAddress": "מונטיפיורי 37",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 401,
+      "sourceUrl": "https://www.spaplus.co.il/mayer_house_hotel_spa_tel_aviv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=401&domainSrc=vii",
+      "title": "ספא במלון הבוטיק מאייר האוס תל אביב - Mayer House",
+      "address": "דיזינגוף 98",
+      "city": "תל אביב",
+      "lat": 32.0788932,
+      "lng": 34.7741309,
+      "checkedAt": "2026-11-04T19:35:34.934Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "401",
+        "pageTitle": "ספא במלון הבוטיק מאייר האוס תל אביב - Mayer House",
+        "pageAddress": "דיזינגוף 98",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 404,
+      "sourceUrl": "https://www.spaplus.co.il/Alberto_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=404&domainSrc=vii",
+      "title": "ספא אספארי במלון אלברטו תל אביב - Alberto Spa",
+      "address": "נחלת בנימין 46",
+      "city": "תל אביב",
+      "lat": 32.0641481,
+      "lng": 34.7712279,
+      "checkedAt": "2026-11-04T19:35:34.997Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "404",
+        "pageTitle": "ספא אספארי במלון אלברטו תל אביב - Alberto Spa",
+        "pageAddress": "נחלת בנימין 46",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 405,
+      "sourceUrl": "https://www.spaplus.co.il/rimonim_aqueduct_hotel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=405&domainSrc=vii",
+      "title": "ספא אחוזת אקוודוקט רגבה (ספא סנדרין )",
+      "address": "מתחם ביג",
+      "city": "רגבה",
+      "lat": 32.9745544,
+      "lng": 35.0948589,
+      "checkedAt": "2026-11-04T19:35:35.609Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "405",
+        "pageTitle": "ספא אחוזת אקוודוקט רגבה (ספא סנדרין )",
+        "pageAddress": "מתחם ביג",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 406,
+      "sourceUrl": "https://www.spaplus.co.il/Debrah_hotel_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=406&domainSrc=vii",
+      "title": "ספא דברה תל אביב מרשת אדמה - ADAMA SPA",
+      "address": "בן יהודה 87",
+      "city": "תל אביב",
+      "lat": 32.082431,
+      "lng": 34.7710127,
+      "checkedAt": "2026-11-04T19:35:35.789Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "406",
+        "pageTitle": "ספא דברה תל אביב מרשת אדמה - ADAMA SPA",
+        "pageAddress": "בן יהודה 87",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 407,
+      "sourceUrl": "https://www.spaplus.co.il/spa_orchid_eilat",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=407&domainSrc=vii",
+      "title": "ספא במלון אורכידאה אילת - Spa Orchid Eilat",
+      "address": "החוף הדרומי ת.ד 994",
+      "city": "אילת",
+      "lat": 29.5109577,
+      "lng": 34.9231339,
+      "checkedAt": "2026-11-04T19:35:35.984Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "407",
+        "pageTitle": "ספא במלון אורכידאה אילת - Spa Orchid Eilat",
+        "pageAddress": "החוף הדרומי ת.ד 994",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 413,
+      "sourceUrl": "https://www.spaplus.co.il/Setai_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=413&domainSrc=vii",
+      "title": "ספא במלון סטאי כנרת -  Setai Spa Sea Of Galilee",
+      "address": "חוף צאלון 129005",
+      "city": "חוף צאלון",
+      "lat": 32.8405597,
+      "lng": 35.6484964,
+      "checkedAt": "2026-11-04T19:35:36.068Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "413",
+        "pageTitle": "ספא במלון סטאי כנרת -  Setai Spa Sea Of Galilee",
+        "pageAddress": "חוף צאלון 129005",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 414,
+      "sourceUrl": "https://www.spaplus.co.il/spa_OpolSky",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=414&domainSrc=vii",
+      "title": "פלאיה ספא - ספא במלון פליי ווסט תל אביב",
+      "address": "הרצל רוזנבלום 12",
+      "city": "תל אביב",
+      "lat": 32.138635,
+      "lng": 34.7919451,
+      "checkedAt": "2026-11-04T19:35:36.600Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "414",
+        "pageTitle": "פלאיה ספא - ספא במלון פליי ווסט תל אביב",
+        "pageAddress": "הרצל רוזנבלום 12",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 415,
+      "sourceUrl": "https://www.spaplus.co.il/spa_roxon",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=415&domainSrc=vii",
+      "title": "ספא במלון רוקסון אורבן רמת גן - Roxon Urban Spa",
+      "address": "קריניצי 1",
+      "city": "רמת גן",
+      "lat": 32.0797201,
+      "lng": 34.8149965,
+      "checkedAt": "2026-11-04T19:35:36.842Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "415",
+        "pageTitle": "ספא במלון רוקסון אורבן רמת גן - Roxon Urban Spa",
+        "pageAddress": "קריניצי 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 421,
+      "sourceUrl": "https://www.spaplus.co.il/chiangmai_RL",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=421&domainSrc=vii",
+      "title": "ספא מיי טאצ' ראשון לציון - ספא ראש יפני",
+      "address": "נגבה 24",
+      "city": "ראשון לציון",
+      "lat": 31.9632082,
+      "lng": 34.7787168,
+      "checkedAt": "2026-11-04T19:35:37.115Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "421",
+        "pageTitle": "ספא מיי טאצ' ראשון לציון - ספא ראש יפני",
+        "pageAddress": "נגבה 24",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 419,
+      "sourceUrl": "https://www.spaplus.co.il/Isrotel_Kedma",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=419&domainSrc=vii",
+      "title": "ספא במלון ישרוטל קדמא שדה בוקר - Spa Isrotel Kedma",
+      "address": "שדה בוקר",
+      "city": null,
+      "lat": 30.873611,
+      "lng": 34.793098,
+      "checkedAt": "2026-11-04T19:35:37.034Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "419",
+        "pageTitle": "ספא במלון ישרוטל קדמא שדה בוקר - Spa Isrotel Kedma",
+        "pageAddress": "שדה בוקר",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 425,
+      "sourceUrl": "https://www.spaplus.co.il/Almond_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=425&domainSrc=vii",
+      "title": "מלון ספא אלמונד - Almond spa",
+      "address": "השיירה 1",
+      "city": "נווה אילן",
+      "lat": 31.809051,
+      "lng": 35.0773626,
+      "checkedAt": "2026-11-04T19:35:37.581Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "425",
+        "pageTitle": "מלון ספא אלמונד - Almond spa",
+        "pageAddress": "השיירה 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 427,
+      "sourceUrl": "https://www.spaplus.co.il/soleil_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=427&domainSrc=vii",
+      "title": "ספא סוליי בוטיק אילת - Soleil spa boutique Eilat",
+      "address": "תרשיש 12",
+      "city": "אילת",
+      "lat": 29.5510302,
+      "lng": 34.9582046,
+      "checkedAt": "2026-11-04T19:35:37.838Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "427",
+        "pageTitle": "ספא סוליי בוטיק אילת -   Soleil spa boutique Eilat",
+        "pageAddress": "תרשיש 12",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 429,
+      "sourceUrl": "https://www.spaplus.co.il/Nitza_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=429&domainSrc=vii",
+      "title": "ספא ניצה במלון העונות בנתניה - Nitza spa netanya",
+      "address": "שדרות ניצה 1",
+      "city": "נתניה",
+      "lat": 32.3355126,
+      "lng": 34.8520474,
+      "checkedAt": "2026-11-04T19:35:38.121Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "429",
+        "pageTitle": "ספא ניצה במלון העונות נתניה -  Nitza spa netanya",
+        "pageAddress": "שדרות ניצה 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 433,
+      "sourceUrl": "https://www.spaplus.co.il/spa_clarins",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=433&domainSrc=vii",
+      "title": "ספא קלרינס במלון התאטרון - SPA BY CLARINS",
+      "address": "שופן 16",
+      "city": "ירושלים",
+      "lat": 31.7680218,
+      "lng": 35.2149951,
+      "checkedAt": "2026-11-04T19:35:38.172Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "433",
+        "pageTitle": "ספא קלרינס במלון תאטרון - SPA BY CLARINS",
+        "pageAddress": "שופן 16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 434,
+      "sourceUrl": "https://www.spaplus.co.il/spa_adummim",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=434&domainSrc=vii",
+      "title": "ספא אדומים - spa adumim",
+      "address": "הגומא 6, מעלה אדומים",
+      "city": "מעלה אדומים",
+      "lat": 31.7699638,
+      "lng": 35.3049306,
+      "checkedAt": "2026-11-04T19:35:38.590Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "434",
+        "pageTitle": "ספא בוטיק אדומים - spa adumim",
+        "pageAddress": "הגומא 6, מעלה אדומים",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 435,
+      "sourceUrl": "https://www.spaplus.co.il/Leo_spa_villa_boutique_ashkelon",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=435&domainSrc=vii",
+      "title": "לאו ספא באשקלון - Leo spa  ashkelon",
+      "address": "יפה נוף 24",
+      "city": "אשקלון",
+      "lat": 31.6784409,
+      "lng": 34.5568483,
+      "checkedAt": "2026-11-04T19:35:38.864Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "435",
+        "pageTitle": "לאו ספא באשקלון - Leo spa  ashkelon",
+        "pageAddress": "יפה נוף 24",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 437,
+      "sourceUrl": "https://www.spaplus.co.il/flow_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=437&domainSrc=vii",
+      "title": "פלואו ספא בחוות רום - Flow Spa",
+      "address": "כמון",
+      "city": "כמון",
+      "lat": 32.909119,
+      "lng": 35.360916,
+      "checkedAt": "2026-11-04T19:35:39.102Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "437",
+        "pageTitle": "Flow Spa - ספא פלואו בחוות רום",
+        "pageAddress": "כמון",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 439,
+      "sourceUrl": "https://www.spaplus.co.il/spa_efendi",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=439&domainSrc=vii",
+      "title": "ספא במלון האפנדי עכו -  hotel spa efendi",
+      "address": "לואי התשיעי",
+      "city": "עכו",
+      "lat": 32.9223414,
+      "lng": 35.0678964,
+      "checkedAt": "2026-11-04T19:35:39.267Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "439",
+        "pageTitle": "ספא במלון האפנדי עכו -  hotel spa efendi",
+        "pageAddress": "לואי התשיעי",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 440,
+      "sourceUrl": "https://www.spaplus.co.il/Nova_hotel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=440&domainSrc=vii",
+      "title": "ספא אואזיס במלון נווה אילת -  oazis spa eilat",
+      "address": "שדרות חטיבת גולני 6",
+      "city": "אילת",
+      "lat": 29.5591326,
+      "lng": 34.9552638,
+      "checkedAt": "2026-11-04T19:35:39.576Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "440",
+        "pageTitle": "ספא אואזיס במלון נווה אילת -  oazis spa eilat",
+        "pageAddress": "שדרות חטיבת גולני 6",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 441,
+      "sourceUrl": "https://www.spaplus.co.il/Leonardo_Plaza",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=441&domainSrc=vii",
+      "title": "ספא במלון לאונרדו פלאזה חיפה - spa Leonardo Plaza Haifa",
+      "address": "דוד אלעזר 10",
+      "city": "חיפה",
+      "lat": 32.8054121,
+      "lng": 34.9566289,
+      "checkedAt": "2026-11-04T19:35:40.125Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "441",
+        "pageTitle": "ספא חוף הכרמל במלון לאונרדו פלאזה חיפה - spa Leonardo Plaza Haifa",
+        "pageAddress": "דוד אלעזר 10",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 442,
+      "sourceUrl": "https://www.spaplus.co.il/spa_Cassia_Jerusalem",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=442&domainSrc=vii",
+      "title": "קסיה מרכז וולנס וספא - Cassia wellness and Spa",
+      "address": "דוד המלך 32",
+      "city": "ירושלים",
+      "lat": 31.772227,
+      "lng": 35.2225547,
+      "checkedAt": "2026-11-04T19:35:40.540Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "442",
+        "pageTitle": "קסיה מרכז וולנס וספא - Cassia wellness and Spa",
+        "pageAddress": "דוד המלך 32",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 444,
+      "sourceUrl": "https://www.spaplus.co.il/spa_darya_Tiberias",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=444&domainSrc=vii",
+      "title": "ספא דריה במלון נבל דוד גליל ריזורט - spa darya",
+      "address": "מלון נבל דוד כפר נחום, על כביש 87",
+      "city": "טבריה",
+      "lat": 32.8876538,
+      "lng": 35.5762403,
+      "checkedAt": "2026-11-04T19:35:40.564Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "444",
+        "pageTitle": "ספא דריה במלון נבל דוד גליל ריזורט - spa darya",
+        "pageAddress": "מלון נבל דוד כפר נחום, על כביש 87",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 445,
+      "sourceUrl": "https://www.spaplus.co.il/spa_play",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=445&domainSrc=vii",
+      "title": "ספא פליי לבונטין בתל אביב מרשת אדמה - ADAMA SPA",
+      "address": "לבונטין 8",
+      "city": "תל אביב",
+      "lat": 32.0615589,
+      "lng": 34.7747689,
+      "checkedAt": "2026-11-04T19:35:40.988Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "445",
+        "pageTitle": "ספא פליי לבונטין בתל אביב מרשת אדמה - ADAMA SPA",
+        "pageAddress": "לבונטין 8",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 449,
+      "sourceUrl": "https://www.spaplus.co.il/Roxon_hotel_bat_yam",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=449&domainSrc=vii",
+      "title": "מלון רוקסון בת ים - Roxon hotel bat yam",
+      "address": "דרך בן גוריון 95",
+      "city": "בת ים",
+      "lat": 32.0172886,
+      "lng": 34.7389687,
+      "checkedAt": "2026-11-04T19:35:41.428Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "449",
+        "pageTitle": "מלון רוקסון בת ים - Roxon hotel bat yam",
+        "pageAddress": "דרך בן גוריון 95",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 456,
+      "sourceUrl": "https://www.spaplus.co.il/Medical_spa_center",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=456&domainSrc=vii",
+      "title": "מדיקל ספא סנטר באר שבע - Medical spa center beer sheva",
+      "address": "הדסה 21",
+      "city": "באר שבע",
+      "lat": 31.2394277,
+      "lng": 34.7920584,
+      "checkedAt": "2026-11-04T19:35:41.930Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "456",
+        "pageTitle": "מדיקל ספא סנטר באר שבע - Medical spa center beer sheva",
+        "pageAddress": "הדסה 21",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 461,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_jaffa_port_tlv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=461&domainSrc=vii",
+      "title": "Jaffa Port TLV Spa - ספא יפו פורט TLV",
+      "address": "קדם 3",
+      "city": "יפו",
+      "lat": 32.0486894,
+      "lng": 34.7502059,
+      "checkedAt": "2026-11-04T19:35:42.036Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "461",
+        "pageTitle": "Jaffa Port TLV Spa - ספא יפו פורט TLV",
+        "pageAddress": "קדם 3",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 464,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_yadshan",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=464&domainSrc=vii",
+      "title": "ספא ידושן - Spa yadshan",
+      "address": "הגבעה 1 אלישיב",
+      "city": "עמק חפר",
+      "lat": 32.3827272,
+      "lng": 34.911916,
+      "checkedAt": "2026-11-04T19:35:42.155Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "464",
+        "pageTitle": "ספא ידושן - Spa yadshan",
+        "pageAddress": "הגבעה 1 אלישיב",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 467,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_Diamonds",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=467&domainSrc=vii",
+      "title": "ספא דימונדס - Spa Diamonds",
+      "address": "הזרוע 1",
+      "city": "כפר שמריהו",
+      "lat": 32.187123,
+      "lng": 34.823124,
+      "checkedAt": "2026-11-04T19:35:42.561Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "467",
+        "pageTitle": "ספא דימונדס - Spa Diamonds",
+        "pageAddress": "הזרוע 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 472,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_Brown_Jlm",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=472&domainSrc=vii",
+      "title": "ספא במלון בראון ממילא -  SPA BROWN JLM",
+      "address": "הילל 41 פינת בן סירא",
+      "city": "ירושלים",
+      "lat": 31.7786814,
+      "lng": 35.2222797,
+      "checkedAt": "2026-11-04T19:35:42.994Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "472",
+        "pageTitle": "ספא במלון בראון ממילא -  SPA BROWN MAMILLA  JLM",
+        "pageAddress": "הילל 41 פינת בן סירא",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 474,
+      "sourceUrl": "https://www.spaplus.co.il/natalia_Clinic_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=474&domainSrc=vii",
+      "title": "נטליה גבריליוק קלינק ספא - Clinic Spa Rishon Studio",
+      "address": "‏ז׳בוטינסקי  16",
+      "city": "ראשון לציון",
+      "lat": 31.9619643,
+      "lng": 34.8008339,
+      "checkedAt": "2026-11-04T19:35:43.149Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "474",
+        "pageTitle": "נטליה גבריליוק קלינק ספא - Clinic Spa Rishon Studio",
+        "pageAddress": "‏ז׳בוטינסקי  16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 479,
+      "sourceUrl": "https://www.spaplus.co.il/bali_massage",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=479&domainSrc=vii",
+      "title": "Bali Thai Massage - באלי תאי מסאז׳",
+      "address": "הכרמל 16",
+      "city": "תל אביב",
+      "lat": 32.0666525,
+      "lng": 34.7666783,
+      "checkedAt": "2026-11-04T19:35:43.584Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "479",
+        "pageTitle": "Bali Thai Massage - באלי תאי מסאז׳",
+        "pageAddress": "הכרמל 16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 480,
+      "sourceUrl": "https://www.spaplus.co.il/thai_vibe_massage",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=480&domainSrc=vii",
+      "title": "Thai Vibe Massage - תאי וייב מסאז׳",
+      "address": "אורט 1",
+      "city": "נתניה",
+      "lat": 32.3174652,
+      "lng": 34.8722604,
+      "checkedAt": "2026-11-04T19:35:44.063Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "480",
+        "pageTitle": "Thai Vibe Massage - תאי וייב מסאז׳",
+        "pageAddress": "אורט 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 482,
+      "sourceUrl": "https://www.spaplus.co.il/ko_thai_massage",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=482&domainSrc=vii",
+      "title": "Ko Thai Massage - קו תאי מסאז׳",
+      "address": "בוגרשוב 4",
+      "city": "תל אביב",
+      "lat": 32.0777388,
+      "lng": 34.7678362,
+      "checkedAt": "2026-11-04T19:35:44.187Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "482",
+        "pageTitle": "Ko Thai Massage - קו תאי מסאז׳",
+        "pageAddress": "בוגרשוב 4",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 483,
+      "sourceUrl": "https://www.spaplus.co.il/Carmel_Thai_Massage",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=483&domainSrc=vii",
+      "title": "Carmel Thai Massage - כרמל תאי מסאז׳",
+      "address": "ישכון 43",
+      "city": "תל אביב",
+      "lat": 32.06858,
+      "lng": 34.768443,
+      "checkedAt": "2026-11-04T19:35:44.289Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "483",
+        "pageTitle": "Carmel Thai Massage - כרמל תאי מסאז׳",
+        "pageAddress": "ישכון 43",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 484,
+      "sourceUrl": "https://www.spaplus.co.il/spa_casa_suzanna",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=484&domainSrc=vii",
+      "title": "ספא קאסה סוזנה בתל אביב -  Spa casa suzanna tlv",
+      "address": "קלישר 25",
+      "city": "תל אביב",
+      "lat": 32.0654492,
+      "lng": 34.7701336,
+      "checkedAt": "2026-11-04T19:35:44.634Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "484",
+        "pageTitle": "ספא קאסה סוזנה בתל אביב -  Spa casa suzanna tlv",
+        "pageAddress": "קלישר 25",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 487,
+      "sourceUrl": "https://www.spaplus.co.il/Head_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=487&domainSrc=vii",
+      "title": "הד ספא בראשון לציון  - Head Spa rishon lezion",
+      "address": "לישנסקי 17",
+      "city": "ראשון לציון",
+      "lat": 31.992687,
+      "lng": 34.7668541,
+      "checkedAt": "2026-11-04T19:35:45.066Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "487",
+        "pageTitle": "הד ספא בראשון לציון  - Head Spa rishon lezion",
+        "pageAddress": "לישנסקי 17",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 488,
+      "sourceUrl": "https://www.spaplus.co.il/the_gutman_hotel_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=488&domainSrc=vii",
+      "title": "ספא נווה צדק במלון דה גוטמן בתל אביב - the gutman hotel tlv",
+      "address": "שביל האטד 5",
+      "city": "תל אביב",
+      "lat": 32.060074,
+      "lng": 34.767094,
+      "checkedAt": "2026-11-04T19:35:45.305Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "488",
+        "pageTitle": "ספא נווה צדק במלון דה גוטמן בתל אביב - the gutman hotel tlv",
+        "pageAddress": "שביל האטד 5",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 490,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_poli_urban",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=490&domainSrc=vii",
+      "title": "ספא קאלמה במלון פולי אורבן - spa calma poli urban",
+      "address": "נס ציונה 7",
+      "city": "תל אביב",
+      "lat": 32.0747282,
+      "lng": 34.7672321,
+      "checkedAt": "2026-11-04T19:35:45.417Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "490",
+        "pageTitle": "ספא קאלמה במלון פולי אורבן - spa calma poli urban",
+        "pageAddress": "נס ציונה 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 491,
+      "sourceUrl": "https://www.spaplus.co.il/the_inner_space_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=491&domainSrc=vii",
+      "title": "ספא המרחב הפנימי במודיעין - the inner space spa",
+      "address": "רחוב הדרים, פארק המים רעות",
+      "city": "מודיעין",
+      "lat": 31.8876663,
+      "lng": 35.0141412,
+      "checkedAt": "2026-11-04T19:35:45.681Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "491",
+        "pageTitle": "ספא המרחב הפנימי במודיעין - the inner space spa",
+        "pageAddress": "רחוב הדרים, פארק המים רעות",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 492,
+      "sourceUrl": "https://www.spaplus.co.il/Belle_head_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=492&domainSrc=vii",
+      "title": "בל ספא ראש לנשים בלבד בנתניה - Belle institute head spa",
+      "address": "המלאכה 4",
+      "city": "נתניה",
+      "lat": 32.2772656,
+      "lng": 34.8575552,
+      "checkedAt": "2026-11-04T19:35:46.087Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "492",
+        "pageTitle": "בל ספא ראש לנשים בלבד בנתניה - Belle institute head spa",
+        "pageAddress": "המלאכה 4",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 494,
+      "sourceUrl": "https://www.spaplus.co.il/yana_Clinic_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=494&domainSrc=vii",
+      "title": "ספא במתחם Dogether קניון ראשונים בראשון לציון",
+      "address": "שדרות נים 2",
+      "city": "ראשון לציון",
+      "lat": 31.9490201,
+      "lng": 34.8045453,
+      "checkedAt": "2026-11-04T19:35:46.344Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "494",
+        "pageTitle": "ספא במתחם Dogether קניון ראשונים בראשון לציון",
+        "pageAddress": "שדרות נים 2",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 500,
+      "sourceUrl": "https://www.spaplus.co.il/spa_almera",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=500&domainSrc=vii",
+      "title": "ספא אלמרה בת ים - spa almera",
+      "address": "רוטשילד 2",
+      "city": "בת ים",
+      "lat": 32.0264449,
+      "lng": 34.7415953,
+      "checkedAt": "2026-11-04T19:35:46.556Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "500",
+        "pageTitle": "ספא אלמרה בת ים - spa almera",
+        "pageAddress": "רוטשילד 2",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 501,
+      "sourceUrl": "https://www.spaplus.co.il/O_SPA",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=501&domainSrc=vii",
+      "title": "ספא ראש במודיעין - O-SPA",
+      "address": "שדרות הרכס 13",
+      "city": "מודיעין מכבים רעות",
+      "lat": 31.9227861,
+      "lng": 34.9910721,
+      "checkedAt": "2026-11-04T19:35:46.806Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "501",
+        "pageTitle": "ספא ראש במודיעין - O-SPA",
+        "pageAddress": "שדרות הרכס 13",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 502,
+      "sourceUrl": "https://www.spaplus.co.il/isla_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=502&domainSrc=vii",
+      "title": "ספא איסלה באילת - ISLA SPA EILAT",
+      "address": "הצלחה 8",
+      "city": "אילת",
+      "lat": 29.5597606,
+      "lng": 34.9569153,
+      "checkedAt": "2026-11-04T19:35:47.055Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "502",
+        "pageTitle": "ספא איסלה באילת - ISLA SPA EILAT",
+        "pageAddress": "הצלחה 8",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 504,
+      "sourceUrl": "https://www.spaplus.co.il/spa_atlantis",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=504&domainSrc=vii",
+      "title": "ספא אטלנטיס במלון קאסלנד  - spa atlantis",
+      "address": "דרך ימית 10",
+      "city": "מעלה אדומים",
+      "lat": 31.7975461,
+      "lng": 35.33574,
+      "checkedAt": "2026-11-04T19:35:47.446Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "504",
+        "pageTitle": "ספא אטלנטיס במלון קאסלנד  - spa atlantis",
+        "pageAddress": "דרך ימית 10",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 507,
+      "sourceUrl": "https://www.spaplus.co.il/spa_ramada_jerusalem",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=507&domainSrc=vii",
+      "title": "ספא דניאל במלון רמדה ירושלים - spa ramada jerusalem hotel",
+      "address": "זאב וילנאי 6",
+      "city": "ירושלים",
+      "lat": 31.7847304,
+      "lng": 35.1982081,
+      "checkedAt": "2026-11-04T19:35:47.585Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "507",
+        "pageTitle": "ספא JLM במלון רמדה ירושלים - spa jlm ramada jerusalem hotel",
+        "pageAddress": "זאב וילנאי 6",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 508,
+      "sourceUrl": "https://www.spaplus.co.il/akk_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=508&domainSrc=vii",
+      "title": "Akk medical massage centre & Thai spa",
+      "address": "ראובן לרר 2",
+      "city": "נס ציונה",
+      "lat": 31.9250126,
+      "lng": 34.7974472,
+      "checkedAt": "2026-11-04T19:35:47.810Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "508",
+        "pageTitle": "Akk medical massage centre & Thai spa",
+        "pageAddress": "ראובן לרר 2",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 509,
+      "sourceUrl": "https://www.spaplus.co.il/spa_machne_yehuda",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=509&domainSrc=vii",
+      "title": "ספא במלון בראון מחנה יהודה - spa brown machne yehuda",
+      "address": "יפו 105",
+      "city": "ירושלים",
+      "lat": 31.7852341,
+      "lng": 35.213789,
+      "checkedAt": "2026-11-04T19:35:48.147Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "509",
+        "pageTitle": "ספא במלון בראון מחנה יהודה - spa brown machne yehuda",
+        "pageAddress": "יפו 105",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 513,
+      "sourceUrl": "https://www.spaplus.co.il/Alfa_Clinic",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=513&domainSrc=vii",
+      "title": "אלפא קליניק - Alfa Clinic",
+      "address": "רחוב תשח 7",
+      "city": "אשדוד",
+      "lat": 31.7875364,
+      "lng": 34.6454488,
+      "checkedAt": "2026-11-04T19:35:48.395Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "513",
+        "pageTitle": "אלפא קליניק - Alfa Clinic",
+        "pageAddress": "רחוב תשח 7",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 514,
+      "sourceUrl": "https://www.spaplus.co.il/The_george_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=514&domainSrc=vii",
+      "title": "ספא דה ג'ורג' - The George Spa",
+      "address": "ישראל טל 5",
+      "city": "תל אביב",
+      "lat": 32.0637722,
+      "lng": 34.7841471,
+      "checkedAt": "2026-11-04T19:35:48.618Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "514",
+        "pageTitle": "ספא דה ג'ורג' - The George Spa",
+        "pageAddress": "ישראל טל 5",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 522,
+      "sourceUrl": "https://www.spaplus.co.il/spa_thai_tlv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=522&domainSrc=vii",
+      "title": "תאי ספא בבן יהודה תל אביב - Thai spa tlv",
+      "address": "בן יהודה 64",
+      "city": "תל אביב",
+      "lat": 32.0792904,
+      "lng": 34.7695883,
+      "checkedAt": "2026-11-04T19:35:48.813Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "522",
+        "pageTitle": "תאי ספא בבן יהודה תל אביב - Thai spa tlv",
+        "pageAddress": "בן יהודה 64",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 523,
+      "sourceUrl": "https://www.spaplus.co.il/Infinite_beauty_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=523&domainSrc=vii",
+      "title": "ספא אינפיניטי - Infinite beauty spa",
+      "address": "משעול עינב 6",
+      "city": "אילת",
+      "lat": 29.5444388,
+      "lng": 34.940187,
+      "checkedAt": "2026-11-04T19:35:49.142Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "523",
+        "pageTitle": "ספא אינפיניטי - Infinite beauty spa",
+        "pageAddress": "משעול עינב 6",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 525,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_hotel_u_splash",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=525&domainSrc=vii",
+      "title": "ספא אנג'ל במלון יו ספלאש אילת - spa angel eilate",
+      "address": "קיבוץ אילות",
+      "city": "אילת",
+      "lat": 29.580548,
+      "lng": 34.963023,
+      "checkedAt": "2026-11-04T19:35:49.449Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "525",
+        "pageTitle": "ספא אנג'ל במלון יו ספלאש אילת - spa angel eilate",
+        "pageAddress": "קיבוץ אילות",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 528,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_hotel_arroyo",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=528&domainSrc=vii",
+      "title": "ספא במלון ארויו נהריה - spa in hotel arroyo nahariya",
+      "address": "שדרות הנשיא בן צבי 1",
+      "city": "נהריה",
+      "lat": 33.0048991,
+      "lng": 35.1009164,
+      "checkedAt": "2026-11-04T19:35:49.736Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "528",
+        "pageTitle": "ספא במלון ארויו נהריה - spa in hotel arroyo nahariya",
+        "pageAddress": "שדרות הנשיא בן צבי 1",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 530,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_Alaya",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=530&domainSrc=vii",
+      "title": "ספא אלאיה - Spa Alaya",
+      "address": "שולמית 3, חוף פולג",
+      "city": "נתניה",
+      "lat": 32.2731288,
+      "lng": 34.833096,
+      "checkedAt": "2026-11-04T19:35:49.870Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "530",
+        "pageTitle": "ספא אלאיה - Spa Alaya",
+        "pageAddress": "שולמית 3, חוף פולג",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 531,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_Aqualyn",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=531&domainSrc=vii",
+      "title": "ספא אקוואלין - Spa Aqualyn",
+      "address": "דרך הפיקוסים 278",
+      "city": "ביצרון",
+      "lat": 31.7915899,
+      "lng": 34.7255205,
+      "checkedAt": "2026-11-04T19:35:50.178Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "531",
+        "pageTitle": "ספא אקוואלין - Spa Aqualyn",
+        "pageAddress": "דרך הפיקוסים 278",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 532,
+      "sourceUrl": "https://www.spaplus.co.il/salt_rooms",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=532&domainSrc=vii",
+      "title": "חדרי מלח המרכז לנשימה ומגע - salt rooms",
+      "address": "התמר 20",
+      "city": "חיפה",
+      "lat": 32.812538,
+      "lng": 34.970763,
+      "checkedAt": "2026-11-04T19:35:50.464Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "532",
+        "pageTitle": "חדרי מלח המרכז לנשימה ומגע - salt rooms",
+        "pageAddress": "התמר 20",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 533,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_dan_panorama_tlv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=533&domainSrc=vii",
+      "title": "ספא קאלמה במלון דן פנורמה תל אביב  -  spa calma in dan panorama tlv",
+      "address": "פרופסור יחזקאל קויפמן 10",
+      "city": "תל אביב",
+      "lat": 32.0648873,
+      "lng": 34.7629581,
+      "checkedAt": "2026-11-04T19:35:50.798Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "533",
+        "pageTitle": "ספא קאלמה במלון דן פנורמה תל אביב  -  spa calma in dan panorama tlv",
+        "pageAddress": "פרופסור יחזקאל קויפמן 10",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 536,
+      "sourceUrl": "https://www.spaplus.co.il/spa_neot",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=536&domainSrc=vii",
+      "title": "ספא נאות בקיסריה - spa neot",
+      "address": "נאות גולף, שדרות רוטשילד",
+      "city": "קיסריה",
+      "lat": 32.48613,
+      "lng": 34.902004,
+      "checkedAt": "2026-11-04T19:35:50.910Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "536",
+        "pageTitle": "ספא נאות בקיסריה - spa neot",
+        "pageAddress": "נאות גולף, שדרות רוטשילד",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 537,
+      "sourceUrl": "https://www.spaplus.co.il/rish_spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=537&domainSrc=vii",
+      "title": "ריש ספא וחמאם טורקי -  spa rish",
+      "address": "אלחדיתה",
+      "city": "ירכא",
+      "lat": 32.953492,
+      "lng": 35.21199,
+      "checkedAt": "2026-11-04T19:35:51.182Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "537",
+        "pageTitle": "ריש ספא וחמאם טורקי -  spa rish",
+        "pageAddress": "אלחדיתה",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 539,
+      "sourceUrl": "https://www.spaplus.co.il/angel_spa_and_Hamam",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=539&domainSrc=vii",
+      "title": "אנג'ל ספא וחמאם טורקי - angel spa and Hamam",
+      "address": "תרשיש 8",
+      "city": "אילת",
+      "lat": 29.5502667,
+      "lng": 34.958184,
+      "checkedAt": "2026-11-04T19:35:51.427Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "539",
+        "pageTitle": "אנג'ל ספא וחמאם טורקי - angel spa and Hamam",
+        "pageAddress": "תרשיש 8",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 541,
+      "sourceUrl": "https://www.spaplus.co.il/Liberty_spa_and_suites",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=541&domainSrc=vii",
+      "title": "ליברטי ספא & סוויטות - Liberty spa & suites",
+      "address": "שוהם 9",
+      "city": "מושב נאות",
+      "lat": 31.9940912,
+      "lng": 34.9463162,
+      "checkedAt": "2026-11-04T19:35:51.983Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "541",
+        "pageTitle": "ליברטי ספא & סוויטות - Liberty spa & suites",
+        "pageAddress": "שוהם 9",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 540,
+      "sourceUrl": "https://www.spaplus.co.il/spa_house_of_joy",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=540&domainSrc=vii",
+      "title": "האוס אוף ג'וי ספא בתל אביב - spa house of joy tlv",
+      "address": "אבא אחימאיר 26",
+      "city": "תל אביב",
+      "lat": 32.1238184,
+      "lng": 34.8036358,
+      "checkedAt": "2026-11-04T19:35:51.847Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "540",
+        "pageTitle": "האוס אוף ג'וי ספא בתל אביב - spa house of joy tlv",
+        "pageAddress": "אבא אחימאיר 26",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 543,
+      "sourceUrl": "https://www.spaplus.co.il/spa_nucha",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=543&domainSrc=vii",
+      "title": "ספא אדמה במלון נוצ'ה -  spa in nucha hotel",
+      "address": "בן סירא 16",
+      "city": "ירושלים",
+      "lat": 31.7788155,
+      "lng": 35.2218539,
+      "checkedAt": "2026-11-04T19:35:52.467Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "543",
+        "pageTitle": "ספא במלון נוצ'ה -  spa in nucha hotel",
+        "pageAddress": "בן סירא 16",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 548,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_hotel_prima_jerusalem",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=548&domainSrc=vii",
+      "title": "ספא כרמיאלה במלון פרימה בירושלים - spa  carmiela in hotel prima jerusalem",
+      "address": "קינג ג'ורג' 60",
+      "city": "ירושלים",
+      "lat": 31.7752899,
+      "lng": 35.2170582,
+      "checkedAt": "2026-11-04T19:35:53.153Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "548",
+        "pageTitle": "ספא כרמיאלה במלון פרימה בירושלים - spa carmiela in hotel prima jerusalem",
+        "pageAddress": "קינג ג'ורג' 60",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 549,
+      "sourceUrl": "https://www.spaplus.co.il/AKOYA_SPA",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=549&domainSrc=vii",
+      "title": "ספא אקויה באילת - Akoya Spa",
+      "address": "חיל ההנדסה 6",
+      "city": "אילת",
+      "lat": 29.5483502,
+      "lng": 34.9513623,
+      "checkedAt": "2026-11-04T19:35:53.176Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "549",
+        "pageTitle": "ספא אקויה באילת - Akoya Spa",
+        "pageAddress": "חיל ההנדסה 6",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 550,
+      "sourceUrl": "https://www.spaplus.co.il/Spa_in_h34_hotel_in_nahariya",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=550&domainSrc=vii",
+      "title": "ספא במלון המעפילים 34 בנהריה - Spa in hotel h34 in nahariya",
+      "address": "המעפילים 34",
+      "city": "נהריה",
+      "lat": 33.0127124,
+      "lng": 35.0906835,
+      "checkedAt": "2026-11-04T19:35:53.579Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "550",
+        "pageTitle": "ספא במלון המעפילים 34 בנהריה - Spa in hotel h34 in nahariya",
+        "pageAddress": "המעפילים 34",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 551,
+      "sourceUrl": "https://www.spaplus.co.il/Head_spa_in_debrah_hotel_tlv",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=551&domainSrc=vii",
+      "title": "ספא ראש במלון דברה תל אביב - Head spa in debrah hotel tlv",
+      "address": "בן יהודה 87",
+      "city": "תל אביב",
+      "lat": 32.082431,
+      "lng": 34.7710127,
+      "checkedAt": "2026-11-04T19:35:54.315Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "551",
+        "pageTitle": "ספא ראש במלון דברה תל אביב - Head spa in debrah hotel tlv",
+        "pageAddress": "בן יהודה 87",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 553,
+      "sourceUrl": "https://www.spaplus.co.il/Iseum_Boutique_Spa",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=553&domainSrc=vii",
+      "title": "איזאום ספא בוטיק - Iseum Boutique Spa",
+      "address": "זד״ל 5",
+      "city": "ראשון לציון",
+      "lat": 31.9634987,
+      "lng": 34.8052112,
+      "checkedAt": "2026-11-04T19:35:54.351Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "553",
+        "pageTitle": "איזאום ספא בוטיק - Iseum Boutique Spa",
+        "pageAddress": "זד״ל 5",
+        "siteIdMatch": true
+      }
+    },
+    {
+      "id": 554,
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_hotal_domus_carmel",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=554&domainSrc=vii",
+      "title": "ספא במלון דומוס כרמל - spa in hotal domus carmel",
+      "address": "יפה נוף 1",
+      "city": "חיפה",
+      "lat": 32.8158233,
+      "lng": 34.9794154,
+      "checkedAt": "2026-11-04T19:35:54.734Z",
+      "evidenceKind": "official Google Maps iframe q",
+      "identity": {
+        "siteId": "554",
+        "pageTitle": "ספא במלון דומוס כרמל - spa in hotal domus carmel",
+        "pageAddress": "יפה נוף 1",
+        "siteIdMatch": true
+      }
+    }
+  ],
+  "missing": [
+    {
+      "id": 199,
+      "title": "ספא הוריזון במלון שרתון גרנד תל אביב - Horizon Spa",
+      "address": "הירקון 115",
+      "city": "תל אביב",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=199&domainSrc=vii",
+      "officialUrl": "https://www.spaplus.co.il/Articles",
+      "packageStatus": 200,
+      "officialStatus": 200,
+      "reason": "official-page-no-coordinate-iframe",
+      "checkedAt": "2026-11-04T19:35:18.892Z"
+    },
+    {
+      "id": 473,
+      "title": "מלון 5 כוכבים  סיטי אוף דרימס קפריסין - City of Dreams Mediterranean",
+      "address": "Nikou Kavvadia",
+      "city": "לימסול",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=473&domainSrc=vii",
+      "officialUrl": "https://www.spaplus.co.il/City_of_Dreams",
+      "packageStatus": 200,
+      "officialStatus": 200,
+      "reason": "official-page-no-coordinate-iframe",
+      "checkedAt": "2026-11-04T19:35:43.041Z"
+    },
+    {
+      "id": 544,
+      "title": "קליניקת סקיילר - Skyler Beauty &Healing Clinic",
+      "address": "יעקב  7",
+      "city": "רחובות",
+      "bookingUrl": "https://www.spaplus.co.il/packages.php?siteid=544&domainSrc=vii",
+      "officialUrl": "https://www.spaplus.co.il/Articles",
+      "packageStatus": 200,
+      "officialStatus": 200,
+      "reason": "official-page-no-coordinate-iframe",
+      "checkedAt": "2026-11-04T19:35:52.628Z"
+    }
+  ]
+}
