@@ -1,0 +1,78 @@
+const ORIGIN = "https://vii.spaplus.co";
+const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
+const WIDTHS = new Set([384, 640, 750, 828, 960, 1280, 1600]);
+const FORMATS = new Set(["auto", "webp", "avif", "jpeg"]);
+const QUALITIES = new Set([75, 82, 85, 88]);
+type ImagesBinding = { input(stream: ReadableStream): { transform(options: Record<string, unknown>): { output(options: { format: string; quality: number }): Promise<{ response(): Response }> } } };
+type Env = { IMAGES?: ImagesBinding };
+type Context = { waitUntil(promise: Promise<unknown>): void };
+type EdgeCache = { match(request: Request): Promise<Response | undefined>; put(request: Request, response: Response): Promise<void> };
+function sourcePath(value: string | null) { return value && /^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(value) ? value : null; }
+function fallback(path: string) { return new Response(null, { status: 302, headers: { Location: `${ORIGIN}${path}`, "Cache-Control": "no-store", "X-VII-Image-Engine": "source-fallback" } }); }
+function bad(message: string) { return new Response(message, { status: 400, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } }); }
+function forMethod(response: Response, method: string) { return method === "HEAD" ? new Response(null, { status: response.status, headers: response.headers }) : response; }
+function boundedBody(body: ReadableStream<Uint8Array>) {
+  let total = 0;
+  return body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({ transform(chunk, controller) {
+    total += chunk.byteLength;
+    if (total > MAX_SOURCE_BYTES) { controller.error(new Error("image_too_large")); return; }
+    controller.enqueue(chunk);
+  } }));
+}
+async function bounded<T>(operation: Promise<T>, ms: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try { return await Promise.race([operation, new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), ms); })]); }
+  finally { if (timer) clearTimeout(timer); }
+}
+/** No cookies, credentials or arbitrary origin URLs are forwarded. */
+export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?: () => EdgeCache | undefined; sourceMs?: number; transformMs?: number; cacheMs?: number; cacheWriteMs?: number; now?: () => number; maxAdmissions?: number } = {}) {
+  // Per-isolate overload containment, not an account-wide billing ceiling.
+  const active = new Set<string>();
+  const recent = new Map<string, number>();
+  const now = options.now ?? Date.now;
+  let windowStart = now(), admitted = 0;
+  return { async fetch(request: Request, env: Env, ctx?: Context): Promise<Response> {
+    if (request.method !== "GET" && request.method !== "HEAD") return new Response(null, { status: 405, headers: { Allow: "GET, HEAD", "Cache-Control": "no-store" } });
+    const url = new URL(request.url);
+    if ([...url.searchParams.keys()].some(key => !["url", "w", "q", "format"].includes(key) || url.searchParams.getAll(key).length !== 1)) return forMethod(bad("ambiguous_image_parameters"), request.method);
+    const path = sourcePath(url.searchParams.get("url"));
+    if (!path) return forMethod(bad("invalid_image_source"), request.method);
+    const width = Number(url.searchParams.get("w") || "");
+    if (!Number.isInteger(width) || !WIDTHS.has(width)) return forMethod(bad("invalid_image_width"), request.method);
+    const requestedFormat = (url.searchParams.get("format") || "auto").toLowerCase();
+    if (!FORMATS.has(requestedFormat)) return forMethod(bad("invalid_image_format"), request.method);
+    const format = requestedFormat === "auto" ? (request.headers.get("Accept")?.includes("image/avif") ? "avif" : "webp") : requestedFormat;
+    const quality = Number(url.searchParams.get("q") || 85);
+    if (!QUALITIES.has(quality)) return forMethod(bad("invalid_image_quality"), request.method);
+    const keyUrl = new URL("/__vii-image-cache", url.origin);
+    keyUrl.search = new URLSearchParams({ path, width: String(width), format, quality: String(quality) }).toString();
+    const key = new Request(keyUrl);
+    const edge = options.edge?.() ?? (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default;
+    const hit = edge ? await bounded(edge.match(key), options.cacheMs ?? 50).catch(() => undefined) : undefined;
+    if (hit) return forMethod(hit, request.method);
+    if (!env.IMAGES) return fallback(path);
+    if (request.method === "HEAD") return fallback(path);
+    const at = now();
+    if (at - windowStart >= 60_000) { windowStart = at; admitted = 0; }
+    const last = recent.get(key.url);
+    if (active.size >= 4 || active.has(key.url) || admitted >= (options.maxAdmissions ?? 120) || (last !== undefined && at - last < 2000)) return fallback(path);
+    active.add(key.url); admitted++;
+    recent.delete(key.url); recent.set(key.url, at);
+    while (recent.size > 256) recent.delete(recent.keys().next().value!);
+    try {
+      const sourceMs = options.sourceMs ?? 8000;
+      const source = await bounded((options.sourceFetch ?? fetch)(`${ORIGIN}${path}`, { headers: { Accept: "image/*" }, redirect: "error", signal: AbortSignal.timeout(sourceMs) }), sourceMs);
+      if (!source.ok || !source.body || !/^image\/(?:jpeg|png|webp|avif)(?:;|$)/i.test(source.headers.get("Content-Type") || "") || Number(source.headers.get("Content-Length") || 0) > MAX_SOURCE_BYTES) return fallback(path);
+      const outputFormat = `image/${format}`;
+      const transformed = await bounded(env.IMAGES.input(boundedBody(source.body)).transform({ width, fit: "scale-down" }).output({ format: outputFormat, quality }), options.transformMs ?? 8000);
+      const response = transformed.response();
+      if (!response.ok || !response.body || response.headers.get("Content-Type")?.split(";")[0] !== outputFormat) return fallback(path);
+      const headers = new Headers({ "Content-Type": outputFormat, "Cache-Control": "public, max-age=31536000, immutable", "Vary": "Accept", "X-VII-Image-Engine": "cloudflare-images", "Access-Control-Allow-Origin": "*" });
+      const result = new Response(response.body, { status: 200, headers });
+      if (edge && ctx) ctx.waitUntil(bounded(edge.put(key, result.clone()), options.cacheWriteMs ?? 1500).catch(() => undefined));
+      return forMethod(result, request.method);
+    } catch { return fallback(path); }
+    finally { active.delete(key.url); }
+  } };
+}
+export default createImageHandler();
