@@ -258,6 +258,18 @@ export function selectManualQualityChecks(level: QualityRunLevel, scope?: { chan
   return checks;
 }
 
+export function readQualityScopeOptions() {
+  const metadata = Object.fromEntries(adaptQualityChecks(qualityRegistry, qualityScopeMetadata).map(check => [check.checkId, {
+    ...qualityScopeMetadata[check.checkId], costBudgetMs: check.timeoutMs,
+  }]));
+  const boxes = [...new Set(Object.values(metadata).flatMap(entry => entry.boxIds))].sort();
+  const scopes = Object.fromEntries(boxes.map(box => [box, Object.fromEntries((["regular", "medium", "full"] as const).map(level => {
+    try { return [level, { supported: true, checkIds: selectManualQualityChecks(level, { changedBoxes: [box] }).map(check => check.checkId) }]; }
+    catch { return [level, { supported: false, checkIds: [] }]; }
+  }))]));
+  return { metadata, boxes, scopes };
+}
+
 function emailConfiguration(env: QualityNotificationEnvironment = {}) {
   const provider = (env.VII_QUALITY_EMAIL_PROVIDER || "").trim().toLowerCase();
   const apiKey = (env.VII_QUALITY_EMAIL_API_KEY || "").trim();

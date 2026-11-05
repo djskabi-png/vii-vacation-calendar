@@ -1,7 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope } from "../app/lib/quality-check-scope.ts";
 import { qualityRegistry } from "../app/lib/quality-platform.ts";
-import { adaptQualityChecks, selectQualityScope } from "../app/lib/quality-check-scope.ts";
+
+test("every executable HTTP registry check has truthful scope metadata", () => {
+  const adapted = adaptQualityChecks(qualityRegistry, qualityScopeMetadata);
+  assert.equal(adapted.length, qualityRegistry.length);
+  assert.ok(adapted.every((check) => !check.unsupported && check.engine === "http" && check.boxIds.length > 0 && check.requirementIds.length > 0));
+});
+
+test("real world scope includes prerequisites and downstream consumers", () => {
+  const adapted = adaptQualityChecks(qualityRegistry, qualityScopeMetadata);
+  const result = selectQualityScope(adapted, ["maps"]);
+  assert.equal(result.status, "selected");
+  assert.ok(result.selectedCheckIds.includes("map.snapshot.vacation"));
+  assert.ok(result.selectedCheckIds.includes("place.vacation.semantic"));
+  assert.ok(result.selectedCheckIds.includes("world.vacations.semantic"));
+});
 
 const metadata = {
   "world.vacations.semantic": { definitionVersion: "1", boxIds: ["world.vacations"], requirementIds: ["A02"], engine: "http", depth: "regular", costBudgetMs: 1000, dependencies: [] },

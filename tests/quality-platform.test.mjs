@@ -35,7 +35,7 @@ test("crash after provider acceptance preserves uncertain delivery and never rep
     if(String(url).includes('api.resend.com')){providerCalls++;return Response.json({id:'synthetic-provider-id'})}
     return new Response('synthetic source failure',{status:503});
   };
-  const options={origin:'https://example.test',trigger:'manual',level:'full',scope:{changedBoxes:['search']},notificationEnv:env,fetcher};
+  const options={origin:'https://example.test',trigger:'manual',level:'full',scope:{changedBoxes:[],consumers:['content.guides']},notificationEnv:env,fetcher};
   try{
     await assert.rejects(runQualityChecks(wrapped,options),/synthetic_crash_after_provider_acceptance/);
     assert.equal(providerCalls,1);
@@ -369,12 +369,12 @@ test("a crash after reserving notification leaves pending, then expires to unkno
   const failing = async (url, options) => url.includes("location=") ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } }) : success(url, options);
   try {
     const scope = { changedBoxes: [], consumers: ["search.location.semantic"] };
-    await assert.rejects(() => runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: failing, notificationEnv: env, scope }));
+    await assert.rejects(() => runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "full", fetcher: failing, notificationEnv: env, scope }));
     assert.equal(sqlite.prepare("SELECT status FROM quality_notification_deliveries WHERE status='pending'").get()?.status, "pending");
     sqlite.prepare("UPDATE quality_notification_deliveries SET created_at=? WHERE status='pending'").run("2026-10-23T09:00:00.000Z");
     let providerCalls = 0;
     const noRetry = async (url, options) => { if (url === "https://api.resend.com/emails") { providerCalls += 1; return success(url, options); } return url.includes("location=") ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } }) : success(url, options); };
-    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", scheduledAt: new Date("2026-10-23T10:00:00.000Z"), fetcher: noRetry, notificationEnv: env, scope });
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "full", scheduledAt: new Date("2026-10-23T10:00:00.000Z"), fetcher: noRetry, notificationEnv: env, scope });
     assert.equal(providerCalls, 0, JSON.stringify(sqlite.prepare("SELECT incident_id,event_kind,status,reason FROM quality_notification_deliveries").all()));
     assert.equal(sqlite.prepare("SELECT status,reason FROM quality_notification_deliveries WHERE status='unknown'").get()?.reason, "orphaned_reservation");
   } finally { sqlite.close(); }
@@ -384,12 +384,13 @@ test("manual scope selection runs the mapped checks and reports their ids", asyn
   const { sqlite, db } = fixture();
   try {
     const result = await runQualityChecks(db, {
-      origin: "https://example.test", trigger: "manual", level: "regular", fetcher: success,
+      origin: "https://example.test", trigger: "manual", level: "full", fetcher: success,
       scope: { changedBoxes: ["world-landings"] },
     });
     assert.equal(result.selectionStatus, "selected");
-    assert.deepEqual(result.selectedCheckIds, ["world.vacations.semantic", "search.location.semantic"]);
-    assert.equal(result.checkCount, 2);
+    assert.ok(result.selectedCheckIds.includes("world.vacations.semantic"));
+    assert.ok(result.selectedCheckIds.includes("search.location.semantic"));
+    assert.equal(result.checkCount, result.selectedCheckIds.length);
     assert.equal(result.status, "passed");
   } finally { sqlite.close(); }
 });

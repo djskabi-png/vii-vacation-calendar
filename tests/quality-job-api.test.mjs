@@ -20,10 +20,12 @@ test('enqueue returns202 without awaiting a background check, takes actor and or
  const h=handler();const response=await h.POST(request({action:'enqueue',idempotencyKey:'quality-key-1234',level:'regular',actor:'forged',sourceVersion:'forged',origin:'https://evil.test'}));
  assert.equal(response.status,202);assert.equal(h.pending.length,1);assert.equal(h.created[0].actor,'verified-admin@example.test');assert.equal(h.created[0].origin,'https://qa.example.test');assert.equal(h.created[0].sourceVersion,undefined);assert.equal(response.headers.get('cache-control'),'private, no-store');const result=(await response.json()).job;assert.equal(result.runId,'quality-job-1234');assert.equal(result.checks,undefined);assert.equal(result.actor,undefined);assert.equal(result.totalChecks,1);
 });
-test('job actions preserve auth, same-origin, key and unsupported-scope protections',async()=>{
+test('job actions preserve auth, same-origin, key and strict scope validation',async()=>{
  assert.equal((await handler({authorizedAdminSession:async()=>null}).POST(request({action:'enqueue'}))).status,403);
  assert.equal((await handler().POST(request({action:'enqueue'},'https://evil.test'))).status,403);
- for(const body of [{action:'enqueue',idempotencyKey:'bad'},{action:'enqueue',idempotencyKey:'quality-key-1234',scope:{changedBoxes:['search']}}])assert.equal((await handler().POST(request(body))).status,400);
+ assert.equal((await handler().POST(request({action:'enqueue',idempotencyKey:'bad'}))).status,400);
+ assert.equal((await handler().POST(request({action:'enqueue',idempotencyKey:'quality-key-1234',scope:{changedBoxes:['search']}}))).status,202);
+ assert.equal((await handler().POST(request({action:'enqueue',idempotencyKey:'quality-key-1234',scope:{changedBoxes:['']}}))).status,400);
  const unavailable=handler({getRequestExecutionContext:()=>null});assert.equal((await unavailable.POST(request({action:'enqueue',idempotencyKey:'quality-key-1234'}))).status,503);assert.equal(unavailable.created.length,0);
  const conflict=handler({createManualQualityJob:async()=>{throw Error('quality_job_idempotency_conflict');}});assert.equal((await conflict.POST(request({action:'enqueue',idempotencyKey:'quality-key-1234'}))).status,409);
 });

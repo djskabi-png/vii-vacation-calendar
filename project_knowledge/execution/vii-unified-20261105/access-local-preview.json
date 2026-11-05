@@ -1,0 +1,16 @@
+{
+  "observed_error": "Isolated local Worker failed startup, then an unsupported wildcard localhost host produced a browser error page",
+  "category": "implementation",
+  "diagnosis": "The fixture entry originally selected the QA directory as the module root instead of compiled server modules. Moving it beside the compiled entry corrected startup. Wildcard localhost DNS was unsupported, so numeric loopback and a separate fixture-only cookie were used. The stale browser error tab was replaced through the documented same-browser recovery route.",
+  "authorization_boundary": "Local candidate verification only. Synthetic identity and local D1/R2. No production secrets, notification delivery, scheduled invocation or real account permission changes.",
+  "routes": [
+    { "kind": "connector", "status": "unavailable", "evidence": "The managed Site connector does not address an isolated localhost fixture; no external account action was needed." },
+    { "kind": "authorized_session", "status": "checked", "result": "succeeded", "evidence": "Existing selected in-app browser, fresh temporary tab21, actual admin quality interface loaded on127.0.0.1:4179 with fixture-only authentication." },
+    { "kind": "project_cli_api", "status": "checked", "result": "succeeded", "evidence": "Wrangler attached292compiled modules, reported Ready and listened on loopback. The fixture HTTP signin returned303. All bindings remained local." },
+    { "kind": "official_connection", "status": "checked", "result": "succeeded", "evidence": "Documented browser troubleshooting allowed a fresh tab in the same browser after the stale error page prevented navigation; no security interstitial was bypassed." }
+  ],
+  "outcome": "recovered",
+  "human_action_required": false,
+  "verified_result": "Actual quality UI completed14checks with13passed and one expected unconfigured-fixture supplier failure. A61check run restored after reload, was cancelled after18committed results, and remained cancelled after another reload with the run button enabled.",
+  "next_action": "Continue actual map UI verification and remaining core architecture capabilities"
+}

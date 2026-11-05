@@ -1,5 +1,5 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { readQualityDashboard, readQualityRunStatus, runQualityChecks, persistQualityJobProgress, updateQualityIncident, updateQualitySchedule, type QualityNotificationEnvironment, type QualityRunLevel } from "../../../lib/quality-platform.ts";
+import { readQualityDashboard, readQualityRunStatus, readQualityScopeOptions, runQualityChecks, persistQualityJobProgress, updateQualityIncident, updateQualitySchedule, type QualityNotificationEnvironment, type QualityRunLevel } from "../../../lib/quality-platform.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 import { createManualQualityJob, consumeQualityJob } from "../../../lib/quality-job-platform.ts";
 import { ensureQualityJobSchema, readQualityJob, requestQualityJobCancel } from "../../../lib/quality-job-store.ts";
@@ -20,6 +20,18 @@ function jobView(job: QualityJob) {
   };
 }
 
+function parseScope(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const raw = value as Record<string, unknown>;
+  const changedBoxes = raw.changedBoxes;
+  const consumers = raw.consumers;
+  if (!Array.isArray(changedBoxes) || !changedBoxes.every((item) => typeof item === "string" && item.length > 0 && item.length < 120)) return undefined;
+  if (consumers !== undefined && (!Array.isArray(consumers) || !consumers.every((item) => typeof item === "string" && item.length > 0 && item.length < 160))) return undefined;
+  if (raw.unknownOwner !== undefined && typeof raw.unknownOwner !== "boolean") return undefined;
+  const canonicalBoxes = changedBoxes.map((box) => box === "world-landings" ? "vacations" : box);
+  return { changedBoxes: canonicalBoxes, consumers: consumers as string[] | undefined, unknownOwner: raw.unknownOwner as boolean | undefined };
+}
+
 async function notificationEnvironment(): Promise<QualityNotificationEnvironment> {
   try {
     const runtimeName = "cloudflare:workers";
@@ -34,6 +46,7 @@ export async function GET(request: Request) {
   if (!await authorizedAdminSession(request).catch(() => null)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   const query = new URL(request.url).searchParams;
   try {
+    if (query.get("scope") === "metadata") return Response.json(readQualityScopeOptions(), { headers });
     const db = await requiredRuntimeDatabase("quality_database_unavailable");
     if (query.has("jobId")) {
       const jobId = query.get("jobId") ?? "";
@@ -64,10 +77,10 @@ export async function POST(request: Request) {
       const context = getRequestExecutionContext();
       if (!context) return Response.json({ error: "quality_job_runner_unavailable" }, { status: 503, headers });
       const level: QualityRunLevel = body.level === "regular" || body.level === "medium" || body.level === "full" ? body.level : "full";
-      // Scoped automation remains on the strict legacy path until its UI and
-      // complete dependency selection are wired. Never silently ignore scope.
-      if (Object.prototype.hasOwnProperty.call(body, "scope")) return Response.json({ error: "quality_job_scope_not_supported" }, { status: 400, headers });
-      const queued = await createManualQualityJob(db, { actor: session.email, idempotencyKey: body.idempotencyKey, origin: new URL(request.url).origin, level });
+      const hasScope = Object.prototype.hasOwnProperty.call(body, "scope");
+      const scope = hasScope ? parseScope(body.scope) : undefined;
+      if (hasScope && !scope) return Response.json({ error: "invalid_scope" }, { status: 400, headers });
+      const queued = await createManualQualityJob(db, { actor: session.email, idempotencyKey: body.idempotencyKey, origin: new URL(request.url).origin, level, scope });
       if (queued.job.status === "queued") context.waitUntil(consumeQualityJob(db, queued.job.runId).catch(() => undefined));
       return Response.json({ job: jobView(queued.job), duplicate: queued.duplicate }, { status: 202, headers });
     }
@@ -92,16 +105,7 @@ export async function POST(request: Request) {
     if (body?.action === "run") {
       const level: QualityRunLevel = body.level === "regular" || body.level === "medium" || body.level === "full" ? body.level : "full";
       const hasScope = Object.prototype.hasOwnProperty.call(body || {}, "scope");
-      const rawScope = hasScope && body.scope && typeof body.scope === "object" && !Array.isArray(body.scope)
-        ? body.scope as Record<string, unknown>
-        : null;
-      const changedBoxes = rawScope?.changedBoxes;
-      const consumers = rawScope?.consumers;
-      const scope = Array.isArray(changedBoxes) && changedBoxes.every((value) => typeof value === "string" && value.length < 120)
-        && (!consumers || Array.isArray(consumers) && consumers.every((value) => typeof value === "string" && value.length < 160))
-        && (!rawScope?.unknownOwner || typeof rawScope.unknownOwner === "boolean")
-        ? { changedBoxes: changedBoxes as string[], consumers: (consumers as string[] | undefined), unknownOwner: rawScope?.unknownOwner as boolean | undefined }
-        : undefined;
+      const scope = hasScope ? parseScope(body.scope) : undefined;
       if (hasScope && !scope) return Response.json({ error: "invalid_scope" }, { status: 400, headers });
       return Response.json({ run: await runQualityChecks(db, { origin: new URL(request.url).origin, trigger: "manual", level, scope, actor: session.email, notificationEnv: await notificationEnvironment() }) }, { headers });
     }
@@ -114,6 +118,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   } catch (error) {
     if (error instanceof Error && error.message === "quality_job_idempotency_conflict") return Response.json({ error: error.message }, { status: 409, headers });
+    if (error instanceof Error && ["quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(error.message)) return Response.json({ error: error.message }, { status: 400, headers });
     return Response.json({ error: "quality_unavailable" }, { status: 503, headers });
   }
 }

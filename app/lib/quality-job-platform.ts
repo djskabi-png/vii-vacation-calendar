@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { executeQualityCheck, selectManualQualityChecks, persistQualityJobProgress, type QualityCheck, type QualityRunLevel, type QualityNotificationEnvironment } from "./quality-platform.ts";
 import { enqueueQualityJob, readQualityJob, payloadHash, dueQualityJobIds, type QualityJobCheck } from "./quality-job-store.ts";
 import { runQualityJobSlice } from "./quality-job-runner.ts";
+import { qualityScopeMetadata } from "./quality-check-scope.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 export function qualityBuildIdentity() {
@@ -10,7 +11,7 @@ export function qualityBuildIdentity() {
 }
 
 function snapshot(check: QualityCheck, origin: string, level: QualityRunLevel): QualityJobCheck {
-  return { checkId: check.checkId, definitionVersion: "http-contract-v1", timeoutMs: check.timeoutMs, configuration: { check: structuredClone(check), origin, level } };
+  return { checkId: check.checkId, definitionVersion: "http-contract-v2", timeoutMs: check.timeoutMs, configuration: { check: structuredClone(check), scope: { ...structuredClone(qualityScopeMetadata[check.checkId]), costBudgetMs: check.timeoutMs }, origin, level } };
 }
 
 export async function createManualQualityJob(db: D1Database, input: {

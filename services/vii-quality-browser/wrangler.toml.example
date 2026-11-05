@@ -1,0 +1,20 @@
+name = "vii-quality-browser"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+# No public route. The private binding and isolated evidence bucket must be
+# provisioned in the verified VII account before deployment. This example is
+# not a receipt that those resources exist or have retention configured.
+[browser]
+binding = "BROWSER"
+
+[vars]
+PUBLIC_ORIGIN = "https://vii.spaplus.co"
+EXPECTED_SOURCE_VERSION = "SET_FROM_FROZEN_CANDIDATE"
+EXPECTED_BUILD_ID = "SET_FROM_BUILT_ARTIFACT"
+MAX_RUN_MS = "45000"
+MAX_REQUESTS = "180"
+MAX_EVIDENCE_BYTES = "1000000"

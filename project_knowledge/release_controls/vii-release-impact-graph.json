@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 2,
+  "graphId": "vii-release-impact-graph-20261106",
+  "baselineSource": "2c6fda304c04a0a0d8507bd8c3be6df53429a724",
+  "defaultUnknown": "blocked",
+  "buildUnits": {
+    "managed-site": {
+      "source": ".openai/hosting.json",
+      "independentWorldDeployment": false
+    },
+    "edge-delivery": {
+      "source": "services/vii-edge-delivery/wrangler.toml"
+    },
+    "image-delivery": {
+      "source": "services/vii-public-images/wrangler.toml"
+    },
+    "quality-browser": {
+      "source": "services/vii-quality-browser/wrangler.toml.example",
+      "provisioningRequired": true,
+      "publicRoute": false
+    }
+  },
+  "nodes": {
+    "maps": {
+      "dependsOn": [],
+      "requiredChecks": [
+        "map.snapshot.vacation",
+        "map.snapshot.event",
+        "map.snapshot.hourly",
+        "map.snapshot.spa"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/map-canvas-ownership.test.mjs",
+        "tests/map-provider-boundary.test.mjs",
+        "tests/map-stream-identity-actual.test.mjs"
+      ]
+    },
+    "catalog-source": {
+      "dependsOn": [],
+      "requiredChecks": [
+        "api.catalog.vacations",
+        "api.catalog.events",
+        "api.catalog.hourly",
+        "api.catalog.spa",
+        "api.vacation.amenity-groups"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "global-shell": {
+      "dependsOn": [],
+      "requiredChecks": [
+        "global.home.semantic",
+        "global.home.en.semantic",
+        "global.home.fr.semantic",
+        "global.home.ru.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "search": {
+      "dependsOn": [
+        "catalog-source",
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "search.location.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "vacations": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.vacations.semantic",
+        "place.vacation.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "events": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.events.semantic",
+        "place.event.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "spa": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.spas.semantic",
+        "place.spa.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "hourly": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.hourly.semantic",
+        "place.hourly.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "activities": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.attractions.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "trails": {
+      "dependsOn": [
+        "maps",
+        "catalog-source",
+        "global-shell",
+        "search"
+      ],
+      "requiredChecks": [
+        "world.trails.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "providers": {
+      "dependsOn": [
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "world.providers.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "home-sliders": {
+      "dependsOn": [
+        "catalog-source",
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "api.home.presentation",
+        "world.last-minute.semantic",
+        "world.events.last-minute.semantic",
+        "world.spas.today.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "quality-control": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/quality-job-api.test.mjs",
+        "tests/quality-job-platform.test.mjs",
+        "tests/quality-job-runner.test.mjs",
+        "tests/quality-job-projection.test.mjs",
+        "tests/quality-check-scope.test.mjs",
+        "tests/quality-platform.test.mjs"
+      ]
+    },
+    "admin": {
+      "dependsOn": [
+        "catalog-source",
+        "quality-control"
+      ],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/admin-control-inventory.test.mjs",
+        "tests/admin-permissions.test.mjs"
+      ]
+    },
+    "booking": {
+      "dependsOn": [
+        "catalog-source",
+        "vacations"
+      ],
+      "requiredChecks": [
+        "api.starting-prices"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/booking-mode-contract.test.mjs",
+        "tests/whatsapp-lead-contract.test.mjs"
+      ]
+    },
+    "seo": {
+      "dependsOn": [
+        "catalog-source",
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "seo.sitemap.xml",
+        "seo.sitemap.vacations",
+        "seo.sitemap.events",
+        "seo.sitemap.spas",
+        "seo.sitemap.hourly"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "edge-cache": {
+      "dependsOn": [],
+      "requiredChecks": [
+        "global.home.semantic",
+        "world.vacations.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "edge-delivery": {
+      "dependsOn": [
+        "edge-cache"
+      ],
+      "requiredChecks": [
+        "global.home.semantic"
+      ],
+      "buildUnits": [
+        "edge-delivery"
+      ],
+      "requiredLocalTests": []
+    },
+    "image-delivery": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "image-delivery"
+      ],
+      "requiredLocalTests": [
+        "tests/map-snapshot-pipeline.test.mjs"
+      ]
+    },
+    "build-system": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/deployment-artifact-budget.test.mjs",
+        "tests/release-baseline-integrity.test.mjs"
+      ]
+    },
+    "verification": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [],
+      "requiredLocalTests": [
+        "tests/release-impact-graph.test.mjs"
+      ]
+    },
+    "multilingual-shell": {
+      "dependsOn": [
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "global.home.en.semantic",
+        "global.home.fr.semantic",
+        "global.home.ru.semantic",
+        "locale.en.gift-card.semantic",
+        "locale.en.guides.semantic",
+        "locale.en.place.semantic",
+        "locale.fr.gift-card.semantic",
+        "locale.fr.guides.semantic",
+        "locale.fr.place.semantic",
+        "locale.ru.gift-card.semantic",
+        "locale.ru.guides.semantic",
+        "locale.ru.place.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/localization-completeness.test.mjs"
+      ]
+    },
+    "content": {
+      "dependsOn": [
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "content.guides",
+        "content.questions",
+        "content.contact"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "legal": {
+      "dependsOn": [
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "legal.terms",
+        "legal.privacy"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": []
+    },
+    "quality-browser": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "quality-browser"
+      ],
+      "requiredLocalTests": [
+        "services/vii-quality-browser/test/engine.test.mjs"
+      ]
+    }
+  },
+  "entries": [
+    {
+      "id": "maps",
+      "ownerBox": "maps",
+      "match": [
+        "app/components/map/",
+        "app/lib/map/",
+        "app/components/listing-map.tsx",
+        "app/components/deferred-listing-map.tsx",
+        "app/components/map-provider-boundary.tsx"
+      ]
+    },
+    {
+      "id": "catalog-source",
+      "ownerBox": "catalog-source",
+      "match": [
+        "app/api/catalog/",
+        "app/data/",
+        "app/lib/public-catalog-read.ts",
+        "app/lib/supplier-detail-contract.ts",
+        "app/lib/schema-initializer.ts"
+      ]
+    },
+    {
+      "id": "global-shell",
+      "ownerBox": "global-shell",
+      "match": [
+        "app/components/page-shell.tsx",
+        "app/components/site-footer.tsx",
+        "app/lib/public-chrome-client.ts",
+        "app/lib/world-surface-contract.ts",
+        "app/site-header.tsx",
+        "app/globals.css"
+      ]
+    },
+    {
+      "id": "search",
+      "ownerBox": "search",
+      "match": [
+        "app/search/",
+        "app/api/vii/live-search/"
+      ]
+    },
+    {
+      "id": "vacations",
+      "ownerBox": "vacations",
+      "match": [
+        "app/vacations/",
+        "app/business/",
+        "app/components/property-card.tsx"
+      ]
+    },
+    {
+      "id": "events",
+      "ownerBox": "events",
+      "match": [
+        "app/events/"
+      ]
+    },
+    {
+      "id": "spa",
+      "ownerBox": "spa",
+      "match": [
+        "app/spas/",
+        "app/worlds/spa/"
+      ]
+    },
+    {
+      "id": "hourly",
+      "ownerBox": "hourly",
+      "match": [
+        "app/hourly/"
+      ]
+    },
+    {
+      "id": "activities",
+      "ownerBox": "activities",
+      "match": [
+        "app/attractions/"
+      ]
+    },
+    {
+      "id": "trails",
+      "ownerBox": "trails",
+      "match": [
+        "app/trails/"
+      ]
+    },
+    {
+      "id": "providers",
+      "ownerBox": "providers",
+      "match": [
+        "app/providers/"
+      ]
+    },
+    {
+      "id": "home-sliders",
+      "ownerBox": "home-sliders",
+      "match": [
+        "app/api/vii/home-deals/",
+        "app/components/home-live-deals.tsx",
+        "app/lib/discovery-offer-cache.ts",
+        "app/lib/discovery-public-index.ts",
+        "app/lib/home-deal-curation.ts",
+        "app/lib/warm-vacation-discovery-cache.ts",
+        "app/lib/request-stage-timing.ts"
+      ]
+    },
+    {
+      "id": "quality-control",
+      "ownerBox": "quality-control",
+      "match": [
+        "app/admin/quality/",
+        "app/api/admin/quality/",
+        "app/lib/quality-check-scope.ts",
+        "app/lib/quality-job-platform.ts",
+        "app/lib/quality-job-runner.ts",
+        "app/lib/quality-job-store.ts",
+        "app/lib/quality-platform.ts"
+      ]
+    },
+    {
+      "id": "admin",
+      "ownerBox": "admin",
+      "match": [
+        "app/admin/",
+        "app/api/admin/",
+        "app/lib/vii-conversions.ts"
+      ]
+    },
+    {
+      "id": "booking",
+      "ownerBox": "booking",
+      "match": [
+        "app/components/vacation-booking-hub.tsx"
+      ]
+    },
+    {
+      "id": "seo",
+      "ownerBox": "seo",
+      "match": [
+        "app/sitemap.xml/",
+        "app/sitemaps/"
+      ]
+    },
+    {
+      "id": "edge-cache",
+      "ownerBox": "edge-cache",
+      "match": [
+        "worker/public-response-cache.ts",
+        "worker/public-cache-work.ts",
+        "worker/index.ts"
+      ]
+    },
+    {
+      "id": "edge-delivery",
+      "ownerBox": "edge-delivery",
+      "match": [
+        "services/vii-edge-delivery/"
+      ]
+    },
+    {
+      "id": "image-delivery",
+      "ownerBox": "image-delivery",
+      "match": [
+        "services/vii-public-images/"
+      ]
+    },
+    {
+      "id": "build-system",
+      "ownerBox": "build-system",
+      "match": [
+        "vite.config.ts",
+        "package.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    {
+      "id": "verification",
+      "ownerBox": "verification",
+      "match": [
+        "tests/",
+        "scripts/",
+        "project_knowledge/",
+        ".gitignore"
+      ]
+    },
+    {
+      "id": "multilingual-shell",
+      "ownerBox": "multilingual-shell",
+      "match": [
+        "app/i18n/",
+        "app/data/visitor-ui-translations.json"
+      ]
+    },
+    {
+      "id": "content",
+      "ownerBox": "content",
+      "match": [
+        "app/guides/",
+        "app/questions/",
+        "app/contact/"
+      ]
+    },
+    {
+      "id": "legal",
+      "ownerBox": "legal",
+      "match": [
+        "app/legal/"
+      ]
+    },
+    {
+      "id": "quality-browser",
+      "ownerBox": "quality-browser",
+      "match": [
+        "services/vii-quality-browser/"
+      ]
+    }
+  ]
+}

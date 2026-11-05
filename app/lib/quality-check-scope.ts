@@ -22,13 +22,70 @@ export type QualityScopeSelection = {
   reasons: readonly string[];
 };
 
-// These are the only production mappings wired in this slice. The identifiers
-// reuse existing registry families, so no new box is invented here. All other
-// checks remain explicitly unsupported until their owner is mapped.
-export const qualityScopeMetadata: Readonly<Record<string, QualityCheckScopeMetadata>> = {
-  "world.vacations.semantic": { definitionVersion: "1", boxIds: ["world-landings"], requirementIds: ["A02"], engine: "http", depth: "regular", costBudgetMs: 1_000, dependencies: [] },
-  "search.location.semantic": { definitionVersion: "1", boxIds: ["search"], requirementIds: ["A10"], engine: "http", depth: "medium", costBudgetMs: 2_000, dependencies: ["world.vacations.semantic"] },
-};
+// Every executable entry in the production registry has an explicit owner and
+// requirement. These are HTTP contracts only. Browser, visual and interaction
+// claims deliberately stay outside this registry and are not inferred here.
+const scope = (boxId: string, requirementId: string, depth: QualityCheckScopeMetadata["depth"] = "regular", dependencies: readonly string[] = []): QualityCheckScopeMetadata => ({
+  definitionVersion: "1", boxIds: [boxId], requirementIds: [requirementId], engine: "http", depth, costBudgetMs: depth === "full" ? 15_000 : depth === "medium" ? 12_000 : 10_000, dependencies,
+});
+
+const metadataEntries: Array<[string, QualityCheckScopeMetadata]> = [
+  ["global.home.semantic", scope("global-shell", "V14", "full")],
+  ["global.home.en.semantic", scope("multilingual-shell", "V05", "medium")],
+  ["global.home.fr.semantic", scope("multilingual-shell", "V05", "medium")],
+  ["global.home.ru.semantic", scope("multilingual-shell", "V05", "medium")],
+  ["search.location.semantic", scope("search", "V15", "full", ["world.vacations.semantic"])],
+  ["place.vacation.semantic", scope("vacations", "V09", "full", ["world.vacations.semantic"])],
+  ["place.vacation.legacy-parity", scope("vacations", "V09", "medium", ["place.vacation.semantic"])],
+  ["place.vacation.sleeping-fallback", scope("vacations", "V09", "medium", ["place.vacation.semantic"])],
+  ["world.vacations.semantic", scope("vacations", "V09", "full")],
+  ["world.events.semantic", scope("events", "V09", "full")],
+  ["world.events.region.north.semantic", scope("events", "V09", "full", ["world.events.semantic"])],
+  ["world.hourly.semantic", scope("hourly", "V09", "full")],
+  ["world.spas.semantic", scope("spa", "V09", "full")],
+  ["world.attractions.semantic", scope("activities", "V05", "medium")],
+  ["place.event.semantic", scope("events", "V09", "medium", ["world.events.semantic"])],
+  ["place.hourly.semantic", scope("hourly", "V09", "medium", ["world.hourly.semantic"])],
+  ["place.spa.semantic", scope("spa", "V09", "medium", ["world.spas.semantic"])],
+  ["world.trails.semantic", scope("trails", "V05", "medium")],
+  ["world.providers.semantic", scope("providers", "V05", "medium")],
+  ["world.holidays.semantic", scope("vacations", "V09", "medium", ["world.vacations.semantic"])],
+  ["world.last-minute.semantic", scope("vacations", "V09", "medium", ["world.vacations.semantic"])],
+  ["world.events.last-minute.semantic", scope("events", "V09", "medium", ["world.events.semantic"])],
+  ["world.events.thursday.semantic", scope("events", "V09", "medium", ["world.events.semantic"])],
+  ["world.events.friday.semantic", scope("events", "V09", "medium", ["world.events.semantic"])],
+  ["world.spas.today.semantic", scope("spa", "V09", "medium", ["world.spas.semantic"])],
+  ["world.spas.tomorrow.semantic", scope("spa", "V09", "medium", ["world.spas.semantic"])],
+  ["map.snapshot.vacation", scope("maps", "V06", "medium", ["place.vacation.semantic"])],
+  ["map.snapshot.event", scope("maps", "V06", "medium", ["place.event.semantic"])],
+  ["map.snapshot.hourly", scope("maps", "V06", "medium", ["place.hourly.semantic"])],
+  ["map.snapshot.spa", scope("maps", "V06", "medium", ["place.spa.semantic"])],
+  ["api.catalog.vacations", scope("catalog-source", "V07", "full", ["world.vacations.semantic"])],
+  ["api.vacation.amenity-groups", scope("catalog-source", "V07", "medium", ["place.vacation.semantic"])],
+  ["api.catalog.events", scope("catalog-source", "V07", "full", ["world.events.semantic"])],
+  ["api.catalog.hourly", scope("catalog-source", "V07", "medium", ["world.hourly.semantic"])],
+  ["api.catalog.spa", scope("catalog-source", "V07", "medium", ["world.spas.semantic"])],
+  ["api.home.presentation", scope("home-sliders", "V16", "medium", ["global.home.semantic"])],
+  ["api.starting-prices", scope("catalog-source", "V07", "medium", ["api.catalog.vacations"])],
+  ["api.reviews.read", scope("vacations", "V09", "regular", ["place.vacation.semantic"])],
+  ["content.guides", scope("content", "V14")],
+  ["content.questions", scope("content", "V14")],
+  ["content.contact", scope("content", "V14")],
+  ["legal.terms", scope("legal", "V18")],
+  ["legal.privacy", scope("legal", "V18")],
+  ["seo.sitemap.xml", scope("seo", "V15", "medium")],
+];
+
+for (const locale of ["en", "fr", "ru"] as const) {
+  metadataEntries.push([`locale.${locale}.gift-card.semantic`, scope("multilingual-shell", "V05", "medium")]);
+  metadataEntries.push([`locale.${locale}.guides.semantic`, scope("multilingual-shell", "V05", "medium")]);
+  metadataEntries.push([`locale.${locale}.place.semantic`, scope("multilingual-shell", "V05", "medium", ["place.vacation.semantic"])]);
+}
+for (const section of ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const) {
+  metadataEntries.push([`seo.sitemap.${section}`, scope("seo", "V15", "medium")]);
+}
+
+export const qualityScopeMetadata: Readonly<Record<string, QualityCheckScopeMetadata>> = Object.fromEntries(metadataEntries);
 
 const EMPTY_METADATA: QualityCheckScopeMetadata = {
   definitionVersion: "unmapped",
@@ -52,13 +109,14 @@ export function adaptQualityChecks(
   return registry.map((check) => {
     const entry = metadata[check.checkId];
     if (!entry) return { ...check, ...EMPTY_METADATA, unsupported: true, unsupportedReason: "missing_explicit_scope_mapping" };
-    const invalid = !entry.definitionVersion || entry.costBudgetMs < 0 || entry.boxIds.length === 0 || entry.requirementIds.length === 0 || entry.dependencies.includes(check.checkId);
-    return { ...check, ...entry, unsupported: invalid, ...(invalid ? { unsupportedReason: "invalid_scope_mapping" } : {}) };
+    const invalid = !entry.definitionVersion || !Number.isFinite(entry.costBudgetMs) || entry.costBudgetMs < 0 || entry.engine === "unsupported" || entry.boxIds.length === 0 || entry.requirementIds.length === 0 || entry.dependencies.includes(check.checkId);
+    return { ...check, ...entry, costBudgetMs: check.timeoutMs, unsupported: invalid, ...(invalid ? { unsupportedReason: "invalid_scope_mapping" } : {}) };
   });
 }
 
 function graphIsValid(checks: readonly VersionedQualityCheck[]) {
   const ids = new Set(checks.map((check) => check.checkId));
+  if (ids.size !== checks.length) return false;
   const visiting = new Set<string>();
   const visited = new Set<string>();
   const visit = (id: string): boolean => {
@@ -83,23 +141,29 @@ export function selectQualityScope(
 ): QualityScopeSelection {
   if (!graphIsValid(checks)) return { status: "invalid_graph", checks: [], selectedCheckIds: [], reasons: ["invalid_or_cyclic_dependency_graph"] };
   if (options.unknownOwner) return { status: "unmapped", checks: [...checks], selectedCheckIds: checks.map((check) => check.checkId), reasons: ["unknown_owner_requires_broad_coverage"] };
-  if (changedBoxes.length === 0 && (!options.consumers || options.consumers.length === 0)) return { status: "unmapped", checks: [], selectedCheckIds: [], reasons: ["empty_scope_requires_explicit_owner"] };
+  const canonicalChangedBoxes = changedBoxes.map((box) => box === "world-landings" ? "vacations" : box);
+  if (canonicalChangedBoxes.length === 0 && (!options.consumers || options.consumers.length === 0)) return { status: "unmapped", checks: [], selectedCheckIds: [], reasons: ["empty_scope_requires_explicit_owner"] };
   const knownBoxes = new Set(checks.flatMap((check) => check.boxIds));
-  const unknownBoxes = changedBoxes.filter((box) => !knownBoxes.has(box));
+  const unknownBoxes = canonicalChangedBoxes.filter((box) => !knownBoxes.has(box));
   if (unknownBoxes.length) return { status: "unmapped", checks: [...checks], selectedCheckIds: checks.map((check) => check.checkId), reasons: [`unknown_boxes:${unknownBoxes.join(",")}`] };
   const knownChecks = new Set(checks.map((check) => check.checkId));
   const unknownConsumers = (options.consumers || []).filter((consumer) => !knownChecks.has(consumer));
   if (unknownConsumers.length) return { status: "unmapped", checks: [...checks], selectedCheckIds: checks.map((check) => check.checkId), reasons: [`unknown_consumers:${unknownConsumers.join(",")}`] };
-  const changed = new Set(changedBoxes);
+  const changed = new Set(canonicalChangedBoxes);
   const requestedConsumers = new Set(options.consumers || []);
   const selected = new Set(checks.filter((check) => check.boxIds.some((box) => changed.has(box)) || requestedConsumers.has(check.checkId)).map((check) => check.checkId));
+  // A scoped run must contain both sides of the impact graph: prerequisites
+  // needed to interpret a changed check, and downstream consumers affected by
+  // that change. Expand to a fixed point in both directions.
   let expanded = true;
   while (expanded) {
     expanded = false;
     for (const check of checks) {
-      if (selected.has(check.checkId) || check.dependencies.some((dependency) => selected.has(dependency))) {
-        if (!selected.has(check.checkId)) { selected.add(check.checkId); expanded = true; }
-      }
+      const isSelected = selected.has(check.checkId);
+      const prerequisiteSelected = check.dependencies.some((dependency) => selected.has(dependency));
+      const consumerSelected = checks.some((consumer) => selected.has(consumer.checkId) && consumer.dependencies.includes(check.checkId));
+      if (prerequisiteSelected || consumerSelected) { if (!isSelected) { selected.add(check.checkId); expanded = true; } }
+      if (isSelected) for (const dependency of check.dependencies) if (!selected.has(dependency)) { selected.add(dependency); expanded = true; }
     }
   }
   const depth = (id: string, seen = new Set<string>()): number => {

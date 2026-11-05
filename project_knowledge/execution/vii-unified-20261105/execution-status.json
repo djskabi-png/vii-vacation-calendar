@@ -37,8 +37,10 @@
       "id": "V04",
       "title": "מפת הקופסאות ובעלות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "V05",
@@ -57,7 +59,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_03.md"
       ]
     },
     {
@@ -153,8 +156,10 @@
       "id": "V18",
       "title": "תפעול אבטחה ושחזור",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "V19",
@@ -167,8 +172,10 @@
       "id": "V20",
       "title": "שלבי ביצוע וחתך ראשון",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "V21",
@@ -325,15 +332,19 @@
       "id": "Q13",
       "title": "ספריית בדיקות וגרף תלויות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "Q14",
       "title": "בדיקות לפי עולם ולפי קופסה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "Q15",
@@ -346,8 +357,10 @@
       "id": "Q16",
       "title": "בדיקות דפדפן וויזואל",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "Q17",
@@ -440,8 +453,10 @@
       "id": "Q26",
       "title": "שחרור ויישור עם הארכיטקטורה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_03.md"
+      ]
     },
     {
       "id": "Q27",
