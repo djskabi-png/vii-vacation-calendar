@@ -18,6 +18,9 @@ import { refreshVacationDiscoveryPeriod, validVacationDiscoverySnapshot } from "
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const noStore = { "Cache-Control": "no-store" };
+// API responses stay uncached at the edge. The VII edge worker deliberately
+// bypasses `/api` requests; freshness is owned by the bounded D1 discovery
+// snapshot below and booking performs its own live confirmation.
 const publicDiscovery = { "Cache-Control": "no-store" };
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
@@ -52,7 +55,15 @@ export async function GET(request: Request) {
     const namesPromise = publicCatalogSummaries<DiscoveryVacationPlace>("vacations");
     const publicSiteIdsPromise = publishedSupplierIds("vacations");
     const now = new Date();
-    const [display, db] = await Promise.all([displayPromise, runtimeCatalogDatabase()]);
+    // These are independent reads. Starting them together is important on a
+    // cold isolate: otherwise the slider waits for the settings and database
+    // read before it even starts loading the catalog identities.
+    const [display, db, names, publicSiteIds] = await Promise.all([
+      displayPromise,
+      runtimeCatalogDatabase(),
+      namesPromise,
+      publicSiteIdsPromise,
+    ]);
     const requestedPeriod = period as HomeDealPeriod;
     const dates = homeDealDates(requestedPeriod, now);
     let snapshotReadFailed = !db;
@@ -64,7 +75,6 @@ export async function GET(request: Request) {
       });
       snapshot = { period: requestedPeriod, dates, cached };
     } catch { snapshotReadFailed = true; }
-    const [names, publicSiteIds] = await Promise.all([namesPromise, publicSiteIdsPromise]);
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
     const curatedSource = snapshot ? await applyCuration(snapshot.cached.value.deals, requestedPeriod) : [];
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)

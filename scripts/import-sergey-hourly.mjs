@@ -30,17 +30,27 @@ function pictures(galleries) {
     .map((path) => new URL(path, "https://www.vii.co.il").href);
 }
 
+function roomPictures(room, siteGalleries) {
+  const roomId = positive(room?.roomID);
+  const own = room?.galleries && typeof room.galleries === "object" ? room.galleries : null;
+  const groups = own ? Object.values(own) : Object.values(siteGalleries || {}).filter((gallery) => positive(gallery?.roomID) === roomId);
+  return pictures(Object.fromEntries(groups.map((gallery, index) => [String(index), gallery])));
+}
+
 function positive(value) {
   return Number.isSafeInteger(value) && value > 0 ? value : null;
 }
 
 function rates(basePrices) {
   if (!basePrices || Array.isArray(basePrices)) return [];
-  return [
+  const hourly = [
     { duration: "שעה", weekday: positive(basePrices.hourPriceWeekday), weekend: positive(basePrices.hourPriceWeekend) },
     { duration: "שעתיים", weekday: positive(basePrices.twoHourPriceWeekday), weekend: positive(basePrices.twoHourPriceWeekend) },
     { duration: "3 שעות", weekday: positive(basePrices.threeHourPriceWeekday), weekend: positive(basePrices.threeHourPriceWeekend) },
-  ].filter((rate) => rate.weekday || rate.weekend);
+  ];
+  const nightWeekday = positive(basePrices.overnightPriceWeekday) || positive(basePrices.nightPriceWeekday);
+  const nightWeekend = positive(basePrices.overnightPriceWeekend) || positive(basePrices.nightPriceWeekend);
+  return [...hourly, { duration: "לילה", weekday: nightWeekday, weekend: nightWeekend }].filter((rate) => rate.weekday || rate.weekend);
 }
 
 const [listing, locations] = await Promise.all([get("/rooms"), get("/rooms/locations")]);
@@ -77,6 +87,7 @@ for (const entry of active) {
     features: [...new Set((room.spaces || []).flatMap((space) =>
       (space.features || []).map((feature) => plainText(feature.description))).filter(Boolean))],
     rates: rates(room.basePrices),
+    images: roomPictures(room, detail.galleries),
   })) : [];
   places.push({
     id: `hourly-${detail.id}`,

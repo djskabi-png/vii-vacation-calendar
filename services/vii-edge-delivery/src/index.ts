@@ -1,4 +1,5 @@
 import { warmPublicDocuments } from "./public-warm.ts";
+import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 type DeliveryEnv={ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -69,10 +70,11 @@ function anonymousPublicRequest(origin: URL, request: Request) {
 }
 
 function eligible(request: Request, url: URL) {
+  if(!privateRequest(request)&&publicDiscoveryCachePolicy(request))return true;
   if (privateRequest(request) || url.pathname.startsWith("/api/") || /^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(url.pathname)) return false;
   const rsc = url.pathname.endsWith(".rsc");
   const path = (rsc ? url.pathname.slice(0, -4) || "/" : url.pathname).replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
-  if (!/^\/(?:$|search(?:\/|$)|events(?:\/|$)|spas(?:\/|$)|hourly(?:\/|$)|vacations(?:\/|$)|business(?:\/|$)|holidays(?:\/|$)|providers(?:\/|$)|attractions(?:\/|$)|activities(?:\/|$)|trails(?:\/|$)|destinations(?:\/|$)|corporate(?:\/|$))/.test(path)) return false;
+  if (!/^\/(?:$|search(?:\/|$)|events(?:\/|$)|spas(?:\/|$)|hourly(?:\/|$)|vacations(?:\/|$)|villas(?:\/|$)|zimmers(?:\/|$)|suites(?:\/|$)|luxury-suites(?:\/|$)|suite-complexes(?:\/|$)|vacation-apartments(?:\/|$)|hospitality-complexes(?:\/|$)|business(?:\/|$)|discover\/place(?:\/|$)|holidays(?:\/|$)|providers(?:\/|$)|attractions(?:\/|$)|activities(?:\/|$)|trails(?:\/|$)|destinations(?:\/|$)|corporate(?:\/|$)|guides(?:\/|$)|questions(?:\/|$)|gift-card(?:\/|$)|contact(?:\/|$)|accessibility(?:\/|$)|legal(?:\/|$))/.test(path)) return false;
   if (rsc ? !(request.headers.get("Accept") || "").includes("text/x-component") : !(request.headers.get("Accept") || "").includes("text/html")) return false;
   const seen = new Set(); for (const key of url.searchParams.keys()) { if (allowedUtm.has(key)) continue; if (!allowedQuery.has(key) || seen.has(key)) return false; seen.add(key); }
   if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return rsc;
@@ -122,6 +124,7 @@ function keyFor(request: Request, url: URL, build: string) {
 
 async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, refresh = false): Promise<Response> {
   const url = new URL(request.url);
+  const discovery=publicDiscoveryCachePolicy(request);
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
     const upstream = new Request(new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)), request);
@@ -157,14 +160,14 @@ async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, 
     const remaining = Math.floor((hitExpiry - Date.now()) / 1000);
     const headers = new Headers(hit.headers);
     headers.delete(refreshAfterHeader);
-    headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}`);
+    headers.set("Cache-Control", `public, max-age=${discovery?0:Math.min(60, remaining)}`);
     headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", hitLayer);
     return new Response(hit.body, { status: hit.status, headers });
   }
   const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
   const response = await fetchPublicRead(request, origin);
   const contentType = response.headers.get("Content-Type") || "";
-  const expectedType = url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";
+  const expectedType = discovery?'application/json':url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";
   const control = (response.headers.get("Cache-Control") || "").toLowerCase();
   const vary = (response.headers.get("Vary") || "").split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
   const allowedVary = new Set(["accept", "rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-url", "x-vinext-interception-context", "x-vinext-mounted-slots", "x-vinext-rsc-render-mode", "accept-encoding"]);
@@ -172,7 +175,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, 
   const remaining = until - Date.now();
   const declaredSize = Number(response.headers.get("Content-Length"));
   const hasUnknownSetCookie = response.headers.has("Set-Cookie") && !infrastructureSetCookieOnly(response.headers.get("Set-Cookie"));
-  const reason = response.status !== 200 ? "status" : !contentType.includes(expectedType) ? "content_type" : response.headers.get("X-VII-Cache-Build") !== expectedBuild ? "build_mismatch" : hasUnknownSetCookie ? "set_cookie" : /(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*(?:,|=|$))/i.test(control) ? "private_or_no_store" : vary.some((name) => !allowedVary.has(name)) ? "vary" : (Number.isFinite(declaredSize) && declaredSize > maxBytes) ? "oversize" : !Number.isFinite(until) || remaining <= 0 ? "missing_expiry" : null;
+  const reason = response.status !== 200 ? "status" : !contentType.includes(expectedType) ? "content_type" : response.headers.get("X-VII-Cache-Build") !== expectedBuild ? "build_mismatch" : hasUnknownSetCookie ? "set_cookie" : /(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*(?:,|=|$))/i.test(control) ? "private_or_no_store" : vary.some((name) => !allowedVary.has(name)) ? "vary" : (Number.isFinite(declaredSize) && declaredSize > maxBytes) ? "oversize" : !Number.isFinite(until) || remaining <= 0 ? "missing_expiry" : discovery&&(response.headers.get('X-VII-Discovery-Verified')!=='1'||until>discovery.expiresAt+1000)?'discovery_authority':null;
   if (reason) { const headers = new Headers(response.headers); headers.set("X-VII-Edge-Cache-Skip", reason); return new Response(response.body, { status: response.status, headers }); }
   const headers = new Headers(response.headers); headers.delete("Set-Cookie"); headers.set("Cache-Control", `public, max-age=${Math.min(60, Math.floor(remaining / 1000))}`); headers.set("X-VII-Edge-Delivery", "MISS"); headers.set("X-VII-Edge-Cache-Backend", cache ? "available" : "unavailable");
   const storedHeaders = new Headers(headers);

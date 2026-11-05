@@ -1,4 +1,5 @@
 import {publicWarmRoutes} from './public-warm.ts';
+import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 
 export type PublicCacheBucket={
  get(key:string):Promise<{body:ReadableStream<Uint8Array>;size:number}|null>;
@@ -9,16 +10,21 @@ const encoder=new TextEncoder(),decoder=new TextDecoder();
 const paths=new Set<string>(publicWarmRoutes);
 const routing=['Next-Router-State-Tree','Next-Router-Prefetch','Next-Router-Segment-Prefetch','Next-Url','X-Vinext-Interception-Context','X-Vinext-Mounted-Slots','X-Vinext-Rsc-Render-Mode'];
 
-// Initial global tier is deliberately only the sixteen fixed anonymous warm
-// variants. Search queries, dates, locale variants and personalized requests
-// retain the existing regional/origin path without durable cache writes.
+// Canonical public documents keep their complete path/locale/build identity.
+// Transactional search parameters and router-state variants remain excluded.
 export function globalPublicVariant(request:Request,build:string){
  if(build.startsWith('pending-')||request.method!=='GET'||request.headers.has('Authorization')||request.headers.has('Next-Action')||request.headers.has('X-Server-Action'))return false;
  const url=new URL(request.url),rsc=url.pathname.endsWith('.rsc');
- if(url.hostname!=='vii.spaplus.co'||!paths.has(rsc?url.pathname.slice(0,-4)||'/':url.pathname))return false;
+ if(url.hostname==='vii.spaplus.co'&&publicDiscoveryCachePolicy(request))return true;
+ const path=rsc?url.pathname.slice(0,-4)||'/':url.pathname;
+ const base=path.replace(/^\/(?:en|fr|ru)(?=\/|$)/,'')||'/';
+ const canonical=paths.has(base)||/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|events|spas|hourly|holidays|destinations|providers|trails|attractions|activities|guides|questions|corporate|gift-card|contact|accessibility|legal|discover\/place)(?:\/[a-z0-9-]+)*$/.test(base);
+ if(url.hostname!=='vii.spaplus.co'||!canonical&&base!=='/business')return false;
  if(routing.some(name=>request.headers.get(name)))return false;
- if(rsc)return request.headers.get('Accept')==='text/x-component'&&request.headers.get('RSC')==='1'&&[...url.searchParams].length===1&&url.searchParams.get('_rsc')==='';
- return !url.search&&!request.headers.has('RSC')&&(request.headers.get('Accept')||'').includes('text/html');
+ const params=new URLSearchParams(url.search);
+ if(rsc){if(request.headers.get('Accept')!=='text/x-component'||request.headers.get('RSC')!=='1'||params.getAll('_rsc').length!==1||params.get('_rsc')!=='')return false;params.delete('_rsc');}
+ else if(request.headers.has('RSC')||!(request.headers.get('Accept')||'').includes('text/html'))return false;
+ return base==='/business'?[...params].length===1&&/^(?:vacation|event)-[1-9]\d{0,8}$/.test(params.get('id')||''):params.size===0;
 }
 
 async function keyFor(key:Request,build:string){
@@ -53,7 +59,7 @@ export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,k
   if(value?.version!==1||value.key!==key.url||value.build!==build||value.status!==200||!Array.isArray(value.headers))return undefined;
   const headers=new Headers(value.headers),until=Number(headers.get('X-VII-Cache-Until'));
   if(headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||!Number.isFinite(until)||until<=Date.now()||until>Date.now()+300_000||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return undefined;
-  const expected=key.url.includes('.rsc')?'text/x-component':'text/html';
+  const expected=decodeURIComponent(new URL(key.url).pathname).includes('/api/')?'application/json':key.url.includes('.rsc')?'text/x-component':'text/html';
   if(!(headers.get('Content-Type')||'').includes(expected))return undefined;
   return new Response(bytes.subarray(4+length),{status:200,headers});
  })();
@@ -65,7 +71,11 @@ export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,k
 export async function writeGlobalPublicCache(bucket:PublicCacheBucket|undefined,key:Request,build:string,body:Uint8Array,headers:Headers){
  if(!bucket||!body.byteLength||body.byteLength>MAX_BODY)return;
  const until=Number(headers.get('X-VII-Cache-Until'));
- if(!Number.isFinite(until)||until<=Date.now()||until>Date.now()+300_000||headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return;
+ if(!Number.isFinite(until)||until<=Date.now()||until>Date.now()+900_000||headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return;
+ headers=new Headers(headers);
+ const boundedExpiry=Math.min(until,Date.now()+300_000);
+ headers.set('X-VII-Cache-Until',String(boundedExpiry));
+ headers.set('Cache-Control',`public,max-age=${Math.max(0,Math.floor((boundedExpiry-Date.now())/1000))}`);
  const meta=encoder.encode(JSON.stringify({version:1,key:key.url,build,status:200,headers:[...headers]}));
  if(meta.byteLength>MAX_META)return;
  const value=new Uint8Array(4+meta.byteLength+body.byteLength);new DataView(value.buffer).setUint32(0,meta.byteLength);value.set(meta,4);value.set(body,4+meta.byteLength);

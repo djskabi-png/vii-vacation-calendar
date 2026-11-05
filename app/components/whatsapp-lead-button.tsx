@@ -228,7 +228,6 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
       requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
       guests ? `${labels.messageGuests}: ${guests}` : "",
       serviceName ? `${labels.messageService}: ${serviceName}` : "",
-      `${labels.messageReference}: ${reference}`,
       labels.messageOutro,
     ].filter(Boolean).join("\n");
     const whatsappUrl = `https://wa.me/${destination}?text=${encodeURIComponent(whatsappMessage)}`;

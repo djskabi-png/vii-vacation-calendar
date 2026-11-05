@@ -11019,3 +11019,13 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
     border-inline-start: 0;
   }
 }
+
+/* Detail actions keep the same image ownership and one primary next step. */
+.event-gallery-wrap { position: relative; }
+.discovery-detail__favorite { position: absolute; z-index: 4; top: 16px; inset-inline-end: 16px; }
+.expandable-description__collapsed { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.expandable-description__toggle { color: var(--teal, #087e8b); background: transparent; border: 0; text-decoration: underline; font: inherit; font-weight: 600; cursor: pointer; padding: 4px 0; }
+.expandable-description__toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+.hourly-room-card button.hourly-room-card__media { position:relative; display:block; width:100%; padding:0; border:0; cursor:pointer; background:transparent; }
+.hourly-room-card button.hourly-room-card__media span { position:absolute; bottom:12px; inset-inline-end:12px; padding:7px 12px; border-radius:12px; background:white; color:#103741; font:600 13px Heebo,Arial,sans-serif; }

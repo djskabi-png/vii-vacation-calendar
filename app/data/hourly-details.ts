@@ -4,7 +4,7 @@ import { hourlyEntryMode, type HourlyEntryMode } from "../lib/hourly-entry.ts";
 
 export type HourlyDetails = {
   about: string[];
-  stayOptions: { title: string; description: string }[];
+  stayOptions: { title: string; description: string; images?: string[]; roomId?: number }[];
   rates: { duration: string; price: string }[];
   amenities: string[];
   entryDisclosure?: { label: string; question: string; answer: string };
@@ -56,6 +56,8 @@ export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlac
     about: [item.description],
     stayOptions: place?.rooms.map((room) => ({
       title: room.name || "יחידת אירוח",
+      ...(Number.isSafeInteger(room.id) && room.id > 0 ? { roomId: room.id } : {}),
+      ...(Array.isArray((room as { images?: unknown }).images) && (room as { images?: unknown[] }).images!.length ? { images: (room as { images: string[] }).images } : {}),
       description: [
         room.count ? `${room.count} יחידות` : "",
         room.maxGuests ? `עד ${room.maxGuests} אורחים ביחידה` : "",

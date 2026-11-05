@@ -5,7 +5,7 @@
   "task_type": "repair-and-cumulative-release",
   "goal": "Repair audit findings and publish verified cumulative release",
   "created_at": "2026-11-05T09:49:50.034287Z",
-  "updated_at": "2026-11-05T17:01:38.783Z",
+  "updated_at": "2026-11-05T17:35:06.658274Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -191,6 +191,24 @@
         "v809-rsc-navigation-speed-after.json"
       ],
       "reason": null
+    },
+    {
+      "id": "incident-evening-liran",
+      "source": "user_correction",
+      "statement": "Resume controlled stop; repair critical world/search latency and stuck sliders, reconcile every November5 Liran report in INCIDENT_20261105_EVENING.md, publish and verify exact cumulative version",
+      "acceptance_check": "Each E01/E02/L01-L26 ledger row has observed source and final public evidence; independent checker; immediate click indication; cold/warm desktop/mobile timings; no regression or false availability",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "access:edge-oauth",
+      "source": "access_obstacle",
+      "statement": "R2 inventory GET401 before mutation, existing OAuth expired",
+      "acceptance_check": "Official existing Wrangler OAuth refresh and exact same account R2 read/write verification, no secret output",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",
@@ -206,6 +224,6 @@
       ]
     }
   },
-  "last_freshness_check_at": "2026-11-05T13:34:19.441434Z",
+  "last_freshness_check_at": "2026-11-05T17:31:59.546470Z",
   "last_freshness_check_errors": []
 }

@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import "./navigation-progress.css";
 import { NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from "../lib/navigation-recovery";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 export function NavigationProgress() {
+  const { translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [active, setActive] = useState(false);
@@ -67,6 +69,6 @@ export function NavigationProgress() {
   }, []);
 
   return <div className={active ? "navigation-progress is-active" : "navigation-progress"} role="status" aria-live="polite" aria-hidden={!active}>
-    <span className="sr-only">טוענים את העמוד</span><i />
+    <span className="navigation-progress__label">{translate("טוענים את העמוד")}</span><i />
   </div>;
 }

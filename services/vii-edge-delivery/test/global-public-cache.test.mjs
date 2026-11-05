@@ -25,7 +25,7 @@ test('the global tier serves ordinary RSC but cannot collapse router state or tr
  const f=fixture();try{
   const nav=()=>request('/spas.rsc?_rsc',{Accept:'text/x-component',RSC:'1'});
   await (await worker.fetch(nav(),f.env,f.ctx)).arrayBuffer();await f.drain();f.region();const hit=await worker.fetch(nav(),f.env,f.ctx);assert.equal(hit.headers.get('X-VII-Edge-Cache-Backend'),'global-r2');assert.match(hit.headers.get('Content-Type'),/text\/x-component/);await hit.arrayBuffer();await f.drain();
-  for(const [path,headers] of [['/spas.rsc?_rsc=state',{Accept:'text/x-component',RSC:'1','Next-Router-State-Tree':'other'}],['/search?from=2026-11-26',{Accept:'text/html'}],['/admin',{Accept:'text/html'}],['/api/catalog?world=vacations',{Accept:'application/json'}],['/en/events',{Accept:'text/html'}],['/events?guests=6',{Accept:'text/html'}]]){
+  for(const [path,headers] of [['/spas.rsc?_rsc=state',{Accept:'text/x-component',RSC:'1','Next-Router-State-Tree':'other'}],['/search?from=2026-11-26',{Accept:'text/html'}],['/admin',{Accept:'text/html'}],['/api/catalog?world=vacations',{Accept:'application/json'}],['/unknown',{Accept:'text/html'}],['/events?guests=6',{Accept:'text/html'}]]){
    const reads=f.store.reads,writes=f.store.writes;await (await worker.fetch(request(path,headers),f.env,f.ctx)).arrayBuffer();await f.drain();assert.equal(f.store.reads,reads,path);assert.equal(f.store.writes,writes,path);
   }
  }finally{f.restore();}
@@ -58,6 +58,23 @@ test('global writes reject private policy, empty bodies and extended freshness r
  const base={'Content-Type':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+10000),'Cache-Control':'public,max-age=10'};
  for(const policy of ['private,max-age=10','no-store','no-cache']) await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),new Headers({...base,'Cache-Control':policy}));
  await writeGlobalPublicCache(store,key,build,new Uint8Array(),new Headers(base));
- await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),new Headers({...base,'X-VII-Cache-Until':String(Date.now()+600_000)}));
+ await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),new Headers({...base,'X-VII-Cache-Until':String(Date.now()+901_000)}));
  assert.equal(store.writes,0);
+});
+
+test('canonical locations, locale and place identity reuse global storage without admitting dated or arbitrary query state',async()=>{
+ const f=fixture();try{
+  for(const path of ['/vacations/north','/en/events/search/center','/discover/place/hourly-1902','/business?id=vacation-164']){
+   const first=await worker.fetch(request(path),f.env,f.ctx);const body=await first.text();await f.drain();f.region();
+   const next=await worker.fetch(request(path),f.env,f.ctx);assert.equal(next.headers.get('X-VII-Edge-Cache-Backend'),'global-r2',path);assert.equal(await next.text(),body);await f.drain();
+  }
+  for(const path of ['/business?id=vacation-164&from=2026-11-06','/business?id=vacation-164&id=vacation-999','/business?id=private-account','/en/admin','/events?sort=price'])assert.equal(globalPublicVariant(request(path),'test'),false,path);
+ }finally{f.restore();}
+});
+
+test('detail authority can only be shortened to five minutes by the global tier',async()=>{
+ const store=bucket(),key=request('/__vii-edge/detail'),build='test',original=Date.now()+800_000;
+ const headers=new Headers({'Content-Type':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(original),'Cache-Control':'public,max-age=800'});
+ await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),headers);
+ const read=await readGlobalPublicCache(store,key,build);assert.ok(read);assert.ok(Number(read.headers.get('X-VII-Cache-Until'))<=Date.now()+300_000);assert.equal(headers.get('X-VII-Cache-Until'),String(original));
 });

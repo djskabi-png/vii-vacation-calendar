@@ -73,3 +73,10 @@ test("both homepage vacation rails recover through a bounded backoff from cold a
   assert.match(publicAudit, /terminal-error/);
   assert.match(publicAudit, /no-verified-cards/);
 });
+
+test("cold vacation slider starts independent settings, database and catalog reads together", () => {
+  const route = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
+  assert.match(route, /const \[display, db, names, publicSiteIds\] = await Promise\.all\(\[[\s\S]*displayPromise,[\s\S]*runtimeCatalogDatabase\(\),[\s\S]*namesPromise,[\s\S]*publicSiteIdsPromise,[\s\S]*\]\)/);
+  assert.doesNotMatch(route, /const \[display, db\] = await Promise\.all/);
+  assert.doesNotMatch(route, /await displayPromise[\s\S]*await runtimeCatalogDatabase\(\)[\s\S]*await namesPromise/);
+});

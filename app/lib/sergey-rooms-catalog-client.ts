@@ -29,13 +29,25 @@ function pictures(galleries: unknown) {
   }))].map(localGalleryMediaUrl).filter((path): path is string => Boolean(path));
 }
 
+function roomPictures(room: Record<string, unknown>, siteGalleries: unknown) {
+  const own = room.galleries;
+  if (own && typeof own === "object" && !Array.isArray(own) && Object.keys(own as object).length) return pictures(own);
+  const roomID = positive(room.roomID);
+  const groups = (Array.isArray(siteGalleries) ? siteGalleries : Object.values(record(siteGalleries)))
+    .filter((gallery) => positive(record(gallery).roomID) === roomID);
+  return pictures(groups);
+}
+
 function rates(value: unknown) {
   const base = record(value);
-  return [
+  const hourly = [
     { duration: "שעה", weekday: positive(base.hourPriceWeekday), weekend: positive(base.hourPriceWeekend) },
     { duration: "שעתיים", weekday: positive(base.twoHourPriceWeekday), weekend: positive(base.twoHourPriceWeekend) },
     { duration: "3 שעות", weekday: positive(base.threeHourPriceWeekday), weekend: positive(base.threeHourPriceWeekend) },
-  ].filter((rate) => rate.weekday || rate.weekend);
+  ];
+  const nightWeekday = positive(base.overnightPriceWeekday) ?? positive(base.nightPriceWeekday);
+  const nightWeekend = positive(base.overnightPriceWeekend) ?? positive(base.nightPriceWeekend);
+  return [...hourly, { duration: "לילה", weekday: nightWeekday, weekend: nightWeekend }].filter((rate) => rate.weekday || rate.weekend);
 }
 
 export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchImpl?: typeof fetch }) {
@@ -102,6 +114,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
               }).filter(Boolean)])],
               featureGroups: sergeyAmenityGroups(room.amenities, amenityIndex),
               rates: rates(room.basePrices),
+              images: roomPictures(room, detail.galleries),
             };
           }) : [];
           entries[index] = { supplierId, summary: {

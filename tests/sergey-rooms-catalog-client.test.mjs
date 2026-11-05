@@ -19,9 +19,9 @@ function client(detailOverride = {}) {
     });
     if (path === "/rooms/17") return Response.json({
       id: 17, active: true, name: "חדר בדיקה", location: { city: 1 },
-      galleries: { main: { pictures: ["/gallery/room.jpg"] } },
+      galleries: { main: { pictures: ["/gallery/room.jpg"] }, unit: { roomID: 71, pictures: ["/gallery/unit.jpg"] } },
       rooms: [{ roomID: 71, roomName: "סוויטה", maxGuests: 2, roomCount: 1,
-        basePrices: { hourPriceWeekday: 280, hourPriceWeekend: 340 },
+        basePrices: { hourPriceWeekday: 280, hourPriceWeekend: 340, overnightPriceWeekday: 620, overnightPriceWeekend: 740 },
         spaces: [{ features: [{ description: "<p>ג'קוזי</p>" }] }],
       }],
       ...detailOverride,
@@ -41,6 +41,8 @@ test("fetches and normalizes hourly rooms and their base rates", async () => {
   assert.equal(place.location, "חיפה");
   assert.equal(place.images[0], "/api/vii/media/room.jpg");
   assert.equal(place.rooms[0].rates[0].weekday, 280);
+  assert.deepEqual(place.rooms[0].images, ["/api/vii/media/unit.jpg"]);
+  assert.deepEqual(place.rooms[0].rates.at(-1), { duration: "לילה", weekday: 620, weekend: 740 });
   assert.equal(place.rooms[0].features[0], "ג'קוזי");
   assert.equal(Object.hasOwn(place, "availability"), false);
 });
