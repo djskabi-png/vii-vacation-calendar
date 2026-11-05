@@ -6,7 +6,7 @@ const sourceVersion='a'.repeat(40),buildId='12345678-1234-1234-1234-123456789abc
 const env={PUBLIC_ORIGIN:'https://vii.spaplus.co',EXPECTED_SOURCE_VERSION:sourceVersion,EXPECTED_BUILD_ID:buildId};
 const job={jobId:'job-12345678',sourceVersion,buildId,scenario:'world-shell',world:'vacations',device:'desktop'};
 function browserFixture(options={}) {
-  const state={pageClosed:0,contextClosed:0,browserClosed:0,map:false,image:0,launches:0,requests:[],events:[],puts:[]};let intercept;
+  const state={pageClosed:0,contextClosed:0,browserClosed:0,contextsCreated:0,map:false,image:0,launches:0,requests:[],events:[],puts:[]};let intercept;
   const request=async(method='GET',url=env.PUBLIC_ORIGIN+'/search',resourceType='document')=>{
     let disposition;await intercept({request:()=>({method:()=>method,url:()=>url,resourceType:()=>resourceType}),abort:async()=>{disposition='aborted'},continue:async()=>{disposition='continued'}});
     state.requests.push({method,url,disposition});return disposition;
@@ -24,7 +24,7 @@ function browserFixture(options={}) {
     async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;},
   };
   const context={async route(_pattern,handler){intercept=handler;state.events.push('route');},async newPage(){state.events.push('new-page');return page;},on(){},async close(){state.contextClosed++;}};
-  const browser={async newContext(){return context;},async close(){state.browserClosed++;}};
+  const browser={async newContext(){state.contextsCreated++;return context;},async close(){state.browserClosed++;}};
   const factory={async launch(){state.launches++;if(options.launchDelay)await new Promise(resolve=>setTimeout(resolve,options.launchDelay));return browser;}};
   return {state,factory,request,browser};
 }
@@ -67,6 +67,15 @@ test('pre-cancel does not launch, and a browser arriving after deadline is close
 });
 test('stalled actions stop within the run deadline and release every browser resource',async()=>{
   const f=browserFixture({stallAction:true});const result=await runBrowserJob({...job,scenario:'map-open-close'},{...env,MAX_RUN_MS:'20'},f.factory);assert.equal(result.reason,'deadline_exceeded');assertClosed(f.state);
+});
+test('an exhausted deadline prevents starting the next browser operation',async()=>{
+  const f=browserFixture(),original=Date.now,started=original();
+  try {
+    Date.now=()=>started;
+    const factory={launch:async()=>{Date.now=()=>started+1_000;return f.browser;}};
+    const result=await runBrowserJob(job,{...env,MAX_RUN_MS:'10'},factory);
+    assert.equal(result.reason,'deadline_exceeded');assert.equal(f.state.contextsCreated,0);assert.equal(f.state.browserClosed,1);
+  }finally{Date.now=original;}
 });
 test('failure evidence is bounded bytes, structured and never includes raw page text',async()=>{
   const puts=[];const evidence={put:async(key,bytes,metadata)=>puts.push({key,bytes,metadata})};

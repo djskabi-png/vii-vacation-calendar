@@ -80,6 +80,11 @@ export async function readQualityJob(db: D1Database, runId: string) {
   return decode(await db.prepare(`${select} WHERE run_id=?`).bind(runId).first<Row>());
 }
 
+export async function readQualityJobByIntent(db:D1Database,actor:string,idempotencyKey:string) {
+  await ensureQualityJobSchema(db);
+  return decode(await db.prepare(`${select} WHERE actor=? AND idempotency_key=?`).bind(actor,idempotencyKey).first<Row>());
+}
+
 export async function dueQualityJobIds(db: D1Database, now = new Date().toISOString(), limit = 2) {
   await ensureQualityJobSchema(db);
   const rows = await db.prepare(`SELECT run_id AS runId FROM quality_jobs WHERE cancel_requested_at IS NULL

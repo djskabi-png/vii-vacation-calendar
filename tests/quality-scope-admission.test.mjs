@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 import { readQualityScopeOptions, selectManualQualityChecks, qualityRegistry } from '../app/lib/quality-platform.ts';
 import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope } from '../app/lib/quality-check-scope.ts';
+import {readQualityJobIntent,persistQualityJobIntent,clearQualityJobIntent} from '../app/lib/quality-job-intent.ts';
 
 test('scope options preserve full dependency coverage or explicitly reject the level', () => {
   const options = readQualityScopeOptions();
@@ -23,6 +24,7 @@ test('scope options preserve full dependency coverage or explicitly reject the l
 });
 
 function actualRunNow(dependencies) {
+  dependencies={readQualityJobIntent,persistQualityJobIntent,clearQualityJobIntent,...dependencies};
   const source=readFileSync(new URL('../app/admin/quality/page.tsx',import.meta.url),'utf8');
   const ast=ts.createSourceFile('quality.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   let initializer;
@@ -33,23 +35,34 @@ function actualRunNow(dependencies) {
 }
 
 test('actual UI retry preserves original scope, level and idempotency key after uncertain delivery', async () => {
-  const bodies=[],jobKey={current:null}; let calls=0;
+  const bodies=[],jobKey={current:null},stored=new Map(); let calls=0;
   const shared={running:false,activeRun:null,jobRunning:false,scopePlan:{supported:true},jobKey,crypto,AbortSignal,
-    setRunning(){},setError(){},setJob(){},sessionStorage:{setItem(){}},load:async()=>{},
+    setRunning(){},setError(){},setJob(){},sessionStorage:{getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,value),removeItem:key=>stored.delete(key)},load:async()=>{},
     fetch:async(_url,input)=>{bodies.push(JSON.parse(input.body));if(++calls===1)throw Error('uncertain network outcome');return Response.json({job:{runId:'durable-job',status:'queued'}},{status:202});},
   };
   await actualRunNow({...shared,scopeBox:'maps',level:'full'})();
   assert.ok(jobKey.current);
-  await actualRunNow({...shared,scopeBox:'spa',level:'regular'})();
+  // A remount loses the ref but retains the durable browser intent.
+  await actualRunNow({...shared,jobKey:{current:null},scopeBox:'spa',level:'regular'})();
   assert.deepEqual(bodies[1],bodies[0]);
   assert.deepEqual(bodies[1].scope,{changedBoxes:['maps']});
 });
 
 test('actual UI blocks unsupported scope before enqueue and releases key after definitive validation refusal', async () => {
   let calls=0;const jobKey={current:null};
-  const shared={running:false,activeRun:null,jobRunning:false,jobKey,crypto,AbortSignal,scopeBox:'maps',level:'regular',
-    setRunning(){},setError(){},setJob(){},sessionStorage:{setItem(){}},load:async()=>{},fetch:async()=>{calls++;return Response.json({error:'quality_scope_level_incomplete'},{status:400});},
+  const stored=new Map();const shared={running:false,activeRun:null,jobRunning:false,jobKey,crypto,AbortSignal,scopeBox:'maps',level:'regular',
+    setRunning(){},setError(){},setJob(){},sessionStorage:{getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,value),removeItem:key=>stored.delete(key)},load:async()=>{},fetch:async()=>{calls++;return Response.json({error:'quality_scope_level_incomplete'},{status:400});},
   };
   await actualRunNow({...shared,scopePlan:{supported:false}})();assert.equal(calls,0);
   await actualRunNow({...shared,scopePlan:{supported:true}})();assert.equal(calls,1);assert.equal(jobKey.current,null);
+});
+
+test('actual UI does not send a new request when its durable intent cannot be retained',async()=>{
+  let calls=0;const errors=[];
+  await actualRunNow({running:false,activeRun:null,jobRunning:false,jobKey:{current:null},crypto,AbortSignal,
+    scopeBox:'maps',scopePlan:{supported:true},level:'full',setRunning(){},setError:value=>errors.push(value),
+    sessionStorage:{getItem:()=>null,setItem(){throw Error('storage blocked')},removeItem(){}},
+    fetch:async()=>{calls++;throw Error('must not send')},setJob(){},load:async()=>{},
+  })();
+  assert.equal(calls,0);assert.ok(errors.some(value=>value.includes('לא נשלחה בקשת הפעלה חדשה')));
 });

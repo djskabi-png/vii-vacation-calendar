@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3, Eye, Play, RefreshCw, ShieldCheck, WifiOff } from "lucide-react";
 import styles from "./quality.module.css";
+import { readQualityJobIntent, persistQualityJobIntent, clearQualityJobIntent, type QualityJobIntent } from "../../lib/quality-job-intent";
 
 type Run = { id: string; triggerKind: string; releaseId: string | null; status: string; startedAt: string; finishedAt: string | null; passedCount: number; failedCount: number; degradedCount: number; blockedCount: number; durationMs: number | null; totalChecks: number; currentCheckId: string | null };
 type Incident = { id: string; checkId: string; family: string; world: string; route: string; viewport: string; severity: string; status: string; firstSeenAt: string; lastSeenAt: string; recoveredAt: string | null; occurrences: number; lastObserved: string };
@@ -63,7 +64,7 @@ export default function QualityPage() {
   const [jobPollingPaused, setJobPollingPaused] = useState(false);
   const [scopeMetadata, setScopeMetadata] = useState<ScopeMetadata | null>(null);
   const [scopeBox, setScopeBox] = useState("");
-  const jobKey = useRef<{ key: string; level: RunLevel; scope?: { changedBoxes: string[] } } | null>(null);
+  const jobKey = useRef<QualityJobIntent | null>(null);
   const jobRunning = job?.status === "queued" || job?.status === "running";
   const legacyActiveRunId = data?.runs.find(run => run.status === "running")?.id ?? null;
   const load = useCallback(async () => {
@@ -117,11 +118,26 @@ export default function QualityPage() {
   useEffect(() => {
     const controller = new AbortController();
     try {
+      const pending=readQualityJobIntent(sessionStorage);
+      if(pending) {
+        jobKey.current=pending;setLevel(pending.level);setScopeBox(pending.scope?.changedBoxes[0] || "");
+        void fetch(`/api/admin/quality?intentKey=${encodeURIComponent(pending.key)}`,{cache:"no-store",signal:AbortSignal.any([controller.signal,AbortSignal.timeout(8_000)])})
+          .then(async response=>{
+            if(controller.signal.aborted)return;
+            if(!response.ok){setError("בקשת הבדיקה הקודמת עדיין לא אומתה. הפעלה נוספת תבדוק את אותה בקשה.");return;}
+            const payload=await response.json() as {job:BackgroundJob};
+            if(controller.signal.aborted)return;
+            setJob(current=>current??payload.job);
+            try { sessionStorage.setItem("vii-quality-job",payload.job.runId);clearQualityJobIntent(sessionStorage); } catch { /* Keep pending intent until durable identity is retained. */ }
+            if(!["queued","running"].includes(payload.job.status))jobKey.current=null;
+          }).catch(()=>{if(!controller.signal.aborted)setError("בקשת הבדיקה הקודמת עדיין לא אומתה. הפעלה נוספת תבדוק את אותה בקשה.");});
+        return ()=>controller.abort();
+      }
       const saved = sessionStorage.getItem("vii-quality-job");
       if (saved && /^[A-Za-z0-9-]{8,120}$/.test(saved)) void fetch(`/api/admin/quality?jobId=${encodeURIComponent(saved)}`, { cache: "no-store", signal: controller.signal })
         .then(async response => { if (response.ok) { const payload = await response.json(); if (!controller.signal.aborted) setJob(current => current ?? payload.job); } })
         .catch(() => undefined);
-    } catch { /* Storage restrictions must not prevent a new run. */ }
+    } catch { setError("לא ניתן לקרוא את מזהה הבדיקה שנשמר בדפדפן."); }
     return () => controller.abort();
   }, []);
   const activeJobId = jobRunning ? job?.runId : null;
@@ -171,14 +187,17 @@ export default function QualityPage() {
     if (scopeBox && !scopePlan?.supported && !jobKey.current) { setError("יש לבחור רמת בדיקה שכוללת את כל הבדיקות הנדרשות לתחום הזה."); return; }
     setRunning(true); setError("");
     try {
-      jobKey.current ??= { key: crypto.randomUUID(), level, ...(scopeBox ? { scope: { changedBoxes: [scopeBox] } } : {}) };
+      try {
+        jobKey.current ??= readQualityJobIntent(sessionStorage) ?? { key: crypto.randomUUID(), level, ...(scopeBox ? { scope: { changedBoxes: [scopeBox] } } : {}) };
+        persistQualityJobIntent(sessionStorage,jobKey.current);
+      } catch { throw new Error("לא ניתן לשמור את מזהה הבדיקה בדפדפן. לא נשלחה בקשת הפעלה חדשה."); }
       const scope = jobKey.current.scope;
       const response = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "enqueue", level: jobKey.current.level, idempotencyKey: jobKey.current.key, ...(scope ? { scope } : {}) }), signal: AbortSignal.timeout(10_000) });
-      if (response.status === 400) { jobKey.current = null; throw new Error("תחום הבדיקה או הרמה אינם נתמכים. בחרו תחום ורמה מחדש."); }
+      if (response.status === 400) { clearQualityJobIntent(sessionStorage);jobKey.current = null; throw new Error("תחום הבדיקה או הרמה אינם נתמכים. בחרו תחום ורמה מחדש."); }
       if (!response.ok) throw new Error("לא ניתן לאמת את תחילת הבדיקה. ניסיון נוסף יבדוק את אותה בקשה.");
       const payload = await response.json() as { job: BackgroundJob };
       setJob(payload.job);
-      try { sessionStorage.setItem("vii-quality-job", payload.job.runId); } catch { /* Run remains durable on server. */ }
+      try { sessionStorage.setItem("vii-quality-job", payload.job.runId);clearQualityJobIntent(sessionStorage); } catch { /* Pending intent remains available for reconciliation. */ }
       await load();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת הרצה"); }
     finally { setRunning(false); }

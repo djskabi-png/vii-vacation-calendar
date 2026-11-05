@@ -212,7 +212,9 @@
         "tests/quality-job-runner.test.mjs",
         "tests/quality-job-projection.test.mjs",
         "tests/quality-check-scope.test.mjs",
-        "tests/quality-platform.test.mjs"
+        "tests/quality-platform.test.mjs",
+        "tests/quality-scoped-api-integration.test.mjs",
+        "tests/quality-scope-admission.test.mjs"
       ]
     },
     "admin": {
@@ -495,7 +497,8 @@
         "app/lib/quality-job-platform.ts",
         "app/lib/quality-job-runner.ts",
         "app/lib/quality-job-store.ts",
-        "app/lib/quality-platform.ts"
+        "app/lib/quality-platform.ts",
+        "app/lib/quality-job-intent.ts"
       ]
     },
     {

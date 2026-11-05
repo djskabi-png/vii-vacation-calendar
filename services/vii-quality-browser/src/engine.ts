@@ -46,52 +46,57 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
   if(job.scenario==='gallery-next' && job.world!=='vacations')return {jobId:job.jobId,status:'blocked' as const,reason:'world_gallery_contract_not_implemented'};
   const started=Date.now(),deadline=started+number(env.MAX_RUN_MS,45_000,10,60_000);
   const maxRequests=number(env.MAX_REQUESTS,180,1,300),maxEvidence=number(env.MAX_EVIDENCE_BYTES,1_000_000,256,2_000_000);
-  const step=<T>(operation:Promise<T>)=>bounded(operation,Math.min(8_000,deadline-Date.now()),signal);
+  const step=<T>(operation:()=>Promise<T>)=>{
+    const remaining=deadline-Date.now();
+    if(signal?.aborted)throw new CheckFailure('cancelled');
+    if(remaining<=0)throw new CheckFailure('deadline_exceeded');
+    return bounded(operation(),Math.min(8_000,remaining),signal);
+  };
   let browser:Browser|undefined,context:BrowserContext|undefined,page:Page|undefined,finished=false,requestCount=0,blockedWrites=0,steps=0;
   let status:'passed'|'failed'|'blocked'='blocked',reason:string|undefined,evidenceKey:string|undefined;
   const path=job.scenario==='gallery-next'?'/business?id=vacation-116':worldPaths[job.world];
   try {
     if(signal?.aborted)throw new CheckFailure('cancelled');
-    browser=await step(factory.launch().then(async value=>{ if(finished)await close(value);return value; }));
+    browser=await step(() => (factory.launch().then(async value=>{ if(finished)await close(value);return value; })));
     if(!browser)throw new CheckFailure('browser_launch_unavailable');
-    context=await step(browser.newContext({viewport:job.device==='mobile'?{width:390,height:844}:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:false}));
+    context=await step(() => (browser!.newContext({viewport:job.device==='mobile'?{width:390,height:844}:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:false})));
     // Interception precedes page creation and applies to popup/subframe requests.
-    await step(context.route('**/*',async route=>{
+    await step(() => (context!.route('**/*',async route=>{
       const request=route.request();requestCount++;
       let url:URL;try{url=new URL(request.url());}catch{return route.abort();}
       if(request.method()!=='GET'){blockedWrites++;return route.abort();}
       const publicAsset=['image','font','stylesheet'].includes(request.resourceType()) && assetHosts.has(url.hostname);
       if(requestCount>maxRequests || url.protocol!=='https:' || (url.origin!==origin && !publicAsset) || url.username || url.password || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin'))return route.abort();
       return route.continue();
-    }));
-    page=await step(context.newPage());
+    })));
+    page=await step(() => (context!.newPage()));
     context.on('page',unexpected=>{if(unexpected!==page)void close(unexpected);});
     page.setDefaultTimeout(5_000);page.setDefaultNavigationTimeout(10_000);
-    const response=await step(page.goto(origin+path,{waitUntil:'domcontentloaded',timeout:10_000}));steps++;
+    const response=await step(() => (page!.goto(origin+path,{waitUntil:'domcontentloaded',timeout:10_000})));steps++;
     if(!response || response.status()!==200 || new URL(response.url()).origin!==origin || new URL(response.url()).pathname!==new URL(origin+path).pathname)throw new CheckFailure('unexpected_document_response');
-    if(await step(response.headerValue('x-vii-cache-build'))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
-    await step(page.locator('main').waitFor({state:'visible'}));steps++;
+    if(await step(() => (response.headerValue('x-vii-cache-build')))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
+    await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
     if(job.scenario==='map-open-close') {
-      await step(page.locator('button.map-button[data-map-interactive="true"][aria-pressed="false"]').first().click());steps++;
+      await step(() => (page!.locator('button.map-button[data-map-interactive="true"][aria-pressed="false"]').first().click()));steps++;
       const canvas=page.locator('.listing-map-shell[data-map-ready="true"] > .listing-map.leaflet-container');
-      await step(canvas.waitFor({state:'visible'}));
-      if(!(Number(await step(canvas.getAttribute('data-map-rendered-markers')))>0))throw new CheckFailure('map_markers_missing');steps++;
-      await step(page.getByRole('button',{name:'חזרה לרשימה',exact:true}).click());
-      await step(page.locator('.listing-map').waitFor({state:'detached'}));steps++;
+      await step(() => (canvas.waitFor({state:'visible'})));
+      if(!(Number(await step(() => (canvas.getAttribute('data-map-rendered-markers'))))>0))throw new CheckFailure('map_markers_missing');steps++;
+      await step(() => (page!.getByRole('button',{name:'חזרה לרשימה',exact:true}).click()));
+      await step(() => (page!.locator('.listing-map').waitFor({state:'detached'})));steps++;
     }
     if(job.scenario==='gallery-next') {
-      const gallery=page.locator('.property-gallery').first();await step(gallery.waitFor({state:'visible'}));
+      const gallery=page.locator('.property-gallery').first();await step(() => (gallery.waitFor({state:'visible'})));
       const active=gallery.locator('img.is-active, .property-gallery__image.is-active img').first();
-      const before=await step(active.getAttribute('src'));
+      const before=await step(() => (active.getAttribute('src')));
       if(!before)throw new CheckFailure('gallery_source_missing');
-      await step(gallery.getByRole('button',{name:'התמונה הבאה',exact:true}).click());steps++;
-      await step(page.waitForFunction(previous=>{
+      await step(() => (gallery.getByRole('button',{name:'התמונה הבאה',exact:true}).click()));steps++;
+      await step(() => (page!.waitForFunction(previous=>{
         const image=document.querySelector('.property-gallery img.is-active, .property-gallery .property-gallery__image.is-active img');
         return Boolean(image?.getAttribute('src') && image.getAttribute('src')!==previous);
-      },before));steps++;
+      },before)));steps++;
     }
     if(job.scenario==='responsive-shell') {
-      const overflow=await step(page.locator('html').evaluate(node=>node.scrollWidth>node.clientWidth+1));
+      const overflow=await step(() => (page!.locator('html').evaluate(node=>node.scrollWidth>node.clientWidth+1)));
       if(overflow)throw new CheckFailure('horizontal_overflow');steps++;
     }
     if(requestCount>maxRequests)throw new CheckFailure('request_budget_exceeded');

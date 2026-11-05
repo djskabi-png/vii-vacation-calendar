@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MapPinned, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
 import styles from "./admin.module.css";
 import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
@@ -85,7 +86,7 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
         <Search size={17} aria-hidden="true" /><span>חיפוש כלי, דוח או פעולה</span><kbd>Ctrl K</kbd>
       </button>
       <div className={styles.commandActions}>
-        {adminRouteAllowed(access, "/admin/content-queue") ? <a href="/admin/content-queue" className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</a> : null}
+        {adminRouteAllowed(access, "/admin/content-queue") ? <Link href="/admin/content-queue" prefetch={false} className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</Link> : null}
         <button type="button" className={styles.logoutButton} onClick={() => void logout()} disabled={logoutState === "loading"} aria-busy={logoutState === "loading"}>
           {logoutState === "loading" ? <LoaderCircle className={styles.spin} size={17} aria-hidden="true" /> : <LogOut size={17} aria-hidden="true" />}
           <span>{logoutState === "loading" ? "מתנתקים..." : "התנתקות"}</span>
@@ -97,7 +98,7 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
       <section className={styles.commandDialog} role="dialog" aria-modal="true" aria-labelledby="admin-command-title">
         <header><div><Sparkles size={18} aria-hidden="true" /><h2 id="admin-command-title">לאן ממשיכים?</h2></div><button type="button" onClick={closeCommand} aria-label="סגירת חיפוש"><X size={19} /></button></header>
         <label className={styles.commandInput}><Search size={18} aria-hidden="true" /><input aria-label="חיפוש בכלי הניהול" ref={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="לדוגמה: קידום, חיפושים, קטלוגים" /></label>
-        <div className={styles.commandResults}>{filtered.length ? filtered.map(({ href, title, hint, icon: Icon }) => <a key={href} href={href} onClick={closeCommand}><span><Icon size={18} aria-hidden="true" /></span><div><strong>{title}</strong><small>{hint}</small></div><ArrowLeft size={17} aria-hidden="true" /></a>) : <div className={styles.commandEmpty}>לא נמצא כלי בשם הזה. אפשר לחפש לפי פעולה או סוג נתון.</div>}</div>
+        <div className={styles.commandResults}>{filtered.length ? filtered.map(({ href, title, hint, icon: Icon }) => <Link key={href} href={href} prefetch={false} onClick={closeCommand}><span><Icon size={18} aria-hidden="true" /></span><div><strong>{title}</strong><small>{hint}</small></div><ArrowLeft size={17} aria-hidden="true" /></Link>) : <div className={styles.commandEmpty}>לא נמצא כלי בשם הזה. אפשר לחפש לפי פעולה או סוג נתון.</div>}</div>
       </section>
     </div> : null}
   </>;

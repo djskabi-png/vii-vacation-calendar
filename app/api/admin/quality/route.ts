@@ -2,7 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { readQualityDashboard, readQualityRunStatus, readQualityScopeOptions, runQualityChecks, persistQualityJobProgress, updateQualityIncident, updateQualitySchedule, type QualityNotificationEnvironment, type QualityRunLevel } from "../../../lib/quality-platform.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 import { createManualQualityJob, consumeQualityJob } from "../../../lib/quality-job-platform.ts";
-import { ensureQualityJobSchema, readQualityJob, requestQualityJobCancel } from "../../../lib/quality-job-store.ts";
+import { ensureQualityJobSchema, readQualityJob, readQualityJobByIntent, requestQualityJobCancel } from "../../../lib/quality-job-store.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import type { QualityJob } from "../../../lib/quality-job-store.ts";
 
@@ -29,7 +29,10 @@ function parseScope(value: unknown) {
   if (consumers !== undefined && (!Array.isArray(consumers) || !consumers.every((item) => typeof item === "string" && item.length > 0 && item.length < 160))) return undefined;
   if (raw.unknownOwner !== undefined && typeof raw.unknownOwner !== "boolean") return undefined;
   const canonicalBoxes = changedBoxes.map((box) => box === "world-landings" ? "vacations" : box);
-  return { changedBoxes: canonicalBoxes, consumers: consumers as string[] | undefined, unknownOwner: raw.unknownOwner as boolean | undefined };
+  return { changedBoxes: canonicalBoxes,
+    ...(consumers !== undefined ? { consumers: consumers as string[] } : {}),
+    ...(raw.unknownOwner !== undefined ? { unknownOwner: raw.unknownOwner as boolean } : {}),
+  };
 }
 
 async function notificationEnvironment(): Promise<QualityNotificationEnvironment> {
@@ -43,11 +46,18 @@ async function notificationEnvironment(): Promise<QualityNotificationEnvironment
 }
 
 export async function GET(request: Request) {
-  if (!await authorizedAdminSession(request).catch(() => null)) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  const session=await authorizedAdminSession(request).catch(() => null);
+  if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   const query = new URL(request.url).searchParams;
   try {
     if (query.get("scope") === "metadata") return Response.json(readQualityScopeOptions(), { headers });
     const db = await requiredRuntimeDatabase("quality_database_unavailable");
+    if(query.has("intentKey")) {
+      const key=query.get("intentKey") || "";
+      if(!/^[A-Za-z0-9:_-]{8,120}$/.test(key))return Response.json({error:"invalid_idempotency_key"},{status:400,headers});
+      const job=await readQualityJobByIntent(db,session.email,key);
+      return Response.json({job:job?jobView(job):null},{status:job?200:404,headers});
+    }
     if (query.has("jobId")) {
       const jobId = query.get("jobId") ?? "";
       if (!/^[A-Za-z0-9-]{8,120}$/.test(jobId)) return Response.json({ error: "invalid_job_id" }, { status: 400, headers });

@@ -1635,7 +1635,8 @@ test("mobile maps fit filtered results tightly and wait for tiles before appeari
   assert.match(map, /compactViewport \? \[22, 22\] : \[56, 56\]/);
   assert.match(map, /compactViewport \? 0\.04 : 0\.12/);
   assert.match(map, /compactViewport && map\.getZoom\(\) < 7/);
-  assert.match(map, /className=\{`listing-map \$\{mapReady \? "is-ready" : ""\}`\}/);
+  assert.match(map, /data-map-ready=\{mapReady\}/);
+  assert.match(map, /ref=\{mapElement\} className="listing-map"/);
   assert.match(map, /const initialSelectedId = single \? initialPlaceIds\?\.find/);
   assert.doesNotMatch(map, /mapReady \|\| autoLoad \? "is-ready"/);
 });
