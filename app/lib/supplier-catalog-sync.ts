@@ -65,9 +65,9 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
       const title = String(group.title || "");
       const nextGroup = afterGalleryGroups.get(title);
       if (!nextGroup) {
-        issues.push({ supplierId: oldEntry.supplierId, path: `detail.galleryGroups.${title || "untitled"}`, reason: "item_removed" });
+        issues.push({ supplierId: oldEntry.supplierId, path: "detail.galleryGroups", reason: "item_removed" });
       } else if (removedStrings(group.images, nextGroup.images).length) {
-        issues.push({ supplierId: oldEntry.supplierId, path: `detail.galleryGroups.${title || "untitled"}.images`, reason: "item_removed" });
+        issues.push({ supplierId: oldEntry.supplierId, path: "detail.galleryGroups.images", reason: "item_removed" });
       }
     }
     const afterRooms = new Map(records(after.rooms).map((room) => [Number(room.id), room]));
@@ -176,7 +176,10 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
-    if (catalogContentIntegrityIssues(input.world, previous, candidate.entries).length) {
+    const contentIssues = catalogContentIntegrityIssues(input.world, previous, candidate.entries);
+    if (contentIssues.length) {
+      diagnostics = { ...diagnostics, contentIntegrity: { total: contentIssues.length,
+        issues: contentIssues, truncated: contentIssues.length >= 100 } };
       throw new Error("catalog_content_requires_review");
     }
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);

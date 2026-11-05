@@ -2,8 +2,9 @@
 
 import { useAdminCanEdit } from "../admin-access-context.tsx";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { readGrowthEndpoint } from "../growth/growth-read.ts";
 import type { CatalogSyncDiagnostics } from "../../lib/supplier-catalog-diagnostics.ts";
 import { catalogDiagnosticLabels, catalogRunExplanation, catalogRunSourceLabel,
   catalogRunStatusLabel } from "../../lib/catalog-sync-presentation.ts";
@@ -28,11 +29,40 @@ function date(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "טרם עודכן";
 }
 
-function RunDiagnostics({ world, value }: { world: World; value?: CatalogSyncDiagnostics }) {
-  if (!value) return <small>לא נשמר אבחון במשיכה זו</small>;
+function RunDiagnostics({ world, runId }: { world: World; runId: string }) {
+  const [state, setState] = useState<{ loading: boolean; loaded: boolean; available: boolean; value?: CatalogSyncDiagnostics; error?: string }>({ loading: false, loaded: false, available: false });
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    setState({ loading: false, loaded: false, available: false });
+    return () => { requestRef.current?.abort(); requestRef.current = null; };
+  }, [world, runId]);
+  const load = useCallback(async () => {
+    if (state.loaded || state.loading || requestRef.current) return;
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setState((current) => ({ ...current, loading: true, error: undefined }));
+    try {
+      const response = await readGrowthEndpoint<{ diagnosticsAvailable?: boolean; diagnostics?: CatalogSyncDiagnostics }>(fetch, `/api/admin/catalog-sync?world=${encodeURIComponent(world)}&runId=${encodeURIComponent(runId)}`, "json", controller, 10_000);
+      if (requestRef.current !== controller) return;
+      if (!response.ok || !response.value) throw new Error(response.status === 403 ? "אין הרשאת מנהל לקריאת האבחון" : response.status === 404 ? "האבחון לא נשמר במשיכה זו" : "לא ניתן לטעון את האבחון כרגע");
+      const result = response.value;
+      setState({ loading: false, loaded: true, available: result.diagnosticsAvailable === true, value: result.diagnostics });
+    } catch (cause) {
+      if (requestRef.current === controller) setState({ loading: false, loaded: false, available: false, error: cause instanceof Error ? cause.message : "לא ניתן לטעון את האבחון כרגע" });
+    } finally { if (requestRef.current === controller) requestRef.current = null; }
+  }, [runId, state.loaded, state.loading, world]);
   const labels = catalogDiagnosticLabels(world);
-  return <details>
+  const value = state.value;
+  return <details onToggle={(event) => { if (event.currentTarget.open) void load(); else { requestRef.current?.abort(); requestRef.current = null; setState((current) => ({ ...current, loading: false })); } }}>
     <summary>אבחון {worlds.find((item) => item.id === world)?.name}</summary>
+    {state.loading ? <small role="status">טוענים אבחון...</small> : null}
+    {state.error ? <small role="alert">{state.error}</small> : null}
+    {state.loaded && !state.available ? <small>לא נשמר אבחון במשיכה זו</small> : null}
+    {!value ? null : <>
+    {value.contentIntegrity ? <><p>נתונים שדורשים בדיקה: {value.contentIntegrity.total}{value.contentIntegrity.truncated ? " ומעלה" : ""}</p><ul>{value.contentIntegrity.issues.map((issue, index) => <li key={`${issue.supplierId}-${index}`}><span>מזהה מקום: </span><span dir="ltr">{issue.supplierId} · {issue.path} · {issue.reason}</span></li>)}</ul></> : null}
     {value.failure ? <p><strong>שלב הכשל:</strong> <code dir="ltr">{value.failure.stage}</code> · <strong>סוג:</strong> <code dir="ltr">{value.failure.category}</code> · <strong>משך:</strong> {(value.failure.elapsedMs / 1000).toLocaleString("he-IL", { maximumFractionDigits: 1 })} שניות{value.failure.total !== undefined ? <> · <strong>הושלמו:</strong> {value.failure.completed || 0} מתוך {value.failure.total}</> : null} · {value.failure.retryable ? "מתאים לניסיון חוזר" : "דורש תיקון לפני ניסיון נוסף"}</p> : null}
     {value.before !== undefined ? <p><span>{labels.places.plural} לפני:</span> {value.before} · <span>התקבלו מהספק:</span> {value.candidate}</p> : null}
     {value.addedIds ? <p><span>נוספו:</span> {value.addedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.addedIds.join(", ") || "—"}</span></p> : null}
@@ -52,7 +82,44 @@ function RunDiagnostics({ world, value }: { world: World; value?: CatalogSyncDia
       <p><span>אורך גוף התשובה בבתים:</span> {value.spaJsonFailure.responseBytes ?? "—"}</p>
       <p><span>סיווג תו ראשון:</span> <code dir="ltr">{value.spaJsonFailure.firstCharacterKind}</code> · <span>סוג כשל:</span> <code dir="ltr">{value.spaJsonFailure.parseErrorKind}</code></p>
     </> : null}
+    </>}
   </details>;
+}
+
+type CandidateInspection = {
+  fetchedAt: string;
+  diff: { before: number; candidate: number; added: number; changed: number; removed: number[]; removedTruncated: boolean };
+  contentIssues: Array<{ supplierId: number; path: string; reason: string }>;
+  contentIssuesTruncated: boolean;
+};
+
+function CandidateComparison({ world }: { world: "vacations" | "events" }) {
+  const [result, setResult] = useState<CandidateInspection | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => { requestRef.current?.abort(); requestRef.current = null; }, [world]);
+  const inspect = async () => {
+    if (requestRef.current) return;
+    const controller = new AbortController(); requestRef.current = controller;
+    setLoading(true); setError(""); setResult(null);
+    const response = await readGrowthEndpoint<CandidateInspection>(fetch, `/api/admin/catalog-sync?candidate=1&world=${world}`, "json", controller, 45_000);
+    if (requestRef.current !== controller) return;
+    requestRef.current = null; setLoading(false);
+    if (response.ok && response.value) setResult(response.value);
+    else setError(response.status === 403 ? "אין הרשאת מנהל לבדיקת הספק" : "לא הצלחנו להשלים את בדיקת הספק. אפשר לנסות שוב.");
+  };
+  return <section aria-label="השוואה מול הספק" style={{ marginBlock: 12 }}>
+    <button type="button" onClick={() => void inspect()} disabled={loading}>{loading ? "בודקים את נתוני הספק..." : "בדיקת השינויים מהספק"}</button>
+    <small style={{ display: "block", marginBlock: 8 }}>השוואה בלבד, ללא פרסום שינויים בקטלוג</small>
+    {error ? <p role="alert">{error}</p> : null}
+    {result ? <div role="status"><p>נבדק: {date(result.fetchedAt)}</p><p>מקומות בקטלוג: {result.diff.before} · מהספק: {result.diff.candidate}</p><p>נוספו: {result.diff.added} · השתנו: {result.diff.changed} · לא התקבלו: {result.diff.removed.length}{result.diff.removedTruncated ? " ומעלה" : ""}</p>
+      {result.diff.removed.length ? <details><summary>מזהי המקומות שלא התקבלו</summary><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.diff.removed.join(", ")}</p></details> : null}
+      <p>{result.contentIssues.length ? "נמצאו נתונים שדורשים בדיקה" : "לא נמצא אובדן תוכן במקומות שנבדקו"}</p>
+      {result.contentIssues.length ? <ul>{result.contentIssues.map((issue, index) => <li key={`${issue.supplierId}-${index}`}><span>מזהה מקום: </span><span dir="ltr">{issue.supplierId} · {issue.path} · {issue.reason}</span></li>)}</ul> : null}
+      {result.contentIssuesTruncated ? <small>מוצגים עד 100 ממצאים</small> : null}
+    </div> : null}
+  </section>;
 }
 
 export default function CatalogSyncPage() {
@@ -153,7 +220,8 @@ export default function CatalogSyncPage() {
             {!retry && exhausted && run?.status === "failed" ? <p role="alert">שני הניסיונות האוטומטיים מוצו. הקטלוג האחרון שאושר נשאר פעיל.</p> : null}
             {run?.status === "rejected" ? <p>לא יתבצע ניסיון אוטומטי נוסף, משום שהנתונים נעצרו לבדיקת בטיחות ולא בגלל תקלה זמנית.</p> : null}
             {run?.errorCode ? <><p><strong>למה העדכון נעצר:</strong> {catalogRunExplanation(id, run.errorCode, run.diagnostics)}</p><small>קוד טכני: <code dir="ltr">{run.errorCode}</code></small></> : null}
-            {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} value={run.diagnostics} /> : null}
+            {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} runId={run.id} /> : null}
+            {id === "vacations" || id === "events" ? <CandidateComparison world={id} /> : null}
             <button type="button" disabled={!canEdit || (!!busy || running)} onClick={() => void pull(id)}>
               <RefreshCw size={17} aria-hidden="true" /> {running ? "מושכים נתונים..." : "משוך עכשיו"}
             </button>
@@ -171,7 +239,7 @@ export default function CatalogSyncPage() {
               run.changedCount, run.errorCode].map((value, index) =>
               <td key={index} style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{value ?? ""}</td>)}
             <td style={{ padding: 10, borderBottom: "1px solid #edf0ef", minWidth: 200 }}>
-              {run.status === "failed" || run.status === "rejected" ? <RunDiagnostics world={run.world} value={run.diagnostics} /> : "—"}
+              {run.status === "failed" || run.status === "rejected" ? <RunDiagnostics world={run.world} runId={run.id} /> : "—"}
             </td>
           </tr>)}</tbody>
         </table></div>

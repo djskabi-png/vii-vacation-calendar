@@ -60,7 +60,8 @@ test("removing one accepted image or supplier gallery group requires review", ()
   const removedGroup = structuredClone(before);
   removedGroup.detail.galleryGroups.pop();
   assert.ok(catalogContentIntegrityIssues("events", [before], [removedGroup])
-    .some((issue) => issue.path.includes("הסוויטה") && issue.reason === "item_removed"));
+    .some((issue) => issue.path === "detail.galleryGroups" && issue.reason === "item_removed"));
+  assert.equal(JSON.stringify(catalogContentIntegrityIssues("events", [before], [removedGroup])).includes("הסוויטה"), false);
 });
 
 test("non Sergey worlds keep their existing dedicated guards", () => {

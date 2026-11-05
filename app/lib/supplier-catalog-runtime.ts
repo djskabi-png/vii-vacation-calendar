@@ -8,7 +8,9 @@ import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts
 import { createSpaPlusCatalogClient } from "./spaplus-catalog-client.ts";
 import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
 import { validateSpaEditorialCandidate } from "./spa-editorial-policy.ts";
-import { type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalog, type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { catalogInventoryDiagnostics, sanitizeCatalogDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { compareSupplierCatalogEntries, catalogContentIntegrityIssues, catalogRemovalWithinGuard } from "./supplier-catalog-sync.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 
@@ -61,4 +63,31 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
       : (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate(),
     now: options?.now,
   });
+}
+
+/** Read-only provider comparison. It deliberately never stages or accepts a candidate. */
+export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract<SupplierCatalogWorld, "vacations" | "events">,
+  options?: { fetchImpl?: typeof fetch; now?: () => Date; apiKey?: string }) {
+  const accepted = await readSupplierCatalog(db, world);
+  if (!accepted?.entries.length) throw new Error("missing_catalog_baseline");
+  const previous = accepted.entries;
+  const apiKey = options?.apiKey || await secret("SERGEY_VII_API_TOKEN");
+  const client = createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
+    now: options?.now, detailRefreshLimit: supplierDetailRefreshLimit(world, "scheduled") });
+  const candidate = await client.fetchCandidate(world, previous);
+  const diff = compareSupplierCatalogEntries(world, previous, candidate.entries);
+  const childCount = (entries: SupplierCatalogEntry[]) => entries.reduce((total, entry) => {
+    const detail = entry.detail && typeof entry.detail === "object" ? entry.detail as Record<string, unknown> : {};
+    const rows = Array.isArray(detail.rooms) ? detail.rooms : [];
+    return total + rows.length;
+  }, 0);
+  const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries);
+  return { world, fetchedAt: candidate.fetchedAt, diff: {
+    before: diff.before, candidate: diff.after, added: diff.added, changed: diff.changed,
+    removed: diff.removed.slice(0, 100), removedTruncated: diff.removed.length > 100,
+    removedChildren: diff.removedChildren.slice(0, 100), removedChildrenTruncated: diff.removedChildren.length > 100,
+    removalWithinGuard: catalogRemovalWithinGuard(diff.before, diff.removed.length,
+      childCount(previous), diff.removedChildren.length),
+  }, contentIssues: contentIssues.slice(0, 100), contentIssuesTruncated: contentIssues.length >= 100,
+    diagnostics: sanitizeCatalogDiagnostics(catalogInventoryDiagnostics(world, previous, candidate.entries, diff.changed)) };
 }

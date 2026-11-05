@@ -377,6 +377,21 @@ export async function readSupplierCatalogDashboard(db: D1Database) {
   return { states: states.results, runs: runs.results };
 }
 
+/** Read one historical diagnostic only after an authenticated operator asks for it. */
+export async function readSupplierCatalogRunDiagnostics(db: D1Database, world: SupplierCatalogWorld, runId: string) {
+  if (!validWorld(world) || !/^[A-Za-z0-9_-]{1,180}$/.test(runId)) return null;
+  const row = await db.prepare(`SELECT id, world, status, diagnostics_json AS diagnosticsJson
+    FROM supplier_catalog_runs WHERE id = ? AND world = ? LIMIT 1`)
+    .bind(runId, world).first<{ id: string; world: SupplierCatalogWorld; status: string; diagnosticsJson: string | null }>();
+  if (!row) return null;
+  let diagnostics: CatalogSyncDiagnostics | undefined;
+  if (typeof row.diagnosticsJson === "string" && row.diagnosticsJson.length <= 1_000_000) {
+    try { diagnostics = sanitizeCatalogDiagnostics(JSON.parse(row.diagnosticsJson)); } catch { diagnostics = undefined; }
+  }
+  return { runId: row.id, world: row.world, status: row.status, diagnostics,
+    diagnosticsAvailable: diagnostics !== undefined };
+}
+
 export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld,
   selectedState?: Awaited<ReturnType<typeof readSupplierCatalogState>>) {
   if (!validWorld(world)) return null;

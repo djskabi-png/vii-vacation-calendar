@@ -80,6 +80,21 @@ test("diagnostic sanitizer rejects arbitrary field names, reasons and values and
   assert.equal(sanitizeCatalogDiagnostics({ spaEditorialReview: { total: -1, rejected: [] } }), undefined);
 });
 
+test("content integrity diagnostics preserve safe numeric room paths and reject provider paths", () => {
+  const result = sanitizeCatalogDiagnostics({ contentIntegrity: { total: 5, issues: [
+    { supplierId: 12, path: "detail.rooms.40.images", reason: "item_removed" },
+    { supplierId: 12, path: "detail.galleryGroups.images", reason: "collection_missing" },
+    { supplierId: 12, path: "detail.rooms.99999999999.images", reason: "item_removed" },
+    { supplierId: 12, path: "detail.galleryGroups.Private Villa", reason: "item_removed" },
+    { supplierId: 12, path: "https://provider.invalid/secret", reason: "item_removed" },
+  ], truncated: false } });
+  assert.deepEqual(result.contentIntegrity, { total: 5, truncated: false, issues: [
+    { supplierId: 12, path: "detail.rooms.40.images", reason: "item_removed" },
+    { supplierId: 12, path: "detail.galleryGroups.images", reason: "collection_missing" },
+  ] });
+  assert.doesNotMatch(JSON.stringify(result), /Private Villa|provider\.invalid|secret/);
+});
+
 test("missing title produces safe diagnostics and multiple bad records cannot fail nondeterministically", async () => {
   const entry = { supplierId: 999999, summary: { id: 999999, title: "", city: "private city" } };
   await assert.rejects(() => validateSpaEditorialCandidate([entry]), (error) => {

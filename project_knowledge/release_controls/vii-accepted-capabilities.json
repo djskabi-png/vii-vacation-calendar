@@ -70,6 +70,10 @@
     {
       "commit": "d255fe2636bb60fc3b095537244046949139760d",
       "capability": "Source-deadline expiry for rendered and last-good vacation offers with exact cumulative v800 application"
+    },
+    {
+      "commit": "5cf02c577975bd78ff5bce0f7bc6266e986396fd",
+      "capability": "Saved QQQAAA API hydration, navigation recovery, mobile draft and independent admin reads"
     }
   ],
   "requiredCapabilities": [
@@ -269,6 +273,18 @@
         "services/vii-edge-delivery/test/edge-delivery-runtime.test.mjs",
         "services/vii-edge-delivery/scripts/verify_public_route.py",
         "services/vii-edge-delivery/README.md"
+      ]
+    },
+    {
+      "id": "qqqaaa-bounded-client-and-catalog-diagnostics",
+      "files": [
+        "instrumentation-client.ts",
+        "app/lib/navigation-recovery.ts",
+        "tests/api-hydration-bootstrap-actual.test.mjs",
+        "tests/admin-growth-callback-actual.test.mjs",
+        "tests/catalog-diagnostics-lifecycle-actual.test.mjs",
+        "tests/catalog-run-diagnostics.test.mjs",
+        "tests/catalog-candidate-inspection.test.mjs"
       ]
     }
   ]

@@ -1,8 +1,9 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { isCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
+import { inspectSupplierCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
-import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
+import { readSupplierCatalogDashboard, readSupplierCatalogRunDiagnostics } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
 import { requiredRuntimeDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
@@ -25,12 +26,33 @@ async function database(): Promise<D1Database> {
 
 export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  const url = new URL(request.url);
+  const runId = url.searchParams.get("runId");
+  const worldParam = url.searchParams.get("world");
+  if (url.searchParams.get("candidate") === "1") {
+    if (worldParam !== "vacations" && worldParam !== "events") return Response.json({ error: "invalid_world" }, { status: 400, headers });
+    try { return Response.json(await inspectSupplierCatalogWorld(await database(), worldParam), { headers }); }
+    catch (error) { console.error("VII catalog candidate inspection unavailable", error); return Response.json({ error: "catalog_candidate_unavailable" }, { status: 503, headers }); }
+  }
+  if (runId !== null || worldParam !== null) {
+    if (!runId || !isCatalogWorld(worldParam) || !/^[A-Za-z0-9_-]{1,180}$/.test(runId)) {
+      return Response.json({ error: "invalid_diagnostic_request" }, { status: 400, headers });
+    }
+    try {
+      const result = await readSupplierCatalogRunDiagnostics(await database(), worldParam, runId);
+      if (!result) return Response.json({ error: "diagnostics_not_found" }, { status: 404, headers });
+      return Response.json(result, { headers });
+    } catch (error) {
+      console.error("VII catalog run diagnostics unavailable", error);
+      return Response.json({ error: "catalog_diagnostics_unavailable" }, { status: 503, headers });
+    }
+  }
   try {
     let db = await database();
     // Locks and active generations are the safety-critical core. Optional
     // diagnostics must never turn a healthy catalog into an opaque 503 screen.
     let dashboard;
-    let databaseOrigin: "aws-aurora" | "cloudflare-d1" = "aws-aurora";
+    let databaseOrigin: "cloudflare-d1" = "cloudflare-d1";
     let degraded = false;
     try {
       dashboard = await readSupplierCatalogDashboard(db);

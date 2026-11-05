@@ -4,6 +4,11 @@ export const catalogDiagnosticLimit = 100;
 export const spaEditorialDiagnosticFields = ["title", "titleEN", "address", "city", "shortDescription", "about", "opening"] as const;
 export type SpaEditorialDiagnosticField = typeof spaEditorialDiagnosticFields[number];
 export type CatalogSyncDiagnostics = {
+  contentIntegrity?: {
+    total: number;
+    issues: { supplierId: number; path: string; reason: "collection_missing" | "item_removed" }[];
+    truncated: boolean;
+  };
   failure?: {
     stage: "source_fetch" | "candidate_validation" | "catalog_read" | "candidate_compare" | "candidate_stage" | "publish";
     category: "transport" | "provider" | "authorization" | "invalid_response" | "resource_or_runtime" | "database" | "invalid_data" | "unknown";
@@ -68,6 +73,17 @@ function hostname(value: unknown) {
 export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnostics | undefined {
   const input = object(value);
   const output: CatalogSyncDiagnostics = {};
+  const content = object(input.contentIntegrity);
+  if (count(content.total) && Array.isArray(content.issues)) {
+    const safePath = (value: unknown) => typeof value === "string" && /^detail\.(?:images|galleryGroups|features|featureGroups|rooms)(?:\.(?:images|features|featureGroups)|\.(?:[1-9][0-9]{0,8})\.(?:images|features|featureGroups))?$/.test(value) ? value : null;
+    const safeReason = (value: unknown) => value === "collection_missing" || value === "item_removed" ? value : null;
+    const issues = content.issues.slice(0, catalogDiagnosticLimit).map(object).map((row) => {
+      const path = safePath(row.path); const reason = safeReason(row.reason);
+      return id(row.supplierId) && path && reason ? { supplierId: row.supplierId as number, path, reason } : null;
+    }).filter((row): row is { supplierId: number; path: string; reason: "collection_missing" | "item_removed" } => Boolean(row));
+    output.contentIntegrity = { total: content.total, issues,
+      truncated: content.truncated === true || content.issues.length > catalogDiagnosticLimit || content.total > content.issues.length };
+  }
   const failure = object(input.failure);
   const stages = new Set(["source_fetch", "candidate_validation", "catalog_read", "candidate_compare", "candidate_stage", "publish"]);
   const categories = new Set(["transport", "provider", "authorization", "invalid_response", "resource_or_runtime", "database", "invalid_data", "unknown"]);

@@ -330,3 +330,25 @@ test("a partial vacation detail generation is rejected and the accepted generati
     assert.deepEqual((await readSupplierCatalog(db, "vacations")).entries, complete);
   } finally { db.close(); }
 });
+
+test("partial vacation content rejection persists sanitized integrity diagnostics", async () => {
+  const db = await database();
+  const previous = [{ supplierId: 77, summary: { id: 77 }, detail: {
+    images: ["a.jpg"], rooms: [{ id: 40, images: ["room.jpg"] }], galleryGroups: [{ title: "Private", images: ["a.jpg"] }],
+  } }];
+  try {
+    const result = await runSupplierCatalogSync(db, { id: "content-integrity-diagnostics", world: "vacations", source: "test", baseline: previous, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: [{ supplierId: 77, summary: { id: 77 }, detail: { images: [], rooms: [{ id: 40, images: [] }], galleryGroups: [] } }] }) });
+    assert.equal(result.status, "rejected");
+    const row = await db.prepare("SELECT diagnostics_json AS diagnosticsJson FROM supplier_catalog_runs WHERE id = ?").bind("content-integrity-diagnostics").first();
+    const diagnostics = JSON.parse(row.diagnosticsJson);
+    assert.deepEqual(diagnostics.contentIntegrity.issues, [
+      { supplierId: 77, path: "detail.images", reason: "collection_missing" },
+      { supplierId: 77, path: "detail.galleryGroups", reason: "collection_missing" },
+      { supplierId: 77, path: "detail.images", reason: "item_removed" },
+      { supplierId: 77, path: "detail.galleryGroups", reason: "item_removed" },
+      { supplierId: 77, path: "detail.rooms.40.images", reason: "collection_missing" },
+    ]);
+    assert.equal((await readSupplierCatalog(db, "vacations")), null);
+  } finally { db.close(); }
+});
