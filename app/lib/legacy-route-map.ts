@@ -1,10 +1,10 @@
 import inventory from "../data/legacy-redirect-inventory.json" with { type: "json" };
+import {canonicalLegacyTarget,legacySearchStateKeys as searchStateKeys} from './legacy-target-policy.ts';
 
 export type LegacyDisposition = { status: 301; target: string } | { status: 410 };
 
 const redirects = inventory.redirects as Record<string, string>;
 const gone = new Set(inventory.gone as string[]);
-const searchStateKeys = ["from", "till", "to", "dates", "guests", "adults", "children", "infants", "pets", "rooms", "roomID", "price", "minPrice", "maxPrice", "sort"];
 const legacyPriceKeys = new Set(["price", "minPrice", "maxPrice"]);
 
 export function normalizedLegacySource(input: URL | string) {
@@ -35,23 +35,7 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
       target = redirects[normalizedLegacySource(semantic)];
     }
   }
-  if (target && /^\/s(?:\/|$)/i.test(url.pathname)) {
-      const destination = new URL(target, "https://vii.spaplus.co");
-      for (const key of searchStateKeys) {
-        const value = url.searchParams.get(key);
-        if (value) destination.searchParams.set(key, value);
-      }
-      target = `${destination.pathname}${destination.search}`;
-  }
-  if (target && /^\/(?:business(?:\?|$)|events\/place\/|discover\/place\/)/.test(target)) {
-    const destination = new URL(target, "https://vii.spaplus.co");
-    for (const key of [...searchStateKeys, "date"]) {
-      const value = url.searchParams.get(key);
-      if (value) destination.searchParams.set(key, value);
-    }
-    target = `${destination.pathname}${destination.search}`;
-  }
-  if (target) return { status: 301, target };
+  if (target) return {status:301,target:canonicalLegacyTarget(url,target)};
   if (gone.has(exact) || gone.has(path)) return { status: 410 };
   return null;
 }

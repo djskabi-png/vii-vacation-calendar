@@ -1,18 +1,9 @@
 import { writeFile } from "node:fs/promises";
+import {legacyAccommodationTypeOptions} from '../app/lib/legacy-accommodation-type-options.ts';
 
 const sourceUrl = "https://www.vii.co.il/s/israel/16096";
 const output = new URL("../app/data/legacy-vacation-accommodation-types.json", import.meta.url);
-const typeOptions = [
-  [1, "בקתות עץ"],
-  [2, "סוויטות"],
-  [6, "צימרים"],
-  [4, "וילות"],
-  [3, "מערות"],
-  [12, "מתחמי אירוח"],
-  [16, "צימרים מאבן"],
-  [21, "דירות נופש"],
-  [7, "אוהלים אינדיאנים"],
-];
+const typeOptions = legacyAccommodationTypeOptions;
 
 function cookieHeader(response) {
   const values = typeof response.headers.getSetCookie === "function"

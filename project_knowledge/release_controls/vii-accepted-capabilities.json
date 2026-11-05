@@ -106,6 +106,10 @@
     {
       "commit": "27cc862efe8f82e4c7894fab36ff4446ce0155c0",
       "capability": "public v806 weekly oldest-detail freshness, partial supplier retention, fenced expiry and targeted readonly diagnostics"
+    },
+    {
+      "commit": "0d84c8871372ed0433d829fa57a90db5c3704eb3",
+      "capability": "public v807 bounded capability projection and authoritative verified detail media/unit ownership"
     }
   ],
   "requiredCapabilities": [

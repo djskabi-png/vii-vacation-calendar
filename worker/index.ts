@@ -2,6 +2,7 @@ import type { PublicLocale } from "./localized-html.ts";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
+import {canonicalLocationDestination} from '../app/lib/canonical-location-redirect.ts';
 import { redirectRecordForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
@@ -162,7 +163,7 @@ const worker = {
         try {
           const managed = await redirectRecordForUrl(database, url);
           managedOverride = Boolean(managed);
-          if (managed && !managed.deleted && managed.active && managed.status === 301 && managed.target_path) return Response.redirect(new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin), 301);
+          if (managed && !managed.deleted && managed.active && managed.status === 301 && managed.target_path) {const destination=new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin);return Response.redirect(canonicalLocationDestination(destination)||destination,301);}
           if (managed && !managed.deleted && managed.active && managed.status === 410) return goneResponse(request);
         } catch (error) {
           console.error("VII managed redirect lookup failed", error);

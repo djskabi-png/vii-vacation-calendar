@@ -27,9 +27,11 @@ test("all four worlds expose clean semantic location routes", () => {
 
 test("approved location query URLs permanently redirect and unknown locations remain usable", () => {
   const proxy = read("proxy.ts");
-  assert.match(proxy, /approvedLocations\[locationRoute\.world\]\.includes\(location\)/);
-  assert.match(proxy, /NextResponse\.redirect\(url, 301\)/);
-  assert.match(proxy, /searchParams\.delete\("location"\)/);
+  const policy=read('app/lib/canonical-location-redirect.ts');
+  assert.match(proxy, /canonicalLocationDestination\(request\.nextUrl\)/);
+  assert.match(proxy, /NextResponse\.redirect\(canonicalLocation,\s*301\)/);
+  assert.match(policy,/approvedLocations\[route\.world\]\.includes\(location\)/);
+  assert.match(policy, /searchParams\.delete\(['"]location['"]\)/);
   assert.match(proxy, /return NextResponse\.next\(\)/);
 });
 

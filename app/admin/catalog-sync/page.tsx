@@ -201,8 +201,8 @@ export default function CatalogSyncPage() {
         <h2 id="online-capabilities-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>רשימת הזמנה אונליין ללא תאריך</h2>
         {dashboard.onlineCapabilities ? <>
           <p><strong>{dashboard.onlineCapabilities.count.toLocaleString("he-IL")} מקומות</strong> עם יכולת הזמנה אונליין מאומתת נשמרים ברשימה המהירה.</p>
-          <p>בדיקה אחרונה שהתקבלה: {date(dashboard.onlineCapabilities.checkedAt)}. יעד הרענון הוא כל {dashboard.onlineCapabilities.targetFreshMinutes} דקות.</p>
-          {dashboard.onlineCapabilities.status === "stale" ? <p role="alert">הרענון האחרון לא התקבל בזמן. האתר ממשיך להציג את הרשימה התקינה האחרונה, והזמנה סופית תמיד נבדקת שוב מול הספק.</p> : <p role="status">הרשימה עדכנית. תקלה רגעית אצל הספק לא מוחקת את הדור התקין האחרון.</p>}
+          <p>בדיקה אחרונה שהתקבלה: {date(dashboard.onlineCapabilities.checkedAt)}. הרענון המתוזמן מוגדר פעם בשעה.</p>
+          {dashboard.onlineCapabilities.status === "stale" ? <p role="status">מוצגת הרשימה התקינה האחרונה שנשמרה. בדיקת מחיר וזמינות להזמנה מתבצעת בנפרד מול הספק.</p> : <p role="status">הרשימה עדכנית. תקלה רגעית אצל הספק לא מוחקת את הדור התקין האחרון.</p>}
           <small>דור תקין אחרון נשמר עד {dashboard.onlineCapabilities.lastGoodMaxDays} ימים לצורכי גילוי בלבד, ולעולם אינו משמש כאישור זמינות לתאריך.</small>
         </> : <p role="alert">אין כרגע רשימת יכולת הזמנה תקינה. חיפוש עם תאריך ובדיקת הזמנה סופית ממשיכים להשתמש בבדיקה חיה.</p>}
       </section>

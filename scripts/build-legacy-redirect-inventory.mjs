@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import {canonicalGeneratedLegacyTarget} from './lib/legacy-generated-target.mjs';
 
 const [, , gscCsvArgument, outputArgument = "app/data/legacy-redirect-inventory.json"] = process.argv;
 if (!gscCsvArgument) throw new Error("Usage: node scripts/build-legacy-redirect-inventory.mjs <gsc-pages.csv> [output.json]");
@@ -165,7 +166,7 @@ const output = {
     gone: goneEntries.length,
     managedSearchRedirects: searchTargets.size,
   },
-  redirects: Object.fromEntries(redirectEntries.map(([source, entry]) => [source, entry.target])),
+  redirects: Object.fromEntries(redirectEntries.map(([source, entry]) => [source, canonicalGeneratedLegacyTarget(source,entry.target)])),
   gone: goneEntries.map(([source]) => source),
 };
 

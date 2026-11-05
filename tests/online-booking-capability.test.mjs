@@ -123,7 +123,9 @@ test("catalog administration exposes bounded online capability freshness without
   assert.match(route, /targetFreshMinutes: 30/);
   assert.doesNotMatch(route, /capabilitySnapshot\.value[^\n]*Response\.json/);
   assert.match(page, /רשימת הזמנה אונליין ללא תאריך/);
-  assert.match(page, /הזמנה סופית תמיד נבדקת שוב מול הספק/);
+  assert.match(page, /בדיקת מחיר וזמינות להזמנה מתבצעת בנפרד מול הספק/);
+  assert.match(page, /הרענון המתוזמן מוגדר פעם בשעה/);
+  assert.doesNotMatch(page, /הרענון האחרון לא התקבל בזמן/);
 });
 test("search list, nearby, map, draft and badge share capability without changing price semantics", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
