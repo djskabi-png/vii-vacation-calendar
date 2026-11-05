@@ -1,0 +1,240 @@
+{
+  "scope": "8 public HTML routes, 2 sequential observations max each; no cache busting; HTTP not browser paint/input metrics",
+  "rows": [
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:43:44.324949+00:00",
+      "exit_code": 0,
+      "metrics": "200 4.707313 5.129153 419699",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=300",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:43:49.545890+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.122912 0.146131 419699",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/events",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:43:49.766810+00:00",
+      "exit_code": 0,
+      "metrics": "200 2.653383 2.682000 816485",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/events",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:43:52.501571+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.067314 0.094575 816485",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/spas",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:43:52.641877+00:00",
+      "exit_code": 0,
+      "metrics": "200 2.881898 2.902887 594233",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/spas",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:43:55.605574+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.069736 0.087957 594233",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/hourly",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:43:55.749381+00:00",
+      "exit_code": 0,
+      "metrics": "200 5.108058 5.124260 328705",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/hourly",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:44:00.930675+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.065188 0.077729 328705",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/providers",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:44:01.109908+00:00",
+      "exit_code": 0,
+      "metrics": "200 2.561690 2.567784 122744",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/providers",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:44:03.773720+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.135213 0.140486 122744",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/trails",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:44:03.974043+00:00",
+      "exit_code": 28,
+      "metrics": "000 0.000000 20.005222 0",
+      "headers": {},
+      "error": "curl: (28) Operation timed out after 20004 milliseconds with 0 bytes received"
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/attractions",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:44:24.027390+00:00",
+      "exit_code": 0,
+      "metrics": "200 2.333283 2.339370 107205",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=180",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/attractions",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:44:26.424619+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.111324 0.116638 107205",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/business?id=vacation-74",
+      "attempt": 1,
+      "changed_variable": "first observation, not guaranteed cold",
+      "at": "2026-11-05T03:44:26.595937+00:00",
+      "exit_code": 0,
+      "metrics": "200 3.209081 3.350962 480800",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60, s-maxage=900",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "MISS"
+      },
+      "error": ""
+    },
+    {
+      "operation": "qqqaaa-bounded-html-speed-20261105",
+      "path": "/business?id=vacation-74",
+      "attempt": 2,
+      "changed_variable": "same URL immediate warm observation",
+      "at": "2026-11-05T03:44:30.006953+00:00",
+      "exit_code": 0,
+      "metrics": "200 0.063378 0.080974 480800",
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=60",
+        "x-robots-tag": "noindex",
+        "x-vii-edge-delivery": "HIT"
+      },
+      "error": ""
+    }
+  ]
+}

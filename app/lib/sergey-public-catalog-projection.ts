@@ -23,10 +23,14 @@ function groups(value: unknown) {
 export function projectSergeyPublicCatalogValue<T>(value: T): T {
   if (!value || typeof value !== "object" || Array.isArray(value)) return value;
   const source = value as Record<string, unknown>;
+  const normalizedImages = Array.isArray(source.images)
+    ? [...new Set(source.images.map(localGalleryMediaUrl).filter((item): item is string => Boolean(item)))]
+    : [];
+  const normalizedImage = typeof source.image === "string" ? localGalleryMediaUrl(source.image) : null;
   const projected: Record<string, unknown> = {
     ...source,
-    ...(typeof source.image === "string" ? { image: localGalleryMediaUrl(source.image) } : {}),
-    ...(Array.isArray(source.images) ? { images: [...new Set(source.images.map(localGalleryMediaUrl).filter(Boolean))] } : {}),
+    ...(typeof source.image === "string" ? { image: normalizedImage || normalizedImages[0] || null } : {}),
+    ...(Array.isArray(source.images) ? { images: normalizedImages } : {}),
     ...(Array.isArray(source.features) ? { features: labels(source.features) } : {}),
     ...(Array.isArray(source.featureGroups) ? { featureGroups: groups(source.featureGroups) } : {}),
   };

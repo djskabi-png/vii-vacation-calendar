@@ -40,8 +40,18 @@ export function MapSplitResultList<T>({
     if (!activeId || !listRef.current) return;
     const activeCard = Array.from(listRef.current.querySelectorAll<HTMLElement>("[data-map-place-id]"))
       .find((element) => element.dataset.mapPlaceId === activeId);
+    if (!activeCard) return;
+    const list = listRef.current;
+    const viewportTop = list.getBoundingClientRect().top + list.clientTop;
+    const viewportBottom = viewportTop + list.clientHeight;
+    const card = activeCard.getBoundingClientRect();
+    const offset = card.top < viewportTop ? card.top - viewportTop
+      : card.bottom > viewportBottom ? card.bottom - viewportBottom : 0;
+    if (!offset) return;
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    activeCard?.scrollIntoView({ block: "nearest", inline: "nearest", behavior });
+    // Scroll this pane only. scrollIntoView also scrolls the document and can
+    // push the adjacent map's selected-place card and close button offscreen.
+    list.scrollTo({ top: list.scrollTop + offset, behavior });
   }, [activeId, visibleItems]);
 
   return <div ref={listRef} className={className} data-map-result-count={visibleItems.length}>

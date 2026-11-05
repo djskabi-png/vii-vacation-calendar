@@ -12,7 +12,8 @@ test("bedroom count is a URL-backed filter and not a sort option", () => {
   assert.match(searchSource, /bedrooms: draftFilters\.bedrooms \? String\(draftFilters\.bedrooms\) : null/);
   const sortOptions = searchSource.slice(searchSource.indexOf("const vacationSortOptions"), searchSource.indexOf("const router = useRouter"));
   assert.doesNotMatch(sortOptions, /חדרי שינה/);
-  assert.match(apiSource, /detail\?\.rooms\?\.reduce/);
+  assert.match(apiSource, /accepted-bedroom-index\.json/);
+  assert.match(apiSource, /summary: bedrooms \? \{ \.\.\.summary, bedrooms \} : summary/);
 });
 
 test("verified supplier areas are promoted into the first property summary", () => {

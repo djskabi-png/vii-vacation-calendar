@@ -10,7 +10,8 @@ test("the shared map rail is bounded, preserves active selection, and scrolls it
   assert.match(list, /items\.slice\(0, limit\)/);
   assert.match(list, /items\.find\(\(item\) => getId\(item\) === activeId\)/);
   assert.match(list, /visible\.slice\(0, Math\.max\(0, limit - 1\)\), activeItem/);
-  assert.match(list, /scrollIntoView\(\{ block: "nearest", inline: "nearest", behavior \}\)/);
+  assert.match(list, /list\.scrollTo\(\{ top: list\.scrollTop \+ offset, behavior \}\)/);
+  assert.doesNotMatch(list, /activeCard\?\.scrollIntoView/);
   assert.match(list, /prefers-reduced-motion: reduce/);
 });
 

@@ -46,7 +46,7 @@ test("accepted runtime detail is normalized to immutable local media before bund
 });
 
 test("catalog lookup and place pages share the same canonical runtime detail merge", () => {
-  assert.match(catalogRoute, /mergeBundledDetail\(entry\.detail, bundledDetail\(world, supplierId\)\)/);
+  assert.match(catalogRoute, /mergeBundledDetail\(entry\.detail, await bundledDetail\(world, supplierId\)\)/);
   assert.match(catalogRoute, /projectSergeyPublicCatalogValue\(canonicalEntry\)/);
 });
 

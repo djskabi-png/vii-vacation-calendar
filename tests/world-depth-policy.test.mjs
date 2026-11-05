@@ -27,6 +27,18 @@ test("changing a depth category retains dates and audience; country clears only 
   assert.equal(changed.get("type"), "וילה");
 });
 
+test("event facility discovery carries the selected facet, date, party and slot", () => {
+  const current = new URLSearchParams({ location: "ירושלים", from: "2026-11-07", guests: "50", slot: "evening", features: "סאונה" });
+  for (const facility of ["בריכת שחייה", "בריכה מחוממת ומקורה", "ג׳קוזי ספא", "סאונה", "פינת מנגל", "חצר או גינה", "מערכת הגברה", "ערכת קריוקי"]) {
+    const destination = depthQuery("events", current.toString(), { features: facility });
+    assert.equal(destination.get("features"), facility);
+    for (const key of ["location", "from", "guests", "slot"]) assert.equal(destination.get(key), current.get(key), key);
+    assert.notEqual(destination.toString(), "");
+  }
+  assert.equal(depthQuery("events", current.toString(), { location: "מרכז" }).get("features"), "סאונה");
+  assert.equal(depthQuery("events", current.toString(), { features: null }).has("features"), false);
+});
+
 test("provider depth uses real category paths and region, not ignored area", () => {
   assert.equal(depthLocationParam("providers"), "region");
   const suggestions = defaultDepthSuggestions("providers", []);

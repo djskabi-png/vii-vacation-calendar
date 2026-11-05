@@ -2,7 +2,7 @@ import { publicCatalogDetails } from "./public-catalog-read.ts";
 import type { HomeDealCatalogPlace } from "./vii-home-deals.ts";
 
 export type DiscoveryVacationPlace = { supplierId: number; name: string; image?: string; images?: string[]; location?: string; area?: string; lat?: number; lng?: number; contact?: { phone?: string; whatsapp?: string } };
-type PublicDetail = { rooms?: { id: number; name?: string; bedrooms?: number; guests?: number }[] };
+type PublicDetail = { score?: number | null; reviews?: number; rooms?: { id: number; name?: string; bedrooms?: number; guests?: number }[] };
 
 export function discoveryVacationCatalog(places: DiscoveryVacationPlace[]) {
   const byId = new Map(places.map(place => [place.supplierId, place]));
@@ -18,6 +18,8 @@ export function discoveryVacationCatalog(places: DiscoveryVacationPlace[]) {
       const place = byId.get(id)!;
       result.set(id, { name: place.name, images: [...new Set([place.image, ...(place.images || [])].filter((image): image is string => Boolean(image)))].slice(0, 10),
         city: place.location || "", area: place.area || "", phone: place.contact?.phone, whatsapp: place.contact?.whatsapp,
+        score: typeof details.get(id)?.score === "number" ? details.get(id)?.score : null,
+        reviews: typeof details.get(id)?.reviews === "number" ? details.get(id)?.reviews : undefined,
         rooms: (details.get(id)?.rooms || []).map(room => ({ roomID: room.id, roomName: room.name, bedrooms: room.bedrooms, maxGuests: room.guests })),
       });
       }

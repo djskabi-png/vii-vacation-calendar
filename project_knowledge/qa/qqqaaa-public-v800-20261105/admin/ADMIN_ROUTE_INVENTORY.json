@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-05T05:00:51+02:00",
+  "environment": "https://vii.spaplus.co",
+  "method": "signed-in Chrome desktop accessibility-tree read-only sweep",
+  "temporaryTabClosed": true,
+  "routes": [
+    "/admin", "/admin/growth", "/admin/search-pages", "/admin/business-performance",
+    "/admin/professor", "/admin/quality", "/admin/content-studio", "/admin/worlds",
+    "/admin/search-analytics", "/admin/content-queue", "/admin/discovery-promotions",
+    "/admin/redirects", "/admin/catalog-sync", "/admin/geography", "/admin/operations",
+    "/admin/whatsapp-leads", "/admin/users"
+  ],
+  "notVisited": ["/admin/login"],
+  "statusClasses": {
+    "loadedReadOnly": ["/admin", "/admin/professor", "/admin/discovery-promotions", "/admin/users"],
+    "loadingAtCapture": [
+      "/admin/growth", "/admin/search-pages", "/admin/quality",
+      "/admin/content-studio", "/admin/worlds", "/admin/search-analytics", "/admin/content-queue",
+      "/admin/redirects", "/admin/catalog-sync", "/admin/geography", "/admin/operations", "/admin/whatsapp-leads"
+    ],
+    "settledVerified": [
+      "/admin/business-performance#businesses: 921 businesses, 50 visible rows, page 1/19",
+      "/admin/redirects: 3554 records, 3149 301, 405 410, page 1/36",
+      "/admin/geography: 3 districts, 25 regions, 1245 cities, 1221 mapped, 24 without map points",
+      "/admin/catalog-sync: loaded; UI reports four worlds not published successfully in the last 24 hours and 21 verified online-booking places in retained fast list",
+      "/admin/search-pages: populated after settling; work center showed counts and timestamp",
+      "/admin/professor: non-loading prompt screen with 20 daily questions remaining; no query submitted",
+      "/admin/quality: non-loading QQQAAA screen; run not activated",
+      "/admin/content-studio: non-loading content source screen; no item edited",
+      "/admin/worlds: non-loading worlds screen; no toggle changed",
+      "/admin/search-analytics: non-loading analytics screen; period filters unchanged",
+      "/admin/content-queue: non-loading queue screen with filters; no approval action",
+      "/admin/operations: non-loading operations screen; no search submitted",
+      "/admin/whatsapp-leads: non-loading lead report screen; no report/filter action submitted",
+      "/admin/users: non-loading access screen with existing access and add-access control; no permission changed",
+      "/admin/discovery-promotions: non-loading draft editor and saved-drafts table; no draft changed"
+    ],
+    "unsafeActionsNotInvoked": ["run QQQAAA", "API refresh", "catalog sync", "save draft", "edit access", "logout"]
+  },
+  "width": "desktop default; not instrumented",
+  "privateDataCopied": false
+}

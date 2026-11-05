@@ -17,7 +17,7 @@ async function loadRoute(name, dependencies) {
     getDiscoveryHolidays:async()=>[{id:123,from:'2099-12-05',till:'2099-12-07',nights:1}],cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),
     readCachedDiscovery:async()=>({value:{dates:homeDealDates('tomorrow'),deals:[]},cache:{status:'fresh',checkedAt:new Date().toISOString()}}),...dependencies};
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
-  const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace('export async function GET','async function GET');
+  const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(/^export /gm,'');
   return new Function(...Object.keys(dependencies),`${compiled}; return GET;`)(...Object.values(dependencies));
 }
 

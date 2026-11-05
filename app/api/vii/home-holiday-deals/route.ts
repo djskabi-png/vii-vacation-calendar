@@ -18,6 +18,7 @@ import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const headers = { "Cache-Control": "no-store" };
 const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
+export const HOLIDAY_DISCOVERY_POLICY = { freshMs: 5 * 60_000, staleMs: 60 * 60_000 } as const;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
     if (!holiday) throw new Error("invalid_holiday");
     if (params.has("from") && (params.get("from")! < holiday.from || params.get("till")! > holiday.till || Date.parse(params.get("till")!) - Date.parse(params.get("from")!) !== holiday.nights * 86_400_000)) throw new Error("invalid_stay");
     const db = await runtimeCatalogDatabase();
-    const refresh = cachedDiscovery({ key: ["vacation-holiday", id, holiday.from, holiday.till, firstDealDate(now), guests, part, params.get("from"), params.get("till")], db,
+    const refresh = cachedDiscovery({ key: ["vacation-holiday", id, holiday.from, holiday.till, firstDealDate(now), guests, part, params.get("from"), params.get("till")], db, policy: HOLIDAY_DISCOVERY_POLICY,
       load: () => getHomeHolidayDeals({ id, token, holidays, now, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(names), from: params.get("from") ?? undefined, till: params.get("till") ?? undefined, guests, part: part as HolidayPart }),
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     }).catch(() => null);

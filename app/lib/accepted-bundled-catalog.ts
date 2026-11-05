@@ -1,5 +1,4 @@
 import catalog from "../data/sergey-public-catalog.json" with { type: "json" };
-import details from "../data/sergey-place-details.json" with { type: "json" };
 import accepted from "../data/accepted-runtime-catalog-state.json" with { type: "json" };
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
@@ -19,8 +18,9 @@ const summaries = { vacations: acceptedEntries("vacations"), events: acceptedEnt
 export function acceptedSergeySummaries(world: World) {
   return [...summaries[world].values()];
 }
-export function acceptedSergeyDetail<T>(world: World, supplierId: number): T | null {
+export async function acceptedSergeyDetail<T>(world: World, supplierId: number): Promise<T | null> {
   if (!summaries[world].has(supplierId)) return null;
+  const { default: details } = await import("./accepted-detail-source.ts");
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   const detail = (details.details as unknown as Record<string, T>)[slug];
   return detail ? projectSergeyPublicCatalogValue(detail) : null;

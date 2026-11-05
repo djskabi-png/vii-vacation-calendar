@@ -27,6 +27,12 @@ test("holiday audience selection has exactly the requested three parties and saf
   assert.deepEqual(holidaySelection(new URLSearchParams()), { audience: "couple", part: "all" });
 });
 
+test("holiday discovery cache uses the same bounded one-hour stale policy as vacation discovery", () => {
+  const route = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
+  assert.match(route, /HOLIDAY_DISCOVERY_POLICY = \{ freshMs: 5 \* 60_000, staleMs: 60 \* 60_000 \}/);
+  assert.match(route, /cachedDiscovery\(\{[\s\S]*policy: HOLIDAY_DISCOVERY_POLICY/);
+});
+
 test("every holiday entry defaults to two guests without replacing explicit audience or period intent", () => {
   for (const part of holidayParts) {
     for (const raw of ["", "audience=", "audience=unknown", "audience=Family"]) {

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EventRail } from "./event-rail";
@@ -55,6 +55,8 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  useEffect(()=>{setAudience(requestedAudienceValue);},[requestedAudienceValue,pathname]);
  const days = clock ? data?.days.filter(day=>eligibleDealDate(day,clock.now)) || [] : [];
  const date = resolvedWeekdayDate || fixedDate || presetDate || (days.includes(requestedDate) ? requestedDate : days[0] || "");
+ const pendingDateRef = useRef(date);
+ useEffect(()=>{ if (date) pendingDateRef.current = date; },[date]);
  useEffect(()=>{
   if(fixedDateOffset !== undefined || fixedDate || fixedWeekday || !clock || !requestedDate || (eligibleDealDate(requestedDate,clock.now) && (!data || data.days.includes(requestedDate)))) return;
   const nextDate=date || normalizeDealDate(requestedDate,clock.now);
@@ -74,10 +76,12 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000){setResult(current=>({...current,status:"loading"}));setAttempt(value=>value+1);}};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
  },[data]);
- function select(nextDate:string,nextAudience:SpaDealAudience){
+ function select(nextDate:string|undefined,nextAudience:SpaDealAudience){
+  const targetDate = nextDate || pendingDateRef.current || date;
+  if (targetDate) pendingDateRef.current = targetDate;
   setAudience(nextAudience);
   if (fixedDateOffset===undefined && !scope) {
-   const weekday = spaWeekdaySlugs[new Date(`${nextDate}T12:00:00Z`).getUTCDay()];
+  const weekday = spaWeekdaySlugs[new Date(`${targetDate}T12:00:00Z`).getUTCDay()];
    const targetPath = localizedPath(spaWeekdayPath(weekday),language);
    if (targetPath === pathname) {
     const query = new URLSearchParams(params.toString());
@@ -89,7 +93,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
    router.push(`${targetPath}?spaDealFor=${encodeURIComponent(nextAudience)}`);
    return;
   }
-  const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);query.set("spaDealFor",nextAudience);
+  const query=new URLSearchParams(params.toString());query.set("spaDealDate",targetDate);query.set("spaDealFor",nextAudience);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  }
  const requestPending=status==="loading" || Boolean(data && data.region!==regionLabel);
@@ -109,7 +113,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   <div className="spa-package-deals__surface">
   <div className="spa-package-deals__controls">
    {fixedDateOffset===undefined?<div className="spa-package-deals__days" role="group" aria-label={text.days}>{days.map(day=><button type="button" key={day} aria-pressed={date===day} onClick={()=>select(day,audience)}><strong>{day===eventDealDate(0,clock!.now)?text.today:day===eventDealDate(1,clock!.now)?text.tomorrow:new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</strong><small>{new Intl.DateTimeFormat(language==="he"?"he-IL":language,{day:"numeric",month:"numeric",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</small></button>)}</div>:null}
-   <div className="spa-package-deals__audiences" role="group" aria-label={text.who}><span className="spa-package-deals__audiences-label">{text.who}</span><div className="spa-package-deals__audience-options">{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(date,value)}>{text.audiences[value]}</button>)}</div></div>
+   <div className="spa-package-deals__audiences" role="group" aria-label={text.who}><span className="spa-package-deals__audiences-label">{text.who}</span><div className="spa-package-deals__audience-options">{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(undefined,value)}>{text.audiences[value]}</button>)}</div></div>
   </div>
   <div className={refreshing?"spa-package-deals__results is-refreshing":"spa-package-deals__results"} aria-busy={requestPending} aria-live="polite" inert={refreshing || undefined}>
    {status==="loading"&&!data?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}

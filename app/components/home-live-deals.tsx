@@ -81,6 +81,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
     // the background refresh retries. Checkout still revalidates live.
     onlineBooking: deal.onlineBooking,
     bookingSupported: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0,
+    supplierRoomID: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0 ? deal.roomID : undefined,
     showSelectedDates: true,
   };
 }

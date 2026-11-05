@@ -55,7 +55,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
   const nearby = useNearbySort();
-  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: twoHourPrice, rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2 }), [nearby.origin]);
+  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => verifiedHourlyPrice(item.id, "שעה"), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2 }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();

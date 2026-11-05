@@ -161,7 +161,7 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
 }
 
 export async function publicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
-  const bundledDetail = acceptedSergeyDetail<T>(world, supplierId);
+  const bundledDetail = await acceptedSergeyDetail<T>(world, supplierId);
   try {
     // Public place pages must use the same resilient, read-only source as
     // /api/catalog. When Aurora is unavailable this selector serves the same
@@ -302,11 +302,12 @@ export async function publicCatalogReviewPreviews<T>(world: "vacations" | "event
   const db = await runtimeCatalogDatabase();
   const snapshot = db ? await readSupplierCatalogReviewPreviews(db, world, ids) : null;
   if (snapshot) return new Map(ids.map((id) => [id, (snapshot.previews.get(id) as T | undefined) || null]));
-  return new Map(ids.map((id) => {
-    const detail = acceptedSergeyDetail<{ reviews?: { text?: string }[] }>(world, id);
+  const entries = await Promise.all(ids.map(async (id) => {
+    const detail = await acceptedSergeyDetail<{ reviews?: { text?: string }[] }>(world, id);
     const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
     return [id, detail ? { reviews: review ? [review] : [] } as T : null];
   }));
+  return new Map(entries);
 }
 
 export async function publicCatalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
@@ -319,9 +320,9 @@ export async function publicCatalogReviewDetails<T>(world: "vacations" | "events
 
 async function catalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[], reviewsOnly: boolean): Promise<Map<number, T | null>> {
   const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
-  const fallback = new Map(ids.map((supplierId) => {
-    return [supplierId, acceptedSergeyDetail<T>(world, supplierId)];
-  }));
+  const fallbackEntries = await Promise.all(ids.map(async (supplierId) =>
+    [supplierId, await acceptedSergeyDetail<T>(world, supplierId)] as const));
+  const fallback = new Map(fallbackEntries);
   try {
     const db = await runtimeCatalogDatabase();
     if (!db) return fallback;

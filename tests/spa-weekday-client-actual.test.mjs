@@ -26,9 +26,15 @@ test("actual component initializer renders all grid offers but keeps rail bounde
   const grid = actualOffers("grid"); const rail = actualOffers("rail");
   assert.equal(grid.length, 35); assert.equal(rail.length, 20); assert.deepEqual(rail, grid.slice(0, 20));
 });
+test("actual component initializes the derived date before the pending-date ref", () => {
+  const datePosition = source.indexOf('const date =');
+  const pendingPosition = source.indexOf('const pendingDateRef = useRef(date)');
+  assert.ok(datePosition >= 0 && pendingPosition >= 0);
+  assert.ok(datePosition < pendingPosition, "pending date ref must not read date in its temporal dead zone");
+});
 test("actual nested select preserves same-weekday state and routes across weekdays", () => {
   const calls = []; let selected;
-  const base = { setAudience: value => { selected = value; }, fixedDateOffset: undefined, scope: null, language: "he", spaWeekdaySlugs, spaWeekdayPath, localizedPath: value => value, pathname: "/spas/day/friday", params: new URLSearchParams("spaDealFor=single"), window: { history: { pushState: (...args) => calls.push(["history", ...args]) } }, router: { push: value => calls.push(["push", value]) }, sectionId: "fixture" };
+  const base = { setAudience: value => { selected = value; }, pendingDateRef: { current: "2026-11-06" }, date: "2026-11-06", fixedDateOffset: undefined, scope: null, language: "he", spaWeekdaySlugs, spaWeekdayPath, localizedPath: value => value, pathname: "/spas/day/friday", params: new URLSearchParams("spaDealFor=single"), window: { history: { pushState: (...args) => calls.push(["history", ...args]) } }, router: { push: value => calls.push(["push", value]) }, sectionId: "fixture" };
   actualFunction("select", base)("2026-11-06", "couple"); assert.equal(selected, "couple"); assert.equal(calls[0][0], "history"); assert.match(calls[0][3], /spaDealFor=couple/);
   calls.length = 0; actualFunction("select", { ...base, params: new URLSearchParams() })("2026-11-07", "group"); assert.equal(calls[0][0], "push"); assert.equal(calls[0][1], "/spas/day/saturday?spaDealFor=group");
 });

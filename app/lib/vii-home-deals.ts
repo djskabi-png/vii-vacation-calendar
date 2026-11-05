@@ -1,5 +1,4 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
-import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
 import { supplierContactNumber } from "./supplier-contact.ts";
 import { eligibleDealDate, firstDealDate } from "./deal-clock.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
@@ -27,6 +26,7 @@ export function publicHomeDealAllowed(deal: Pick<HomeDeal, "name" | "phone" | "w
 // still come from the matching supplier search, never from catalog base prices.
 export type HomeDealCatalogPlace = {
   name: string; images: string[]; city: string; area: string;
+  score?: number | null; reviews?: number;
   rooms?: { roomID: number; roomName?: string; bedrooms?: number; maxGuests?: number }[];
   phone?: string; whatsapp?: string;
 };
@@ -73,6 +73,16 @@ function mediaUrl(value: unknown) {
 
 function record(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+async function fallbackReviewStats(siteID: number) {
+  const { default: details } = await import("./accepted-detail-source.ts");
+  const reviews = (details.details as Record<string, { reviews?: Array<{ score?: number }> }>)[`vacation-${siteID}`]?.reviews || [];
+  const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
+  return {
+    score: scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null,
+    reviewCount: reviews.length,
+  };
 }
 
 export async function getHomeDeals(options: {
@@ -162,10 +172,9 @@ export async function getHomeDealsForDates(options: {
       : cheapest.from === dates.from && cheapest.till === dates.till;
     if (!image || !name || !validStay || (typeof cheapest.total === "number" && cheapest.total !== total)) continue;
     const location = canonical ? { city: canonical.city, area: canonical.area } : cities.get(record(place?.location).cityID as number);
-    const reviews = (siteDetails.details as Record<string, { reviews?: Array<{ score?: number }> }>)[`vacation-${siteID}`]?.reviews || [];
-    const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
-    const score = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null;
-    const reviewCount = reviews.length;
+    const fallbackReviews = canonical?.score === undefined || canonical?.reviews === undefined ? await fallbackReviewStats(siteID as number) : null;
+    const score = typeof canonical?.score === "number" && Number.isFinite(canonical.score) ? canonical.score : fallbackReviews?.score || null;
+    const reviewCount = typeof canonical?.reviews === "number" && Number.isSafeInteger(canonical.reviews) ? canonical.reviews : fallbackReviews?.reviewCount || 0;
     const rooms = Array.isArray(cheapest.rooms) ? cheapest.rooms : [];
     const room = rooms.length === 1 ? record(rooms[0]) : {};
     const roomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;

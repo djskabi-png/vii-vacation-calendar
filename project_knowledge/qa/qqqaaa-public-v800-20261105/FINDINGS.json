@@ -1,0 +1,176 @@
+{
+  "status": "not_approved",
+  "candidate": "public800 build905d5f64 edgev6",
+  "observedAt": "2026-11-05T03:22:26.141511+00:00",
+  "findings": [
+    {
+      "id": "Q800-001",
+      "classification": "defect",
+      "severity": "high",
+      "status": "open_public",
+      "route": "/",
+      "observation": "Holiday Sigd slider remained error despite API populated verified offers",
+      "evidence": "public/home-desktop-walk-2.jpg",
+      "cause": "Under diagnosis: source deadline versus snapshot age policy. No proven final cause yet.",
+      "later_observation": "Later fresh public home navigation rendered Sigd cards correctly without candidate changes. Intermittent failure remains unclosed; no proven policy/UI causality."
+    },
+    {
+      "id": "Q800-002",
+      "classification": "defect",
+      "severity": "high",
+      "status": "local_repair_pending_live_retest",
+      "route": "/",
+      "observation": "Event1153 StayLoft hero cover is an image with embedded unavailable notice",
+      "evidence": "public/home-desktop-walk-8.jpg",
+      "repair": "Shared media quarantine by exact verified filename; same-gallery fallback integration under review."
+    },
+    {
+      "id": "Q800-003",
+      "classification": "defect",
+      "severity": "critical",
+      "status": "local_repair_pending_live_retest",
+      "route": "/booking?world=vacation&place=vacation-11&from=2026-11-05&till=2026-11-07&guests=2&price=700",
+      "observation": "Valid two-night1400 offer quickbooking drops supplierroomID and reaches unavailable fallback",
+      "evidence": "public/booking-entry-hilat-two-nights.jpg",
+      "cause": "Actual dealAvailability adapter had bookingSupported true but omitted supplierRoomID. Sharedcard href consequently omittedroomID. Actualadapter+href regression firstfailed thenpassed afteronefieldrepair."
+    },
+    {
+      "id": "Q800-004",
+      "classification": "defect",
+      "severity": "critical",
+      "status": "open_public",
+      "route": "/",
+      "observation": "Fullreload rendered provider500 Internal server error",
+      "evidence": "public/home-reload-500.png",
+      "cause": "Authoritative owningSite logs confirm exceededMemory at03:13:20.856UTC runtime707375a6-edbd-494d-9aa8-332412f82f48 CPU25ms wall34511ms. Allocation cause still underdiagnosis."
+    },
+    {
+      "id": "Q800-005",
+      "classification": "defect",
+      "severity": "high",
+      "status": "open_public",
+      "route": "/",
+      "observation": "Browserback frombooking changedURLtohome whilebookingDOM/title persistedover40seconds",
+      "evidence": "public/back-home-stale-booking-view.jpg",
+      "cause": "Unproven. RelatedRSCcancellations in logs but no allocation or causality stack."
+    },
+    {
+      "id": "Q800-006",
+      "classification": "defect",
+      "severity": "high",
+      "status": "open_operational",
+      "route": "/admin/catalog-sync",
+      "observation": "Actual UI reports no successfulpublication in24hforfourcatalogworlds andlateonline-listrefresh",
+      "evidence": "admin/ADMIN_DESKTOP_SWEEP_20261105.md",
+      "cause": "Source jobexecutionnotdiagnosed; no sync triggered byQA."
+    },
+    {
+      "id": "Q800-007",
+      "classification": "hypothesis",
+      "severity": "medium",
+      "status": "open",
+      "route": "/admin/growth",
+      "observation": "Sitemap/robotschecks remaininprogress atsettledcapture",
+      "evidence": "admin/ADMIN_DESKTOP_SWEEP_20261105.md",
+      "cause": "Needsboundedduration/API correlation beforeclaimingbackendfailure."
+    },
+    {
+      "id": "Q800-008",
+      "classification": "opportunity",
+      "severity": "low",
+      "status": "open",
+      "route": "/events",
+      "observation": "Unsubmitted mobileparticipantdraft10resets toinitial aftermobile-desktop-mobiletransition",
+      "evidence": "public/mobile-events-party-save.jpg",
+      "cause": "SavedURLstate notchanged; classifyunsentdraftpersistenceUXimprovementratherthanprovenquerycontractviolation."
+    },
+    {
+      "id": "Q800-009",
+      "classification": "defect",
+      "severity": "high",
+      "status": "local_repair_pending_live_retest",
+      "route": "/spas",
+      "observation": "Click Saturday then couple while navigation is pending produces Thursday couple instead of Saturday couple.",
+      "evidence": "public/spa-saturday-couple-selection.jpg",
+      "cause": "Audience handler used prior rendered date; pending-date ref now preserves latest deliberate date. Root also caught and fixed a candidate TDZ regression before release."
+    },
+    {
+      "id": "Q800-010",
+      "classification": "defect",
+      "severity": "high",
+      "status": "local_repair_pending_live_retest",
+      "route": "/events/search",
+      "observation": "Eight facility discovery links all point to unfiltered /events/search. Event slot also gets stripped when changing a discovery facet.",
+      "cause": "world-depth-policy event allowlist omitted features and slot. Actual query regression failed first, then passed after adding supported parameters."
+    },
+    {
+      "id": "Q800-011",
+      "classification": "defect",
+      "severity": "high",
+      "status": "local_repair_pending_live_retest",
+      "route": "/events/search",
+      "observation": "Selecting Willig marker scrolls the document; settled popup close button top is -94.77px, outside viewport.",
+      "evidence": "public/events-map-selected-settled.jpg",
+      "cause": "Shared MapSplitResultList scrollIntoView scrolls ancestor document. Replaced with pane-only scrollTo; actual effect red/green tests include normal/reduced motion and already-visible selection."
+    },
+    {
+      "id": "Q800-012",
+      "classification": "defect",
+      "severity": "high",
+      "status": "open_public",
+      "route": "multiple",
+      "observation": "Seven successful public edge MISS observations have TTFB 2.33-5.11s; immediate HIT 0.063-0.135s. Trails request timed out after20s without bytes.",
+      "evidence": "HTTP_SPEED.json",
+      "cause": "Cache helps public HTML reuse but does not establish fast origin rendering or reliable RSC transitions. Timeout transport cause unproved; successful CUA direct trails separately observed."
+    },
+    {
+      "id": "Q800-013",
+      "classification": "hypothesis",
+      "severity": "high",
+      "status": "open",
+      "route": "/trails",
+      "observation": "Popular/long-tail hrefs are correct query/explore URLs. Clicking North left root URL/results unchanged at later observation; direct navigation with same area returned6 matching trails.",
+      "evidence": "public/trails-mobile-390-top.jpg",
+      "cause": "Root disproved specialist claim that hrefs were generic; unrelated areaTags patch reverted. Navigation/RSC cancellation requires separate diagnosis, not a link-generation patch."
+    },
+    {
+      "id": "Q800-014",
+      "classification": "defect",
+      "severity": "medium",
+      "status": "open_public",
+      "route": "/trails?area=North",
+      "observation": "Actual North query shows filter North and6 matching trails while compact top search summary still says All country.",
+      "cause": "Compact search summary does not reflect applied trail-area state. Needs shared state review."
+    },
+    {
+      "id": "Q800-015",
+      "classification": "hypothesis",
+      "severity": "medium",
+      "status": "open",
+      "route": "/en,/fr,/ru",
+      "observation": "Initial DOM observations contained Hebrew search controls on English/French pages. Settled controls were translated; Russian initial observation was loading shell.",
+      "evidence": "public/en-home-settled.jpg;public/fr-home-settled.jpg;public/ru-home-settled.jpg",
+      "cause": "Translation after hydration observed in DOM. Visual first-paint flash duration was not measured, so do not claim captured visual typography failure. Settled English/Russian copy also needs native editorial review."
+    },
+    {
+      "id": "Q800-016",
+      "classification": "defect",
+      "severity": "high",
+      "status": "local_repair_pending_live_retest",
+      "route": "/hourly?sort=price-asc",
+      "observation": "Settled ascending results visibly120,150,200,150. Cards show one-hour minimum, sort model used two-hour minimum.",
+      "evidence": "public/hourly-mobile-price-sort.jpg",
+      "cause": "Sort model now reads verified one-hour rates matching card labels. Explicit two-hour maximum-price filter unchanged. Actual model regression failed before fix then passed asc/desc/unknown values."
+    }
+  ],
+  "rules": "Local repair is not public closure. Earlier HTTP200/codetests do not override new observedpublicfailures.",
+  "updatedAt": "2026-11-05T03:53:27.038345+00:00",
+  "finalCandidateTests": {
+    "tests": 2172,
+    "passed": 2171,
+    "skipped": 1,
+    "failed": 0,
+    "log": ".qa-output/qqqaaa-candidate-tests-final.log",
+    "productApproval": "not_approved"
+  }
+}

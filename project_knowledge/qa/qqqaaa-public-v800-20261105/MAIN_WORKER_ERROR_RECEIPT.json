@@ -1,0 +1,43 @@
+{
+  "operation": "vii-qqqaaa-public500-log-read-20261105",
+  "state": "completed_readonly",
+  "recordCount": 30,
+  "capReached": true,
+  "windowUtc": [
+    "03:10:09",
+    "03:15:16"
+  ],
+  "runtime": "707375a6-edbd-494d-9aa8-332412f82f48",
+  "errors": [
+    {
+      "timeUtc": "03:13:20.856",
+      "path": "/",
+      "outcome": "exceededMemory",
+      "exception": "Worker exceeded memory limit.",
+      "cpuMs": 25,
+      "wallMs": 34511
+    },
+    {
+      "timeUtc": "03:13:20.765",
+      "path": "/.rsc",
+      "outcome": "canceled",
+      "cpuMs": 0,
+      "wallMs": 87853
+    },
+    {
+      "timeUtc": "03:15:16.684",
+      "path": "/.rsc",
+      "outcome": "canceled",
+      "cpuMs": 1,
+      "wallMs": 32689
+    },
+    {
+      "timeUtc": "03:11:35.398",
+      "path": "/trails.rsc",
+      "outcome": "canceled",
+      "cpuMs": 205,
+      "wallMs": 126286
+    }
+  ],
+  "limits": "No allocationstack, heapprofile, gatewaytrace or HTTPstatus ineventlogs. Latest30records notcomplete20min."
+}

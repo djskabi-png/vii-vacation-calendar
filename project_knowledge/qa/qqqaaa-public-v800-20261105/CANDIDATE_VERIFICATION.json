@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-11-05T04:05:37.408159+00:00",
+  "publication": "none; public remains v800 build905d5f64 edgev6",
+  "productApproval": "not_approved",
+  "candidateTests": {
+    "command": "node --test --test-concurrency=1 tests/*.test.mjs services/vii-edge-delivery/test/*.test.mjs",
+    "total": 2172,
+    "passed": 2171,
+    "failed": 0,
+    "skipped": 1,
+    "durationMs": 204894.8143
+  },
+  "fullBuild": {
+    "status": "passed_after_dedicated_detail_wrapper",
+    "executor": "business_performance_backend",
+    "rootIndependentStartupImports": "passed",
+    "entryBytes": 301793
+  },
+  "receipts": [
+    {
+      "path": ".qa-output/qqqaaa-candidate-tests-final.log",
+      "sha256": "014efeca831670e7ba207255e2d3cda48fe6253f91d59875cef611a0b0281ab8"
+    },
+    {
+      "path": ".qa-output/qqqaaa-candidate-startup-verified.json",
+      "sha256": "7db48fc7b2ed6201aa8569020a39f9ff4674074abdbff8dace9450848d318c4e"
+    }
+  ],
+  "cleanup": {
+    "ownedProcessesRemaining": 0,
+    "temporaryRootTabsClosed": 4,
+    "userTabsPreserved": true
+  },
+  "caveat": "Code tests and build do not close publicOOM, back navigation, intermittentrails or stalejobs. No claim of29runnergroupspassed."
+}

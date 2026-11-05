@@ -1,0 +1,15 @@
+{
+  "observed_error": "Current Sites worker-log connector returned project_not_found for the known owning project.",
+  "category": "capability",
+  "diagnosis": "The current connector context could not resolve the owning managed Site; the existing authorized owning-project session could resolve it.",
+  "authorization_boundary": "Read-only logs for the already authorized VII deployment. No credentials, private payloads, or deployment mutations were copied.",
+  "routes": [
+    {"kind":"connector","status":"checked","result":"failed","evidence":"sites_get_site_worker_logs returned project_not_found for appgprj_6a71ccdca27481918bf04dd329d3eb21."},
+    {"kind":"authorized_session","status":"checked","result":"succeeded","evidence":"Existing owning-project conversation returned authoritative runtime707375a6-edbd-494d-9aa8-332412f82f48 worker logs; sanitized receipt MAIN_WORKER_ERROR_RECEIPT.json."},
+    {"kind":"project_cli_api","status":"not_applicable","evidence":"Existing Wrangler configuration controls the user's edge/image account, not the managed main Site log authority; owning session already recovered exact target logs."},
+    {"kind":"official_connection","status":"checked","result":"succeeded","evidence":"Owning Sites project's supported worker-log action returned runtime, route, timestamp and exceededMemory outcome."}
+  ],
+  "outcome":"recovered",
+  "verified_result":"Exact deployed main Worker exceededMemory on / at 03:13:20.856UTC, with RSC cancellations in the same bounded log window.",
+  "ready_work_remaining":true
+}

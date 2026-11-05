@@ -1,4 +1,5 @@
 import sergey from "../../data/sergey-public-catalog.json" with { type: "json" };
+import bedroomIndex from "../../data/accepted-bedroom-index.json" with { type: "json" };
 import { acceptedSergeySummaries, acceptedSergeyDetail } from "../../lib/accepted-bundled-catalog.ts";
 import hourly from "../../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../../data/spaplus-catalog.json" with { type: "json" };
@@ -25,20 +26,22 @@ function worldFrom(value: string | null): SupplierCatalogWorld | null {
   return value === "vacations" || value === "events" || value === "rooms" || value === "spa" ? value : null;
 }
 
-function bundledEntries(world: SupplierCatalogWorld) {
+async function bundledEntries(world: SupplierCatalogWorld) {
   if (world === "spa") return spa.sites.map((site) => ({ supplierId: site.id, summary: site }));
   if (world === "rooms") return hourly.places.map((place) => ({ supplierId: place.supplierId, summary: place }));
-  return (acceptedSergeySummaries(world) as Array<{ supplierId: number; world: string }>)
-    .map((place) => {
-      const detail = bundledDetail(world, place.supplierId) as { rooms?: Array<{ bedrooms?: number; quantity?: number }> } | null;
-      const bedrooms = detail?.rooms?.reduce((total, room) => total + (room.bedrooms || 0) * (room.quantity || 1), 0) || 0;
-      return { supplierId: place.supplierId, summary: bedrooms ? { ...place, bedrooms } : place };
-    });
+  // Summary/list requests must never hydrate every detail record merely to
+  // derive an optional bedroom count. Detail JSON is loaded only for an
+  // explicit supplierId request below.
+  return (acceptedSergeySummaries(world) as Array<{ supplierId: number }>).map((summary) => {
+    const key = `${world === "vacations" ? "vacation" : "event"}-${summary.supplierId}`;
+    const bedrooms = Number((bedroomIndex as Record<string, unknown>)[key]) || 0;
+    return { supplierId: summary.supplierId, summary: bedrooms ? { ...summary, bedrooms } : summary };
+  });
 }
 
-function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
+async function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
   if (world !== "vacations" && world !== "events") return null;
-  return acceptedSergeyDetail(world, supplierId);
+  return await acceptedSergeyDetail(world, supplierId);
 }
 
 function publicEntryAllowed(world: SupplierCatalogWorld, entry: { summary: unknown }) {
@@ -109,7 +112,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry || !publicEntryAllowed(world, entry)) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
           const canonicalEntry = world === "vacations" || world === "events"
-            ? { ...entry, detail: mergeBundledDetail(entry.detail, bundledDetail(world, supplierId)) }
+            ? { ...entry, detail: mergeBundledDetail(entry.detail, await bundledDetail(world, supplierId)) }
             : entry;
           const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([canonicalEntry]))[0] : world === "rooms" ? projectHourlyEntry(canonicalEntry) : projectSergeyPublicCatalogValue(canonicalEntry);
           return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
@@ -140,7 +143,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   }
 
   const fetchedAt = world === "spa" ? spa.generatedAt : world === "rooms" ? hourly.fetchedAt : sergey.fetchedAt;
-  const rawEntries = bundledEntries(world).filter((entry) => publicEntryAllowed(world, entry));
+  const rawEntries = (await bundledEntries(world)).filter((entry) => publicEntryAllowed(world, entry));
   let entries: typeof rawEntries;
   try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : world === "rooms" ? rawEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) as typeof rawEntries : rawEntries.map(projectSergeyPublicCatalogValue); }
   catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }
@@ -158,7 +161,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
     const entry = entries.find((item) => item.supplierId === supplierId);
     if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
-      entry: projectSergeyPublicCatalogValue({ ...entry, detail: bundledDetail(world, supplierId) }) }, { headers: publicCatalogCache });
+      entry: projectSergeyPublicCatalogValue({ ...entry, detail: await bundledDetail(world, supplierId) }) }, { headers: publicCatalogCache });
   }
   return Response.json({ world, source: "bundled-fallback", fetchedAt, entries }, { headers: publicCatalogCache });
 }
