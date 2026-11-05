@@ -1,0 +1,38 @@
+{
+  "observed_error": "Sites connector project_not_found for exact VII project ID; connector inventory did not include VII",
+  "category": "permission",
+  "diagnosis": "Connector target context differs from existing authorized browser context. Exact cause of connector context difference is not established. Browser Sites UI successfully opens the same project and its connected database.",
+  "authorization_boundary": "Read-only inspection of existing VII settings, schema and metadata; no secrets revealed, settings changed, messages sent or publication performed.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "get_site with exact .openai/hosting.json project_id returned project_not_found; one bounded Sites inventory inspected."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "Existing IAB tab 14: authenticated Sites library shows VII, project settings URL contains exact project ID, public domain vii.spaplus.co; Database tab shows Connected and expected quality/catalog tables."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "Project Git remote and hosting identity present. Wrangler OAuth verified account45b2f6dcf2cfe44204d2c470cbe682d9. D1 inventory has17databases, only supplier outbox matched VII name; not substituted for original managed Site database."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "Official ChatGPT Sites library→existing VII→Settings→Database, within already authorized browser session. No new authentication or sharing."
+    }
+  ],
+  "outcome": "recovered",
+  "human_action_required": false,
+  "resume_condition": "Continue local implementation and candidate verification. Use verified existing Site identity at release; deployment actions and exact version still require their own validation.",
+  "next_action": "Build frozen local candidate; publication not yet attempted",
+  "verified_at": "2026-11-05T21:40:31.279468+00:00",
+  "verified_result": "Authenticated official Sites UI opened exact VII project settings, existing public domain and Connected original database with quality/catalog tables; no settings or data changed."
+}

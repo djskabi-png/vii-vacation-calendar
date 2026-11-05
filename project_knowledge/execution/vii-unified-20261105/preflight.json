@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-unified-plan-execution-20261105",
+  "project": "VII",
+  "task_type": "staged implementation",
+  "requested_outcome": "Implement approved V and QQQAAA plans as one project; defer document3 corrective backlog until core plans complete",
+  "natural_destination": "VII application, services and quality management interface",
+  "authorization_boundary": "Current user authorizes implementation of plans1+2; document3 corrective work deferred. No outbound business messages or purchases. Production changes require frozen candidate and release authority review.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Changes must be verified at their natural destination, not declared done from unit tests",
+      "acceptance_impact": "Per-phase independent source review plus rendered/public evidence where applicable"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Architecture must preserve source truth and all existing content",
+      "acceptance_impact": "No substituted data, missing content or invented completion; source parity checks before release"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Replacing execution with another document",
+      "prevention": "Start separate bounded implementation slices now",
+      "acceptance_check": "Working diffs and executable scenario tests recorded"
+    },
+    {
+      "rejection": "Calling token scaffolding or regex tests architecture completion",
+      "prevention": "Require actual consumers, style isolation and runtime contract evidence",
+      "acceptance_check": "Computed styles and executable behavior checks"
+    },
+    {
+      "rejection": "Repairing document3 backlog before requested project work",
+      "prevention": "Mark backlog deferred, keep existing edits intact",
+      "acceptance_check": "Change manifest labels only plan1+2 work"
+    },
+    {
+      "rejection": "Declaring whole project complete after one small phase",
+      "prevention": "Track all numbered plan chapters and coverage",
+      "acceptance_check": "No incomplete required phase marked complete"
+    }
+  ],
+  "affected_family": [
+    "Public shell and all world surfaces",
+    "Spa world CSS isolation",
+    "Replaceable map adapter and list fallback",
+    "Supplier API and canonical data generations",
+    "Discovery snapshots and refresh",
+    "Price and live booking authority",
+    "Media identity and delivery",
+    "Search and managed SEO navigation",
+    "Administration and reporting",
+    "Cloudflare edge/images/app boundaries",
+    "QQQAAA registry, runs, jobs, incidents, evidence, schedules and budget",
+    "Release manifests, affected dependencies, backups and recovery"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Approved V execution plan1.1",
+        "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md"
+      },
+      {
+        "label": "Approved parallel QQQAAA plan",
+        "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First public latency baseline plus first QQQAAA and spa isolation implementations",
+    "checks": [
+      "Causal baseline not generic performance numbers",
+      "Test failure before targeted fix",
+      "Actual style boundary without visual redesign"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Did any old work disappear or become silently published?",
+      "Does a late worker still produce green after losing ownership?",
+      "Does spa styling leak into another world?",
+      "Do navigation measurements include complete usable results?"
+    ],
+    "natural_destination_evidence": "Exact candidate and public version flows where authorized",
+    "affected_family_evidence": "Dependency-selected checks for all affected consumers"
+  },
+  "effectiveness": {
+    "baseline": "Public homepage baseline saved 2026-11-05: 5s aborted home-deals plus second 4.6s request; whole-site latency not inferred",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Remove measured redundant waiting while preserving truth; enforce independent boundaries and fail-closed quality evidence"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

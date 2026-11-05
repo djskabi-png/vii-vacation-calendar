@@ -1,0 +1,526 @@
+{
+  "task_id": "vii-unified-plan-execution-20261105",
+  "status": "in_progress",
+  "scope": "Plans1+2 as one project",
+  "deferred": "Document3 corrective backlog, until core implementation complete",
+  "sourceHead": "2c6fda304c04a0a0d8507bd8c3be6df53429a724",
+  "planSources": {
+    "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md": "f9fe333f1bfeff17e0c7fbf546a479eb988ad60c2542cf46f9fb01d253b48d71",
+    "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md": "00e92c9a451dca2bd64b522af4ad408809172e78097f5b969241b32117f2979a"
+  },
+  "phases": [
+    {
+      "id": "V01",
+      "title": "תקציר מנהלים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V02",
+      "title": "מצב מוצא והיקף האימות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V03",
+      "title": "החלטות ארכיטקטורה מחייבות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V04",
+      "title": "מפת הקופסאות ובעלות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V05",
+      "title": "עיצוב ומצב עצמאי לכל עולם",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V06",
+      "title": "חוזה מפה והחלפת המימוש",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V07",
+      "title": "חוזי API ומאפיינים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V08",
+      "title": "מדיה גלריות ווידאו",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V09",
+      "title": "זמינות מחיר הזמנה ופנייה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V10",
+      "title": "נתונים קנוניים ודורות פרסום",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V11",
+      "title": "מדיניות רענון ומטמון",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V12",
+      "title": "תכנון Cloudflare",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V13",
+      "title": "תקציבי ביצועים ומשאבים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V14",
+      "title": "טעינה ומעבר בין עמודים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V15",
+      "title": "חיפוש מיון עמודי קידום והפניות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V16",
+      "title": "סליידרים מועדים וחיפושים פופולריים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V17",
+      "title": "מערכת הניהול ודוחות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V18",
+      "title": "תפעול אבטחה ושחזור",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V19",
+      "title": "עבודה מקבילה ואינטגרציה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V20",
+      "title": "שלבי ביצוע וחתך ראשון",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V21",
+      "title": "בדיקות ותנאי קבלה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V22",
+      "title": "יחידות פרסום והיקף השינוי",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V23",
+      "title": "פרסום חזרה לאחור ושימור מצטבר",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V24",
+      "title": "זמן עלות ודיווח התקדמות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V25",
+      "title": "הגדרת סיום והעברה למתכנת",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V26",
+      "title": "הכרעות בעקבות הביקורות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "V27",
+      "title": "מקורות וגבולות המסמך",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q01",
+      "title": "תקציר מנהלים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q02",
+      "title": "הקשר לתוכנית הפרויקט",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q03",
+      "title": "מה קיים ומה דורש השלמה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q04",
+      "title": "תיקוני אמינות לפני הרחבת המוצר",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q05",
+      "title": "ארבעת ממדי השליטה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q06",
+      "title": "רמות ההרצה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q07",
+      "title": "בדוק עכשיו והרצה מאולצת",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q08",
+      "title": "תדירויות ותכנון זמן",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q09",
+      "title": "ריל טיים ומשתמשים אמיתיים",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q10",
+      "title": "ארכיטקטורת ההפעלה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q11",
+      "title": "מימוש Cloudflare",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q12",
+      "title": "מנגנון עבודות אמין",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q13",
+      "title": "ספריית בדיקות וגרף תלויות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q14",
+      "title": "בדיקות לפי עולם ולפי קופסה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q15",
+      "title": "אימות מקור ומטמון",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q16",
+      "title": "בדיקות דפדפן וויזואל",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q17",
+      "title": "מדדי מהירות וחוויית משתמש",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q18",
+      "title": "תוצאות וצביעת מצב",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q19",
+      "title": "ניהול תקלות והתאוששות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q20",
+      "title": "התראות ומסירה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q21",
+      "title": "מסך הניהול",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q22",
+      "title": "מודל נתונים ושימור היסטוריה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q23",
+      "title": "בטיחות פרטיות והרשאות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q24",
+      "title": "תקציב ועומס",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q25",
+      "title": "בדיקה של QQQAAA עצמה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q26",
+      "title": "שחרור ויישור עם הארכיטקטורה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q27",
+      "title": "מימוש מדורג ועבודה במקביל",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q28",
+      "title": "תנאי קבלה של המוצר המאוחד",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q29",
+      "title": "רישום בדיקות פתיחה מומלץ",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q30",
+      "title": "כיסוי דרישות והחלטות קודמות",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "Q31",
+      "title": "מקורות ומצב ההפעלה",
+      "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "activeWorkstreams": [
+    "Root: baseline, critical latency, integration and release-source preservation",
+    "QQQAAA specialist: run/incident reliability with executable race tests",
+    "World specialist: spa CSS boundary with computed-style isolation"
+  ],
+  "lastUpdated": "2026-11-05T21:40:31.279468+00:00",
+  "completionClaim": false,
+  "currentSourceHead": "5fb85058951f9bcab0f87404f3820bef0fd5e41c",
+  "sourceCheckpoints": [
+    {
+      "commit": "5fb85058",
+      "description": "Restore strict type safety across preserved application and service contracts"
+    },
+    {
+      "commit": "dee65035",
+      "description": "Separate normalized world map adapters from renderer"
+    },
+    {
+      "commit": "6b893181",
+      "description": "Isolate spa-owned styles without changing CSS cascade"
+    },
+    {
+      "commit": "20a37e17",
+      "description": "Harden quality run ownership, incident cycles, scope and status polling"
+    },
+    {
+      "commit": "a5c88f2e",
+      "description": "Reduce discovery metadata reads and duplicate public chrome requests"
+    },
+    {
+      "commit": "77e9cc67",
+      "description": "Preserve approved VII execution, QQQAAA and deferred comments documents"
+    }
+  ],
+  "localEvidence": [
+    {
+      "command": "node --test public discovery, deadline, chrome and route family (seven files)",
+      "passed": 31,
+      "failed": 0,
+      "log": ".qa-output/plan-execution-public-integrated.log"
+    },
+    {
+      "command": "node --test quality-platform, quality-check-scope, schema-initializer",
+      "passed": 31,
+      "failed": 0,
+      "log": ".qa-output/plan-execution-quality-integrated.log"
+    },
+    {
+      "command": "node --test map adapters and affected map contract family",
+      "passed": 24,
+      "failed": 0,
+      "log": ".qa-output/plan-execution-map-final.log"
+    },
+    {
+      "command": "node --test world surfaces and spa-css-slot",
+      "passed": 4,
+      "failed": 0,
+      "log": ".qa-output/plan-execution-spa-css.log"
+    },
+    {
+      "command": "tsc --noEmit --incremental false",
+      "exitCode": 0,
+      "priorBaselineErrors": 41,
+      "currentErrors": 0,
+      "log": ".qa-output/plan-execution-typecheck-verified.log"
+    }
+  ],
+  "implementedSlices": [
+    {
+      "id": "discovery-light-index",
+      "state": "local_tests_passed",
+      "limit": "Actual public improvement not yet measured from candidate"
+    },
+    {
+      "id": "public-chrome-singleflight",
+      "state": "local_tests_passed",
+      "limit": "Real navigation/mobile pending"
+    },
+    {
+      "id": "quality-run-incident-notification-safety",
+      "state": "local_tests_passed",
+      "limit": "Not full quality platform or scheduler deployment"
+    },
+    {
+      "id": "quality-scoped-selection",
+      "state": "partial",
+      "limit": "Only two explicit HTTP check mappings, no claim of browser coverage"
+    },
+    {
+      "id": "quality-small-polling",
+      "state": "local_tests_passed",
+      "limit": "Authenticated rendered interaction pending"
+    },
+    {
+      "id": "spa-css-owned-slot",
+      "state": "local_parity_passed",
+      "limit": "One coherent spa block, not all worlds extracted"
+    },
+    {
+      "id": "normalized-map-adapters",
+      "state": "partial",
+      "limit": "Provider replacement, complete precision propagation and UI verification pending"
+    }
+  ],
+  "deferredBacklogUntouched": true,
+  "publicationPerformed": false,
+  "nextStep": "Production build of frozen candidate and natural UI verification; then continue remaining plan capabilities."
+}
