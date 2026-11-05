@@ -1,0 +1,44 @@
+/* Spa audience and date */
+.spa-audience-picker { width: 420px; }
+.spa-audience-picker > strong { display: block; margin-bottom: 12px; }
+.spa-audience-picker > strong small { margin-inline-start: 7px; color: var(--ink-soft); font-size: .72rem; font-weight: 650; }
+.spa-audience-picker > div { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.spa-audience-picker button { min-height: 72px; padding: 11px 12px; display: grid; align-content: center; gap: 3px; border: 1px solid #d8e2e7; border-radius: 13px; background: #fff; color: var(--ink); text-align: right; font: inherit; cursor: pointer; }
+.spa-audience-picker .spa-audience-clear { width: 100%; min-height: 58px; margin-bottom: 8px; }
+.spa-audience-picker button:hover { border-color: #dba8ce; background: #fff8fd; }
+.spa-audience-picker button.selected { border-color: #cf83b8; background: linear-gradient(145deg,#fff,#faeef8); box-shadow: inset 0 0 0 1px rgba(193,78,154,.08); }
+.spa-audience-picker button span { font-size: .88rem; font-weight: 850; }
+.spa-audience-picker button small { color: var(--ink-soft); font-size: .69rem; line-height: 1.35; }
+.spa-date-overlay { padding: 20px; }
+.spa-date-dialog { width: min(540px,100%); max-height: calc(100vh - 40px); overflow: auto; border: 1px solid rgba(255,255,255,.65); border-radius: 23px; background: #fff; box-shadow: 0 26px 85px rgba(45,27,48,.29); }
+.spa-date-dialog__header { padding: 23px 25px 18px; display: flex; align-items: start; justify-content: space-between; gap: 18px; border-bottom: 1px solid #eadde8; background: linear-gradient(145deg,#fff 35%,#fbf1fa 100%); }
+.spa-date-dialog__header > div { min-width: 0; }
+.spa-date-dialog__header span { color: #9d317f; font-size: .74rem; font-weight: 850; }
+.spa-date-dialog__header h2 { margin: 4px 0 6px; font-size: clamp(1.55rem,4vw,1.95rem); line-height: 1.15; }
+.spa-date-dialog__header p { margin: 0; color: var(--ink-soft); font-size: .86rem; line-height: 1.5; }
+.spa-date-choice { margin: 15px 25px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: #f4edf3; }
+.spa-date-choice button { min-height: 42px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-soft); font: inherit; font-size: .81rem; font-weight: 750; cursor: pointer; }
+.spa-date-choice button.active { color: #8c2d72; background: #fff; box-shadow: 0 4px 14px rgba(88,34,75,.09); }
+.spa-date-dialog__body { padding: 15px 25px 22px; }
+.spa-calendar-toolbar { margin-bottom: 10px; display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 9px; }
+.spa-calendar-toolbar strong { text-align: center; }
+.spa-calendar-toolbar button { width: 36px; height: 36px; border: 1px solid #dfcedb; border-radius: 50%; background: #fff; color: #8c2d72; font: inherit; cursor: pointer; }
+.spa-calendar-toolbar button:disabled { opacity: .35; cursor: default; }
+.spa-calendar { padding: 12px; border: 1px solid #eadde8; border-radius: 16px; background: #fff; }
+.spa-calendar__weekdays, .spa-calendar__days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; }
+.spa-calendar__weekdays { margin-bottom: 6px; color: var(--ink-soft); font-size: .7rem; text-align: center; }
+.spa-calendar__empty, .spa-calendar__days button { min-height: 42px; }
+.spa-calendar__days button { border: 1px solid transparent; border-radius: 11px; background: #fff; color: var(--ink); font: inherit; font-size: .83rem; font-weight: 750; cursor: pointer; }
+.spa-calendar__days button:hover:not(:disabled) { border-color: #d7a7cb; background: #fff5fc; color: #8c2d72; }
+.spa-calendar__days button.selected { border-color: #a53b84; background: linear-gradient(135deg,#c4499d,#8268d6); color: #fff; box-shadow: 0 8px 18px rgba(164,58,132,.2); }
+.spa-calendar__days button:disabled { color: #d4cbd2; cursor: not-allowed; }
+.spa-no-date { min-height: 275px; padding: 42px 28px; display: grid; place-items: center; align-content: center; text-align: center; }
+.spa-no-date > span { width: 54px; height: 54px; display: grid; place-items: center; border: 1px solid #e2cfe0; border-radius: 50%; color: #a33b85; background: #fcf5fb; font-size: 1.5rem; }
+.spa-no-date h3 { margin: 14px 0 5px; }
+.spa-no-date p { max-width: 390px; margin: 0; color: var(--ink-soft); font-size: .86rem; line-height: 1.6; }
+.spa-date-dialog__footer { position: sticky; z-index: 3; bottom: 0; padding: 13px 25px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #eadde8; background: rgba(255,255,255,.98); box-shadow: 0 -8px 22px rgba(67,32,58,.05); }
+.spa-date-dialog__footer > div { min-width: 0; display: grid; }
+.spa-date-dialog__footer span { color: var(--ink-soft); font-size: .69rem; }
+.spa-date-dialog__footer strong { overflow: hidden; font-size: .84rem; text-overflow: ellipsis; white-space: nowrap; }
+.spa-date-confirm { min-width: 145px; min-height: 46px; padding: 9px 16px; border: 0; border-radius: 12px; background: linear-gradient(135deg,#bd3e92,#7968d3); color: #fff; font: inherit; font-weight: 850; cursor: pointer; box-shadow: 0 9px 20px rgba(163,55,133,.18); }
+.spa-date-confirm:disabled { background: #d1c9cf; box-shadow: none; cursor: not-allowed; }
