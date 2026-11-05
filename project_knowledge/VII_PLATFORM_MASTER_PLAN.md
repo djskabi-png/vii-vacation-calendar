@@ -97,3 +97,13 @@ This checkpoint supersedes older implementation-status descriptions which call t
 - Runtime public checks and source tests are recorded in `project_knowledge/release_evidence/comprehensive-20261105/`. Old hourly profile comparison remains limited: the sampled authoritative legacy URL `/rooms/Titanic_Spa` actually returns an old-site404; thirty new-host API/301 checks do not prove that old profile's visible fields.
 
 Every future main release must follow `services/vii-edge-delivery/README.md`: suspend old edge admission before main asset rollover, freeze/publish exact cumulative source, observe the new public build, update both edge expected-build settings, run edge tests, deploy once, run the exact route/quota guard and verify public plus authenticated paths. A successful Site deployment alone is not proof that the edge is using the same build. Preserve the two artifact receipts and their rollback identities. No account-wide business facts are created by this project checkpoint.
+
+## פרויקט אחד ושלושה מסמכי עבודה, 5 בנובמבר 2026
+
+החלטה מפורשת של אדיר: תוכנית V ו־QQQAAA הם פרויקט אחד של VII, לא שני פרויקטים נפרדים. מסמך 3 נוסף כאותו מלאי הערות ודרישות שמנחה את הביצוע ואת הבקרה.
+
+- מסמך 1: `plans/VII_FINAL_EXECUTION_PLAN_20261105.md`, גרסה 1.1.
+- מסמך 2: `plans/QQQAAA.md`.
+- מסמך 3: `plans/VII_DOCUMENT_3_LIRAN_ADIR_COMMENTS_20261105.md`, גרסה 1.0.
+
+הריכוז כולל 28 דיווחי לירן מ־5 בנובמבר, בחלון שתועד 11:14 עד 12:21, 27 משפחות הערות אדיר מההיסטוריה המצטברת ו־14 הוראות משלימות. אינו טוען לקריאת הודעות חדשות אחרי חלון המקור או להשלמת תיקוני האתר. קובצי מסמך 3 נשמרו ב־`C:/Users/Adir/Documents/vii.co.il/deliverables/VII-document-3-20261105/`.

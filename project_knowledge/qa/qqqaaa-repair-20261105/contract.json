@@ -5,7 +5,7 @@
   "task_type": "repair-and-cumulative-release",
   "goal": "Repair audit findings and publish verified cumulative release",
   "created_at": "2026-11-05T09:49:50.034287Z",
-  "updated_at": "2026-11-05T17:35:06.658274Z",
+  "updated_at": "2026-11-05T19:39:27.259286+00:00",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -209,6 +209,147 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "external-consultation-plan",
+      "source": "user_correction",
+      "statement": "Consult actual Claude Code and Grok with full normalized requirements and poor current state, then return simple implementation/control/performance plan; no implementation or deployment during review",
+      "acceptance_check": "Actual nonempty provider results or evidenced provider-only blocker, critique reconciled with repo evidence, staged measurable plan, explicit live/local distinction",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "full-plan-second-consultation",
+      "source": "user_correction",
+      "statement": "Send the complete revised plan and full inventory for one second review to actual Claude Code and Grok; consolidate their findings without product edits or deployment",
+      "acceptance_check": "Nonempty actual responses from both providers tied to the full supplied plan; record review limitations and necessary amendments",
+      "status": "passed",
+      "evidence": [
+        ".qa-output\\consult-round2-20261105\\CLAUDE_REVIEW.md",
+        ".qa-output\\consult-round2-20261105\\GROK_REVIEW.md",
+        "project_knowledge\\qa\\qqqaaa-repair-20261105\\EXTERNAL_REVIEW_RECOVERY_PLAN_20261105.md"
+      ],
+      "reason": "Scoped consultation and planning only; implementation and production readiness not accepted"
+    },
+    {
+      "id": "delivery-cost-and-release-boundaries",
+      "source": "user_correction",
+      "statement": "Address excessive elapsed time and credit usage; separate independently deployable components and avoid publishing unrelated work",
+      "acceptance_check": "Concrete bounded diagnostic and repair workflow, recorded model-call cost and caps, change-to-deploy matrix, cumulative commit preservation and no premature complete claim",
+      "status": "passed",
+      "evidence": [
+        ".qa-output\\consult-round2-20261105\\CLAUDE_REVIEW.md",
+        ".qa-output\\consult-round2-20261105\\GROK_REVIEW.md",
+        "project_knowledge\\qa\\qqqaaa-repair-20261105\\EXTERNAL_REVIEW_RECOVERY_PLAN_20261105.md"
+      ],
+      "reason": "Scoped consultation and planning only; implementation and production readiness not accepted"
+    },
+    {
+      "id": "world-capability-cloudflare-full-plan",
+      "source": "user_correction",
+      "statement": "Provide expert-assessed complete written plan: world-specific design and capability boxes, replaceable maps, per-world API adapters, Cloudflare compute/data/background resources, performance, loading, parallel delivery and full prior repair inventory",
+      "acceptance_check": "Detailed saved plan separates actual state and target, logical/build/deploy isolation, source contracts, Cloudflare conditional tools, migration, cost/time gates and all requested functional families",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge\\qa\\qqqaaa-repair-20261105\\VII_COMPLETE_ARCHITECTURE_AND_RECOVERY_PLAN_20261105.md",
+        "Bounded source inspection of shared map/search/amenity/runtime DB dependencies; official Cloudflare and Airbnb documentation; independent Cloudflare architecture lane response"
+      ],
+      "reason": "Planning delivered only; code implementation and production readiness remain unverified"
+    },
+    {
+      "id": "expert-bar-new-full-plan-consultation",
+      "source": "user_correction",
+      "statement": "Consult actual Claude Code and Grok on complete new 20-chapter plan; convey planned paid world-class programmer review and demand candid concrete architecture critique instead of flattery",
+      "acceptance_check": "Actual nonempty new responses from both, input identity recorded, findings reconciled into concrete amendments or reasoned rejection, no product changes or deploy",
+      "status": "passed",
+      "evidence": [
+        ".qa-output\\expert-plan-review-20261105\\CLAUDE_REVIEW.md",
+        ".qa-output\\expert-plan-review-20261105\\GROK_REVIEW.md",
+        ".qa-output\\expert-plan-review-20261105\\reviewed-inputs.json",
+        "project_knowledge\\qa\\qqqaaa-repair-20261105\\VII_COMPLETE_ARCHITECTURE_AND_RECOVERY_PLAN_20261105.md chapter21"
+      ],
+      "reason": "Both actual providers returned REVISE; findings reconciled individually. Consultation complete, implementation and production not approved."
+    },
+    {
+      "id": "final-written-plan-document",
+      "source": "user_correction",
+      "statement": "Deliver final complete detailed authored plan after all critiques with executive synthesis, world/capability architecture, Cloudflare, speed/loading, repair inventory, parallel ownership, releases and acceptance gates",
+      "acceptance_check": "One coherent final plan, independent content review, 27 Adir families and28 Liran rows, verified Hebrew PDF and navigable mobile HTML, direct stable deliverable links; no product deployment",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-plan-20261105\\VII_Final_Plan_20261105.pdf",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-plan-20261105\\VII_Final_Plan_20261105.html",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-plan-20261105\\VII_Final_Plan_20261105.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\final-plan-document\\final-verification.json",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\final-plan-document\\writing-manifest.json"
+      ],
+      "reason": "Document task complete; global implementation/release objective remains unverified and stopped"
+    },
+    {
+      "id": "save-project-final-plan",
+      "source": "user_instruction",
+      "statement": "Preserve user-approved final architecture plan as canonical project document and index in master plan",
+      "acceptance_check": "Matching source hash in canonical project plans and stable PDF deliverable; index distinguishes plan from implementation",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\VII_PLATFORM_MASTER_PLAN.md"
+      ],
+      "reason": "Canonical copy matches approved source and master index registers plan without implementation claim"
+    },
+    {
+      "id": "personal-self-pdf-send",
+      "source": "user_instruction",
+      "statement": "Send existing final PDF from Adir personal WhatsApp to his own self chat using designated route",
+      "acceptance_check": "One authorized actual document send, exact sender/self recipient and PDF identity, durable idempotency and message identifier/delivery evidence",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-plan-20261105\\whatsapp-self-send-receipt.json",
+        "WhatsApp message3EB0D7A95D333EAD8FF592; verified self chat read21:09"
+      ],
+      "reason": "Designated authorized route performed one send, matching PDFhash, durable pre-upload reservation and UI-read status"
+    },
+    {
+      "id": "qqqaaa-unified-design-document",
+      "source": "user_instruction",
+      "statement": "Consolidate prior QQQAAA vision/source/current capabilities with final architecture into one detailed plan covering realtime, cadences, manual forced run, profiles, worlds, boxes, safety, cost, evidence, implementation and release",
+      "acceptance_check": "Source-traceable current-vs-target inventory, unified written plan and checked PDF/HTML, preserved prior features and original architecture requirement mapping; no monitor deployment or schedule activation",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\plans\\VII_QQQAAA_UNIFIED_PLAN_20261105.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-QQQAAA-20261105\\VII_QQQAAA_Plan_20261105.pdf",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-QQQAAA-20261105\\VII_QQQAAA_Plan_20261105.html",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-QQQAAA-20261105\\VII_QQQAAA_Plan_20261105.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\qqqaaa-plan-document\\final-verification.json"
+      ],
+      "reason": "Unified document and independent content review complete; no monitor or schedule implementation claimed"
+    },
+    {
+      "id": "qqqaaa-fixed-name-and-v-plan-alignment",
+      "source": "user_instruction",
+      "statement": "Save the document as QQQAAA and align the final V work plan with the parallel quality program",
+      "acceptance_check": "Canonical QQQAAA source, reciprocal plan alignment, preserved requirements, checked PDFs and original version preserved",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\plans\\QQQAAA.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\v-plan-qqqaaa-alignment\\final-verification.json"
+      ],
+      "reason": "Document-only consistency and artifact verification passed; implementation and publication are outside this scoped request"
+    },
+    {
+      "id": "document3-comments-and-one-project-memory",
+      "source": "user_instruction",
+      "statement": "Remember one VII project and deliver document 3 containing recorded Liran reports today and all accumulated Adir requirement families",
+      "acceptance_check": "All 28 L, 27 A and 14 supplementary requirements with sources, status and closure checks; 14-page PDF and HTML visually inspected; one-project relation saved in master and index",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-document-3-20261105\\VII_Document_3_20261105.pdf",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\deliverables\\VII-document-3-20261105\\document-manifest.json",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\document3-comments\\writing-result.json"
+      ],
+      "reason": "Independent completeness PASS and final artifact checks passed; no product changes or public release authorized in this scoped task"
     }
   ],
   "verification_status": "in_progress",
@@ -224,6 +365,6 @@
       ]
     }
   },
-  "last_freshness_check_at": "2026-11-05T17:31:59.546470Z",
+  "last_freshness_check_at": "2026-11-05T17:57:27.509026Z",
   "last_freshness_check_errors": []
 }

@@ -1,0 +1,29 @@
+﻿requirement_id,source_time,normalized_requirement,prior_observed_status,source_comparison,fix_commit,candidate_evidence,public_evidence,verified_release,status
+L01,11:14,בדיקת זמינות איטית,שוחזר. הקריאות הקרות ארוכות ממגבלת ההמתנה בחלק מהממשק,pending,pending,pending,pending,not released,not verified
+L02,11:14,מעבר תמונות בגלריה המייצגת איטי,עדיין נדרש מדד חי לתגובה ולהחלפת התמונה,pending,pending,pending,pending,not released,not verified
+L03,11:16,גלריה מייצגת לא תואמת בחלק מהמקומות,דורש השוואת מזהי תמונות למקור באותם מקומות,pending,pending,pending,pending,not released,not verified
+L04,11:17,גם גלריה פנימית אינה תואמת לעדכון בניהול,תיקון מדיה קודם אינו סוגר אוטומטית את כל המקומות,pending,pending,pending,pending,not released,not verified
+L05,11:19,מיקוד החיפוש צריך להיות תחת הכותרת והספירות שגויות,טרם אומת ותוקן במלואו,pending,pending,pending,pending,not released,not verified
+L06,11:23,"חסר וידאו למקום 1412, רויאל פנטהאוז",חוזה מקור הווידאו טרם אומת,pending,pending,pending,pending,not released,not verified
+L07,11:24,תיאור קצר בטופס פרסום לא צריך להיות חובה,תוקן מקומית. לא נבנה ולא פורסם,pending,pending,pending,pending,not released,not verified
+L08,11:25,בקשת פרסום צריכה להגיע גם לתיבת השירות שהוגדרה,"הכתובת מוכרת, אבל חוזה משלוח והעתק מאומתים טרם הושלמו. לא נשלח מייל בדיקה",pending,pending,pending,pending,not released,not verified
+L09,11:29,"סינון אירועים: בוקר/ערב, בלי שעות לא נכונות",שעות קשיחות הוסרו מקומית בארבע השפות. לא פורסם,pending,pending,pending,pending,not released,not verified
+L10,11:30,אירועים שאינם בפרסום מופיעים,נדרש תיאום מזהי פרסום פעילים מול המקור,pending,pending,pending,pending,not released,not verified
+L11,11:32,מאפייני אירועים חסרים,נדרשת השוואה מלאה של מזהים וקבוצות,pending,pending,pending,pending,not released,not verified
+L12,11:33,לא ברור למי מגיעה בקשת תאריך לאירוע,"נדרש לעקוב אחרי חוזה הנמען בפועל, בלי שליחת פנייה אמיתית במסגרת QA",pending,pending,pending,pending,not released,not verified
+L13,11:34,מוני תמונות בגלריות גדולים מהמספר בפועל,טרם אומת לפי גלריה וקבוצה,pending,pending,pending,pending,not released,not verified
+L14,11:35,פירורי לחם באירועים חסרים/שגויים,"נמצא כשל קוד: כתובת קנונית ללא פרמטר מיקום הוצגה כ״ישראל״. תיקון משותף נשמר מקומית, לא פורסם. היררכיה גאוגרפית מלאה עדיין דורשת בדיקה",pending,pending,pending,pending,not released,not verified
+L15,11:36,להעביר לב מועדפים לתמונה,הועבר מקומית באירועים ובפרטי עולמות הגילוי. לא פורסם,pending,pending,pending,pending,not released,not verified
+L16,11:36,לקצר תיאור עם קרא עוד וסגירה,נוסף רכיב מקומי שמציג הרחבה כשיש גלישה. טרם נבנה ונבדק חזותית,pending,pending,pending,pending,not released,not verified
+L17,11:38,ספירות סינון שונות מהישן,נדרשת השוואת זהויות באותו מצב חיפוש,pending,pending,pending,pending,not released,not verified
+L18,11:42,גלריה מייצגת בחדרים לפי שעה לא תואמת לניהול,עדיין דורש מקור טרי,pending,pending,pending,pending,not released,not verified
+L19,11:42,סימן שקל בצד הלא נכון בחדרים,נוסף בידוד כיווניות מקומי למחירון. טרם נבדק חזותית,pending,pending,pending,pending,not released,not verified
+L20,11:43,גלריות חדרים וגלריה לכל יחידה חסרות,נמצא שימוש בתמונות כלליות לפי אינדקס חדר. הוסר מקומית ונוסף מסלול לגלריית היחידה בלבד. עדיין צריך נתוני ספק טריים כדי לאכלס תמונות חסרות,pending,pending,pending,pending,not released,not verified
+L21,11:44,מאפייני חדרים חסרים,נדרש תיאום מקור מלא,pending,pending,pending,pending,not released,not verified
+L22,11:44,פירורי לחם בחדרים שגויים,אותו כשל כתובות קנוניות. תיקון מקומי משותף לא פורסם,pending,pending,pending,pending,not released,not verified
+L23,11:45,להסיר חזרה לרשימה בכותרת,הוסר מקומית. לא פורסם,pending,pending,pending,pending,not released,not verified
+L24,11:45,להזיז לב מהמיקום הנוכחי,הועבר מקומית לתמונה. לא פורסם,pending,pending,pending,pending,not released,not verified
+L25,11:45,להסיר מהכותרת מאפיינים שלא ברור לאיזו יחידה שייכים,"הוסרו שבבי הכותרת בחדרים בלבד, תוך שמירת מידע במקטעים המתאימים. לא פורסם",pending,pending,pending,pending,not released,not verified
+L26,11:47–11:48,"מחיר לילה חסר, דוגמת סוויטה 203","נוספה תמיכה מקומית בשדות אפשריים, אבל שמות השדות טרם אומתו מול API חי. אין להציג זאת כתיקון סגור או לפרסם ללא בדיקה",pending,pending,pending,pending,not released,not verified
+L27,11:49,סוויטה 204 קיימת ביומן אבל אינה אמורה להיות בפרסום,טרם אומת שדה השליטה של הספק. אין להסתיר לפי ניחוש או שם בלבד,pending,pending,pending,pending,not released,not verified
+L28,12:21,להסיר מזהה פנימי מהודעת וואטסאפ,הוסר מקומית מהטקסט בלבד; מזהה המעקב הפנימי נשמר. לא פורסם,pending,pending,pending,pending,not released,not verified

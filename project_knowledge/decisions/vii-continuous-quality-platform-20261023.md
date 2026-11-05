@@ -1,5 +1,7 @@
 # VII Continuous Quality Platform
 
+תוכנית ההמשך המאוחדת שנכתבה לפי בקשת אדיר ב־5 בנובמבר 2026 היא [תוכנית QQQAAA](../plans/QQQAAA.md). מסמך זה נשמר כמקור היסטורי ואינו הוכחה למצב הייצור הנוכחי.
+
 ## Outcome
 
 VII needs one durable quality system that prevents a change in one world or shared component from silently removing or breaking behavior in another. The system must use stable check identifiers, retain evidence by release, expose incidents in the administration system and notify verified recipients without duplicate messages.
