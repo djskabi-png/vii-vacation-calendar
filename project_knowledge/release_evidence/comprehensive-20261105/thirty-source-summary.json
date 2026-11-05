@@ -1,0 +1,277 @@
+{
+  "count": 30,
+  "generatedAt": "2026-11-05T00:34:42.037Z",
+  "rows": [
+    {
+      "world": "vacations",
+      "supplierId": 2244,
+      "legacyPath": "/ahuzat_man_boutique",
+      "redirect301Target": "/business?id=vacation-2244",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 2527,
+      "legacyPath": "/edna_mansion",
+      "redirect301Target": "/business?id=vacation-2527",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 1642,
+      "legacyPath": "/bezel_ashaked",
+      "redirect301Target": "/business?id=vacation-1642",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 2702,
+      "legacyPath": "/orot_b%27ahoza",
+      "redirect301Target": "/business?id=vacation-2702",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 1,
+      "legacyPath": "/abu_dhabi_boutique",
+      "redirect301Target": "/business?id=vacation-1138",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 11,
+      "legacyPath": "/abu_dhabi_boutique",
+      "redirect301Target": "/business?id=vacation-1138",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 13,
+      "legacyPath": "/ahuza_belavan",
+      "redirect301Target": "/business?id=vacation-1395",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 15,
+      "legacyPath": "/ahozat_alonim_iarca",
+      "redirect301Target": "/business?id=vacation-1536",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 16,
+      "legacyPath": "/ahozat_alotos",
+      "redirect301Target": "/business?id=vacation-1628",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "vacations",
+      "supplierId": 26,
+      "legacyPath": "/achozet_lev_ornim",
+      "redirect301Target": "/business?id=vacation-2645",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 65,
+      "legacyPath": "/events/Rafaeli_Estate",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 70,
+      "legacyPath": "/events/Sunrise_on_the_Roof_of_the_World",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 124,
+      "legacyPath": "/events/Loft_98_Beer_Sheva",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 129,
+      "legacyPath": "/events/King_Loft",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 2,
+      "legacyPath": "/events/Star_Loft",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 184,
+      "legacyPath": "/events/BK_Palace",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 210,
+      "legacyPath": "/events/Monkata",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 260,
+      "legacyPath": "/events/%D7%A0%D7%90%D7%A8%D7%99%D7%94_%D7%94%D7%90%D7%95%D7%A1_-_Narya_House",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 225,
+      "legacyPath": "/events/havilla_bemishmar_hashiva",
+      "redirect301Target": "/events/place/event-225",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "events",
+      "supplierId": 226,
+      "legacyPath": "/events/eyal_ba_galil",
+      "redirect301Target": "/events/place/event-226",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 475,
+      "legacyPath": "/rooms/Titanic_Spa",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 680,
+      "legacyPath": "/rooms/peer_bbustan",
+      "redirect301Target": "/discover/place/hourly-680",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1024,
+      "legacyPath": "/rooms/zimerim_rimonim",
+      "redirect301Target": "/discover/place/hourly-1024",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1111,
+      "legacyPath": "/rooms/Katzefet",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1181,
+      "legacyPath": "/rooms/S_Be_Zichron",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1633,
+      "legacyPath": "/rooms/Yokra_Ba_Tzafon",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1011,
+      "legacyPath": "/rooms/Room_Class",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1839,
+      "legacyPath": "/rooms/Kinki_rooms",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1882,
+      "legacyPath": "/rooms/haswita_hasodit",
+      "redirect301Target": "/discover/place/hourly-1882",
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    },
+    {
+      "world": "rooms",
+      "supplierId": 1840,
+      "legacyPath": "/rooms/Blue_topaz",
+      "redirect301Target": null,
+      "legacyStatus": 200,
+      "apiStatus": 200,
+      "errors": []
+    }
+  ],
+  "limitation": "Hourly API and thirty redirect identities verified. Exact legacy hourly feature parity could not be established: known legacy Titanic_Spa page returns404 through an authorized browser. Do not interpret this as full legacy field parity."
+}

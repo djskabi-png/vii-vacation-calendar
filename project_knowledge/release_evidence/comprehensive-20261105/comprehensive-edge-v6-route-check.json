@@ -1,0 +1,16 @@
+{
+  "operation": "vii-edge-route-guard-5c26fb35-e0cd-42e7-945f-0f6f12024548",
+  "phase": "passed",
+  "route": {
+    "id": "007e033b3cbc460ba70c6f0acb0fcc3b",
+    "pattern": "vii.spaplus.co/*",
+    "script": "vii-edge-delivery",
+    "request_limit_fail_open": true
+  },
+  "expectedBuild": "905d5f64-da48-41ed-a232-1ef715e320bc",
+  "otherRoutesUnchanged": true,
+  "otherRouteCount": 21,
+  "publicStatus": 200,
+  "publicBuild": "905d5f64-da48-41ed-a232-1ef715e320bc",
+  "edge": "MISS"
+}

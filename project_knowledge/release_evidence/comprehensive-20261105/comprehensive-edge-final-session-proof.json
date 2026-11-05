@@ -1,0 +1,105 @@
+{
+  "at": "2026-11-05T02:34:50.405Z",
+  "rows": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 2707,
+      "edge": "MISS",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 44,
+      "edge": "HIT",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/events",
+      "status": 200,
+      "ms": 2557,
+      "edge": "MISS",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/events",
+      "status": 200,
+      "ms": 33,
+      "edge": "HIT",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/search?release=final-signed-shell",
+      "status": 200,
+      "ms": 2832,
+      "edge": "MISS",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/search?release=final-signed-shell",
+      "status": 200,
+      "ms": 28,
+      "edge": "HIT",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/html; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/search.rsc",
+      "status": 200,
+      "ms": 2423,
+      "edge": "MISS",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/x-component; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/search.rsc",
+      "status": 200,
+      "ms": 24,
+      "edge": "HIT",
+      "build": "905d5f64-da48-41ed-a232-1ef715e320bc",
+      "type": "text/x-component; charset=utf-8",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/api/admin/business-performance?mode=overview",
+      "status": 403,
+      "ms": 69,
+      "edge": null,
+      "build": null,
+      "type": "application/json",
+      "location": null,
+      "privateFixtureLeaked": false
+    },
+    {
+      "path": "/api/vii/stay-quote",
+      "status": 400,
+      "ms": 438,
+      "edge": null,
+      "build": null,
+      "type": "application/json",
+      "location": null,
+      "privateFixtureLeaked": false
+    }
+  ]
+}

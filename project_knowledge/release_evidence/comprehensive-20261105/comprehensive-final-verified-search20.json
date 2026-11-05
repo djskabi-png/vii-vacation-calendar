@@ -1,0 +1,834 @@
+{
+  "generatedAt": "2026-11-05T02:46:26.096Z",
+  "count": 20,
+  "rows": [
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=232-365&marea=2",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "232-365",
+        "marea": "2"
+      },
+      "inventoryTarget": "/search/vacations/legacy-search-ff064e48",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search/vacations/legacy-search-ff064e48",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search/vacations/legacy-search-ff064e48"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search/vacations/legacy-search-ff064e48",
+      "preservedQuery": {},
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=232-365&marea=2",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "232-365",
+        "marea": "2",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search/vacations/legacy-search-ff064e48",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search/vacations/legacy-search-ff064e48?from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search/vacations/legacy-search-ff064e48?from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search/vacations/legacy-search-ff064e48",
+      "preservedQuery": {
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=137",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "137"
+      },
+      "inventoryTarget": "/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/karmiel?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "כרמיאל",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=137",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "137",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/karmiel?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "כרמיאל",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=28",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "28"
+      },
+      "inventoryTarget": "/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/rishon-lezion?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "ראשון לציון",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=28",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "28",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A8%D7%90%D7%A9%D7%95%D7%9F+%D7%9C%D7%A6%D7%99%D7%95%D7%9F&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/rishon-lezion?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "ראשון לציון",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=66",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "66"
+      },
+      "inventoryTarget": "/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/herzliya?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "הרצליה",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&roomTypes=4&sett=66",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "roomTypes": "4",
+        "sett": "66",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/herzliya?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "הרצליה",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=1130",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "1130"
+      },
+      "inventoryTarget": "/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/poriya-illit?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "פוריה עילית",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=1130",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "1130",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A4%D7%95%D7%A8%D7%99%D7%94+%D7%A2%D7%99%D7%9C%D7%99%D7%AA&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/poriya-illit?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "פוריה עילית",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=1244",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "1244"
+      },
+      "inventoryTarget": "/search?pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=1244",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "1244",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=300",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "300"
+      },
+      "inventoryTarget": "/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/emek-hefer?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "עמק חפר",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=300",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "300",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%A2%D7%9E%D7%A7+%D7%97%D7%A4%D7%A8&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/emek-hefer?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "עמק חפר",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=508",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "508"
+      },
+      "inventoryTarget": "/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/givat-zeev?pool=1"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "גבעת זאב",
+        "pool": "1"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=277&sett=508",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "277",
+        "sett": "508",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/givat-zeev?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "גבעת זאב",
+        "pool": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=279&sett=508",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "279",
+        "sett": "508"
+      },
+      "inventoryTarget": "/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/givat-zeev"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "גבעת זאב"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=279&sett=508",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "279",
+        "sett": "508",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search?location=%D7%92%D7%91%D7%A2%D7%AA+%D7%96%D7%90%D7%91&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/vacations/search/givat-zeev?from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search",
+      "preservedQuery": {
+        "location": "גבעת זאב",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=365&marea=1",
+      "mode": "undated",
+      "oldIntent": {
+        "attr": "365",
+        "marea": "1"
+      },
+      "inventoryTarget": "/search/vacations/legacy-search-c33ae1c0",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search/vacations/legacy-search-c33ae1c0",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search/vacations/legacy-search-c33ae1c0"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search/vacations/legacy-search-c33ae1c0",
+      "preservedQuery": {},
+      "status": "pass"
+    },
+    {
+      "intentPreserved": true,
+      "targetMatched": true,
+      "source": "/s?attr=365&marea=1",
+      "mode": "dated",
+      "oldIntent": {
+        "attr": "365",
+        "marea": "1",
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "inventoryTarget": "/search/vacations/legacy-search-c33ae1c0",
+      "redirectStatus": 301,
+      "redirectLocation": "https://vii.spaplus.co/search/vacations/legacy-search-c33ae1c0?from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+      "redirectChain": [
+        {
+          "status": 301,
+          "location": "https://vii.spaplus.co/search/vacations/legacy-search-c33ae1c0?from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+        },
+        {
+          "status": 200,
+          "location": null
+        }
+      ],
+      "finalStatus": 200,
+      "finalLocation": null,
+      "expectedPath": "/search/vacations/legacy-search-c33ae1c0",
+      "preservedQuery": {
+        "from": "2026-11-26",
+        "till": "2026-11-28",
+        "guests": "2",
+        "children": "1",
+        "rooms": "1",
+        "minPrice": "200",
+        "maxPrice": "2000",
+        "sort": "price-asc"
+      },
+      "status": "pass"
+    }
+  ]
+}

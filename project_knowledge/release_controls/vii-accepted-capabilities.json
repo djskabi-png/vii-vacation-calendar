@@ -66,6 +66,10 @@
     {
       "commit": "72f2d10f3e378d34303a4572bc49cc5e37b74460",
       "capability": "Cumulative amenity world parity, scoped metadata cache and current one-hour offer policy"
+    },
+    {
+      "commit": "d255fe2636bb60fc3b095537244046949139760d",
+      "capability": "Source-deadline expiry for rendered and last-good vacation offers with exact cumulative v800 application"
     }
   ],
   "requiredCapabilities": [
@@ -255,6 +259,16 @@
       "files": [
         "app/lib/home-offer-freshness.ts",
         "tests/home-offer-freshness.test.mjs"
+      ]
+    },
+    {
+      "id": "cloudflare-public-delivery-privacy-and-recovery",
+      "files": [
+        "services/vii-edge-delivery/src/index.ts",
+        "services/vii-edge-delivery/wrangler.toml",
+        "services/vii-edge-delivery/test/edge-delivery-runtime.test.mjs",
+        "services/vii-edge-delivery/scripts/verify_public_route.py",
+        "services/vii-edge-delivery/README.md"
       ]
     }
   ]

@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-05T02:38:44.008Z",
+  "priorFailure": {
+    "source": "/s?attr=277&sett=1244",
+    "mode": "dated",
+    "status": 500,
+    "chain": [
+      {
+        "status": 301,
+        "location": "https://vii.spaplus.co/search?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc"
+      },
+      {
+        "status": 500,
+        "location": null
+      }
+    ]
+  },
+  "diagnosticRead": {
+    "url": "https://vii.spaplus.co/search?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1&minPrice=200&maxPrice=2000&sort=price-asc",
+    "status": 200,
+    "edge": null,
+    "skip": null,
+    "title": "נופש בישראל, חיפוש מקומות אירוח | וי פור ויקיישן",
+    "type": "text/html; charset=utf-8",
+    "bodyBytes": 170401
+  }
+}

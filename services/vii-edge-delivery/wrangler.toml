@@ -3,7 +3,8 @@ account_id = "45b2f6dcf2cfe44204d2c470cbe682d9"
 main = "src/index.ts"
 compatibility_date = "2026-11-04"
 workers_dev = true
+routes = [{ pattern = "vii.spaplus.co/*", zone_id = "f1d778343394ef4f56bbcb089793a22a" }]
 
 [vars]
 ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site"
-EXPECTED_BUILD = "85bd2763-e953-4fba-bb88-71f1faafa510"
+EXPECTED_BUILD = "905d5f64-da48-41ed-a232-1ef715e320bc"

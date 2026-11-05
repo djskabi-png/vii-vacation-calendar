@@ -1,6 +1,6 @@
 # Comprehensive cumulative VII release, 2026-11-05
 
-Status: candidate validation in progress. No new public deployment claimed by this document.
+Status: published v800 plus Cloudflare edge v6. The candidate-stage rows below are historical checkpoints, superseded by FINAL_REPORT.md and PUBLIC_RELEASE_RECEIPT.json. A pending entry below is not a new release-status claim.
 
 ## Preserved source
 
@@ -41,3 +41,8 @@ v799 deployed successfully from `72f2d10f3e378d34303a4572bc49cc5e37b74460`, tree
 A final source-age defect was then identified: browser retention could outlive the server snapshot deadline. The follow-up candidate adds absolute checkedAt-based expiry, clears both rendered and last-good state at the deadline, rejects expired render/recovery, and arms the timer for initial API responses as well as previous data. Five new runtime tests execute the actual discovery effect with an injected clock, including59to60minutes, offline failure and cleanup. Build passed. Twenty-two affected regression tests passed after correcting older test fixtures to include valid checkedAt. The complete final suite and follow-up public receipt remain separate required observations.
 
 Public timing remains slower than the target: sampled HTML TTFB2.2to4.0seconds, with an hourly outlier11.3seconds. These are HTTP samples, not page-load or field P75. An isolated edge worker is not counted as a deployed public speed improvement. The current public CNAME is `custom-domains.chatgpt.site`; DNSAPIread403 is a permissions limit, while zone and route reads succeed. No DNS change has been made.
+
+
+## Final public close
+
+Main v800 succeeded and public build905d5f64-da48-41ed-a232-1ef715e320bc was observed. Cloudflare edge v6 version6bdea555-20b1-40e9-88fc-faab685fe742 is live on only VII, preserving21other routes. DNS proxy is now enabled with the same CNAME. Main suite2132passed/1skipped/0failed, edge24passed, final public searches20/20. Authenticated desktop/mobile performance UI50of921rows, Jerusalem accessibility11places/17units, map marker/card identity and mobile scroll cleanup were observed. See FINAL_REPORT.md for each affected family, actual timing samples and precise source-parity limits. The prior transient500 is preserved, bounded safe public-read recovery is deployed, and the final matrix passed. Exact identities and coordinated rollback are in PUBLIC_RELEASE_RECEIPT.json.

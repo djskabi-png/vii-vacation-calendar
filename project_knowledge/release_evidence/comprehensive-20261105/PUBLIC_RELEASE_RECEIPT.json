@@ -1,0 +1,51 @@
+{
+  "status": "published_and_postchecked",
+  "main": {
+    "version": 800,
+    "source": "d255fe2636bb60fc3b095537244046949139760d",
+    "tree": "3eb80a7fc613efa04f9f90b79fbb5d4bd161a478",
+    "deployment": "appgdep_6aebe1f405888191a72406feb9ca73e1",
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_3f566524e15c819189a15f279e1c97bb",
+    "environment": 32,
+    "publicBuild": "905d5f64-da48-41ed-a232-1ef715e320bc",
+    "url": "https://vii.spaplus.co"
+  },
+  "edge": {
+    "worker": "vii-edge-delivery",
+    "version": "6bdea555-20b1-40e9-88fc-faab685fe742",
+    "namespace": "v6",
+    "routeId": "007e033b3cbc460ba70c6f0acb0fcc3b",
+    "pattern": "vii.spaplus.co/*",
+    "quotaFailOpen": true,
+    "otherRoutesUnchanged": 21
+  },
+  "validation": {
+    "mainTests": {
+      "total": 2133,
+      "pass": 2132,
+      "skip": 1,
+      "fail": 0
+    },
+    "edgeTests": {
+      "pass": 24,
+      "fail": 0
+    },
+    "finalPublicSearches": {
+      "pass": 20,
+      "fail": 0
+    },
+    "independentReview": "business_audit_seal_checker approved observed final evidence; no additional blocker",
+    "resourceCleanup": "Verified no owned processes remain; browser390px and1280px overrides reset; two owned temporary tabs closed; original owning conversation retained idle.",
+    "sourceControl": "17 protected ancestors and21 capability families; no application or main-worker diff from public d255fe26; infrastructure-only composite commit follows."
+  },
+  "rollback": {
+    "mainVersion": 799,
+    "deployment": "appgdep_6aebdd01e6f4819196b5e0ccffa306dc",
+    "procedure": "Suspend edge admission first; restore approved main with environment32; observe build; rebind edge guard. See services/vii-edge-delivery/README.md."
+  },
+  "limits": [
+    "HTTP timings are samples, not field P75. Cold uncached origin can still take seconds.",
+    "One prior transient500 preserved; same exact target then200; bounded safe-public-read recovery deployed and final20/20passed. Platform underlying cause not established.",
+    "Exact old hourly attribute parity unverified where legacy page404. No real booking/payment/outbound message or private mutation performed by QA."
+  ]
+}
