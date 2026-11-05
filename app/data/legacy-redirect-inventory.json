@@ -15,8 +15,8 @@
     "migratedLegacySearchAliasCount": 2
   },
   "stats": {
-    "total": 3553,
-    "redirects": 3148,
+    "total": 3554,
+    "redirects": 3149,
     "gone": 405,
     "managedSearchRedirects": 2362,
     "managedSearchAliases": 2
@@ -272,6 +272,7 @@
     "/events/nexus_pool_events": "/events/place/event-2508",
     "/events/noni_loft": "/events/place/event-1178",
     "/events/ocean_floor": "/events/place/event-2051",
+    "/events/oshiya_resort": "/events/place/event-2112",
     "/events/ok_lounge_event": "/events/place/event-2656",
     "/events/paphos_events": "/events/place/event-909",
     "/events/paris_loft_ashkelon": "/events/place/event-1857",

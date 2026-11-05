@@ -1,6 +1,8 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { sanitizeCatalogDiagnostics, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
+import type { SupplierDetailProof } from "./supplier-detail-contract.ts";
+import { reviewedInactiveTransition, explicitInactiveRemoval, type SourceInventoryProof } from "./reviewed-catalog-inventory.ts";
 
 export type SupplierCatalogWorld = "vacations" | "events" | "rooms" | "spa";
 
@@ -8,6 +10,7 @@ export type SupplierCatalogEntry = {
   supplierId: number;
   summary: unknown;
   detail?: unknown;
+  detailProof?: SupplierDetailProof;
 };
 
 type RunRow = { status: string };
@@ -149,6 +152,8 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
   previous?: SupplierCatalogEntry[];
   candidate?: SupplierCatalogEntry[];
   approvedRemoval?: boolean;
+  sourceInventory?: SourceInventoryProof;
+  diagnostics?: CatalogSyncDiagnostics;
 }) {
   const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ? AND lock_run_id = ?`)
@@ -219,8 +224,10 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
   const candidateEntries = nextRows.results.map((row) => ({ supplierId: row.supplierId,
     summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
-  const approvedRemoval = input.approvedRemoval === true && input.world === "spa"
-    && approvedSpaCatalogTransition(previousEntries, candidateEntries);
+  const approvedRemoval = (input.approvedRemoval === true && input.world === "spa"
+    && approvedSpaCatalogTransition(previousEntries, candidateEntries))
+    || reviewedInactiveTransition(input.world, previousEntries, candidateEntries, input.sourceInventory);
+  if(input.sourceInventory && removed && !explicitInactiveRemoval(previousEntries,candidateEntries,input.sourceInventory))throw new Error("catalog_removal_requires_review");
   if (removed !== input.removed
     || (!removalWithinGuard(oldRows.results.length, removed, beforeChildren, removedChildren) && !approvedRemoval)) {
     throw new Error("catalog_removal_requires_review");
@@ -234,10 +241,10 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       lock_run_id = NULL, lock_until = NULL WHERE world = ? AND lock_run_id = ?`)
       .bind(input.id, input.finishedAt, input.expectedCount, input.world, input.id),
     db.prepare(`UPDATE supplier_catalog_runs SET status = 'accepted', finished_at = ?,
-      before_count = ?, candidate_count = ?, added_count = ?, changed_count = ?, removed_count = ?
+      before_count = ?, candidate_count = ?, added_count = ?, changed_count = ?, removed_count = ?, diagnostics_json = ?
       WHERE id = ? AND world = ? AND status = 'running'
       AND EXISTS (SELECT 1 FROM supplier_catalog_state WHERE world = ? AND active_run_id = ?)`)
-      .bind(input.finishedAt, oldRows.results.length, input.expectedCount, input.added, input.changed, removed, input.id, input.world, input.world, input.id),
+      .bind(input.finishedAt, oldRows.results.length, input.expectedCount, input.added, input.changed, removed, input.diagnostics ? JSON.stringify(sanitizeCatalogDiagnostics(input.diagnostics)) : null, input.id, input.world, input.world, input.id),
   ]);
   if (results[0].meta.changes !== 1 || results[1].meta.changes !== 1) throw new Error("catalog_publish_race");
 }

@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {selectSpaPackageDeals,validSpaDealDate,spaPackageDealHref,millisecondsToNextIsraelDay} from '../app/lib/spa-package-deals.ts';
+import { scheduleSpaDealFollowup } from '../app/lib/spa-followup.ts';
+
+test('followup scheduler executes bounded 2s then 4s sequence and stops when verified',()=>{const timers=[];const calls=[];let count=0;let next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('first'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,1);assert.equal(timers[0].delay,2000);timers.shift().fn();count=next.nextCount;next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('second'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,2);assert.equal(timers[0].delay,4000);assert.equal(scheduleSpaDealFollowup('verified',count,()=>{},()=>{}),null);assert.equal(scheduleSpaDealFollowup('refreshing',2,()=>{},()=>{}),null);assert.deepEqual(calls,['first']);});
 import {eventDealDate} from '../app/lib/event-deal-dates.ts';
 const photo='https://www.spaplus.co.il/gallery/real.jpg';
 const pack=(id,price,people=1,group=false)=>({id,title:`Package ${id}`,price,people,group,image:photo,durationMinutes:50});

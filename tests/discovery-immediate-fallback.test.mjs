@@ -34,7 +34,9 @@ test("availability rails never render catalog cards as date-bound offers while a
   assert.doesNotMatch(home, /fallbackPlaces|promotional detailHref|הזמינות מתעדכנת ברקע/);
   assert.match(home, /availabilityStatus === "refreshing"/);
   assert.match(home, /shouldCache:[\s\S]*availabilityStatus === "verified"/);
-  assert.match(spa, /החבילות והמחירים מוצגים מיד מהקטלוג/);
+  assert.doesNotMatch(spa, /החבילות והמחירים מוצגים מיד מהקטלוג|catalogNote/);
+  assert.match(spa, /shouldCache:[\s\S]*availabilityStatus==="verified"/);
+  assert.match(spa, /data\?\.availabilityStatus!=="refreshing"&&!expandedRegion/);
   for (const route of [nearRoute, holidayRoute, spaRoute]) {
     assert.match(route, /availabilityStatus: "refreshing"/);
     assert.match(route, /waitUntil/);

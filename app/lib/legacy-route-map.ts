@@ -43,6 +43,14 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
       }
       target = `${destination.pathname}${destination.search}`;
   }
+  if (target && /^\/(?:business(?:\?|$)|events\/place\/|discover\/place\/)/.test(target)) {
+    const destination = new URL(target, "https://vii.spaplus.co");
+    for (const key of [...searchStateKeys, "date"]) {
+      const value = url.searchParams.get(key);
+      if (value) destination.searchParams.set(key, value);
+    }
+    target = `${destination.pathname}${destination.search}`;
+  }
   if (target) return { status: 301, target };
   if (gone.has(exact) || gone.has(path)) return { status: 410 };
   return null;

@@ -4,6 +4,7 @@ export const catalogDiagnosticLimit = 100;
 export const spaEditorialDiagnosticFields = ["title", "titleEN", "address", "city", "shortDescription", "about", "opening"] as const;
 export type SpaEditorialDiagnosticField = typeof spaEditorialDiagnosticFields[number];
 export type CatalogSyncDiagnostics = {
+  contentReplacements?: { supplierId:number; created:string; rawFingerprint:string; normalizedFingerprint:string }[];
   contentIntegrity?: {
     total: number;
     issues: { supplierId: number; path: string; reason: "collection_missing" | "item_removed" }[];
@@ -73,6 +74,9 @@ function hostname(value: unknown) {
 export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnostics | undefined {
   const input = object(value);
   const output: CatalogSyncDiagnostics = {};
+  if(Array.isArray(input.contentReplacements))output.contentReplacements=input.contentReplacements.slice(0,48).map(object)
+    .filter(row=>id(row.supplierId)&&typeof row.created==='string'&&Number.isFinite(Date.parse(row.created))&&typeof row.rawFingerprint==='string'&&/^[a-f0-9]{64}$/.test(row.rawFingerprint)&&typeof row.normalizedFingerprint==='string'&&/^[a-f0-9]{64}$/.test(row.normalizedFingerprint))
+    .map(row=>({supplierId:row.supplierId as number,created:row.created as string,rawFingerprint:row.rawFingerprint as string,normalizedFingerprint:row.normalizedFingerprint as string}));
   const content = object(input.contentIntegrity);
   if (count(content.total) && Array.isArray(content.issues)) {
     const safePath = (value: unknown) => typeof value === "string" && /^detail\.(?:images|galleryGroups|features|featureGroups|rooms)(?:\.(?:images|features|featureGroups)|\.(?:[1-9][0-9]{0,8})\.(?:images|features|featureGroups))?$/.test(value) ? value : null;

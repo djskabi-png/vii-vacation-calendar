@@ -31,6 +31,8 @@ for (const place of catalog.places || []) {
 }
 for (const place of hourly.places || []) addDestination(place.sourceUrl, `/discover/place/${place.id}`);
 addDestination("https://www.vii.co.il/rooms/ascape_room", "/discover/place/hourly-1915");
+// Current legacy page explicitly identifies supplier2112 under its older slug.
+addDestination("https://www.vii.co.il/events/Oshiya_Resort", "/events/place/event-2112");
 
 for (const [source, target] of [
   ["/term_and_conditions", "/legal/terms"],

@@ -22,13 +22,8 @@ import { spaWeekdayDate, spaWeekdayPath, spaWeekdaySlugs, type SpaWeekdaySlug } 
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryItems, orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
+import { scheduleSpaDealFollowup } from "../lib/spa-followup";
 type DealResponse = { cache?:{status:string}; availabilityStatus?:"verified"|"refreshing"; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
-const catalogNote = {
- he:"החבילות והמחירים מוצגים מיד מהקטלוג. הזמינות מתעדכנת ברקע ונבדקת שוב בעמוד הספא.",
- en:"Packages and catalog prices are shown immediately. Availability refreshes in the background and is checked again on the spa page.",
- ru:"Пакеты и цены каталога показаны сразу. Наличие обновляется в фоне и снова проверяется на странице спа.",
- fr:"Les forfaits et tarifs du catalogue s’affichent immédiatement. La disponibilité est actualisée en arrière-plan et revérifiée sur la page du spa.",
-} as const;
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,fixedDate,fixedWeekday,sectionTitle,layout="rail"}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;fixedDate?:string;fixedWeekday?:SpaWeekdaySlug;sectionTitle?:string;layout?:"rail"|"grid"}) {
  const {language,translate} = useSiteLanguage();
@@ -46,6 +41,9 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  const status = result.key === requestKey ? result.status : "loading";
  const [unavailableMedia,setUnavailableMedia] = useState<Set<string>>(()=>new Set());
  const [attempt,setAttempt] = useState(0);
+ const followupKeyRef = useRef(requestKey);
+ const followupCountRef = useRef(0);
+ useEffect(() => { if (followupKeyRef.current !== requestKey) { followupKeyRef.current = requestKey; followupCountRef.current = 0; } }, [requestKey]);
  const presetDate = clock && fixedDateOffset !== undefined ? eventDealDate(fixedDateOffset,clock.now) : "";
  const resolvedWeekdayDate = clock && fixedWeekday ? spaWeekdayDate(fixedWeekday,clock.now) : "";
  const requestedDate = resolvedWeekdayDate || fixedDate || presetDate || params.get("spaDealDate") || "";
@@ -66,11 +64,12 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  useEffect(()=>{
   if(!clockKey) return;
   const controller = new AbortController();
+  let followupTimer: number | undefined;
    discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal, timeoutMs:10_000,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
-   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setResult({key:requestKey,data:body,status:"ready"});}})
+   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setResult({key:requestKey,data:body,status:"ready"}); const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);}); if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
-  return ()=>controller.abort();
+  return ()=>{controller.abort(); if(followupTimer !== undefined) window.clearTimeout(followupTimer);};
  },[attempt,regionLabel,clockKey,requestKey,requestedDate,fixedDate,fixedWeekday,fixedDateOffset]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000){setResult(current=>({...current,status:"loading"}));setAttempt(value=>value+1);}};
@@ -120,7 +119,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
    {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>{setResult({key:requestKey,data:null,status:"loading"});setAttempt(value=>value+1);}}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
    {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
-   {visibleOffers.length?<><div className="spa-package-deals__context"><p>{data?.availabilityStatus==="refreshing"?catalogNote[language]:`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{visibleOffers.map((offer,index)=>{
+   {visibleOffers.length?<><div className="spa-package-deals__context"><p>{`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{visibleOffers.map((offer,index)=>{
     const href=localizedPath(offer.href,language); const title=localizedSpaPackageTitle(offer,language,translate);
     const siteName=localizedBusinessText(offer.siteName,language,translate,latinBusinessAlias(offer.siteNameEN) || latinBusinessAlias(offer.siteName) || `Spa ${offer.siteId}`);
     const city=localizedBusinessText(offer.city,language,translate,"");

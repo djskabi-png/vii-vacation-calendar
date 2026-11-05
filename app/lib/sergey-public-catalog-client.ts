@@ -9,6 +9,7 @@ import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType, type SergeyAmenityIndex } from "./sergey-amenities.ts";
 import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
 import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
+import { proveSupplierDetail } from "./supplier-detail-contract.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -301,6 +302,8 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
               has_availability: active[index].has_availability,
               ...startingPriceFields(active[index]),
             }, cities, areas, amenityIndex);
+            const detailProof = await proveSupplierDetail(detail, active[index], entries[index], now());
+            if (detailProof) entries[index]!.detailProof = detailProof;
           } catch (error) {
             if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
               entries[index] = previous.get(id) || null;

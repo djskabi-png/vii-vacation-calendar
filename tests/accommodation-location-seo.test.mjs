@@ -114,7 +114,7 @@ test("the built worker resolves the complete legacy inventory in one permanent h
     const expected = new URL(target, "https://www.vii.co.il");
     // Booking state survives permanent semantic redirects, including legacy price filters.
     const input = new URL(source, "https://www.vii.co.il");
-    if (/^\/s(?:\/|$)/i.test(input.pathname)) for (const key of ["from", "till", "to", "dates", "guests", "adults", "children", "infants", "pets", "rooms", "roomID", "price", "minPrice", "maxPrice", "sort"]) {
+    if (/^\/s(?:\/|$)/i.test(input.pathname) || /^\/(?:business(?:\?|$)|events\/place\/|discover\/place\/)/.test(target)) for (const key of ["from", "till", "to", "dates", "guests", "adults", "children", "infants", "pets", "rooms", "roomID", "price", "minPrice", "maxPrice", "sort", "date"]) {
       const value = input.searchParams.get(key); if (value) expected.searchParams.set(key, value);
     }
     assert.equal(`${actual.pathname}${actual.search}`, `${expected.pathname}${expected.search}`, source);

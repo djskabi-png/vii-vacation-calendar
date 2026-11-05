@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
+import {validSupplierDetailProof} from '../app/lib/supplier-detail-contract.ts';
+
+test('actual supplier client binds only complete fresh detail responses to normalized media and unit identity',async()=>{
+ const result=await client({api_version:1.1,created:new Date().toISOString(),shared_amenities:[],galleries:{1:{galleryID:1,title:'Main',pictures:['/gallery/fresh.jpg']}},rooms:[{roomID:55,roomName:'Suite',galleries:[],amenities:[],spaces:[]}]},false,{rooms:[{roomID:55}]}).fetchCandidate('vacations');
+ const entry=result.entries[0];assert.ok(entry.detailProof);assert.equal(await validSupplierDetailProof(entry.detailProof,entry,new Date()),true);assert.equal(Object.hasOwn(entry.summary,'detailProof'),false);assert.equal(Object.hasOwn(entry.detail,'detailProof'),false);
+});
 
 function client(override = {}, extraPlace = false, listOverride = {}, typesOverride = null) {
   const pictures = Array.from({ length: 14 }, (_, index) => `/gallery/photo-${index}.jpg`);

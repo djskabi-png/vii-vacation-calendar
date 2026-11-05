@@ -9,6 +9,28 @@ import { catalogResponse } from "../app/api/catalog/route.ts";
 import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
 import spaCatalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate } from "../app/lib/spa-editorial-policy.ts";
+import {proveSupplierDetail} from '../app/lib/supplier-detail-contract.ts';
+
+test('actual atomic catalog publish accepts a complete fresh site-page replacement and rejects a changed fingerprint',async()=>{
+ const db=await database(),supplierId=17,baseline=[{supplierId,summary:{name:'Place'},detail:{images:['/gallery/old.jpg'],rooms:[{id:2,images:['/gallery/old.jpg']}]}}];
+ const candidate={supplierId,summary:{name:'Place'},detail:{images:['/gallery/current.jpg'],rooms:[{id:2,images:['/gallery/current.jpg']}]}};
+ const raw={api_version:1.1,created:at().toISOString(),id:supplierId,active:true,galleries:{1:{galleryID:1,title:'Main',pictures:['/gallery/current.jpg']}},shared_amenities:[],rooms:[{roomID:2,galleries:[],amenities:[],spaces:[]}]};
+ candidate.detailProof=await proveSupplierDetail(raw,{siteID:supplierId,rooms:[{roomID:2}]},candidate,at());assert.ok(candidate.detailProof);
+ try{const accepted=await runSupplierCatalogSync(db,{id:'complete-detail',world:'events',source:'test',baseline,now:at,fetchCandidate:async()=>({fetchedAt:at().toISOString(),entries:[candidate]})});assert.equal(accepted.status,'accepted');assert.deepEqual((await readSupplierCatalog(db,'events')).entries[0].detail.images,['/gallery/current.jpg']);
+ const receipt=JSON.parse((await db.prepare('SELECT diagnostics_json AS data FROM supplier_catalog_runs WHERE id = ?').bind('complete-detail').first()).data);assert.equal(receipt.contentReplacements[0].supplierId,17);assert.equal(receipt.contentReplacements[0].normalizedFingerprint,candidate.detailProof.normalizedFingerprint);assert.equal(JSON.stringify(receipt).includes('/gallery/'),false);
+ const tampered=structuredClone(candidate);tampered.detail.images=['/gallery/tampered.jpg'];
+ const rejected=await runSupplierCatalogSync(db,{id:'tampered-detail',world:'events',source:'test',baseline,now:at,fetchCandidate:async()=>({fetchedAt:at().toISOString(),entries:[tampered]})});assert.equal(rejected.status,'rejected');assert.equal(rejected.errorCode,'catalog_content_requires_review');assert.deepEqual((await readSupplierCatalog(db,'events')).entries[0].detail.images,['/gallery/current.jpg']);
+ }finally{db.close();}
+});
+
+test('actual atomic reviewed inactive generation accepts only the exact source proof and preserves archived entries',async()=>{
+ const db=await database(),inactive=[210,225,342,727,2168,2508,2570],retained=Array.from({length:125},(_,i)=>({supplierId:10_000+i,summary:{name:'Place'},detail:{rooms:[{id:i+1}]}}));
+ const previous=[...retained,...inactive.map(supplierId=>({supplierId,summary:{name:'Inactive'},detail:{rooms:[{id:supplierId}]}}))],candidate=[...retained,{supplierId:2230,summary:{}},{supplierId:2738,summary:{}}],proof={activeCount:127,previousInactiveIds:inactive,previousInactiveIdsTruncated:false,previousUnknownActivityIds:[],previousUnknownActivityIdsTruncated:false};
+ const run=(id,sourceInventory)=>runSupplierCatalogSync(db,{id,world:'events',source:'test',baseline:previous,now:at,fetchCandidate:async()=>({fetchedAt:at().toISOString(),entries:candidate,sourceInventory})});
+ try{assert.equal((await run('missing-inactive-proof')).status,'rejected');assert.equal((await run('reviewed-inactive',proof)).status,'accepted');assert.equal((await readSupplierCatalog(db,'events')).entries.length,127);
+ const row=await db.prepare('SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?').bind('reviewed-inactive').first();assert.equal(row.n,127);
+ }finally{db.close();}
+});
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");

@@ -86,6 +86,14 @@
     {
       "commit": "dbad3b8b7a7ce9ae33d56e482289f5fc5870c501",
       "capability": "public edge v8 bounded refresh ahead, hard expiry and build isolation"
+    },
+    {
+      "commit": "03e543e427b37369ef45f4b8b78abeadbd8b9a0a",
+      "capability": "public v803 compact accepted SPA data, request budgets, initial quality checks and mobile map precision"
+    },
+    {
+      "commit": "cd90cebd3c1d8c13550f52fc4c2344740010651e",
+      "capability": "public edge v10 bounded anonymous HTML warming and safe browser Accept identity"
     }
   ],
   "requiredCapabilities": [

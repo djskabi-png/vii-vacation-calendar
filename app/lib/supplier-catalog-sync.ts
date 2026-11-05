@@ -8,8 +8,10 @@ import {
 } from "./supplier-catalog-store.ts";
 import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
 import { legacyGalleryFilename, isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
+import { validSupplierDetailProof } from "./supplier-detail-contract.ts";
+import { reviewedInactiveTransition, explicitInactiveRemoval, type SourceInventoryProof } from "./reviewed-catalog-inventory.ts";
 
-type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string };
+type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string; sourceInventory?:SourceInventoryProof };
 
 type CatalogContentIssue = {
   supplierId: number;
@@ -100,7 +102,7 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
       }
     }
   }
-  return issues.slice(0, 100);
+  return issues;
 }
 
 function children(world: SupplierCatalogWorld, entry: SupplierCatalogEntry) {
@@ -193,7 +195,13 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
-    const contentIssues = catalogContentIntegrityIssues(input.world, previous, candidate.entries);
+    if(candidate.sourceInventory && diff.removed.length && !explicitInactiveRemoval(previous,candidate.entries,candidate.sourceInventory))throw new Error("catalog_removal_requires_review");
+    const authoritativeDetails = new Set<number>();
+    for (const entry of candidate.entries) if (await validSupplierDetailProof(entry.detailProof, entry, now())) authoritativeDetails.add(entry.supplierId);
+    const allContentIssues=catalogContentIntegrityIssues(input.world,previous,candidate.entries);
+    const replacedIds=new Set(allContentIssues.filter(issue=>authoritativeDetails.has(issue.supplierId)).map(issue=>issue.supplierId));
+    if(replacedIds.size)diagnostics={...diagnostics,contentReplacements:candidate.entries.filter(entry=>replacedIds.has(entry.supplierId)).map(entry=>({supplierId:entry.supplierId,created:entry.detailProof!.created,rawFingerprint:entry.detailProof!.rawFingerprint,normalizedFingerprint:entry.detailProof!.normalizedFingerprint}))};
+    const contentIssues = allContentIssues.filter(issue => !authoritativeDetails.has(issue.supplierId));
     if (contentIssues.length) {
       diagnostics = { ...diagnostics, contentIntegrity: { total: contentIssues.length,
         issues: contentIssues, truncated: contentIssues.length >= 100 } };
@@ -201,7 +209,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     }
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);
     if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)
-      && !(input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries))) {
+      && !(input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries))
+      && !reviewedInactiveTransition(input.world, previous, candidate.entries, candidate.sourceInventory)) {
       throw new Error("catalog_removal_requires_review");
     }
     if (input.world === "spa" && !spaMediaWithinGuard(previous, candidate.entries)) {
@@ -218,6 +227,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       expectedCount: candidate.entries.length, added: diff.added, changed: diff.changed,
       removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline,
       previous, candidate: candidate.entries,
+      sourceInventory: candidate.sourceInventory,
+      diagnostics,
       approvedRemoval: input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries) });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {

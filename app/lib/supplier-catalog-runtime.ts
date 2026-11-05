@@ -11,6 +11,7 @@ import { validateSpaEditorialCandidate } from "./spa-editorial-policy.ts";
 import { readSupplierCatalog, type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { catalogInventoryDiagnostics, sanitizeCatalogDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import { legacyGalleryFilename } from "./legacy-gallery-media.ts";
+import {validSupplierDetailProof} from './supplier-detail-contract.ts';
 import { compareSupplierCatalogEntries, catalogContentIntegrityIssues, catalogRemovalWithinGuard } from "./supplier-catalog-sync.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
@@ -82,7 +83,9 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     const rows = Array.isArray(detail.rooms) ? detail.rooms : [];
     return total + rows.length;
   }, 0);
-  const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries);
+  const authoritativeDetails = new Set<number>();
+  for(const entry of candidate.entries)if(await validSupplierDetailProof(entry.detailProof,entry,options?.now?.()||new Date()))authoritativeDetails.add(entry.supplierId);
+  const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries).filter(issue=>!authoritativeDetails.has(issue.supplierId));
   const imageIssueIds = new Set(contentIssues.filter((issue) => issue.path === "detail.images").map((issue) => issue.supplierId));
   const nextById = new Map(candidate.entries.map((entry) => [entry.supplierId, entry]));
   const missingMediaEvidence = previous.flatMap((old) => {
@@ -98,7 +101,7 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     return unique.length ? [{ supplierId: old.supplierId, oldImageCount: oldImages.length, newImageCount: nextImages.length,
       removedTrustedFilenames: unique.slice(0, 10), removedTrustedFilenamesTruncated: unique.length > 10 }] : [];
   });
-  return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, diff: {
+  return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, authoritativeDetailIds:[...authoritativeDetails], diff: {
     before: diff.before, candidate: diff.after, added: diff.added, changed: diff.changed,
     removed: diff.removed.slice(0, 100), removedTruncated: diff.removed.length > 100,
     removedChildren: diff.removedChildren.slice(0, 100), removedChildrenTruncated: diff.removedChildren.length > 100,

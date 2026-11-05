@@ -41,8 +41,8 @@ test("redirect API denies anonymous reads and writes", async () => {
 
 test("redirect administration merges the complete bundled inventory with managed precedence", () => {
   const baseline = mergedRedirectInventory([], { pageSize: 100 });
-  assert.equal(baseline.allTotal, 3553);
-  assert.equal(baseline.baselineTotal, 3553);
+  assert.equal(baseline.allTotal, 3554);
+  assert.equal(baseline.baselineTotal, 3554);
   assert.equal(baseline.rows.length, 100);
   const result = mergedRedirectInventory([
     { source_path: "/villa_circle", target_path: "/business?id=vacation-999", status: 301, active: 1, deleted: 0, updated_at: "2026-10-25T00:00:00.000Z", updated_by: "owner@example.test" },
@@ -57,7 +57,7 @@ test("redirect administration merges the complete bundled inventory with managed
   ], { query: "villa_yotam", pageSize: 100 });
   assert.equal(deleted.total, 0);
   assert.equal(deleted.deleted, 1);
-  assert.equal(deleted.allTotal, 3552);
+  assert.equal(deleted.allTotal, 3553);
 });
 
 test("inactive legacy suppliers never redirect to a public 404", () => {

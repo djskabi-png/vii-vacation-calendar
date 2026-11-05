@@ -13,9 +13,9 @@ parser.add_argument("--receipt")
 parser.add_argument("--suspended-origin-build", help="Verify intentional pending-build admission suspension against this observed current origin build")
 args = parser.parse_args()
 receipt = None
-if args.repair_fail_open:
-    if not args.receipt:
-        parser.error("repair requires a new receipt path")
+if args.repair_fail_open and not args.receipt:
+    parser.error("repair requires a new receipt path")
+if args.receipt:
     receipt = (ROOT / args.receipt).resolve()
     if not receipt.is_relative_to((ROOT / ".qa-output").resolve()) or receipt.exists():
         parser.error("receipt must be a new file inside .qa-output")
@@ -70,6 +70,9 @@ if receipt:
 code = "const r=await fetch(process.argv[1],{headers:{Accept:'text/html'},signal:AbortSignal.timeout(20000)});await r.arrayBuffer();console.log(JSON.stringify({status:r.status,build:r.headers.get('x-vii-cache-build'),edge:r.headers.get('x-vii-edge-delivery'),skip:r.headers.get('x-vii-edge-cache-skip')}));"
 observed = json.loads(subprocess.run(["node","--input-type=module","-e",code,probe],cwd=ROOT,capture_output=True,text=True,timeout=25,check=True).stdout)
 status, build, edge = observed["status"], observed["build"], observed["edge"]
+report.update({"phase": "public_probe_observed", "publicProbe": observed, "probeUrl": probe})
+if receipt:
+    receipt.write_text(json.dumps(report, indent=2))
 if args.suspended_origin_build:
     assert status == 200 and build == args.suspended_origin_build and observed.get("skip") == "build_mismatch" and edge != "HIT", "Intentional cache suspension not verified"
 else:
