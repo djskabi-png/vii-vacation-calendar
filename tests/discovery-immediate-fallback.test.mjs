@@ -56,16 +56,16 @@ test("holiday-list retries and selected-deal retries cannot cancel each other", 
   assert.doesNotMatch(home, /\[language, mode, dealRetry, clock\?\.key\]/);
 });
 
-test("both homepage vacation rails recover through a bounded backoff from cold and transient failures", () => {
+test("both homepage vacation rails poll explicit refresh state within a shared deadline without multiplying network failures", () => {
   const home = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   const cache = readFileSync(new URL("../app/lib/discovery-client-cache.ts", import.meta.url), "utf8");
   const publicAudit = readFileSync(new URL("../scripts/audit-search-state.cjs", import.meta.url), "utf8");
   assert.match(home, /home-holidays\?\$\{new URLSearchParams\(\{ locale: language, clock: clock\.key \}\)\}`,[\s\S]*?timeoutMs: 4_000, retries: 1/);
-  assert.match(home, /verified-offers-v2`, \{ signal: controller\.signal,[\s\S]*?freshMs: 5 \* 60_000, staleMs: 60 \* 60_000,[\s\S]*?timeoutMs: 5_000, retries: 1/);
-  assert.match(home, /automaticRecoveryDelays = \[1_250, 2_500, 5_000, 8_000\]/);
+  assert.match(home, /verified-offers-v2`, \{ signal: controller\.signal,[\s\S]*?freshMs: 5 \* 60_000, staleMs: 60 \* 60_000,[\s\S]*?timeoutMs: Math\.min\(5_000, remainingBudget\(\)\), retries: 0/);
+  assert.match(home, /automaticRecoveryDelays = \[1_250, 2_500\]/);
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);
-  assert.match(home, /catch\(\(error\) => \{ if \(error\?\.name !== "AbortError"\) recover\(\); \}\)/);
-  assert.match(home, /if \(delay === undefined\) \{ setState\(usable \? "ready" : "error"\); return; \}/);
+  assert.match(home, /catch\(\(error\) => \{ if \(error\?\.name !== "AbortError"\) recover\(false\); \}\)/);
+  assert.match(home, /!refreshPending \|\| delay === undefined \|\| remainingBudget\(\) <= delay/);
   assert.match(cache, /cache: attempt \? "reload"/,
     "the retry must remain a bounded cache-bypassing GET recovery");
   assert.match(publicAudit, /home-live-deals-results", "home-holiday-deals-results"/);

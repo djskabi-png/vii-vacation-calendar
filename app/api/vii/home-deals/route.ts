@@ -79,7 +79,11 @@ export async function GET(request: Request) {
         validate: value => validVacationDiscoverySnapshot(value, dates),
       }));
       snapshot = { period: requestedPeriod, dates, cached };
-    } catch { snapshotReadFailed = true; }
+    } catch (error) {
+      // An ordinary cold/expired key is not a storage outage. It must use
+      // background warming instead of making this visitor call the supplier.
+      snapshotReadFailed = !db || !(error instanceof Error && "code" in error && error.code === "discovery_snapshot_missing");
+    }
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
     const curatedSource = snapshot ? await applyCuration(snapshot.cached.value.deals, requestedPeriod) : [];
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
@@ -105,6 +109,9 @@ export async function GET(request: Request) {
     }
     const selectedPeriod = selectedSnapshot.period;
     const cached = selectedSnapshot.cached;
+    if (cached.cache.status === "stale" && db) {
+      getRequestExecutionContext()?.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
+    }
     const result = { ...cached.value, period: selectedPeriod, dates };
     const ordered = prioritizeOnlineFirst(selectedSnapshot.deals, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;

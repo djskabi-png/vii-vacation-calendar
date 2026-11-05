@@ -82,6 +82,21 @@ test('browser navigation cache does not cross URL/body/clock selections or store
  }finally{globalThis.fetch=original;}
 });
 
+test('ordinary cold snapshot returns immediately while one background refresh warms it, stale snapshot remains visible during refresh',async()=>{
+ const dates=homeDealDates('tomorrow');let reads=0,refreshes=0,resolveRefresh;const pending=[];
+ const warming=new Promise(resolve=>resolveRefresh=resolve);
+ const get=route('vii/home-deals','GET',{
+  readCachedDiscovery:async()=>{reads++;if(reads===1)throw Object.assign(new Error('discovery_unavailable'),{code:'discovery_snapshot_missing'});return{value:{dates,deals:[{siteID:11,total:900,priceGuests:2,...dates}]},cache:{status:'stale',checkedAt:new Date(Date.now()-400_000).toISOString()}};},
+  homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+  runtimeCatalogDatabase:async()=>({}),publishedSupplierIds:async()=>new Set([11]),publicCatalogSummaries:async()=>[{supplierId:11,name:'Verified'}],readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
+  refreshVacationDiscoveryPeriod:async()=>{refreshes++;return warming;},runtimeDatabase:async()=>null,curateHomeDeals:async(_db,deals)=>deals,getRequestExecutionContext:()=>({waitUntil:p=>pending.push(p)}),
+ });
+ try{
+  const first=await get(new Request('https://example.test/?period=tomorrow'));assert.equal((await first.json()).availabilityStatus,'refreshing');assert.equal(refreshes,1);assert.equal(pending.length,1);
+  const second=await get(new Request('https://example.test/?period=tomorrow'));const body=await second.json();assert.equal(body.availabilityStatus,'verified');assert.equal(body.deals.length,1);assert.equal(refreshes,2);assert.equal(pending.length,2);
+ }finally{resolveRefresh();await Promise.all(pending);}
+});
+
 test('browser discovery does not remember a response rejected by the semantic cache policy',async()=>{
  const original=globalThis.fetch;let calls=0;
  try{

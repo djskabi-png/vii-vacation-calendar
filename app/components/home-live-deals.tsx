@@ -24,7 +24,8 @@ import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer } from "../
 
 type ResponseData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
-const automaticRecoveryDelays = [1_250, 2_500, 5_000, 8_000] as const;
+const automaticRecoveryDelays = [1_250, 2_500] as const;
+const selectionRecoveryBudgetMs = 10_000;
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -104,6 +105,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const track = useRef<HTMLDivElement>(null);
   const lastGoodData = useRef(new Map<string, ResponseData>());
   const automaticRetries = useRef(new Map<string, number>());
+  const recoveryStartedAt = useRef(new Map<string, number>());
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = sectionTitle || (scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title);
@@ -145,6 +147,9 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const startedAt = recoveryStartedAt.current.get(selectionKey) ?? Date.now();
+    recoveryStartedAt.current.set(selectionKey, startedAt);
+    const remainingBudget = () => Math.max(0, selectionRecoveryBudgetMs - (Date.now() - startedAt));
     const acceptedCandidate = lastGoodData.current.get(selectionKey);
     const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : undefined;
     if (!accepted) lastGoodData.current.delete(selectionKey);
@@ -163,21 +168,30 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         lastGoodData.current.delete(selectionKey);
         setData(null);
         setState("loading");
+        recoveryStartedAt.current.delete(selectionKey);
         setDealRetry((value) => value + 1);
       }, Math.max(1, checkedAt + HOME_OFFER_MAX_AGE_MS - Date.now()));
     };
     armExpiry(accepted);
-    const recover = () => {
+    const recover = (refreshPending = true) => {
       const usable = isFreshHomeOffer(accepted);
       if (!usable) { lastGoodData.current.delete(selectionKey); setData(null); }
       const attempts = automaticRetries.current.get(selectionKey) || 0;
       const delay = automaticRecoveryDelays[attempts];
-      if (delay === undefined) { setState(usable ? "ready" : "error"); return; }
+      if (!refreshPending || delay === undefined || remainingBudget() <= delay) { setState(usable ? "ready" : "error"); return; }
       automaticRetries.current.set(selectionKey, attempts + 1);
       setState(usable ? "ready" : "loading");
       retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);
     };
-    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: 5_000, retries: 1,
+    if (!remainingBudget()) {
+      recover(false);
+      return () => { controller.abort(); if (expiryTimer) clearTimeout(expiryTimer); };
+    }
+    // One network attempt per poll. Only the server's explicit refreshing
+    // response permits another poll, within one shared selection deadline.
+    // A timed-out request must not silently multiply into transport retries
+    // and another four component retries while the visitor sees a skeleton.
+    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(5_000, remainingBudget()), retries: 0,
       shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null) })
       .then((result) => {
         if (controller.signal.aborted) return;
@@ -200,12 +214,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         }
         if (!isFreshHomeOffer(result)) throw new Error("expired_result");
         automaticRetries.current.delete(selectionKey);
+        recoveryStartedAt.current.delete(selectionKey);
         lastGoodData.current.set(selectionKey, result);
         setData(result);
         setState("ready");
         armExpiry(result);
       })
-      .catch((error) => { if (error?.name !== "AbortError") recover(); });
+      .catch((error) => { if (error?.name !== "AbortError") recover(false); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
@@ -271,7 +286,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         </div> : null}
         {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
-          else { automaticRetries.current.delete(selectionKey); setDealRetry((value) => value + 1); }
+          else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
         }}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {data?.deals.length ? <div id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>

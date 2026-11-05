@@ -2,6 +2,10 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 export type DiscoveryCacheResult<T> = { value: T; cache: { status: "fresh" | "refreshed" | "stale"; checkedAt: string } };
+export class DiscoverySnapshotMissingError extends Error {
+  readonly code = "discovery_snapshot_missing";
+  constructor() { super("discovery_unavailable"); this.name = "DiscoverySnapshotMissingError"; }
+}
 type Options<T> = { key: readonly unknown[]; load: (previous?: T) => Promise<T>; db?: D1Database | null; now?: () => number; validate?: (value: unknown) => boolean; policy?: { freshMs: number; staleMs: number } };
 type Row = { payload: string | null; checked_at: number; stale_until: number; retry_after: number; lease_until: number };
 const TABLE = "vii_discovery_offer_cache_v1";
@@ -130,6 +134,6 @@ export async function readCachedDiscovery<T>(options: Omit<Options<T>, "load">):
   const now = (options.now ?? Date.now)();
   const row = options.db ? await read(options.db, key) : memory.get(key);
   const value = parse(row, { ...options, load: async () => unavailable() }, now);
-  if (!row || value === undefined) return unavailable();
+  if (!row || value === undefined) throw new DiscoverySnapshotMissingError();
   return result(value, row, now < row.checked_at + selectedPolicy.freshMs ? "fresh" : "stale");
 }
