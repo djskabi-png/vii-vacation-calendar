@@ -208,8 +208,8 @@ test("an existing large catalog refreshes only a bounded rotating detail window 
     if (path === "/vacations") return Response.json({ places: previous.map((entry) => ({ siteID: entry.supplierId,
       siteName: entry.summary.name, active: true, location: { cityID: 1 }, galleries: [{ pictures: ["/gallery/list.jpg"] }], rooms: [] })) });
     const id = Number(path.split("/").at(-1)); requested.push(id);
-    return Response.json({ id, active: true, name: `מקום ${id}`, location: { city: 1 },
-      galleries: [{ pictures: ["/gallery/fresh.jpg"] }], rooms: [] });
+    return Response.json({ id, active: true, name: `מקום ${id}`, location: { city: 1 },api_version:1.1,created:'2026-10-24T12:00:00Z',shared_amenities:[],
+      galleries: {1:{galleryID:1,title:'Main',pictures:["/gallery/fresh.jpg"]}}, rooms: [] });
   };
   const result = await createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl,
     detailRefreshLimit: 7, now: () => new Date("2026-10-24T12:00:00Z") }).fetchCandidate("vacations", previous);
@@ -231,7 +231,8 @@ test("a failing detail refresh preserves the accepted place instead of failing t
   const result = await createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl,
     detailRefreshLimit: 1 }).fetchCandidate("vacations", old);
   assert.equal(result.entries.length, 1);
-  assert.deepEqual(result.entries[0].detail, old[0].detail);
+  const {_viiCatalog,...facts}=result.entries[0].detail;assert.deepEqual(facts,old[0].detail);
+  assert.ok(Date.parse(_viiCatalog.retryAfter)>Date.parse(_viiCatalog.attemptedAt));assert.equal(_viiCatalog.checkedAt,undefined);
 });
 
 test('representative list gallery wins card order while detail and room media retain separate ownership', async () => {

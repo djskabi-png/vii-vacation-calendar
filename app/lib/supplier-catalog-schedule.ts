@@ -13,7 +13,11 @@ export function catalogPullSlot(date: Date, world: SupplierCatalogWorld) {
     month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date);
   const part = (type: string) => parts.find((value) => value.type === type)?.value || "";
   const time = `${part("hour")}:${part("minute")}`;
-  const slot = Object.keys(schedule).filter((key) => schedule[key] === world && key <= time).sort().at(-1);
+  // The existing Cloud vacation job runs hourly. Reusing one of only three
+  // daily IDs made most of its calls no-ops and could not cover weekly detail
+  // refreshes. Native schedule slots and the other worlds remain unchanged.
+  const slot = world === "vacations" ? `${part("hour")}:00`
+    : Object.keys(schedule).filter((key) => schedule[key] === world && key <= time).sort().at(-1);
   if (!slot) return null;
   const localDate = `${part("year")}-${part("month")}-${part("day")}`;
   return { world, slot, localDate, id: `mcp_${localDate.replaceAll("-", "")}_${world}_${slot.replace(":", "")}` };

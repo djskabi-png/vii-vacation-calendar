@@ -98,6 +98,10 @@
     {
       "commit": "885dcb2d7a91364bc7e9164c70ca1ca040e9f41e",
       "capability": "public v804 full supplier-detail contract, exact reviewed inactive inventory, bounded SPA recovery and legacy alias"
+    },
+    {
+      "commit": "e6223e5da962470bf411cb2f282d3f3684206aba",
+      "capability": "public v805 memory bounded catalog publication and truthful SPA pending recovery"
     }
   ],
   "requiredCapabilities": [

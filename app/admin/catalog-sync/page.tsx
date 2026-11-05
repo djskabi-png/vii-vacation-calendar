@@ -62,6 +62,7 @@ function RunDiagnostics({ world, runId }: { world: World; runId: string }) {
     {state.error ? <small role="alert">{state.error}</small> : null}
     {state.loaded && !state.available ? <small>לא נשמר אבחון במשיכה זו</small> : null}
     {!value ? null : <>
+    {value.deferredDetails?.supplierIds.length ? <p>נשמרו הפרטים התקינים הקודמים במקומות הבאים, כי רענון הפרטים לא הושלם: <span dir="ltr">{value.deferredDetails.supplierIds.join(", ")}{value.deferredDetails.truncated ? "..." : ""}</span></p> : null}
     {value.contentIntegrity ? <><p>נתונים שדורשים בדיקה: {value.contentIntegrity.total}{value.contentIntegrity.truncated ? " ומעלה" : ""}</p><ul>{value.contentIntegrity.issues.map((issue, index) => <li key={`${issue.supplierId}-${index}`}><span>מזהה מקום: </span><span dir="ltr">{issue.supplierId} · {issue.path} · {issue.reason}</span></li>)}</ul></> : null}
     {value.failure ? <p><strong>שלב הכשל:</strong> <code dir="ltr">{value.failure.stage}</code> · <strong>סוג:</strong> <code dir="ltr">{value.failure.category}</code> · <strong>משך:</strong> {(value.failure.elapsedMs / 1000).toLocaleString("he-IL", { maximumFractionDigits: 1 })} שניות{value.failure.total !== undefined ? <> · <strong>הושלמו:</strong> {value.failure.completed || 0} מתוך {value.failure.total}</> : null} · {value.failure.retryable ? "מתאים לניסיון חוזר" : "דורש תיקון לפני ניסיון נוסף"}</p> : null}
     {value.before !== undefined ? <p><span>{labels.places.plural} לפני:</span> {value.before} · <span>התקבלו מהספק:</span> {value.candidate}</p> : null}
@@ -95,9 +96,12 @@ type CandidateInspection = {
   missingMediaEvidence?: Array<{ supplierId: number; oldImageCount: number; newImageCount: number; removedTrustedFilenames: string[]; removedTrustedFilenamesTruncated: boolean }>;
   missingMediaEvidenceTotal?: number;
   missingMediaEvidenceTruncated?: boolean;
+  deferredDetailIds?:number[];deferredDetailIdsTruncated?:boolean;
+  detailProofIssues?:Array<{supplierId:number;code:string}>;
 };
 
 function CandidateComparison({ world }: { world: "vacations" | "events" }) {
+  const [targetId,setTargetId]=useState('');
   const [result, setResult] = useState<CandidateInspection | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -105,15 +109,17 @@ function CandidateComparison({ world }: { world: "vacations" | "events" }) {
   useEffect(() => () => { requestRef.current?.abort(); requestRef.current = null; }, [world]);
   const inspect = async () => {
     if (requestRef.current) return;
+    if(targetId&&!/^[1-9]\d{0,9}$/.test(targetId)){setError('יש להזין מספר מקום תקין');return;}
     const controller = new AbortController(); requestRef.current = controller;
     setLoading(true); setError(""); setResult(null);
-    const response = await readGrowthEndpoint<CandidateInspection>(fetch, `/api/admin/catalog-sync?candidate=1&world=${world}`, "json", controller, 45_000);
+    const response = await readGrowthEndpoint<CandidateInspection>(fetch, `/api/admin/catalog-sync?candidate=1&world=${world}${targetId?`&supplierId=${targetId}`:''}`, "json", controller, 45_000);
     if (requestRef.current !== controller) return;
     requestRef.current = null; setLoading(false);
     if (response.ok && response.value) setResult(response.value);
     else setError(response.status === 403 ? "אין הרשאת מנהל לבדיקת הספק" : "לא הצלחנו להשלים את בדיקת הספק. אפשר לנסות שוב.");
   };
   return <section aria-label="השוואה מול הספק" style={{ marginBlock: 12 }}>
+    <label>מספר מקום לבדיקה מפורטת (לא חובה)<input type="text" inputMode="numeric" value={targetId} onChange={event=>setTargetId(event.target.value)} disabled={loading} /></label>
     <button type="button" onClick={() => void inspect()} disabled={loading}>{loading ? "בודקים את נתוני הספק..." : "בדיקת השינויים מהספק"}</button>
     <small style={{ display: "block", marginBlock: 8 }}>השוואה בלבד, ללא פרסום שינויים בקטלוג</small>
     {error ? <p role="alert">{error}</p> : null}
@@ -124,6 +130,7 @@ function CandidateComparison({ world }: { world: "vacations" | "events" }) {
       <p>{result.contentIssues.length ? "נמצאו נתונים שדורשים בדיקה" : "לא נמצא אובדן תוכן במקומות שנבדקו"}</p>
       {result.contentIssues.length ? <ul>{result.contentIssues.map((issue, index) => <li key={`${issue.supplierId}-${index}`}><span>מזהה מקום: </span><span dir="ltr">{issue.supplierId} · {issue.path} · {issue.reason}</span></li>)}</ul> : null}
       {result.contentIssuesTruncated ? <small>מוצגים עד 100 ממצאים</small> : null}
+      {result.detailProofIssues?.length ? <details><summary>סיבת אי־אימות פרטי הספק</summary><ul>{result.detailProofIssues.map(issue=><li key={issue.supplierId}><span dir="ltr">{issue.supplierId}: {issue.code}</span></li>)}</ul></details> : null}
       {result.missingMediaEvidence?.length ? <details><summary>ראיות תמונות שהוסרו <span dir="ltr">({result.missingMediaEvidence.length}/{result.missingMediaEvidenceTotal ?? result.missingMediaEvidence.length})</span></summary><ul>{result.missingMediaEvidence.map((item) => <li key={item.supplierId}>מקום <span dir="ltr">{item.supplierId}</span>: {item.oldImageCount} לפני, {item.newImageCount} אחרי · <span dir="ltr">{item.removedTrustedFilenames.join(", ")}</span>{item.removedTrustedFilenamesTruncated ? "..." : ""}</li>)}</ul></details> : null}
     </div> : null}
   </section>;

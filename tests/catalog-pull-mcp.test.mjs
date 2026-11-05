@@ -124,9 +124,18 @@ test("server-side slots follow all twelve approved Israel times across summer an
       assert.equal(run.slot, slot);
       assert.equal(catalogPullSlot(new Date(date.getTime() + 60_000), world).id, run.id);
     }
-    assert.equal(catalogPullSlot(new Date(Date.UTC(2026, month - 1, 15, 1, 0)), world), null);
+    const early=catalogPullSlot(new Date(Date.UTC(2026, month - 1, 15, 1, 0)), world);
+    if(world==='vacations')assert.equal(early.slot,`${String(1+offset).padStart(2,'0')}:00`);else assert.equal(early,null);
   }
   assert.equal(catalogPullSlot(new Date(NaN), "spa"), null);
+});
+
+test('vacation MCP has one server-chosen run per Israel hour while native and other-world cadences remain unchanged',()=>{
+ const start=new Date('2026-11-05T00:00:00+02:00'),ids=new Set();
+ for(let hour=0;hour<24;hour++){const date=new Date(start.getTime()+hour*3600000),run=catalogPullSlot(date,'vacations');ids.add(run.id);assert.equal(catalogPullSlot(new Date(date.getTime()+59*60000),'vacations').id,run.id);}
+ assert.equal(ids.size,24);
+ const before=catalogPullSlot(new Date('2026-10-24T22:30:00Z'),'vacations'),after=catalogPullSlot(new Date('2026-10-25T00:30:00Z'),'vacations');
+ assert.notEqual(before.id,after.id);assert.ok(before.id.startsWith('mcp_'));assert.ok(after.id.startsWith('mcp_'));
 });
 
 async function database() {

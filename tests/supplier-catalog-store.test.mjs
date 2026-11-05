@@ -55,6 +55,45 @@ function run(id, startedAt = "2026-10-12T12:00:00Z") {
   return { id, world: "spa", source: "spaplus-api", startedAt, lockUntil: "2026-10-12T12:15:00Z" };
 }
 
+test("new run reconciles only the exact expired lock owner", async () => {
+  const db = await database();
+  try {
+    assert.equal(await beginSupplierCatalogRun(db, run("expired-old", "2026-10-12T11:00:00Z")), true);
+    await db.prepare("UPDATE supplier_catalog_state SET lock_until = ? WHERE world = ?").bind("2026-10-12T11:15:00Z", "spa").run();
+    assert.equal(await beginSupplierCatalogRun(db, run("new-owner", "2026-10-12T12:00:00Z")), true);
+    assert.equal((await db.prepare("SELECT status FROM supplier_catalog_runs WHERE id = ?").bind("expired-old").first()).status, "failed");
+    assert.equal((await db.prepare("SELECT lock_run_id AS id FROM supplier_catalog_state WHERE world = 'spa'").first()).id, "new-owner");
+  } finally { db.close(); }
+});
+
+test("unexpired owner is not reconciled and duplicate run remains side-effect free", async () => {
+  const db = await database();
+  try {
+    assert.equal(await beginSupplierCatalogRun(db, run("active-owner")), true);
+    assert.equal(await beginSupplierCatalogRun(db, run("active-owner")), false);
+    assert.equal((await db.prepare("SELECT status FROM supplier_catalog_runs WHERE id = ?").bind("active-owner").first()).status, "running");
+    assert.equal((await db.prepare("SELECT lock_run_id AS id FROM supplier_catalog_state WHERE world = 'spa'").first()).id, "active-owner");
+  } finally { db.close(); }
+});
+
+test("fresh competitor is fenced and expired owner cannot stage, publish, or clear the new lock", async () => {
+  const db = await database();
+  try {
+    await beginSupplierCatalogRun(db, run("accepted-base"));
+    await stageSupplierCatalogEntries(db, "accepted-base", "spa", [{ supplierId: 1, summary: { title: "base" } }]);
+    await acceptSupplierCatalogRun(db, { id: "accepted-base", world: "spa", expectedCount: 1, added: 1, changed: 0, removed: 0, finishedAt: "2026-10-12T12:03:00Z" });
+    await beginSupplierCatalogRun(db, { ...run("expired-owner", "2026-10-12T13:00:00Z"), lockUntil: "2026-10-12T13:05:00Z" });
+    await db.prepare("UPDATE supplier_catalog_state SET lock_until = ? WHERE world = ?").bind("2026-10-12T13:05:00Z", "spa").run();
+    assert.equal(await beginSupplierCatalogRun(db, { ...run("fresh-competitor", "2026-10-12T13:06:00Z"), lockUntil: "2026-10-12T13:21:00Z" }), true);
+    assert.equal(await beginSupplierCatalogRun(db, { ...run("another-fresh", "2026-10-12T13:07:00Z"), lockUntil: "2026-10-12T13:22:00Z" }), false);
+    assert.equal((await db.prepare("SELECT active_run_id AS id, lock_run_id AS lockId FROM supplier_catalog_state WHERE world='spa'").first()).id, "accepted-base");
+    await assert.rejects(() => stageSupplierCatalogEntries(db, "expired-owner", "spa", [{ supplierId: 2, summary: {} }]), /invalid_catalog_stage/);
+    await finishSupplierCatalogRun(db, { id: "expired-owner", world: "spa", status: "failed", errorCode: "late", finishedAt: "2026-10-12T13:08:00Z" });
+    assert.equal((await db.prepare("SELECT lock_run_id AS id FROM supplier_catalog_state WHERE world='spa'").first()).id, "fresh-competitor");
+    await assert.rejects(() => acceptSupplierCatalogRun(db, { id: "expired-owner", world: "spa", expectedCount: 0, added: 0, changed: 0, removed: 0, finishedAt: "2026-10-12T13:09:00Z" }));
+  } finally { db.close(); }
+});
+
 test("first generation compares allowed removals with the bundled baseline", async () => {
   const db = await database();
   try {

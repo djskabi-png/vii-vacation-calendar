@@ -7,14 +7,19 @@ export function explicitInactiveRemoval(previous:SupplierCatalogEntry[],candidat
 }
 // Exact production comparison reviewed 2026-11-05 against the complete source
 // active=false intersection, not the clipped first100 inactive suppliers.
+const vacationRemoved=[166,210,213,501,714,727,1029,1031,1094,1156,1172,1175,1199,1201,1260,1470,1529,2055,2151,2156,2168,2226,2264,2401,2432,2433,2441,2456,2469,2503,2517,2569,2591,2593,2595,2596];
 const reviewed={
- events:{before:132,after:127,removed:[210,225,342,727,2168,2508,2570]},
- vacations:{before:577,after:547,removed:[166,210,213,501,714,727,1029,1031,1094,1156,1172,1175,1199,1201,1260,1470,1529,2055,2151,2156,2168,2226,2264,2401,2432,2433,2441,2456,2469,2503,2517,2569,2591,2593,2595,2596]},
+ events:[{before:132,after:127,removed:[210,225,342,727,2168,2508,2570]}],
+ vacations:[{before:577,after:547,removed:vacationRemoved},
+  // Fresh read-only production comparison 2026-11-05T14:37:52.900Z:
+  // 2427 additionally became explicitly inactive; no retained unit was lost.
+  {before:577,after:546,removed:[...vacationRemoved,2427].sort((a,b)=>a-b)}],
 };
 export function reviewedInactiveTransition(world:SupplierCatalogWorld,previous:SupplierCatalogEntry[],candidate:SupplierCatalogEntry[],proof?:SourceInventoryProof){
  if(world!=='events'&&world!=='vacations')return false;
- const review=reviewed[world],next=new Map(candidate.map(row=>[row.supplierId,row]));
- if(previous.length!==review.before||candidate.length!==review.after||next.size!==candidate.length||!explicitInactiveRemoval(previous,candidate,proof))return false;
+ const next=new Map(candidate.map(row=>[row.supplierId,row]));
+ const review=reviewed[world].find(item=>previous.length===item.before&&candidate.length===item.after);
+ if(!review||next.size!==candidate.length||!explicitInactiveRemoval(previous,candidate,proof))return false;
  const removed=previous.filter(row=>!next.has(row.supplierId)).map(row=>row.supplierId).sort((a,b)=>a-b);
  if(JSON.stringify(removed)!==JSON.stringify(review.removed))return false;
  // Whole inactive places only; no unit removal from a retained place.

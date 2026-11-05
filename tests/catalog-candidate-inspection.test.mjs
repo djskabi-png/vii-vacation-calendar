@@ -80,3 +80,12 @@ test('media evidence is capped at ten businesses with an explicit total and trun
   assert.equal(result.missingMediaEvidenceTruncated,true);
   assert.equal(db.writes.length,0);
 });
+
+test('targeted administrator inspection fetches the chosen accepted detail and exposes only its safe proof code without writes',async()=>{
+ const db=dbFixture([1,2].map(supplierId=>({supplierId,summary:{name:'Fixture'},detail:{rooms:[],images:['/api/vii/media/p0.jpg']}})));
+ const reads=[];const fetchImpl=provider([active(1),active(2)],id=>{reads.push(id);return detail(id);});
+ const result=await inspectSupplierCatalogWorld(db,'events',{apiKey:'fixture',supplierId:2,fetchImpl});
+ assert.deepEqual(reads,[2]);assert.deepEqual(result.detailProofIssues,[{supplierId:2,code:'protocol_version'}]);assert.equal(db.writes.length,0);
+ await assert.rejects(()=>inspectSupplierCatalogWorld(db,'events',{apiKey:'fixture',supplierId:999,fetchImpl}),/invalid_supplier_inspection/);
+ assert.deepEqual(reads,[2]);assert.equal(db.writes.length,0);
+});

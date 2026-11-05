@@ -11,7 +11,7 @@ import { legacyGalleryFilename, isQuarantinedGalleryMedia } from "./legacy-galle
 import { validSupplierDetailProof } from "./supplier-detail-contract.ts";
 import { reviewedInactiveTransition, explicitInactiveRemoval, type SourceInventoryProof } from "./reviewed-catalog-inventory.ts";
 
-type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string; sourceInventory?:SourceInventoryProof };
+type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string; sourceInventory?:SourceInventoryProof; deferredDetailIds?:number[];deferredDetailIdsTruncated?:boolean };
 
 type CatalogContentIssue = {
   supplierId: number;
@@ -197,6 +197,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
+    if(candidate.deferredDetailIds?.length)diagnostics={...diagnostics,deferredDetails:{supplierIds:candidate.deferredDetailIds,truncated:candidate.deferredDetailIdsTruncated===true}};
     if(candidate.sourceInventory && diff.removed.length && !explicitInactiveRemoval(previous,candidate.entries,candidate.sourceInventory))throw new Error("catalog_removal_requires_review");
     const authoritativeDetails = new Set<number>();
     for (const entry of candidate.entries) if (await validSupplierDetailProof(entry.detailProof, entry, now())) authoritativeDetails.add(entry.supplierId);

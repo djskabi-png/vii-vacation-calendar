@@ -9,7 +9,8 @@ import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType, type SergeyAmenityIndex } from "./sergey-amenities.ts";
 import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
 import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
-import { proveSupplierDetail } from "./supplier-detail-contract.ts";
+import { proveSupplierDetail, supplierEntryFingerprint, supplierDetailProofIssue } from "./supplier-detail-contract.ts";
+import {selectDetailRefreshIds,stampDetailRefresh} from './supplier-detail-refresh.ts';
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -205,7 +206,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
 export const SERGEY_DETAIL_REFRESH_LIMIT = 24;
 
 export function createSergeyPublicCatalogClient(options: { apiKey: string; fetchImpl?: typeof fetch; now?: () => Date;
-  detailRefreshLimit?: number }) {
+  detailRefreshLimit?: number; forceDetailRefresh?:boolean; retainUnprovedDetails?:boolean; inspectionSupplierId?:number }) {
   const apiKey = options.apiKey.trim();
   const fetchImpl = options.fetchImpl || fetch;
   const now = options.now || (() => new Date());
@@ -241,16 +242,13 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       }
       const entries = new Array<SupplierCatalogEntry | null>(active.length);
       const excludedMediaIds: number[] = [];
+      const deferredDetailIds: number[] = [];
+      const detailProofIssues: Array<{supplierId:number;code:string}> = [];
       const previous = new Map(previousEntries.map((entry) => [entry.supplierId, entry]));
       const existingIndexes = ids.map((id, index) => previous.has(id) ? index : -1).filter((index) => index >= 0);
-      const refreshIndexes = new Set<number>();
-      if (existingIndexes.length && detailRefreshLimit) {
-        const window = Math.floor(now().getTime() / 600_000);
-        const start = (window * detailRefreshLimit) % existingIndexes.length;
-        for (let offset = 0; offset < Math.min(detailRefreshLimit, existingIndexes.length); offset += 1) {
-          refreshIndexes.add(existingIndexes[(start + offset) % existingIndexes.length]);
-        }
-      }
+      if(options.inspectionSupplierId!==undefined&&(!Number.isSafeInteger(options.inspectionSupplierId)||options.retainUnprovedDetails!==false||!previous.has(options.inspectionSupplierId)||!ids.includes(options.inspectionSupplierId)))throw new Error('invalid_supplier_inspection');
+      const refreshIds=new Set(options.inspectionSupplierId!==undefined?[options.inspectionSupplierId]:selectDetailRefreshIds(previousEntries,existingIndexes.map(index=>ids[index]),detailRefreshLimit,now(),{force:options.forceDetailRefresh===true}));
+      const refreshIndexes = new Set(existingIndexes.filter(index=>refreshIds.has(ids[index])));
       const detailIndexes = active.map((_place, index) => index)
         .filter((index) => !previous.has(ids[index]) || !previous.get(ids[index])?.detail || refreshIndexes.has(index));
       for (let index = 0; index < active.length; index += 1) {
@@ -271,6 +269,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             description: record(old.summary).description || record(normalized.summary).description,
             ...("highlights" in record(old.summary) ? { highlights: record(old.summary).highlights } : {}),
           }, detail: old.detail };
+          if(Object.hasOwn(listPlace,'preview_text')&&!plainText(listPlace.preview_text))delete (entries[index]!.summary as Record<string,unknown>).previewText;
         } catch {
           // A list-card omission must not erase a previously accepted detail page.
           entries[index] = old;
@@ -303,13 +302,30 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
               ...startingPriceFields(active[index]),
             }, cities, areas, amenityIndex);
             const detailProof = await proveSupplierDetail(detail, active[index], entries[index], now());
-            if (detailProof) entries[index]!.detailProof = detailProof;
+            if (detailProof) {
+              const stamped=stampDetailRefresh(entries[index]!,now(),{verified:true});
+              stamped.detailProof={...detailProof,normalizedFingerprint:await supplierEntryFingerprint(stamped)};
+              entries[index]=stamped;
+            } else if(previous.has(id)) {
+              deferredDetailIds.push(id);
+              detailProofIssues.push({supplierId:id,code:supplierDetailProofIssue(detail,active[index],now())||'normalized_entry_schema'});
+              if(options.retainUnprovedDetails===false)continue;
+              // A partial refresh cannot erase facts or hold the whole world
+              // hostage. Retain this accepted place and retry it after backoff.
+              const retained=stampDetailRefresh(previous.get(id)!,now(),{verified:false});
+              if(Object.hasOwn(active[index],'preview_text')) {
+                const summary={...record(retained.summary)},preview=plainText(active[index].preview_text);
+                if(preview)summary.previewText=preview;else delete summary.previewText;
+                retained.summary=summary;
+              }
+              entries[index]=retained;
+            }
           } catch (error) {
             if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
-              entries[index] = previous.get(id) || null;
+              entries[index] = previous.has(id)?stampDetailRefresh(previous.get(id)!,now(),{verified:false}):null;
               excludedMediaIds.push(id);
             } else if (previous.has(id)) {
-              entries[index] = previous.get(id)!;
+              entries[index] = stampDetailRefresh(previous.get(id)!,now(),{verified:false});deferredDetailIds.push(id);
               console.warn("VII supplier detail refresh retained previous entry", { world, siteID: id,
                 code: error instanceof Error && /^[a-z_]{3,100}$/.test(error.message) ? error.message : "supplier_detail_refresh_failed" });
             } else if (error instanceof Error && ["sergey_transport_error", "sergey_provider_error"].includes(error.message)) {
@@ -332,6 +348,8 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       const previousInactiveIds = inactiveIds.filter((id) => previousIds.has(id));
       const previousUnknownActivityIds = unknownActivityIds.filter((id) => previousIds.has(id));
       return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null),
+        deferredDetailIds:deferredDetailIds.slice(0,100),deferredDetailIdsTruncated:deferredDetailIds.length>100,
+        detailProofIssues:detailProofIssues.slice(0,100),
         sourceInventory: { listedCount: list.places.length, activeCount: active.length,
           inactiveIds: inactiveIds.slice(0, 100), inactiveIdsTruncated: inactiveIds.length > 100,
           unknownActivityIds: unknownActivityIds.slice(0, 100), unknownActivityIdsTruncated: unknownActivityIds.length > 100,

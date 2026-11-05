@@ -31,8 +31,10 @@ export async function GET(request: Request) {
   const worldParam = url.searchParams.get("world");
   if (url.searchParams.get("candidate") === "1") {
     if (worldParam !== "vacations" && worldParam !== "events") return Response.json({ error: "invalid_world" }, { status: 400, headers });
-    try { return Response.json(await inspectSupplierCatalogWorld(await database(), worldParam), { headers }); }
-    catch (error) { console.error("VII catalog candidate inspection unavailable", error); return Response.json({ error: "catalog_candidate_unavailable" }, { status: 503, headers }); }
+    const target=url.searchParams.get('supplierId');
+    if(target!==null&&(!/^[1-9]\d{0,9}$/.test(target)||!Number.isSafeInteger(Number(target))))return Response.json({error:'invalid_supplier_inspection'},{status:400,headers});
+    try { return Response.json(await inspectSupplierCatalogWorld(await database(), worldParam,{supplierId:target===null?undefined:Number(target)}), { headers }); }
+    catch (error) { if(error instanceof Error&&error.message==='invalid_supplier_inspection')return Response.json({error:'invalid_supplier_inspection'},{status:404,headers});console.error("VII catalog candidate inspection unavailable", error); return Response.json({ error: "catalog_candidate_unavailable" }, { status: 503, headers }); }
   }
   if (runId !== null || worldParam !== null) {
     if (!runId || !isCatalogWorld(worldParam) || !/^[A-Za-z0-9_-]{1,180}$/.test(runId)) {

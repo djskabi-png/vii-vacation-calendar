@@ -32,12 +32,13 @@ test('production media identity survives the real provider normalization boundar
   // Public media identities from the verified active snapshot, no customer payload.
   const names=['469cbad3587de0.png','7269cbad36cd4c6.jpg','4866c5e99ec5292.jpg'];
   const old={supplierId:1857,summary:{name:'Fixture'},detail:{images:names.map(n=>'https://www.vii.co.il/gallery/'+n),rooms:[{id:3173,images:names.slice(1).map(n=>'https://www.vii.co.il/gallery/'+n),features:[]}],galleryGroups:[{title:'main',images:names.map(n=>'https://www.vii.co.il/gallery/'+n)}]}};
-  const raw={id:1857,active:true,name:'Fixture',location:{city:1},galleries:{main:{title:'main',pictures:names.map(n=>'/gallery/'+n)}},rooms:[{roomID:3173,roomName:'unit',roomCount:1,maxGuests:2,galleries:[{pictures:names.slice(1).map(n=>'/gallery/'+n)}]}]};
+  const raw={id:1857,active:true,api_version:1.1,created:new Date().toISOString(),shared_amenities:[],name:'Fixture',location:{city:1},galleries:{1:{galleryID:1,title:'main',pictures:names.map(n=>'/gallery/'+n)}},rooms:[{roomID:3173,roomName:'unit',roomCount:1,maxGuests:2,amenities:[],spaces:[],galleries:[{galleryID:2,title:'unit',pictures:names.slice(1).map(n=>'/gallery/'+n)}]}]};
   const fetchImpl=async url=>{
     const path=new URL(url).pathname.replace('/api/ai/vii','');
-    return Response.json(path==='/locations'?{cities:[{id:1,title:'fixture',area:2}],areas:[{id:2,title:'fixture'}]}:path==='/events/types'?{}:path==='/events'?{places:[{siteID:1857,active:true}]}:raw);
+    return Response.json(path==='/locations'?{cities:[{id:1,title:'fixture',area:2}],areas:[{id:2,title:'fixture'}]}:path==='/events/types'?{}:path==='/events'?{places:[{siteID:1857,active:true,rooms:[{roomID:3173}]}]}:raw);
   };
   const candidate=await createSergeyPublicCatalogClient({apiKey:'fixture',fetchImpl}).fetchCandidate('events',[old]);
   assert.equal(candidate.entries[0].detail.images[0],'/api/vii/media/'+names[0]);
+  assert.ok(candidate.entries[0].detailProof,'valid full detail must exercise normalization, not accepted-old retention');
   assert.deepEqual(catalogContentIntegrityIssues('events',[old],candidate.entries),[]);
 });

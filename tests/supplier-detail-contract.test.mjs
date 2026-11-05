@@ -27,3 +27,15 @@ test('reviewed inactive inventory approves only the observed generation and exac
  const changed=structuredClone(f.candidate);changed[0].detail.rooms=[];assert.equal(reviewedInactiveTransition('events',f.previous,changed,f.proof),false);
  assert.equal(reviewedInactiveTransition('events',f.candidate,f.candidate,f.proof),false,'not a reusable future-generation exception');
 });
+
+test('fresh vacation review includes only the additional explicitly inactive2427 and keeps every retained unit',()=>{
+ const removed=[166,210,213,501,714,727,1029,1031,1094,1156,1172,1175,1199,1201,1260,1470,1529,2055,2151,2156,2168,2226,2264,2401,2427,2432,2433,2441,2456,2469,2503,2517,2569,2591,2593,2595,2596];
+ const retained=Array.from({length:540},(_,i)=>({supplierId:10_000+i,summary:{},detail:{rooms:[{id:i+1}]}}));
+ const previous=[...retained,...removed.map(supplierId=>({supplierId,summary:{}}))];
+ const candidate=[...retained,...Array.from({length:6},(_,i)=>({supplierId:20_000+i,summary:{}}))];
+ const proof={activeCount:546,previousInactiveIds:removed,previousInactiveIdsTruncated:false,previousUnknownActivityIds:[],previousUnknownActivityIdsTruncated:false};
+ assert.equal(reviewedInactiveTransition('vacations',previous,candidate,proof),true);
+ assert.equal(reviewedInactiveTransition('vacations',previous,candidate,{...proof,previousInactiveIds:removed.filter(id=>id!==2427)}),false);
+ const loss=structuredClone(candidate);loss[0].detail.rooms=[];assert.equal(reviewedInactiveTransition('vacations',previous,loss,proof),false);
+ const wrong=structuredClone(previous);wrong.at(-1).supplierId=999_999;assert.equal(reviewedInactiveTransition('vacations',wrong,candidate,proof),false);
+});

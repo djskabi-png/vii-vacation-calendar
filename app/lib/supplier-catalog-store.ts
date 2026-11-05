@@ -103,6 +103,8 @@ export async function beginSupplierCatalogRun(db: D1Database, input: {
   if (inserted.meta.changes !== 1) return false;
   await db.prepare("INSERT OR IGNORE INTO supplier_catalog_state (world, active_count) VALUES (?, 0)")
     .bind(input.world).run();
+  const previousLock = await db.prepare("SELECT lock_run_id AS lockRunId, lock_until AS lockUntil FROM supplier_catalog_state WHERE world = ?")
+    .bind(input.world).first<{ lockRunId: string | null; lockUntil: string | null }>();
   const acquired = await db.prepare(`UPDATE supplier_catalog_state SET lock_run_id = ?, lock_until = ?
     WHERE world = ? AND (lock_run_id IS NULL OR lock_until <= ?)`)
     .bind(input.id, input.lockUntil, input.world, input.startedAt).run();
@@ -110,6 +112,12 @@ export async function beginSupplierCatalogRun(db: D1Database, input: {
     await db.prepare("UPDATE supplier_catalog_runs SET status = 'skipped', finished_at = ? WHERE id = ?")
       .bind(input.startedAt, input.id).run();
     return false;
+  }
+  if (previousLock?.lockRunId && previousLock.lockUntil && Date.parse(previousLock.lockUntil) <= Date.parse(input.startedAt)) {
+    await db.prepare(`UPDATE supplier_catalog_runs SET status = 'failed', error_code = 'lease_expired', finished_at = ?
+      WHERE id = ? AND world = ? AND status = 'running'
+      AND EXISTS (SELECT 1 FROM supplier_catalog_state WHERE world = ? AND lock_run_id = ?)`)
+      .bind(input.startedAt, previousLock.lockRunId, input.world, input.world, input.id).run();
   }
   await db.prepare("UPDATE supplier_catalog_runs SET status = 'running' WHERE id = ?")
     .bind(input.id).run();

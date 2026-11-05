@@ -46,7 +46,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
     : world === "rooms"
       ? createSergeyRoomsCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
       : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
-        detailRefreshLimit: supplierDetailRefreshLimit(world, source) });
+        detailRefreshLimit: supplierDetailRefreshLimit(world, source),forceDetailRefresh:source==='manual' });
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline: [], loadBaseline: () => bundledCatalogBaseline(world),
@@ -60,13 +60,14 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
 
 /** Read-only provider comparison. It deliberately never stages or accepts a candidate. */
 export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract<SupplierCatalogWorld, "vacations" | "events">,
-  options?: { fetchImpl?: typeof fetch; now?: () => Date; apiKey?: string }) {
+  options?: { fetchImpl?: typeof fetch; now?: () => Date; apiKey?: string; supplierId?:number }) {
   const accepted = await readSupplierCatalog(db, world);
   if (!accepted?.entries.length) throw new Error("missing_catalog_baseline");
   const previous = accepted.entries;
+  if(options?.supplierId!==undefined&&!previous.some(entry=>entry.supplierId===options.supplierId))throw new Error('invalid_supplier_inspection');
   const apiKey = options?.apiKey || await secret("SERGEY_VII_API_TOKEN");
   const client = createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
-    now: options?.now, detailRefreshLimit: supplierDetailRefreshLimit(world, "scheduled") });
+    now: options?.now, detailRefreshLimit: supplierDetailRefreshLimit(world, "scheduled"),retainUnprovedDetails:false,inspectionSupplierId:options?.supplierId });
   const candidate = await client.fetchCandidate(world, previous);
   const diff = compareSupplierCatalogEntries(world, previous, candidate.entries);
   const childCount = (entries: SupplierCatalogEntry[]) => entries.reduce((total, entry) => {
@@ -92,7 +93,7 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     return unique.length ? [{ supplierId: old.supplierId, oldImageCount: oldImages.length, newImageCount: nextImages.length,
       removedTrustedFilenames: unique.slice(0, 10), removedTrustedFilenamesTruncated: unique.length > 10 }] : [];
   });
-  return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, authoritativeDetailIds:[...authoritativeDetails], diff: {
+  return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, authoritativeDetailIds:[...authoritativeDetails],deferredDetailIds:candidate.deferredDetailIds,deferredDetailIdsTruncated:candidate.deferredDetailIdsTruncated,detailProofIssues:candidate.detailProofIssues, diff: {
     before: diff.before, candidate: diff.after, added: diff.added, changed: diff.changed,
     removed: diff.removed.slice(0, 100), removedTruncated: diff.removed.length > 100,
     removedChildren: diff.removedChildren.slice(0, 100), removedChildrenTruncated: diff.removedChildren.length > 100,
