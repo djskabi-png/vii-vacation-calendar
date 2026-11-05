@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const map = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+const adapters = readFileSync(new URL("../app/lib/map/map-place.ts", import.meta.url), "utf8");
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const events = readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
 const price = readFileSync(new URL("../app/lib/map-price.ts", import.meta.url), "utf8");
@@ -12,7 +13,7 @@ const qa = readFileSync(new URL("../scripts/audit-map-experience.cjs", import.me
 
 test("all supported discovery worlds share the same map and explicit price parser", () => {
   assert.match(map, /tone: "spa" \| "hourly" \| "activities"/);
-  assert.match(map, /verifiedPriceFromLabel\(item\.priceLabel\)/);
+  assert.match(adapters, /verifiedPriceFromLabel\(item\.priceLabel\)/);
   assert.match(price, /explicit currency token/);
   assert.match(price, /\(\?:₪\|ש\["״'\]\?ח\|ILS\)/);
 });
@@ -28,7 +29,7 @@ test("vacation and event maps receive the same verified prices shown by result c
 });
 
 test("price markers and selected cards expose decision value without inventing it", () => {
-  assert.match(map, /markerKind: compactPrice \? "price"/);
+  assert.match(adapters, /markerKind: compactPrice \? "price"/);
   assert.match(map, /selected\.valueLabel/);
   assert.match(map, /selected\.rating\.toFixed\(1\)/);
   assert.match(css, /\.vii-map-marker-wrap\.marker-kind--price/);

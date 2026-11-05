@@ -3,16 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { MapPinned } from "lucide-react";
-import type { EventPlace, Listing } from "../data/site-data";
-import { eventPlaceHref } from "../lib/event-place-href";
+import type { Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
-import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
-import { formatMapPrice, priceModeFromLabel, validMapPrice, verifiedPriceFromLabel, type MapPriceQuote } from "../lib/map-price";
+import { type MapPriceQuote } from "../lib/map-price";
+import { listingMapPlaces, discoveryMapPlaces, trailAreaCenters, type MapPlace, type MapTone } from "../lib/map/map-place";
 import { trackMapInteraction } from "../lib/analytics";
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../lib/map-marker-layout";
 import { mapResultSummary } from "../lib/map-result-summary.ts";
@@ -26,29 +25,6 @@ export function preloadLeaflet() {
   leafletModulePromise ??= import("leaflet");
   return leafletModulePromise;
 }
-
-type MapTone = "vacation" | "events" | "spa" | "hourly" | "activities";
-
-type MapPlace = {
-  id: string;
-  name: string;
-  location: string;
-  area: string;
-  category: string;
-  meta: string;
-  image: string;
-  lat: number;
-  lng: number;
-  href: string;
-  markerLabel: string;
-  markerKind: "price" | "capacity" | "count" | "category";
-  valueLabel?: string;
-  rating?: number;
-  reviews?: number;
-  precision?: "exact" | "area";
-  illustrativeImage?: boolean;
-  representedCount?: number;
-};
 
 type PlacesMapProps = {
   places: MapPlace[];
@@ -855,32 +831,7 @@ export function ListingMap({ listings, initialListings, focusKey, mode = "vacati
     ru: { place: "Место", location: "Израиль", area: "Израиль" },
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
-  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => validMapCoordinate(listing.lat, listing.lng)).map((listing) => {
-    const verifiedPrice = priceById?.[listing.slug] ?? (validMapPrice(listing.price) ? { amount: listing.price, mode: "from" as const } : undefined);
-    const compactPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language) : "";
-    const fullPrice = verifiedPrice ? formatMapPrice(verifiedPrice, language, false) : "";
-    return ({
-    id: listing.slug,
-    name: localizedBusinessText(listing.name, language, translate, latinBusinessAlias(listing.name) || fallback.place),
-    location: localizedBusinessText(listing.location, language, translate, latinBusinessAlias(listing.location) || fallback.location),
-    area: localizedBusinessText(listing.area, language, translate, latinBusinessAlias(listing.area) || fallback.area),
-    category: translate(listing.type),
-    meta: [
-      listing.bedrooms ? `${listing.bedrooms} ${units.bedrooms}` : null,
-      listing.units && listing.units > 1 ? `${listing.units} ${units.units}` : null,
-      listing.guests > 0 ? `${units.upTo} ${listing.guests} ${units.guests}` : null,
-    ].filter(Boolean).join(" · "),
-    image: listing.image,
-    lat: listing.lat!,
-    lng: listing.lng!,
-    href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
-    markerLabel: compactPrice || (mode === "events" && listing.guests > 0 ? `${listing.guests} ${units.guests}` : translate(listing.type)),
-    markerKind: compactPrice ? "price" : mode === "events" && listing.guests > 0 ? "capacity" : "category",
-    valueLabel: fullPrice || undefined,
-    rating: listing.score,
-    reviews: listing.reviews,
-    precision: "exact",
-  }); }), [detailQuery, fallback, language, listings, mode, priceById, translate, units]);
+  const places = useMemo(() => listingMapPlaces(listings, language, translate, fallback, mode, detailQuery, priceById, units), [detailQuery, fallback, language, listings, mode, priceById, translate, units]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={focusKey || (single ? places[0]?.id : "all")} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
@@ -900,43 +851,10 @@ export function DiscoveryMap({ items, initialItems, focusKey, tone, single = fal
     ru: { place: "Место", location: "Израиль", area: "Израиль" },
     fr: { place: "Lieu", location: "Israël", area: "Israël" },
   })[language], [language]);
-  const places = useMemo<MapPlace[]>(() => items.filter((item) => validMapCoordinate(item.lat, item.lng)).map((item) => {
-    const price = verifiedPriceFromLabel(item.priceLabel);
-    const priceQuote = price ? { amount: price, mode: priceModeFromLabel(item.priceLabel) } satisfies MapPriceQuote : null;
-    const compactPrice = priceQuote ? formatMapPrice(priceQuote, language) : "";
-    const fullPrice = priceQuote ? formatMapPrice(priceQuote, language, false) : "";
-    return {
-      id: item.id,
-      name: localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || fallback.place),
-      location: localizedBusinessText(item.location, language, translate, latinBusinessAlias(item.location) || fallback.location),
-      area: localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area),
-      category: tone === "activities" ? localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area) : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
-      meta: localized ? (price ? fullPrice : tone === "spa" ? localized.packages : tone === "activities" ? localizedBusinessText(item.priceLabel || item.location, language, translate, fallback.location) : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
-      image: item.image || "/vii-logo.png",
-      lat: item.lat!,
-      lng: item.lng!,
-      href: `/discover/place/${item.id}`,
-      markerLabel: compactPrice || (tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה"),
-      markerKind: compactPrice ? "price" : "category",
-      valueLabel: fullPrice || undefined,
-      rating: item.rating,
-      precision: item.mapPrecision || "area",
-    };
-  }), [fallback, items, language, localized, tone, translate]);
+  const places = useMemo(() => discoveryMapPlaces(items, language, translate, fallback, tone, localized), [fallback, items, language, localized, tone, translate]);
   const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
   return <PlacesMap key={focusKey || (single ? places[0]?.id : "all")} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
-
-const trailAreaCenters: Record<Trail["mainArea"], { lat: number; lng: number }> = {
-  "צפון": { lat: 33.02, lng: 35.38 },
-  "כנרת": { lat: 32.79, lng: 35.54 },
-  "חיפה": { lat: 32.79, lng: 35.02 },
-  "מרכז": { lat: 32.12, lng: 34.93 },
-  "תל אביב": { lat: 32.08, lng: 34.78 },
-  "דרום ונגב": { lat: 30.82, lng: 34.79 },
-  "ירושלים": { lat: 31.78, lng: 35.17 },
-  "אילת והסביבה": { lat: 29.56, lng: 34.95 },
-};
 
 export function TrailMap({ trails, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange, filterQuery = "" }: { trails: Trail[]; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void; filterQuery?: string }) {
   const { language } = useSiteLanguage();
