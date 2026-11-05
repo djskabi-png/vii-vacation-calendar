@@ -1,13 +1,17 @@
 export const publicWarmRoutes = Object.freeze(["/", "/events", "/spas", "/hourly", "/search", "/providers", "/trails", "/attractions"]);
+export const publicWarmRequests = Object.freeze(publicWarmRoutes.flatMap<{path:string;headers:Record<string,string>}>(path=>[
+  {path,headers:{Accept:'text/html'}},
+  {path:`${path==='/'?'/.rsc':`${path}.rsc`}?_rsc`,headers:{Accept:'text/x-component',RSC:'1'}},
+]));
 type Context = { waitUntil(promise: Promise<unknown>): unknown };
 
-/** Fixed anonymous document reads only. The caller supplies the SAME cache
+/** Fixed anonymous HTML and ordinary navigation reads only. The caller supplies the SAME cache
  * admission path as a visitor; this cannot warm APIs or transactional reads. */
 export async function warmPublicDocuments(read: (request: Request, ctx: Context) => Promise<Response>, ctx: Context) {
   const started = Date.now();
   const report = { attempted: 0, completed: 0, failed: 0, elapsedMs: 0 };
-  for (const path of publicWarmRoutes) {
-    const remaining = 45_000 - (Date.now() - started);
+  for (const target of publicWarmRequests) {
+    const remaining = 90_000 - (Date.now() - started);
     if (remaining <= 0) break;
     const controller = new AbortController();
     const tasks = new Set<Promise<unknown>>();
@@ -18,8 +22,8 @@ export async function warmPublicDocuments(read: (request: Request, ctx: Context)
     let timer: ReturnType<typeof setTimeout> | undefined;
     report.attempted++;
     const work = (async () => {
-      const response = await read(new Request(`https://vii.spaplus.co${path}`, {
-        method: "GET", headers: { Accept: "text/html" }, signal: controller.signal,
+      const response = await read(new Request(`https://vii.spaplus.co${target.path}`, {
+        method: "GET", headers: target.headers, signal: controller.signal,
       }), ownedContext);
       const reader = response.body?.getReader();
       let bytes = 0;
