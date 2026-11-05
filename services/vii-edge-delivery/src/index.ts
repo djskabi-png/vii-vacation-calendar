@@ -1,7 +1,7 @@
 import { warmPublicDocuments } from "./public-warm.ts";
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
-const EXPECTED_BUILD = "pending-v806-20261105-weekly-catalog";
-const EDGE_CACHE_VERSION = "v15";
+const EXPECTED_BUILD = "7d32cd3e-ec22-4503-ab31-2fccb8fda1e0";
+const EDGE_CACHE_VERSION = "v16";
 const refreshAfterHeader = "X-VII-Edge-Refresh-After";
 const refreshes = new Set<string>();
 const refreshAttempts = new Map<string, number>();
