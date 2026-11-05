@@ -1,7 +1,51 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
-import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat, updateQualitySchedule } from "../app/lib/quality-platform.ts";
+import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, readQualityRunStatus, runQualityChecks, shouldStartQualityHeartbeat, updateQualitySchedule } from "../app/lib/quality-platform.ts";
+
+test("small run polling performs one fresh SELECT after shared schema initialization", async () => {
+  const {sqlite,db}=fixture();let statements=0;
+  const tracked={prepare(sql){statements++;return db.prepare(sql)},batch:db.batch};
+  try{
+    assert.equal((await readQualityRunStatus(tracked,{activeOnly:true})).run,null);
+    const initialized=statements;
+    sqlite.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,status,started_at,total_checks)
+      VALUES ('poll-run','poll-op','manual_full','running','2026-11-05T20:00:00Z',2)`).run();
+    const active=await readQualityRunStatus(tracked,{activeOnly:true});
+    assert.equal(active.run.id,'poll-run');assert.equal(active.run.totalChecks,2);
+    assert.equal(statements-initialized,1,'polling must not repeat schema DDL or load dashboard history');
+    sqlite.prepare("UPDATE quality_runs SET passed_count=1 WHERE id='poll-run'").run();
+    const changed=await readQualityRunStatus(tracked,{runId:'poll-run'});
+    assert.equal(changed.run.passedCount,1,'query results are not cached with schema readiness');
+  }finally{sqlite.close()}
+});
+
+test("crash after provider acceptance preserves uncertain delivery and never repeats the opened message", async () => {
+  const {sqlite,db}=fixture();let providerCalls=0,crash=true;
+  const wrapped={batch:db.batch,prepare(sql){
+    const statement=db.prepare(sql);
+    if(sql.includes('UPDATE quality_notification_deliveries SET status=?')){
+      const original=statement.run;
+      statement.run=async()=>{if(crash){crash=false;throw Error('synthetic_crash_after_provider_acceptance')}return original()};
+    }
+    return statement;
+  }};
+  const env={VII_QUALITY_EMAIL_PROVIDER:'resend',VII_QUALITY_EMAIL_API_KEY:'synthetic-only',VII_QUALITY_EMAIL_FROM:'qa@example.test',VII_QUALITY_EMAIL_RECIPIENTS:'owner@example.test'};
+  const fetcher=async url=>{
+    if(String(url).includes('api.resend.com')){providerCalls++;return Response.json({id:'synthetic-provider-id'})}
+    return new Response('synthetic source failure',{status:503});
+  };
+  const options={origin:'https://example.test',trigger:'manual',level:'full',scope:{changedBoxes:['search']},notificationEnv:env,fetcher};
+  try{
+    await assert.rejects(runQualityChecks(wrapped,options),/synthetic_crash_after_provider_acceptance/);
+    assert.equal(providerCalls,1);
+    const pending=sqlite.prepare("SELECT id,status FROM quality_notification_deliveries").get();assert.equal(pending.status,'pending');
+    sqlite.prepare('UPDATE quality_notification_deliveries SET created_at=? WHERE id=?').run(new Date(Date.now()-20*60_000).toISOString(),pending.id);
+    await runQualityChecks(wrapped,options);
+    assert.equal(sqlite.prepare('SELECT status FROM quality_notification_deliveries WHERE id=?').get(pending.id).status,'unknown');
+    assert.equal(providerCalls,1,'uncertain provider acceptance cannot be retried automatically');
+  }finally{sqlite.close()}
+});
 
 function fixture() {
   const sqlite = new DatabaseSync(":memory:");
@@ -97,6 +141,18 @@ test("incident transition deduplicates repeated failures and recovers the same i
   assert.deepEqual(incidentTransition(null, "passed"), { action: "none", occurrences: 0 });
 });
 
+test("resolved incidents start a new cycle while repeated failures stay in the same cycle", () => {
+  assert.deepEqual(incidentTransition({ status: "resolved", occurrences: 4 }, "failed"), { action: "open", occurrences: 1 });
+  assert.deepEqual(incidentTransition({ status: "open", occurrences: 4 }, "failed"), { action: "update", occurrences: 5 });
+});
+
+test("notification event keys preserve legacy cycle one and distinguish later cycles", () => {
+  const eventKey = (kind, cycle) => cycle > 1 ? `${kind}:${cycle}` : kind;
+  assert.equal(eventKey("opened", 1), "opened");
+  assert.equal(eventKey("opened", 2), "opened:2");
+  assert.notEqual(eventKey("opened", 1), eventKey("opened", 2));
+});
+
 test("two identical failures open one incident, recovery resolves it, and email fails closed", async () => {
   const { sqlite, db } = fixture();
   try {
@@ -184,6 +240,167 @@ test("quality runs use bounded concurrency and close abandoned running records",
     assert.equal(stale.status, "blocked");
     assert.ok(stale.finished_at);
     assert.equal(stale.blocked_count, 1);
+  } finally { sqlite.close(); }
+});
+
+test("a scheduled run with no due checks is blocked instead of falsely passing", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    for (const check of qualityRegistry) {
+      await updateQualitySchedule(db, { checkId: check.checkId, cadenceMinutes: 1440, actor: "test" });
+    }
+    const result = await runQualityChecks(db, {
+      origin: "https://example.test",
+      trigger: "scheduled",
+      scheduledAt: new Date("2026-10-23T10:10:00.000Z"),
+      fetcher: async () => { throw new Error("no network call expected"); },
+    });
+    assert.equal(result.status, "blocked");
+    assert.equal(result.checkCount, 0);
+    const row = sqlite.prepare("SELECT status,total_checks,blocked_count FROM quality_runs WHERE id=?").get(result.runId);
+    assert.equal(row.status, "blocked");
+    assert.equal(row.total_checks, 0);
+    assert.equal(row.blocked_count, 1);
+  } finally { sqlite.close(); }
+});
+
+test("a run that loses ownership during a network batch writes no late result or incident", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    let swept = false;
+    const fetcher = async (url, options) => {
+      if (!swept) {
+        swept = true;
+        const running = sqlite.prepare("SELECT id FROM quality_runs WHERE status='running' ORDER BY started_at DESC LIMIT 1").get();
+        sqlite.prepare("UPDATE quality_runs SET status='blocked',finished_at='2026-10-23T10:10:01.000Z',blocked_count=1 WHERE id=?").run(running.id);
+      }
+      return success(url, options);
+    };
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher });
+    assert.equal(result.status, "blocked");
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM quality_results").get().n, 0);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM quality_incidents").get().n, 0);
+    assert.equal(sqlite.prepare("SELECT status FROM quality_runs WHERE id=?").get(result.runId).status, "blocked");
+  } finally { sqlite.close(); }
+});
+
+test("incident recovery keeps a sibling route incident open", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: async (url, options) => url.includes("/search?") ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } }) : success(url, options) });
+    const base = sqlite.prepare("SELECT * FROM quality_incidents WHERE check_id='search.location.semantic' LIMIT 1").get();
+    assert.ok(base);
+    sqlite.prepare(`INSERT INTO quality_incidents
+      (id,fingerprint,check_id,family,world,route,viewport,severity,status,first_seen_at,last_seen_at,occurrences,last_result_id,last_observed)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run("sibling-incident", "sibling", base.check_id, base.family, base.world, "/different-route", base.viewport, base.severity, "open", base.first_seen_at, base.last_seen_at, 1, base.last_result_id, base.last_observed);
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: success });
+    assert.equal(sqlite.prepare("SELECT status FROM quality_incidents WHERE id='sibling-incident'").get().status, "open");
+    assert.equal(sqlite.prepare("SELECT status FROM quality_incidents WHERE id=?").get(base.id).status, "resolved");
+  } finally { sqlite.close(); }
+});
+
+test("conditional result write stops an ownership change between observation and insert", async () => {
+  const { sqlite, db: baseDb } = fixture();
+  let swept = false;
+  const db = {
+    prepare(sql) {
+      const statement = baseDb.prepare(sql);
+      if (!swept && sql.includes("INSERT INTO quality_results")) {
+        const originalBind = statement.bind;
+        statement.bind = (...values) => {
+          const bound = originalBind.apply(statement, values);
+          if (!swept) {
+            swept = true;
+            const running = sqlite.prepare("SELECT id FROM quality_runs WHERE status='running' ORDER BY started_at DESC LIMIT 1").get();
+            sqlite.prepare("UPDATE quality_runs SET status='blocked',finished_at='2026-10-23T10:10:02.000Z',blocked_count=1 WHERE id=?").run(running.id);
+          }
+          return bound;
+        };
+      }
+      return statement;
+    },
+    batch: (...args) => baseDb.batch(...args),
+  };
+  try {
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: success });
+    assert.equal(result.status, "blocked");
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM quality_results").get().n, 0);
+  } finally { sqlite.close(); }
+});
+
+test("disabled notifications can be promoted once, while unknown delivery is never retried", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    const failing = async (url, options) => url.includes("/search?")
+      ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } })
+      : success(url, options);
+    const env = { VII_QUALITY_EMAIL_PROVIDER: "resend", VII_QUALITY_EMAIL_API_KEY: "secret", VII_QUALITY_EMAIL_FROM: "VII QA <qa@example.test>", VII_QUALITY_EMAIL_RECIPIENTS: "adir@example.test" };
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: failing });
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM quality_notification_deliveries WHERE status='disabled'").get().n > 0, true);
+    let providerCalls = 0;
+    const uncertain = async (url, options) => {
+      if (url === "https://api.resend.com/emails") { providerCalls += 1; throw new Error("network timeout"); }
+      return success(url, options);
+    };
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: uncertain, notificationEnv: env });
+    const firstCount = providerCalls;
+    assert.ok(firstCount > 0);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM quality_notification_deliveries WHERE status='unknown'").get().n, firstCount);
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: uncertain, notificationEnv: env });
+    assert.equal(providerCalls, firstCount);
+  } finally { sqlite.close(); }
+});
+
+test("a crash after reserving notification leaves pending, then expires to unknown without retry", async () => {
+  const { sqlite, db: baseDb } = fixture();
+  const env = { VII_QUALITY_EMAIL_PROVIDER: "resend", VII_QUALITY_EMAIL_API_KEY: "secret", VII_QUALITY_EMAIL_FROM: "VII QA <qa@example.test>", VII_QUALITY_EMAIL_RECIPIENTS: "adir@example.test" };
+  let crashed = false;
+  const db = {
+    prepare(sql) {
+      const statement = baseDb.prepare(sql);
+      if (!crashed && sql.includes("INSERT INTO quality_notification_deliveries")) {
+        const originalRun = statement.run;
+        statement.run = async () => { const result = await originalRun(); crashed = true; throw new Error("synthetic_worker_crash"); };
+      }
+      return statement;
+    },
+    batch: (...args) => baseDb.batch(...args),
+  };
+  const failing = async (url, options) => url.includes("location=") ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } }) : success(url, options);
+  try {
+    const scope = { changedBoxes: [], consumers: ["search.location.semantic"] };
+    await assert.rejects(() => runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: failing, notificationEnv: env, scope }));
+    assert.equal(sqlite.prepare("SELECT status FROM quality_notification_deliveries WHERE status='pending'").get()?.status, "pending");
+    sqlite.prepare("UPDATE quality_notification_deliveries SET created_at=? WHERE status='pending'").run("2026-10-23T09:00:00.000Z");
+    let providerCalls = 0;
+    const noRetry = async (url, options) => { if (url === "https://api.resend.com/emails") { providerCalls += 1; return success(url, options); } return url.includes("location=") ? new Response("failure".repeat(60), { status: 503, headers: { "content-type": "text/html" } }) : success(url, options); };
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", scheduledAt: new Date("2026-10-23T10:00:00.000Z"), fetcher: noRetry, notificationEnv: env, scope });
+    assert.equal(providerCalls, 0, JSON.stringify(sqlite.prepare("SELECT incident_id,event_kind,status,reason FROM quality_notification_deliveries").all()));
+    assert.equal(sqlite.prepare("SELECT status,reason FROM quality_notification_deliveries WHERE status='unknown'").get()?.reason, "orphaned_reservation");
+  } finally { sqlite.close(); }
+});
+
+test("manual scope selection runs the mapped checks and reports their ids", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    const result = await runQualityChecks(db, {
+      origin: "https://example.test", trigger: "manual", level: "regular", fetcher: success,
+      scope: { changedBoxes: ["world-landings"] },
+    });
+    assert.equal(result.selectionStatus, "selected");
+    assert.deepEqual(result.selectedCheckIds, ["world.vacations.semantic", "search.location.semantic"]);
+    assert.equal(result.checkCount, 2);
+    assert.equal(result.status, "passed");
+  } finally { sqlite.close(); }
+});
+
+test("unknown scope ownership is blocked rather than reported green", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", level: "regular", fetcher: success, scope: { changedBoxes: [], unknownOwner: true } });
+    assert.equal(result.status, "blocked");
+    assert.equal(result.selectionStatus, "unmapped");
+    assert.equal(result.checkCount, 0);
   } finally { sqlite.close(); }
 });
 

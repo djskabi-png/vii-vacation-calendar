@@ -16,8 +16,8 @@ const cadenceLabel = (minutes: number) => minutes < 60 ? `כל ${minutes} דקו
 const cadenceOptions = [5, 10, 30, 60, 180, 360, 720, 1440] as const;
 type RunLevel = "full" | "medium" | "regular";
 const levelCopy: Record<RunLevel, { title: string; detail: string }> = {
-  full: { title: "מלאה", detail: "כל הבדיקות: תפקוד, נראות, עולמות, מפות, סליידרים, חיפוש, API, SEO ותוכן." },
-  medium: { title: "בינונית", detail: "כל הבדיקות הקריטיות ובדיקות הנראות והמשפחות החשובות." },
+  full: { title: "מלאה", detail: "כל בדיקות השרת, הדפים והנתונים הפעילות במערכת." },
+  medium: { title: "בינונית", detail: "בדיקות קריטיות ובדיקות בעדיפות גבוהה." },
   regular: { title: "רגילה", detail: "בדיקות קריטיות בלבד, כדי לזהות במהירות תקלה שמשביתה מסלול מרכזי." },
 };
 const familyLabel: Record<string, string> = { "global-shell": "מעטפת האתר", "multilingual-shell": "שפות", "multilingual-pages": "עמודים בשפות", search: "חיפוש", "place-pages": "עמודי מקום", maps: "מפות", "catalog-apis": "נתוני עסקים", "home-sliders": "סליידרים בדף הבית", pricing: "מחירים", reviews: "חוות דעת", "content-pages": "עמודי תוכן", "public-trust": "עמודי אמון", "seo-legacy": "קידום והפניות", "world-landings": "עמודי עולמות", "editorial-landings": "עמודי מבצעים וחגים" };
@@ -70,10 +70,31 @@ export default function QualityPage() {
     return () => window.clearTimeout(timer);
   }, [load]);
   useEffect(() => {
-    if (!running && !data?.runs.some((run) => run.status === "running")) return;
-    const timer = window.setInterval(() => { setClock(Date.now()); void load(); }, 1_000);
-    return () => window.clearInterval(timer);
-  }, [data?.runs, load, running]);
+    const activeRun = data?.runs.find((run) => run.status === "running");
+    if (!activeRun) return;
+    let stopped = false;
+    let controller: AbortController | null = null;
+    const poll = async () => {
+      if (stopped || document.visibilityState !== "visible") return;
+      controller?.abort(); controller = new AbortController();
+      try {
+        const response = await fetch(`/api/admin/quality?runId=${encodeURIComponent(activeRun.id)}`, { cache: "no-store", headers: { Accept: "application/json" }, signal: controller.signal });
+        if (!response.ok) throw new Error("מצב הריצה אינו זמין כרגע.");
+        const payload = await response.json() as { run: Run | null };
+        if (stopped || !payload.run) return;
+        setClock(Date.now());
+        setData((current) => current ? { ...current, runs: [payload.run!, ...current.runs.filter((run) => run.id !== payload.run!.id)] } : current);
+        if (payload.run.status !== "running") await load();
+      } catch (cause) {
+        if (!stopped && !(cause instanceof DOMException && cause.name === "AbortError")) setError(cause instanceof Error ? cause.message : "מצב הריצה אינו זמין כרגע.");
+      }
+    };
+    const timer = window.setInterval(() => void poll(), 3_000);
+    const onVisibility = () => { if (document.visibilityState === "visible") void poll(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    void poll();
+    return () => { stopped = true; controller?.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisibility); };
+  }, [data?.runs, load]);
   const active = useMemo(() => data?.incidents.filter((incident) => incident.status !== "resolved") || [], [data]);
   const activeRun = data?.runs.find((run) => run.status === "running") || null;
   const selectedChecks = data ? checksForLevel(data.checks, level) : [];
