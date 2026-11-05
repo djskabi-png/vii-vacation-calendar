@@ -28,7 +28,8 @@ export async function POST(request: Request) {
     const candidate = value as Record<string, unknown>;
     return validDate(candidate.from) && validDate(candidate.till);
   }) : [];
-  if (body.candidates !== undefined && (world !== "vacations" || candidates.length !== body.candidates.length || candidates.length < 1 || candidates.length > 32)) {
+  const rawCandidates = body.candidates;
+  if (rawCandidates !== undefined && (!Array.isArray(rawCandidates) || world !== "vacations" || candidates.length !== rawCandidates.length || candidates.length < 1 || candidates.length > 32)) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
   const datedDiscovery = body.discoverySearch === true && body.includePlaces !== true;

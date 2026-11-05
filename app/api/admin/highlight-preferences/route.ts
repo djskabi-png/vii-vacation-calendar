@@ -26,5 +26,5 @@ export async function PUT(request: Request) {
   try { body = JSON.parse(raw || "{}"); } catch { body = null; }
   const input = body && typeof body === "object" ? body as { order?: unknown; expanded?: unknown } : null;
   if (!input) return Response.json({ error: "invalid_input" }, { status: 400, headers });
-  return Response.json(await saveAdminHighlightPreferences(active.db, active.session.email, input), { headers });
+  return Response.json(await saveAdminHighlightPreferences(active.db, active.session.email, { order: input.order, expanded: input.expanded }), { headers });
 }

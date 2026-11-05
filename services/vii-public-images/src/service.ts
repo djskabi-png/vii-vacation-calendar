@@ -58,7 +58,8 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
     const edge = options.edge?.() ?? (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default;
     const hit = edge ? await bounded(edge.match(key), options.cacheMs ?? 50).catch(() => undefined) : undefined;
     if (hit) return forMethod(hit, request.method);
-    if (!env.IMAGES) return originalFallback("binding");
+    const images = env.IMAGES;
+    if (!images) return originalFallback("binding");
     if (request.method === "HEAD") return originalFallback();
     const at = now();
     if (at - windowStart >= 60_000) { windowStart = at; admitted = 0; }
@@ -78,7 +79,7 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
       if (!source.body || !/^image\/(?:jpeg|png|webp|avif)(?:;|$)/i.test(source.headers.get("Content-Type") || "") || Number(source.headers.get("Content-Length") || 0) > MAX_SOURCE_BYTES) return originalFallback("source-content");
       stage = "transform";
       const outputFormat = `image/${format}`;
-      const transformed = await bounded(env.IMAGES.input(boundedBody(source.body)).transform({ width, fit: "scale-down" }).output({ format: outputFormat, quality }), options.transformMs ?? 8000);
+      const transformed = await bounded(images.input(boundedBody(source.body)).transform({ width, fit: "scale-down" }).output({ format: outputFormat, quality }), options.transformMs ?? 8000);
       const response = transformed.response();
       if (!response.ok || !response.body || response.headers.get("Content-Type")?.split(";")[0] !== outputFormat) return originalFallback("transform-content");
       const headers = new Headers({ "Content-Type": outputFormat, "Cache-Control": "public, max-age=31536000, immutable", "Vary": "Accept", "X-VII-Image-Engine": "cloudflare-images", "Access-Control-Allow-Origin": "*" });

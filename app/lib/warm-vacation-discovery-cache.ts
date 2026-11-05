@@ -13,7 +13,7 @@ export function validVacationDiscoverySnapshot(value: unknown, expected?: { from
   const dates = (value as { dates?: unknown }).dates;
   if (!dates || typeof dates !== "object" || Array.isArray(dates)) return false;
   const actual = dates as { from?: unknown; till?: unknown; nights?: unknown };
-  if (typeof actual.from !== "string" || typeof actual.till !== "string" || !Number.isSafeInteger(actual.nights) || actual.nights < 1 || actual.nights > 31) return false;
+  if (typeof actual.from !== "string" || typeof actual.till !== "string" || typeof actual.nights !== "number" || !Number.isSafeInteger(actual.nights) || actual.nights < 1 || actual.nights > 31) return false;
   return !expected || (actual.from === expected.from && actual.till === expected.till && actual.nights === expected.nights);
 }
 

@@ -1,7 +1,7 @@
 export const publicWarmRoutes = Object.freeze(["/", "/events", "/spas", "/hourly", "/search", "/providers", "/trails", "/attractions"]);
-export const publicWarmRequests = Object.freeze(publicWarmRoutes.flatMap<{path:string;headers:Record<string,string>}>(path=>[
-  {path,headers:{Accept:'text/html'}},
-  {path:`${path==='/'?'/.rsc':`${path}.rsc`}?_rsc`,headers:{Accept:'text/x-component',RSC:'1'}},
+export const publicWarmRequests: ReadonlyArray<{path:string;headers:Record<string,string>}> = Object.freeze(publicWarmRoutes.flatMap<{path:string;headers:Record<string,string>}>(path=>[
+  {path,headers:{Accept:'text/html'} as Record<string,string>},
+  {path:`${path==='/'?'/.rsc':`${path}.rsc`}?_rsc`,headers:{Accept:'text/x-component',RSC:'1'} as Record<string,string>},
 ]));
 type Context = { waitUntil(promise: Promise<unknown>): unknown };
 

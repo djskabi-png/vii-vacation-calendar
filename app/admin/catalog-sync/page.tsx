@@ -40,7 +40,6 @@ function RunDiagnostics({ world, runId }: { world: World; runId: string }) {
   }, [world, runId]);
   const load = useCallback(async () => {
     if (state.loaded || state.loading || requestRef.current) return;
-    requestRef.current?.abort();
     const controller = new AbortController();
     requestRef.current = controller;
     setState((current) => ({ ...current, loading: true, error: undefined }));

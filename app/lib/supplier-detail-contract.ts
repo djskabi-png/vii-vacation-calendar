@@ -29,9 +29,9 @@ function mediaIssue(raw:unknown,listPlace:unknown,now:Date):string|null {
  if(!Number.isFinite(created)||age< -300_000||age>86_400_000)return 'detail_age';
  if(!galleries(raw.galleries)||!Object.keys(raw.galleries as object).length)return 'site_gallery_schema';
  if(!Array.isArray(raw.rooms)||!Array.isArray(listPlace.rooms))return 'room_set_schema'; const ids=new Set<number>();
- for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||room.roomID<1||ids.has(room.roomID))return 'room_identity_mismatch';if(!galleries(room.galleries,true))return 'room_gallery_schema';ids.add(room.roomID);}
- const listIds=listPlace.rooms.map(room=>object(room)?room.roomID:null);
- if(new Set(listIds).size!==listIds.length||listIds.length!==ids.size||listIds.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))return 'room_identity_mismatch';
+ for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||Number(room.roomID)<1||ids.has(Number(room.roomID)))return 'room_identity_mismatch';if(!galleries(room.galleries,true))return 'room_gallery_schema';ids.add(Number(room.roomID));}
+ const listIds=listPlace.rooms.map(room=>object(room)&&Number.isSafeInteger(room.roomID)?Number(room.roomID):null);
+ if(new Set(listIds).size!==listIds.length||listIds.length!==ids.size||listIds.some(id=>id===null||!ids.has(id)))return 'room_identity_mismatch';
  return null;
 }
 export function supplierDetailProofIssue(raw:unknown,listPlace:unknown,now:Date):string|null {
@@ -48,8 +48,8 @@ export function supplierDetailProofIssue(raw:unknown,listPlace:unknown,now:Date)
  if(!Array.isArray(raw.rooms)||!Array.isArray(listPlace.rooms))return "room_set_schema";
  const roomIds=new Set<number>();
  for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||Number(room.roomID)<1||roomIds.has(Number(room.roomID)))return "room_identity_mismatch";if(!galleries(room.galleries,true))return "room_gallery_schema";const issue=amenityIssue(room.amenities);if(issue)return `room_amenities_${issue}`;if(!Array.isArray(room.spaces)||!room.spaces.every(space=>object(space)&&Array.isArray(space.features)&&space.features.every(feature=>object(feature)&&typeof feature.description==='string')))return "room_spaces_schema";roomIds.add(Number(room.roomID));}
- const listIds=listPlace.rooms.map(room=>object(room)?room.roomID:null);
- if(new Set(listIds).size!==listIds.length||listIds.length!==roomIds.size||listIds.some(id=>!Number.isSafeInteger(id)||!roomIds.has(Number(id))))return "room_identity_mismatch";
+ const listIds=listPlace.rooms.map(room=>object(room)&&Number.isSafeInteger(room.roomID)?Number(room.roomID):null);
+ if(new Set(listIds).size!==listIds.length||listIds.length!==roomIds.size||listIds.some(id=>id===null||!roomIds.has(id)))return "room_identity_mismatch";
  return null;
 }
 export function supplierNonMediaFactsMatch(a:unknown,b:unknown):boolean {
@@ -62,8 +62,14 @@ export function supplierNonMediaFactsMatch(a:unknown,b:unknown):boolean {
 }
 export async function proveSupplierMediaDetail(raw:unknown,listPlace:unknown,composite:unknown,previous:unknown,now:Date):Promise<SupplierDetailProof|null>{
  if(mediaIssue(raw,listPlace,now)||!object(composite)||!object(previous)||!supplierNonMediaFactsMatch(composite,previous))return null;
- if(!Number.isSafeInteger(composite.supplierId)||composite.supplierId<1||composite.supplierId!==raw.id||!Number.isSafeInteger(previous.supplierId)||previous.supplierId<1||previous.supplierId!==composite.supplierId)return null;
- return {supplierId:composite.supplierId,contract:'vii-site-media-v1',created:String(raw.created),rawFingerprint:await fingerprint(raw),normalizedFingerprint:await supplierEntryFingerprint(composite as any),previousFingerprint:await supplierEntryFingerprint(previous as any)};
+ const rawRecord = raw as Record<string, unknown>;
+ const supplierId = composite.supplierId;
+ const previousSupplierId = previous.supplierId;
+ const rawId = rawRecord.id;
+ if(typeof supplierId!=="number"||!Number.isSafeInteger(supplierId)||supplierId<1||typeof rawId!=="number"||supplierId!==rawId||typeof previousSupplierId!=="number"||!Number.isSafeInteger(previousSupplierId)||previousSupplierId<1||previousSupplierId!==supplierId)return null;
+ const currentEntry = { supplierId, summary: composite.summary, detail: composite.detail };
+ const previousEntry = { supplierId: previousSupplierId, summary: previous.summary, detail: previous.detail };
+ return {supplierId,contract:'vii-site-media-v1',created:String(rawRecord.created),rawFingerprint:await fingerprint(raw),normalizedFingerprint:await supplierEntryFingerprint(currentEntry),previousFingerprint:await supplierEntryFingerprint(previousEntry)};
 }
 /** The official Site page contract returns everything shown on that place page,
  * unlike the list's six-photo preview. Missing fields never mean deletion. */

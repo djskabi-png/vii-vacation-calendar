@@ -333,7 +333,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
             </div>
             {recommendationNames.length ? <ul>{recommendationNames.map((item) => <li key={item.index}><span>{item.quantity > 1 ? `${item.quantity} × ` : ""}{translate(item.name)}</span><small>עד {item.maxGuests * item.quantity} אורחים</small></li>)}</ul> : null}
             <div className="vacation-booking-dialog__recommendation-footer">
-              <p>{availabilityMode === "inquiry" ? "הזמינות והמחיר יאושרו ישירות מול המקום." : availabilityMode === "demo" ? "הזמינות והמחיר מוצגים להמחשת הממשק בלבד." : recommendation.totalPrice ? <><strong><bdi dir="ltr">₪&nbsp;{recommendation.totalPrice.toLocaleString(numberLocale)}</bdi></strong> לכל השהייה</> : "המחיר הסופי יאושר לפני הזמנה."}</p>
+               <p>{availabilityMode === "demo" ? "הזמינות והמחיר מוצגים להמחשת הממשק בלבד." : recommendation.totalPrice ? <><strong><bdi dir="ltr">₪&nbsp;{recommendation.totalPrice.toLocaleString(numberLocale)}</bdi></strong> לכל השהייה</> : "המחיר הסופי יאושר לפני הזמנה."}</p>
             </div>
           </section> : null}
 
@@ -352,10 +352,8 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                 const includedInRecommendation = Boolean(recommendation?.items.some((item) => item.index === index));
                 const unitNightlyPrice = quote?.nightlyPrice;
                 const unitTotalPrice = quote?.totalPrice || (unitNightlyPrice && nights > 0 ? unitNightlyPrice * nights : 0);
-                const canBookUnit = bookingEnabled && availabilityMode !== "inquiry" && availabilityStatus === "ready" && isAvailable && unitFitsParty && Boolean(unitNightlyPrice);
-                const statusTitle = availabilityMode === "inquiry"
-                  ? unitCopy.inquiry
-                  : availabilityStatus === "error"
+                 const canBookUnit = bookingEnabled && availabilityStatus === "ready" && isAvailable && unitFitsParty && Boolean(unitNightlyPrice);
+                 const statusTitle = availabilityStatus === "error"
                     ? unitCopy.error
                     : isAvailable && unitFitsParty
                       ? unitCopy.available
@@ -375,13 +373,11 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                     {hasDates ? <div className="vacation-booking-dialog__unit-availability" role="status">
                       <div>
                         <strong>{statusTitle}</strong>
-                        {availabilityMode !== "inquiry" && unitNightlyPrice ? <small><bdi dir="ltr">₪&nbsp;{unitNightlyPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.perNight}{unitTotalPrice ? <> · <bdi dir="ltr">₪&nbsp;{unitTotalPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.totalStay}</> : null}</small> : <small>{availabilityMode === "inquiry" ? unitCopy.inquiryHint : availabilityStatus === "error" ? unitCopy.errorHint : isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
+                         {unitNightlyPrice ? <small><bdi dir="ltr">₪&nbsp;{unitNightlyPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.perNight}{unitTotalPrice ? <> · <bdi dir="ltr">₪&nbsp;{unitTotalPrice.toLocaleString(numberLocale)}</bdi> {unitCopy.totalStay}</> : null}</small> : <small>{availabilityStatus === "error" ? unitCopy.errorHint : isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
                       </div>
                     {canBookUnit ? <Link className="button primary vacation-booking-dialog__unit-action" href={unitBookingHref(bookingHref, index, unitNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
                         : isAvailable && unitFitsParty && Boolean(unitNightlyPrice) && !bookingEnabled && phoneHref ? <a className="button primary vacation-booking-dialog__unit-action" href={phoneHref}>הזמנה בטלפון</a>
-                        : availabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button secondary vacation-booking-dialog__unit-action" />
-                          : availabilityMode === "inquiry" && phoneHref ? <a className="button secondary vacation-booking-dialog__unit-action" href={phoneHref}>{unitCopy.call}</a>
-                            : availabilityStatus === "error" && onRetryAvailability ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={onRetryAvailability}>{unitCopy.retry}</button>
+                         : availabilityStatus === "error" && onRetryAvailability ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={onRetryAvailability}>{unitCopy.retry}</button>
                               : isUnavailable ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={openCalendar}>{unitCopy.checkOther}</button>
                                 : isAvailable && !unitFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.combinationCheck}: ${translate(room.name)}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={unitCopy.combinationCheck} buttonClassName="button secondary vacation-booking-dialog__unit-action" /> : null}
                     </div> : <button className="button secondary vacation-booking-dialog__unit-action vacation-booking-dialog__unit-action--dates" type="button" onClick={openCalendar}>{unitActionLabel(unitCopy.checkDates, translate(room.name))}</button>}

@@ -2,6 +2,7 @@ import { warmPublicDocuments } from "./public-warm.ts";
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 type DeliveryEnv={ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
+type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae";
 const EDGE_CACHE_VERSION = "v22";
@@ -27,7 +28,7 @@ async function boundedBody(stream: ReadableStream<Uint8Array> | null) {
   const body = new Uint8Array(size); let offset = 0; for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; } return body;
 }
 async function boundedMatch(cache: Cache, key: Request) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  let timer: number | undefined;
   try { return await Promise.race([cache.match(key).catch(() => undefined), new Promise<undefined>((resolve) => { timer = setTimeout(resolve, 100); })]); }
   finally { if (timer) clearTimeout(timer); }
 }
@@ -122,7 +123,7 @@ function keyFor(request: Request, url: URL, build: string) {
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
 }
 
-async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, refresh = false): Promise<Response> {
+async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext, refresh = false): Promise<Response> {
   const url = new URL(request.url);
   const discovery=publicDiscoveryCachePolicy(request);
   if (!eligible(request, url)) {
@@ -130,7 +131,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, 
     const upstream = new Request(new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)), request);
     return fetch(new Request(upstream, { redirect: "manual" }));
   }
-  const cache = globalThis.caches?.default;
+  const cache = (globalThis.caches as unknown as { default?: Cache } | undefined)?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
   const key = keyFor(request, url, expectedBuild);
   let hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
@@ -194,9 +195,10 @@ async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, 
   const clientHeaders = new Headers(response.headers); clientHeaders.delete(refreshAfterHeader); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
-export default { fetch: serve, async scheduled(_controller: ScheduledController, env: DeliveryEnv, ctx: ExecutionContext) {
+type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
+export default { fetch: serve, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
-  const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as ExecutionContext), ctx);
+  const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx);
   ctx.waitUntil(work);
   const report = await work;
   console.log("VII public document warming", { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report });

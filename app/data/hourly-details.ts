@@ -57,7 +57,7 @@ export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlac
     stayOptions: place?.rooms.map((room) => ({
       title: room.name || "יחידת אירוח",
       ...(Number.isSafeInteger(room.id) && room.id > 0 ? { roomId: room.id } : {}),
-      ...(Array.isArray((room as { images?: unknown }).images) && (room as { images?: unknown[] }).images!.length ? { images: (room as { images: string[] }).images } : {}),
+      ...(Array.isArray((room as { images?: unknown }).images) && (room as { images?: unknown[] }).images!.length ? { images: (room as unknown as { images: string[] }).images } : {}),
       description: [
         room.count ? `${room.count} יחידות` : "",
         room.maxGuests ? `עד ${room.maxGuests} אורחים ביחידה` : "",

@@ -225,10 +225,13 @@ function sanitized(raw: unknown, expected: { siteID: number; from: string; till:
     const invalidIndex = contacts?.findIndex((item) => !item) ?? -1;
     throw new ViiConversionsError("invalid_response", null, !contacts ? "contacts" : invalidIndex >= 0 ? invalidContactField((value.contacts as unknown[])[invalidIndex]) : "contacts.count");
   }
+  const created = value.created as string;
+  const domainID = value.domainID === null ? null : Number(value.domainID);
+  const summary = { all: all as ConversionBucket, whatsapp: whatsapp as ConversionBucket, maskyoo: maskyoo as ConversionBucket, form: form as ConversionBucket };
   return {
     siteID: expected.siteID, from: expected.from, till: expected.till,
-    domainID: value.domainID === null ? null : Number(value.domainID), created: value.created,
-    count: Number(value.count), summary: { all, whatsapp, maskyoo, form },
+    domainID, created,
+    count: Number(value.count), summary,
     clicks: { whatsapp: Number(sourceClicks.whatsapp), showphone: Number(sourceClicks.showphone), phone: Number(sourceClicks.phone) },
     ...(includeContacts ? { contacts: contacts as ConversionContact[] } : {}),
   };

@@ -315,9 +315,9 @@ export async function publicCatalogReviewPreviews<T>(world: "vacations" | "event
   const entries = await Promise.all(ids.map(async (id) => {
     const detail = await acceptedSergeyDetail<{ reviews?: { text?: string }[] }>(world, id);
     const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
-    return [id, detail ? { reviews: review ? [review] : [] } as T : null];
+    return [id, detail ? { reviews: review ? [review] : [] } as T : null] as [number, T | null];
   }));
-  return new Map(entries);
+  return new Map<number, T | null>(entries.map((entry): [number, T | null] => [entry[0], entry[1]]));
 }
 
 export async function publicCatalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {

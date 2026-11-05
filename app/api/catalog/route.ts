@@ -141,8 +141,8 @@ export async function catalogResponse(request: Request, db: D1Database | null): 
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
         if (view === "search") {
           if (world === "events") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
-            entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
-          const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+       entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as unknown as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
+     const prioritized = withVacationSearchPriority(entries as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
           return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
             entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
         }
@@ -167,8 +167,8 @@ export async function catalogResponse(request: Request, db: D1Database | null): 
       entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
   if (view === "search") {
     if (world === "events") return Response.json({ world, source: "bundled-fallback", fetchedAt,
-      entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
-    const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+       entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as unknown as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
+     const prioritized = withVacationSearchPriority(entries as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
       entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
   }

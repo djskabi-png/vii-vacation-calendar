@@ -174,7 +174,7 @@ function PriceValue({ amount }: { amount: string }) {
   return <bdi className="stay-card__price-value" dir="ltr" aria-label={`\u20AA ${amount}`}><span className="stay-card__currency" aria-hidden="true">{"\u20AA"}</span><span className="stay-card__price-number">{amount}</span></bdi>;
 }
 
-function quoteForStay(property: Property, selectedStay: SelectedStay | null): (ListingDateQuote & { illustrative?: boolean }) | null {
+function quoteForStay(property: Property, selectedStay: SelectedStay | null): (ListingDateQuote & { illustrative?: boolean; quotedGuests?: number }) | null {
   if (!selectedStay) return null;
   if (property.demoOperations?.fictional) {
     const arrival = new Date(`${selectedStay.from}T12:00:00Z`);
