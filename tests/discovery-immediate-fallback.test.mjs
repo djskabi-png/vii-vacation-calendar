@@ -63,7 +63,7 @@ test("both homepage vacation rails recover through a bounded backoff from cold a
   assert.match(home, /automaticRecoveryDelays = \[1_250, 2_500, 5_000, 8_000\]/);
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);
   assert.match(home, /catch\(\(error\) => \{ if \(error\?\.name !== "AbortError"\) recover\(\); \}\)/);
-  assert.match(home, /if \(delay === undefined\) \{ setState\(accepted \? "ready" : "error"\); return; \}/);
+  assert.match(home, /if \(delay === undefined\) \{ setState\(usable \? "ready" : "error"\); return; \}/);
   assert.match(cache, /cache: attempt \? "reload"/,
     "the retry must remain a bounded cache-bypassing GET recovery");
   assert.match(publicAudit, /home-live-deals-results", "home-holiday-deals-results"/);

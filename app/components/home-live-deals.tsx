@@ -20,8 +20,9 @@ import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
+import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer } from "../lib/home-offer-freshness.ts";
 
-type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const automaticRecoveryDelays = [1_250, 2_500, 5_000, 8_000] as const;
 
@@ -106,7 +107,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const text = copy[language];
   const title = sectionTitle || (scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title);
   const selectionKey = `${language}:${clock?.key || "loading"}:` + (mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`);
-  const data = scopedData?.key === selectionKey ? scopedData.value : null;
+  const data = scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value) ? scopedData.value : null;
   function setData(value: ResponseData | null) { setScopedData(value ? { key: selectionKey, value } : null); }
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
@@ -143,23 +144,40 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
-    const accepted = lastGoodData.current.get(selectionKey);
+    const acceptedCandidate = lastGoodData.current.get(selectionKey);
+    const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : undefined;
+    if (!accepted) lastGoodData.current.delete(selectionKey);
     setData(accepted ?? null);
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+    let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+    const armExpiry = (value: ResponseData | undefined) => {
+      if (expiryTimer) clearTimeout(expiryTimer);
+      const checkedAt = homeOfferCheckedAt(value);
+      if (checkedAt === null || !isFreshHomeOffer(value)) return;
+      expiryTimer = setTimeout(() => {
+        lastGoodData.current.delete(selectionKey);
+        setData(null);
+        setState("loading");
+        setDealRetry((value) => value + 1);
+      }, Math.max(1, checkedAt + HOME_OFFER_MAX_AGE_MS - Date.now()));
+    };
+    armExpiry(accepted);
     const recover = () => {
+      const usable = isFreshHomeOffer(accepted);
+      if (!usable) { lastGoodData.current.delete(selectionKey); setData(null); }
       const attempts = automaticRetries.current.get(selectionKey) || 0;
       const delay = automaticRecoveryDelays[attempts];
-      if (delay === undefined) { setState(accepted ? "ready" : "error"); return; }
+      if (delay === undefined) { setState(usable ? "ready" : "error"); return; }
       automaticRetries.current.set(selectionKey, attempts + 1);
-      setState(accepted ? "ready" : "loading");
+      setState(usable ? "ready" : "loading");
       retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);
     };
     discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: 5_000, retries: 1,
-      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" })
+      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null) })
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
@@ -179,13 +197,15 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           recover();
           return;
         }
+        if (!isFreshHomeOffer(result)) throw new Error("expired_result");
         automaticRetries.current.delete(selectionKey);
         lastGoodData.current.set(selectionKey, result);
         setData(result);
         setState("ready");
+        armExpiry(result);
       })
       .catch((error) => { if (error?.name !== "AbortError") recover(); });
-    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
+    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {

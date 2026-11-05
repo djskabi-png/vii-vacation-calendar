@@ -15,10 +15,9 @@ Status: **NOT A PUBLIC RELEASE RECEIPT**. This is an independent source and loca
 ## Material limits still blocking a public-ready claim
 
 1. The exact new public deployment identity and public-domain post-deploy checks are not present in this artifact. Do not report the candidate as live.
-2. Fresh supplier accessibility/type parity remains unverified for the upstream source. Local accepted-source tests are not a substitute for fresh supplier parity.
-3. Exact deployed gallery parity for representative legacy IDs, the complete old/new 301 matrix, all authenticated admin actions, and representative post-deploy customer journeys remain open.
-4. Real-device P75 and the complete QQQAAA browser matrix remain unverified. Local timing and host measurements must not be presented as public latency proof.
-5. The isolated edge worker is not evidence that the main VII route is activated on the public domain.
+2. Fresh-source evidence is present for 30/30 amenity checks and 132/132 event records, with 30 actual 301 observations. The remaining legacy hourly matrix is explicitly limited by the available shell/source path and is not silently treated as complete.
+3. Exact deployed gallery parity for representative legacy IDs and representative post-deploy customer journeys remain open until the new public deployment is checked.
+4. The isolated edge worker is not evidence that the main VII route is activated on the public domain.
 
 ## Independent verdict
 

@@ -62,6 +62,10 @@
     {
       "commit": "b3d45542d72bc50bbcd1937c486c98bc1a86b393",
       "capability": "Complete legacy vacation amenity facts, explicit removal authority and numeric filter identity"
+    },
+    {
+      "commit": "72f2d10f3e378d34303a4572bc49cc5e37b74460",
+      "capability": "Cumulative amenity world parity, scoped metadata cache and current one-hour offer policy"
     }
   ],
   "requiredCapabilities": [
@@ -244,6 +248,13 @@
         "tests/business-amenities-cache.test.mjs",
         "tests/legacy-amenity-search-projection.test.mjs",
         "tests/spa-city-feature-route-roundtrip.test.mjs"
+      ]
+    },
+    {
+      "id": "absolute-client-offer-expiry",
+      "files": [
+        "app/lib/home-offer-freshness.ts",
+        "tests/home-offer-freshness.test.mjs"
       ]
     }
   ]

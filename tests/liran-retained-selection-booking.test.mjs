@@ -3,6 +3,7 @@ import test from 'node:test';
 import ts from 'typescript';
 import {readFileSync} from 'node:fs';
 import {homeDealDates} from '../app/lib/vii-home-deals.ts';
+import {isFreshHomeOffer} from '../app/lib/home-offer-freshness.ts';
 const source=readFileSync(new URL('../app/components/home-live-deals.tsx',import.meta.url),'utf8');
 const business=readFileSync(new URL('../app/business/client-page.tsx',import.meta.url),'utf8');
 const parse=text=>ts.createSourceFile('component.tsx',text,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
@@ -12,9 +13,11 @@ test('retained fixed-period navigation immediately overrides the previous select
  assert.equal(fn('friday','thursday'),'friday');assert.equal(fn(undefined,'thursday'),'thursday');
 });
 test('changing dates, party, region, language or period hides previous-scope offers synchronously',()=>{
- const fn=new Function('scopedData','selectionKey',`return ${initializer(source,'data')}`);
- const value={deals:[{siteID:618}]};
+ const evaluate=new Function('scopedData','selectionKey','isFreshHomeOffer',`return ${initializer(source,'data')}`);
+ const fn=(scoped,key)=>evaluate(scoped,key,isFreshHomeOffer);
+ const value={cache:{checkedAt:new Date(Date.now()-1000).toISOString()},deals:[{siteID:618}]};
  assert.equal(fn({key:'old',value},'new'),null);assert.equal(fn({key:'same',value},'same'),value);
+ assert.equal(fn({key:'same',value:{...value,cache:{checkedAt:new Date(Date.now()-3600000).toISOString()}}},'same'),null);
  const key=initializer(source,'selectionKey');
  const make=new Function('language','clock','mode','holidayId','regionLabel','period','guests',`return ${key}`);
  const base=['he',{key:'2026-11-04:before14'},'near',null,'צפון','tomorrow',2];
