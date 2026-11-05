@@ -1,20 +1,19 @@
 import { HomeQuickSearches } from "./home-discovery-sections";
 import { SearchWorldTabs, type PublicWorldId } from "./world-switcher";
 import { TranslatedText } from "./translated-text";
+import { SpecialSearchSummary } from "./special-search-summary";
 
 type SpecialWorldSearchProps = {
   active: Extract<PublicWorldId, "trails" | "attractions">;
   targetId: string;
   description: string;
+  initialArea?: string;
 };
 
-export function SpecialWorldSearch({ active, targetId, description }: SpecialWorldSearchProps) {
+export function SpecialWorldSearch({ active, targetId, description, initialArea }: SpecialWorldSearchProps) {
   return <section className="special-search-rail"><div className="shell">
     <details className="special-search-disclosure">
-      <summary className="special-search-summary">
-        <span><TranslatedText as="strong" text="כל הארץ" /><TranslatedText as="small" text={description} /></span>
-        <TranslatedText as="b" text="שינוי חיפוש" />
-      </summary>
+      <SpecialSearchSummary description={description} initialArea={initialArea} />
       <div className="special-search-panel">
         <SearchWorldTabs active={active} />
         <a className="special-search-local" href={`#${targetId}`}>

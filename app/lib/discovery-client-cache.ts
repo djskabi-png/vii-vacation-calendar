@@ -99,7 +99,12 @@ async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: numb
     }, timeoutMs);
   });
   try {
-    return await Promise.race([fetch(url, { ...init, signal: controller.signal }), deadline]);
+    const completeJson = async () => {
+      const response = await fetch(url, { ...init, signal: controller.signal });
+      if (!response.ok) throw new DiscoveryResponseError(response.status);
+      return await response.json();
+    };
+    return await Promise.race([completeJson(), deadline]);
   } finally {
     if (timer) clearTimeout(timer);
     callerSignal?.removeEventListener("abort", abortFromCaller);
@@ -132,12 +137,10 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
       try {
         // The second read-only attempt deliberately bypasses a possibly wedged
         // browser HTTP-cache path. POST/live transaction checks never retry.
-        const response = await fetchWithDeadline(url, {
+        const value = await fetchWithDeadline(url, {
           ...requestInit,
           cache: attempt ? "reload" : requestInit.cache ?? (method === "GET" ? "default" : "no-store"),
         }, boundedTimeout);
-        if (!response.ok) throw new DiscoveryResponseError(response.status);
-        const value = await response.json();
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
         if (shouldCache(value)) {
           const now = Date.now();

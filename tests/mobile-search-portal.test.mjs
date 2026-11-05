@@ -14,7 +14,7 @@ test("expanded shared search escapes hero clipping while inline desktop and cale
   assert.match(source,/event\.target instanceof Node && !surface\.contains\(event\.target\)\) return/);
   assert.match(source,/event\.key !== "Tab"/);
   assert.match(source,/document\.body\.style\.overflow = previousOverflow/);
-  assert.match(source,/if \(event\.matches\) cancelMobileSearch\(\)/);
+  assert.match(source,/if \(event\.matches\) closeMobileSearch\(\)/);
   assert.ok(source.indexOf("<EventDatePicker")>source.indexOf("createPortal(searchSurface, document.body)"));
 });
 test("homepage uses the exact approved copy",()=>{

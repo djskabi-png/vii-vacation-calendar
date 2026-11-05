@@ -17,6 +17,8 @@ test("same-origin APIs cannot race the initial streamed hydration", async () => 
   const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
   assert.match(layout, /apiHydrationGate/);
   assert.match(layout, /target\.origin===location\.origin&&target\.pathname\.indexOf\('\/api\/'\)===0/);
-  assert.match(layout, /window\.addEventListener\('load',open,\{once:true\}\)/);
-  assert.match(layout, /setTimeout\(function\(\)\{release\(\);window\.fetch=original\},800\)/);
+  assert.match(layout, /document\.addEventListener\('DOMContentLoaded',open,\{once:true\}\)/);
+  assert.match(layout, /requestAnimationFrame\(function\(\)\{requestAnimationFrame\(function\(\)/);
+  assert.match(layout, /setTimeout\(finish,100\)/);
+  assert.doesNotMatch(layout, /window\.addEventListener\('load',open/);
 });

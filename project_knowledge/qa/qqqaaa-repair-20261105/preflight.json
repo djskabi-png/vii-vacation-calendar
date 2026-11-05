@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-qqqaaa-complete-repair-20261105",
+  "project": "VII",
+  "task_type": "repair-and-cumulative-release",
+  "requested_outcome": "Repair audit findings and publish verified cumulative release",
+  "natural_destination": "https://vii.spaplus.co public v800 build905d5f64 and authorized administration",
+  "authorization_boundary": "User authorizes repairs, maintenance recovery and publication; no real orders, payments or messages",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Popular labels must apply real filters and nearby must use actual browserorigin",
+      "acceptance_impact": "No fake keywordfilters or positionleakage, CMS draft/published distinction"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Sharedworld rail andeditorneed actualflowverification",
+      "acceptance_impact": "Testallworld defaults/parser/action and desktop/mobile plus persistence fixture; distinguishlocallysavedfrompublic"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only old tests repeated",
+      "prevention": "Fresh independent discovery and browser inspection",
+      "acceptance_check": "Version-specific live traces"
+    },
+    {
+      "rejection": "Mobile inferred from resize",
+      "prevention": "Measure actual width and inspect screenshot",
+      "acceptance_check": "Actual innerWidth390 with inspected screenshot and no horizontal overflow"
+    },
+    {
+      "rejection": "Speed equated with warmHTML",
+      "prevention": "Separate cold warm HTTP and browser metrics",
+      "acceptance_check": "Per-route cold and warm timing measurements with exact build and cache status"
+    },
+    {
+      "rejection": "Hidden admin failures ignored",
+      "prevention": "Every discovered admin route has a coverage row",
+      "acceptance_check": "Read-only live inventory"
+    },
+    {
+      "rejection": "Unsafe QA creates business data",
+      "prevention": "Stop before transactional submissions",
+      "acceptance_check": "Read-only boundary trace confirms no real reservation payment or enquiry was submitted"
+    },
+    {
+      "rejection": "Missing coverage called passed",
+      "prevention": "Reconcile planned and observed inventory",
+      "acceptance_check": "Gaps explicit and block broad approval"
+    }
+  ],
+  "affected_family": [
+    "eight public worlds",
+    "search filter sort map",
+    "place gallery and conversion entry",
+    "weekend holiday weekday landing",
+    "four locales and typography",
+    "account favorites legal editorial",
+    "all admin modules",
+    "HTTP/browser performance media SEO privacy"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII feedback standard",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Roy inspection",
+        "source": "C:/Users/Adir/Documents/Codex/AccountState/ADIR_ROY_INSPECTION_PROTOCOL.md"
+      },
+      {
+        "label": "Public baseline",
+        "source": "project_knowledge/release_evidence/comprehensive-20261105/PUBLIC_RELEASE_RECEIPT.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First live public home/search and admin module before extending sweep",
+    "checks": [
+      "Actual build and width",
+      "First visual section walk and overlay",
+      "Private boundary and loading"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does every defect have expected source and actual reproduction?",
+      "Can passing HTTP hide a broken live control?",
+      "Is any planned family unobserved despite a passing claim?"
+    ],
+    "natural_destination_evidence": "Live version-specific CUA traces and screenshots",
+    "affected_family_evidence": "Reconciled independent public/admin/HTTP inventory"
+  },
+  "effectiveness": {
+    "baseline": "Previous release tests are a baseline, not a completed whole-product audit",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Discover unreported failures and accurately map inspected versus uninspected states"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

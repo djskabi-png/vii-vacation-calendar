@@ -41,7 +41,7 @@ export default async function AttractionsPage({ topic }: { topic?: WorldDepthTop
     <main id="main-content" className="attractions-page">
       <StructuredData data={collectionSchema(topicCopy?.title || "אטרקציות בתשלום בישראל", topicCopy?.description || "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", topic ? `/attractions/explore/${topic.slug}` : "/attractions/", topicItems.map((item) => ({ name: item.name, path: `/discover/place/${item.id}` })))} />
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions/" }, ...(topic ? [{ name: topic.label, path: `/attractions/explore/${topic.slug}` }] : [])])} />
-      <SpecialWorldSearch active="attractions" targetId="attraction-search" description="בחרו אזור וסוג חוויה" />
+      <SpecialWorldSearch active="attractions" targetId="attraction-search" initialArea={topic?.params.area} description="בחרו אזור וסוג חוויה" />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions" }, ...(topic ? [{ name: topic.label }] : [])]} />
       <DiscoveryWorldHero className="attractions-hero" showBreadcrumbs={false} type="attractions" presentation={topicCopy ? { ...presentation, ...topicCopy } : presentation} breadcrumbs={[]} count={topicItems.length} countLabel="חוויות לבחירה" targetId="attraction-search" />
       <section id="attraction-search" className="section shell trail-explorer attraction-explorer"><AttractionsExplorer items={attractions} initialArea={topic?.params.area} initialType={topic?.params.type} /></section>

@@ -454,12 +454,12 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 821px)");
     const leaveMobileEditor = (event: MediaQueryListEvent | MediaQueryList) => {
-      if (event.matches) cancelMobileSearch();
+      if (event.matches) closeMobileSearch();
     };
 
     desktop.addEventListener("change", leaveMobileEditor);
     return () => desktop.removeEventListener("change", leaveMobileEditor);
-  }, [cancelMobileSearch]);
+  }, [closeMobileSearch]);
 
   function search(overrides: ImmediateSearchOverrides = {}) {
     if (isSearchingRef.current) return;

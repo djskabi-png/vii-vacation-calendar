@@ -32,7 +32,7 @@ export default async function TrailsPage({ topic }: { topic?: WorldDepthTopic } 
     <main id="main-content" className="trails-page">
       <StructuredData data={collectionSchema(topicCopy?.title || "מסלולי טיול בישראל למטייל העצמאי", topicCopy?.description || "מסלולי מים, חופים, יערות ומדבר עם מידע בטיחותי ומקור רשמי.", topic ? `/trails/explore/${topic.slug}` : "/trails/", topicItems.map((trail) => ({ name: trail.name, path: `/trails/${trail.slug}/` })))} />
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "מסלולי טיול", path: "/trails" }, ...(topic ? [{ name: topic.label, path: `/trails/explore/${topic.slug}` }] : [])])} />
-      <SpecialWorldSearch active="trails" targetId="trail-search" description="בחרו אזור, טבע ודרגת קושי" />
+      <SpecialWorldSearch active="trails" targetId="trail-search" initialArea={topic?.params.area} description="בחרו אזור, טבע ודרגת קושי" />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מסלולי טיול", path: "/trails" }, ...(topic ? [{ name: topic.label }] : [])]} />
       <DiscoveryWorldHero className="trails-hero" showBreadcrumbs={false} type="trails" presentation={topicCopy ? { ...presentation, ...topicCopy } : presentation} breadcrumbs={[]} count={topicItems.length} countLabel="מסלולים עצמאיים" targetId="trail-search" />
       <section id="trail-search" className="section shell trail-explorer"><TrailsExplorer items={publishedTrails} initialFilters={topic?.params} /></section>

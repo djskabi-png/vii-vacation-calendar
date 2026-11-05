@@ -81,7 +81,7 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
   return <>
     <header className={styles.commandBar} dir="rtl">
       <div className={styles.commandIdentity}><span>V Control</span><strong>{currentTitle(pathname)}</strong></div>
-      <button type="button" className={styles.commandSearch} onClick={() => setOpen(true)} aria-haspopup="dialog">
+      <button type="button" className={styles.commandSearch} onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label="פתיחת חיפוש כלי ניהול">
         <Search size={17} aria-hidden="true" /><span>חיפוש כלי, דוח או פעולה</span><kbd>Ctrl K</kbd>
       </button>
       <div className={styles.commandActions}>
@@ -96,7 +96,7 @@ export default function AdminCommandBar({ access }: { access: AdminAccess }) {
     {open ? <div className={styles.commandBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCommand(); }}>
       <section className={styles.commandDialog} role="dialog" aria-modal="true" aria-labelledby="admin-command-title">
         <header><div><Sparkles size={18} aria-hidden="true" /><h2 id="admin-command-title">לאן ממשיכים?</h2></div><button type="button" onClick={closeCommand} aria-label="סגירת חיפוש"><X size={19} /></button></header>
-        <label className={styles.commandInput}><Search size={18} aria-hidden="true" /><input ref={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="לדוגמה: קידום, חיפושים, קטלוגים" /></label>
+        <label className={styles.commandInput}><Search size={18} aria-hidden="true" /><input aria-label="חיפוש בכלי הניהול" ref={input} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="לדוגמה: קידום, חיפושים, קטלוגים" /></label>
         <div className={styles.commandResults}>{filtered.length ? filtered.map(({ href, title, hint, icon: Icon }) => <a key={href} href={href} onClick={closeCommand}><span><Icon size={18} aria-hidden="true" /></span><div><strong>{title}</strong><small>{hint}</small></div><ArrowLeft size={17} aria-hidden="true" /></a>) : <div className={styles.commandEmpty}>לא נמצא כלי בשם הזה. אפשר לחפש לפי פעולה או סוג נתון.</div>}</div>
       </section>
     </div> : null}

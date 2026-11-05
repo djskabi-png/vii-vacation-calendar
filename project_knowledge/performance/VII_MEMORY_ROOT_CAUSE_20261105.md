@@ -86,3 +86,25 @@ under its production isolate limit.
 Remaining static consumers were identified in the graph through catalog-sync
 and legacy availability families. They require separate route-level review;
 no claim is made that every Worker entrypoint is now detail-free.
+
+## Remaining caller-risk measurement
+
+A second controlled Node measurement isolated the remaining backend import
+families (same process, `--expose-gc`, after each import):
+
+| import | RSS |
+| --- | ---: |
+| process baseline | 62.8 MiB |
+| `vii-home-deals.ts` | 76.4 MiB |
+| `supplier-place-detail.ts` | 105.3 MiB |
+| `supplier-catalog-runtime.ts` after the preceding imports | 99.1 MiB |
+
+These are not Cloudflare Worker heap measurements, but they identify the
+remaining high-risk synchronous import: `app/data/supplier-place-detail.ts`
+still statically imports the full detail JSON (and legacy agreements/catalog
+data). It is used by booking/business page fallbacks and must be split in a
+separate detail-page contract, not changed blindly. The catalog runtime also
+statically imports detail data for sync baselines and should stay out of public
+request paths. The current release candidate therefore has a proven reduction
+for public summaries/home discovery and a clearly bounded remaining risk for
+detail/admin/sync entrypoints.

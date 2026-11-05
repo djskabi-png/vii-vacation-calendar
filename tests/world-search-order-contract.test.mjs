@@ -49,7 +49,9 @@ test("special world search opens in place before offering an explicit local-filt
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.doesNotMatch(source, /^"use client";/);
   assert.match(source, /<details className="special-search-disclosure">/);
-  assert.match(source, /<summary className="special-search-summary"/);
+  const summary = await readFile(new URL("../app/components/special-search-summary.tsx", import.meta.url), "utf8");
+  assert.match(source, /<SpecialSearchSummary description=\{description\} initialArea=\{initialArea\}/);
+  assert.match(summary, /<summary className="special-search-summary"/);
   assert.match(source, /<SearchWorldTabs active=\{active\} \/>/);
   assert.match(source, /className="special-search-local" href=\{`#\$\{targetId\}`\}/);
   assert.match(styles, /\.special-search-panel/);
