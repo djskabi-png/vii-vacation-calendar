@@ -2,7 +2,10 @@ import { fetchLiveBusinessAmenities } from "../../../lib/live-business-amenities
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 
 const publicCache = {
-  "Cache-Control": "public, max-age=300, s-maxage=21600, stale-while-revalidate=86400",
+  // The accepted-generation-aware D1 cache owns weekly freshness. An outer
+  // URL-only cache could revive an amenity after its source revision changed,
+  // or extend the source hard expiry without checking catalog membership.
+  "Cache-Control": "no-store",
   "X-Content-Type-Options": "nosniff",
 };
 const noStore = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };

@@ -8,7 +8,7 @@ import {eligibleDealDate} from '../app/lib/deal-clock.ts';
 import {discoveryJson} from '../app/lib/discovery-client-cache.ts';
 import {prioritizeOnlineFirst,isHomeDealOnlineEligible} from '../app/lib/vacation-online-first.ts';
 import {compareVacationPriority} from '../app/lib/vacation-priority.ts';
-import {VACATION_DISCOVERY_POLICY} from '../app/lib/warm-vacation-discovery-cache.ts';
+import {VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot} from '../app/lib/warm-vacation-discovery-cache.ts';
 
 function route(path,method,deps){
  const text=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
@@ -18,7 +18,7 @@ function route(path,method,deps){
 test('actual vacation route only reads scheduled snapshots, re-filters withdrawn IDs and preserves party/date keys',async()=>{
  let reads=0,ids=new Set([11,12]);const date=homeDealDates('tomorrow');
  const readCachedDiscovery=async({key})=>{reads++;const guests=key.at(-1);return{cache:{status:'fresh',checkedAt:new Date().toISOString()},value:{dates:date,checkedAt:new Date().toISOString(),deals:[11,12].map(siteID=>({siteID,total:900,priceGuests:guests,from:date.from,till:date.till}))}};};
- const get=route('vii/home-deals','GET',{readCachedDiscovery,homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+ const get=route('vii/home-deals','GET',{readCachedDiscovery,homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
   runtimeCatalogDatabase:async()=>null,publishedSupplierIds:async()=>ids,
   publicCatalogSummaries:async()=>[{supplierId:11,name:'Local',area:'מרכז'},{supplierId:12,name:'Other',area:'צפון'}],
   readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
@@ -33,7 +33,7 @@ test('vacation route performs one bounded live recovery when a configured snapsh
  const dates=homeDealDates('tomorrow');let recoveries=0;
  const recovered={cache:{status:'refreshed',checkedAt:new Date().toISOString()},value:{dates,checkedAt:new Date().toISOString(),deals:[{siteID:11,total:900,priceGuests:2,from:dates.from,till:dates.till}]}};
  const get=route('vii/home-deals','GET',{
-  readCachedDiscovery:async()=>{throw new Error('snapshot_read_failed')},homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+  readCachedDiscovery:async()=>{throw new Error('snapshot_read_failed')},homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
   runtimeCatalogDatabase:async()=>({prepare(){throw new Error('snapshot_read_failed')}}),publishedSupplierIds:async()=>new Set([11]),
   publicCatalogSummaries:async()=>[{supplierId:11,name:'Recovered',area:'מרכז'}],
   readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
@@ -46,6 +46,17 @@ test('vacation route performs one bounded live recovery when a configured snapsh
  assert.equal(payload.availabilityStatus,'verified');
  assert.deepEqual(payload.deals.map(deal=>deal.siteID),[11]);
  assert.equal(recoveries,1,'snapshot failure may trigger only one bounded provider recovery');
+});
+test('vacation route accepts a valid empty live recovery and rejects mismatched snapshot dates',async()=>{
+ const dates=homeDealDates('tomorrow');let recoveries=0;
+ const recovered={cache:{status:'refreshed',checkedAt:new Date().toISOString()},value:{dates,deals:[]}};
+ assert.equal(validVacationDiscoverySnapshot({dates:{from:'2099-01-01',till:'2099-01-02',nights:1},deals:[]},dates),false);
+ const get=route('vii/home-deals','GET',{
+  readCachedDiscovery:async()=>{throw new Error('snapshot_dates_mismatch')},homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+  runtimeCatalogDatabase:async()=>({}),publishedSupplierIds:async()=>new Set(),publicCatalogSummaries:async()=>[],readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),refreshVacationDiscoveryPeriod:async()=>{recoveries++;return recovered},runtimeDatabase:async()=>null,curateHomeDeals:async(_db,deals)=>deals,getRequestExecutionContext:()=>null,
+ });
+ const response=await get(new Request('https://example.test/?period=tomorrow&guests=2')); const payload=await response.json();
+ assert.equal(response.status,200); assert.equal(payload.availabilityStatus,'verified'); assert.deepEqual(payload.deals,[]); assert.deepEqual(payload.dates,dates); assert.equal(recoveries,1);
 });
 test('detail and booking adapters never import discovery cache; event discovery is explicit with one lease-protected cold recovery',()=>{
  for(const path of ['app/lib/vii-confirm-home-deal.ts','app/api/vii/confirm-home-deal/route.ts','app/api/spa/availability/route.ts','app/lib/vii-live-search.ts']){

@@ -21,7 +21,8 @@ function result<T>(value: T, row: Row, status: "fresh" | "refreshed" | "stale"):
   return { value: structuredClone(value), cache: { status, checkedAt: new Date(row.checked_at).toISOString() } };
 }
 function parse<T>(row: Row | null | undefined, options: Options<T>, now: number): T | undefined {
-  if (!row?.payload || row.checked_at > now || row.stale_until <= now || row.payload.length > MAX_BYTES) return undefined;
+  const selected = policy(options);
+  if (!row?.payload || row.checked_at > now || row.stale_until <= now || row.checked_at + selected.staleMs <= now || row.payload.length > MAX_BYTES) return undefined;
   try { const value = JSON.parse(row.payload); return value !== null && (!options.validate || options.validate(value)) ? value as T : undefined; } catch { return undefined; }
 }
 function payload<T>(value: T, options: Options<T>) {

@@ -14,11 +14,11 @@ import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/va
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
-import { refreshVacationDiscoveryPeriod } from "../../../lib/warm-vacation-discovery-cache.ts";
+import { refreshVacationDiscoveryPeriod, validVacationDiscoverySnapshot } from "../../../lib/warm-vacation-discovery-cache.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const noStore = { "Cache-Control": "no-store" };
-const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
+const publicDiscovery = { "Cache-Control": "no-store" };
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
@@ -60,8 +60,7 @@ export async function GET(request: Request) {
     try {
       const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
         policy: VACATION_DISCOVERY_POLICY,
-        validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)
-          && (value as { deals: unknown[] }).deals.length > 0,
+        validate: value => validVacationDiscoverySnapshot(value, dates),
       });
       snapshot = { period: requestedPeriod, dates, cached };
     } catch { snapshotReadFailed = true; }
@@ -71,7 +70,7 @@ export async function GET(request: Request) {
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
       && publicSummaryIds.has(deal.siteID)
       && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
-    let selectedSnapshot = snapshot && preparedDeals.length ? { ...snapshot, deals: preparedDeals } : null;
+    let selectedSnapshot = snapshot ? { ...snapshot, deals: preparedDeals } : null;
     if (!selectedSnapshot && snapshotReadFailed) {
       // The durable snapshot normally keeps visitors off the provider path.
       // If snapshot storage itself is unavailable or its read fails, do one bounded live read so
@@ -80,7 +79,7 @@ export async function GET(request: Request) {
       const recoveredDeals = (await applyCuration(recovered.value.deals, requestedPeriod)).filter(deal => publicSiteIds.has(deal.siteID)
         && publicSummaryIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from
         && deal.till === dates.till && eligibleDealDate(deal.from, now));
-      if (recoveredDeals.length) selectedSnapshot = { period: requestedPeriod, dates, cached: recovered, deals: recoveredDeals };
+      if (validVacationDiscoverySnapshot(recovered.value, dates)) selectedSnapshot = { period: requestedPeriod, dates, cached: recovered, deals: recoveredDeals };
     }
     if (!selectedSnapshot) {
       const context = getRequestExecutionContext();
@@ -91,7 +90,7 @@ export async function GET(request: Request) {
     }
     const selectedPeriod = selectedSnapshot.period;
     const cached = selectedSnapshot.cached;
-    const result = { ...cached.value, period: selectedPeriod };
+    const result = { ...cached.value, period: selectedPeriod, dates };
     const ordered = prioritizeOnlineFirst(selectedSnapshot.deals, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));

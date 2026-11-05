@@ -5,9 +5,13 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import worker from "../dist/server/index.js";
+import { catalogResponse } from "../app/api/catalog/route.ts";
 
 const port = Number(process.argv.find((value) => value.startsWith("--port="))?.slice(7) || 4191);
 const publicOrigin = "https://vii.spaplus.co";
+// Inspect changed catalog projections locally instead of silently hydrating
+// a new candidate with the old production catalog. Still read-only, no D1.
+const localCatalog = process.argv.includes("--local-catalog");
 const clientRoot = resolve("dist/client");
 const mime = { ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".json": "application/json" };
 const assets = {
@@ -36,7 +40,9 @@ const server = http.createServer(async (request, response) => {
       quoteBody = Buffer.concat(chunks);
     }
     let result = await assets.fetch(new Request(incoming));
-    if (result.status === 404 && incoming.pathname !== "/api/vii/homepage-presentation" && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
+    if (result.status === 404 && localCatalog && incoming.pathname === "/api/catalog") {
+      result = await catalogResponse(new Request(incoming), null);
+    } else if (result.status === 404 && incoming.pathname !== "/api/vii/homepage-presentation" && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
       result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: quoteRead ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(quoteRead ? { "Content-Type": "application/json" } : {}) }, ...(quoteRead ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
     } else if (result.status === 404) {
       result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);

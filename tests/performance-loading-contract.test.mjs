@@ -178,7 +178,7 @@ test("catalog refresh and public discovery caching preserve last-good content", 
   assert.match(catalog, /seed === null \|\| !seedComplete/);
   assert.match(catalog, /setError\(!hasAcceptedContent\.current\)/);
   assert.match(clientCache, /method === "GET" \? "default" : "no-store"/);
-  assert.match(homeDeals, /public, max-age=60, s-maxage=300, stale-while-revalidate=86400/);
+  assert.match(homeDeals, /const publicDiscovery = \{ "Cache-Control": "no-store" \}/);
   assert.match(homeDeals, /status: 503, headers: .*noStore/s);
   assert.match(spaDeals, /Cache-Control": "no-store"/);
 });

@@ -1,4 +1,5 @@
 import legacy from "../data/legacy-amenity-search-index.json" with { type: "json" };
+import legacyEvents from "../data/legacy-event-amenity-search-index.json" with { type: "json" };
 import { filterIdsFromVerifiedLegacyIds } from "./supplier-amenity-filters.ts";
 import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
 
@@ -19,10 +20,26 @@ export function withLegacyAmenitySearchProjection<T extends Record<string, unkno
   const strings = (items: unknown) => Array.isArray(items) ? items.filter((v): v is string => typeof v === "string") : [];
   // Preserve old non-taxonomy search meanings while authoritative structured
   // amenities restore facts lost by truncated card features.
-  const derived = vacationSearchFilterIdsFromText([
-    ...strings(value.features), typeof value.description === "string" ? value.description : "",
-  ]);
-  return { ...value, searchFilterIds: [...new Set([
+  const derived = vacationSearchFilterIdsFromText(strings(value.features));
+  return { ...value, features: [...new Set([...strings(value.features), ...(facts.accessibility || [])])], searchFilterIds: [...new Set([
     ...derived, ...filterIdsFromVerifiedLegacyIds(facts.ids), ...(facts.extra || []),
+  ])] };
+}
+
+/** Event amenity IDs belong to their own taxonomy. For example accessibility
+ * is81 in these observed event profiles, not vacation62. Never expand them
+ * through the vacation numeric alias table. */
+export function withLegacyEventAmenitySearchProjection<T extends Record<string, unknown>>(value: T): T {
+  if (value.searchFilterIds !== undefined || typeof value.slug !== "string"
+      || !/^event-[1-9]\d*$/.test(value.slug)
+      || value.world !== undefined && value.world !== "events") return value;
+  const id = Number(value.slug.slice("event-".length));
+  if (value.supplierId !== undefined && value.supplierId !== id) return value;
+  const facts = (legacyEvents.entries as Record<string, { supplierId: number; semantic: string[]; observedAmenityIds: number[]; accessibility: string[] }>)[value.slug];
+  if (!facts || facts.supplierId !== id) return value;
+  const features = Array.isArray(value.features) ? value.features.filter((v): v is string => typeof v === "string") : [];
+  return { ...value, features: [...new Set([...features, ...facts.accessibility])], searchFilterIds: [...new Set([
+    ...vacationSearchFilterIdsFromText(features), ...facts.semantic,
+    ...facts.observedAmenityIds.map(id => `amenity-${id}`),
   ])] };
 }

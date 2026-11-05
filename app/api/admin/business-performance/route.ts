@@ -144,7 +144,10 @@ export async function GET(request: Request) {
     const reporting = await reportingDatabase();
     let cacheReady = true;
     let cacheDiagnostic: string | null = null;
-    const cacheDb = await bizConversionDatabase(reporting.database).catch((error) => {
+    // The overview contains only lightweight V analytics and catalog inventory.
+    // Do not block its first paint on Biz cache schema discovery, which is
+    // loaded lazily by the snapshots/sales views.
+    const cacheDb = mode === "overview" ? reporting.database : await bizConversionDatabase(reporting.database).catch((error) => {
       if (!reporting.degraded) throw error;
       cacheReady = false;
       cacheDiagnostic = error instanceof Error ? error.message.slice(0, 240) : "biz_conversion_cache_unavailable";

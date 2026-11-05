@@ -5,7 +5,7 @@
   "task_type": "supplier-amenity-source-and-filter-parity",
   "goal": "Audit all API attribute paths and repair shared/unit fact loss through accepted,compact,detail and geographic search without losing cumulative fixes",
   "created_at": "2026-11-05T00:03:28.205504Z",
-  "updated_at": "2026-11-05T00:31:37.675885Z",
+  "updated_at": "2026-11-05T01:17:08.623293Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -83,9 +83,12 @@
       "source": "predictive_preflight.midpoint_gate",
       "statement": "Case2244 andpartial-source fixtures through actual catalogAPI before broaderbuild",
       "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "22 runtime source tests passed; actual mobile accessibility drawer mismatch reproduced and repaired; 132 event legacy pages identity-verified; 20 candidate searches passed; independent admin UI found loading blocker"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-05T01:17:08.623288Z"
     },
     {
       "id": "preflight:adversarial",
@@ -152,8 +155,72 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "comprehensive-public-release",
+      "source": "user_request",
+      "statement": "Comprehensive cumulative repair and publication authorized; validate Roy and Liran customer and administration journeys before and after release",
+      "acceptance_check": "Exact public frozen source, preserved capability families, complete source and cache matrix, CUA desktop/mobile flows, build and tests, rollback and public receipt",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "access:publication-owner",
+      "source": "access_obstacle",
+      "statement": "Direct Sites connector returns project_not_found; exact owner conversation is accessible and authorized",
+      "acceptance_check": "Verify current version and recover publication through existing authorized owner route with one frozen source",
+      "status": "pending",
+      "evidence": [],
+      "reason": null,
+      "access_recovery": {
+        "observed_error": "Sites get_site returned project_not_found in the direct connector workspace.",
+        "category": "capability",
+        "diagnosis": "The current connector is not the owning project workspace; the existing authorized owning conversation exposes the actual project.",
+        "authorization_boundary": "User explicitly authorized comprehensive VII repair and publication; same project, audience, domains and environment.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "Exact VII project get_site returned project_not_found."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing authorized owning conversation returned live PUBLIC v798 deployment identity and environment32; no pending deployment."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing Git repository and Cloudflare Wrangler configuration inspected; release source and existing worker are available. Main publication remains on supported owning Sites route."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Owning Sites tools support source credential, version save, deployment status and logs for the actual project."
+          }
+        ],
+        "outcome": "recovered",
+        "ready_work_remaining": true,
+        "verified_result": "Project appgprj_6a71ccdca27481918bf04dd329d3eb21, live v798 deployment appgdep_6aeb402dda308191b3bac4377d520767, PUBLIC, environment32, read-only preflight completed."
+      }
     }
   ],
   "verification_status": "in_progress",
-  "verification_errors": []
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-05T01:17:08.623266Z",
+      "evidence": [
+        "22 runtime source tests passed; actual mobile accessibility drawer mismatch reproduced and repaired; 132 event legacy pages identity-verified; 20 candidate searches passed; independent admin UI found loading blocker"
+      ],
+      "findings": [
+        "World-specific event amenity81 differs from vacation62; source-specific identity projection prevents namespace collision. Overview Biz schema initialization removed before lightweight read. Final build and public checks remain pending."
+      ]
+    }
+  }
 }

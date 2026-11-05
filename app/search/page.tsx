@@ -50,6 +50,7 @@ import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { supplierAmenityFilters } from "../lib/supplier-amenity-filters.ts";
+import { vacationFeatureSelection } from "../lib/vacation-feature-selection.ts";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
 import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
@@ -269,9 +270,10 @@ type VacationPriceInputProps = {
   emptyValue: number;
   ariaLabel: string;
   onValueChange: (value: number) => void;
+  onEditingChange?: (editing: boolean) => void;
 };
 
-function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, onValueChange }: VacationPriceInputProps) {
+function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, onValueChange, onEditingChange }: VacationPriceInputProps) {
   const [draftValue, setDraftValue] = useState(String(value));
   const editingRef = useRef(false);
   const initialValueRef = useRef(value);
@@ -283,6 +285,7 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
   }, [value]);
 
   function commitDraft() {
+    onEditingChange?.(false);
     if (cancelNextBlurRef.current) {
       cancelNextBlurRef.current = false;
       editingRef.current = false;
@@ -313,6 +316,7 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
         aria-valuetext={draftValue === "" ? undefined : formatVacationPrice(Number(draftValue))}
         value={draftValue}
         onFocus={(event) => {
+          onEditingChange?.(true);
           editingRef.current = true;
           initialValueRef.current = value;
           selectOnNextClickRef.current = true;
@@ -388,6 +392,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const initialArea = initialParams.get("location");
   const [sort, setSort] = useState(vacationSortOptions.some((option) => option.value === initialParams.get("sort")) ? initialParams.get("sort")! : "recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [priceFieldEditing, setPriceFieldEditing] = useState(false);
   const [filterSection, setFilterSection] = useState<"types" | "more">(supplierTypeFilterAvailable ? "types" : "more");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("vacation");
@@ -400,8 +405,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [pool, setPool] = useState(initialParams.get("pool") === "1");
   const [spa, setSpa] = useState(initialParams.get("spa") === "1");
   const [whole, setWhole] = useState(false);
-  const [accessibleOnly, setAccessibleOnly] = useState(initialParams.get("accessible") === "1");
-  const [selectedExtras, setSelectedExtras] = useState<string[]>((initialParams.get("features") || "").split(",").filter((id) => legacyExtraFilters.some((item) => item.id === id)));
+  const [accessibleOnly, setAccessibleOnly] = useState(vacationFeatureSelection(initialParams).accessibleOnly);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>(vacationFeatureSelection(initialParams).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
   const [draftFilters, setDraftFilters] = useState<VacationFilterState | null>(null);
   const [, setVisibleMapCount] = useState(0);
 
@@ -455,6 +460,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }
 
   function closeFiltersPanel() {
+    setPriceFieldEditing(false);
     setDraftFilters(null);
     setFiltersOpen(false);
   }
@@ -530,7 +536,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (key === "spa") setSpa(nextValue);
     if (key === "whole") setWhole(nextValue);
     if (key === "accessible") setAccessibleOnly(nextValue);
-    updateSearchContext({ [key]: nextValue ? "1" : null });
+    updateSearchContext({ [key]: nextValue ? "1" : null,
+      ...(key === "accessible" ? { features: selectedExtras.length ? selectedExtras.join(",") : null } : {}),
+    });
   }
 
   function changeOnlineFilter(nextValue: boolean) {
@@ -542,6 +550,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }
 
   function toggleExtraFilter(id: string) {
+    if (id === "accessible") {
+      changeBinaryFilter("accessible", !(filtersOpen && draftFilters ? draftFilters.accessibleOnly : accessibleOnly));
+      return;
+    }
     if (filtersOpen && draftFilters) {
       const nextExtras = draftFilters.selectedExtras.includes(id) ? draftFilters.selectedExtras.filter((item) => item !== id) : [...draftFilters.selectedExtras, id];
       setDraftFilters({ ...draftFilters, selectedExtras: nextExtras });
@@ -599,8 +611,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setPool(params.get("pool") === "1");
       setSpa(params.get("spa") === "1");
       setWhole(false);
-      setAccessibleOnly(params.get("accessible") === "1");
-      setSelectedExtras((params.get("features") || "").split(",").filter((id) => legacyExtraFilters.some((item) => item.id === id)));
+      setAccessibleOnly(vacationFeatureSelection(params).accessibleOnly);
+      setSelectedExtras(vacationFeatureSelection(params).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
       setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
@@ -876,7 +888,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftNearby = (shownFilters.onlineOnly || Boolean(selectedStay)) && shownFilters.guests === guests && draftMatches.length < PLACE_SEARCH_MINIMUM_RESULTS && !isWholeCountrySelection(shownFilters.area)
     ? nearbySearchRecommendations(draftCandidates, shownFilters.area, managedGeography, { key: (property) => property.slug }) : [];
   const draftResultCount = shownFilters.onlineOnly || selectedStay ? completePlaceSearchResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
-  const draftResultLabel = shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
+  const draftResultLabel = priceFieldEditing ? "החלת סינונים"
+    : shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
     : !undatedSearch && (datedAvailabilityPending || shownFilters.guests !== guests) ? "החלת סינונים"
     : draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
 
@@ -1070,9 +1083,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                   <p>בחרו את המחיר הנמוך והגבוה שמתאים לכם.</p>
                   <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi dir="ltr">₪&nbsp;{shownFilters.minPrice.toLocaleString("he-IL")}</bdi></span><i aria-hidden="true">עד</i><span><bdi dir="ltr">₪&nbsp;{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi></span></output>
                   <div className="vacation-price-filter__inputs">
-                    <label><span>מחיר מינימלי</span><VacationPriceInput value={shownFilters.minPrice} minimum={VACATION_PRICE_MIN} maximum={shownFilters.maxPrice} emptyValue={VACATION_PRICE_MIN} ariaLabel="מחיר מינימום בשקלים" onValueChange={(nextValue) => changePriceRange(nextValue, shownFilters.maxPrice)} /></label>
+                    <label><span>מחיר מינימלי</span><VacationPriceInput value={shownFilters.minPrice} minimum={VACATION_PRICE_MIN} maximum={shownFilters.maxPrice} emptyValue={VACATION_PRICE_MIN} ariaLabel="מחיר מינימום בשקלים" onEditingChange={setPriceFieldEditing} onValueChange={(nextValue) => changePriceRange(nextValue, shownFilters.maxPrice)} /></label>
                     <span aria-hidden="true">עד</span>
-                    <label><span>מחיר מקסימלי</span><VacationPriceInput value={shownFilters.maxPrice} minimum={shownFilters.minPrice} maximum={VACATION_PRICE_MAX} emptyValue={VACATION_PRICE_MAX} ariaLabel="מחיר מקסימום בשקלים" onValueChange={(nextValue) => changePriceRange(shownFilters.minPrice, nextValue)} /></label>
+                    <label><span>מחיר מקסימלי</span><VacationPriceInput value={shownFilters.maxPrice} minimum={shownFilters.minPrice} maximum={VACATION_PRICE_MAX} emptyValue={VACATION_PRICE_MAX} ariaLabel="מחיר מקסימום בשקלים" onEditingChange={setPriceFieldEditing} onValueChange={(nextValue) => changePriceRange(shownFilters.minPrice, nextValue)} /></label>
                   </div>
                 </fieldset>
                 <fieldset className="vacation-bedroom-filter">
@@ -1088,7 +1101,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                     { value: "6", label: "6 חדרי שינה ומעלה" },
                   ]} />
                 </fieldset>
-                <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>
+                <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={item.id === "accessible" ? shownFilters.accessibleOnly : shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>
               </div>}
             </div>
             <div className="filter-panel__actions">

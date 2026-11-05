@@ -8,6 +8,9 @@ import { matchesVacationSearchFilter as matches } from '../app/lib/vacation-sear
 import { filterIdsFromSupplierAmenityIds, filterIdsFromStructuredAmenityLabels } from '../app/lib/supplier-amenity-filters.ts';
 import { buildSergeyAmenityIndex } from '../app/lib/sergey-amenities.ts';
 import { catalogResponse } from '../app/api/catalog/route.ts';
+import { getPlaceAccessibility } from '../app/data/accessibility-data.ts';
+import eventLegacy from '../app/data/legacy-event-amenity-search-index.json' with {type:'json'};
+import { publicEventSearchPlaces } from '../app/lib/public-event-search.ts';
 const legacy=JSON.parse(readFileSync(new URL('../app/data/legacy-amenity-search-index.json',import.meta.url)));
 const rows=acceptedSergeySummaries('vacations');
 
@@ -64,4 +67,30 @@ test('generated backfill remains a bounded metadata index, never full profile pa
  assert.equal(legacy.profileCount,573);
  assert.ok(Buffer.byteLength(JSON.stringify(legacy))<180000);
  for(const value of Object.values(legacy.entries)) assert.ok(Object.keys(value).every(k=>['ids','extra','accessibility'].includes(k)));
+});
+
+test('detail accessibility retains the original partial/unit qualification and honors removal',()=>{
+ const qualification='נגישות לנכים - חלקית - מדרגה אחת בכניסה';
+ const groups=[{title:'כללי',items:[qualification]}];
+ const result=getPlaceAccessibility([], {filterIds:['accessible'],featureGroups:groups});
+ assert.equal(result.label,qualification);
+ assert.deepEqual(result.arrangements,[qualification]);
+ assert.equal(getPlaceAccessibility(['נגישות לנכים'],{filterIds:[],featureGroups:groups}),null);
+ assert.equal(getPlaceAccessibility(['אינו נגיש לנכים']),null);
+});
+
+test('all132 accepted event facts survive their own full/compact source and never expand vacation numeric aliases',async()=>{
+ const events=acceptedSergeySummaries('events');assert.equal(Object.keys(eventLegacy.entries).length,132);
+ for(const row of events){const facts=eventLegacy.entries[row.slug];assert.ok(facts,row.slug);
+  for(const item of [row,...publicEventSearchPlaces([row]),...publicEventSearchPlaces(publicEventSearchPlaces([row]))]) {
+   for(const id of facts.semantic)assert.equal(matches(item,id),true,`${row.slug}:${id}`);
+   for(const id of facts.observedAmenityIds)assert.equal(matches(item,`amenity-${id}`),true,`${row.slug}:${id}`);
+  }
+ }
+ const star=events.find(row=>row.slug==='event-2');assert.equal(matches(star,'amenity-81'),true);assert.equal(matches(star,'accessible'),true);
+ const withoutAccess=events.find(row=>!eventLegacy.entries[row.slug].semantic.includes('accessible'));
+ assert.ok(withoutAccess);assert.equal(matches({...withoutAccess,searchFilterIds:['amenity-62']},'accessible'),false,'a numeric-only event fact must not acquire the vacation62 alias');
+ assert.equal(matches(project({...star,searchFilterIds:[]}), 'accessible'),false);
+ const response=await (await catalogResponse(new Request('https://vii.spaplus.co/api/catalog?world=events&view=search'),null)).json();
+ assert.equal(matches(response.entries.find(e=>e.supplierId===2).summary,'amenity-81'),true);
 });

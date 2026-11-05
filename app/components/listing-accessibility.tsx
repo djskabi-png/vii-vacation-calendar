@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { getPlaceAccessibility, VERIFIED_ACCESSIBILITY_FEATURE } from "../data/accessibility-data";
+import { getPlaceAccessibility } from "../data/accessibility-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
-export function ListingAccessibility({ slug, features, compact = false }: { slug: string; features?: readonly string[]; compact?: boolean }) {
-  const information = getPlaceAccessibility(features);
+export function ListingAccessibility({ slug, features, filterIds, featureGroups, compact = false }: { slug: string; features?: readonly string[]; filterIds?: readonly string[]; featureGroups?: readonly { items: readonly string[] }[]; compact?: boolean }) {
+  const information = getPlaceAccessibility(features, { filterIds, featureGroups });
   const [isOpen, setIsOpen] = useState(false);
   const { translate } = useSiteLanguage();
   const detailsId = `accessibility-details-${slug}`;
   if (!information) return null;
-  if (compact) return <span className="place-accessibility-badge place-accessibility-badge--accessible" aria-label={translate(VERIFIED_ACCESSIBILITY_FEATURE)}>
-    <span>{translate(VERIFIED_ACCESSIBILITY_FEATURE)}</span>
+  if (compact) return <span className="place-accessibility-badge place-accessibility-badge--accessible" aria-label={translate(information.label)}>
+    <span>{translate(information.label)}</span>
     <small>{translate("למידע נוסף")}</small>
   </span>;
 
@@ -20,7 +20,7 @@ export function ListingAccessibility({ slug, features, compact = false }: { slug
         <span className="place-accessibility__icon" aria-hidden="true">♿</span>
         <span className="place-accessibility__copy">
           <span className="eyebrow">נגישות במקום</span>
-          <strong role="heading" aria-level={2}>{VERIFIED_ACCESSIBILITY_FEATURE}</strong>
+          <strong role="heading" aria-level={2}>{information.label}</strong>
           <span>{information.summary}</span>
         </span>
       </button>

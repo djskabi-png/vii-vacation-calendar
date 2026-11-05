@@ -20,7 +20,8 @@ type Props = { params: Promise<{ segments: string[] }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const segments = (await params).segments;
-  const state = spaSearchStateFromSegments(segments);
+  const city = !spaSearchStateFromSegments(segments) && segments.length > 1 ? await approvedWorldLocation("spa", segments[0]) : null;
+  const state = spaSearchStateFromSegments(segments, city || undefined);
   const locationPage = !state && segments.length === 1 ? await approvedWorldLocation("spa", segments[0]) : null;
   if (!state && !locationPage) return { robots: { index: false, follow: false } };
   if (locationPage) {
@@ -41,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SpaSearchLandingPage({ params }: Props) {
   const segments = (await params).segments;
-  const state = spaSearchStateFromSegments(segments);
+  const city = !spaSearchStateFromSegments(segments) && segments.length > 1 ? await approvedWorldLocation("spa", segments[0]) : null;
+  const state = spaSearchStateFromSegments(segments, city || undefined);
   const locationPage = !state && segments.length === 1 ? await approvedWorldLocation("spa", segments[0]) : null;
   if (!state && !locationPage) notFound();
   const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));

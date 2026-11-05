@@ -10,8 +10,8 @@ const rows = Array.from({ length: 921 }, (_, i) => ({
   uniqueBrowsers: i, viiBookings: 0, reviews: 0,
 }));
 
-function actualGet({ authenticated = true, mode = "overview" } = {}) {
-  const calls = { snapshots: 0, failures: 0, history: 0, provider: 0 };
+function actualGet({ authenticated = true, mode = "overview", bizSchemaFails = false } = {}) {
+  const calls = { snapshots: 0, failures: 0, history: 0, provider: 0, schema: 0 };
   const deps = {
     authorizedAdminSession: async () => authenticated ? { email: "admin@example.test" } : null,
     conversionTarget: () => null,
@@ -19,7 +19,7 @@ function actualGet({ authenticated = true, mode = "overview" } = {}) {
     ViiConversionsError: class extends Error {}, supplierToken: async () => "fixture",
     publicCatalogSummaries: async () => [], readSupplierCatalogInventory: async () => ({ entries: [] }),
     readSupplierCatalogSummaries: async () => ({ entries: [] }),
-    bizConversionDatabase: async () => ({ prepare: () => ({ all: async () => ({ results: [] }) }) }),
+    bizConversionDatabase: async () => { calls.schema++; if (bizSchemaFails) throw new Error("biz schema discovery must not run for overview"); return { prepare: () => ({ all: async () => ({ results: [] }) }) }; },
     loadCachedBizConversions: async () => { calls.snapshots++; throw new Error("snapshots must not run"); },
     loadCachedBizConversionFailures: async () => { calls.failures++; throw new Error("failures must not run"); },
     readCachedBizConversionFailure: async () => null, saveBizConversionFailure: async () => null,
@@ -48,14 +48,23 @@ test("actual overview handler returns complete lightweight inventory without Biz
   assert.equal(body.rows.length, 921);
   assert.equal(Object.hasOwn(body, "bizSnapshots"), false);
   assert.equal(Object.hasOwn(body, "runHistory"), false);
-  assert.deepEqual(calls, { snapshots: 0, failures: 0, history: 0, provider: 0 });
+  assert.deepEqual(calls, { snapshots: 0, failures: 0, history: 0, provider: 0, schema: 0 });
+});
+
+test("actual overview succeeds when Biz schema discovery is unavailable", async () => {
+  const { GET, calls } = actualGet({ bizSchemaFails: true });
+  const response = await GET(new Request("https://example.test/api/admin/business-performance?mode=overview&from=2026-11-04&till=2026-11-04"));
+  const body = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(body.rows.length, 921);
+  assert.equal(calls.schema, 0);
 });
 
 test("actual handler enforces auth before touching reporting data", async () => {
   const { GET, calls } = actualGet({ authenticated: false });
   const response = await GET(new Request("https://example.test/api/admin/business-performance?mode=overview&from=2026-11-04&till=2026-11-04"));
   assert.equal(response.status, 403);
-  assert.deepEqual(calls, { snapshots: 0, failures: 0, history: 0, provider: 0 });
+  assert.deepEqual(calls, { snapshots: 0, failures: 0, history: 0, provider: 0, schema: 0 });
 });
 
 test("actual Biz snapshots handler never reconstructs the analytics report", async () => {

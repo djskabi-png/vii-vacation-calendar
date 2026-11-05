@@ -3,7 +3,9 @@ import { matchesSearchLocation, isWholeCountrySelection } from "./search-taxonom
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings.ts";
-import { searchLocationSlug } from "./world-search-landings.ts";
+import { searchLocationSlug, searchLocationFromSlug } from "./world-search-landings.ts";
+import approvedLocations from "./approved-world-locations.json" with { type: "json" };
+import spaLocationLabels from "./spa-location-labels.json" with { type: "json" };
 
 export const spaSearchRegions = [
   { slug: "north", label: "צפון" },
@@ -34,10 +36,15 @@ export type SpaSearchState = {
   features: SpaLanding[];
 };
 
-export function spaSearchStateFromSegments(segments: string[] | undefined): SpaSearchState | null {
+export function spaSearchStateFromSegments(segments: string[] | undefined, resolvedLocation?: { slug: string; label: string }): SpaSearchState | null {
   const state: SpaSearchState = { features: [] };
+  let wholeCountry = false;
   for (const segment of segments || []) {
-    const region = spaSearchRegions.find((entry) => entry.slug === segment);
+    if (segment === searchLocationSlug("כל הארץ")) { wholeCountry = true; continue; }
+    const label = searchLocationFromSlug("spa", segment)
+      || approvedLocations.spa.find(label => searchLocationSlug(label) === segment);
+    const region = spaSearchRegions.find((entry) => entry.slug === segment)
+      || (label ? { slug: segment, label } : resolvedLocation?.slug === segment ? resolvedLocation : undefined);
     const audience = spaSearchAudiences.find((entry) => entry.slug === segment);
     const feature = getSpaLanding(segment);
     if (region && !state.region) state.region = region;
@@ -45,7 +52,7 @@ export function spaSearchStateFromSegments(segments: string[] | undefined): SpaS
     else if (feature && !state.features.some((entry) => entry.id === feature.id)) state.features.push(feature);
     else return null;
   }
-  return state.region || state.audience || state.features.length ? state : null;
+  return state.region || state.audience || state.features.length || wholeCountry ? state : null;
 }
 
 export function spaSearchStateFromValues(location?: string, audienceId?: string, featureIds: string[] = []): SpaSearchState {
@@ -99,7 +106,9 @@ const localizedFeatures: Record<Exclude<SpaSearchLanguage, "he">, Record<string,
 export function spaSearchTitle(state: SpaSearchState, language: SpaSearchLanguage = "he") {
   if (language !== "he") {
     const audience = state.audience ? localizedAudiences[language][state.audience.id] : "";
-    const region = state.region ? localizedRegions[language][state.region.slug] : language === "en" ? "Israel" : language === "fr" ? "Israël" : "Израиле";
+    const region = state.region ? localizedRegions[language][state.region.slug]
+      || (spaLocationLabels[language] as Record<string,string>)[state.region.label] || state.region.label
+      : language === "en" ? "Israel" : language === "fr" ? "Israël" : "Израиле";
     const featureJoiner = language === "fr" ? " et " : language === "ru" ? " и " : " and ";
     const features = state.features.map((entry) => localizedFeatures[language][entry.id]).join(featureJoiner);
     if (language === "en") return `Spa${audience ? ` ${audience}` : ""} in ${region}${features ? ` with ${features}` : ""}`;

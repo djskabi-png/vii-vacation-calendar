@@ -97,13 +97,13 @@ test("migrated VII place amenities preserve exact topic grouping without a runti
   assert.ok(result.groups.some((group) => group.title === "מתחם פנימי" && group.items.includes("מטבח מאובזר")));
 });
 
-test("public endpoint validates input, returns a cacheable source contract and fails honestly", async () => {
+test("public endpoint validates input and keeps generation-aware source caching inside the server", async () => {
   const ok = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=2483&v=3"), {
     token: async () => "secret",
     load: async () => ({ groups: [{ title: "מתחם חיצוני", items: ["בריכה"] }], source: "biz-shared-amenities" }),
   });
   assert.equal(ok.status, 200);
-  assert.match(ok.headers.get("cache-control"), /s-maxage=21600/);
+  assert.equal(ok.headers.get("cache-control"), "no-store");
   assert.deepEqual(await ok.json(), { supplierId: 2483, groups: [{ title: "מתחם חיצוני", items: ["בריכה"] }], source: "biz-shared-amenities" });
 
   const invalid = await businessAmenitiesResponse(new Request("https://vii.test/api/vii/business-amenities?id=0"), { token: async () => "secret", load: async () => ({ groups: [], source: "biz-shared-amenities" }) });

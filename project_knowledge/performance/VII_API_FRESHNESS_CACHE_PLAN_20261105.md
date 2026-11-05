@@ -3,6 +3,18 @@
 Date: 2026-11-05
 Scope: read-only audit of `.release-v790-candidate` at HEAD `72528243` plus the uncommitted taxonomy seed. This document is a target plan, not deployment evidence.
 
+## Implementation checkpoint, 2026-11-05
+
+Implemented in the cumulative candidate, pending exact public-release verification:
+
+- Shared supplier taxonomy and amenity metadata snapshots: seven-day freshness, thirty-day hard expiry, provider/world/locale/source-generation/credential-scope isolation, single-flight refresh and durable D1 reuse.
+- Accepted catalog membership is checked before reuse. Inactive source entries become empty tombstones. Explicit canonical feature arrays, including empty arrays, override historical backfills.
+- Vacation offer snapshots: five-minute freshness and one-hour hard expiry. Current policy overrides previously persisted thirty-day expiry. Successful scoped empty responses replace older offers; malformed responses and provider failures do not.
+- No public HTTP cache extends dynamic amenity or offer expiry. The application cache owns this policy. Transactional price and availability checks remain live.
+- Administration overview does not initialize unrelated Biz snapshot schemas before rendering its lightweight V analytics.
+
+Still targets: provider ETag/conditional support, scheduled incremental metadata refresh, dedicated class-partitioned retention metrics, and measured production percentile budgets. Existing bounded storage and cold source deadlines are retained. This checkpoint does not claim these targets are deployed.
+
 ## Recommendation
 
 Use one typed freshness policy per data class in the existing modular application. Keep D1 as the accepted public snapshot store, memory/request coalescing as a short hot layer, and Cloudflare public caching only for immutable or explicitly stale-safe browse responses. Do not cache booking, quote, calendar, lead or permission decisions as authoritative results. Add versioned keys, stale-while-revalidate, provider failure cooldown, bounded leases and internal `checkedAt`/`stale` metadata to every browse class. The first causal fix is to stop amenities from making three supplier calls per request and create shared metadata snapshots. Reuse the existing cache primitive initially, but isolate long-lived metadata from high-cardinality offers before a full per-place rollout. Do not put an entire catalog or hundreds of place keys into the current 16-entry memory fallback and assume durable cache behavior.

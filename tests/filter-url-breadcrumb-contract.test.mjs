@@ -34,7 +34,9 @@ test("all rendered breadcrumbs use the shared accessible component", () => {
 test("vacation and event filters serialize and restore their complete state", () => {
   const vacation = read("app/search/page.tsx");
   const vacationUrl = read("app/lib/vacation-search-url.ts");
-  ["accessible", "features", "sort"].forEach((key) => assert.match(vacation, new RegExp(`\\.get\\(\"${key}\"\\)`)));
+  const selection = read("app/lib/vacation-feature-selection.ts");
+  assert.match(vacation, /vacationFeatureSelection\(params\)/);
+  ["accessible", "features", "sort"].forEach((key) => assert.match(vacation + selection, new RegExp(`\\.get\\(\"${key}\"\\)`)));
   assert.match(vacation, /toggleExtraFilter/);
   assert.match(vacation, /changeSort/);
   assert.match(vacation, /useSearchParams/);

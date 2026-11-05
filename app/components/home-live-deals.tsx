@@ -158,7 +158,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       setState(accepted ? "ready" : "loading");
       retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);
     };
-    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v1`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, timeoutMs: 5_000, retries: 1,
+    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: 5_000, retries: 1,
       shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" })
       .then((result) => {
         if (controller.signal.aborted) return;

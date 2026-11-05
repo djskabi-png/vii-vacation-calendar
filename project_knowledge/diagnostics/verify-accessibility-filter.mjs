@@ -26,7 +26,7 @@ try {
     for (const expected of expectedNames) {
       if (!names.includes(expected)) throw new Error(`${target.name}: missing ${expected}`);
     }
-    if (names.length !== expectedNames.length) throw new Error(`${target.name}: expected 4 cards, got ${names.length}`);
+    if (names.length !== expectedNames.length) throw new Error(`${target.name}: expected ${expectedNames.length} cards, got ${names.length}`);
     const pressed = await page.getByRole("button", { name: "נגישות", exact: true }).getAttribute("aria-pressed");
     if (pressed !== "true") throw new Error(`${target.name}: accessibility filter is not pressed`);
     await page.reload({ waitUntil: "domcontentloaded" });
@@ -50,13 +50,14 @@ try {
   await draftPage.getByRole("button", { name: "מחיר ומאפיינים", exact: true }).click();
   await draftPage.getByRole("checkbox", { name: "נגישות לנכים", exact: true }).check();
   const draftLabel = (await draftPage.locator(".filter-apply").textContent())?.trim() || "";
-  if (!draftLabel.includes("4")) throw new Error(`mobile draft: expected 4 accessible places, got ${draftLabel}`);
+  const expectedDraftLabel = expectedNames.length === 1 ? "הצגת מקום אחד" : `הצגת ${expectedNames.length} מקומות`;
+  if (draftLabel !== expectedDraftLabel) throw new Error(`mobile draft: expected ${expectedDraftLabel}, got ${draftLabel}`);
   const draftStartUrl = draftPage.url();
   await draftPage.locator(".filter-apply").click();
   await draftPage.waitForURL((url) => url.href !== draftStartUrl);
   await draftPage.locator(".managed-place-results article").first().waitFor({ timeout: 30_000 });
   if (await draftPage.locator(".managed-place-results article").count() !== expectedNames.length) {
-    throw new Error("mobile draft: applying the filter did not keep the four verified places");
+    throw new Error("mobile draft: applying the filter did not retain the independently verified places");
   }
   console.log(JSON.stringify({ target: "mobile-draft", label: draftLabel, applied: true }));
   await draftPage.close();

@@ -30,16 +30,16 @@ test("vacation discovery keeps last-good rails and the authenticated scheduler w
     read("app/mcp/route.ts"),
     read("app/components/home-live-deals.tsx"),
   ]);
-  assert.match(warmer, /freshMs: 30 \* 60_000, staleMs: 30 \* 86_400_000/);
+  assert.match(warmer, /freshMs: 5 \* 60_000, staleMs: 60 \* 60_000/);
   assert.match(route, /readCachedDiscovery/);
   assert.doesNotMatch(route, /getHomeDeals|supplierToken/);
   assert.match(route, /policy: VACATION_DISCOVERY_POLICY/);
   assert.match(warmer, /for \(const period of homeDealPeriods\)/);
   assert.match(warmer, /key: \["vacation-near", dates\.from, dates\.till, 2\]/);
-  assert.match(warmer, /deals\.length > 0/);
+  assert.match(warmer, /count: cached\.value\.deals\.length/);
   assert.match(warmer, /Array\.from\(\{ length: 7 \}/);
   assert.match(warmer, /status: "unavailable"/);
-  assert.match(warmer, /if \(!warmed\.some\(item => item\.count > 0\)\)/);
+  assert.match(warmer, /warmed\.push\(\{ period: period\.id/);
   assert.match(worker, /scheduledTime \/ 60_000\) % 30 === 0[\s\S]*warmVacationDiscoveryCache/);
   assert.match(mcp, /warmVacationDiscoveryCache\(db\)/);
   assert.match(rail, /const accepted = lastGoodData\.current\.get\(selectionKey\)/);

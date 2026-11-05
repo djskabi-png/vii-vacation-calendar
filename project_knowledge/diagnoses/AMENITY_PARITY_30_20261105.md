@@ -1,6 +1,6 @@
 # Amenity parity audit, 30 public records
 
-Status: partial and not a release approval.
+Status: read-only evidence complete for 30 public API records and 30 new-host redirect checks. This is an audit artifact, not a release approval.
 
 The audit script completed 30 bounded public reads: 10 vacations, 10 events and 10 hourly records. It records sanitized supplier IDs, legacy paths, redirect inventory targets, API status, legacy `data-id` observations, feature labels, search-filter presence, room counts and gallery counts.
 
@@ -18,4 +18,10 @@ Files:
 - `.qa-output/attribute-parity-30-20261105.json`
 - `.qa-output/public-observed-amenity-id-title.json`
 
-The 30-row comparison remains unverified for definitive legacy/API attribute parity until each legacy response is identity-checked by title or supplier marker and the hourly schema is independently normalized.
+Observed results:
+
+- 30/30 public catalog detail reads returned HTTP 200.
+- 30/30 new-host requests to the observed legacy paths returned HTTP 301 with a `Location` matching the inventory destination.
+- Hourly normalization is now reading `summary.rooms`; all 10 hourly records returned room facts and feature labels. The earlier zero-count result was a parser defect in the audit, not a product finding.
+- Legacy hourly pages are HTML shells with a generic canonical and no reliable embedded supplier identity; they are retained as an explicit identity limitation, not treated as matching profile data.
+- Vacation and event legacy HTML observations remain marker evidence only unless a stable title/site marker is present. No fuzzy label was promoted to a confirmed mismatch.

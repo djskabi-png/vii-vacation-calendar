@@ -6,11 +6,15 @@ import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "./discove
 import { cachedDiscovery } from "./discovery-offer-cache.ts";
 import { getHomeDeals, homeDealDates, homeDealPeriods } from "./vii-home-deals.ts";
 
-export const VACATION_DISCOVERY_POLICY = { freshMs: 30 * 60_000, staleMs: 30 * 86_400_000 } as const;
+export const VACATION_DISCOVERY_POLICY = { freshMs: 5 * 60_000, staleMs: 60 * 60_000 } as const;
 
-function hasDeals(value: unknown): value is Awaited<ReturnType<typeof getHomeDeals>> {
-  return !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)
-    && (value as { deals: unknown[] }).deals.length > 0;
+export function validVacationDiscoverySnapshot(value: unknown, expected?: { from: string; till: string; nights: number }): value is Awaited<ReturnType<typeof getHomeDeals>> {
+  if (!value || typeof value !== "object" || !Array.isArray((value as { deals?: unknown }).deals)) return false;
+  const dates = (value as { dates?: unknown }).dates;
+  if (!dates || typeof dates !== "object" || Array.isArray(dates)) return false;
+  const actual = dates as { from?: unknown; till?: unknown; nights?: unknown };
+  if (typeof actual.from !== "string" || typeof actual.till !== "string" || !Number.isSafeInteger(actual.nights) || actual.nights < 1 || actual.nights > 31) return false;
+  return !expected || (actual.from === expected.from && actual.till === expected.till && actual.nights === expected.nights);
 }
 
 export async function refreshVacationDiscoveryPeriod(db: D1Database | null, period: (typeof homeDealPeriods)[number]["id"], guests = 2, now = new Date()) {
@@ -25,7 +29,7 @@ export async function refreshVacationDiscoveryPeriod(db: D1Database | null, peri
     db,
     policy: VACATION_DISCOVERY_POLICY,
     load: () => getHomeDeals({ period, now, guests, token, publicSiteIds, publicNames: new Map(places.map(place => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(places) }),
-    validate: hasDeals,
+    validate: value => validVacationDiscoverySnapshot(value, dates),
   });
 }
 
@@ -51,7 +55,7 @@ export async function warmVacationDiscoveryCache(db: D1Database, now = new Date(
     try {
       const cached = await cachedDiscovery({
         key: ["vacation-near", dates.from, dates.till, 2], db, policy: VACATION_DISCOVERY_POLICY,
-        load: () => getHomeDeals({ period: period.id, now: clock, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }), validate: hasDeals,
+        load: () => getHomeDeals({ period: period.id, now: clock, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }), validate: value => validVacationDiscoverySnapshot(value, dates),
       });
       warmed.push({ period: period.id, status: cached.cache.status, count: cached.value.deals.length });
     } catch {
@@ -59,6 +63,5 @@ export async function warmVacationDiscoveryCache(db: D1Database, now = new Date(
       warmed.push({ period: period.id, status: "unavailable", count: 0 });
     }
   }
-  if (!warmed.some(item => item.count > 0)) throw new Error("vacation_discovery_refresh_unavailable");
   return warmed;
 }

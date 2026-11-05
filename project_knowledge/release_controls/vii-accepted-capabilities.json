@@ -58,6 +58,10 @@
     {
       "commit": "b8d335a664e47bd61ce640e5acddd3da35a8510c",
       "capability": "cumulative map identity, verified SPA physical pins, responsive full-screen and desktop event layout, dated legacy intentions; isolated edge cache remains unbound"
+    },
+    {
+      "commit": "b3d45542d72bc50bbcd1937c486c98bc1a86b393",
+      "capability": "Complete legacy vacation amenity facts, explicit removal authority and numeric filter identity"
     }
   ],
   "requiredCapabilities": [
@@ -228,6 +232,18 @@
         "tests/map-source-location-behavior.test.mjs",
         "tests/spa-source-coordinates.test.mjs",
         "tests/legacy-dated-search-redirect.test.mjs"
+      ]
+    },
+    {
+      "id": "supplier-amenity-world-parity",
+      "files": [
+        "app/lib/legacy-amenity-search-projection.ts",
+        "app/data/legacy-amenity-search-index.json",
+        "app/data/legacy-event-amenity-search-index.json",
+        "app/lib/business-amenities-cache.ts",
+        "tests/business-amenities-cache.test.mjs",
+        "tests/legacy-amenity-search-projection.test.mjs",
+        "tests/spa-city-feature-route-roundtrip.test.mjs"
       ]
     }
   ]
