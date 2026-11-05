@@ -1,4 +1,5 @@
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
+import { requestStageTiming } from "../app/lib/request-stage-timing.ts";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -24,6 +25,11 @@ function handler(path, method, dependencies) {
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   dependencies=eventRouteDependencies(dependencies);
+  dependencies.requestStageTiming=requestStageTiming;
+  if(path==='vii/home-deals') dependencies.publicDiscoveryCatalogIndex=async world=>{
+    const [places,publishedIds]=await Promise.all([dependencies.publicCatalogSummaries(world),dependencies.publishedSupplierIds(world)]);
+    return {places:places.filter(place=>publishedIds.has(place.supplierId)),publishedIds};
+  };
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled}; return ${method};`)(...Object.values(dependencies));

@@ -1,4 +1,10 @@
 {
+  "ספרו לנו בקצרה על העסק (לא חובה)": {"en":"Tell us briefly about your business (optional)","fr":"Présentez brièvement votre établissement (facultatif)","ru":"Кратко расскажите о вашем бизнесе (необязательно)"},
+  "המפה לא נטענה כרגע": {"en":"The map could not load","fr":"Impossible de charger la carte","ru":"Карта не загрузилась"},
+  "התוצאות והחיפוש נשמרו. אפשר להמשיך מהרשימה.": {"en":"Your results and search are preserved. You can continue from the list.","fr":"Vos résultats et votre recherche sont conservés. Vous pouvez continuer depuis la liste.","ru":"Результаты и параметры поиска сохранены. Можно продолжить в списке."},
+  "ניסיון חוזר": {"en":"Try again","fr":"Réessayer","ru":"Повторить"},
+  "תוצאות ללא מפה": {"en":"Results without map","fr":"Résultats sans carte","ru":"Результаты без карты"},
+  "פתיחת גלריה": {"en":"Open gallery","fr":"Ouvrir la galerie","ru":"Открыть галерею"},
   "דילוג לתוכן": {"en":"Skip to content","fr":"Passer au contenu","ru":"Перейти к содержимому"},
   "כל מה שכיף לעשות": {"en":"Anything fun to do","fr":"Quelque chose d'amusant à faire","ru":"Что-нибудь веселое, чтобы сделать"},
   "טיפולים, חבילות וימי פינוק": {"en":"Treatments, packages and pamper days","fr":"Soins, forfaits et journées détente","ru":"Процедуры, пакеты и дни отдыха"},

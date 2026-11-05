@@ -39,7 +39,7 @@ test("place breadcrumbs include a canonical geographic search level in every loc
   assert.match(business, /localizedLocationBreadcrumbs\(eventBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.events\)/);
   assert.match(business, /localizedLocationBreadcrumbs\(hourlyBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.hourly\)/);
   assert.match(business, /localizedLocationBreadcrumbs\(spaBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.spa\)/);
-  assert.match(event, /localizedEventBreadcrumbs = eventBreadcrumbsForLocation\(place\.area, place\.location\)\.map/);
+  assert.match(event, /localizedEventBreadcrumbs = localizedPlaceBreadcrumbs\(eventBreadcrumbsForLocation\(place\.area, place\.location\)/);
   assert.match(discovery, /localizedBreadcrumbs\(spaBreadcrumbsForLocation\(item\.area, item\.location\), breadcrumbPrefix\.spa\)/);
 });
 

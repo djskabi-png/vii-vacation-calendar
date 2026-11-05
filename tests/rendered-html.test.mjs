@@ -383,7 +383,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /nearbyIndexes\.find/);
   assert.match(mapSource, /is-cluster/);
   assert.match(mapSource, /initialPlaceIds/);
-  assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
+  assert.match(mapSource, /import type \{ MapPlace, MapTone \} from "\.\.\/\.\.\/lib\/map\/map-place"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
   assert.match(worldData, /mapPrecision: verifiedCoordinates \? "exact" : coordinates \? "area" : undefined/);
   assert.match(worldData, /mapPrecision: "exact"/);
@@ -673,7 +673,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
   assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(business, /<FavoriteButton compact className="property-gallery__favorite"/);
-  assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
+  assert.match(eventPlace, /<FavoriteButton className="discovery-detail__favorite"/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
   assert.match(worldData, /spaPlaces: DiscoveryItem\[\] = spaPlacesFromSites\(spaPlusSites\)/);
   assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);

@@ -33,7 +33,7 @@ test("business and event pages use the same verified values as their review sect
 
 test("mobile rating strip is placed directly after each rated gallery and stays hidden on desktop", () => {
   assert.match(business, /<\/div>\s*<DetailReviewSummary\s+className="shell detail-mobile-review-summary"/);
-  assert.match(events, /onOpen=\{\(index\) => openGallery\("all", index\)\} \/>\s*<DetailReviewSummary\s+className="shell detail-mobile-review-summary"/);
+  assert.match(events, /<PropertyGallery[\s\S]*?onOpen=\{\(index\) => openGallery\("all", index\)\} \/>[\s\S]*?<DetailReviewSummary\s+className="shell detail-mobile-review-summary"/);
   assert.match(css, /\.detail-mobile-review-summary \{ display: none; \}/);
   assert.match(css, /@media \(max-width: 820px\)[\s\S]*?\.detail-sticky-dock__review-summary\.detail-mobile-review-summary \{[\s\S]*?display: flex;/);
   assert.match(css, /@media \(max-width: 820px\)[\s\S]*?\.detail-sticky-wrap \{ display: none; \}/);

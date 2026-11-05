@@ -13,7 +13,7 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 
 test("place pages share mobile gallery arrows, position dots and touch navigation", () => {
   assert.match(business, /<PropertyGallery images=\{placeGalleryImages\}/);
-  assert.match(events, /<PropertyGallery className="shell" images=\{place\.images\}/);
+  assert.match(events, /<div className="shell event-gallery-wrap">[\s\S]*?<PropertyGallery images=\{place\.images\}/);
   assert.match(galleryExperience, /onPointerDown=\{startGesture\}/);
   assert.match(galleryExperience, /onPointerUp=\{finishGesture\}/);
   assert.match(galleryExperience, /Math\.abs\(distanceX\) <= Math\.abs\(distanceY\) \* 1\.2/);
