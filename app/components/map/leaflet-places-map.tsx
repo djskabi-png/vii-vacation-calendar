@@ -775,8 +775,10 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
 
   if (!enabled) return <div className={`map-preview-card map-tone--${tone} ${single ? "single-map-preview" : ""}`}>{previewContent}</div>;
 
-  const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
-    <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
+  const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`} data-map-ready={mapReady}>
+    {/* Leaflet owns the canvas classes after initialization. Keep React's class
+        prop constant so readiness updates preserve its input and layout classes. */}
+    <div ref={mapElement} className="listing-map" aria-label={mapCopy.label} />
     {single && mapReady && !interactive && <button className="map-passive-activate" type="button" onClick={activateMap} onWheel={activateMap} aria-label={mapCopy.open}>
       <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
       <span>{mapCopy.open}</span>
