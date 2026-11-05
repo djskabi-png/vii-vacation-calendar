@@ -5,7 +5,7 @@
   "task_type": "repair-and-cumulative-release",
   "goal": "Repair audit findings and publish verified cumulative release",
   "created_at": "2026-11-05T09:49:50.034287Z",
-  "updated_at": "2026-11-05T13:34:52.184657Z",
+  "updated_at": "2026-11-05T17:01:38.783Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -178,6 +178,18 @@
       "acceptance_check": "Frozen cumulative release and live repaired data UI and operating flows pass exact checks without claiming unverified scheduler readiness",
       "status": "pending",
       "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "v809-global-public-cache",
+      "source": "user_request",
+      "statement": "Make ordinary public navigation fast across edge locations without sharing private or transactional content",
+      "acceptance_check": "Build-bound anonymous cache preserves headers/variants and original expiry; bounded read failure falls through; observed cold and repeated navigation compared; private requests never touch shared storage",
+      "status": "pending",
+      "evidence": [
+        "v809-rsc-navigation-speed-before.json",
+        "v809-rsc-navigation-speed-after.json"
+      ],
       "reason": null
     }
   ],

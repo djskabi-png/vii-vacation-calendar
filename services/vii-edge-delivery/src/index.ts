@@ -1,4 +1,6 @@
 import { warmPublicDocuments } from "./public-warm.ts";
+import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
+type DeliveryEnv={ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae";
 const EDGE_CACHE_VERSION = "v22";
@@ -118,7 +120,7 @@ function keyFor(request: Request, url: URL, build: string) {
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
 }
 
-async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: string }, ctx: ExecutionContext, refresh = false): Promise<Response> {
+async function serve(request: Request, env: DeliveryEnv, ctx: ExecutionContext, refresh = false): Promise<Response> {
   const url = new URL(request.url);
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
@@ -128,7 +130,14 @@ async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: 
   const cache = globalThis.caches?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
   const key = keyFor(request, url, expectedBuild);
-  const hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
+  let hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
+  if(hit&&(!Number.isFinite(Number(hit.headers.get('X-VII-Cache-Until')))||Number(hit.headers.get('X-VII-Cache-Until'))<=Date.now()))hit=undefined;
+  let hitLayer='available';
+  const globalVariant=globalPublicVariant(request,expectedBuild);
+  if(!hit&&!refresh&&globalVariant){
+    hit=await readGlobalPublicCache(env.PUBLIC_CACHE,key,expectedBuild);
+    if(hit){hitLayer='global-r2';if(cache)ctx.waitUntil(cache.put(key,hit.clone()).catch(()=>undefined));}
+  }
   const hitExpiry = Number(hit?.headers.get("X-VII-Cache-Until"));
   if (hit && Number.isFinite(hitExpiry) && hitExpiry > Date.now()) {
     const refreshAfter = Number(hit.headers.get(refreshAfterHeader));
@@ -149,7 +158,7 @@ async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: 
     const headers = new Headers(hit.headers);
     headers.delete(refreshAfterHeader);
     headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}`);
-    headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", "available");
+    headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", hitLayer);
     return new Response(hit.body, { status: hit.status, headers });
   }
   const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
@@ -172,11 +181,17 @@ async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: 
   storedHeaders.set("Cache-Control", `public, max-age=${Math.max(0, Math.floor(remaining / 1000))}`);
   storedHeaders.set(refreshAfterHeader, String(Date.now() + Math.floor(remaining / 3)));
   const stored = new Response(response.body, { status: response.status, headers: storedHeaders });
-  if (cache) ctx.waitUntil(boundedBody(stored.clone().body).then((body) => body ? cache.put(key, new Response(body, { status: stored.status, headers: storedHeaders })) : undefined).catch(() => undefined));
+  if (cache || globalVariant&&env.PUBLIC_CACHE) ctx.waitUntil(boundedBody(stored.clone().body).then(async body=>{
+    if(!body)return;
+    await Promise.allSettled([
+      ...(cache?[cache.put(key,new Response(body,{status:stored.status,headers:storedHeaders}))]:[]),
+      ...(globalVariant?[writeGlobalPublicCache(env.PUBLIC_CACHE,key,expectedBuild,body,storedHeaders)]:[]),
+    ]);
+  }).catch(()=>undefined));
   const clientHeaders = new Headers(response.headers); clientHeaders.delete(refreshAfterHeader); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
-export default { fetch: serve, async scheduled(_controller: ScheduledController, env: { ORIGIN?: string; EXPECTED_BUILD?: string }, ctx: ExecutionContext) {
+export default { fetch: serve, async scheduled(_controller: ScheduledController, env: DeliveryEnv, ctx: ExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
   const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as ExecutionContext), ctx);
   ctx.waitUntil(work);
