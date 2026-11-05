@@ -1,6 +1,9 @@
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
-const EXPECTED_BUILD = "pending-v802-20261105-media-map";
-const EDGE_CACHE_VERSION = "v7";
+const EXPECTED_BUILD = "ee84cd11-8f8a-4d49-ab02-c979fb56e5c1";
+const EDGE_CACHE_VERSION = "v8";
+const refreshAfterHeader = "X-VII-Edge-Refresh-After";
+const refreshes = new Set<string>();
+const refreshAttempts = new Map<string, number>();
 const allowedQuery = new Set(["accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice", "months", "online", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole", "_rsc"]);
 const allowedUtm = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]);
 const variantHeaders = ["Accept", "RSC", "Next-Router-State-Tree", "Next-Router-Prefetch", "Next-Router-Segment-Prefetch", "Next-Url", "X-Vinext-Interception-Context", "X-Vinext-Mounted-Slots", "X-Vinext-Rsc-Render-Mode"];
@@ -110,7 +113,7 @@ function keyFor(request: Request, url: URL, build: string) {
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
 }
 
-export default { async fetch(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: string }, ctx: ExecutionContext) {
+async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: string }, ctx: ExecutionContext, refresh = false): Promise<Response> {
   const url = new URL(request.url);
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
@@ -120,9 +123,30 @@ export default { async fetch(request: Request, env: { ORIGIN?: string; EXPECTED_
   const cache = globalThis.caches?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
   const key = keyFor(request, url, expectedBuild);
-  const hit = cache ? await boundedMatch(cache, key) : undefined;
+  const hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
   const hitExpiry = Number(hit?.headers.get("X-VII-Cache-Until"));
-  if (hit && Number.isFinite(hitExpiry) && hitExpiry > Date.now()) { const remaining = Math.floor((hitExpiry - Date.now()) / 1000); const headers = new Headers(hit.headers); headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}`); headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", "available"); return new Response(hit.body, { status: hit.status, headers }); }
+  if (hit && Number.isFinite(hitExpiry) && hitExpiry > Date.now()) {
+    const refreshAfter = Number(hit.headers.get(refreshAfterHeader));
+    if (refreshAfter > 0 && Date.now() >= refreshAfter && (refreshAttempts.get(key.url) || 0) <= Date.now() && refreshes.size < 2 && !refreshes.has(key.url)) {
+      refreshes.add(key.url);
+      refreshAttempts.delete(key.url);
+      refreshAttempts.set(key.url, Date.now() + 30_000);
+      if (refreshAttempts.size > 128) refreshAttempts.delete(refreshAttempts.keys().next().value!);
+      // This calls the SAME anonymous fetch, admission and bounded storage path
+      // as a MISS. Only the local lookup is skipped; no request header can
+      // activate the internal flag. The current HIT is returned immediately.
+      const backgroundRequest = new Request(request, { signal: AbortSignal.any([request.signal, AbortSignal.timeout(15_000)]) });
+      ctx.waitUntil(Promise.resolve().then(() => serve(backgroundRequest, env, ctx, true))
+        .then(async response => { await boundedBody(response.body); })
+        .catch(() => undefined).finally(() => refreshes.delete(key.url)));
+    }
+    const remaining = Math.floor((hitExpiry - Date.now()) / 1000);
+    const headers = new Headers(hit.headers);
+    headers.delete(refreshAfterHeader);
+    headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}`);
+    headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", "available");
+    return new Response(hit.body, { status: hit.status, headers });
+  }
   const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
   const response = await fetchPublicRead(request, origin);
   const contentType = response.headers.get("Content-Type") || "";
@@ -141,8 +165,10 @@ export default { async fetch(request: Request, env: { ORIGIN?: string; EXPECTED_
   // The browser-facing response remains capped at 60s, while the internal
   // Cache API entry may live for the origin-approved hard expiry.
   storedHeaders.set("Cache-Control", `public, max-age=${Math.max(0, Math.floor(remaining / 1000))}`);
+  storedHeaders.set(refreshAfterHeader, String(Date.now() + Math.floor(remaining / 3)));
   const stored = new Response(response.body, { status: response.status, headers: storedHeaders });
   if (cache) ctx.waitUntil(boundedBody(stored.clone().body).then((body) => body ? cache.put(key, new Response(body, { status: stored.status, headers: storedHeaders })) : undefined).catch(() => undefined));
-  const clientHeaders = new Headers(response.headers); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
+  const clientHeaders = new Headers(response.headers); clientHeaders.delete(refreshAfterHeader); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
-} };
+}
+export default { fetch: serve };

@@ -10,6 +10,7 @@ SCRIPT = "vii-edge-delivery"
 parser = argparse.ArgumentParser()
 parser.add_argument("--repair-fail-open", action="store_true")
 parser.add_argument("--receipt")
+parser.add_argument("--suspended-origin-build", help="Verify intentional pending-build admission suspension against this observed current origin build")
 args = parser.parse_args()
 receipt = None
 if args.repair_fail_open:
@@ -20,6 +21,8 @@ if args.repair_fail_open:
         parser.error("receipt must be a new file inside .qa-output")
 config = tomllib.loads((ROOT / "services/vii-edge-delivery/wrangler.toml").read_text())
 expected = config["vars"]["EXPECTED_BUILD"]
+if args.suspended_origin_build and not expected.startswith("pending-"):
+    parser.error("suspension verification requires an explicit pending expected-build sentinel")
 auth_path = Path(os.environ["APPDATA"]) / "xdg.config/.wrangler/config/default.toml"
 token = tomllib.loads(auth_path.read_text()).get("oauth_token")
 if not token:
@@ -64,11 +67,16 @@ if receipt:
     receipt.write_text(json.dumps(report, indent=2))
 # Node uses the same supported public HTTP path as the project probes. The
 # host's urllib proxy route can be denied before reaching the actual origin.
-code = "const r=await fetch(process.argv[1],{headers:{Accept:'text/html'},signal:AbortSignal.timeout(20000)});await r.arrayBuffer();console.log(JSON.stringify({status:r.status,build:r.headers.get('x-vii-cache-build'),edge:r.headers.get('x-vii-edge-delivery')}));"
+code = "const r=await fetch(process.argv[1],{headers:{Accept:'text/html'},signal:AbortSignal.timeout(20000)});await r.arrayBuffer();console.log(JSON.stringify({status:r.status,build:r.headers.get('x-vii-cache-build'),edge:r.headers.get('x-vii-edge-delivery'),skip:r.headers.get('x-vii-edge-cache-skip')}));"
 observed = json.loads(subprocess.run(["node","--input-type=module","-e",code,probe],cwd=ROOT,capture_output=True,text=True,timeout=25,check=True).stdout)
 status, build, edge = observed["status"], observed["build"], observed["edge"]
-assert status == 200 and build == expected and edge == "MISS", "Fresh public response does not match the active edge build"
+if args.suspended_origin_build:
+    assert status == 200 and build == args.suspended_origin_build and observed.get("skip") == "build_mismatch" and edge != "HIT", "Intentional cache suspension not verified"
+else:
+    assert status == 200 and build == expected and edge == "MISS", "Fresh public response does not match the active edge build"
 report.update({"phase":"passed", "route":verified[0], "otherRoutesUnchanged":True, "otherRouteCount":len(others_after), "publicStatus":status, "publicBuild":build, "edge":edge})
+if args.suspended_origin_build:
+    report.update({"mode":"admission_suspended", "skip":observed.get("skip")})
 if receipt:
     receipt.write_text(json.dumps(report, indent=2))
 print(json.dumps(report, indent=2))

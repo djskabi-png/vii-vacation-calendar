@@ -7,4 +7,4 @@ routes = [{ pattern = "vii.spaplus.co/*", zone_id = "f1d778343394ef4f56bbcb08979
 
 [vars]
 ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site"
-EXPECTED_BUILD = "pending-v802-20261105-media-map"
+EXPECTED_BUILD = "ee84cd11-8f8a-4d49-ab02-c979fb56e5c1"
