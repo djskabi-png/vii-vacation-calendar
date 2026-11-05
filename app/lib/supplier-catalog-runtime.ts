@@ -39,21 +39,30 @@ async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
 }
 
 export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCatalogWorld,
-  source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
+  source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string; detailSupplierId?:number }) {
+  const target=options?.detailSupplierId;
+  if(target!==undefined&&(source!=='manual'||(world!=='vacations'&&world!=='events')||!Number.isSafeInteger(target)||target<1))throw new Error('invalid_supplier_refresh');
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
   const client = world === "spa"
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
     : world === "rooms"
       ? createSergeyRoomsCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
       : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
-        detailRefreshLimit: supplierDetailRefreshLimit(world, source),forceDetailRefresh:source==='manual' });
+        detailRefreshLimit: supplierDetailRefreshLimit(world, source),forceDetailRefresh:source==='manual',
+        ...(target!==undefined?{inspectionSupplierId:target,retainUnprovedDetails:false,onlyInspectedDetail:true}:{}),now:options?.now });
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline: [], loadBaseline: () => bundledCatalogBaseline(world),
     validateCandidate: world === "spa" ? validateSpaEditorialCandidate : undefined,
-    fetchCandidate: (previous) => world === "vacations" || world === "events"
-      ? (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world, previous)
-      : (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate(),
+    fetchCandidate: async (previous) => {
+      if(world!=="vacations"&&world!=="events")return (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate();
+      const candidate=await (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world,previous);
+      if(target===undefined)return candidate;
+      const replacement=candidate.entries.find(entry=>entry.supplierId===target);
+      if(!replacement)throw new Error('invalid_supplier_refresh');
+      if(!await validSupplierDetailProof(replacement.detailProof,replacement,options?.now?.()||new Date(),previous.find(entry=>entry.supplierId===target)))throw new Error('catalog_content_requires_review');
+      return {...candidate,sourceInventory:undefined,entries:previous.map(entry=>entry.supplierId===target?replacement:entry)};
+    },
     now: options?.now,
   });
 }
@@ -76,7 +85,8 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     return total + rows.length;
   }, 0);
   const authoritativeDetails = new Set<number>();
-  for(const entry of candidate.entries)if(await validSupplierDetailProof(entry.detailProof,entry,options?.now?.()||new Date()))authoritativeDetails.add(entry.supplierId);
+  const previousById = new Map(previous.map(entry => [entry.supplierId, entry]));
+  for(const entry of candidate.entries)if(await validSupplierDetailProof(entry.detailProof,entry,options?.now?.()||new Date(),previousById.get(entry.supplierId)))authoritativeDetails.add(entry.supplierId);
   const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries).filter(issue=>!authoritativeDetails.has(issue.supplierId));
   const imageIssueIds = new Set(contentIssues.filter((issue) => issue.path === "detail.images").map((issue) => issue.supplierId));
   const nextById = new Map(candidate.entries.map((entry) => [entry.supplierId, entry]));

@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { scheduledCatalogRunId, scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
+import { catalogPullSlot, scheduledCatalogRunId, scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
+
+test('fixed daily managed jobs use the correct identity within observed early dispatch allowance',()=>{
+ for(const [month,offset] of [[1,2],[7,3]])for(const [world,hour,minute]of [['rooms',18,0],['spa',18,30],['events',17,30]]){
+  const due=new Date(Date.UTC(2026,month-1,15,hour-offset,minute));
+  const expected=catalogPullSlot(due,world);
+  assert.equal(catalogPullSlot(new Date(due.getTime()-3*60000),world).id,expected.id);
+  assert.equal(catalogPullSlot(new Date(due.getTime()-5*60000),world).id,expected.id);
+  assert.notEqual(catalogPullSlot(new Date(due.getTime()-5*60000-1),world)?.id,expected.id);
+ }
+ assert.equal(catalogPullSlot(new Date('2026-11-05T15:59:00Z'),'vacations').slot,'17:00');
+ assert.equal(catalogPullSlot(new Date('2026-11-05T22:59:00Z'),'rooms'),null);
+});
 
 test("catalog schedule keeps the approved Israel slots in winter and summer", () => {
   const slots = [

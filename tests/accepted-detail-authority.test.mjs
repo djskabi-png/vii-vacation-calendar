@@ -24,3 +24,14 @@ test('missing, malformed and future private timestamps never suppress legacy pre
   assert.deepEqual(result.rooms[0].images,old.rooms[0].images);
  }
 });
+
+test('a media-only refresh preserves exact current galleries without claiming full facts were refreshed',()=>{
+ const accepted={_viiCatalog:{mediaCheckedAt:stamp.checkedAt,attemptedAt:stamp.attemptedAt},images:['/api/vii/media/current.jpg'],galleryGroups:[],features:[],rooms:[{id:7,images:[],galleryGroups:[],features:[]}]};
+ const old={images:['/api/vii/media/removed.jpg'],galleryGroups:[{title:'Removed',images:['/api/vii/media/removed.jpg']}],features:['Legacy presentation'],rooms:[{id:7,images:['/api/vii/media/removed-unit.jpg'],galleryGroups:[{title:'Removed unit'}],features:['Legacy room fact']}]};
+ const result=mergeBundledDetail(accepted,old);
+ assert.deepEqual(result.images,accepted.images);assert.deepEqual(result.galleryGroups,[]);
+ assert.deepEqual(result.rooms[0].images,[]);assert.deepEqual(result.rooms[0].galleryGroups,[]);
+ assert.deepEqual(result.features,old.features);assert.deepEqual(result.rooms[0].features,old.rooms[0].features);
+ assert.equal(result._viiCatalog.checkedAt,undefined);
+ const empty=mergeBundledDetail({...accepted,rooms:[]},old);assert.deepEqual(empty.rooms,[]);
+});

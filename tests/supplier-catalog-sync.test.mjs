@@ -9,7 +9,38 @@ import { catalogResponse } from "../app/api/catalog/route.ts";
 import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
 import spaCatalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate } from "../app/lib/spa-editorial-policy.ts";
-import {proveSupplierDetail} from '../app/lib/supplier-detail-contract.ts';
+import {proveSupplierDetail,proveSupplierMediaDetail} from '../app/lib/supplier-detail-contract.ts';
+import {syncSupplierCatalogWorld} from '../app/lib/supplier-catalog-runtime.ts';
+
+test('targeted runtime refresh fetches one detail and preserves every other accepted place even when list changes',async()=>{
+ const db=await database(),previousToken=process.env.SERGEY_VII_API_TOKEN;process.env.SERGEY_VII_API_TOKEN='fixture-target';
+ const baseline=[17,18].map(supplierId=>({supplierId,summary:{name:`Place ${supplierId}`},detail:{features:['Accessible'],images:['/gallery/old.jpg'],rooms:[{id:supplierId,features:['Bed'],images:['/gallery/old.jpg']}]}}));let bad=false;const reads=[];
+ const fetchImpl=async url=>{const path=new URL(url).pathname;
+  if(path.endsWith('/locations'))return Response.json({cities:[{id:1,title:'City',area:2}],areas:[{id:2,title:'Area'}]});
+  if(path.endsWith('/types'))return Response.json({amenities:[],amenity_categories:[],roomTypes:[]});
+  if(path.endsWith('/vacations'))return Response.json({places:[{siteID:17,siteName:'Place',active:true,location:{cityID:1},galleries:[],rooms:[{roomID:17}]},{siteID:18,active:false},{siteID:999,active:true,rooms:[]}]});
+  const id=Number(path.split('/').at(-1));reads.push(id);return Response.json({id,active:true,name:'Place',api_version:1.1,created:at().toISOString(),location:{city:1},galleries:{1:{galleryID:1,title:'Main',pictures:['/gallery/current.jpg']}},rooms:[{roomID:bad?99:17,galleries:[]}]});
+ };
+ try{
+  assert.equal((await runSupplierCatalogSync(db,{id:'target-baseline',world:'vacations',source:'test',baseline,now:at,fetchCandidate:async()=>({fetchedAt:at().toISOString(),entries:baseline})})).status,'accepted');
+  const result=await syncSupplierCatalogWorld(db,'vacations','manual',{runId:'target-detail',detailSupplierId:17,now:at,fetchImpl});assert.equal(result.status,'accepted');assert.deepEqual(reads,[17]);
+  const accepted=(await readSupplierCatalog(db,'vacations')).entries;assert.deepEqual(accepted.find(x=>x.supplierId===18),baseline[1]);assert.equal(accepted.length,2);assert.deepEqual(accepted[0].detail.features,['Accessible']);assert.deepEqual(accepted[0].detail.images,['/api/vii/media/current.jpg']);
+  bad=true;const rejected=await syncSupplierCatalogWorld(db,'vacations','manual',{runId:'target-invalid',detailSupplierId:17,now:at,fetchImpl});assert.equal(rejected.status,'rejected');assert.equal(rejected.errorCode,'catalog_content_requires_review');assert.deepEqual((await readSupplierCatalog(db,'vacations')).entries,accepted);
+  await assert.rejects(syncSupplierCatalogWorld(db,'vacations','scheduled',{detailSupplierId:17}),/invalid_supplier_refresh/);
+ }finally{db.close();if(previousToken===undefined)delete process.env.SERGEY_VII_API_TOKEN;else process.env.SERGEY_VII_API_TOKEN=previousToken;}
+});
+
+test('actual atomic publish accepts media-only authority tied to its previous facts and rejects changed amenities',async()=>{
+ const db=await database(),supplierId=17,old={supplierId,summary:{name:'Place'},detail:{features:['Accessible'],images:['/gallery/old.jpg'],rooms:[{id:2,features:['Bed'],images:['/gallery/old.jpg']}]}};
+ const candidate=structuredClone(old);candidate.detail.images=['/gallery/current.jpg'];candidate.detail.rooms[0].images=[];
+ const raw={api_version:1.1,created:at().toISOString(),id:supplierId,active:true,galleries:{1:{galleryID:1,title:'Main',pictures:['/gallery/current.jpg']}},rooms:[{roomID:2,galleries:[]}]};
+ candidate.detailProof=await proveSupplierMediaDetail(raw,{siteID:supplierId,rooms:[{roomID:2}]},candidate,old,at());assert.ok(candidate.detailProof);
+ const run=(id,entries)=>runSupplierCatalogSync(db,{id,world:'events',source:'test',baseline:[old],now:at,fetchCandidate:async()=>({fetchedAt:at().toISOString(),entries})});
+ try{assert.equal((await run('media-only',[candidate])).status,'accepted');const accepted=(await readSupplierCatalog(db,'events')).entries[0];assert.deepEqual(accepted.detail.features,['Accessible']);assert.deepEqual(accepted.detail.images,['/gallery/current.jpg']);
+ const bad=structuredClone(candidate);bad.detail.features=[];bad.detail.images=[];
+ const rejected=await run('media-nonmedia-tamper',[bad]);assert.equal(rejected.status,'rejected');assert.equal(rejected.errorCode,'catalog_content_requires_review');assert.deepEqual((await readSupplierCatalog(db,'events')).entries[0].detail.features,['Accessible']);
+ }finally{db.close();}
+});
 
 test('actual sync loads an immutable bundled baseline only when no accepted generation exists',async()=>{
  const db=await database();let loads=0;const entries=[{supplierId:1,summary:{packages:[]}}];

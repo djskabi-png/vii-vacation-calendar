@@ -29,14 +29,21 @@ test('real types object uses the same cache path, isolates credentials and rejec
  now=31*86400000;await assert.rejects(cachedAmenityTaxonomy(options()),/discovery_unavailable/);
 });
 
-test('an accepted canonical index suppresses old migrated groups when the new shared facts are empty',async()=>{
+test('an accepted full detail suppresses old migrated groups when the new shared facts are empty',async()=>{
  const fetchImpl=async url=>Response.json(url.endsWith('/types')?{amenities:[],amenity_categories:[]}:url.endsWith('/vacations')?{places:[]}:{id:2244,active:true,shared_amenities:[]});
  const database={prepare(sql){return {bind(){return this;},async first(){
   if(sql.includes('supplier_catalog_state'))return {activeRunId:'canonical-empty-regression',activeCount:1};
-  if(sql.includes('supplier_catalog_entries'))return {supplier_id:2244,filterIndexType:'array'};
+  if(sql.includes('supplier_catalog_entries'))return {supplier_id:2244,checkedAt:'2026-11-01T12:00:00Z',attemptedAt:'2026-11-01T12:00:00Z'};
   return null;
  }};}};
  assert.deepEqual(await fetchLiveBusinessAmenities({supplierId:2244,token:'canonical-empty',fetchImpl,database}),{groups:[],source:'biz-shared-amenities'});
+});
+
+test('a search filter index alone cannot erase migrated shared-place groups after partial detail',async()=>{
+ const fetchImpl=async url=>Response.json(url.endsWith('/types')?{amenities:[],amenity_categories:[]}:url.endsWith('/vacations')?{places:[]}:{id:2483,active:true,shared_amenities:[]});
+ const database={prepare(sql){return {bind(){return this;},async first(){return sql.includes('supplier_catalog_state')?{activeRunId:'partial-groups-2483',activeCount:1}:sql.includes('supplier_catalog_entries')?{supplier_id:2483,filterIndexType:'array'}:null;}};}};
+ const result=await fetchLiveBusinessAmenities({supplierId:2483,token:'partial-index',fetchImpl,database});
+ assert.equal(result.source,'migrated-vii-place-amenities');assert.ok(result.groups.some(group=>group.title==='מתחם חיצוני'));assert.ok(result.groups.some(group=>group.title==='מתחם פנימי'));
 });
 
 test('actual business loader shares types and list between places and an authoritative inactive refresh clears old facts',async()=>{

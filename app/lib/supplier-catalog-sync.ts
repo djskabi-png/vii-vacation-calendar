@@ -200,10 +200,11 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if(candidate.deferredDetailIds?.length)diagnostics={...diagnostics,deferredDetails:{supplierIds:candidate.deferredDetailIds,truncated:candidate.deferredDetailIdsTruncated===true}};
     if(candidate.sourceInventory && diff.removed.length && !explicitInactiveRemoval(previous,candidate.entries,candidate.sourceInventory))throw new Error("catalog_removal_requires_review");
     const authoritativeDetails = new Set<number>();
-    for (const entry of candidate.entries) if (await validSupplierDetailProof(entry.detailProof, entry, now())) authoritativeDetails.add(entry.supplierId);
+    const previousById = new Map(previous.map(entry => [entry.supplierId, entry]));
+    for (const entry of candidate.entries) if (await validSupplierDetailProof(entry.detailProof, entry, now(), previousById.get(entry.supplierId))) authoritativeDetails.add(entry.supplierId);
     const allContentIssues=catalogContentIntegrityIssues(input.world,previous,candidate.entries);
     const replacedIds=new Set(allContentIssues.filter(issue=>authoritativeDetails.has(issue.supplierId)).map(issue=>issue.supplierId));
-    if(replacedIds.size)diagnostics={...diagnostics,contentReplacements:candidate.entries.filter(entry=>replacedIds.has(entry.supplierId)).map(entry=>({supplierId:entry.supplierId,created:entry.detailProof!.created,rawFingerprint:entry.detailProof!.rawFingerprint,normalizedFingerprint:entry.detailProof!.normalizedFingerprint}))};
+    if(replacedIds.size)diagnostics={...diagnostics,contentReplacements:candidate.entries.filter(entry=>replacedIds.has(entry.supplierId)).map(entry=>({supplierId:entry.supplierId,created:entry.detailProof!.created,rawFingerprint:entry.detailProof!.rawFingerprint,normalizedFingerprint:entry.detailProof!.normalizedFingerprint,contract:entry.detailProof!.contract}))};
     const contentIssues = allContentIssues.filter(issue => !authoritativeDetails.has(issue.supplierId));
     if (contentIssues.length) {
       diagnostics = { ...diagnostics, contentIntegrity: { total: contentIssues.length,

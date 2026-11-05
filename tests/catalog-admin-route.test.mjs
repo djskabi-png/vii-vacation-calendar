@@ -65,6 +65,9 @@ test("catalog administration blocks cross-origin and invalid manual actions befo
       method: "POST", headers: { ...headers, Origin: origin },
       body: JSON.stringify({ world: "providers" }),
     }))).status, 400);
+    for(const payload of [{world:'spa',supplierId:2434},{world:'vacations',supplierId:'2434'},{world:'events',supplierId:0},{world:'vacations',supplierId:1.5}]){
+      assert.equal((await POST(new Request(`${origin}/api/admin/catalog-sync`,{method:'POST',headers:{...headers,Origin:origin},body:JSON.stringify(payload)}))).status,400);
+    }
   } finally {
     if (oldEmails === undefined) delete process.env.VII_ADMIN_EMAILS;
     else process.env.VII_ADMIN_EMAILS = oldEmails;

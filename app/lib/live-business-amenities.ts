@@ -33,16 +33,22 @@ export async function fetchLiveBusinessAmenities({ supplierId, token, fetchImpl 
   const db = database === undefined ? (fetchImpl === fetch ? await runtimeCatalogDatabase() : null) : database;
   const state = db ? await readSupplierCatalogState(db, "vacations") : null;
   const revision = state?.activeRunId || sourceRevision || "unknown";
-  let acceptedFiltersAuthoritative = false;
+  let acceptedDetailAuthoritative = false;
   if (db) {
     if (!state?.activeRunId) throw new Error("catalog_membership_unavailable");
     // Pin a single indexed membership read to the same generation used in the
     // cache key. A read error must never resurrect a withdrawn place's facts.
-    const published = await db.prepare(`SELECT supplier_id, json_type(summary_json, '$.searchFilterIds') AS filterIndexType FROM supplier_catalog_entries
+    const published = await db.prepare(`SELECT supplier_id,
+      json_extract(detail_json, '$._viiCatalog.checkedAt') AS checkedAt,
+      json_extract(detail_json, '$._viiCatalog.attemptedAt') AS attemptedAt FROM supplier_catalog_entries
       WHERE run_id = ? AND world = ? AND supplier_id = ? LIMIT 1`)
-      .bind(state.activeRunId, "vacations", supplierId).first<{ supplier_id: number; filterIndexType: string | null }>();
+      .bind(state.activeRunId, "vacations", supplierId).first<{ supplier_id: number; checkedAt?:string; attemptedAt?:string }>();
     if (!published) return { groups: [], source: "biz-shared-amenities" };
-    acceptedFiltersAuthoritative = published.filterIndexType === "array";
+    const checked=typeof published.checkedAt==='string'?Date.parse(published.checkedAt):NaN;
+    const attempted=typeof published.attemptedAt==='string'?Date.parse(published.attemptedAt):NaN;
+    // A searchable ID index is not proof of complete shared-place groups.
+    // Only the full-detail contract may retire the verified migrated groups.
+    acceptedDetailAuthoritative=Number.isFinite(checked)&&checked>0&&checked<=now()&&Number.isFinite(attempted)&&attempted>=checked&&attempted<=now();
   }
   const cached = await cachedBusinessAmenities({ supplierId, token, sourceRevision: revision, db, fetchImpl, now, load: async () => {
     const detailResponse = await fetchImpl(`https://bizonline.co.il/api/ai/vii/vacations/${supplierId}`, { headers, cache: "no-store", signal: AbortSignal.timeout(8_000) });
@@ -63,7 +69,7 @@ export async function fetchLiveBusinessAmenities({ supplierId, token, fetchImpl 
     const list = await cachedSharedAmenityList({ token, db, fetchImpl, now, sourceRevision: revision });
     const listGroups = sergeyAmenityGroups(list.value[String(supplierId)], index);
     if (listGroups.length) return { groups: listGroups, source: "biz-shared-amenities" };
-    const migratedGroups = acceptedFiltersAuthoritative ? [] : legacyPlaceFeatureGroups(`vacation-${supplierId}`) || [];
+    const migratedGroups = acceptedDetailAuthoritative ? [] : legacyPlaceFeatureGroups(`vacation-${supplierId}`) || [];
     if (migratedGroups.length) return { groups: migratedGroups, source: "migrated-vii-place-amenities" };
     return { groups: [], source: "biz-shared-amenities" };
   }});

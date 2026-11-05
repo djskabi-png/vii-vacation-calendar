@@ -1,6 +1,6 @@
 import {legacyGalleryFilename} from './legacy-gallery-media.ts';
 
-export type SupplierDetailProof = { supplierId:number; contract:'vii-site-page-v1'; created:string; rawFingerprint:string; normalizedFingerprint:string };
+export type SupplierDetailProof = { supplierId:number; contract:'vii-site-page-v1'|'vii-site-media-v1'; created:string; rawFingerprint:string; normalizedFingerprint:string; previousFingerprint?:string };
 const object=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
 function amenityIssue(value:unknown):string|null {
  if(!Array.isArray(value))return 'array';
@@ -21,6 +21,19 @@ function galleries(value:unknown, arrayOnly=false){
  const ids=new Set<number>();
  return rows.every(row=>{if(!object(row)||!Number.isSafeInteger(row.galleryID)||Number(row.galleryID)<1||ids.has(Number(row.galleryID))||typeof row.title!=='string'||!Array.isArray(row.pictures)||!row.pictures.every(image=>typeof image==='string'&&Boolean(legacyGalleryFilename(image))))return false;ids.add(Number(row.galleryID));return true;});
 }
+function mediaIssue(raw:unknown,listPlace:unknown,now:Date):string|null {
+ if(!object(raw)||raw.error)return 'detail_schema'; if(!object(listPlace))return 'list_schema';
+ if(typeof raw.api_version!=='number'||raw.api_version<1.1||raw.api_version>=2)return 'protocol_version';
+ if(raw.active!==true)return 'site_inactive'; if(!Number.isSafeInteger(raw.id)||raw.id!==listPlace.siteID)return 'detail_identity_mismatch';
+ if(typeof raw.created!=='string')return 'created_missing'; const created=Date.parse(raw.created),age=now.getTime()-created;
+ if(!Number.isFinite(created)||age< -300_000||age>86_400_000)return 'detail_age';
+ if(!galleries(raw.galleries)||!Object.keys(raw.galleries as object).length)return 'site_gallery_schema';
+ if(!Array.isArray(raw.rooms)||!Array.isArray(listPlace.rooms))return 'room_set_schema'; const ids=new Set<number>();
+ for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||room.roomID<1||ids.has(room.roomID))return 'room_identity_mismatch';if(!galleries(room.galleries,true))return 'room_gallery_schema';ids.add(room.roomID);}
+ const listIds=listPlace.rooms.map(room=>object(room)?room.roomID:null);
+ if(new Set(listIds).size!==listIds.length||listIds.length!==ids.size||listIds.some(id=>!Number.isSafeInteger(id)||!ids.has(id)))return 'room_identity_mismatch';
+ return null;
+}
 export function supplierDetailProofIssue(raw:unknown,listPlace:unknown,now:Date):string|null {
  if(!object(raw)||raw.error)return "detail_schema";
  if(!object(listPlace))return "list_schema";
@@ -39,13 +52,27 @@ export function supplierDetailProofIssue(raw:unknown,listPlace:unknown,now:Date)
  if(new Set(listIds).size!==listIds.length||listIds.length!==roomIds.size||listIds.some(id=>!Number.isSafeInteger(id)||!roomIds.has(Number(id))))return "room_identity_mismatch";
  return null;
 }
+export function supplierNonMediaFactsMatch(a:unknown,b:unknown):boolean {
+ const project=(value:unknown):unknown=>{if(!object(value))return value;const out=structuredClone(value);delete out.detailProof;
+  if(object(out.summary)){delete out.summary.image;delete out.summary.images;delete out.summary.previewText;}
+  if(object(out.detail)){delete out.detail.images;delete out.detail.galleryGroups;delete out.detail._viiCatalog;
+   if(Array.isArray(out.detail.rooms))for(const room of out.detail.rooms)if(object(room)){delete room.images;delete room.galleryGroups;}
+  } return out;};
+ return JSON.stringify(project(a))===JSON.stringify(project(b));
+}
+export async function proveSupplierMediaDetail(raw:unknown,listPlace:unknown,composite:unknown,previous:unknown,now:Date):Promise<SupplierDetailProof|null>{
+ if(mediaIssue(raw,listPlace,now)||!object(composite)||!object(previous)||!supplierNonMediaFactsMatch(composite,previous))return null;
+ if(!Number.isSafeInteger(composite.supplierId)||composite.supplierId<1||composite.supplierId!==raw.id||!Number.isSafeInteger(previous.supplierId)||previous.supplierId<1||previous.supplierId!==composite.supplierId)return null;
+ return {supplierId:composite.supplierId,contract:'vii-site-media-v1',created:String(raw.created),rawFingerprint:await fingerprint(raw),normalizedFingerprint:await supplierEntryFingerprint(composite as any),previousFingerprint:await supplierEntryFingerprint(previous as any)};
+}
 /** The official Site page contract returns everything shown on that place page,
  * unlike the list's six-photo preview. Missing fields never mean deletion. */
 export async function proveSupplierDetail(raw:unknown,listPlace:unknown,normalized:unknown,now:Date):Promise<SupplierDetailProof|null>{
  if(supplierDetailProofIssue(raw,listPlace,now)||!object(raw)||typeof raw.created!=='string'||!object(normalized))return null;
  return {supplierId:Number(raw.id),contract:'vii-site-page-v1',created:raw.created,rawFingerprint:await fingerprint(raw),normalizedFingerprint:await fingerprint(normalized)};
 }
-export async function validSupplierDetailProof(proof:SupplierDetailProof|undefined,entry:{supplierId:number;summary:unknown;detail?:unknown},now:Date){
+export async function validSupplierDetailProof(proof:SupplierDetailProof|undefined,entry:{supplierId:number;summary:unknown;detail?:unknown},now:Date,previous?:{supplierId:number;summary:unknown;detail?:unknown}){
+ if(proof?.contract==='vii-site-media-v1')return Boolean(previous&&proof.supplierId===entry.supplierId&&supplierNonMediaFactsMatch(entry,previous)&&proof.previousFingerprint===await supplierEntryFingerprint(previous)&&/^[a-f0-9]{64}$/.test(proof.rawFingerprint)&&/^[a-f0-9]{64}$/.test(proof.normalizedFingerprint)&&proof.normalizedFingerprint===await supplierEntryFingerprint(entry)&&(()=>{const age=now.getTime()-Date.parse(proof.created);return Number.isFinite(age)&&age>=-300000&&age<=86400000;})());
  if(!proof||proof.contract!=='vii-site-page-v1'||proof.supplierId!==entry.supplierId||!/^[a-f0-9]{64}$/.test(proof.rawFingerprint)||!/^[a-f0-9]{64}$/.test(proof.normalizedFingerprint))return false;
  const age=now.getTime()-Date.parse(proof.created);
  return Number.isFinite(age)&&age>= -300_000&&age<=86_400_000&&proof.normalizedFingerprint===await supplierEntryFingerprint(entry);

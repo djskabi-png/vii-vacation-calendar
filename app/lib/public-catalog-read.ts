@@ -275,6 +275,8 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
   // A later failed refresh retains the same verified snapshot and stamp.
   const now=Date.now();
   if(Number.isFinite(checked)&&checked>0&&checked<=now&&Number.isFinite(attempted)&&attempted>=checked&&attempted<=now)return acceptedValue;
+  const mediaChecked=typeof refresh.mediaCheckedAt==='string'?Date.parse(refresh.mediaCheckedAt):NaN;
+  const authoritativeMedia=Number.isFinite(mediaChecked)&&mediaChecked>0&&mediaChecked<=now&&Number.isFinite(attempted)&&attempted>=mediaChecked&&attempted<=now;
   const acceptedRooms = Array.isArray(accepted.rooms) ? accepted.rooms as Record<string, unknown>[] : [];
   const bundledRooms = Array.isArray(bundled.rooms) ? bundled.rooms as Record<string, unknown>[] : [];
   const rooms = acceptedRooms.map((room) => {
@@ -283,7 +285,8 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     return {
       ...fallback,
       ...room,
-      images: normalizedMediaArray(room.images) || normalizedMediaArray(fallback.images) || [],
+      images: authoritativeMedia ? room.images : normalizedMediaArray(room.images) || normalizedMediaArray(fallback.images) || [],
+      ...(authoritativeMedia ? {galleryGroups:room.galleryGroups} : {}),
       featureGroups: nonEmptyArray(room.featureGroups) || fallback.featureGroups || [],
       features: nonEmptyArray(room.features) || fallback.features || [],
     };
@@ -292,14 +295,14 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
     ...bundled,
     ...accepted,
   };
-  merged.images = normalizedMediaArray(accepted.images) || normalizedMediaArray(bundled.images) || [];
-  const galleryGroups = mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups, accepted.images);
+  merged.images = authoritativeMedia ? accepted.images : normalizedMediaArray(accepted.images) || normalizedMediaArray(bundled.images) || [];
+  const galleryGroups = authoritativeMedia ? accepted.galleryGroups : mergedGalleryGroups(accepted.galleryGroups, bundled.galleryGroups, accepted.images);
   const featureGroups = nonEmptyArray(accepted.featureGroups) || nonEmptyArray(bundled.featureGroups);
   const features = nonEmptyArray(accepted.features) || nonEmptyArray(bundled.features);
-  if (galleryGroups) merged.galleryGroups = galleryGroups;
+  if (authoritativeMedia || galleryGroups) merged.galleryGroups = galleryGroups;
   if (featureGroups) merged.featureGroups = featureGroups;
   if (features) merged.features = features;
-  if (rooms.length || bundledRooms.length) merged.rooms = rooms.length ? rooms : bundledRooms;
+  if (authoritativeMedia || rooms.length || bundledRooms.length) merged.rooms = authoritativeMedia ? rooms : rooms.length ? rooms : bundledRooms;
   return merged;
 }
 

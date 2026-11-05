@@ -29,7 +29,7 @@ export async function cachedBusinessAmenities(options: {
 }) {
   const credential = await credentialScope(options.token);
   return cachedDiscovery<AmenityCacheValue>({
-    key: ["business-amenities", 4, fetchScope(options.fetchImpl ?? fetch), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he", options.supplierId],
+    key: ["business-amenities", 5, fetchScope(options.fetchImpl ?? fetch), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he", options.supplierId],
     db: options.db,
     policy, now: options.now,
     load: async () => {

@@ -100,7 +100,7 @@ type CandidateInspection = {
   detailProofIssues?:Array<{supplierId:number;code:string}>;
 };
 
-function CandidateComparison({ world }: { world: "vacations" | "events" }) {
+function CandidateComparison({ world,onRefresh,disabled }: { world: "vacations" | "events"; onRefresh:(id:number)=>void; disabled:boolean }) {
   const [targetId,setTargetId]=useState('');
   const [result, setResult] = useState<CandidateInspection | null>(null);
   const [loading, setLoading] = useState(false);
@@ -119,9 +119,10 @@ function CandidateComparison({ world }: { world: "vacations" | "events" }) {
     else setError(response.status === 403 ? "אין הרשאת מנהל לבדיקת הספק" : "לא הצלחנו להשלים את בדיקת הספק. אפשר לנסות שוב.");
   };
   return <section aria-label="השוואה מול הספק" style={{ marginBlock: 12 }}>
-    <label>מספר מקום לבדיקה מפורטת (לא חובה)<input type="text" inputMode="numeric" value={targetId} onChange={event=>setTargetId(event.target.value)} disabled={loading} /></label>
+    <label>מספר מקום לבדיקה מפורטת (לא חובה)<input type="text" inputMode="numeric" value={targetId} onChange={event=>{setTargetId(event.target.value);setResult(null);}} disabled={loading} /></label>
     <button type="button" onClick={() => void inspect()} disabled={loading}>{loading ? "בודקים את נתוני הספק..." : "בדיקת השינויים מהספק"}</button>
     <small style={{ display: "block", marginBlock: 8 }}>השוואה בלבד, ללא פרסום שינויים בקטלוג</small>
+    {result && targetId ? <button type="button" disabled={disabled||loading} onClick={()=>onRefresh(Number(targetId))}>רענון פרטי המקום שנבדק</button> : null}
     {error ? <p role="alert">{error}</p> : null}
     {result ? <div role="status"><p>נבדק: {date(result.fetchedAt)}</p><p>מקומות בקטלוג: {result.diff.before} · מהספק: {result.diff.candidate}</p><p>נוספו: {result.diff.added} · השתנו: {result.diff.changed} · לא התקבלו: {result.diff.removed.length}{result.diff.removedTruncated ? " ומעלה" : ""}</p>
       {result.sourceInventory ? <><p>רשומות ברשימת הספק: {result.sourceInventory.listedCount} · פעילות במפורש: {result.sourceInventory.activeCount}</p><details><summary>סימון פעילות אצל הספק</summary><p>סומנו כלא פעילים:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.inactiveIds.join(", ") || "0"}{result.sourceInventory.inactiveIdsTruncated ? "..." : ""}</p><p>מתוך הקטלוג הקודם:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.previousInactiveIds?.join(", ") || "0"}{result.sourceInventory.previousInactiveIdsTruncated ? "..." : ""}</p><p>ללא סימון פעילות:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.unknownActivityIds.join(", ") || "0"}{result.sourceInventory.unknownActivityIdsTruncated ? "..." : ""}</p><p>מתוך הקטלוג הקודם ללא סימון:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.previousUnknownActivityIds?.join(", ") || "0"}{result.sourceInventory.previousUnknownActivityIdsTruncated ? "..." : ""}</p></details></> : null}
@@ -161,7 +162,7 @@ export default function CatalogSyncPage() {
 
   useEffect(() => { const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [refresh]);
 
-  async function pull(world: World) {
+  async function pull(world: World,supplierId?:number) {
     if (!canEdit) return;
     if (busy) return;
     setBusy(world);
@@ -169,7 +170,7 @@ export default function CatalogSyncPage() {
     setError("");
     try {
       const response = await fetch("/api/admin/catalog-sync", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ world }),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ world,...(supplierId===undefined?{}:{supplierId}) }),
       });
       const result = await response.json() as { world?: World; status?: string; errorCode?: string; error?: string; diagnostics?: CatalogSyncDiagnostics };
       setNotice(result.status === "accepted" ? "הנתונים נבדקו ופורסמו" :
@@ -235,7 +236,7 @@ export default function CatalogSyncPage() {
             {run?.status === "rejected" ? <p>לא יתבצע ניסיון אוטומטי נוסף, משום שהנתונים נעצרו לבדיקת בטיחות ולא בגלל תקלה זמנית.</p> : null}
             {run?.errorCode ? <><p><strong>למה העדכון נעצר:</strong> {catalogRunExplanation(id, run.errorCode, run.diagnostics)}</p><small>קוד טכני: <code dir="ltr">{run.errorCode}</code></small></> : null}
             {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} runId={run.id} /> : null}
-            {id === "vacations" || id === "events" ? <CandidateComparison world={id} /> : null}
+            {id === "vacations" || id === "events" ? <CandidateComparison world={id} onRefresh={supplierId=>void pull(id,supplierId)} disabled={!canEdit||!!busy||running} /> : null}
             <button type="button" disabled={!canEdit || (!!busy || running)} onClick={() => void pull(id)}>
               <RefreshCw size={17} aria-hidden="true" /> {running ? "מושכים נתונים..." : "משוך עכשיו"}
             </button>

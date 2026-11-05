@@ -9,8 +9,13 @@ const schedule: Record<string, SupplierCatalogWorld> = {
 // A delayed task may cover today's latest approved slot, never a caller-selected date or run ID.
 export function catalogPullSlot(date: Date, world: SupplierCatalogWorld) {
   if (!Number.isFinite(date.getTime())) return null;
+  // The managed rooms job was observed starting three minutes before its
+  // saved 18:00 occurrence. Give fixed daily jobs a bounded five-minute
+  // dispatch allowance so an early occurrence cannot consume yesterday's
+  // slot identity. Hourly vacation identities retain exact hour boundaries.
+  const effectiveDate = world === "vacations" ? date : new Date(date.getTime() + 5 * 60_000);
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", year: "numeric",
-    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date);
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(effectiveDate);
   const part = (type: string) => parts.find((value) => value.type === type)?.value || "";
   const time = `${part("hour")}:${part("minute")}`;
   // The existing Cloud vacation job runs hourly. Reusing one of only three

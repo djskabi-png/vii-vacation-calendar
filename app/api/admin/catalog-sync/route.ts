@@ -1,6 +1,7 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { isCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { inspectSupplierCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
+import { syncSupplierCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogDashboard, readSupplierCatalogRunDiagnostics } from "../../../lib/supplier-catalog-store.ts";
@@ -108,9 +109,15 @@ export async function POST(request: Request) {
   try { payload = await request.json(); } catch { return Response.json({ error: "invalid_request" }, { status: 400, headers }); }
   const world = payload && typeof payload === "object" && "world" in payload ? payload.world : null;
   if (!isCatalogWorld(world)) return Response.json({ error: "invalid_world" }, { status: 400, headers });
+  const target = payload && typeof payload === 'object' && 'supplierId' in payload ? payload.supplierId : undefined;
+  if(target!==undefined&&((world!=='vacations'&&world!=='events')||typeof target!=='number'||!Number.isSafeInteger(target)||target<1||target>9_999_999_999))return Response.json({error:'invalid_supplier_refresh'},{status:400,headers});
   try {
     const runId = `manual_${Date.now()}_${world}_${crypto.randomUUID().replaceAll("-", "")}`;
-    const result = await runCatalogPullWithRetryPlan(await database(), { world, source: "manual", runId });
+    // A targeted detail refresh keeps the same complete-generation guards and
+    // lock. It is a single explicit operation, never an automatic retry job.
+    const result = target === undefined
+      ? await runCatalogPullWithRetryPlan(await database(), { world, source: "manual", runId })
+      : await syncSupplierCatalogWorld(await database(),world,'manual',{runId,detailSupplierId:target as number});
     return Response.json(result, { status: result.status === "accepted" ? 200 : 409, headers });
   } catch (error) {
     console.error("VII catalog sync unavailable", world, error);

@@ -9,7 +9,7 @@ import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType, type SergeyAmenityIndex } from "./sergey-amenities.ts";
 import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
 import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
-import { proveSupplierDetail, supplierEntryFingerprint, supplierDetailProofIssue } from "./supplier-detail-contract.ts";
+import { proveSupplierDetail, proveSupplierMediaDetail, supplierEntryFingerprint, supplierDetailProofIssue } from "./supplier-detail-contract.ts";
 import {selectDetailRefreshIds,stampDetailRefresh} from './supplier-detail-refresh.ts';
 
 type World = "vacations" | "events";
@@ -206,7 +206,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
 export const SERGEY_DETAIL_REFRESH_LIMIT = 24;
 
 export function createSergeyPublicCatalogClient(options: { apiKey: string; fetchImpl?: typeof fetch; now?: () => Date;
-  detailRefreshLimit?: number; forceDetailRefresh?:boolean; retainUnprovedDetails?:boolean; inspectionSupplierId?:number }) {
+  detailRefreshLimit?: number; forceDetailRefresh?:boolean; retainUnprovedDetails?:boolean; inspectionSupplierId?:number; onlyInspectedDetail?:boolean }) {
   const apiKey = options.apiKey.trim();
   const fetchImpl = options.fetchImpl || fetch;
   const now = options.now || (() => new Date());
@@ -247,12 +247,14 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       const previous = new Map(previousEntries.map((entry) => [entry.supplierId, entry]));
       const existingIndexes = ids.map((id, index) => previous.has(id) ? index : -1).filter((index) => index >= 0);
       if(options.inspectionSupplierId!==undefined&&(!Number.isSafeInteger(options.inspectionSupplierId)||options.retainUnprovedDetails!==false||!previous.has(options.inspectionSupplierId)||!ids.includes(options.inspectionSupplierId)))throw new Error('invalid_supplier_inspection');
+      if(options.onlyInspectedDetail&&options.inspectionSupplierId===undefined)throw new Error('invalid_supplier_inspection');
       const refreshIds=new Set(options.inspectionSupplierId!==undefined?[options.inspectionSupplierId]:selectDetailRefreshIds(previousEntries,existingIndexes.map(index=>ids[index]),detailRefreshLimit,now(),{force:options.forceDetailRefresh===true}));
       const refreshIndexes = new Set(existingIndexes.filter(index=>refreshIds.has(ids[index])));
       const detailIndexes = active.map((_place, index) => index)
-        .filter((index) => !previous.has(ids[index]) || !previous.get(ids[index])?.detail || refreshIndexes.has(index));
+        .filter((index) => options.onlyInspectedDetail ? ids[index]===options.inspectionSupplierId : !previous.has(ids[index]) || !previous.get(ids[index])?.detail || refreshIndexes.has(index));
       for (let index = 0; index < active.length; index += 1) {
         const old = previous.get(ids[index]);
+        if(options.onlyInspectedDetail&&!detailIndexes.includes(index)){entries[index]=old||null;continue;}
         if (!old || detailIndexes.includes(index)) continue;
         try {
           const listPlace = active[index];
@@ -309,6 +311,25 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             } else if(previous.has(id)) {
               deferredDetailIds.push(id);
               detailProofIssues.push({supplierId:id,code:supplierDetailProofIssue(detail,active[index],now())||'normalized_entry_schema'});
+              const prior=previous.get(id)!;
+              const priorDetail=record(prior.detail), incomingEntry=entries[index]!;
+              const incomingDetail=record(incomingEntry.detail);
+              const priorRooms=Array.isArray(priorDetail.rooms)?priorDetail.rooms.map(record):[];
+              const nextRooms=Array.isArray(incomingDetail.rooms)?incomingDetail.rooms.map(record):[];
+              const priorIds=priorRooms.map(room=>positive(room.id)), nextIds=nextRooms.map(room=>positive(room.id));
+              const mediaComposite=structuredClone(prior) as SupplierCatalogEntry;
+              const normalizedDetail=incomingDetail, normalizedSummary=record(incomingEntry.summary);
+              mediaComposite.summary={...record(prior.summary)};
+              for(const key of ['image','images','previewText'] as const)if(Object.hasOwn(normalizedSummary,key))(mediaComposite.summary as Record<string,unknown>)[key]=normalizedSummary[key];else if(key==='previewText'&&Object.hasOwn(active[index],'preview_text'))delete (mediaComposite.summary as Record<string,unknown>)[key];
+              mediaComposite.detail={...record(prior.detail)};
+              for(const key of ['images','galleryGroups'] as const)if(Object.hasOwn(normalizedDetail,key))(mediaComposite.detail as Record<string,unknown>)[key]=normalizedDetail[key];
+              if(priorIds.length===nextIds.length&&priorIds.every(roomId=>roomId&&nextIds.includes(roomId))){
+                const byId=new Map(nextRooms.map((room)=>[positive(room.id),room]));
+                const rooms=priorRooms.map((room)=>{const next=byId.get(positive(room.id)!);return {...room,...(next?.images!==undefined?{images:next.images}:{}),...(next?.galleryGroups!==undefined?{galleryGroups:next.galleryGroups}:{})};});
+                (mediaComposite.detail as Record<string,unknown>).rooms=rooms;
+                const mediaProof=await proveSupplierMediaDetail(detail,active[index],mediaComposite,prior,now());
+                if(mediaProof){const stamped=stampDetailRefresh(mediaComposite,now(),{verified:false});const stampedDetail=record(stamped.detail);stamped.detail={...stampedDetail,_viiCatalog:{...record(stampedDetail._viiCatalog),mediaCheckedAt:now().toISOString()}};stamped.detailProof={...mediaProof,normalizedFingerprint:await supplierEntryFingerprint(stamped)};entries[index]=stamped;continue;}
+              }
               if(options.retainUnprovedDetails===false)continue;
               // A partial refresh cannot erase facts or hold the whole world
               // hostage. Retain this accepted place and retry it after backoff.
@@ -347,7 +368,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       const previousIds = new Set(previousEntries.map((entry) => entry.supplierId));
       const previousInactiveIds = inactiveIds.filter((id) => previousIds.has(id));
       const previousUnknownActivityIds = unknownActivityIds.filter((id) => previousIds.has(id));
-      return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null),
+      return { fetchedAt: now().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null),
         deferredDetailIds:deferredDetailIds.slice(0,100),deferredDetailIdsTruncated:deferredDetailIds.length>100,
         detailProofIssues:detailProofIssues.slice(0,100),
         sourceInventory: { listedCount: list.places.length, activeCount: active.length,

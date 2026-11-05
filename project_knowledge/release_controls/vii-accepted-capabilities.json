@@ -4,6 +4,10 @@
   "purpose": "Fail closed when a release candidate is based on a stale branch or omits an accepted VII capability.",
   "protectedAncestors": [
     {
+      "commit": "db356adde2a604f47505075b85a0a611fabbccc7",
+      "capability": "public v808 direct canonical legacy redirects preserving dates, party, location, amenity and accommodation type"
+    },
+    {
       "commit": "a4934089167aab2705053d5fae4df62b2b61c1cf",
       "capability": "reconciled release baseline"
     },
