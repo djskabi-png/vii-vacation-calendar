@@ -8,6 +8,7 @@ import { createSergeyPublicCatalogClient } from '../app/lib/sergey-public-catalo
 import { publicVacationSearchProperties } from '../app/lib/public-vacation-search.ts';
 import { matchesVacationSearchFilter, vacationSearchFilterIdsFromText } from '../app/lib/vacation-search-filter-index.ts';
 import { hasVerifiedAccessibilityFeature } from '../app/data/accessibility-data.ts';
+import { filterIdsFromSupplierAmenityIds } from '../app/lib/supplier-amenity-filters.ts';
 
 async function supplierEntries() {
   const ordinary = Array.from({length:30},(_,i)=>({id:100+i,title:`מתקן ${i}`}));
@@ -75,7 +76,7 @@ test('offline bundle builder computes the same full supplier amenity index befor
   const walk=node=>{if(ts.isPropertyAssignment(node)&&node.name.getText(tree)==='searchFilterIds')expression=node.initializer.getText(tree);ts.forEachChild(node,walk);};walk(tree);assert.ok(expression,'builder must persist canonical IDs');
   const amenityIndex=buildSergeyAmenityIndex({amenities:[{id:62,title:'נגישות לנכים'},{id:63,parentID:62,title:'כניסה מותאמת'}]});
   const raw={shared_amenities:[{id:63,shown:false}],highlights:[]};
-  const run=new Function('vacationSearchFilterIdsFromText','sergeyAmenitySearchLabels','raw','amenityIndex','rooms','name','city','areas','description',`return ${expression}`);
-  const result=run(vacationSearchFilterIdsFromText,sergeyAmenitySearchLabels,raw,amenityIndex,[],'מקום',{title:'טבריה',area:1},new Map([[1,'צפון']]),'');
+  const run=new Function('vacationSearchFilterIdsFromText','sergeyAmenitySearchLabels','filterIdsFromSupplierAmenityIds','raw','amenityIndex','rooms','name','city','areas','description',`return ${expression}`);
+  const result=run(vacationSearchFilterIdsFromText,sergeyAmenitySearchLabels,filterIdsFromSupplierAmenityIds,raw,amenityIndex,[],'מקום',{title:'טבריה',area:1},new Map([[1,'צפון']]),'');
   assert.ok(result.includes('accessible'));
 });

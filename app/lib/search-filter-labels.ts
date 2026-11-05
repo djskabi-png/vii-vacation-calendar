@@ -1,3 +1,5 @@
+import { amenityFilterLabel } from "./supplier-amenity-filters.ts";
+
 const labels: Record<string, string> = {
   type: "סוג מקום", eventType: "סוג אירוע", guests: "מספר אורחים", bedrooms: "חדרי שינה",
   noise: "ללא הגבלת רעש", accessible: "נגישות", online: "הזמנה אונליין", hours: "משך שהייה",
@@ -27,7 +29,7 @@ export function searchFilterValueLabel(key: string, value: string | number | boo
     return "כן";
   }
   if (typeof value === "number") return key === "maxPrice" ? `₪ ${value.toLocaleString("he-IL")}` : value.toLocaleString("he-IL");
-  return value.split(",").map((entry) => values[entry.trim()] || entry.trim()).filter(Boolean).join(" · ");
+  return value.split(",").map((entry) => values[entry.trim()] || amenityFilterLabel(entry.trim()) || entry.trim()).filter(Boolean).join(" · ");
 }
 
 export function searchFilterSummary(filters: Record<string, string | number | boolean>) {

@@ -20,6 +20,7 @@ const semanticFeatureRules = [
   { id: "children-pool", pattern: /בריכת ילדים/ },
   { id: "jacuzzi", pattern: /ג[׳']קוזי/ },
   { id: "accessible", pattern: /נגיש(?:ות|ים|ות לנכים)?/ },
+  { id: "luxury", pattern: /יוקרת(?:ית|יות|יים|י)(?=\s|$|[.,])|יוקרה/ },
   { id: "families", pattern: /למשפחות|משפחתי/ },
   { id: "couples", pattern: /לזוגות|זוגי/ },
 ] as const;

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-complete-amenity-source-parity-20261105",
+  "project": "VII",
+  "task_type": "supplier-amenity-source-and-filter-parity",
+  "requested_outcome": "Audit all supported API attribute paths and repair the loss between complete shared/unit facts, accepted old generations, compact search, detail display and geographic filters; preserve cumulative release.",
+  "natural_destination": "Exact candidate/API and public vacation/event/spa/hourly attribute consumers, including legacy North14859 and vacation2244.",
+  "authorization_boundary": "Read-only source/API review and reversible cumulative fixes; existing conditional publication approval applies only after evidence gates. No supplier/catalog mutation or secret extraction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Popular labels must apply real filters and nearby must use actual browserorigin",
+      "acceptance_impact": "No fake keywordfilters or positionleakage, CMS draft/published distinction"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Sharedworld rail andeditorneed actualflowverification",
+      "acceptance_impact": "Testallworld defaults/parser/action and desktop/mobile plus persistence fixture; distinguishlocallysavedfrompublic"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only2244fixed",
+      "prevention": "Shared source boundary and complete inventory index",
+      "acceptance_check": "Full verified profile set and multiple amenity tests"
+    },
+    {
+      "rejection": "Full source is hidden by compact cards",
+      "prevention": "Compute canonical IDs before truncation",
+      "acceptance_check": "Actual full/compact/repeated API parity"
+    },
+    {
+      "rejection": "New supplier removal overwritten by legacy",
+      "prevention": "Explicit own ID arrays includingempty remain authoritative",
+      "acceptance_check": "Negative empty/newsource tests"
+    },
+    {
+      "rejection": "Partial accessibility presented as full",
+      "prevention": "Retain supplier qualification separately from membership",
+      "acceptance_check": "Partial and unit-specific qualifier retained in disclosure"
+    },
+    {
+      "rejection": "Another world receives vacation facts",
+      "prevention": "Canonical world/ID strict guards",
+      "acceptance_check": "Events/spa/hourly and mismatched identity rejected"
+    },
+    {
+      "rejection": "New lookup slows everypage",
+      "prevention": "Generate bounded compact index once",
+      "acceptance_check": "No per-card API calls, measuredindexbytes/startup budget"
+    },
+    {
+      "rejection": "APIdata claimed when response is migrated",
+      "prevention": "Preserve source labels and observedAt",
+      "acceptance_check": "Live2244 source explicitlymigrated-vii-place-amenities"
+    }
+  ],
+  "affected_family": [
+    "all supplier API read/write route inventory",
+    "vacation shared/unit ancestry and oldgeneration fallback",
+    "events normalization and compact IDs",
+    "SPA/hourly feature contracts",
+    "detail badges and qualifiedamenities",
+    "regional search,SEO and map IDs",
+    "cumulative source/release controls"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "AcceptedVIIproductbehavior",
+        "source": "../calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Approvedsharedmapstandard",
+        "source": "C:/Users/Adir/.codex/skills/design-interactive-map-experiences/SKILL.md"
+      },
+      {
+        "label": "Protectedcumulativecapabilities",
+        "source": "project_knowledge/release_controls/vii-accepted-capabilities.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Case2244 andpartial-source fixtures through actual catalogAPI before broaderbuild",
+    "checks": [
+      "Userprofile exact ID62 proof",
+      "Livebusinessamenities migratedsource",
+      "Fullandcompact identical canonicalmembership",
+      "Authoritativeexplicit empty doesnotbackfill"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can compactprojection drop a trailing sourcefeature?",
+      "Can stalelegacydata revive an explicitempty supplierfeature?",
+      "Canpartialornegative text claim fullaccessibility?",
+      "Canvacationfacts leak toevents/otherIDs?"
+    ],
+    "natural_destination_evidence": "Actualallworlddesktop390mobilelandscapeUI plusexactpublicactorflows",
+    "affected_family_evidence": "Mapsourceandcoordinateidentity,allrequestledger,familytests/fullQQQAAA anddeploymentprovenance"
+  },
+  "effectiveness": {
+    "baseline": "Userreportsheavy map andslowpages; priorTTFB3.4-6.9s, freshmeasurementsrequired. RealdeviceP75baselineunavailable.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Observedlowernavigationcost andstablepanzoom; exactcoordinateshonest; completeconditionalreleaseevidence."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

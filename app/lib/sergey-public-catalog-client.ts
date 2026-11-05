@@ -8,6 +8,7 @@ import { startingPriceFields } from "./supplier-starting-price.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType, type SergeyAmenityIndex } from "./sergey-amenities.ts";
 import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
+import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -176,7 +177,15 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     images: cardImages,
     description: text(record(raw.meta).description),
     features: unique([...highlights, ...visibleFeatures]).slice(0, 24),
-    searchFilterIds: vacationSearchFilterIdsFromText([name, text(city?.title), area, text(record(raw.meta).description), ...searchableFeatures]),
+    searchFilterIds: [...new Set([
+      ...filterIdsFromSupplierAmenityIds([
+        ...(Array.isArray(raw.shared_amenities) ? raw.shared_amenities : []),
+        ...rooms.flatMap((room) => Array.isArray(room.amenities) ? room.amenities : []),
+        ...rooms.flatMap((room) => (Array.isArray(room.spaces) ? room.spaces : []).flatMap((space) =>
+          Array.isArray(record(space).features) ? record(space).features as unknown[] : [])),
+      ], amenityIndex),
+      ...vacationSearchFilterIdsFromText(searchableFeatures),
+    ])],
     ...(world === "vacations" && highlights.length ? { highlights: highlights.slice(0, 5).map((label) => ({ label, icon: "default" })) } : {}),
     audiences: [],
     badges: [],

@@ -1,5 +1,6 @@
 import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data.ts";
 import type { Property } from "../data/site-data.ts";
+import { validCanonicalAmenityFilter } from "./supplier-amenity-filters.ts";
 
 const vacationAccommodationTypeTerms: Record<string, readonly string[]> = {
   "בקתות עץ": ["בקתת עץ", "בקתות עץ"],
@@ -87,15 +88,16 @@ export function vacationSearchFilterIdsFromText(values: readonly string[]) {
 export function vacationSearchFilterIds(property: Property) {
   // Supplier filters describe the complete amenity tree. Display features are
   // deliberately truncated, so rebuilding solely from them loses valid facts.
-  const accepted = (property.searchFilterIds || []).filter((id) => Object.hasOwn(vacationSearchFilterTerms, id));
+  if (Array.isArray(property.searchFilterIds)) return [...new Set(property.searchFilterIds.filter((id) =>
+    Object.hasOwn(vacationSearchFilterTerms, id) || validCanonicalAmenityFilter(id)))];
   const derived = vacationSearchFilterIdsFromText([
     ...property.features, property.description, property.type, property.location, property.area,
   ]);
-  return [...new Set([...accepted, ...derived])];
+  return derived;
 }
 
 export function matchesVacationSearchFilter(property: Property, id: string) {
-  if (property.searchFilterIds?.includes(id)) return true;
+  if (Array.isArray(property.searchFilterIds)) return property.searchFilterIds.includes(id);
   if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
   const terms = vacationSearchFilterTerms[id];
   if (!terms) return false;

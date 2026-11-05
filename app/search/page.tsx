@@ -49,6 +49,7 @@ import { ResultsViewToggle, useResultsViewMode } from "../components/results-vie
 import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
+import { supplierAmenityFilters } from "../lib/supplier-amenity-filters.ts";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
 import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
@@ -141,7 +142,7 @@ function propertyAccommodationTypes(property: Property) {
   return property.types?.length ? property.types : [property.type];
 }
 
-const legacyExtraFilterGroups = [
+const existingExtraFilterGroups = [
   { title: "כללי", options: [
     { id: "accessible", label: "נגישות לנכים", matches: ["נגיש"] },
     { id: "pets", label: "מקבלים בעלי חיים", matches: ["בעלי חיים", "חיות מחמד"] },
@@ -200,6 +201,16 @@ const legacyExtraFilterGroups = [
 ] as const;
 
 type LegacyExtraFilter = { id: string; label: string; matches: readonly string[] };
+const legacyExtraFilterGroups: { title: string; options: LegacyExtraFilter[] }[] = existingExtraFilterGroups.map(group => ({ title: group.title, options: [...group.options] }));
+const configuredAmenityIds = new Set(legacyExtraFilterGroups.flatMap(group => group.options.map(option => option.id)));
+for (const amenity of supplierAmenityFilters) {
+  if (configuredAmenityIds.has(amenity.filterId)) continue;
+  const title = amenity.category === "קהל יעד" ? "קהלי יעד" : amenity.category;
+  let group = legacyExtraFilterGroups.find(item => item.title === title);
+  if (!group) { group = { title, options: [] }; legacyExtraFilterGroups.push(group); }
+  group.options.push({ id: amenity.filterId, label: amenity.title, matches: [] });
+  configuredAmenityIds.add(amenity.filterId);
+}
 const legacyExtraFilters = legacyExtraFilterGroups.reduce<LegacyExtraFilter[]>((items, group) => [...items, ...group.options], []);
 
 const VACATION_PRICE_MIN = 0;

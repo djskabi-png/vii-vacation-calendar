@@ -1,0 +1,611 @@
+{
+  "schemaVersion": 1,
+  "source": "verified-legacy-public-filter-controls",
+  "sourceUrl": "https://www.vii.co.il/Ahuzat_Man_Boutique",
+  "observedAt": "2026-11-05T00:08:13.345Z",
+  "items": [
+    {
+      "id": 62,
+      "title": "נגישות לנכים",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "accessible",
+      "implies": []
+    },
+    {
+      "id": 506,
+      "title": "מרחב מוגן",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "protected-space",
+      "implies": []
+    },
+    {
+      "id": 47,
+      "title": "מבודדת",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "isolated",
+      "implies": []
+    },
+    {
+      "id": 63,
+      "title": "מקבלים בע\"ח",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "pets",
+      "implies": []
+    },
+    {
+      "id": 348,
+      "title": "יוקרתית",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "luxury",
+      "implies": []
+    },
+    {
+      "id": 131,
+      "title": "סוויטה לזוגות בלבד",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "couples-only",
+      "implies": [
+        "couples"
+      ]
+    },
+    {
+      "id": 586,
+      "title": "מכבדים שוברי מילואים",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "reserve-vouchers",
+      "implies": []
+    },
+    {
+      "id": 587,
+      "title": "רשיון עסק",
+      "category": "כללי",
+      "categoryId": null,
+      "filterId": "business-license",
+      "implies": []
+    },
+    {
+      "id": 277,
+      "title": "בריכה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "pool",
+      "implies": []
+    },
+    {
+      "id": 577,
+      "title": "בריכת שחייה פרטית",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "private-pool",
+      "implies": [
+        "pool"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "בריכת שחייה מחוממת",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "heated-pool",
+      "implies": [
+        "pool"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "בריכת שחייה מחוממת ומקורה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "covered-heated-pool",
+      "implies": [
+        "heated-pool",
+        "pool"
+      ]
+    },
+    {
+      "id": 252,
+      "title": "בריכת זרמים",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "current-pool",
+      "implies": [
+        "pool"
+      ]
+    },
+    {
+      "id": 67,
+      "title": "בריכת שחייה מגודרת",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "fenced-pool",
+      "implies": [
+        "pool"
+      ]
+    },
+    {
+      "id": 249,
+      "title": "בריכת ילדים",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "children-pool",
+      "implies": [
+        "pool"
+      ]
+    },
+    {
+      "id": 278,
+      "title": "ג'קוזי",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "jacuzzi",
+      "implies": []
+    },
+    {
+      "id": 8,
+      "title": "ג'קוזי ספא",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "spa",
+      "implies": [
+        "jacuzzi"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "ג'קוזי ספא מחומם ומקורה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "covered-hot-tub",
+      "implies": [
+        "spa",
+        "jacuzzi"
+      ]
+    },
+    {
+      "id": 119,
+      "title": "סאונה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "sauna",
+      "implies": []
+    },
+    {
+      "id": 76,
+      "title": "מערכת הגברה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "outdoor-sound",
+      "implies": []
+    },
+    {
+      "id": 12,
+      "title": "פינת מנגל",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "barbecue",
+      "implies": []
+    },
+    {
+      "id": 205,
+      "title": "טאבון",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "taboon",
+      "implies": []
+    },
+    {
+      "id": 162,
+      "title": "מעשנה לבשרים",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "smoker",
+      "implies": []
+    },
+    {
+      "id": 337,
+      "title": "סאונה רטובה",
+      "category": "מתחם חיצוני",
+      "categoryId": null,
+      "filterId": "steam-sauna",
+      "implies": [
+        "sauna"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "מטבח מאובזר",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "equipped-kitchen",
+      "implies": []
+    },
+    {
+      "id": 218,
+      "title": "מקרן",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "projector",
+      "implies": []
+    },
+    {
+      "id": 204,
+      "title": "מערכת הגברה",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "indoor-sound",
+      "implies": []
+    },
+    {
+      "id": 39,
+      "title": "אינטרנט אלחוטי (WIFI)",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "wifi",
+      "implies": []
+    },
+    {
+      "id": 246,
+      "title": "ג'קוזי",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "indoor-jacuzzi",
+      "implies": [
+        "jacuzzi"
+      ]
+    },
+    {
+      "id": 308,
+      "title": "ג'קוזי ספא",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "indoor-spa",
+      "implies": [
+        "spa",
+        "jacuzzi"
+      ]
+    },
+    {
+      "id": 227,
+      "title": "קמין עצים",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "fireplace",
+      "implies": []
+    },
+    {
+      "id": 10,
+      "title": "ערכת קריוקי",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "karaoke",
+      "implies": []
+    },
+    {
+      "id": 354,
+      "title": "חדר משחקים",
+      "category": "מתחם פנימי",
+      "categoryId": null,
+      "filterId": "games-room",
+      "implies": []
+    },
+    {
+      "id": 232,
+      "title": "מתאים לאירועים",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "events",
+      "implies": []
+    },
+    {
+      "id": 48,
+      "title": "משפחות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "families",
+      "implies": []
+    },
+    {
+      "id": 51,
+      "title": "זוגות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "couples",
+      "implies": []
+    },
+    {
+      "id": 60,
+      "title": "ימי כיף",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "fun-days",
+      "implies": []
+    },
+    {
+      "id": 54,
+      "title": "ערבי גיבוש",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "team-building",
+      "implies": []
+    },
+    {
+      "id": 53,
+      "title": "ימי הולדת",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "birthdays",
+      "implies": []
+    },
+    {
+      "id": 61,
+      "title": "מסיבות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "parties",
+      "implies": []
+    },
+    {
+      "id": 50,
+      "title": "מסיבת רווקים",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "bachelor",
+      "implies": []
+    },
+    {
+      "id": 49,
+      "title": "מסיבת רווקות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "bachelorette",
+      "implies": []
+    },
+    {
+      "id": 58,
+      "title": "הצעות נישואין",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "proposals",
+      "implies": []
+    },
+    {
+      "id": 55,
+      "title": "ציבור דתי",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "religious",
+      "implies": []
+    },
+    {
+      "id": 52,
+      "title": "בני נוער",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "youth",
+      "implies": []
+    },
+    {
+      "id": 78,
+      "title": "בר/ ת מצווה",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "mitzvah",
+      "implies": []
+    },
+    {
+      "id": 109,
+      "title": "חתונות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "weddings",
+      "implies": []
+    },
+    {
+      "id": 241,
+      "title": "שבתות חתן",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "groom-shabbat",
+      "implies": []
+    },
+    {
+      "id": 242,
+      "title": "קבוצות",
+      "category": "קהל יעד",
+      "categoryId": null,
+      "filterId": "groups",
+      "implies": []
+    },
+    {
+      "id": 189,
+      "title": "הוקי אוויר",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-189",
+      "implies": []
+    },
+    {
+      "id": 77,
+      "title": "ערכת פוקר",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-77",
+      "implies": []
+    },
+    {
+      "id": 81,
+      "title": "שולחן סנוקר",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-81",
+      "implies": []
+    },
+    {
+      "id": 82,
+      "title": "שולחן פינג פונג",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-82",
+      "implies": []
+    },
+    {
+      "id": 177,
+      "title": "שולחן כדורגל",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-177",
+      "implies": []
+    },
+    {
+      "id": 178,
+      "title": "שולחן פוקר",
+      "category": "משחקי שולחן",
+      "categoryId": null,
+      "filterId": "amenity-178",
+      "implies": []
+    },
+    {
+      "id": 279,
+      "title": "נוף",
+      "category": "נוף",
+      "categoryId": null,
+      "filterId": "amenity-279",
+      "implies": []
+    },
+    {
+      "id": 42,
+      "title": "כיור כפול",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-42",
+      "implies": []
+    },
+    {
+      "id": 28,
+      "title": "פלטה",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-28",
+      "implies": []
+    },
+    {
+      "id": 29,
+      "title": "מיחם",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-29",
+      "implies": []
+    },
+    {
+      "id": 37,
+      "title": "מקווה",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-37",
+      "implies": []
+    },
+    {
+      "id": 43,
+      "title": "שעון שבת",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-43",
+      "implies": []
+    },
+    {
+      "id": 160,
+      "title": "מיטות יהודיות",
+      "category": "לציבור הדתי",
+      "categoryId": null,
+      "filterId": "amenity-160",
+      "implies": []
+    },
+    {
+      "id": 38,
+      "title": "בית כנסת",
+      "category": "בסביבת המקום",
+      "categoryId": null,
+      "filterId": "amenity-38",
+      "implies": []
+    },
+    {
+      "id": 251,
+      "title": "קברי צדיקים",
+      "category": "בסביבת המקום",
+      "categoryId": null,
+      "filterId": "amenity-251",
+      "implies": []
+    },
+    {
+      "id": 114,
+      "title": "מתנפחים לבריכה",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-114",
+      "implies": []
+    },
+    {
+      "id": 161,
+      "title": "X-BOX",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-161",
+      "implies": []
+    },
+    {
+      "id": 173,
+      "title": "ג'ימבורי",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-173",
+      "implies": []
+    },
+    {
+      "id": 191,
+      "title": "טרמפולינה",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-191",
+      "implies": []
+    },
+    {
+      "id": 217,
+      "title": "סוני פלייסטיישן 4",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-217",
+      "implies": []
+    },
+    {
+      "id": 271,
+      "title": "מתנפחים לילדים",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-271",
+      "implies": []
+    },
+    {
+      "id": 309,
+      "title": "כדורסל דיגיטלי",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-309",
+      "implies": []
+    },
+    {
+      "id": 310,
+      "title": "כדורגל שערים",
+      "category": "במיוחד לילדים",
+      "categoryId": null,
+      "filterId": "amenity-310",
+      "implies": []
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { canonicalSergeyAmenityLabel } from "./sergey-amenities.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { withVacationAccommodationTypes } from "./vacation-accommodation-types.ts";
+import { withLegacyAmenitySearchProjection } from "./legacy-amenity-search-projection.ts";
 
 function labels(value: unknown) {
   return Array.isArray(value) ? value.map(canonicalSergeyAmenityLabel).filter(Boolean) : value;
@@ -33,5 +34,5 @@ export function projectSergeyPublicCatalogValue<T>(value: T): T {
   if (source.summary && typeof source.summary === "object") projected.summary = projectSergeyPublicCatalogValue(source.summary);
   if (source.detail && typeof source.detail === "object") projected.detail = projectSergeyPublicCatalogValue(source.detail);
   const isVacation = source.world === "vacations" || (typeof source.slug === "string" && /^vacation-\d+$/.test(source.slug));
-  return (isVacation ? withVacationAccommodationTypes(projected) : projected) as T;
+  return (isVacation ? withLegacyAmenitySearchProjection(withVacationAccommodationTypes(projected)) : projected) as T;
 }

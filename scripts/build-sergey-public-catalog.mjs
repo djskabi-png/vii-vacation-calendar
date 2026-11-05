@@ -9,6 +9,7 @@ import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, serg
 import { localGalleryMediaUrl } from "../app/lib/legacy-gallery-media.ts";
 
 import { vacationSearchFilterIdsFromText } from "../app/lib/vacation-search-filter-index.ts";
+import { filterIdsFromSupplierAmenityIds } from "../app/lib/supplier-amenity-filters.ts";
 
 const root = new URL("../", import.meta.url);
 const stageOnly = process.argv.includes("--stage-only");
@@ -167,14 +168,19 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     features: featuresFor(raw),
     // Search facts must be computed before display truncation and include
     // numeric shared/room amenities plus the official ancestor/filter titles.
-    searchFilterIds: vacationSearchFilterIdsFromText([
+    searchFilterIds: [...new Set([
+      ...filterIdsFromSupplierAmenityIds([
+        ...(raw.shared_amenities || []), ...rooms.flatMap((room) => room.amenities || []),
+        ...rooms.flatMap((room) => (room.spaces || []).flatMap((space) => space.features || [])),
+      ], amenityIndex),
+      ...vacationSearchFilterIdsFromText([
       ...sergeyAmenitySearchLabels(raw.shared_amenities, amenityIndex),
       ...rooms.flatMap((room) => sergeyAmenitySearchLabels(room.amenities, amenityIndex)),
       ...rooms.flatMap((room) => (room.spaces || []).flatMap((space) =>
         (space.features || []).map((feature) => feature.description || ""))),
       ...(raw.highlights || []).filter((value) => typeof value === "string"),
-      name, city.title, areas.get(city.area) || "", description,
-    ]),
+      ]),
+    ])],
     audiences: [],
     badges: [],
     ...(hasCoordinates ? { lat, lng } : {}),

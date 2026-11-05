@@ -2,6 +2,7 @@ import catalog from "../data/sergey-public-catalog.json" with { type: "json" };
 import details from "../data/sergey-place-details.json" with { type: "json" };
 import accepted from "../data/accepted-runtime-catalog-state.json" with { type: "json" };
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
+import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
 
 type World = "vacations" | "events";
 function acceptedEntries(world: World) {
@@ -9,7 +10,7 @@ function acceptedEntries(world: World) {
   const ids = new Set<number>(state.ids);
   const entries = new Map<number, unknown>();
   for (const place of [...catalog.places, ...state.additions]) {
-    if (place.world === world && ids.has(place.supplierId) && publicCatalogEntryAllowed(place)) entries.set(place.supplierId, place);
+    if (place.world === world && ids.has(place.supplierId) && publicCatalogEntryAllowed(place)) entries.set(place.supplierId, projectSergeyPublicCatalogValue(place));
   }
   return entries;
 }
@@ -21,5 +22,6 @@ export function acceptedSergeySummaries(world: World) {
 export function acceptedSergeyDetail<T>(world: World, supplierId: number): T | null {
   if (!summaries[world].has(supplierId)) return null;
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
-  return (details.details as unknown as Record<string, T>)[slug] || null;
+  const detail = (details.details as unknown as Record<string, T>)[slug];
+  return detail ? projectSergeyPublicCatalogValue(detail) : null;
 }
