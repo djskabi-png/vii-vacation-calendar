@@ -10,6 +10,7 @@ import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
 import { validateSpaEditorialCandidate } from "./spa-editorial-policy.ts";
 import { readSupplierCatalog, type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { catalogInventoryDiagnostics, sanitizeCatalogDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { legacyGalleryFilename } from "./legacy-gallery-media.ts";
 import { compareSupplierCatalogEntries, catalogContentIntegrityIssues, catalogRemovalWithinGuard } from "./supplier-catalog-sync.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
@@ -82,6 +83,21 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     return total + rows.length;
   }, 0);
   const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries);
+  const imageIssueIds = new Set(contentIssues.filter((issue) => issue.path === "detail.images").map((issue) => issue.supplierId));
+  const nextById = new Map(candidate.entries.map((entry) => [entry.supplierId, entry]));
+  const missingMediaEvidence = previous.flatMap((old) => {
+    const next = nextById.get(old.supplierId);
+    if (!next || !imageIssueIds.has(old.supplierId)) return [];
+    const oldDetail = old.detail && typeof old.detail === "object" ? old.detail as Record<string, unknown> : {};
+    const nextDetail = next.detail && typeof next.detail === "object" ? next.detail as Record<string, unknown> : {};
+    const oldImages = Array.isArray(oldDetail.images) ? oldDetail.images : [];
+    const nextImages = Array.isArray(nextDetail.images) ? nextDetail.images : [];
+    const nextNames = new Set(nextImages.map(legacyGalleryFilename).filter(Boolean));
+    const removed = oldImages.map(legacyGalleryFilename).filter((name): name is string => Boolean(name) && !nextNames.has(name));
+    const unique = [...new Set(removed)];
+    return unique.length ? [{ supplierId: old.supplierId, oldImageCount: oldImages.length, newImageCount: nextImages.length,
+      removedTrustedFilenames: unique.slice(0, 10), removedTrustedFilenamesTruncated: unique.length > 10 }] : [];
+  });
   return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, diff: {
     before: diff.before, candidate: diff.after, added: diff.added, changed: diff.changed,
     removed: diff.removed.slice(0, 100), removedTruncated: diff.removed.length > 100,
@@ -89,5 +105,7 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     removalWithinGuard: catalogRemovalWithinGuard(diff.before, diff.removed.length,
       childCount(previous), diff.removedChildren.length),
   }, contentIssues: contentIssues.slice(0, 100), contentIssuesTruncated: contentIssues.length >= 100,
+    missingMediaEvidence: missingMediaEvidence.slice(0, 10), missingMediaEvidenceTotal: missingMediaEvidence.length,
+    missingMediaEvidenceTruncated: missingMediaEvidence.length > 10,
     diagnostics: sanitizeCatalogDiagnostics(catalogInventoryDiagnostics(world, previous, candidate.entries, diff.changed)) };
 }

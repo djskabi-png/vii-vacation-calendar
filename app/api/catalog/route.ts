@@ -18,6 +18,8 @@ import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 import { projectSergeyPublicCatalogValue } from "../../lib/sergey-public-catalog-projection.ts";
 import { mergeBundledDetail } from "../../lib/public-catalog-read.ts";
+import { spaPlacesFromSites } from "../../lib/spa-discovery-card.ts";
+import type { SpaPlusSite } from "../../data/spaplus.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -90,12 +92,25 @@ function withDatabaseOrigin(response: Response, source: ReportingDatabase | null
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-export async function catalogResponse(request: Request, db: D1Database | null) {
+export async function catalogResponse(request: Request, db: D1Database | null): Promise<Response> {
   const url = new URL(request.url);
   const world = worldFrom(url.searchParams.get("world"));
   if (!world) return Response.json({ error: "invalid_world" }, { status: 400, headers: noStore });
   const view = url.searchParams.get("view");
-  if (view !== null && view !== "lookup" && view !== "search") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
+  if (view !== null && view !== "lookup" && view !== "search" && view !== "cards") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
+  if (view === "cards" && world !== "spa") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
+  if (view === "cards") {
+    if (url.searchParams.has("id")) return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
+    url.searchParams.delete("view");
+    const accepted = await catalogResponse(new Request(url, request), db);
+    if (!accepted.ok) return accepted;
+    const body = await accepted.json();
+    const entries = body.entries.map((entry: { supplierId: number; summary: SpaPlusSite }) => ({
+      supplierId: entry.supplierId, summary: spaPlacesFromSites([entry.summary])[0],
+    }));
+    const headers = new Headers(accepted.headers); headers.delete("Content-Length");
+    return Response.json({ ...body, entries }, { status: accepted.status, headers });
+  }
   const rawId = url.searchParams.get("id");
   if ((view === "lookup" || view === "search") && rawId !== null) return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
   if (view === "search" && world !== "vacations" && world !== "events") return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });

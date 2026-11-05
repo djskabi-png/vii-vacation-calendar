@@ -382,7 +382,7 @@ export async function runQualityChecks(db: D1Database, options: {
 
 export async function readQualityDashboard(db: D1Database, notificationEnv: QualityNotificationEnvironment = {}) {
   await ensureQualitySchema(db);
-  const [runs, incidents, deliveries, checks] = await Promise.all([
+  const [runs, incidents, deliveries, checks, overrides] = await Promise.all([
     db.prepare(`SELECT id,operation_key AS operationKey,trigger_kind AS triggerKind,release_id AS releaseId,status,started_at AS startedAt,finished_at AS finishedAt,
       passed_count AS passedCount,failed_count AS failedCount,degraded_count AS degradedCount,blocked_count AS blockedCount,duration_ms AS durationMs,actor,
       total_checks AS totalChecks,current_check_id AS currentCheckId
@@ -394,8 +394,17 @@ export async function readQualityDashboard(db: D1Database, notificationEnv: Qual
       FROM quality_notification_deliveries ORDER BY created_at DESC LIMIT 50`).all(),
     db.prepare(`SELECT check_id AS checkId,family,world,route,viewport,severity,cadence_minutes AS cadenceMinutes,expected,release_blocking AS releaseBlocking,active,updated_at AS updatedAt
       FROM quality_checks ORDER BY severity,check_id`).all(),
+    db.prepare(`SELECT check_id AS checkId,cadence_minutes AS cadenceMinutes FROM quality_schedule_overrides`).all(),
   ]);
-  return { generatedAt: new Date().toISOString(), notificationProvider: { email: qualityNotificationProviderStatus(notificationEnv) }, checks: checks.results, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
+  // The registry exists before the first run. Loading the dashboard must not
+  // claim there are zero checks, or require a run with email side effects just
+  // to discover them. Persisted settings still override registry defaults.
+  const persistedChecks = new Map((checks.results || []).map((row) => [String(row.checkId), row]));
+  const cadenceOverrides = new Map((overrides.results || []).map((row) => [String(row.checkId), row.cadenceMinutes]));
+  const availableChecks = qualityRegistry.map((check) => ({ ...check, active: 1,
+    ...persistedChecks.get(check.checkId),
+    ...(cadenceOverrides.has(check.checkId) ? { cadenceMinutes: cadenceOverrides.get(check.checkId) } : {}) }));
+  return { generatedAt: new Date().toISOString(), notificationProvider: { email: qualityNotificationProviderStatus(notificationEnv) }, checks: availableChecks, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
 }
 
 export async function updateQualityIncident(db: D1Database, input: { incidentId: string; action: "acknowledge" | "resolve" | "reopen"; actor: string }) {

@@ -78,6 +78,14 @@
     {
       "commit": "0587ad9f5fa1c241482f8d6e4d68d0bed0df7663",
       "capability": "public v801 API hydration recovery, navigation deadline, readonly candidate inspection and staged search preservation"
+    },
+    {
+      "commit": "b44d361b9282bb6ff9e27052bf165dfbb96cdb72",
+      "capability": "public v802 canonical media identity and truthful regional result counts with readonly supplier inspection"
+    },
+    {
+      "commit": "dbad3b8b7a7ce9ae33d56e482289f5fc5870c501",
+      "capability": "public edge v8 bounded refresh ahead, hard expiry and build isolation"
     }
   ],
   "requiredCapabilities": [

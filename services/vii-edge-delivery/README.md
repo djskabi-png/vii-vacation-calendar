@@ -2,7 +2,7 @@
 
 Live at `https://vii.spaplus.co` as an additional public-delivery layer. The application remains the existing Sites project with its existing D1, environment32, domains, roles and data. This worker is not the transactional authority.
 
-Verified 2026-11-05: application v800, source `d255fe2636bb60fc3b095537244046949139760d`, public build `905d5f64-da48-41ed-a232-1ef715e320bc`; edge worker version `6bdea555-20b1-40e9-88fc-faab685fe742`, cache namespace `v6`.
+Verified 2026-11-05: application v802, source `b44d361b9282bb6ff9e27052bf165dfbb96cdb72`, public build `ee84cd11-8f8a-4d49-ab02-c979fb56e5c1`; edge source `dbad3b8b`, worker version `4f8ac594-bf19-4ef4-b75e-4ef0143dfe93`, cache namespace `v8`. Route verification retained all21 unrelated routes and confirmed quota fail-open.
 
 Only `vii.spaplus.co/*` is attached in zone `spaplus.co`. The existing VII CNAME still points to `custom-domains.chatgpt.site`, with proxy enabled. The other21 routes were compared and retained. No DNS value, other DNS record, SSL setting, billing plan, account permission or application data was changed.
 
@@ -33,4 +33,6 @@ Rollback requires coordinated artifact identities. Suspend edge admission first,
 
 ## Verification
 
-24 actual handler/source tests cover privacy, signed-in public shells, mixed cookies, Origin/body/action retention, cache expiry/build isolation, cache failure, RSC variants, redirects, bounded public recovery and cancellation. The public report lives in `project_knowledge/release_evidence/comprehensive-20261105/`.
+29 actual handler/source tests cover privacy, signed-in public shells, mixed cookies, Origin/body/action retention, cache expiry/build isolation, cache failure, RSC variants, redirects, bounded public recovery and cancellation. Internal retention follows the original hard expiry, while client freshness remains capped. Aging HITs queue the same admission path without delaying the client, with coalescing, a two-request cap, a30-second cooldown and a15-second abort. Refresh metadata is removed from client responses. Failed refreshes never extend the old expiry.
+
+For an intentional admission suspension, pass `--suspended-origin-build ACTUAL_CURRENT_BUILD` to the route guard while configuration contains the unique pending sentinel. This validates the expected `build_mismatch` bypass rather than incorrectly requiring a normal MISS at this stage. A normal final binding still requires the new exact build and MISS.

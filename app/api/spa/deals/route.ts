@@ -9,13 +9,13 @@ import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { firstDealDate } from "../../../lib/deal-clock.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
+import { spaDiscoveryInputs } from "../../../lib/spa-discovery-inputs.ts";
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const region = regionalAvailabilityRegion(params.get("region"));
   if (params.has("region") && !region) return Response.json({ error: "invalid_region" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   try {
     const now = new Date();
-    const sites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const days = Array.from({ length: 7 }, (_, index) => eventDealDate(index + (firstDealDate(now) === eventDealDate(0, now) ? 0 : 1), now));
     const full = params.get("full") === "1";
     const requestedDate = params.get("date");
@@ -24,8 +24,10 @@ export async function GET(request: Request) {
     if (full && (!requestedDate || (!days.includes(requestedDate) && requestedDate !== eventDealDate(0, now)))) return Response.json({ error: "invalid_date" }, { status: 400, headers: { "Cache-Control": "no-store" } });
     const offerDays = full ? [requestedDate!] : days;
     const audiences: SpaDealAudience[] = ["single", "couple", "group"];
-    const refresh = cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }).catch(() => null);
-    const cached = await Promise.race([refresh, new Promise<null>(resolve => setTimeout(() => resolve(null), 1200))]);
+    const { sites, cached, refresh, catalogMs, availabilityMs, elapsedMs } = await spaDiscoveryInputs(
+      () => publicCatalogSummaries<SpaPlusSite>("spa"),
+      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }));
+    const timing = `vii-catalog;dur=${catalogMs}, vii-availability;dur=${availabilityMs}, vii-spa-inputs;dur=${elapsedMs}`;
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));
       const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
         return [audience, region ? selectRegionalOffers(catalog, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: full ? undefined : 20 }).offers : full ? catalog : catalog.slice(0, 20)];
       }))]));
       return Response.json({ checkedAt: now.toISOString(), cache: { status: "catalog", checkedAt: now.toISOString() }, availabilityStatus: "refreshing", ...(region ? { region: region.label } : {}), days, offers },
-        { headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400", "X-VII-Discovery-Cache": "catalog" } });
+        { headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400", "X-VII-Discovery-Cache": "catalog", "Server-Timing": timing } });
     }
     const availability = cached.value;
     const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
@@ -46,7 +48,7 @@ export async function GET(request: Request) {
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));
-    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status } });
+    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status, "Server-Timing": timing } });
   } catch {
     return Response.json({ error: "spa_deals_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }

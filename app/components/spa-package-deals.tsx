@@ -66,7 +66,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  useEffect(()=>{
   if(!clockKey) return;
   const controller = new AbortController();
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal,
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal, timeoutMs:10_000,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setResult({key:requestKey,data:body,status:"ready"});}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});

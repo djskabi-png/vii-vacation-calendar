@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { WorldLanding } from "../components/world-landing";
 import { spaPlacesFromSites } from "../data/world-data";
 import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
+import { SpaCatalogProvider } from "../components/spa-catalog-context";
 import type { SpaPlusSite } from "../data/spaplus";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
@@ -46,6 +48,6 @@ export default async function SpasPage({ searchParams }: { searchParams?: Promis
       { name: "בתי ספא", path: "/spas/" },
     ])} />
     <StructuredData data={collectionSchema(page?.title || "בתי ספא בישראל", page?.description || "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
-    <WorldLanding world="spa" title={translate(page?.title || "בתי ספא בישראל")} description={translate(page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם.")} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} />
+    <PublishedCatalogSeed world="spa" entries={spaPlaces}><SpaCatalogProvider><WorldLanding world="spa" title={translate(page?.title || "בתי ספא בישראל")} description={translate(page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם.")} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} /></SpaCatalogProvider></PublishedCatalogSeed>
   </>;
 }

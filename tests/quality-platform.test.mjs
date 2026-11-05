@@ -35,6 +35,24 @@ const success = async (url) => {
   return new Response(`<!doctype html><html lang="${locale}"><head><link rel="alternate" hreflang="${locale}"></head><body>${tokens.join(" ")}${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
 };
 
+test("the first dashboard exposes the real registry without a run, incident or notification", async () => {
+  const {sqlite,db}=fixture();
+  try {
+    const dashboard=await readQualityDashboard(db);
+    assert.equal(dashboard.checks.length,qualityRegistry.length);
+    assert.ok(dashboard.checks.every(check=>check.active===1));
+    assert.equal(dashboard.runs.length,0);
+    assert.equal(dashboard.incidents.length,0);
+    assert.equal(dashboard.deliveries.length,0);
+    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM quality_checks').get().n,0);
+    await updateQualitySchedule(db,{checkId:qualityRegistry[0].checkId,cadenceMinutes:30,actor:'fixture'});
+    const reloaded=await readQualityDashboard(db);
+    assert.equal(reloaded.checks.find(check=>check.checkId===qualityRegistry[0].checkId).cadenceMinutes,30);
+    assert.equal(reloaded.runs.length,0);
+    assert.equal(reloaded.deliveries.length,0);
+  } finally {sqlite.close();}
+});
+
 test("recurring registry is comprehensive, read-only and excludes accessibility and typography audits", () => {
   assert.ok(qualityRegistry.length >= 30);
   assert.equal(new Set(qualityRegistry.map((check) => check.checkId)).size, qualityRegistry.length);

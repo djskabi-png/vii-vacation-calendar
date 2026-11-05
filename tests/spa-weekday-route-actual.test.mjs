@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { eventDealDate } from "../app/lib/event-deal-dates.ts";
 import { firstDealDate } from "../app/lib/deal-clock.ts";
+import { spaDiscoveryInputs } from "../app/lib/spa-discovery-inputs.ts";
 
 const baseDay = "2026-11-05";
 function daysFor(now) {
@@ -40,6 +41,7 @@ function handler({ now = "2026-11-05T13:00:00+02:00" } = {}) {
     selectRegionalOffers: (offers, _locations, _region, options) => ({ offers: options.limit ? offers.slice(0, options.limit) : offers, expanded: Boolean(options.limit && offers.length > options.limit) }),
     spaPlusArea: () => "מרכז",
     cachedDiscovery: async ({ load }) => ({ value: await load(), cache: { status: "fresh", checkedAt: new Date(now).toISOString() } }),
+    spaDiscoveryInputs,
     runtimeCatalogDatabase: async () => ({}),
     firstDealDate,
     getRequestExecutionContext: () => null,

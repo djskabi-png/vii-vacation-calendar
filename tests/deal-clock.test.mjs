@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {stripTypeScriptTypes} from 'node:module';
 import {todayDealsVisible,firstDealDate,eligibleDealDate,dealRailDays,dealClockKey,normalizeDealDate} from '../app/lib/deal-clock.ts';
 import {eventDealDate} from '../app/lib/event-deal-dates.ts';
+import {spaDiscoveryInputs} from '../app/lib/spa-discovery-inputs.ts';
 import {homeDealDates} from '../app/lib/vii-home-deals.ts';
 import {getHomeHolidays} from '../app/lib/vii-home-holidays.ts';
 import {canonicalVerifiedSliderItems} from '../app/lib/verified-slider-offers.ts';
@@ -68,7 +69,7 @@ const fixed=iso=>class extends Date {constructor(...args){super(...(args.length?
 
 test('actual SPA API excludes today from 14:00 and never caches boundary-sensitive days',async()=>{
  for(const [time,visible] of [['13:59:59',true],['14:00:00',false],['00:00:00',true],['00:01:00',true]]){
-  const GET=route('spa/deals','GET',{Date:fixed(`2026-10-17T${time}+03:00`),dealRailDays,regionalAvailabilityRegion:()=>null,publicCatalogSummaries:async()=>[],readSpaAvailability:async()=>[],selectSpaPackageDeals:()=>[]});
+ const GET=route('spa/deals','GET',{Date:fixed(`2026-10-17T${time}+03:00`),dealRailDays,regionalAvailabilityRegion:()=>null,publicCatalogSummaries:async()=>[],readSpaAvailability:async()=>[],spaDiscoveryInputs,selectSpaPackageDeals:()=>[]});
   const response=await GET(new Request('https://example.test/api/spa/deals')); const body=await response.json();
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(body.days.includes('2026-10-17'),visible);assert.equal(Object.hasOwn(body.offers,'2026-10-17'),visible);
  }

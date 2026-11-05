@@ -4,6 +4,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import { regionalAvailabilityRegion, regionalPublishedIds, selectRegionalOffers } from '../app/lib/regional-availability.ts';
+import { spaDiscoveryInputs } from '../app/lib/spa-discovery-inputs.ts';
 import { matchesSearchLocation } from '../app/data/search-taxonomy.ts';
 import { spaPlusArea } from '../app/data/spa-regions.ts';
 import { selectSpaPackageDeals } from '../app/lib/spa-package-deals.ts';
@@ -151,7 +152,7 @@ test('actual event handler performs one coordinated cold recovery and returns a 
 test('actual spa handler filters source sites before cap and returns honest empty/error states',async()=>{
   const image='https://www.spaplus.co.il/gallery/venue.jpg';
   const sites=Array.from({length:24},(_,i)=>({id:i+1,title:`Spa ${i+1}`,city:i<20?'תל אביב':'צפת',image,packages:[{id:i+1,title:'Package',price:i+1,people:1,group:false,image}]}));
-  const dependencies={regionalAvailabilityRegion,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,dealRailDays,
+  const dependencies={regionalAvailabilityRegion,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,dealRailDays,spaDiscoveryInputs,
     publicCatalogSummaries:async()=>sites,readSpaAvailability:async()=>sites.map(site=>({siteID:site.id,date:dealRailDays(6)[0],available:2}))};
   const get=handler('spa/deals','GET',dependencies);
   const response=await get(request(`?${new URLSearchParams({region:'צפון'})}`));const body=await response.json();

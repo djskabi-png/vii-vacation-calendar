@@ -20,6 +20,7 @@ import { DiscoveryWorldHero } from "./discovery-world-hero";
 import { readWorldLandingPresentation } from "../lib/world-landing-presentation";
 import { activityRegion, activityType } from "../lib/activity-discovery-taxonomy";
 import { RegionalAvailability } from "./regional-availability";
+import { SpaCatalogCount } from "./spa-catalog-context";
 
 const crossSellByWorld = {
   hourly: {
@@ -121,7 +122,7 @@ export async function WorldLanding({
             <BreadcrumbTrail className="spa-discovery-hero__breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
             <SemanticWorldHeading mode={searchMode} title={title} description={description} />
             <div className="spa-discovery-hero__proof" aria-label="יתרונות החיפוש" tabIndex={0}>
-              <span><b>{items.length}</b> בתי ספא</span>
+              <span><b><SpaCatalogCount fallback={items.length} /></b> בתי ספא</span>
               <span>מחירים וחבילות במקום אחד</span>
               <span>חיפוש לפי אזור וחוויה</span>
             </div>

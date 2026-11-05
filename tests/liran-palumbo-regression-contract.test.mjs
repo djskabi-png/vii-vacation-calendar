@@ -12,7 +12,10 @@ test("live availability requests have bounded exits instead of permanent loading
   assert.match(calendar, /Stay calendar timed out/);
   assert.match(calendar, /8_000/);
   assert.match(spa, /Spa availability timed out/);
-  assert.match(spa, /6_000/);
+  // The actual deadline/cancellation state transitions are exercised in
+  // spa-availability-client-deadline-actual.test.mjs. A fixed 6s assertion
+  // rejected valid measured 7s production responses without testing an exit.
+  assert.match(spa, /window\.clearTimeout\(deadline\)/);
 });
 
 test("unit gallery sources keep every supplier and unit classification", () => {

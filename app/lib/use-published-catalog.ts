@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { usePublishedCatalogSeed } from "./published-catalog-seed";
+import { discoveryJson } from "./discovery-client-cache.ts";
 
-export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value: unknown) => T) {
+export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value: unknown) => T, view?: "cards") {
   const seedState = usePublishedCatalogSeed(world);
   const seed = seedState?.entries ?? null;
   const seedComplete = seedState?.complete ?? false;
@@ -22,10 +23,16 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       seededAt.current = Date.now();
       if (seed === null) setLoading(true);
       try {
-        const searchView = world === "vacations" || world === "events" ? "&view=search" : "";
-        const response = await fetch(`/api/catalog?world=${world}${searchView}`, { signal: controller.signal });
-        if (!response.ok) throw new Error("catalog_unavailable");
-        const body = await response.json() as { entries?: Array<{ summary: unknown }> };
+        const searchView = view === "cards" ? "&view=cards" : world === "vacations" || world === "events" ? "&view=search" : "";
+        const url = `/api/catalog?world=${world}${searchView}`;
+        const body = view === "cards"
+          ? await discoveryJson<{ entries?: Array<{ summary: unknown }> }>(url, world, { signal: controller.signal,
+            timeoutMs: 10_000, retries: 0, persist: false, shouldCache: () => false })
+          : await (async () => {
+            const response = await fetch(url, { signal: controller.signal });
+            if (!response.ok) throw new Error("catalog_unavailable");
+            return response.json() as Promise<{ entries?: Array<{ summary: unknown }> }>;
+          })();
         if (!Array.isArray(body.entries)) throw new Error("catalog_unavailable");
         setItems(body.entries.map((entry) => map(entry.summary)));
         hasAcceptedContent.current = true;
@@ -60,6 +67,6 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       if (timerHandle !== undefined) globalThis.clearTimeout(timerHandle);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
-  }, [world, map, seed, seedComplete]);
+  }, [world, map, seed, seedComplete, view]);
   return { items, error, loading };
 }

@@ -25,6 +25,7 @@ import { ModernSelect } from "./modern-select";
 import { useDocumentSeed } from "./use-document-seed";
 import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 import { MapSplitResultList } from "./map-split-result-list";
+import { useSpaCatalogItems } from "./spa-catalog-context";
 
 const spaFilters = spaLandings;
 
@@ -55,7 +56,8 @@ function searchableText(item: DiscoveryItem) {
   return `${item.name} ${item.filterText ?? item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
 }
 
-function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
+function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
+  const items = useSpaCatalogItems() ?? initialItems;
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
@@ -87,7 +89,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   useEffect(() => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)) return;
     const controller = new AbortController();
-    const deadline = window.setTimeout(() => controller.abort(new DOMException("Spa availability timed out", "TimeoutError")), 6_000);
+    let active = true;
+    const deadline = window.setTimeout(() => controller.abort(new DOMException("Spa availability timed out", "TimeoutError")), 12_000);
     const timer = window.setTimeout(() => setAvailability({ status: "loading", checkedDate: requestedDate, dates: [], sites: new Map() }), 0);
     fetch("/api/spa/availability", { signal: controller.signal })
       .then((response) => { if (!response.ok) throw new Error("availability_unavailable"); return response.json(); })
@@ -97,8 +100,9 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
         const sites = new Map(body.availability.filter((row) => row.date === requestedDate && row.available > 0).map((row) => [row.siteID, row.available]));
         setAvailability({ status: "ready", checkedDate: requestedDate, dates, sites });
       })
-      .catch(() => { if (!controller.signal.aborted) setAvailability({ status: "unavailable", checkedDate: requestedDate, dates: [], sites: new Map() }); });
-    return () => { window.clearTimeout(timer); window.clearTimeout(deadline); controller.abort(); };
+      .catch(() => { if (active) setAvailability({ status: "unavailable", checkedDate: requestedDate, dates: [], sites: new Map() }); })
+      .finally(() => window.clearTimeout(deadline));
+    return () => { active = false; window.clearTimeout(timer); window.clearTimeout(deadline); controller.abort(); };
   }, [requestedDate, availabilityRetry]);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);

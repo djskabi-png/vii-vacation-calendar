@@ -11003,3 +11003,19 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
   .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-panel__actions { flex: 0 0 auto; padding: 16px; }
   .event-results-layout:has(.event-list--map-open) > .filter-panel.open .filter-apply { display: inline-flex; }
 }
+
+/* Approximate trail areas must remain explicit in the full-screen mobile map. */
+@media (max-width: 760px) {
+  .map-results-summary--approximate,
+  .map-results-experience .map-results-summary--approximate {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .map-results-summary--approximate .map-results-summary__precision,
+  .map-results-experience .map-results-summary--approximate .map-results-summary__precision {
+    display: block;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+}

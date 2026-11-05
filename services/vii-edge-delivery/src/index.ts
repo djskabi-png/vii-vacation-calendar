@@ -1,5 +1,5 @@
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
-const EXPECTED_BUILD = "ee84cd11-8f8a-4d49-ab02-c979fb56e5c1";
+const EXPECTED_BUILD = "pending-v803-20261105-spa-focus";
 const EDGE_CACHE_VERSION = "v8";
 const refreshAfterHeader = "X-VII-Edge-Refresh-After";
 const refreshes = new Set<string>();

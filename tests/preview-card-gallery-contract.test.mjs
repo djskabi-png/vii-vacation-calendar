@@ -1,3 +1,4 @@
+import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -5,7 +6,7 @@ import fs from "node:fs";
 const gallery = fs.readFileSync(new URL("../app/components/preview-card-gallery.tsx", import.meta.url), "utf8");
 const discovery = fs.readFileSync(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8");
 const eventCard = fs.readFileSync(new URL("../app/components/event-result-card.tsx", import.meta.url), "utf8");
-const worldData = fs.readFileSync(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
+const worldData = readWorldDataSource();
 const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("shared preview gallery isolates image navigation from the card link", () => {

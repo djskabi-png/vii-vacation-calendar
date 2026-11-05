@@ -4,6 +4,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import { regionalAvailabilityRegion, selectRegionalOffers } from '../app/lib/regional-availability.ts';
+import { spaDiscoveryInputs } from '../app/lib/spa-discovery-inputs.ts';
 import { applyHomeDealCuration } from '../app/lib/home-deal-curation.ts';
 import { eventDealDate } from '../app/lib/event-deal-dates.ts';
 import { dealRailDays, eligibleDealDate, firstDealDate } from '../app/lib/deal-clock.ts';
@@ -86,7 +87,7 @@ test('actual SPA expansion is after availability and cap, with selection-specifi
   const sites=Array.from({length:24},(_,i)=>({id:i+1,title:`Spa${i+1}`,city:i<22?'תל אביב':'צפת',lat:i<22?32.1:33,lng:i<22?34.9:35.4,image,
     packages:[{id:i+1,title:'Package',price:i+1,people:1,group:false,image}]}));
   const [day,next]=dealRailDays(6);
-  const get=handler('spa/deals','GET',{regionalAvailabilityRegion,selectRegionalOffers,spaPlusArea,selectSpaPackageDeals,eventDealDate,dealRailDays,
+  const get=handler('spa/deals','GET',{regionalAvailabilityRegion,selectRegionalOffers,spaPlusArea,selectSpaPackageDeals,eventDealDate,dealRailDays,spaDiscoveryInputs,
     publicCatalogSummaries:async()=>sites,readSpaAvailability:async()=>sites.filter(s=>[21,23,24].includes(s.id)).map(s=>({siteID:s.id,date:day,available:2}))});
   const response=await get(new Request(`https://example.test/?${new URLSearchParams({region:'צפון'})}`));const body=await response.json();
   assert.equal(response.status,200);assert.deepEqual(body.offers[day].single.map(o=>o.siteId),[23,24,21]);assert.equal(body.expandedRegions[day].single,true);

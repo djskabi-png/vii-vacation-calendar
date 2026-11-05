@@ -16,6 +16,7 @@ import { formatMapPrice, priceModeFromLabel, validMapPrice, verifiedPriceFromLab
 import { trackMapInteraction } from "../lib/analytics";
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../lib/map-marker-layout";
 import { mapResultSummary } from "../lib/map-result-summary.ts";
+import { keepMapFocusInViewport } from "../lib/map-focus-policy.ts";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -241,7 +242,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     selectedIdRef.current = "";
     setSelectedId("");
     activePlaceCallback.current?.(null);
-    window.setTimeout(() => marker?.getElement()?.focus(), 0);
+    window.setTimeout(() => marker?.getElement()?.focus({ preventScroll: true }), 0);
   }, []);
 
   useEffect(() => {
@@ -361,6 +362,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
 
     const leaflet = preloadLeaflet();
     if (!leaflet) return;
+    const restoreMapFocus = keepMapFocusInViewport(container);
     void leaflet.then((L) => {
       if (cancelled) return;
       mapInstance.current?.remove();
@@ -755,6 +757,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       renderMarkersRef.current = null;
       createdMap?.off();
       createdMap?.remove();
+      restoreMapFocus();
       if (mapInstance.current === createdMap) mapInstance.current = null;
     };
   // Result streams can grow from a fast partial catalog into the complete
@@ -807,7 +810,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
       <span>{mapCopy.open}</span>
     </button>}
-    {!single && <div className="map-results-summary" aria-live="polite" data-place-count={resultSummary.count} data-marker-count={resultSummary.markers} data-priced-count={pricedPlaceCount}><strong>{resultSummary.count} {resultSummary.trailLabel || cardCopy.visible}</strong>{resultKind === "trails" && regional ? <span> · {resultSummary.approximateLabel}</span> : null}{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
+    {!single && <div className={`map-results-summary${resultKind === "trails" && regional ? " map-results-summary--approximate" : ""}`} aria-live="polite" data-place-count={resultSummary.count} data-marker-count={resultSummary.markers} data-priced-count={pricedPlaceCount}><strong>{resultSummary.count} {resultSummary.trailLabel || cardCopy.visible}</strong>{resultKind === "trails" && regional ? <span className="map-results-summary__precision">{resultSummary.approximateLabel}</span> : null}{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={() => { trackMapInteraction({ action: "close", world: tone, resultCount: places.length }); onClose(); }} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}

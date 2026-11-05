@@ -38,7 +38,7 @@ test("map selection is keyboard-safe, localized, and responsive", () => {
   const map = read("app/components/listing-map.tsx");
   const styles = read("app/globals.css");
   assert.match(map, /event\.key === "Escape"/);
-  assert.match(map, /marker\?\.getElement\(\)\?\.focus\(\)/);
+  assert.match(map, /marker\?\.getElement\(\)\?\.focus\(\{ preventScroll: true \}\)/);
   assert.match(map, /Interactive places map/);
   assert.match(map, /Интерактивная карта мест/);
   assert.match(map, /Carte interactive des lieux/);

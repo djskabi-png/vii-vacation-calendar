@@ -1,3 +1,4 @@
+import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -359,7 +360,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
 
   const [mapSource, worldData, hourlyResults, worldResults, attractionResults, searchResults, eventResults, styles] = await Promise.all([
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/attractions/attractions-explorer.tsx", import.meta.url), "utf8"),
@@ -484,7 +485,7 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
     render("/discover/place/masu-home-wellness"),
     render("/"),
     readSitemapDocuments(),
-    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
@@ -610,7 +611,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
@@ -894,7 +895,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/favicon.ico", import.meta.url)),
   ]);
@@ -1136,7 +1137,7 @@ test("key page types emit matching structured data and private pages stay out of
 });
 
 test("every discovery card has stable media and every new world has a full detail page", async () => {
-  const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
+  const worldData = await Promise.resolve(readWorldDataSource());
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
   assert.equal(itemLines.length, 31);
   const spaCatalog = JSON.parse(await readFile(new URL("../app/data/spaplus-catalog.json", import.meta.url), "utf8"));
@@ -1168,7 +1169,7 @@ test("every discovery card has stable media and every new world has a full detai
 test("attraction result cards use only approved photographic cover media", async () => {
   const [response, worldData, styles] = await Promise.all([
     render("/attractions"),
-    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   const html = await response.text();
@@ -1376,7 +1377,7 @@ test("spa results expose working place and amenity filters before the result lis
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
 
-  const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
+  const worldData = await Promise.resolve(readWorldDataSource());
   assert.match(worldData, /const coordinates = verifiedCoordinates \|\| spaAreaCoordinates\[site\.city\]/);
   assert.match(worldData, /const spaAreaCoordinates/);
   assert.match(worldData, /"חיפה": \{ lat: 32\.794, lng: 34\.989 \}/);

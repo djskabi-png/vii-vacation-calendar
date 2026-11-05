@@ -1,3 +1,4 @@
+import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -77,7 +78,7 @@ test("a newly approved Spa site remains renderable across discovery and detail p
   const newSite={...structuredClone(catalog.sites[0]),id:534,title:"ספא חדש",city:"חיפה",shortDescription:"תיאור VII ניטרלי",about:["תוכן VII ניטרלי"]};
   assert.equal(spaViiCopyOrNull(534),null);
   assert.equal(spaEditorialSummary(newSite),"תיאור VII ניטרלי");
-  const worldData=await readFile(new URL("../app/data/world-data.ts",import.meta.url),"utf8");
+  const worldData=await Promise.resolve(readWorldDataSource());
   assert.match(worldData,/spaViiCopyOrNull\(site\.id\)/);
   assert.match(worldData,/approvedCopy\?\.filterText \|\|/);
 });

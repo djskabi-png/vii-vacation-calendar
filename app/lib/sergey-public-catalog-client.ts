@@ -325,10 +325,15 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       if (excludedMediaIds.length) console.warn("VII supplier places withheld without media", { world, siteIDs: excludedMediaIds.sort((a, b) => a - b) });
       const inactiveIds = list.places.map(record).filter((place) => place.active === false).map((place) => positive(place.siteID)).filter((id): id is number => Boolean(id));
       const unknownActivityIds = list.places.map(record).filter((place) => place.active !== true && place.active !== false).map((place) => positive(place.siteID)).filter((id): id is number => Boolean(id));
+      const previousIds = new Set(previousEntries.map((entry) => entry.supplierId));
+      const previousInactiveIds = inactiveIds.filter((id) => previousIds.has(id));
+      const previousUnknownActivityIds = unknownActivityIds.filter((id) => previousIds.has(id));
       return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null),
         sourceInventory: { listedCount: list.places.length, activeCount: active.length,
           inactiveIds: inactiveIds.slice(0, 100), inactiveIdsTruncated: inactiveIds.length > 100,
-          unknownActivityIds: unknownActivityIds.slice(0, 100), unknownActivityIdsTruncated: unknownActivityIds.length > 100 } };
+          unknownActivityIds: unknownActivityIds.slice(0, 100), unknownActivityIdsTruncated: unknownActivityIds.length > 100,
+          previousInactiveIds: previousInactiveIds.slice(0, 100), previousInactiveIdsTruncated: previousInactiveIds.length > 100,
+          previousUnknownActivityIds: previousUnknownActivityIds.slice(0, 100), previousUnknownActivityIdsTruncated: previousUnknownActivityIds.length > 100 } };
     },
   };
 }
