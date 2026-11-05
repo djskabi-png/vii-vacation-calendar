@@ -1,3 +1,4 @@
+import {requestStageTiming} from '../app/lib/request-stage-timing.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -11,6 +12,11 @@ import {compareVacationPriority} from '../app/lib/vacation-priority.ts';
 import {VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot} from '../app/lib/warm-vacation-discovery-cache.ts';
 
 function route(path,method,deps){
+ deps.requestStageTiming=requestStageTiming;
+ deps.publicDiscoveryCatalogIndex=async(world)=>{
+  const [places,publishedIds]=await Promise.all([deps.publicCatalogSummaries(world),deps.publishedSupplierIds(world)]);
+  return {places:places.filter(place=>publishedIds.has(place.supplierId)),publishedIds};
+ };
  const text=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
  const js=stripTypeScriptTypes(text.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
  return new Function(...Object.keys(deps),`${js};return ${method};`)(...Object.values(deps));

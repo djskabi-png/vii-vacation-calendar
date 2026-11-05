@@ -1,6 +1,5 @@
-import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
+import { publicDiscoveryCatalogIndex } from "../../../lib/discovery-public-index.ts";
 import { homeDealPeriods, type HomeDealPeriod } from "../../../lib/vii-home-deals";
-import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
@@ -9,13 +8,13 @@ import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 import { homeDealDates } from "../../../lib/vii-home-deals.ts";
 import { readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
-import type { DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
 import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
 import { refreshVacationDiscoveryPeriod, validVacationDiscoverySnapshot } from "../../../lib/warm-vacation-discovery-cache.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
+import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 // API responses stay uncached at the edge. The VII edge worker deliberately
@@ -39,40 +38,46 @@ async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings
 }
 
 export async function GET(request: Request) {
+  const timing = requestStageTiming();
+  const respond = (body: unknown, init: ResponseInit = {}) => {
+    const headers = new Headers(init.headers);
+    headers.set("Server-Timing", timing.header());
+    return Response.json(body, { ...init, headers });
+  };
   const params = new URL(request.url).searchParams;
   const period = params.get("period");
   const requestedLocale = params.get("locale");
   const locale = isContentLocale(requestedLocale) ? requestedLocale : "he";
   const region = regionalAvailabilityRegion(params.get("region"));
-  if (params.has("region") && !region) return Response.json({ error: "invalid_region" }, { status: 400, headers: noStore });
+  if (params.has("region") && !region) return respond({ error: "invalid_region" }, { status: 400, headers: noStore });
   const guests = Number(params.get("guests") ?? 2);
-  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 50) return Response.json({ error: "invalid_guests" }, { status: 400, headers: noStore });
+  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 50) return respond({ error: "invalid_guests" }, { status: 400, headers: noStore });
   if (!homeDealPeriods.some((item) => item.id === period)) {
-    return Response.json({ error: "invalid_period" }, { status: 400, headers: noStore });
+    return respond({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
-    const displayPromise = displaySettings(locale);
-    const namesPromise = publicCatalogSummaries<DiscoveryVacationPlace>("vacations");
-    const publicSiteIdsPromise = publishedSupplierIds("vacations");
+    const displayPromise = timing.measure("display", () => displaySettings(locale));
+    const databasePromise = timing.measure("database", () => runtimeCatalogDatabase());
+    const indexPromise = databasePromise.then(db => timing.measure("catalog_index", () => publicDiscoveryCatalogIndex("vacations", db)));
     const now = new Date();
     // These are independent reads. Starting them together is important on a
     // cold isolate: otherwise the slider waits for the settings and database
     // read before it even starts loading the catalog identities.
-    const [display, db, names, publicSiteIds] = await Promise.all([
+    const [display, db, index] = await Promise.all([
       displayPromise,
-      runtimeCatalogDatabase(),
-      namesPromise,
-      publicSiteIdsPromise,
+      databasePromise,
+      indexPromise,
     ]);
+    const { places: names, publishedIds: publicSiteIds } = index;
     const requestedPeriod = period as HomeDealPeriod;
     const dates = homeDealDates(requestedPeriod, now);
     let snapshotReadFailed = !db;
     let snapshot: { period: HomeDealPeriod; dates: typeof dates; cached: Awaited<ReturnType<typeof readCachedDiscovery<CachedHomeDeals>>> } | null = null;
     try {
-      const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
+      const cached = await timing.measure("snapshot", () => readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
         policy: VACATION_DISCOVERY_POLICY,
         validate: value => validVacationDiscoverySnapshot(value, dates),
-      });
+      }));
       snapshot = { period: requestedPeriod, dates, cached };
     } catch { snapshotReadFailed = true; }
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
@@ -94,7 +99,7 @@ export async function GET(request: Request) {
     if (!selectedSnapshot) {
       const context = getRequestExecutionContext();
       if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
-      return Response.json({ period: requestedPeriod, requestedPeriod, dates, deals: [], availabilityStatus: "refreshing",
+      return respond({ period: requestedPeriod, requestedPeriod, dates, deals: [], availabilityStatus: "refreshing",
         ...(region ? { region: region.label, expandedRegion: false } : {}), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } },
       { headers: { ...noStore, "X-VII-Discovery-Cache": "refreshing" } });
     }
@@ -104,8 +109,8 @@ export async function GET(request: Request) {
     const ordered = prioritizeOnlineFirst(selectedSnapshot.deals, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
-    return Response.json({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    return respond({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
-    return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
+    return respond({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }
 }

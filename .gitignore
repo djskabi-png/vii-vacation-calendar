@@ -44,6 +44,7 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /outputs/
+/output/
 /work/
 
 # AWS application bridge build artifacts and local dependency trees

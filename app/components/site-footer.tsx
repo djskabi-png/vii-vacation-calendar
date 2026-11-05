@@ -1,5 +1,7 @@
 "use client";
 
+import { publicChrome } from "../lib/public-chrome-client.ts";
+
 import Link from "next/link";
 import { CookiePreferencesButton } from "./cookie-consent";
 import { LanguageSwitcher } from "../i18n/locale-provider";
@@ -45,7 +47,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
   const joinTarget = variant === "providers" ? "provider-pricing" : "expert-registration";
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(`/api/content/chrome?locale=${language}`, { signal: controller.signal }).then((response) => response.ok ? response.json() : null)
+    void publicChrome(language, controller.signal)
       .then((payload: { contextual?: ManagedLink[] | null; worlds?: ManagedLink[] | null; service?: ManagedLink[] | null } | null) => {
         if (payload) setManagedChrome({ key: chromeKey, ...payload });
       }).catch(() => undefined);

@@ -1,3 +1,4 @@
+import {requestStageTiming} from '../app/lib/request-stage-timing.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFile} from 'node:fs/promises';
@@ -12,10 +13,15 @@ import {prioritizeOnlineFirst,isHomeDealOnlineEligible} from '../app/lib/vacatio
 import {compareVacationPriority} from '../app/lib/vacation-priority.ts';
 
 async function loadRoute(name, dependencies) {
+ dependencies.requestStageTiming=requestStageTiming;
   dependencies={homeDealDates,firstDealDate,validDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),
     VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     getDiscoveryHolidays:async()=>[{id:123,from:'2099-12-05',till:'2099-12-07',nights:1}],cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),
     readCachedDiscovery:async()=>({value:{dates:homeDealDates('tomorrow'),deals:[]},cache:{status:'fresh',checkedAt:new Date().toISOString()}}),...dependencies};
+  dependencies.publicDiscoveryCatalogIndex=async(world)=>{
+    const [places,publishedIds]=await Promise.all([dependencies.publicCatalogSummaries(world),dependencies.publishedSupplierIds(world)]);
+    return {places:places.filter(place=>publishedIds.has(place.supplierId)),publishedIds};
+  };
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(/^export /gm,'');
   return new Function(...Object.keys(dependencies),`${compiled}; return GET;`)(...Object.values(dependencies));
@@ -41,6 +47,7 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
   if(name==='home-deals') dependencies.readCachedDiscovery=async()=>({value:{dates:homeDealDates('tomorrow'),deals:[{siteID:1,total:350,priceGuests:2,...homeDealDates('tomorrow')}]},cache:{status:'fresh',checkedAt:new Date().toISOString()}});
   const get=await loadRoute(name,dependencies);
   const responsePromise=get(new Request(`https://example.test/?${name==='home-deals'?'period=tomorrow':'id=123&from=2099-12-05&till=2099-12-06'}`));
+  await new Promise(resolve=>setImmediate(resolve));
   assert.deepEqual(calls,name==='home-deals'?['names','ids']:['names','ids','token']);
   releaseNames([{supplierId:1,name:'Verified name'}]);
   const response=await responsePromise;
@@ -50,10 +57,10 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
 for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps independent catalog and publication reads with discovery cache`,async()=>{
   const source=await readFile(new URL(`../app/api/vii/${route}/route.ts`,import.meta.url),'utf8');
   if(route==='home-deals') {
-    assert.match(source,/const namesPromise = publicCatalogSummaries/);
-    assert.match(source,/const publicSiteIdsPromise = publishedSupplierIds/);
-    assert.match(source,/const \[names, publicSiteIds\] = await Promise\.all\(\[namesPromise, publicSiteIdsPromise\]\)/);
-    assert.match(source,/const cached = await readCachedDiscovery/);
+    assert.match(source,/publicDiscoveryCatalogIndex\("vacations", db\)/);
+    assert.doesNotMatch(source,/publicCatalogSummaries|publishedSupplierIds\(/,
+      'the compact discovery index replaces full catalog and duplicate publication reads');
+    assert.match(source,/const cached = await timing.measure/);
     assert.doesNotMatch(source,/candidatePeriods|selectedSnapshot = preparedSnapshots\.find/);
     assert.match(source,/readCachedDiscovery/);
     assert.doesNotMatch(source,/supplierToken|getHomeDeals/);
@@ -67,8 +74,8 @@ for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps i
 });
 test('display settings start before supplier requests while holiday all mode stays unfiltered',async()=>{
   const deals=await readFile(new URL('../app/api/vii/home-deals/route.ts',import.meta.url),'utf8');
-  assert.ok(deals.indexOf('const displayPromise =')<deals.indexOf('const cached = await readCachedDiscovery'));
-  assert.match(deals,/const \[display, db\] = await Promise\.all\(\[displayPromise, runtimeCatalogDatabase\(\)\]\)/);
+  assert.ok(deals.indexOf('const displayPromise =')<deals.indexOf('const cached = await timing.measure'));
+  assert.match(deals,/const \[display, db, index\] = await Promise\.all/);
   assert.match(deals,/applyCuration\(snapshot.cached.value.deals, requestedPeriod\)/);
   const holidays=await readFile(new URL('../app/api/vii/home-holidays/route.ts',import.meta.url),'utf8');
   assert.ok(holidays.indexOf('const settingsPromise =')<holidays.indexOf('await getDiscoveryHolidays'));

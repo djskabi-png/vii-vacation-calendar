@@ -1,5 +1,7 @@
 "use client";
 
+import { publicChrome } from "./lib/public-chrome-client.ts";
+
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
@@ -88,7 +90,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(`/api/content/chrome?locale=${language}`, { signal: controller.signal }).then((response) => response.ok ? response.json() : null)
+    void publicChrome(language, controller.signal)
       .then((payload: { primary?: ManagedLink[] | null; secondary?: ManagedLink[] | null } | null) => {
         if (payload) setManagedChrome({ language, ...payload });
       }).catch(() => undefined);
