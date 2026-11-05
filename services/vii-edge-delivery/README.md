@@ -2,7 +2,7 @@
 
 Live at `https://vii.spaplus.co` as an additional public-delivery layer. The application remains the existing Sites project with its existing D1, environment32, domains, roles and data. This worker is not the transactional authority.
 
-Verified 2026-11-05: application v802, source `b44d361b9282bb6ff9e27052bf165dfbb96cdb72`, public build `ee84cd11-8f8a-4d49-ab02-c979fb56e5c1`; edge source `dbad3b8b`, worker version `4f8ac594-bf19-4ef4-b75e-4ef0143dfe93`, cache namespace `v8`. Route verification retained all21 unrelated routes and confirmed quota fail-open.
+Verified 2026-11-05: application v803, source `03e543e427b37369ef45f4b8b78abeadbd8b9a0a`, public build `23d09ac6-01b9-472b-8e95-2e3039c2ca8f`. The proven binding before the warming change is edge source `c92b77ea`, worker version `70873de6-31b1-48ef-a0b2-7aeff1c25761`, namespace `v9`. Route verification retained all21 unrelated routes and confirmed quota fail-open. The current v10 warming source requires its own deployment receipt before being described as live.
 
 Only `vii.spaplus.co/*` is attached in zone `spaplus.co`. The existing VII CNAME still points to `custom-domains.chatgpt.site`, with proxy enabled. The other21 routes were compared and retained. No DNS value, other DNS record, SSL setting, billing plan, account permission or application data was changed.
 
@@ -36,3 +36,11 @@ Rollback requires coordinated artifact identities. Suspend edge admission first,
 29 actual handler/source tests cover privacy, signed-in public shells, mixed cookies, Origin/body/action retention, cache expiry/build isolation, cache failure, RSC variants, redirects, bounded public recovery and cancellation. Internal retention follows the original hard expiry, while client freshness remains capped. Aging HITs queue the same admission path without delaying the client, with coalescing, a two-request cap, a30-second cooldown and a15-second abort. Refresh metadata is removed from client responses. Failed refreshes never extend the old expiry.
 
 For an intentional admission suspension, pass `--suspended-origin-build ACTUAL_CURRENT_BUILD` to the route guard while configuration contains the unique pending sentinel. This validates the expected `build_mismatch` bypass rather than incorrectly requiring a normal MISS at this stage. A normal final binding still requires the new exact build and MISS.
+
+## Bounded public warming
+
+The v10 source adds a two-minute Cron Trigger for eight fixed anonymous HTML documents. Each document has a10-second deadline and the entire invocation stops after45seconds. Reads are sequential and use the same admission rules, hard expiry and expected build as visitors. It never reads APIs, accounts, admin, checkout or dated search. A pending build suspends warming. Counts and build identity are logged without visitor data; an invocation with no completed document fails visibly.
+
+Known ordinary browser HTML Accept headers share the same cache identity; unknown content negotiation and every RSC framework variant remain separate. Four actual tests cover warming, variant identity, failure isolation and cancellation in addition to the29 existing handler tests.
+
+Cloudflare Cache API entries belong to the executing data center. A successful Cron run does not prove every visitor location is warm. Verify the real public response and timings separately. Cron configuration can take up to15minutes to propagate, and history can lag30minutes. Official references: https://developers.cloudflare.com/workers/configuration/cron-triggers/ and https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/ . No catalog synchronization or transactional authority is moved into this trigger.

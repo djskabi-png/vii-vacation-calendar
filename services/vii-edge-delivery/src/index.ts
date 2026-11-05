@@ -1,6 +1,7 @@
+import { warmPublicDocuments } from "./public-warm.ts";
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "23d09ac6-01b9-472b-8e95-2e3039c2ca8f";
-const EDGE_CACHE_VERSION = "v9";
+const EDGE_CACHE_VERSION = "v10";
 const refreshAfterHeader = "X-VII-Edge-Refresh-After";
 const refreshes = new Set<string>();
 const refreshAttempts = new Map<string, number>();
@@ -109,7 +110,11 @@ async function fetchPublicRead(request: Request, origin: URL) {
 
 function keyFor(request: Request, url: URL, build: string) {
   const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key)).sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
-  const variants = encodeURIComponent(variantHeaders.map((name) => `${name}:${request.headers.get(name) || ""}`).join("|"));
+  const accept = request.headers.get("Accept") || "";
+  const htmlTypes = new Set(["text/html", "application/xhtml+xml", "application/xml", "text/xml", "image/avif", "image/webp", "image/apng", "image/svg+xml", "application/signed-exchange", "*/*"]);
+  const ordinaryHtml = !url.pathname.endsWith(".rsc") && !request.headers.has("RSC") && !request.headers.has("Next-Router-State-Tree")
+    && accept.includes("text/html") && accept.split(",").every(part => htmlTypes.has(part.split(";")[0].trim().toLowerCase()));
+  const variants = encodeURIComponent(variantHeaders.map((name) => `${name}:${name === "Accept" && ordinaryHtml ? "text/html" : request.headers.get(name) || ""}`).join("|"));
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
 }
 
@@ -171,4 +176,11 @@ async function serve(request: Request, env: { ORIGIN?: string; EXPECTED_BUILD?: 
   const clientHeaders = new Headers(response.headers); clientHeaders.delete(refreshAfterHeader); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
-export default { fetch: serve };
+export default { fetch: serve, async scheduled(_controller: ScheduledController, env: { ORIGIN?: string; EXPECTED_BUILD?: string }, ctx: ExecutionContext) {
+  if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
+  const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as ExecutionContext), ctx);
+  ctx.waitUntil(work);
+  const report = await work;
+  console.log("VII public document warming", { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report });
+  if (!report.completed) throw new Error("public_document_warming_unavailable");
+} };
