@@ -52,3 +52,12 @@ test('global storage failures, malformed and oversized envelopes fall through wi
  let reads=0;assert.equal(await readGlobalPublicCache({async get(){reads++;throw Error('storage');}},key,build),undefined);assert.equal(reads,1);
  const hanging={get:()=>new Promise(()=>{})};const start=Date.now();assert.equal(await readGlobalPublicCache(hanging,key,build),undefined);assert.ok(Date.now()-start<1000);
 });
+
+test('global writes reject private policy, empty bodies and extended freshness rather than extending discovery authority',async()=>{
+ const store=bucket(),key=request('/__vii-edge/key'),build='test';
+ const base={'Content-Type':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+10000),'Cache-Control':'public,max-age=10'};
+ for(const policy of ['private,max-age=10','no-store','no-cache']) await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),new Headers({...base,'Cache-Control':policy}));
+ await writeGlobalPublicCache(store,key,build,new Uint8Array(),new Headers(base));
+ await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),new Headers({...base,'X-VII-Cache-Until':String(Date.now()+600_000)}));
+ assert.equal(store.writes,0);
+});

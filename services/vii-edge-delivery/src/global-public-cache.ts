@@ -48,7 +48,7 @@ export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,k
   if(expired||!Number.isSafeInteger(object.size)||object.size<4||object.size>MAX_BODY+MAX_META+4){await object.body.cancel().catch(()=>undefined);return undefined;}
   const bytes=await bodyBytes(object.body,MAX_BODY+MAX_META+4,value=>{cancel=value;});if(expired||!bytes||bytes.byteLength<4)return undefined;
   const length=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength).getUint32(0);
-  if(!length||length>MAX_META||length+4>bytes.byteLength||bytes.byteLength-length-4>MAX_BODY)return undefined;
+  if(!length||length>MAX_META||length+4>=bytes.byteLength||bytes.byteLength-length-4>MAX_BODY)return undefined;
   let value;try{value=JSON.parse(decoder.decode(bytes.subarray(4,4+length)));}catch{return undefined;}
   if(value?.version!==1||value.key!==key.url||value.build!==build||value.status!==200||!Array.isArray(value.headers))return undefined;
   const headers=new Headers(value.headers),until=Number(headers.get('X-VII-Cache-Until'));
