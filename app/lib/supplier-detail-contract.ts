@@ -2,7 +2,16 @@ import {legacyGalleryFilename} from './legacy-gallery-media.ts';
 
 export type SupplierDetailProof = { supplierId:number; contract:'vii-site-page-v1'; created:string; rawFingerprint:string; normalizedFingerprint:string };
 const object=(value:unknown):value is Record<string,unknown>=>Boolean(value)&&typeof value==='object'&&!Array.isArray(value);
-const amenities=(value:unknown)=>Array.isArray(value)&&value.every(row=>Number.isSafeInteger(row)&&Number(row)>0||object(row)&&Number.isSafeInteger(row.id)&&Number(row.id)>0&&(row.description===undefined||typeof row.description==='string')&&(row.shown===undefined||typeof row.shown==='boolean'));
+function amenityIssue(value:unknown):string|null {
+ if(!Array.isArray(value))return 'array';
+ for(const row of value){
+  if(Number.isSafeInteger(row)&&Number(row)>0)continue;
+  if(!object(row)||!Number.isSafeInteger(row.id)||Number(row.id)<1)return 'identity';
+  if(row.description!==undefined&&typeof row.description!=='string')return 'description';
+  if(row.shown!==undefined&&typeof row.shown!=='boolean')return 'shown';
+ }
+ return null;
+}
 async function fingerprint(value:unknown){const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(value)));return [...new Uint8Array(bytes)].map(byte=>byte.toString(16).padStart(2,'0')).join('');}
 export function supplierEntryFingerprint(entry:{supplierId:number;summary:unknown;detail?:unknown}){return fingerprint({supplierId:entry.supplierId,summary:entry.summary,detail:entry.detail});}
 function galleries(value:unknown, arrayOnly=false){
@@ -22,10 +31,10 @@ export function supplierDetailProofIssue(raw:unknown,listPlace:unknown,now:Date)
  const created=Date.parse(raw.created),age=now.getTime()-created;
  if(!Number.isFinite(created)||age< -300_000||age>86_400_000)return "detail_age";
  if(!galleries(raw.galleries)||!Object.keys(raw.galleries as object).length)return "site_gallery_schema";
- if(!amenities(raw.shared_amenities))return "site_amenities_schema";
+ if(amenityIssue(raw.shared_amenities))return "site_amenities_schema";
  if(!Array.isArray(raw.rooms)||!Array.isArray(listPlace.rooms))return "room_set_schema";
  const roomIds=new Set<number>();
- for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||Number(room.roomID)<1||roomIds.has(Number(room.roomID)))return "room_identity_mismatch";if(!galleries(room.galleries,true))return "room_gallery_schema";if(!amenities(room.amenities))return "room_amenities_schema";if(!Array.isArray(room.spaces)||!room.spaces.every(space=>object(space)&&Array.isArray(space.features)&&space.features.every(feature=>object(feature)&&typeof feature.description==='string')))return "room_spaces_schema";roomIds.add(Number(room.roomID));}
+ for(const room of raw.rooms){if(!object(room)||!Number.isSafeInteger(room.roomID)||Number(room.roomID)<1||roomIds.has(Number(room.roomID)))return "room_identity_mismatch";if(!galleries(room.galleries,true))return "room_gallery_schema";const issue=amenityIssue(room.amenities);if(issue)return `room_amenities_${issue}`;if(!Array.isArray(room.spaces)||!room.spaces.every(space=>object(space)&&Array.isArray(space.features)&&space.features.every(feature=>object(feature)&&typeof feature.description==='string')))return "room_spaces_schema";roomIds.add(Number(room.roomID));}
  const listIds=listPlace.rooms.map(room=>object(room)?room.roomID:null);
  if(new Set(listIds).size!==listIds.length||listIds.length!==roomIds.size||listIds.some(id=>!Number.isSafeInteger(id)||!roomIds.has(Number(id))))return "room_identity_mismatch";
  return null;

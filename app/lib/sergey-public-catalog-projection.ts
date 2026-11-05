@@ -34,6 +34,9 @@ export function projectSergeyPublicCatalogValue<T>(value: T): T {
     ...(Array.isArray(source.features) ? { features: labels(source.features) } : {}),
     ...(Array.isArray(source.featureGroups) ? { featureGroups: groups(source.featureGroups) } : {}),
   };
+  // Refresh bookkeeping belongs to the private accepted snapshot, not a
+  // visitor's place or room payload. Preserve every supplier-facing fact.
+  delete projected._viiCatalog;
   if (Array.isArray(source.rooms)) projected.rooms = source.rooms.map(projectSergeyPublicCatalogValue);
   if (source.summary && typeof source.summary === "object") projected.summary = projectSergeyPublicCatalogValue(source.summary);
   if (source.detail && typeof source.detail === "object") projected.detail = projectSergeyPublicCatalogValue(source.detail);

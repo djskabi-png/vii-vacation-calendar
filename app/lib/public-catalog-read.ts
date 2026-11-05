@@ -266,12 +266,19 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
   if (!bundledValue || typeof bundledValue !== "object" || Array.isArray(bundledValue)) return acceptedValue;
   const accepted = acceptedValue as Record<string, unknown>;
   const bundled = bundledValue as Record<string, unknown>;
+  const refresh=accepted._viiCatalog&&typeof accepted._viiCatalog==='object'&&!Array.isArray(accepted._viiCatalog)
+    ?accepted._viiCatalog as Record<string,unknown>:{};
+  const checked=typeof refresh.checkedAt==='string'?Date.parse(refresh.checkedAt):NaN;
+  const attempted=typeof refresh.attemptedAt==='string'?Date.parse(refresh.attemptedAt):NaN;
+  // These private stamps are written only after the full supplier detail
+  // contract was proved. An explicit empty collection is then authoritative.
+  // A later failed refresh retains the same verified snapshot and stamp.
+  const now=Date.now();
+  if(Number.isFinite(checked)&&checked>0&&checked<=now&&Number.isFinite(attempted)&&attempted>=checked&&attempted<=now)return acceptedValue;
   const acceptedRooms = Array.isArray(accepted.rooms) ? accepted.rooms as Record<string, unknown>[] : [];
   const bundledRooms = Array.isArray(bundled.rooms) ? bundled.rooms as Record<string, unknown>[] : [];
-  const rooms = acceptedRooms.map((room, index) => {
-    const fallback = bundledRooms.find((candidate) => Number(candidate.id) > 0 && Number(candidate.id) === Number(room.id))
-      || bundledRooms.find((candidate) => typeof candidate.name === "string" && candidate.name === room.name)
-      || bundledRooms[index];
+  const rooms = acceptedRooms.map((room) => {
+    const fallback = bundledRooms.find((candidate) => Number(candidate.id) > 0 && Number(candidate.id) === Number(room.id));
     if (!fallback) return room;
     return {
       ...fallback,

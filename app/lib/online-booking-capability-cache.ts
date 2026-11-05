@@ -35,12 +35,34 @@ export function observedOnlineCapabilities(rows: readonly ObservedCapabilityRow[
   return result;
 }
 
-async function readObservedOnlineCapabilities(db: D1Database | null, now = Date.now()) {
+export async function readObservedOnlineCapabilities(db: D1Database | null, now = Date.now()) {
   if (!db) return {};
-  const rows = await db.prepare(`SELECT payload, checked_at FROM vii_discovery_offer_cache_v1
-    WHERE payload IS NOT NULL AND checked_at >= ? AND payload LIKE '%"onlineBooking":true%'
-    ORDER BY checked_at DESC LIMIT 128`).bind(now - CAPABILITY_MAX_AGE_MS).all<ObservedCapabilityRow>();
-  return observedOnlineCapabilities(rows.results, now);
+  // Project only the positive capability facts in SQL. The raw discovery body
+  // can be very large; returning 128 of those bodies can exceed a Worker heap.
+  const rows = await db.prepare(`WITH recent AS (
+      SELECT payload, checked_at FROM vii_discovery_offer_cache_v1
+      WHERE payload IS NOT NULL AND payload LIKE '%"onlineBooking":true%'
+        AND checked_at >= ? ORDER BY checked_at DESC LIMIT 128
+    ), arrays AS (
+      SELECT payload, checked_at, '$.deals' AS path FROM recent
+      UNION ALL SELECT payload, checked_at, '$.results' AS path FROM recent
+    ), items AS (
+      SELECT arrays.checked_at, CASE WHEN item.type = 'object' THEN item.value ELSE '{}' END AS value
+      FROM arrays, json_each(CASE WHEN json_valid(arrays.payload) THEN arrays.payload ELSE '{}' END, arrays.path) item
+      WHERE json_type(CASE WHEN json_valid(arrays.payload) THEN arrays.payload ELSE '{}' END, arrays.path) = 'array'
+    )
+    SELECT json_extract(value, '$.siteID') AS siteID, MAX(checked_at) AS checkedAt FROM items
+    WHERE json_type(value, '$.siteID') IN ('integer', 'real')
+      AND json_extract(value, '$.siteID') = CAST(json_extract(value, '$.siteID') AS INTEGER)
+      AND json_extract(value, '$.siteID') BETWEEN 1 AND 9007199254740991
+      AND json_type(value, '$.onlineBooking') = 'true'
+      AND typeof(checked_at) = 'integer' AND checked_at > 0 AND checked_at <= ? AND checked_at > ?
+    GROUP BY json_extract(value, '$.siteID')`).bind(now - CAPABILITY_MAX_AGE_MS,now,now-CAPABILITY_MAX_AGE_MS)
+    .all<{siteID:number;checkedAt:number}>();
+  const result:OnlineCapabilityMap={};
+  for(const row of rows.results)if(Number.isSafeInteger(row.siteID)&&row.siteID>0&&Number.isSafeInteger(row.checkedAt)
+    &&row.checkedAt>0&&row.checkedAt<=now&&now-row.checkedAt<CAPABILITY_MAX_AGE_MS)result[`vacation-${row.siteID}`]={checkedAt:row.checkedAt};
+  return result;
 }
 
 export function cachedOnlineCapabilities(db: D1Database | null) {

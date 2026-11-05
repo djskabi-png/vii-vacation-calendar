@@ -102,6 +102,10 @@
     {
       "commit": "e6223e5da962470bf411cb2f282d3f3684206aba",
       "capability": "public v805 memory bounded catalog publication and truthful SPA pending recovery"
+    },
+    {
+      "commit": "27cc862efe8f82e4c7894fab36ff4446ce0155c0",
+      "capability": "public v806 weekly oldest-detail freshness, partial supplier retention, fenced expiry and targeted readonly diagnostics"
     }
   ],
   "requiredCapabilities": [

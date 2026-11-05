@@ -15,3 +15,10 @@ test("valid detail proves and invalid room identity does not", async () => {
   assert.ok(proof);
   assert.equal(supplierDetailProofIssue({ ...raw, rooms: [{ ...raw.rooms[0], roomID: 8 }] }, list, now), "room_identity_mismatch");
 });
+
+test('room amenity diagnostics identify the invalid field without relaxing any proof predicate',async()=>{
+ for(const [amenities,code] of [[null,'room_amenities_array'],[{id:'5'},'room_amenities_array'],[[{id:'5'}],'room_amenities_identity'],[[{id:5,description:null}],'room_amenities_description'],[[{id:5,shown:1}],'room_amenities_shown']]){
+  const value={...raw,rooms:[{...raw.rooms[0],amenities}]};assert.equal(supplierDetailProofIssue(value,list,now),code);assert.equal(await proveSupplierDetail(value,list,{},now),null);
+ }
+ assert.equal(supplierDetailProofIssue({...raw,rooms:[{...raw.rooms[0],amenities:[{id:5,shown:false,description:''}]}]},list,now),null);
+});
