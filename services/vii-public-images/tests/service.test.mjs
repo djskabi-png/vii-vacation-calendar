@@ -1,14 +1,44 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createImageHandler} from '../src/service.ts';
+import manifest from '../../../app/data/legacy-gallery-media.json' with {type:'json'};
 const path='/api/vii/media/abcdef1234567890.jpeg';
 const href=(extra='')=>'https://images.example/?'+new URLSearchParams({url:path,w:'640',q:'85'})+extra;
+const legacy='https://www.vii.co.il/gallery/abcdef1234567890.jpeg';
 function fixture(options={}) {
   const sources=[],native=[],writes=[];
   const sourceFetch=async(url,init)=>{sources.push({url,init});return new Response('source',{headers:{'Content-Type':'image/jpeg','Set-Cookie':'must-not-copy'}});};
   const IMAGES={input(stream){return {transform(transform){return {async output(output){native.push({transform,output});return {response:()=>new Response('transformed',{headers:{'Content-Type':output.format}})};}};}};}};
-  return {sources,native,writes,IMAGES,ctx:{waitUntil:p=>writes.push(p)},handler:createImageHandler({sourceFetch,sourceMs:200,transformMs:200,...options})};
+  return {sources,native,writes,IMAGES,ctx:{waitUntil:p=>writes.push(p)},handler:createImageHandler({sourceFetch,sourceMs:200,transformMs:200,storedSource:()=>true,...options})};
 }
+
+test('new unlisted supplier photos have a working same-file cold fallback and warm native output',async()=>{
+ const store=new Map(),edge={match:async key=>store.get(key.url)?.clone(),put:async(key,value)=>{store.set(key.url,value);}};
+ const f=fixture({edge:()=>edge,storedSource:()=>false});
+ const cold=await f.handler.fetch(new Request(href(),{headers:{Cookie:'private',Authorization:'private'}}),{IMAGES:f.IMAGES},f.ctx);
+ assert.equal(cold.status,302);assert.equal(cold.headers.get('Location'),legacy);assert.equal(cold.headers.get('Cache-Control'),'no-store');
+ await Promise.all(f.writes);assert.equal(f.sources.length,1);assert.equal(f.sources[0].url,legacy);assert.deepEqual(f.sources[0].init.headers,{Accept:'image/*'});assert.equal(f.sources[0].init.redirect,'manual');
+ const warm=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);assert.equal(warm.status,200);assert.equal(warm.headers.get('X-VII-Image-Engine'),'cloudflare-images');assert.equal(f.sources.length,1);
+});
+
+test('production manifest selects stored originals and newly uploaded hashes without a test override',async()=>{
+ const f=fixture({storedSource:undefined});await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES});assert.equal(f.sources[0].url,legacy);
+ const filename=manifest.files.find(file=>/^[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(file));assert.ok(filename);
+ const g=fixture({storedSource:undefined});await g.handler.fetch(new Request(href().replace('abcdef1234567890.jpeg',filename)),{IMAGES:g.IMAGES});assert.equal(g.sources[0].url,'https://vii.spaplus.co/api/vii/media/'+filename);
+});
+
+test('a stored file falls back to its exact trusted public source only after source404',async()=>{
+ const calls=[];const f=fixture({sourceFetch:async(url,init)=>{calls.push({url,init});return url===legacy?new Response('original',{headers:{'Content-Type':'image/jpeg'}}):new Response('missing',{status:404});}});
+ const result=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES});assert.equal(result.status,200);assert.deepEqual(calls.map(x=>x.url),['https://vii.spaplus.co'+path,legacy]);
+ for(const status of [403,500,503]){let count=0;const g=fixture({sourceFetch:async()=>{count++;return new Response('error',{status});}});await g.handler.fetch(new Request(href()),{IMAGES:g.IMAGES});assert.equal(count,1);}
+});
+
+test('unlisted source redirect, invalid MIME and oversized image never enter native cache',async()=>{
+ for(const response of [()=>new Response(null,{status:302,headers:{Location:'https://evil.test/private'}}),()=>new Response('HTML',{headers:{'Content-Type':'text/html'}}),()=>new Response('huge',{headers:{'Content-Type':'image/jpeg','Content-Length':String(12*1024*1024+1)}})]){
+  const store=new Map(),f=fixture({storedSource:()=>false,sourceFetch:async()=>response(),edge:()=>({match:async()=>undefined,put:async(k,v)=>{store.set(k.url,v);}})});
+  const cold=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);assert.equal(cold.headers.get('Location'),legacy);await Promise.all(f.writes);assert.equal(store.size,0);assert.equal(f.native.length,0);
+ }
+});
 test('source, method, width, quality and format are finite, private URLs never reach fetch',async()=>{
   const f=fixture();
   for(const url of ['https://evil.test/a.jpeg','/admin','/api/vii/media/../../secret','/api/vii/media/abcdef1234567890.jpeg?token=secret','//evil.test/image']) {
