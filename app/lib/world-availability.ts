@@ -9,8 +9,12 @@ export const defaultWorldAvailability = Object.fromEntries(controllableWorlds.ma
 let initialized: Promise<Awaited<ReturnType<typeof requiredRuntimeDatabase>>> | null = null;
 let cached: { until: number; value: WorldAvailability } | null = null;
 
+async function runtimeDatabase() {
+  return requiredRuntimeDatabase("world_availability_unavailable");
+}
+
 async function database() {
-  const db = await requiredRuntimeDatabase("world_availability_unavailable");
+  const db = await runtimeDatabase();
   if (!initialized) initialized = (async () => {
     await db.batch([
       db.prepare(`CREATE TABLE IF NOT EXISTS vii_world_availability (
@@ -27,7 +31,7 @@ async function database() {
 export async function readWorldAvailability(): Promise<WorldAvailability> {
   if (cached && cached.until > Date.now()) return { ...cached.value };
   try {
-    const rows = await (await database()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>();
+    const rows = await (await runtimeDatabase()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>();
     const state = { ...defaultWorldAvailability };
     for (const row of rows.results) if (controllableWorlds.includes(row.world as ControllableWorld)) state[row.world as ControllableWorld] = row.enabled === 1;
     cached = { until: Date.now() + 15_000, value: state };

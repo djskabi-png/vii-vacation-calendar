@@ -28,9 +28,9 @@ function validWorld(world: string): world is SupplierCatalogWorld {
   return ["vacations", "events", "rooms", "spa"].includes(world);
 }
 
-function childIds(world: SupplierCatalogWorld, row: EntryRow) {
-  const summary = JSON.parse(row.summaryJson) as Record<string, unknown>;
-  const detail = row.detailJson ? JSON.parse(row.detailJson) as Record<string, unknown> : null;
+function childIds(world: SupplierCatalogWorld, row: SupplierCatalogEntry) {
+  const summary = row.summary as Record<string, unknown>;
+  const detail = row.detail as Record<string, unknown> | null | undefined;
   const children = world === "spa" ? summary.packages
     : world === "rooms" ? summary.rooms : detail?.rooms;
   if (children === undefined || children === null) return [];
@@ -166,35 +166,27 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     || input.expectedCount < 1 || staged?.count !== input.expectedCount || input.removed < 0) {
     throw new Error("catalog_candidate_not_accepted");
   }
-  const suppliedPrevious = input.previous?.map((entry): EntryRow => ({
-    supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
-    detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
-  }));
-  const suppliedCandidate = input.candidate?.map((entry): EntryRow => ({
-    supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
-    detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
-  }));
+  const suppliedPrevious = input.previous;
+  const suppliedCandidate = input.candidate;
   if (suppliedPrevious && state.activeRunId && suppliedPrevious.length !== state.activeCount) {
     throw new Error("catalog_candidate_not_accepted");
   }
   if (suppliedCandidate && suppliedCandidate.length !== input.expectedCount) {
     throw new Error("catalog_candidate_not_accepted");
   }
-  const oldRows = suppliedPrevious
-    ? { results: suppliedPrevious }
-    : state.activeRunId
-    ? await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson, detail_json AS detailJson
+  const decode = (rows:EntryRow[]):SupplierCatalogEntry[]=>rows.map(row=>({supplierId:row.supplierId,
+    summary:JSON.parse(row.summaryJson),detail:row.detailJson?JSON.parse(row.detailJson):undefined}));
+  // The runner already pins complete objects. Serializing both generations,
+  // parsing their children, then parsing both generations again multiplied
+  // peak memory without providing another source-of-truth check.
+  const previousEntries = suppliedPrevious || (state.activeRunId
+    ? decode((await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson, detail_json AS detailJson
       FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
-      .bind(state.activeRunId, input.world).all<EntryRow>()
-    : { results: (input.baseline || []).map((entry): EntryRow => ({
-      supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
-      detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
-    })) };
-  const nextRows = suppliedCandidate
-    ? { results: suppliedCandidate }
-    : await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
+      .bind(state.activeRunId, input.world).all<EntryRow>()).results)
+    : input.baseline || []);
+  const candidateEntries = suppliedCandidate || decode((await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
       detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
-      .bind(input.id, input.world).all<EntryRow>();
+      .bind(input.id, input.world).all<EntryRow>()).results);
   if (suppliedCandidate) {
     // A small ID-only read proves the complete staged generation matches the
     // in-memory candidate without returning hundreds of large JSON documents.
@@ -207,12 +199,12 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       throw new Error("catalog_candidate_not_accepted");
     }
   }
-  const next = new Map(nextRows.results.map((row) => [row.supplierId, row]));
-  for (const row of nextRows.results) childIds(input.world, row);
+  const next = new Map(candidateEntries.map((row) => [row.supplierId, row]));
+  for (const row of candidateEntries) childIds(input.world, row);
   let removed = 0;
   let beforeChildren = 0;
   let removedChildren = 0;
-  for (const old of oldRows.results) {
+  for (const old of previousEntries) {
     const candidate = next.get(old.supplierId);
     const oldChildren = childIds(input.world, old);
     beforeChildren += oldChildren.length;
@@ -220,16 +212,12 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     const candidateChildren = new Set(childIds(input.world, candidate));
     removedChildren += oldChildren.filter((id) => !candidateChildren.has(id)).length;
   }
-  const previousEntries = oldRows.results.map((row) => ({ supplierId: row.supplierId,
-    summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
-  const candidateEntries = nextRows.results.map((row) => ({ supplierId: row.supplierId,
-    summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
   const approvedRemoval = (input.approvedRemoval === true && input.world === "spa"
     && approvedSpaCatalogTransition(previousEntries, candidateEntries))
     || reviewedInactiveTransition(input.world, previousEntries, candidateEntries, input.sourceInventory);
   if(input.sourceInventory && removed && !explicitInactiveRemoval(previousEntries,candidateEntries,input.sourceInventory))throw new Error("catalog_removal_requires_review");
   if (removed !== input.removed
-    || (!removalWithinGuard(oldRows.results.length, removed, beforeChildren, removedChildren) && !approvedRemoval)) {
+    || (!removalWithinGuard(previousEntries.length, removed, beforeChildren, removedChildren) && !approvedRemoval)) {
     throw new Error("catalog_removal_requires_review");
   }
   if (input.world === "spa" && !spaMediaWithinGuard(
@@ -244,7 +232,7 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       before_count = ?, candidate_count = ?, added_count = ?, changed_count = ?, removed_count = ?, diagnostics_json = ?
       WHERE id = ? AND world = ? AND status = 'running'
       AND EXISTS (SELECT 1 FROM supplier_catalog_state WHERE world = ? AND active_run_id = ?)`)
-      .bind(input.finishedAt, oldRows.results.length, input.expectedCount, input.added, input.changed, removed, input.diagnostics ? JSON.stringify(sanitizeCatalogDiagnostics(input.diagnostics)) : null, input.id, input.world, input.world, input.id),
+      .bind(input.finishedAt, previousEntries.length, input.expectedCount, input.added, input.changed, removed, input.diagnostics ? JSON.stringify(sanitizeCatalogDiagnostics(input.diagnostics)) : null, input.id, input.world, input.world, input.id),
   ]);
   if (results[0].meta.changes !== 1 || results[1].meta.changes !== 1) throw new Error("catalog_publish_race");
 }
@@ -276,26 +264,25 @@ export async function readSupplierCatalog(db: D1Database, world: SupplierCatalog
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ?`)
     .bind(world).first<StateRow>();
   if (!state?.activeRunId) return null;
-  const results: EntryRow[] = [];
+  const entries: SupplierCatalogEntry[] = [];
   let afterSupplierId = 0;
-  while (results.length < state.activeCount) {
+  while (entries.length < state.activeCount) {
     const page = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
       detail_json AS detailJson FROM supplier_catalog_entries
       WHERE run_id = ? AND world = ? AND supplier_id > ? ORDER BY supplier_id LIMIT ?`)
       .bind(state.activeRunId, world, afterSupplierId, CATALOG_SYNC_READ_PAGE_SIZE).all<EntryRow>();
     if (!page.results.length) break;
-    results.push(...page.results);
+    entries.push(...page.results.map(row=>({supplierId:row.supplierId,summary:JSON.parse(row.summaryJson),detail:row.detailJson?JSON.parse(row.detailJson):null})));
     const lastSupplierId = page.results.at(-1)?.supplierId;
     if (!Number.isSafeInteger(lastSupplierId) || Number(lastSupplierId) <= afterSupplierId) {
       throw new Error("catalog_active_generation_incomplete");
     }
     afterSupplierId = Number(lastSupplierId);
   }
-  if (results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
+  if (entries.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
   return {
     acceptedAt: state.acceptedAt,
-    entries: results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson),
-      detail: row.detailJson ? JSON.parse(row.detailJson) : null })),
+    entries,
   };
 }
 

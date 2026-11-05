@@ -72,6 +72,7 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
     if (!updated) continue;
     const before = object(oldEntry.detail);
     const after = object(updated.detail);
+    if (before === after) continue;
     for (const key of ["images", "galleryGroups", "features", "featureGroups", "rooms"] as const) {
       issues.push(...collectionIssues(oldEntry.supplierId, `detail.${key}`, before[key], after[key]));
     }
@@ -126,8 +127,8 @@ export function compareSupplierCatalogEntries(world: SupplierCatalogWorld,
     next.set(entry.supplierId, entry);
     const old = before.get(entry.supplierId);
     if (!old) added += 1;
-    else if (JSON.stringify(old.summary) !== JSON.stringify(entry.summary)
-      || JSON.stringify(old.detail) !== JSON.stringify(entry.detail)) changed += 1;
+    else if ((old.summary !== entry.summary && JSON.stringify(old.summary) !== JSON.stringify(entry.summary))
+      || (old.detail !== entry.detail && JSON.stringify(old.detail) !== JSON.stringify(entry.detail))) changed += 1;
   }
   const removed = [...before.keys()].filter((id) => !next.has(id));
   const removedChildren = previous.flatMap((old) => {
@@ -165,6 +166,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   world: SupplierCatalogWorld;
   source: string;
   baseline: SupplierCatalogEntry[];
+  loadBaseline?:()=>Promise<SupplierCatalogEntry[]>;
   fetchCandidate: (previous: SupplierCatalogEntry[]) => Promise<CatalogCandidate>;
   validateCandidate?: (entries: SupplierCatalogEntry[]) => Promise<void>;
   now?: () => Date;
@@ -183,8 +185,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   try {
     stage = "catalog_read";
     const active = await readSupplierCatalog(db, input.world);
-    if (!active && !input.baseline.length) throw new Error("missing_catalog_baseline");
-    const previous = active?.entries || input.baseline;
+    const previous = active?.entries || (input.loadBaseline ? await input.loadBaseline() : input.baseline);
+    if (!previous.length) throw new Error("missing_catalog_baseline");
     stage = "source_fetch";
     const candidate = await input.fetchCandidate(previous);
     stage = "candidate_validation";

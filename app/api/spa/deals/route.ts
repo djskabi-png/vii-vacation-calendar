@@ -26,17 +26,14 @@ export async function GET(request: Request) {
     const audiences: SpaDealAudience[] = ["single", "couple", "group"];
     const { sites, cached, refresh, catalogMs, availabilityMs, elapsedMs } = await spaDiscoveryInputs(
       () => publicCatalogSummaries<SpaPlusSite>("spa"),
-      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }));
+      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }), full ? 8_000 : 1_200);
     const timing = `vii-catalog;dur=${catalogMs}, vii-availability;dur=${availabilityMs}, vii-spa-inputs;dur=${elapsedMs}`;
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));
-      const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
-      const offers = Object.fromEntries(offerDays.map(date => [date, Object.fromEntries(audiences.map(audience => {
-        const catalog = selectSpaCatalogPackages(sites, date, audience);
-        return [audience, region ? selectRegionalOffers(catalog, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: full ? undefined : 20 }).offers : full ? catalog : catalog.slice(0, 20)];
-      }))]));
+      // Catalog packages are not evidence of availability for the selected day.
+      const offers = Object.fromEntries(offerDays.map(date => [date, Object.fromEntries(audiences.map(audience => [audience, []]))]));
       return Response.json({ checkedAt: now.toISOString(), cache: { status: "catalog", checkedAt: now.toISOString() }, availabilityStatus: "refreshing", ...(region ? { region: region.label } : {}), days, offers },
-        { headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400", "X-VII-Discovery-Cache": "catalog", "Server-Timing": timing } });
+        { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": "catalog", "Server-Timing": timing } });
     }
     const availability = cached.value;
     const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));

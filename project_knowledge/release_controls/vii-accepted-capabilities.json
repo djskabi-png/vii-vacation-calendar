@@ -94,6 +94,10 @@
     {
       "commit": "cd90cebd3c1d8c13550f52fc4c2344740010651e",
       "capability": "public edge v10 bounded anonymous HTML warming and safe browser Accept identity"
+    },
+    {
+      "commit": "885dcb2d7a91364bc7e9164c70ca1ca040e9f41e",
+      "capability": "public v804 full supplier-detail contract, exact reviewed inactive inventory, bounded SPA recovery and legacy alias"
     }
   ],
   "requiredCapabilities": [

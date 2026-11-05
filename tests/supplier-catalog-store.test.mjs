@@ -7,6 +7,16 @@ import {
   readSupplierCatalog, stageSupplierCatalogEntries,
 } from "../app/lib/supplier-catalog-store.ts";
 
+test('actual publish never serializes or reparses the already pinned full-detail generations',async()=>{
+ const db=await database();let serialization=0;
+ const summary={name:'Place',toJSON(){serialization++;return{name:'Place'};}};
+ const detail={rooms:[{id:2}],body:'x'.repeat(100_000),toJSON(){serialization++;return{rooms:this.rooms,body:this.body};}};
+ const entries=[{supplierId:1,summary,detail}];
+ try{await beginSupplierCatalogRun(db,{id:'pinned-memory',world:'events',source:'test',startedAt:'2026-11-05T12:00:00Z',lockUntil:'2026-11-05T12:15:00Z'});await stageSupplierCatalogEntries(db,'pinned-memory','events',entries);assert.ok(serialization>0);serialization=0;
+ await acceptSupplierCatalogRun(db,{id:'pinned-memory',world:'events',expectedCount:1,added:0,changed:0,removed:0,finishedAt:'2026-11-05T12:01:00Z',baseline:entries,previous:entries,candidate:entries});assert.equal(serialization,0);assert.equal((await readSupplierCatalog(db,'events')).entries[0].detail.body.length,100_000);
+ }finally{db.close();}
+});
+
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys = ON");

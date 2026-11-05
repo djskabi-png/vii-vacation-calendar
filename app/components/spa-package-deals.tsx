@@ -65,9 +65,14 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   if(!clockKey) return;
   const controller = new AbortController();
   let followupTimer: number | undefined;
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal, timeoutMs:10_000,
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal, timeoutMs:10_000, cache:"no-store",
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
-   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setResult({key:requestKey,data:body,status:"ready"}); const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);}); if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
+   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){
+    const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);});
+    setResult(current=>{if(body.availabilityStatus!=="refreshing")return{key:requestKey,data:body,status:"ready"};
+     const previous=current.key===requestKey&&current.data?.availabilityStatus==="verified"?current.data:null;
+     return{key:requestKey,data:previous,status:followup?"loading":previous?"ready":"error"};});
+    if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
   return ()=>{controller.abort(); if(followupTimer !== undefined) window.clearTimeout(followupTimer);};
  },[attempt,regionLabel,clockKey,requestKey,requestedDate,fixedDate,fixedWeekday,fixedDateOffset]);
@@ -116,7 +121,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   </div>
   <div className={refreshing?"spa-package-deals__results is-refreshing":"spa-package-deals__results"} aria-busy={requestPending} aria-live="polite" inert={refreshing || undefined}>
    {status==="loading"&&!data?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}
-   {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>{setResult({key:requestKey,data:null,status:"loading"});setAttempt(value=>value+1);}}>{text.retry}</button></div>:null}
+   {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>{followupCountRef.current=0;setResult({key:requestKey,data:null,status:"loading"});setAttempt(value=>value+1);}}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
    {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
    {visibleOffers.length?<><div className="spa-package-deals__context"><p>{`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{visibleOffers.map((offer,index)=>{

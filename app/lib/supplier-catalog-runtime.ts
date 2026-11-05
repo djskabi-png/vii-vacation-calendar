@@ -1,7 +1,3 @@
-import sergey from "../data/sergey-public-catalog.json" with { type: "json" };
-import sergeyDetails from "../data/sergey-place-details.json" with { type: "json" };
-import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
-import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { createSergeyPublicCatalogClient } from "./sergey-public-catalog-client.ts";
 import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts";
@@ -21,20 +17,16 @@ export function isCatalogWorld(value: unknown): value is SupplierCatalogWorld {
 }
 
 export function supplierDetailRefreshLimit(world: SupplierCatalogWorld, source: "manual" | "scheduled" | "retry") {
-  // Vacation details are the largest supplier payload. Visitor and scheduled
-  // heartbeats rotate a bounded subset so they finish inside the Worker
-  // background lifetime; manual pulls keep the wider diagnostic batch.
-  return world === "vacations" && source !== "manual" ? 2 : undefined;
+  // Vacation details are the largest supplier payload. Both manual and
+  // scheduled pulls use a small rotating subset after the observed manual
+  // memory failure; every unrefreshed detail remains in the accepted snapshot.
+  return world === "vacations" ? 4 : undefined;
 }
 
-export function bundledCatalogBaseline(world: SupplierCatalogWorld): SupplierCatalogEntry[] {
-  if (world === "spa") return spa.sites.map((summary) => ({ supplierId: summary.id, summary }));
-  if (world === "rooms") return hourly.places.map((summary) => ({ supplierId: summary.supplierId, summary }));
-  return sergey.places.filter((summary) => summary.world === world).map((summary) => ({
-    supplierId: summary.supplierId,
-    summary,
-    detail: (sergeyDetails.details as Record<string, unknown>)[`${world === "vacations" ? "vacation" : "event"}-${summary.supplierId}`] || null,
-  }));
+export async function bundledCatalogBaseline(world: SupplierCatalogWorld): Promise<SupplierCatalogEntry[]> {
+  if (world === "spa") return (await import('./catalog-baseline-spa.ts')).entries();
+  if (world === "rooms") return (await import('./catalog-baseline-rooms.ts')).entries();
+  return (await import('./catalog-baseline-sergey.ts')).entries(world);
 }
 
 async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
@@ -49,7 +41,6 @@ async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
 export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCatalogWorld,
   source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
-  const baseline = bundledCatalogBaseline(world);
   const client = world === "spa"
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
     : world === "rooms"
@@ -58,7 +49,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
         detailRefreshLimit: supplierDetailRefreshLimit(world, source) });
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
-    baseline,
+    baseline: [], loadBaseline: () => bundledCatalogBaseline(world),
     validateCandidate: world === "spa" ? validateSpaEditorialCandidate : undefined,
     fetchCandidate: (previous) => world === "vacations" || world === "events"
       ? (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world, previous)

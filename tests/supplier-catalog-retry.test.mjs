@@ -109,9 +109,9 @@ test("a visitor heartbeat is not suppressed by unrelated retry backlog", async (
 });
 
 test("automatic vacation refreshes use a bounded rotating detail batch", () => {
-  assert.equal(supplierDetailRefreshLimit("vacations", "scheduled"), 2);
-  assert.equal(supplierDetailRefreshLimit("vacations", "retry"), 2);
-  assert.equal(supplierDetailRefreshLimit("vacations", "manual"), undefined);
+  assert.equal(supplierDetailRefreshLimit("vacations", "scheduled"), 4);
+  assert.equal(supplierDetailRefreshLimit("vacations", "retry"), 4);
+  assert.equal(supplierDetailRefreshLimit("vacations", "manual"), 4);
   assert.equal(supplierDetailRefreshLimit("events", "scheduled"), undefined);
 });
 

@@ -22,7 +22,7 @@ function frozenDate(iso) {
   };
 }
 
-function handler({ now = "2026-11-05T13:00:00+02:00" } = {}) {
+function handler({ now = "2026-11-05T13:00:00+02:00",availabilityFailure=false,budgets=[] } = {}) {
   const source = readFileSync(new URL("../app/api/spa/deals/route.ts", import.meta.url), "utf8")
     .replace(/^[\s\S]*?export async function GET/, "async function GET")
     .replace(/^import type .*;\r?$/gm, "")
@@ -40,8 +40,8 @@ function handler({ now = "2026-11-05T13:00:00+02:00" } = {}) {
     regionalAvailabilityRegion: value => value ? { label: value } : null,
     selectRegionalOffers: (offers, _locations, _region, options) => ({ offers: options.limit ? offers.slice(0, options.limit) : offers, expanded: Boolean(options.limit && offers.length > options.limit) }),
     spaPlusArea: () => "מרכז",
-    cachedDiscovery: async ({ load }) => ({ value: await load(), cache: { status: "fresh", checkedAt: new Date(now).toISOString() } }),
-    spaDiscoveryInputs,
+    cachedDiscovery: async ({ load }) => {if(availabilityFailure)throw Error('unavailable');return{ value: await load(), cache: { status: "fresh", checkedAt: new Date(now).toISOString() } };},
+    spaDiscoveryInputs:(...args)=>{budgets.push(args[2]);return spaDiscoveryInputs(...args);},
     runtimeCatalogDatabase: async () => ({}),
     firstDealDate,
     getRequestExecutionContext: () => null,
@@ -50,6 +50,12 @@ function handler({ now = "2026-11-05T13:00:00+02:00" } = {}) {
   const code = stripTypeScriptTypes(source, { mode: "strip" });
   return new Function(...Object.keys(deps), `${code}; return GET;`)(...Object.values(deps));
 }
+
+test('actual refreshing API never caches or invents dated offers and full pages have a finite healthy-source budget',async()=>{
+ const budgets=[],GET=handler({availabilityFailure:true,budgets});
+ for(const query of ['?full=1&date=2026-11-06','']){const response=await GET(new Request('https://example.test/api/spa/deals'+query));const body=await response.json();assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(body.availabilityStatus,'refreshing');for(const day of Object.values(body.offers))for(const offers of Object.values(day))assert.equal(offers.length,0);}
+ assert.deepEqual(budgets,[8000,1200]);
+});
 
 test("actual spa API slider returns seven dates capped at twenty offers per audience", async () => {
   const GET = handler();

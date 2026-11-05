@@ -24,16 +24,17 @@ function harness(){let id=0,attempt=0,result={key:'',data:null,status:'loading'}
 }
 const body=status=>({days:['2026-11-06'],offers:{'2026-11-06':{single:[{packageId:1}]}},checkedAt:'2026-11-05T12:00:00Z',availabilityStatus:status});
 test('actual SPA effect follows refreshing twice, then stops without losing usable data',async()=>{
- const h=harness();let cleanup=h.start();h.requests[0].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,1);assert.equal(h.fire(),2000);assert.equal(h.attempt(),1);cleanup();
+ const h=harness();let cleanup=h.start();assert.equal(h.requests[0].options.cache,'no-store','followups must bypass a previously cached refreshing HTTP response');h.requests[0].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,1);assert.equal(h.fire(),2000);assert.equal(h.attempt(),1);cleanup();
  cleanup=h.start();h.requests[1].resolve(body('refreshing'));await flush();assert.equal(h.fire(),4000);assert.equal(h.attempt(),2);cleanup();
- cleanup=h.start();h.requests[2].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,0);assert.equal(h.result().status,'ready');assert.equal(h.requests.length,3);cleanup();
+ cleanup=h.start();h.requests[2].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,0);assert.equal(h.result().status,'error');assert.equal(h.result().data,null);assert.equal(h.requests.length,3);cleanup();
 });
 test('actual SPA effect stops on verified and resets the followup budget for a new request',async()=>{
  const h=harness();let cleanup=h.start();h.requests[0].resolve(body('refreshing'));await flush();h.fire();cleanup();cleanup=h.start();h.requests[1].resolve(body('verified'));await flush();assert.equal(h.timers.size,0);cleanup();
  h.context.requestKey='b';h.reset();assert.equal(h.context.followupCountRef.current,0);cleanup=h.start();h.requests[2].resolve(body('refreshing'));await flush();assert.equal([...h.timers.values()][0].ms,2000);cleanup();assert.equal(h.timers.size,0);
 });
 test('actual SPA cleanup cancels old timers and late responses; failed followup retains the last useful result',async()=>{
- const h=harness();let cleanup=h.start();h.requests[0].resolve(body('refreshing'));await flush();cleanup();assert.equal(h.timers.size,0);assert.equal(h.requests[0].options.signal.aborted,true);
- cleanup=h.start();h.requests[1].reject(Error('offline'));await flush();assert.equal(h.result().status,'ready');assert.equal(h.result().data.availabilityStatus,'refreshing');cleanup();
- cleanup=h.start();const previous=h.result();cleanup();h.requests[2].resolve(body('verified'));await flush();assert.equal(h.result(),previous);assert.equal(h.timers.size,0);
+ const h=harness();let cleanup=h.start();h.requests[0].resolve(body('verified'));await flush();cleanup();
+ cleanup=h.start();h.requests[1].resolve(body('refreshing'));await flush();cleanup();assert.equal(h.timers.size,0);assert.equal(h.requests[1].options.signal.aborted,true);
+ cleanup=h.start();h.requests[2].reject(Error('offline'));await flush();assert.equal(h.result().status,'ready');assert.equal(h.result().data.availabilityStatus,'verified');cleanup();
+ cleanup=h.start();const previous=h.result();cleanup();h.requests[3].resolve(body('verified'));await flush();assert.equal(h.result(),previous);assert.equal(h.timers.size,0);
 });

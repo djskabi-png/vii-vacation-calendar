@@ -11,6 +11,12 @@ import spaCatalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate } from "../app/lib/spa-editorial-policy.ts";
 import {proveSupplierDetail} from '../app/lib/supplier-detail-contract.ts';
 
+test('actual sync loads an immutable bundled baseline only when no accepted generation exists',async()=>{
+ const db=await database();let loads=0;const entries=[{supplierId:1,summary:{packages:[]}}];
+ const run=id=>runSupplierCatalogSync(db,{id,world:'spa',source:'test',baseline:[],loadBaseline:async()=>{loads++;return entries;},now:at,fetchCandidate:async previous=>({fetchedAt:at().toISOString(),entries:previous})});
+ try{assert.equal((await run('lazy-baseline-first')).status,'accepted');assert.equal(loads,1);assert.equal((await run('lazy-baseline-second')).status,'accepted');assert.equal(loads,1);}finally{db.close();}
+});
+
 test('actual atomic catalog publish accepts a complete fresh site-page replacement and rejects a changed fingerprint',async()=>{
  const db=await database(),supplierId=17,baseline=[{supplierId,summary:{name:'Place'},detail:{images:['/gallery/old.jpg'],rooms:[{id:2,images:['/gallery/old.jpg']}]}}];
  const candidate={supplierId,summary:{name:'Place'},detail:{images:['/gallery/current.jpg'],rooms:[{id:2,images:['/gallery/current.jpg']}]}};
