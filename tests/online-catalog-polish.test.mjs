@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -71,7 +72,7 @@ test("event discovery is prewarmed for a rolling week and cold recovery uses the
 
 test("map cards send only their primary image and room cards own stable media geometry", async () => {
   const [map, detail, css] = await Promise.all([
-    read("app/components/listing-map.tsx"),
+    readMapImplementation(),
     read("app/business/client-page.tsx"),
     read("app/globals.css"),
   ]);

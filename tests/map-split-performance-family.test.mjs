@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -36,7 +37,7 @@ test("the desktop result rail scrolls independently and mobile keeps the map ful
 });
 
 test("only deliberate drag and zoom dirty the viewport", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   const resize = map.slice(map.indexOf("resizeObserver = new ResizeObserver"), map.indexOf("resizeObserver.observe(container)"));
   assert.doesNotMatch(resize, /reportVisiblePlaces\(true\)/);
   assert.match(resize, /const ids = visiblePlaceIds\(\);[\s\S]*?setPendingVisibleIds\(ids\)/);

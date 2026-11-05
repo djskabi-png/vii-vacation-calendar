@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3, Eye, Play, RefreshCw, ShieldCheck, WifiOff } from "lucide-react";
 import styles from "./quality.module.css";
 
 type Run = { id: string; triggerKind: string; releaseId: string | null; status: string; startedAt: string; finishedAt: string | null; passedCount: number; failedCount: number; degradedCount: number; blockedCount: number; durationMs: number | null; totalChecks: number; currentCheckId: string | null };
 type Incident = { id: string; checkId: string; family: string; world: string; route: string; viewport: string; severity: string; status: string; firstSeenAt: string; lastSeenAt: string; recoveredAt: string | null; occurrences: number; lastObserved: string };
 type Check = { checkId: string; family: string; world: string; route: string; viewport: string; severity: string; cadenceMinutes: number; expected: string; active: number };
-type Dashboard = { generatedAt: string; notificationProvider: { email: string }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }> };
+type Dashboard = { generatedAt: string; notificationProvider: { email: string; queued?: number; uncertain?: number }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }> };
+type BackgroundJob = { runId: string; status: "queued" | "running" | "completed" | "blocked" | "cancelled"; nextIndex: number; totalChecks: number; passedCount: number; attentionCount: number; reason: string | null; receipts: Array<{ checkId: string; status: string; observed: string }> };
 
 const dt = (value: string | null) => value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", dateStyle: "short", timeStyle: "short" }) : "—";
 const statusLabel: Record<string, string> = { passed: "עבר", failed: "נכשל", degraded: "חלקי", blocked: "נעצר בבטחה", running: "רץ", open: "פתוח", acknowledged: "בטיפול", resolved: "נסגר" };
@@ -55,6 +56,12 @@ export default function QualityPage() {
   const [level, setLevel] = useState<RunLevel>("full");
   const [error, setError] = useState("");
   const [clock, setClock] = useState(0);
+  const [job, setJob] = useState<BackgroundJob | null>(null);
+  const [jobPollGeneration, setJobPollGeneration] = useState(0);
+  const [jobPollingPaused, setJobPollingPaused] = useState(false);
+  const jobKey = useRef<{ key: string; level: RunLevel } | null>(null);
+  const jobRunning = job?.status === "queued" || job?.status === "running";
+  const legacyActiveRunId = data?.runs.find(run => run.status === "running")?.id ?? null;
   const load = useCallback(async () => {
     setLoading(true); setError("");
     try {
@@ -70,15 +77,14 @@ export default function QualityPage() {
     return () => window.clearTimeout(timer);
   }, [load]);
   useEffect(() => {
-    const activeRun = data?.runs.find((run) => run.status === "running");
-    if (!activeRun) return;
+    if (!legacyActiveRunId) return;
     let stopped = false;
     let controller: AbortController | null = null;
     const poll = async () => {
       if (stopped || document.visibilityState !== "visible") return;
       controller?.abort(); controller = new AbortController();
       try {
-        const response = await fetch(`/api/admin/quality?runId=${encodeURIComponent(activeRun.id)}`, { cache: "no-store", headers: { Accept: "application/json" }, signal: controller.signal });
+        const response = await fetch(`/api/admin/quality?runId=${encodeURIComponent(legacyActiveRunId)}`, { cache: "no-store", headers: { Accept: "application/json" }, signal: controller.signal });
         if (!response.ok) throw new Error("מצב הריצה אינו זמין כרגע.");
         const payload = await response.json() as { run: Run | null };
         if (stopped || !payload.run) return;
@@ -94,18 +100,68 @@ export default function QualityPage() {
     document.addEventListener("visibilitychange", onVisibility);
     void poll();
     return () => { stopped = true; controller?.abort(); window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisibility); };
-  }, [data?.runs, load]);
+  }, [legacyActiveRunId, load]);
+  useEffect(() => {
+    const controller = new AbortController();
+    try {
+      const saved = sessionStorage.getItem("vii-quality-job");
+      if (saved && /^[A-Za-z0-9-]{8,120}$/.test(saved)) void fetch(`/api/admin/quality?jobId=${encodeURIComponent(saved)}`, { cache: "no-store", signal: controller.signal })
+        .then(async response => { if (response.ok) { const payload = await response.json(); if (!controller.signal.aborted) setJob(current => current ?? payload.job); } })
+        .catch(() => undefined);
+    } catch { /* Storage restrictions must not prevent a new run. */ }
+    return () => controller.abort();
+  }, []);
+  const activeJobId = jobRunning ? job?.runId : null;
+  useEffect(() => {
+    if (!activeJobId) return;
+    let stopped = false, busy = false, failures = 0;
+    setJobPollingPaused(false);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let controller: AbortController | undefined;
+    const poll = async () => {
+      if (stopped || busy || document.visibilityState !== "visible") return;
+      busy = true; controller = new AbortController();
+      try {
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(8000)]);
+        const response = await fetch(`/api/admin/quality?jobId=${encodeURIComponent(activeJobId)}`, { cache: "no-store", signal });
+        if (!response.ok) throw new Error("לא ניתן לקרוא את התקדמות הבדיקה.");
+        const payload = await response.json() as { job: BackgroundJob };
+        if (stopped) return;
+        setJob(payload.job);
+        if (payload.job.status === "queued") {
+          const resumed = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "resume-job", jobId: activeJobId }), signal });
+          if (!resumed.ok) throw new Error("המשך הבדיקה לא אושר. התוצאות שנשמרו נשארות זמינות.");
+        }
+        if (!["queued", "running"].includes(payload.job.status)) jobKey.current = null;
+        failures = 0;
+      } catch (cause) {
+        if (!stopped && !controller?.signal.aborted) setError(cause instanceof Error ? cause.message : "מצב הבדיקה לא אומת.");
+        failures++;
+        if (failures >= 2) { stopped = true; setJobPollingPaused(true); }
+      } finally {
+        busy = false;
+        if (!stopped) timer = setTimeout(() => void poll(), 3000);
+      }
+    };
+    const visibility = () => { if (document.visibilityState === "visible") { if (timer) clearTimeout(timer); void poll(); } };
+    document.addEventListener("visibilitychange", visibility); void poll();
+    return () => { stopped = true; controller?.abort(); if (timer) clearTimeout(timer); document.removeEventListener("visibilitychange", visibility); };
+  }, [activeJobId, jobPollGeneration]);
   const active = useMemo(() => data?.incidents.filter((incident) => incident.status !== "resolved") || [], [data]);
   const activeRun = data?.runs.find((run) => run.status === "running") || null;
   const selectedChecks = data ? checksForLevel(data.checks, level) : [];
   const processed = activeRun ? activeRun.passedCount + activeRun.failedCount + activeRun.degradedCount + activeRun.blockedCount : 0;
   const activeCheck = activeRun?.currentCheckId ? data?.checks.find((check) => check.checkId === activeRun.currentCheckId) : null;
   const runNow = async () => {
-    if (running || activeRun) return;
+    if (running || activeRun || jobRunning) return;
     setRunning(true); setError("");
     try {
-      const response = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "run", level }) });
-      if (!response.ok) throw new Error("הרצת הבדיקה נכשלה. לא נשמרה הצלחה מדומה.");
+      jobKey.current ??= { key: crypto.randomUUID(), level };
+      const response = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "enqueue", level: jobKey.current.level, idempotencyKey: jobKey.current.key }), signal: AbortSignal.timeout(10_000) });
+      if (!response.ok) throw new Error("לא ניתן לאמת את תחילת הבדיקה. ניסיון נוסף יבדוק את אותה בקשה.");
+      const payload = await response.json() as { job: BackgroundJob };
+      setJob(payload.job);
+      try { sessionStorage.setItem("vii-quality-job", payload.job.runId); } catch { /* Run remains durable on server. */ }
       await load();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת הרצה"); }
     finally { setRunning(false); }
@@ -122,11 +178,24 @@ export default function QualityPage() {
     await load();
   };
   return <main className={styles.page} dir="rtl">
-    <header className={styles.header}><div><p>V Quality Control</p><h1>איכות ויציבות</h1><span>QQQAAA בודקת את האתר ומערכת הניהול בלי ליצור הזמנות, פניות, חוות דעת או תשלומים.</span></div><div className={styles.actions}><button type="button" onClick={() => void load()} disabled={loading || running} aria-label="רענון"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button><button type="button" className={styles.run} onClick={() => void runNow()} disabled={running || Boolean(activeRun)} aria-busy={running || Boolean(activeRun)}>{running || activeRun ? <RefreshCw size={18} className={styles.spin} /> : <Play size={18} />} {running || activeRun ? "QQQAAA רצה עכשיו..." : "הפעלת QQQAAA"}</button></div></header>
+    <header className={styles.header}><div><p>V Quality Control</p><h1>איכות ויציבות</h1><span>QQQAAA בודקת את האתר ומערכת הניהול בלי ליצור הזמנות, פניות, חוות דעת או תשלומים.</span></div><div className={styles.actions}><button type="button" onClick={() => void load()} disabled={loading || running} aria-label="רענון"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button><button type="button" className={styles.run} onClick={() => void runNow()} disabled={running || Boolean(activeRun) || jobRunning} aria-busy={running || Boolean(activeRun) || jobRunning}>{running || activeRun || jobRunning ? <RefreshCw size={18} className={styles.spin} /> : <Play size={18} />} {running || activeRun || jobRunning ? "QQQAAA רצה עכשיו..." : "הפעלת QQQAAA"}</button></div></header>
+    {job ? <section className={styles.section} aria-label="בדיקות ברקע">
+      <h2>{jobRunning ? "הבדיקה מתקדמת ברקע" : job.status === "completed" ? "ריצת הבדיקות הסתיימה" : job.status === "cancelled" ? "הבדיקה בוטלה" : "הבדיקה נעצרה לפני השלמה"}</h2>
+      <p role="status">{job.nextIndex} מתוך {job.totalChecks} בדיקות הושלמו. {job.passedCount} עברו, {job.attentionCount} דורשות בדיקה.</p>
+      {jobPollingPaused ? <button type="button" onClick={() => setJobPollGeneration(value => value + 1)}>בדיקת התקדמות מחדש</button> : null}
+      {job.reason ? <p>הריצה אינה מאושרת כהצלחה. אפשר לעיין בתוצאות שנשמרו ולהתחיל בדיקה חדשה.</p> : null}
+      {jobRunning ? <button type="button" onClick={() => {
+        void fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "cancel-job", jobId: job.runId }) })
+          .then(async response => { if (!response.ok) throw new Error("הביטול לא אושר."); const payload = await response.json(); setJob(payload.job); jobKey.current = null; })
+          .catch(cause => setError(cause instanceof Error ? cause.message : "הביטול לא אומת."));
+      }}>עצירת הבדיקה</button> : null}
+      <details><summary>תוצאות הבדיקות</summary>{job.receipts.map(receipt => <p key={receipt.checkId}><bdi dir="ltr">{receipt.checkId}</bdi>: {statusLabel[receipt.status] || receipt.status} <bdi dir="ltr">{receipt.observed}</bdi></p>)}</details>
+    </section> : null}
+    {data && (Boolean(data.notificationProvider.queued) || Boolean(data.notificationProvider.uncertain)) ? <p role="status">{data.notificationProvider.queued || 0} התראות ממתינות למשלוח. {data.notificationProvider.uncertain || 0} משלוחים דורשים אימות.</p> : null}
     {error ? <div className={styles.error} role="alert"><WifiOff size={18} />{error}</div> : null}
     {loading && !data ? <div className={styles.loading} role="status"><RefreshCw className={styles.spin} />טוענים את מצב האיכות...</div> : null}
     {data ? <>
-      <section className={styles.runPanel} aria-labelledby="run-panel-title"><div><Eye size={22} /><div><h2 id="run-panel-title">איזו בדיקה לבצע?</h2><p>{levelCopy[level].detail}</p></div></div><div className={styles.levels}>{(Object.keys(levelCopy) as RunLevel[]).map((value) => <button key={value} type="button" data-active={level === value} onClick={() => setLevel(value)} disabled={running || Boolean(activeRun)}><strong>{levelCopy[value].title}</strong><small>{checksForLevel(data.checks, value).length} בדיקות</small></button>)}</div>{activeRun ? <div className={styles.progress} role="status"><span><i style={{ width: `${activeRun.totalChecks ? Math.round(processed / activeRun.totalChecks * 100) : 0}%` }} /></span><b>{activeCheck ? `הבדיקה שמתבצעת עכשיו: ${plainCheckDescription(activeCheck)}` : "מכינים את הבדיקה הראשונה..."}</b><small>{processed} הושלמו · {activeRun.passedCount || 0} עברו · {(activeRun.failedCount || 0) + (activeRun.blockedCount || 0)} נכשלו · {Math.max(0, (activeRun.totalChecks || selectedChecks.length) - processed)} נותרו · זמן שעבר: {Math.max(0, Math.round((clock - Date.parse(activeRun.startedAt)) / 1000))} שניות</small></div> : null}</section>
+      <section className={styles.runPanel} aria-labelledby="run-panel-title"><div><Eye size={22} /><div><h2 id="run-panel-title">איזו בדיקה לבצע?</h2><p>{levelCopy[level].detail}</p></div></div><div className={styles.levels}>{(Object.keys(levelCopy) as RunLevel[]).map((value) => <button key={value} type="button" data-active={level === value} onClick={() => setLevel(value)} disabled={running || Boolean(activeRun) || jobRunning}><strong>{levelCopy[value].title}</strong><small>{checksForLevel(data.checks, value).length} בדיקות</small></button>)}</div>{activeRun ? <div className={styles.progress} role="status"><span><i style={{ width: `${activeRun.totalChecks ? Math.round(processed / activeRun.totalChecks * 100) : 0}%` }} /></span><b>{activeCheck ? `הבדיקה שמתבצעת עכשיו: ${plainCheckDescription(activeCheck)}` : "מכינים את הבדיקה הראשונה..."}</b><small>{processed} הושלמו · {activeRun.passedCount || 0} עברו · {(activeRun.failedCount || 0) + (activeRun.blockedCount || 0)} נכשלו · {Math.max(0, (activeRun.totalChecks || selectedChecks.length) - processed)} נותרו · זמן שעבר: {Math.max(0, Math.round((clock - Date.parse(activeRun.startedAt)) / 1000))} שניות</small></div> : null}</section>
       <section className={styles.summary} aria-label="סיכום איכות"><article data-tone={active.length ? "danger" : "success"}><span>{active.length ? <AlertTriangle /> : <CheckCircle2 />}</span><div><strong>{active.length}</strong><small>אירועים פעילים</small></div></article><article><span><ShieldCheck /></span><div><strong>{data.checks.filter((check) => check.active).length}</strong><small>בדיקות פעילות</small></div></article><article><span><Clock3 /></span><div><strong>{data.runs[0] ? statusLabel[data.runs[0].status] || data.runs[0].status : "טרם רץ"}</strong><small>ריצה אחרונה, {dt(data.runs[0]?.finishedAt || null)}</small></div></article><article data-tone="notice"><span><WifiOff /></span><div><strong>{notificationLabel[data.notificationProvider.email] || data.notificationProvider.email}</strong><small>התראות מייל</small></div></article></section>
       <section className={styles.section}><div className={styles.sectionHead}><div><h2>אירועים</h2><p>כל אירוע מוסבר תחילה בעברית פשוטה. המידע המקצועי נשאר זמין לפתיחה.</p></div><span>{active.length} דורשים טיפול</span></div>{data.incidents.length ? <div className={styles.incidents}>{data.incidents.map((incident) => <article key={incident.id} data-status={incident.status}><div className={styles.incidentTop}><span data-severity={incident.severity}>{incident.severity === "critical" ? "קריטי" : incident.severity === "high" ? "גבוה" : incident.severity === "medium" ? "בינוני" : "נמוך"}</span><b>{statusLabel[incident.status] || incident.status}</b><time>{dt(incident.lastSeenAt)}</time></div><h3 dir="rtl">{familyLabel[incident.family] || incident.family}</h3><p className={styles.simpleExplanation}>{simpleIncident(incident)}</p><p>{incidentImpact(incident)}</p><p>מה עושים עכשיו: פותחים את הכתובת, בודקים את הרכיב המתואר ומריצים את הבדיקה מחדש אחרי התיקון.</p><details><summary>מידע מקצועי</summary><bdi dir="ltr">{incident.checkId}</bdi><p><bdi dir="ltr">{incident.route}</bdi> · {incident.world} · {incident.viewport}</p><code>{incident.lastObserved}</code></details><footer><span>{incident.occurrences} הופעות</span><div>{incident.status === "open" ? <button type="button" onClick={() => void act(incident.id, "acknowledge")}>קיבלתי, בטיפול</button> : null}{incident.status !== "resolved" ? <button type="button" onClick={() => void act(incident.id, "resolve")}>סגירה ידנית</button> : <button type="button" onClick={() => void act(incident.id, "reopen")}>פתיחה מחדש</button>}</div></footer></article>)}</div> : <div className={styles.clear}><CheckCircle2 /><strong>אין אירועים</strong><span>כשתתגלה תקלה היא תופיע כאן עם הסבר פשוט והמידע המקצועי.</span></div>}</section>
       <section className={styles.grid}><div className={styles.section}><div className={styles.sectionHead}><div><h2>ריצות אחרונות</h2><p>רואים איזה סוג בדיקה בוצע, מתי ומה הייתה התוצאה.</p></div></div><div className={styles.table}>{data.runs.map((run) => <div key={run.id}><span data-run={run.status}>{statusLabel[run.status] || run.status}</span><b>{runKind(run.triggerKind)}</b><small>{run.passedCount} עברו, {run.failedCount} נכשלו</small><time>{dt(run.startedAt)}</time></div>)}</div></div><div className={styles.section}><div className={styles.sectionHead}><div><h2>מה נבדק ומתי?</h2><p>הלו״ז האוטומטי נקבע לפי חומרת התקלה האפשרית, ואפשר לשנות אותו לכל בדיקה.</p></div></div><div className={styles.table}>{data.checks.map((check) => <div key={check.checkId}><b>{plainCheckDescription(check)}</b><small>{worldLabel[check.world] || check.world} · {check.viewport === "mobile" ? "נייד" : check.viewport === "desktop" ? "מחשב" : "שרת"}</small><label><span className="sr-only">תדירות הבדיקה</span><select value={check.cadenceMinutes} onChange={(event) => void changeCadence(check.checkId, Number(event.target.value))} disabled={Boolean(activeRun)}>{cadenceOptions.map((minutes) => <option key={minutes} value={minutes}>{cadenceLabel(minutes)}</option>)}</select></label><details><summary>מידע מקצועי</summary><p>{check.expected}</p><bdi dir="ltr">{check.checkId} · {check.route}</bdi></details></div>)}</div></div></section>

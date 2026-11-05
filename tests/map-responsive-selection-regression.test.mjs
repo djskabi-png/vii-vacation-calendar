@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -25,14 +26,14 @@ test("desktop map opening reveals the map and closing returns to the original po
 });
 
 test("coincident clusters expand immediately while distinct locations retain street zoom", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = `${readMapImplementation()}\n${read("app/lib/map/map-place.ts")}`;
   assert.match(map, /if \(spreadMapCluster\(cluster\.entries, currentZoom\)\) \{[\s\S]*?spiderfyCluster\(cluster\.entries, clusterCenter\);/);
   assert.match(map, /else if \(targetZoom <= currentZoom\)[\s\S]*?map\.setView\(clusterCenter, Math\.min\(currentZoom \+ 1, 19\)\)/);
   assert.match(map, /map\.panInside\(clusterCenter, \{ padding: L\.point\(120, 120\), animate: true \}\)/);
 });
 
 test("map canvas resizes without resetting the user's camera", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = `${readMapImplementation()}\n${read("app/lib/map/map-place.ts")}`;
   const resize = map.slice(map.indexOf("resizeObserver = new ResizeObserver"), map.indexOf("resizeObserver.observe(container)"));
   assert.match(resize, /invalidateSize\(\{ animate: false, pan: false \}\)/);
   assert.doesNotMatch(resize, /fitBounds|focusInitialPlaces|setView/);
@@ -42,7 +43,7 @@ test("map canvas resizes without resetting the user's camera", () => {
 });
 
 test("selection and background close update the reciprocal state", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.match(map, /setSelectedId\(id\);\s*activePlaceCallback\.current\?\.\(id\)/);
   assert.match(map, /map\.on\("click", \(\) => \{[\s\S]*?setSelectedId\(""\);[\s\S]*?activePlaceCallback\.current\?\.\(null\)/);
   assert.match(map, /mapInstance\.current\.panInside/);
@@ -50,7 +51,7 @@ test("selection and background close update the reciprocal state", () => {
 });
 
 test("regional trail map uses truthful media and returns actual trail IDs to the list", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.match(map, /illustrativeImage: true/);
   assert.match(map, /images\/trails\/\$\{areaTrails\[0\]\.slug\}/);
   assert.match(map, /precision === "area"/);
@@ -65,7 +66,7 @@ test("a genuinely empty map viewport is not reported as the whole catalog", () =
 });
 
 test("a newly expanded place accepts the first keyboard action or new tap", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.doesNotMatch(map, /selectionReadyAt|performance\.now\(\) \+ 300/);
   assert.match(map, /event\.originalEvent === clusterActivationEvent/);
   assert.match(map, /clusterActivationEvent = event\.originalEvent/);
@@ -79,14 +80,14 @@ test("keyboard focus cannot scroll the map's clipping frame", () => {
 });
 
 test("panning preserves marker DOM and readiness follows initial layout", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.doesNotMatch(map, /map\.on\("moveend",[\s\S]*?renderMarkers\(\)/);
   assert.match(map, /if \(!cancelled && layoutReady\) setMapReady\(true\)/);
   assert.match(map, /layoutReady = true;\s*if \(tilesReady\) setMapReady\(true\)/);
 });
 
 test("late price and review data refresh markers without rebuilding Leaflet", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.match(map, /const currentPlaces = placesRef\.current;[\s\S]*?currentPlaces\.forEach/);
   assert.match(map, /renderMarkersRef\.current = renderMarkers/);
   assert.match(map, /renderMarkersRef\.current\?\.\(\);[\s\S]*?\[placesSignature\]/);
@@ -96,7 +97,7 @@ test("late price and review data refresh markers without rebuilding Leaflet", ()
 });
 
 test("regional map copy is localized and topic filters survive its place-card link", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = `${readMapImplementation()}\n${read("app/lib/map/map-place.ts")}`;
   assert.match(map, /const \{ language \} = useSiteLanguage\(\)/);
   assert.match(map, /Trails in this area/);
   assert.match(map, /Маршрутов в этом районе/);

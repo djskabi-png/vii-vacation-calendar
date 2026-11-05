@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("map viewport changes results only after an explicit search-this-area action", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.match(map, /searchArea: "חיפוש באזור הזה"/);
   assert.match(map, /onVisiblePlaceIdsChange\?: \(ids: string\[\]\) => void/);
   assert.match(map, /visiblePlaceIdsCallback\.current\?\.\(pendingVisibleIds\)/);
@@ -35,7 +36,7 @@ test("opening and closing a map clears stale viewport-only results", () => {
 });
 
 test("map selection is keyboard-safe, localized, and responsive", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   const styles = read("app/globals.css");
   assert.match(map, /event\.key === "Escape"/);
   assert.match(map, /marker\?\.getElement\(\)\?\.focus\(\{ preventScroll: true \}\)/);
@@ -50,7 +51,7 @@ test("map selection is keyboard-safe, localized, and responsive", () => {
 test("desktop vacation map uses the shared bounded rail and reuses the main destination picker", () => {
   const search = read("app/search/page.tsx");
   const searchBox = read("app/components/search-box.tsx");
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   const styles = read("app/globals.css");
   assert.match(search, /<MapSplitResultList items=\{displayedResults\}/);
   assert.match(search, /activeId=\{activeMapPropertyId\}/);

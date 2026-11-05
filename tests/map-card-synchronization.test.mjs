@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -5,7 +6,7 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("shared maps expose reciprocal active-place state", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   const deferred = read("app/components/deferred-listing-map.tsx");
 
   assert.match(map, /onActivePlaceChange\?: \(id: string \| null\) => void/);

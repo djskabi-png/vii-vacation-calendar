@@ -1,15 +1,16 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const component = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+const component = readMapImplementation() + readFileSync(new URL("../app/lib/map/map-place.ts", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 
 test("desktop map uses the full canvas without a narrow result rail", () => {
   assert.doesNotMatch(component, /map-results-rail|map-results-scroll|map-result-card|data-map-result-id/);
   assert.doesNotMatch(styles, /\.map-results-rail|\.map-results-scroll|\.map-result-card|\.map-result-select/);
-  assert.match(component, /<div className="map-results-canvas">\{mapCanvas\}<\/div>/);
+  assert.match(component, /<div className="map-results-canvas"><MapProviderBoundary/);
   assert.match(styles, /\.map-results-experience \{[^}]*overflow: hidden;[^}]*border-radius: 24px/);
   assert.match(component, /marker\.on\("click", \(event\) => \{[\s\S]*selectPlace\(place\.id\)/);
 });

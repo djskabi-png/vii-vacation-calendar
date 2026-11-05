@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -15,7 +16,7 @@ test("vacation search keeps accommodation type and price range visible", () => {
 
 test("map split synchronizes the active result card with its marker", () => {
   const search = read("app/search/page.tsx");
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   const css = read("app/globals.css");
   assert.match(search, /onActiveChange=\{\(active\) => setActiveMapPropertyId\(active \? property\.slug : null\)\}/);
   assert.match(search, /activePlaceId=\{activeMapPropertyId\}/);

@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -52,7 +53,7 @@ test("review summary thumbnails stay static while the review rail remains browsa
 });
 
 test("selected map cards preserve the primary place photo without serializing full galleries", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.doesNotMatch(map, /images: listing\.images/);
   assert.doesNotMatch(map, /images: item\.images/);
   assert.match(map, /<PreviewCardGallery key=\{selected\.id\}/);
@@ -74,7 +75,7 @@ test("gallery interactions remain localized, bounded and separate from rail navi
 });
 
 test("equivalent parent renders cannot recreate the map during marker hover or selection", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   assert.match(map, /const placesSignature = incomingPlaces\.map/);
   assert.doesNotMatch(map, /JSON\.stringify\(incomingPlaces\)/);
   assert.match(map, /const places = useMemo\(\(\) => incomingPlaces, \[placesSignature\]\)/);
@@ -84,7 +85,7 @@ test("equivalent parent renders cannot recreate the map during marker hover or s
 });
 
 test("all marker variants activate through Enter and Space without repeating selection", () => {
-  const map = read("app/components/listing-map.tsx");
+  const map = readMapImplementation();
   for (const marker of ["marker", "spiderMarker", "previewMarker"]) {
     assert.match(map, new RegExp(`enableMarkerKeyboardActivation\\(${marker}\\)`));
   }

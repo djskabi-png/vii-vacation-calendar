@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import ts from 'typescript';
@@ -5,7 +6,7 @@ import {readFileSync} from 'node:fs';
 import {spreadMapCluster} from '../app/lib/map-marker-layout.ts';
 
 function renderer(zoom) {
- const source=readFileSync(new URL('../app/components/listing-map.tsx',import.meta.url),'utf8');const ast=ts.createSourceFile('map.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let initializer;
+ const source=readMapImplementation();const ast=ts.createSourceFile('map.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let initializer;
  const visit=node=>{if(ts.isVariableDeclaration(node)&&node.name.getText(ast)==='renderMarkers')initializer=node.initializer.getText(ast);ts.forEachChild(node,visit)};visit(ast);assert.ok(initializer);
  const rendered=[],spreads=[],camera=[];const points=[{id:'a',name:'A',lat:32.08,lng:34.78,markerKind:'price',markerLabel:'₪700'},{id:'b',name:'B',lat:32.08005,lng:34.78005,markerKind:'price',markerLabel:'₪950'}];
  const point=(x,y)=>({x,y,distanceTo(p){return Math.hypot(x-p.x,y-p.y)}});

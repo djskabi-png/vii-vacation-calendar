@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -359,7 +360,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(detail, /המקום על המפה/);
 
   const [mapSource, worldData, hourlyResults, worldResults, attractionResults, searchResults, eventResults, styles] = await Promise.all([
-    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readMapImplementation(),
     Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
@@ -406,7 +407,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
 
 test("map markers use the rich synchronized place card instead of legacy text tooltips", async () => {
   const [source, styles] = await Promise.all([
-    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readMapImplementation(),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(source, /bindTooltip/);
@@ -433,7 +434,7 @@ test("map markers use the rich synchronized place card instead of legacy text to
 });
 
 test("shared map markers use modern icon markers and visible active list controls", async () => {
-  const mapSource = await readFile("app/components/listing-map.tsx", "utf8");
+  const mapSource = await readMapImplementation();
   const worldSwitcherSource = await readFile("app/components/world-switcher.tsx", "utf8");
   const css = await readFile("app/globals.css", "utf8");
   assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
@@ -613,7 +614,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     Promise.resolve(readWorldDataSource()),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readMapImplementation(),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/client-page.tsx", import.meta.url), "utf8"),
@@ -1629,7 +1630,7 @@ test("mobile filters reserve their actions by hiding the floating concierge", as
 });
 
 test("mobile maps fit filtered results tightly and wait for tiles before appearing", async () => {
-  const map = await readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+  const map = await readMapImplementation();
 
   assert.match(map, /compactViewport \? \[22, 22\] : \[56, 56\]/);
   assert.match(map, /compactViewport \? 0\.04 : 0\.12/);

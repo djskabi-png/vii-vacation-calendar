@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -48,7 +49,7 @@ test("supplier detail cannot erase a catalog WhatsApp number with undefined", as
 });
 
 test("detail maps remain passive when a stored snapshot is missing", async () => {
-  const source = await readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+  const source = await readMapImplementation();
   assert.match(source, /const placeFallback = snapshotUnavailable;/);
   assert.doesNotMatch(source, /else if \(single\) setEnabled\(true\)/);
   assert.match(source, /!enabled && <button className="button map-load-button"/);

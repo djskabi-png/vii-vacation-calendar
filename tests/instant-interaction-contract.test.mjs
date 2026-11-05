@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -27,7 +28,7 @@ test("live discovery families preserve last good content while refreshing", asyn
 });
 
 test("map stabilization avoids full result serialization", async () => {
-  const map = await readFile(new URL("app/components/listing-map.tsx", root), "utf8");
+  const map = await readMapImplementation();
   assert.doesNotMatch(map, /JSON\.stringify\(incomingPlaces\)/);
   assert.match(map, /incomingPlaces\.map\(\(place\) => \[/);
   for (const field of ["place.id", "place.name", "place.image", "place.lat", "place.lng", "place.href", "place.markerLabel"]) {

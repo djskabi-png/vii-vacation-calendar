@@ -21,7 +21,7 @@ export function applyHomeDealCuration(deals: readonly HomeDeal[], items: readonl
     const siteID = Number(item.key);
     if (Number.isSafeInteger(siteID) && siteID > 0) entries.push([siteID, item.content]);
   }
-  const editorial = new Map<number, EditorialContent>(entries);
+  const editorial = new Map<number, Pick<EditorialContent, "attributes">>(entries);
   return deals.flatMap((deal) => {
     const content = editorial.get(deal.siteID);
     if (!content || content.attributes.homeDealHidden === "true") return content?.attributes.homeDealHidden === "true" ? [] : [{ ...deal }];

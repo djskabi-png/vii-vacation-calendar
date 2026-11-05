@@ -1,8 +1,9 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const map = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+const map = readMapImplementation();
 const adapters = readFileSync(new URL("../app/lib/map/map-place.ts", import.meta.url), "utf8");
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const events = readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");

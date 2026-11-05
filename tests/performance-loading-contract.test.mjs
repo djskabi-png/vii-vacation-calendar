@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -37,7 +38,7 @@ test("a map chunk removed by a newer deployment recovers with one bounded reload
 test("map code warms on intent and Leaflet loading overlaps the deferred chunk", async () => {
   const [deferred, listing, vacation, events, hourly, worlds, attractions, styles] = await Promise.all([
     readFile(new URL("app/components/deferred-listing-map.tsx", root), "utf8"),
-    readFile(new URL("app/components/listing-map.tsx", root), "utf8"),
+    readMapImplementation(),
     readFile(new URL("app/search/page.tsx", root), "utf8"),
     readFile(new URL("app/events/search/page.tsx", root), "utf8"),
     readFile(new URL("app/components/hourly-results.tsx", root), "utf8"),

@@ -84,7 +84,7 @@ interface ExecutionContext {
 
 const worker = {
   async scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
-    const { runQualityChecks } = await import("../app/lib/quality-platform.ts");
+    const { runQualityChecks, flushQueuedQualityNotifications } = await import("../app/lib/quality-platform.ts");
     const { runSupplierCatalogScheduleTick } = await import("../app/lib/supplier-catalog-retry-runner.ts");
     const { cachedOnlineCapabilities } = await import("../app/lib/online-booking-capability-cache.ts");
     const { bundledMapSnapshotCandidates } = await import("../app/lib/map-snapshot-catalog.ts");
@@ -93,6 +93,13 @@ const worker = {
     ]);
     const database = cloudflareDatabaseForEnv(env);
     if (!database) throw new Error("scheduled_database_unavailable");
+    const { resumeDueQualityJobs } = await import("../app/lib/quality-job-platform.ts");
+    ctx.waitUntil(resumeDueQualityJobs(database, env).catch(() => {
+      console.error("VII quality job resume unavailable");
+    }));
+    ctx.waitUntil(flushQueuedQualityNotifications(database, env).catch(() => {
+      console.error("VII quality notification outbox unavailable");
+    }));
     const scheduledAt = new Date(controller.scheduledTime);
     ctx.waitUntil(runQualityChecks(database, {
       origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,

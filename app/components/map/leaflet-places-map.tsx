@@ -1,0 +1,814 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { MapPinned } from "lucide-react";
+import { useSiteLanguage } from "../../i18n/locale-provider";
+import { localizedPath } from "../../i18n/locale-routing";
+import { PreviewCardGallery } from "../preview-card-gallery";
+import { mapSnapshotPublicUrl } from "../../lib/map-snapshot-url";
+import { trackMapInteraction } from "../../lib/analytics";
+import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib/map-marker-layout";
+import { mapResultSummary } from "../../lib/map-result-summary.ts";
+import { keepMapFocusInViewport } from "../../lib/map-focus-policy.ts";
+import { MapProviderBoundary } from "../map-provider-boundary";
+import "leaflet/dist/leaflet.css";
+
+import type { MapPlace, MapTone } from "../../lib/map/map-place";
+import type { MapProviderProps as PlacesMapProps } from "../../lib/map/map-provider-contract";
+
+let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
+
+export function preloadLeaflet() {
+  if (typeof window === "undefined") return null;
+  leafletModulePromise ??= import("leaflet");
+  return leafletModulePromise;
+}
+export function resetLeafletProvider() { leafletModulePromise = null; }
+
+
+
+function safeMarkerLabel(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  })[character] ?? character);
+}
+
+function enableMarkerKeyboardActivation(marker: import("leaflet").Marker) {
+  // Leaflet's div icons have role=button but do not synthesize a click on Enter.
+  marker.getElement()?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!event.repeat) marker.fire("click");
+  });
+}
+
+function markerIcon(tone: MapTone) {
+  const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
+  if (tone === "events") return `<svg ${common}><path d="M12 5.2c.7 3.6 2.8 5.7 6.4 6.4-3.6.7-5.7 2.8-6.4 6.4-.7-3.6-2.8-5.7-6.4-6.4 3.6-.7 5.7-2.8 6.4-6.4Z"/><path d="M5.2 4.2v2.4M4 5.4h2.4M19 17.7v2.1M18 18.7h2"/></svg>`;
+  if (tone === "spa") return `<svg ${common}><path d="M12 20.5c4.3-2.3 6.8-5.3 6.8-8.6A3.6 3.6 0 0 0 12 10.3a3.6 3.6 0 0 0-6.8 1.6c0 3.3 2.5 6.3 6.8 8.6Z"/><path d="M12 6.5c-.1-1.7.6-3 2.1-4M8.4 8C7 6.8 6.5 5.4 6.8 3.7M15.6 8c1.4-1.2 1.9-2.6 1.6-4.3"/></svg>`;
+  if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2M8.2 3.8l-1.6 2.1M15.8 3.8l1.6 2.1"/></svg>`;
+  if (tone === "activities") return `<svg ${common}><path d="M4.5 7.4h15v9.2h-15V7.4Z"/><path d="M8.8 7.4v9.2M15.2 7.4v9.2M12 4.2v3.2M10.3 5.5 12 4l1.7 1.5"/></svg>`;
+  return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
+}
+
+export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange, regional = false, resultKind = "places" }: PlacesMapProps) {
+  // Keep equivalent parent renders from rebuilding Leaflet without serializing
+  // entire image arrays and records on every hover or selection render.
+  const placesSignature = incomingPlaces.map((place) => [
+    place.id,
+    place.name,
+    place.location,
+    place.area,
+    place.category,
+    place.meta,
+    place.image,
+    place.lat,
+    place.lng,
+    place.href,
+    place.markerLabel,
+    place.markerKind,
+    place.valueLabel ?? "",
+    place.rating ?? "",
+    place.reviews ?? "",
+    place.precision ?? "",
+    place.illustrativeImage ? "1" : "0",
+    place.representedCount ?? 1,
+  ].join(":")).join("|");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const places = useMemo(() => incomingPlaces, [placesSignature]);
+  const placesRef = useRef(places);
+  placesRef.current = places;
+  const { language } = useSiteLanguage();
+  const resultSummary = mapResultSummary(places, language, resultKind);
+  const cardCopy = language === "en"
+    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area", priced: "with verified price", review: "reviews" }
+    : language === "ru"
+      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места", searchArea: "Искать в этой области", priced: "с подтверждённой ценой", review: "отзывов" }
+      : language === "fr"
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone", priced: "avec prix vérifié", review: "avis" }
+      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה", priced: "עם מחיר מאומת", review: "חוות דעת" };
+  const mapCopy = language === "en"
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of", open: "Open map", onMap: "places on the map", together: "See the results and map together, then choose a place without losing your search", loadingShort: "Loading the map…", regional: "The approximate area is shown. The exact arrival point is provided after confirmation." }
+    : language === "ru"
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на", open: "Открыть карту", onMap: "мест на карте", together: "Смотрите результаты вместе с картой и выбирайте место, не теряя параметры поиска", loadingShort: "Карта загружается…", regional: "Показан приблизительный район. Точная точка прибытия предоставляется после подтверждения." }
+      : language === "fr"
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de", open: "Ouvrir la carte", onMap: "lieux sur la carte", together: "Consultez les résultats et la carte ensemble, puis choisissez sans perdre votre recherche", loadingShort: "Chargement de la carte…", regional: "La zone approximative est affichée. Le point d’arrivée exact est fourni après confirmation." }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על", open: "פתיחת המפה", onMap: "מקומות על המפה", together: "רואים את התוצאות ואת המפה יחד, ובוחרים מקום בלי לאבד את החיפוש", loadingShort: "המפה נטענת…", regional: "מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור." };
+  const mapControlCopy = language === "en"
+    ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
+    : language === "ru"
+      ? { zoomIn: "\u0423\u0432\u0435\u043b\u0438\u0447\u0438\u0442\u044c \u043a\u0430\u0440\u0442\u0443", zoomOut: "\u0423\u043c\u0435\u043d\u044c\u0448\u0438\u0442\u044c \u043a\u0430\u0440\u0442\u0443", cluster: "\u041f\u0440\u0438\u0431\u043b\u0438\u0437\u0438\u0442\u044c \u0441\u0433\u0440\u0443\u043f\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0435 \u043c\u0435\u0441\u0442\u0430" }
+      : language === "fr"
+        ? { zoomIn: "Agrandir la carte", zoomOut: "R\u00e9duire la carte", cluster: "Agrandir les lieux regroup\u00e9s" }
+        : { zoomIn: "\u05d4\u05d2\u05d3\u05dc\u05ea \u05d4\u05de\u05e4\u05d4", zoomOut: "\u05d4\u05e7\u05d8\u05e0\u05ea \u05d4\u05de\u05e4\u05d4", cluster: "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd" };
+  const precisionCopy = { he: "מיקום אזורי משוער", en: "Approximate area", ru: "Приблизительный район", fr: "Zone approximative" }[language];
+  const regionsCopy = { he: "אזורים", en: "regions", ru: "регионов", fr: "régions" }[language];
+  const mapElement = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<import("leaflet").Map | null>(null);
+  const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
+  const activePreviewMarker = useRef<import("leaflet").Marker | null>(null);
+  const renderMarkersRef = useRef<(() => void) | null>(null);
+  const visibleCountCallback = useRef(onVisibleCountChange);
+  const visiblePlaceIdsCallback = useRef(onVisiblePlaceIdsChange);
+  const activePlaceCallback = useRef(onActivePlaceChange);
+  const hoveredPlaceId = useRef(activePlaceId);
+  const suppressViewportPrompt = useRef(false);
+  const mapOpenTracked = useRef(false);
+  const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
+  const selectedIdRef = useRef(initialSelectedId);
+  // A place page must display a real map, not a venue photo pretending to be
+  // one. Search maps remain opt-in; a single-place map loads passively and
+  // becomes fully interactive only after the visitor activates it.
+  const [enabled, setEnabled] = useState(autoLoad || single);
+  const [interactive, setInteractive] = useState(autoLoad);
+  const [mapReady, setMapReady] = useState(false);
+  const [selectedId, setSelectedId] = useState(initialSelectedId);
+  const [pendingVisibleIds, setPendingVisibleIds] = useState<string[]>([]);
+  const [viewportDirty, setViewportDirty] = useState(false);
+  const [snapshotUnavailable, setSnapshotUnavailable] = useState(true);
+  const [providerError, setProviderError] = useState<unknown>(null);
+  const [providerRetry, setProviderRetry] = useState(0);
+  const previewImageRef = useRef<HTMLImageElement>(null);
+  const preview = places[0] ?? null;
+  const snapshotUrl = preview ? mapSnapshotPublicUrl(tone, preview.id) : "";
+  const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
+  const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
+  const pricedPlaceCount = places.filter((place) => place.markerKind === "price").length;
+
+  const activateMap = useCallback(() => {
+    setInteractive(true);
+    setEnabled(true);
+  }, []);
+  const retryMapProvider = useCallback(() => {
+    setProviderError(null);
+    resetLeafletProvider();
+    setMapReady(false);
+    setProviderRetry((value) => value + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!enabled || single || mapOpenTracked.current) return;
+    mapOpenTracked.current = true;
+    trackMapInteraction({ action: "open", world: tone, resultCount: places.length });
+  }, [enabled, places.length, single, tone]);
+
+  useEffect(() => {
+    // A changed place must never keep a snapshot accepted for the prior place.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSnapshotUnavailable(true);
+    if (!snapshotUrl) return;
+    const controller = new AbortController();
+    void fetch(snapshotUrl, { cache: "force-cache", signal: controller.signal })
+      .then((response) => {
+        if (response.ok) setSnapshotUnavailable(false);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [single, snapshotUrl]);
+
+  useEffect(() => {
+    if (snapshotUnavailable) return;
+    const image = previewImageRef.current;
+    if (!image) return;
+    const handlePlaceFallback = () => setSnapshotUnavailable(true);
+    image.addEventListener("error", handlePlaceFallback);
+    // A cached 404 can finish before React hydrates and attaches onError.
+    // Inspect the element as well so the preview can never remain broken.
+    if (image.complete && image.naturalWidth === 0) handlePlaceFallback();
+    return () => image.removeEventListener("error", handlePlaceFallback);
+  }, [snapshotUnavailable, preview?.id, tone]);
+
+  useEffect(() => {
+    visibleCountCallback.current = onVisibleCountChange;
+    visiblePlaceIdsCallback.current = onVisiblePlaceIdsChange;
+    activePlaceCallback.current = onActivePlaceChange;
+  }, [onActivePlaceChange, onVisibleCountChange, onVisiblePlaceIdsChange]);
+
+  useEffect(() => { hoveredPlaceId.current = activePlaceId; }, [activePlaceId]);
+
+  useEffect(() => {
+    if (!selectedId || places.some((place) => place.id === selectedId)) return;
+    const clearSelectionFrame = window.requestAnimationFrame(() => setSelectedId(""));
+    return () => window.cancelAnimationFrame(clearSelectionFrame);
+  }, [places, selectedId]);
+
+  const selectPlace = useCallback((id: string) => {
+    const currentPlaces = placesRef.current;
+    const place = currentPlaces.find((entry) => entry.id === id);
+    if (!place) return;
+    selectedIdRef.current = id;
+    setSelectedId(id);
+    activePlaceCallback.current?.(id);
+    trackMapInteraction({ action: "marker_select", world: tone, resultCount: currentPlaces.length, placeId: id });
+  }, [tone]);
+
+  const closeSelectedPlace = useCallback(() => {
+    const marker = markerInstances.current.get(selectedIdRef.current);
+    selectedIdRef.current = "";
+    setSelectedId("");
+    activePlaceCallback.current?.(null);
+    window.setTimeout(() => marker?.getElement()?.focus({ preventScroll: true }), 0);
+  }, []);
+
+  useEffect(() => {
+    if (!effectiveSelectedId) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeSelectedPlace();
+      }
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [closeSelectedPlace, effectiveSelectedId]);
+
+  const applyVisibleArea = useCallback(() => {
+    visibleCountCallback.current?.(pendingVisibleIds.length);
+    visiblePlaceIdsCallback.current?.(pendingVisibleIds);
+    setViewportDirty(false);
+    setSelectedId("");
+    activePlaceCallback.current?.(null);
+    trackMapInteraction({ action: "search_area", world: tone, resultCount: pendingVisibleIds.length });
+  }, [pendingVisibleIds, tone]);
+
+  useEffect(() => {
+    selectedIdRef.current = effectiveSelectedId;
+    markerInstances.current.forEach((marker, id) => {
+      const element = marker.getElement();
+      const active = id === effectiveSelectedId;
+      element?.classList.toggle("is-active", active);
+      element?.setAttribute("aria-pressed", String(active));
+    });
+  }, [effectiveSelectedId, mapReady]);
+
+  useEffect(() => {
+    activePreviewMarker.current?.remove();
+    activePreviewMarker.current = null;
+    const activeMarker = activePlaceId ? markerInstances.current.get(activePlaceId) : undefined;
+    const sharedMarkerCount = activeMarker ? [...markerInstances.current.values()].filter((marker) => marker === activeMarker).length : 0;
+    new Set(markerInstances.current.values()).forEach((marker) => {
+      // A cluster is not the hovered place's exact location. Its temporary
+      // exact-coordinate preview is the only highlighted marker in that case.
+      const active = marker === activeMarker && sharedMarkerCount === 1;
+      marker.getElement()?.classList.toggle("is-card-active", active);
+      marker.setZIndexOffset(active ? 1000 : 0);
+    });
+
+    if (!activePlaceId || !activeMarker || !mapInstance.current) return;
+    const activePlace = places.find((place) => place.id === activePlaceId);
+    if (activePlace && selectedIdRef.current === activePlaceId && !mapInstance.current.getBounds().pad(-0.08).contains([activePlace.lat, activePlace.lng])) {
+      mapInstance.current.panInside([activePlace.lat, activePlace.lng], {
+        padding: [48, 48], animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      });
+    }
+    if (sharedMarkerCount <= 1) return;
+
+    const place = places.find((entry) => entry.id === activePlaceId);
+    const leaflet = preloadLeaflet();
+    if (!place || !leaflet) return;
+    let cancelled = false;
+    void leaflet.then((L) => {
+      if (cancelled || !mapInstance.current) return;
+      const useTextLabel = place.markerKind !== "category";
+      const markerContent = useTextLabel
+        ? `${place.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(place.markerLabel)}</span>`
+        : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
+      const previewMarker = L.marker([place.lat, place.lng], {
+        keyboard: true,
+        alt: place.name,
+        zIndexOffset: 1400,
+        icon: L.divIcon({
+          className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${place.markerKind}${useTextLabel ? " is-text" : " is-icon"} is-card-active is-hover-preview`,
+          html: `<span class="vii-map-marker">${markerContent}</span>`,
+          iconSize: useTextLabel ? [140, 54] : [54, 58],
+          iconAnchor: useTextLabel ? [70, 51] : [27, 54],
+        }),
+      }).addTo(mapInstance.current);
+      previewMarker.getElement()?.setAttribute("data-map-place-id", place.id);
+      previewMarker.getElement()?.setAttribute("data-map-lat", String(place.lat));
+      previewMarker.getElement()?.setAttribute("data-map-lng", String(place.lng));
+      previewMarker.getElement()?.setAttribute("data-map-precision", place.precision || "area");
+      previewMarker.getElement()?.setAttribute("aria-label", place.precision === "area" ? `${place.name}, ${precisionCopy}` : place.name);
+      previewMarker.on("click", (event) => {
+        if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+        selectPlace(place.id);
+      });
+      enableMarkerKeyboardActivation(previewMarker);
+      previewMarker.on("mouseover", () => activePlaceCallback.current?.(place.id));
+      previewMarker.on("mouseout", () => activePlaceCallback.current?.(null));
+      activePreviewMarker.current = previewMarker;
+    }).catch((error: unknown) => { if (!cancelled) setProviderError(error); });
+
+    return () => {
+      cancelled = true;
+      activePreviewMarker.current?.remove();
+      activePreviewMarker.current = null;
+    };
+  }, [activePlaceId, mapReady, places, selectPlace, tone, providerRetry]);
+
+  useEffect(() => {
+    if (providerError || !enabled || !mapElement.current || places.length === 0) return;
+    const container = mapElement.current;
+    const markerRegistry = markerInstances.current;
+    let cancelled = false;
+    let readyTimer: number | undefined;
+    let layoutTimer: number | undefined;
+    let settleFrame: number | undefined;
+    let createdMap: import("leaflet").Map | null = null;
+    let resizeObserver: ResizeObserver | undefined;
+    let resizeFrame: number | undefined;
+    let programmaticViewportTimer: number | undefined;
+    let layoutReady = false;
+    let tilesReady = false;
+    let initialViewportReported = false;
+    suppressViewportPrompt.current = true;
+    setViewportDirty(false);
+    setPendingVisibleIds([]);
+    setMapReady(false);
+
+    const leaflet = preloadLeaflet();
+    if (!leaflet) return;
+    const restoreMapFocus = keepMapFocusInViewport(container);
+    void leaflet.then((L) => {
+      if (cancelled) return;
+      mapInstance.current?.remove();
+      mapInstance.current = null;
+      markerRegistry.clear();
+
+      const map = L.map(container, {
+        scrollWheelZoom: interactive,
+        touchZoom: interactive,
+        doubleClickZoom: interactive,
+        boxZoom: interactive,
+        keyboard: interactive,
+        zoomSnap: 0.5,
+        wheelDebounceTime: 40,
+        wheelPxPerZoomLevel: 80,
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: 7,
+        maxZoom: 19,
+        maxBounds: [[28.65, 33.55], [34.15, 36.45]],
+        maxBoundsViscosity: 0.72,
+      });
+      createdMap = map;
+      mapInstance.current = map;
+      const streetTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+      const streetTiles = L.tileLayer(streetTileUrl, {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 20,
+        maxNativeZoom: 19,
+      });
+      const aerialTiles = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "Tiles &copy; Esri", maxZoom: 19 },
+      );
+      let streetFallbackUsed = false;
+      streetTiles.on("tileerror", () => {
+        if (streetFallbackUsed || !map.hasLayer(streetTiles)) return;
+        streetFallbackUsed = true;
+        map.removeLayer(streetTiles);
+        aerialTiles.addTo(map);
+      });
+      streetTiles.addTo(map);
+      const layerNames = language === "he"
+        ? { street: "מפה בעברית", aerial: "תצלום אוויר", layers: "בחירת סוג מפה" }
+        : language === "ru"
+          ? { street: "Карта", aerial: "Спутник", layers: "Выбрать вид карты" }
+          : language === "fr"
+            ? { street: "Plan", aerial: "Satellite", layers: "Choisir le type de carte" }
+            : { street: "Map", aerial: "Satellite", layers: "Choose map style" };
+      if (interactive) {
+        L.control.zoom({
+          position: language === "he" ? "topleft" : "topright",
+          zoomInTitle: mapControlCopy.zoomIn,
+          zoomOutTitle: mapControlCopy.zoomOut,
+          zoomInText: "+",
+          zoomOutText: "\u2212",
+        }).addTo(map);
+        const layersControl = L.control.layers(
+          { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
+          undefined,
+          // Keep the style selector opposite the zoom controls. In LTR
+          // locales both controls previously occupied the top-right corner;
+          // the expanding layers panel could cover a real place marker and
+          // make that marker impossible to select on narrow viewports.
+          { position: language === "he" ? "topright" : "topleft" },
+        ).addTo(map);
+        const layersToggle = layersControl.getContainer()?.querySelector<HTMLAnchorElement>(".leaflet-control-layers-toggle");
+        layersToggle?.setAttribute("title", layerNames.layers);
+        layersToggle?.setAttribute("aria-label", layerNames.layers);
+      }
+
+      const showMap = () => {
+        tilesReady = true;
+        if (!cancelled && layoutReady) setMapReady(true);
+      };
+      streetTiles.once("load", showMap);
+      readyTimer = window.setTimeout(showMap, 2200);
+
+      const markerLayer = L.layerGroup().addTo(map);
+      let expandedPlaceIds = new Set<string>();
+      let clusterActivationEvent: Event | undefined;
+      const bindPlaceMarkerInteraction = (marker: import("leaflet").Marker, source: MapPlace) => {
+        const id = source.id;
+        marker.on("mouseover", () => activePlaceCallback.current?.(id));
+        marker.on("mouseout", () => activePlaceCallback.current?.(selectedIdRef.current || null));
+        const element = marker.getElement();
+        element?.setAttribute("data-map-place-id", id);
+        element?.setAttribute("data-map-lat", String(source.lat));
+        element?.setAttribute("data-map-lng", String(source.lng));
+        element?.setAttribute("data-map-precision", source.precision || "area");
+        if (source.precision === "area") element?.setAttribute("aria-label", `${source.name}, ${precisionCopy}`);
+        element?.addEventListener("focus", () => activePlaceCallback.current?.(id));
+        element?.addEventListener("blur", () => activePlaceCallback.current?.(selectedIdRef.current || null));
+      };
+      const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng, clearExisting = true) => {
+        if (clearExisting) {
+          markerLayer.clearLayers();
+          markerRegistry.clear();
+        }
+        const centerPoint = map.latLngToLayerPoint(center);
+        [...entries].sort((a, b) => a.id.localeCompare(b.id)).forEach((entry, index) => {
+          const offset = mapSpiderOffset(index, entries.length);
+          const spiderPoint = centerPoint.add(L.point(offset.x, offset.y));
+          const spiderPosition = map.layerPointToLatLng(spiderPoint);
+          const useTextLabel = entry.markerKind !== "category";
+          const markerContent = useTextLabel
+            ? `${entry.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
+            : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
+
+          L.polyline([[entry.lat, entry.lng], spiderPosition], {
+            color: tone === "spa" ? "#a33a82" : "#087e8b",
+            weight: 2,
+            opacity: 0.72,
+            interactive: false,
+          }).addTo(markerLayer);
+
+          const spiderMarker = L.marker(spiderPosition, {
+            keyboard: true,
+            alt: entry.name,
+            zIndexOffset: 900 + index,
+            icon: L.divIcon({
+              className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${entry.markerKind}${useTextLabel ? " is-text" : " is-icon"}${entry.id === selectedIdRef.current ? " is-active" : ""}`,
+              html: `<span class="vii-map-marker">${markerContent}</span>`,
+              iconSize: useTextLabel ? [140, 54] : [54, 58],
+              iconAnchor: useTextLabel ? [70, 51] : [27, 54],
+            }),
+          }).addTo(markerLayer);
+          spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
+          spiderMarker.getElement()?.setAttribute("data-map-layout", "expanded");
+          spiderMarker.on("click", (event) => {
+            if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+            // Ignore only the event which expanded the cluster, not a new tap
+            // or immediate keyboard action on the newly revealed place.
+            if (event.originalEvent && event.originalEvent === clusterActivationEvent) return;
+            selectPlace(entry.id);
+          });
+          bindPlaceMarkerInteraction(spiderMarker, entry);
+          enableMarkerKeyboardActivation(spiderMarker);
+          markerRegistry.set(entry.id, spiderMarker);
+        });
+      };
+
+      const renderMarkers = () => {
+        const startedAt = performance.now();
+        markerLayer.clearLayers();
+        markerRegistry.clear();
+        const currentPlaces = placesRef.current;
+        const zoom = map.getZoom();
+        const threshold = zoom < 8 ? 76 : zoom < 10 ? 52 : zoom < 12 ? 32 : 18;
+        const clusters: Array<{ entries: MapPlace[]; point: import("leaflet").Point }> = [];
+        const clusterGrid = new Map<string, number[]>();
+
+        const cellKey = (x: number, y: number) => `${x}:${y}`;
+        const gridCell = (point: import("leaflet").Point) => ({
+          x: Math.floor(point.x / threshold),
+          y: Math.floor(point.y / threshold),
+        });
+        const addClusterToGrid = (index: number, point: import("leaflet").Point) => {
+          const cell = gridCell(point);
+          const key = cellKey(cell.x, cell.y);
+          const indexes = clusterGrid.get(key) || [];
+          indexes.push(index);
+          clusterGrid.set(key, indexes);
+        };
+
+        currentPlaces.forEach((place) => {
+          const point = map.latLngToContainerPoint([place.lat, place.lng]);
+          const cell = gridCell(point);
+          const nearbyIndexes = single ? [] : [-1, 0, 1].flatMap((offsetX) => [-1, 0, 1].flatMap((offsetY) => clusterGrid.get(cellKey(cell.x + offsetX, cell.y + offsetY)) || []));
+          const clusterIndex = nearbyIndexes.find((index) => clusters[index].point.distanceTo(point) < threshold);
+          const cluster = clusterIndex === undefined ? undefined : clusters[clusterIndex];
+          if (cluster && clusterIndex !== undefined) {
+            const previousCell = gridCell(cluster.point);
+            cluster.entries.push(place);
+            const count = cluster.entries.length;
+            cluster.point = L.point(
+              (cluster.point.x * (count - 1) + point.x) / count,
+              (cluster.point.y * (count - 1) + point.y) / count,
+            );
+            const nextCell = gridCell(cluster.point);
+            if (previousCell.x !== nextCell.x || previousCell.y !== nextCell.y) {
+              const previousKey = cellKey(previousCell.x, previousCell.y);
+              clusterGrid.set(previousKey, (clusterGrid.get(previousKey) || []).filter((index) => index !== clusterIndex));
+              addClusterToGrid(clusterIndex, cluster.point);
+            }
+          } else {
+            clusters.push({ entries: [place], point });
+            addClusterToGrid(clusters.length - 1, point);
+          }
+        });
+
+        clusters.forEach((cluster) => {
+          const averageCenter = L.latLng(
+            cluster.entries.reduce((sum, place) => sum + place.lat, 0) / cluster.entries.length,
+            cluster.entries.reduce((sum, place) => sum + place.lng, 0) / cluster.entries.length,
+          );
+          const clusterAnchor = cluster.entries.reduce((closest, candidate) => (
+            averageCenter.distanceTo([candidate.lat, candidate.lng]) < averageCenter.distanceTo([closest.lat, closest.lng]) ? candidate : closest
+          ));
+          const clusterCenter = L.latLng(clusterAnchor.lat, clusterAnchor.lng);
+          const place = cluster.entries[0];
+          const clustered = cluster.entries.length > 1;
+          const explicitlyExpanded = clustered && cluster.entries.every((entry) => expandedPlaceIds.has(entry.id));
+          if (clustered && explicitlyExpanded && spreadMapCluster(cluster.entries, zoom)) {
+            spiderfyCluster(cluster.entries, clusterCenter, false);
+            return;
+          }
+          const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
+          const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
+          // Clusters communicate result count. Numeric labels keep useful values,
+          // such as price or capacity, visible without opening a result card.
+          const useTextLabel = clustered || place.markerKind !== "category";
+          const markerContent = clustered
+            ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
+            : useTextLabel
+              ? `${place.markerKind === "price" ? "" : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`}<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
+              : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
+          const marker = L.marker(clusterCenter, {
+            keyboard: true,
+            alt: clustered ? clusterText : place.name,
+            icon: L.divIcon({
+              className: `vii-map-marker-wrap map-tone--${tone} marker-kind--${clustered ? "count" : place.markerKind}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${cluster.entries.some((entry) => entry.id === selectedIdRef.current) ? " is-active" : ""}`,
+              html: `<span class="vii-map-marker">${markerContent}</span>`,
+              iconSize: clustered ? [72, 58] : useTextLabel ? [140, 54] : [54, 58],
+              iconAnchor: clustered ? [36, 54] : useTextLabel ? [70, 51] : [27, 54],
+            }),
+          }).addTo(markerLayer);
+
+          if (clustered) {
+            cluster.entries.forEach((entry) => markerRegistry.set(entry.id, marker));
+            marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${mapControlCopy.cluster}`);
+            marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
+            marker.on("click", (event) => {
+              if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+              clusterActivationEvent = event.originalEvent;
+              selectedIdRef.current = "";
+              setSelectedId("");
+              expandedPlaceIds = new Set();
+              const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
+              const paddedClusterBounds = clusterBounds.pad(0.65);
+              const currentZoom = map.getZoom();
+              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 19);
+              suppressProgrammaticViewportPrompt();
+              if (spreadMapCluster(cluster.entries, currentZoom)) {
+                // Coincident source points or maximum street zoom need a
+                // readable selection. Every leg starts at that entry's source
+                // coordinate; distinct places otherwise keep zooming in place.
+                expandedPlaceIds = new Set(cluster.entries.map((entry) => entry.id));
+                spiderfyCluster(cluster.entries, clusterCenter);
+                map.panInside(clusterCenter, { padding: L.point(120, 120), animate: true });
+              } else if (targetZoom <= currentZoom) {
+                map.setView(clusterCenter, Math.min(currentZoom + 1, 19));
+              } else {
+                map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
+              }
+            });
+          } else {
+            marker.getElement()?.setAttribute("aria-label", place.name);
+            marker.on("click", (event) => {
+              if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+              selectPlace(place.id);
+            });
+            bindPlaceMarkerInteraction(marker, place);
+            markerRegistry.set(place.id, marker);
+          }
+          enableMarkerKeyboardActivation(marker);
+        });
+        const activeMarker = hoveredPlaceId.current ? markerRegistry.get(hoveredPlaceId.current) : undefined;
+        if (activeMarker && [...markerRegistry.values()].filter((marker) => marker === activeMarker).length === 1) {
+          activeMarker.getElement()?.classList.add("is-card-active");
+          activeMarker.setZIndexOffset(1000);
+        }
+        container.setAttribute("data-map-render-ms", (performance.now() - startedAt).toFixed(2));
+        container.setAttribute("data-map-zoom", String(map.getZoom()));
+        container.setAttribute("data-map-rendered-markers", String(new Set(markerRegistry.values()).size));
+      };
+      renderMarkersRef.current = renderMarkers;
+
+      const visiblePlaceIds = () => {
+        const currentBounds = map.getBounds().pad(0.04);
+        return placesRef.current.filter((place) => currentBounds.contains([place.lat, place.lng])).map((place) => place.id);
+      };
+      const reportVisiblePlaces = (prompt = false) => {
+        const ids = visiblePlaceIds();
+        setPendingVisibleIds(ids);
+        if (prompt && !suppressViewportPrompt.current) setViewportDirty(true);
+        else if (!initialViewportReported && ids.length > 0) {
+          visibleCountCallback.current?.(ids.length);
+          visiblePlaceIdsCallback.current?.(ids);
+          initialViewportReported = true;
+        }
+      };
+      function suppressProgrammaticViewportPrompt() {
+        suppressViewportPrompt.current = true;
+        setViewportDirty(false);
+        if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
+        programmaticViewportTimer = window.setTimeout(() => {
+          if (cancelled || mapInstance.current !== map) return;
+          setPendingVisibleIds(visiblePlaceIds());
+          suppressViewportPrompt.current = false;
+        }, 520);
+      }
+
+      const initialPlaces = placesRef.current;
+      const focusPlaces = initialPlaceIds?.length
+        ? initialPlaces.filter((place) => initialPlaceIds.includes(place.id))
+        : initialPlaces;
+      const targetPlaces = focusPlaces.length ? focusPlaces : initialPlaces;
+      const bounds = L.latLngBounds(targetPlaces.map((place) => [place.lat, place.lng] as [number, number]));
+      const focusInitialPlaces = () => {
+        const compactViewport = container.clientWidth <= 640;
+        const boundsPadding: [number, number] = compactViewport ? [22, 22] : [56, 56];
+        const boundsExpansion = compactViewport ? 0.04 : 0.12;
+        if (targetPlaces.length === 1) {
+          map.setView([targetPlaces[0].lat, targetPlaces[0].lng], targetPlaces[0].precision === "area" ? 13 : 15, { animate: false });
+          return;
+        }
+        map.fitBounds(bounds.pad(boundsExpansion), { animate: false, maxZoom: 13, padding: boundsPadding });
+        // A tall mobile viewport can otherwise zoom out far beyond Israel just
+        // to preserve generous horizontal padding. Keep the national overview
+        // useful while retaining every relevant result inside the viewport.
+        if (compactViewport && map.getZoom() < 7) map.setZoom(7, { animate: false });
+      };
+      focusInitialPlaces();
+
+      // Panning and resizing do not change proximity at a fixed zoom. Leaflet
+      // repositions existing markers itself. Replacing their DOM here loses
+      // focus and can discard the first click/Enter after the layout changes.
+      map.on("zoomend", () => {
+        if (cancelled || mapInstance.current !== map) return;
+        renderMarkers();
+        reportVisiblePlaces(true);
+      });
+      map.on("dragend", () => {
+        if (cancelled || mapInstance.current !== map) return;
+        reportVisiblePlaces(true);
+      });
+      renderMarkers();
+      reportVisiblePlaces();
+
+      // CSS changes the same canvas between a sticky split and a full-screen
+      // map. Leaflet's window resize handler does not observe every flex/grid
+      // size change. Preserve the camera; never refit the original search here.
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(() => {
+          if (cancelled || mapInstance.current !== map || !container.isConnected) return;
+          map.invalidateSize({ animate: false, pan: false });
+          const ids = visiblePlaceIds();
+          setPendingVisibleIds(ids);
+          if (!initialViewportReported && ids.length > 0) {
+            visibleCountCallback.current?.(ids.length);
+            visiblePlaceIdsCallback.current?.(ids);
+            initialViewportReported = true;
+          }
+        });
+      });
+      resizeObserver.observe(container);
+      map.on("click", () => {
+        selectedIdRef.current = "";
+        setSelectedId("");
+        activePlaceCallback.current?.(null);
+      });
+
+      layoutTimer = window.setTimeout(() => {
+        if (cancelled || mapInstance.current !== map || !container.isConnected) return;
+        map.invalidateSize({ animate: false });
+        focusInitialPlaces();
+        renderMarkers();
+        reportVisiblePlaces();
+        layoutReady = true;
+        if (tilesReady) setMapReady(true);
+        settleFrame = window.requestAnimationFrame(() => {
+          suppressViewportPrompt.current = false;
+          setViewportDirty(false);
+        });
+      }, 80);
+    }).catch((error: unknown) => { if (!cancelled) setProviderError(error); });
+
+    return () => {
+      cancelled = true;
+      if (readyTimer) window.clearTimeout(readyTimer);
+      if (layoutTimer) window.clearTimeout(layoutTimer);
+      if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
+      if (settleFrame) window.cancelAnimationFrame(settleFrame);
+      resizeObserver?.disconnect();
+      if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
+      suppressViewportPrompt.current = false;
+      activePreviewMarker.current?.remove();
+      activePreviewMarker.current = null;
+      markerRegistry.clear();
+      renderMarkersRef.current = null;
+      createdMap?.off();
+      createdMap?.remove();
+      restoreMapFocus();
+      if (mapInstance.current === createdMap) mapInstance.current = null;
+    };
+  // Result streams can grow from a fast partial catalog into the complete
+  // inventory. Marker reconciliation below reads placesRef, so neither a new
+  // coordinate set nor a longer focus list is an instruction to tear down the
+  // live Leaflet instance, reset its camera or discard the user's selection.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, interactive, selectPlace, single, tone, language, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut, providerRetry, providerError]);
+
+  useEffect(() => {
+    // Catalog, coordinate and presentation data can arrive after the map has
+    // opened. Reconcile the current marker layer without replacing the map or
+    // changing its camera.
+    renderMarkersRef.current?.();
+  }, [placesSignature]);
+
+  if (!preview) return null;
+
+  const previewRegional = preview.precision === "area";
+  const placeFallback = snapshotUnavailable;
+  const previewImage = placeFallback ? preview.image : snapshotUrl;
+  const fallbackLabel = { he: "תצוגת המקום", en: "Place preview", ru: "Вид места", fr: "Aperçu du lieu" }[language];
+  const previewContent = (
+    <>
+      {(!snapshotUnavailable || placeFallback) && <>{/* eslint-disable-next-line @next/next/no-img-element */}<img ref={previewImageRef} className={`map-preview-image ${placeFallback ? "is-place-fallback" : "is-map-snapshot"}`} src={previewImage}
+        alt={placeFallback ? preview.name : `${mapCopy.view} ${preview.name}`}
+        title={placeFallback ? preview.name : `${mapCopy.view} ${preview.name}`}
+        onError={() => { if (!placeFallback) setSnapshotUnavailable(true); }} /></>}
+      <span className="map-preview-shade" aria-hidden="true" />
+      <div className="map-preview-content">
+        <span className="map-preview-label">{placeFallback ? fallbackLabel : mapCopy.preview}</span>
+        <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
+        <div>
+          <h3>{single ? preview.name : `${resultSummary.count} ${resultSummary.trailLabel || mapCopy.onMap}`}</h3>
+          <p>{single ? `${preview.location}, ${preview.area}` : mapCopy.together}</p>
+        </div>
+        {!enabled && <button className="button map-load-button" type="button" onClick={activateMap}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
+        {enabled && !mapReady && <span className="map-loading-pill">{mapCopy.loadingShort}</span>}
+        {single && previewRegional && <small className="map-precision-note">{mapCopy.regional}</small>}
+      </div>
+      {!snapshotUnavailable && <a className="map-preview-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>© OpenStreetMap</a>}
+    </>
+  );
+
+  if (!enabled) return <div className={`map-preview-card map-tone--${tone} ${single ? "single-map-preview" : ""}`}>{previewContent}</div>;
+
+  const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
+    <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
+    {single && mapReady && !interactive && <button className="map-passive-activate" type="button" onClick={activateMap} onWheel={activateMap} aria-label={mapCopy.open}>
+      <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
+      <span>{mapCopy.open}</span>
+    </button>}
+    {!single && <div className={`map-results-summary${resultKind === "trails" && regional ? " map-results-summary--approximate" : ""}`} aria-live="polite" data-place-count={resultSummary.count} data-marker-count={resultSummary.markers} data-priced-count={pricedPlaceCount}><strong>{resultSummary.count} {resultSummary.trailLabel || cardCopy.visible}</strong>{resultKind === "trails" && regional ? <span className="map-results-summary__precision">{resultSummary.approximateLabel}</span> : null}{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
+    {onClose && !single && <button className="map-mobile-close" type="button" onClick={() => { trackMapInteraction({ action: "close", world: tone, resultCount: places.length }); onClose(); }} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
+    {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
+    {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
+    {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
+    {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
+      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image]} href={localizedPath(selected.href, language)}>
+        <small>{selected.category}</small>
+      </PreviewCardGallery>
+      <div className="map-selection-card__body">
+        <span className="map-selection-card__location">{selected.location}{selected.area && selected.area !== selected.location ? ` · ${selected.area}` : ""}</span>
+        <strong>{selected.name}</strong>
+        {(selected.valueLabel || selected.rating) && <div className="map-selection-card__decision">
+          {selected.valueLabel && <b>{selected.valueLabel}</b>}
+          {selected.rating && <span>★ {selected.rating.toFixed(1)}{selected.reviews ? ` · ${selected.reviews.toLocaleString()} ${cardCopy.review}` : ""}</span>}
+        </div>}
+        <span className="map-selection-card__meta">{selected.meta}</span>
+        {selected.precision === "area" && <span className="map-selection-card__precision">{precisionCopy}</span>}
+        <Link href={localizedPath(selected.href, language)}>{cardCopy.details}</Link>
+      </div>
+      <button className="map-selection-card__close" type="button" onClick={closeSelectedPlace} aria-label={cardCopy.close}>×</button>
+    </article>}
+  </div>;
+
+  if (single) return <MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider}>{mapCanvas}</MapProviderBoundary>;
+
+  return <div className={`map-results-experience map-tone--${tone}`}>
+    <div className="map-results-canvas"><MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider}>{mapCanvas}</MapProviderBoundary></div>
+  </div>;
+}
+

@@ -85,7 +85,7 @@ export async function GET(request: Request) {
       snapshotReadFailed = !db || !(error instanceof Error && "code" in error && error.code === "discovery_snapshot_missing");
     }
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
-    const curatedSource = snapshot ? await applyCuration(snapshot.cached.value.deals, requestedPeriod) : [];
+    const curatedSource = snapshot ? await timing.measure("curation", () => applyCuration(snapshot.cached.value.deals, requestedPeriod)) : [];
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
       && publicSummaryIds.has(deal.siteID)
       && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));

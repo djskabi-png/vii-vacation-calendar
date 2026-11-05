@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -7,7 +8,7 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("shared maps prefer a stored snapshot and use a passive real map on detail fallback", async () => {
   const [map, detail, url, css] = await Promise.all([
-    read("app/components/listing-map.tsx"),
+    readMapImplementation(),
     read("app/discover/place/client-page.tsx"),
     read("app/lib/map-snapshot-url.ts"),
     read("app/globals.css"),

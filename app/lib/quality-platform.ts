@@ -1,6 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { initializeSchemaOnce } from "./schema-initializer.ts";
 import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope, type QualityScopeSelection } from "./quality-check-scope.ts";
+import type { QualityJob } from "./quality-job-store.ts";
 
 export type QualitySeverity = "critical" | "high" | "medium" | "low";
 export type QualityStatus = "passed" | "failed" | "degraded" | "blocked";
@@ -145,6 +146,10 @@ const schema = [
     status_code INTEGER, duration_ms INTEGER NOT NULL, observed TEXT NOT NULL, evidence_url TEXT,
     checked_at TEXT NOT NULL, UNIQUE(run_id,check_id))`,
   `CREATE INDEX IF NOT EXISTS quality_results_run ON quality_results(run_id,checked_at DESC)`,
+  `CREATE TABLE IF NOT EXISTS quality_job_projection_receipts (result_id TEXT PRIMARY KEY,run_id TEXT NOT NULL,applied_at TEXT NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS quality_job_projection_runs ON quality_job_projection_receipts(run_id)`,
+  `CREATE TABLE IF NOT EXISTS quality_notification_outbox (id TEXT PRIMARY KEY,payload_json TEXT NOT NULL,status TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL)`,
+  `CREATE INDEX IF NOT EXISTS quality_notification_outbox_due ON quality_notification_outbox(status,created_at)`,
   `CREATE TABLE IF NOT EXISTS quality_incidents (
     id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL UNIQUE, check_id TEXT NOT NULL, family TEXT NOT NULL,
     world TEXT NOT NULL, route TEXT NOT NULL, viewport TEXT NOT NULL, severity TEXT NOT NULL,
@@ -162,7 +167,7 @@ const schema = [
 ] as const;
 
 export async function ensureQualitySchema(db: D1Database) {
-  return initializeSchemaOnce(db, "quality-schema-cycle-v2", async () => {
+  return initializeSchemaOnce(db, "quality-schema-job-outbox-v4", async () => {
   await db.batch(schema.map((statement) => db.prepare(statement)));
   const columns = await db.prepare(`PRAGMA table_info(quality_runs)`).all<{ name: string }>();
   const names = new Set((columns.results || []).map((column) => column.name));
@@ -206,7 +211,7 @@ async function checksDue(db: D1Database, now: Date, trigger: "scheduled" | "manu
   return qualityRegistry.filter((check) => minute % (cadenceById.get(check.checkId) || check.cadenceMinutes) === 0);
 }
 
-async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof fetch) {
+export async function executeQualityCheck(check: QualityCheck, origin: string, fetcher: typeof fetch, signal?: AbortSignal) {
   const started = Date.now();
   const url = new URL(check.route, origin).toString();
   try {
@@ -214,7 +219,7 @@ async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof
       method: "GET",
       redirect: "follow",
       headers: { "user-agent": "VII-Quality-Monitor/2.0", accept: check.contentKind === "image" ? "image/avif,image/webp,image/png,image/jpeg" : check.contentKind === "json" ? "application/json" : check.contentKind === "xml" ? "application/xml,text/xml" : "text/html" },
-      signal: AbortSignal.timeout(check.timeoutMs),
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(check.timeoutMs)]) : AbortSignal.timeout(check.timeoutMs),
     });
     const type = response.headers.get("content-type") || "";
     const bytes = new Uint8Array(await response.arrayBuffer());
@@ -239,6 +244,18 @@ async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof
     return { status: "failed" as const, statusCode: null, durationMs: Date.now() - started,
       observed: error instanceof Error ? error.message.slice(0, 500) : "unknown fetch failure", url };
   }
+}
+
+export function selectManualQualityChecks(level: QualityRunLevel, scope?: { changedBoxes: readonly string[]; consumers?: readonly string[]; unknownOwner?: boolean }) {
+  let checks = qualityRegistry.filter(check => level === "full" || check.severity === "critical" || level === "medium" && check.severity === "high");
+  if (scope) {
+    const selected = selectQualityScope(adaptQualityChecks(qualityRegistry, qualityScopeMetadata), scope.changedBoxes, scope);
+    if (selected.status !== "selected") throw new Error("quality_scope_unmapped");
+    checks = checks.filter(check => selected.selectedCheckIds.includes(check.checkId));
+    if (checks.length !== selected.selectedCheckIds.length) throw new Error("quality_scope_level_incomplete");
+  }
+  if (!checks.length) throw new Error("quality_scope_empty");
+  return checks;
 }
 
 function emailConfiguration(env: QualityNotificationEnvironment = {}) {
@@ -276,7 +293,7 @@ async function deliverIncidentEmail(event: QualityIncidentEvent, env: QualityNot
   try {
     const response = await fetcher("https://api.resend.com/emails", {
       method: "POST",
-      headers: { Authorization: `Bearer ${configuration.apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `vii-quality:${event.incidentId}:${event.eventKind}` },
+      headers: { Authorization: `Bearer ${configuration.apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `vii-quality:${event.incidentId}:${event.eventKind}${event.cycle > 1 ? `:${event.cycle}` : ""}` },
       body: JSON.stringify({ from: configuration.from, to: configuration.recipients, subject, text }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -338,25 +355,42 @@ async function recordNotification(db: D1Database, event: QualityIncidentEvent, e
 }
 
 async function reconcileIncident(db: D1Database, check: QualityCheck, result: { id: string; status: QualityStatus; observed: string }, now: string,
-  options: { origin: string; notificationEnv: QualityNotificationEnvironment; fetcher: typeof fetch; runId: string }) {
+  options: { origin: string; notificationEnv: QualityNotificationEnvironment; fetcher: typeof fetch; runId: string; deferNotifications?: boolean }) {
+  const notify = async (event: QualityIncidentEvent) => {
+    if (!options.deferNotifications) return recordNotification(db, event, options.notificationEnv, options.fetcher, now);
+    // Persist an outbox event with the incident before the projection receipt.
+    // Public/HTTP job slices never wait for an external email provider.
+    await db.prepare(`INSERT OR IGNORE INTO quality_notification_outbox (id,payload_json,status,created_at,updated_at)
+      VALUES (?,?,'queued',?,?)`).bind(`${event.incidentId}:${event.eventKind}:${event.cycle}`, JSON.stringify(event), now, now).run();
+  };
   if (result.status === "passed") {
     // Recovery belongs to the exact check context. A check id can be reused
     // across routes or viewports; recovering every incident with that id can
     // silently close a still-broken sibling context.
-    const unresolved = await db.prepare(`SELECT id,cycle FROM quality_incidents
-      WHERE check_id=? AND family=? AND world=? AND route=? AND viewport=? AND status!='resolved'`)
-      .bind(check.checkId, check.family, check.world, check.route, check.viewport).all<{ id: string; cycle: number }>();
+    const unresolved = await db.prepare(`SELECT id,cycle,status FROM quality_incidents
+      WHERE check_id=? AND family=? AND world=? AND route=? AND viewport=? AND last_seen_at<=?
+      AND (status!='resolved' OR last_result_id=?)`)
+      .bind(check.checkId, check.family, check.world, check.route, check.viewport, now, result.id).all<{ id: string; cycle: number; status: string }>();
     for (const incident of unresolved.results || []) {
+      if (incident.status === "resolved") {
+        await notify({ incidentId: incident.id, cycle: Number(incident.cycle || 1), eventKind: "recovered", check, observed: result.observed, origin: options.origin });
+        continue;
+      }
       const updated = await db.prepare(`UPDATE quality_incidents SET status='resolved',last_seen_at=?,recovered_at=?,resolved_at=?,resolved_by='automatic-recovery',last_result_id=?,last_observed=?
         WHERE id=? AND EXISTS (SELECT 1 FROM quality_runs WHERE id=? AND status='running')`)
         .bind(now, now, now, result.id, result.observed, incident.id, options.runId).run();
-      if (Number(updated.meta?.changes || 0) > 0) await recordNotification(db, { incidentId: incident.id, cycle: Number(incident.cycle || 1), eventKind: "recovered", check, observed: result.observed, origin: options.origin }, options.notificationEnv, options.fetcher, now);
+      if (Number(updated.meta?.changes || 0) > 0) await notify({ incidentId: incident.id, cycle: Number(incident.cycle || 1), eventKind: "recovered", check, observed: result.observed, origin: options.origin });
     }
     return;
   }
   const key = fingerprint(check);
-  const prior = await db.prepare(`SELECT id,status,occurrences,cycle FROM quality_incidents WHERE fingerprint=?`).bind(key)
-    .first<{ id: string; status: string; occurrences: number; cycle: number }>();
+  const prior = await db.prepare(`SELECT id,status,occurrences,cycle,last_result_id AS lastResultId,last_seen_at AS lastSeenAt FROM quality_incidents WHERE fingerprint=?`).bind(key)
+    .first<{ id: string; status: string; occurrences: number; cycle: number; lastResultId: string; lastSeenAt: string }>();
+  if (prior && prior.lastSeenAt > now) return;
+  if (prior?.lastResultId === result.id) {
+    if (prior.occurrences === 1 && prior.status !== "resolved") await notify({ incidentId: prior.id, cycle: Number(prior.cycle || 1), eventKind: "opened", check, observed: result.observed, origin: options.origin });
+    return;
+  }
   const transition = incidentTransition(prior, result.status);
   if (transition.action === "none") return;
   if (transition.action === "open") {
@@ -364,7 +398,7 @@ async function reconcileIncident(db: D1Database, check: QualityCheck, result: { 
       const reopened = await db.prepare(`UPDATE quality_incidents SET status='open',last_seen_at=?,recovered_at=NULL,resolved_at=NULL,resolved_by=NULL,occurrences=1,cycle=cycle+1,last_result_id=?,last_observed=?
         WHERE id=? AND status='resolved' AND EXISTS (SELECT 1 FROM quality_runs WHERE id=? AND status='running')`)
         .bind(now, result.id, result.observed, prior.id, options.runId).run();
-      if (Number(reopened.meta?.changes || 0) > 0) await recordNotification(db, { incidentId: prior.id, cycle: Number(prior.cycle || 1) + 1, eventKind: "opened", check, observed: result.observed, origin: options.origin }, options.notificationEnv, options.fetcher, now);
+      if (Number(reopened.meta?.changes || 0) > 0) await notify({ incidentId: prior.id, cycle: Number(prior.cycle || 1) + 1, eventKind: "opened", check, observed: result.observed, origin: options.origin });
       return;
     }
     const incidentId = crypto.randomUUID();
@@ -374,7 +408,7 @@ async function reconcileIncident(db: D1Database, check: QualityCheck, result: { 
       SELECT ?,?,?,?,?,?,?,?, 'open',?,?,NULL,NULL,NULL,NULL,NULL,1,1,?,?
       WHERE EXISTS (SELECT 1 FROM quality_runs WHERE id=? AND status='running')`)
       .bind(incidentId, key, check.checkId, check.family, check.world, check.route, check.viewport, check.severity, now, now, result.id, result.observed, options.runId).run();
-    if (Number(inserted.meta?.changes || 0) > 0) await recordNotification(db, { incidentId, cycle: 1, eventKind: "opened", check, observed: result.observed, origin: options.origin }, options.notificationEnv, options.fetcher, now);
+    if (Number(inserted.meta?.changes || 0) > 0) await notify({ incidentId, cycle: 1, eventKind: "opened", check, observed: result.observed, origin: options.origin });
     return;
   }
   await db.prepare(`UPDATE quality_incidents SET status='open',last_seen_at=?,recovered_at=NULL,resolved_at=NULL,resolved_by=NULL,
@@ -436,7 +470,7 @@ export async function runQualityChecks(db: D1Database, options: {
     const batch = due.slice(offset, offset + CHECK_CONCURRENCY);
     await db.prepare(`UPDATE quality_runs SET current_check_id=? WHERE id=? AND status='running'`)
       .bind(batch[0]?.checkId || null, runId).run();
-    const observations = await Promise.all(batch.map(async (check) => ({ check, observed: await executeCheck(check, options.origin, fetcher) })));
+    const observations = await Promise.all(batch.map(async (check) => ({ check, observed: await executeQualityCheck(check, options.origin, fetcher) })));
     // A stale-run sweeper may have claimed this run while the network batch
     // was in flight. Do not append results, reconcile incidents, or publish a
     // late green status after ownership has been lost.
@@ -475,9 +509,81 @@ export async function runQualityChecks(db: D1Database, options: {
   return { runId, status: persisted?.status || "blocked", counts, checkCount: due.length, expectedCheckIds: scopeSelection?.selectedCheckIds || [], executedCheckIds: due.map((check) => check.checkId), selectedCheckIds: scopeSelection?.selectedCheckIds || [], selectionStatus: scopeSelection?.status || "selected", startedAt: now, finishedAt: finished };
 }
 
+/** Bridge durable manual jobs into the existing run/result/incident history.
+ * Stable result IDs and idempotent incident reconciliation make projection
+ * resumable without increasing occurrences or repeating a reserved send. */
+export async function persistQualityJobProgress(db: D1Database, job: QualityJob, notificationEnv: QualityNotificationEnvironment = {}, fetcher: typeof fetch = fetch) {
+  await ensureQualitySchema(db);
+  const level = job.checks[0]?.configuration.level;
+  const triggerKind = level === "regular" ? "manual_regular" : level === "medium" ? "manual_medium" : "manual_full";
+  await db.prepare(`INSERT OR IGNORE INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor,total_checks,current_check_id)
+    VALUES (?,?,?,?,'running',?,?,?,?)`).bind(job.runId, `job:${job.runId}`, triggerKind, job.sourceVersion, job.createdAt, job.actor, job.checks.length, job.checks[job.nextIndex]?.checkId ?? null).run();
+  const current = await db.prepare("SELECT status FROM quality_runs WHERE id=?").bind(job.runId).first<{ status: string }>();
+  if (current?.status !== "running") return false;
+  const counts = { passed: 0, failed: 0, degraded: 0, blocked: 0 };
+  const appliedRows = await db.prepare("SELECT result_id AS resultId FROM quality_job_projection_receipts WHERE run_id=?")
+    .bind(job.runId).all<{ resultId: string }>();
+  const applied = new Set(appliedRows.results.map(row => row.resultId));
+  for (const receipt of job.receipts) {
+    counts[receipt.status]++;
+    const entry = job.checks.find(check => check.checkId === receipt.checkId);
+    if (!entry) throw new Error("quality_job_receipt_definition_missing");
+    const check = entry.configuration.check as QualityCheck;
+    const resultId = `${job.runId}:${receipt.checkId}`;
+    if (applied.has(resultId)) continue;
+    await db.prepare(`INSERT OR IGNORE INTO quality_results (id,run_id,check_id,status,status_code,duration_ms,observed,evidence_url,checked_at)
+      SELECT ?,?,?,?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM quality_runs WHERE id=? AND status='running')`)
+      .bind(resultId, job.runId, receipt.checkId, receipt.status, receipt.statusCode ?? null, receipt.durationMs ?? 0, receipt.observed, receipt.evidenceUrl ?? null, receipt.checkedAt, job.runId).run();
+    await reconcileIncident(db, check, { id: resultId, status: receipt.status, observed: receipt.observed }, receipt.checkedAt,
+      { origin: String(entry.configuration.origin), notificationEnv, fetcher, runId: job.runId, deferNotifications: true });
+    await db.prepare("INSERT OR IGNORE INTO quality_job_projection_receipts (result_id,run_id,applied_at) VALUES (?,?,?)")
+      .bind(resultId, job.runId, new Date().toISOString()).run();
+  }
+  const terminal = job.status === "completed" || job.status === "blocked" || job.status === "cancelled";
+  if (job.status === "blocked" || job.status === "cancelled") counts.blocked++;
+  const status = !terminal ? "running" : job.status !== "completed" ? "blocked" : counts.failed || counts.blocked ? "failed" : counts.degraded ? "degraded" : "passed";
+  // A completed cursor without every committed receipt is incomplete evidence.
+  const safeStatus = status === "passed" && (job.nextIndex !== job.checks.length || job.receipts.length !== job.checks.length) ? "blocked" : status;
+  await db.prepare(`UPDATE quality_runs SET status=?,finished_at=?,current_check_id=?,passed_count=?,failed_count=?,degraded_count=?,blocked_count=?,duration_ms=?
+    WHERE id=? AND status='running'`).bind(safeStatus, terminal ? job.updatedAt : null, terminal ? null : job.checks[job.nextIndex]?.checkId ?? null,
+      counts.passed, counts.failed, counts.degraded, counts.blocked, Math.max(0, Date.parse(job.updatedAt) - Date.parse(job.createdAt)), job.runId).run();
+  return true;
+}
+
+export async function flushQueuedQualityNotifications(db: D1Database, notificationEnv: QualityNotificationEnvironment, fetcher: typeof fetch = fetch) {
+  await ensureQualitySchema(db);
+  const now = new Date().toISOString(), staleBefore = new Date(Date.now() - RUN_STALE_AFTER_MS).toISOString();
+  // A crashed consumer may have reached its provider. Surface uncertainty;
+  // never reclaim it as a fresh send attempt.
+  await db.prepare("UPDATE quality_notification_outbox SET status='unknown',updated_at=? WHERE status='processing' AND updated_at<?").bind(now, staleBefore).run();
+  if (qualityNotificationProviderStatus(notificationEnv) !== "configured") return { processed: 0 };
+  const rows = await db.prepare("SELECT id,payload_json AS payloadJson FROM quality_notification_outbox WHERE status='queued' ORDER BY created_at,id LIMIT 2")
+    .all<{ id: string; payloadJson: string }>();
+  let processed = 0;
+  for (const row of rows.results) {
+    const claimed = await db.prepare("UPDATE quality_notification_outbox SET status='processing',updated_at=? WHERE id=? AND status='queued'").bind(now, row.id).run();
+    if (Number(claimed.meta?.changes ?? 0) !== 1) continue;
+    const event = JSON.parse(row.payloadJson) as QualityIncidentEvent;
+    const incident = await db.prepare("SELECT status,cycle FROM quality_incidents WHERE id=?").bind(event.incidentId).first<{ status: string; cycle: number }>();
+    if (!incident || incident.cycle !== event.cycle || (event.eventKind === "opened" ? incident.status === "resolved" : incident.status !== "resolved")) {
+      await db.prepare("UPDATE quality_notification_outbox SET status='superseded',updated_at=? WHERE id=? AND status='processing'").bind(now, row.id).run();
+      continue;
+    }
+    await recordNotification(db, event, notificationEnv, fetcher, now);
+    const eventKey = event.cycle > 1 ? `${event.eventKind}:${event.cycle}` : event.eventKind;
+    const delivery = await db.prepare("SELECT status FROM quality_notification_deliveries WHERE incident_id=? AND channel='email' AND event_kind=?")
+      .bind(event.incidentId, eventKey).first<{ status: string }>();
+    const uncertain = !delivery || delivery.status === "pending" || delivery.status === "unknown";
+    await db.prepare("UPDATE quality_notification_outbox SET status=?,updated_at=? WHERE id=? AND status='processing'")
+      .bind(uncertain ? "unknown" : "processed", now, row.id).run();
+    processed++;
+  }
+  return { processed };
+}
+
 export async function readQualityDashboard(db: D1Database, notificationEnv: QualityNotificationEnvironment = {}) {
   await ensureQualitySchema(db);
-  const [runs, incidents, deliveries, checks, overrides] = await Promise.all([
+  const [runs, incidents, deliveries, checks, overrides, outbox] = await Promise.all([
     db.prepare(`SELECT id,operation_key AS operationKey,trigger_kind AS triggerKind,release_id AS releaseId,status,started_at AS startedAt,finished_at AS finishedAt,
       passed_count AS passedCount,failed_count AS failedCount,degraded_count AS degradedCount,blocked_count AS blockedCount,duration_ms AS durationMs,actor,
       total_checks AS totalChecks,current_check_id AS currentCheckId
@@ -490,6 +596,8 @@ export async function readQualityDashboard(db: D1Database, notificationEnv: Qual
     db.prepare(`SELECT check_id AS checkId,family,world,route,viewport,severity,cadence_minutes AS cadenceMinutes,expected,release_blocking AS releaseBlocking,active,updated_at AS updatedAt
       FROM quality_checks ORDER BY severity,check_id`).all(),
     db.prepare(`SELECT check_id AS checkId,cadence_minutes AS cadenceMinutes FROM quality_schedule_overrides`).all(),
+    db.prepare(`SELECT SUM(CASE WHEN status='queued' THEN 1 ELSE 0 END) AS queued,
+      SUM(CASE WHEN status IN ('unknown','processing') THEN 1 ELSE 0 END) AS uncertain FROM quality_notification_outbox`).first<{ queued: number | null; uncertain: number | null }>(),
   ]);
   // The registry exists before the first run. Loading the dashboard must not
   // claim there are zero checks, or require a run with email side effects just
@@ -499,7 +607,7 @@ export async function readQualityDashboard(db: D1Database, notificationEnv: Qual
   const availableChecks = qualityRegistry.map((check) => ({ ...check, active: 1,
     ...persistedChecks.get(check.checkId),
     ...(cadenceOverrides.has(check.checkId) ? { cadenceMinutes: cadenceOverrides.get(check.checkId) } : {}) }));
-  return { generatedAt: new Date().toISOString(), notificationProvider: { email: qualityNotificationProviderStatus(notificationEnv) }, checks: availableChecks, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
+  return { generatedAt: new Date().toISOString(), notificationProvider: { email: qualityNotificationProviderStatus(notificationEnv), queued: Number(outbox?.queued ?? 0), uncertain: Number(outbox?.uncertain ?? 0) }, checks: availableChecks, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
 }
 
 export async function readQualityRunStatus(db: D1Database, input: { runId?: string; activeOnly?: boolean } = {}) {

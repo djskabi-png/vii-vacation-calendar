@@ -1,10 +1,11 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
-const map = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
+const map = readMapImplementation();
 const businessPage = readFileSync(new URL("../app/business/page.tsx", import.meta.url), "utf8");
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");

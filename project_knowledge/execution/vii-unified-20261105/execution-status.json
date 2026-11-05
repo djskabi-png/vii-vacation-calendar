@@ -20,8 +20,11 @@
       "id": "V02",
       "title": "מצב מוצא והיקף האימות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V03",
@@ -41,15 +44,21 @@
       "id": "V05",
       "title": "עיצוב ומצב עצמאי לכל עולם",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V06",
       "title": "חוזה מפה והחלפת המימוש",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V07",
@@ -83,8 +92,11 @@
       "id": "V11",
       "title": "מדיניות רענון ומטמון",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V12",
@@ -97,15 +109,21 @@
       "id": "V13",
       "title": "תקציבי ביצועים ומשאבים",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V14",
       "title": "טעינה ומעבר בין עמודים",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V15",
@@ -125,8 +143,11 @@
       "id": "V17",
       "title": "מערכת הניהול ודוחות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V18",
@@ -153,8 +174,11 @@
       "id": "V21",
       "title": "בדיקות ותנאי קבלה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V22",
@@ -167,8 +191,11 @@
       "id": "V23",
       "title": "פרסום חזרה לאחור ושימור מצטבר",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "V24",
@@ -223,8 +250,11 @@
       "id": "Q04",
       "title": "תיקוני אמינות לפני הרחבת המוצר",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q05",
@@ -244,8 +274,11 @@
       "id": "Q07",
       "title": "בדוק עכשיו והרצה מאולצת",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q08",
@@ -265,8 +298,11 @@
       "id": "Q10",
       "title": "ארכיטקטורת ההפעלה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q11",
@@ -279,8 +315,11 @@
       "id": "Q12",
       "title": "מנגנון עבודות אמין",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q13",
@@ -321,57 +360,81 @@
       "id": "Q18",
       "title": "תוצאות וצביעת מצב",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q19",
       "title": "ניהול תקלות והתאוששות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q20",
       "title": "התראות ומסירה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q21",
       "title": "מסך הניהול",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q22",
       "title": "מודל נתונים ושימור היסטוריה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q23",
       "title": "בטיחות פרטיות והרשאות",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q24",
       "title": "תקציב ועומס",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q25",
       "title": "בדיקה של QQQAAA עצמה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_01_VERIFICATION.md",
+        "PHASE_02.md"
+      ]
     },
     {
       "id": "Q26",
@@ -421,7 +484,7 @@
     "QQQAAA specialist: run/incident reliability with executable race tests",
     "World specialist: spa CSS boundary with computed-style isolation"
   ],
-  "lastUpdated": "2026-11-05T21:40:31.279468+00:00",
+  "lastUpdated": "2026-11-05T23:40:31.279468+02:00",
   "completionClaim": false,
   "currentSourceHead": "5fb85058951f9bcab0f87404f3820bef0fd5e41c",
   "sourceCheckpoints": [
@@ -518,9 +581,24 @@
       "id": "normalized-map-adapters",
       "state": "partial",
       "limit": "Provider replacement, complete precision propagation and UI verification pending"
+    },
+    {
+      "id": "discovery-cold-miss-and-recovery-budget",
+      "state": "local_tests_passed",
+      "limit": "Public latency not measured from this candidate"
+    },
+    {
+      "id": "leaflet-provider-implementation-boundary",
+      "state": "local_tests_passed",
+      "limit": "Rendered candidate QA pending, listing precision remains unchanged"
+    },
+    {
+      "id": "quality-durable-job-api-ui-history-outbox",
+      "state": "local_tests_passed",
+      "limit": "Cron interim wiring only, production runtime and Queue/resource isolation pending"
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Production build of frozen candidate and natural UI verification; then continue remaining plan capabilities."
+  "nextStep": "Frozen phase2 build and natural UI verification, then close remaining required architecture/operations gaps"
 }

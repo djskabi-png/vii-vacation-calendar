@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {mapSpiderOffset, spreadMapCluster, validMapCoordinate} from '../app/lib/map-marker-layout.ts';
@@ -16,7 +17,7 @@ test('invalid coordinate values never become map markers and coincident offsets 
  const offsets=Array.from({length:30},(_,i)=>mapSpiderOffset(i,30));assert.equal(new Set(offsets.map(p=>`${p.x}:${p.y}`)).size,30);assert.ok(offsets.every(p=>Math.hypot(p.x,p.y)<170));
 });
 test('shared renderer connects spread pins to each original coordinate and never automatically spreads all clusters at city zoom',()=>{
- const source=readFileSync(new URL('../app/components/listing-map.tsx',import.meta.url),'utf8');
+ const source=readMapImplementation();
  assert.match(source,/L\.polyline\(\[\[entry\.lat, entry\.lng\], spiderPosition\]/);
  assert.doesNotMatch(source,/zoom >= 12 \|\| explicitlyExpanded|currentZoom \+ 3, 12/);
  assert.match(source,/explicitlyExpanded && spreadMapCluster/);

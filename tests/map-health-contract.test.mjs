@@ -1,3 +1,4 @@
+import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -6,7 +7,7 @@ test("map health contract covers every monitored world with real interactive-map
   const [route, registry, map] = await Promise.all([
     fs.readFile(new URL("../app/api/map-health/route.ts", import.meta.url), "utf8"),
     fs.readFile(new URL("../app/lib/quality-platform.ts", import.meta.url), "utf8"),
-    fs.readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readMapImplementation(),
   ]);
   assert.match(route, /coordinatesReady/);
   assert.match(route, /interactiveMap:\s*true/);
