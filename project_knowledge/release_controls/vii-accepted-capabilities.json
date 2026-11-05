@@ -74,6 +74,10 @@
     {
       "commit": "5cf02c577975bd78ff5bce0f7bc6266e986396fd",
       "capability": "Saved QQQAAA API hydration, navigation recovery, mobile draft and independent admin reads"
+    },
+    {
+      "commit": "0587ad9f5fa1c241482f8d6e4d68d0bed0df7663",
+      "capability": "public v801 API hydration recovery, navigation deadline, readonly candidate inspection and staged search preservation"
     }
   ],
   "requiredCapabilities": [

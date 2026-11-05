@@ -7,6 +7,7 @@ import {
   type SupplierCatalogEntry, type SupplierCatalogWorld,
 } from "./supplier-catalog-store.ts";
 import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
+import { legacyGalleryFilename, isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
 
 type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string };
 
@@ -33,8 +34,23 @@ function removedStrings(before: unknown, after: unknown) {
   return strings(before).filter((item) => !next.has(item));
 }
 
+function mediaIdentity(value: unknown) {
+  const canonical = legacyGalleryFilename(value);
+  return canonical ? `gallery:${canonical}` : typeof value === "string" ? value.trim() : "";
+}
+
+function removedMedia(before: unknown, after: unknown) {
+  const next = new Set(strings(after).map(mediaIdentity));
+  return strings(before).filter((item) => !isQuarantinedGalleryMedia(item) && !next.has(mediaIdentity(item)));
+}
+
+function quarantineOnlyGroup(value: unknown) {
+  const images = strings(object(value).images);
+  return images.length > 0 && images.every(isQuarantinedGalleryMedia);
+}
+
 function collectionIssues(supplierId: number, path: string, before: unknown, after: unknown): CatalogContentIssue[] {
-  const oldItems = Array.isArray(before) ? before : [];
+  const oldItems = Array.isArray(before) ? before.filter((item) => path.endsWith(".images") ? !isQuarantinedGalleryMedia(item) : path === "detail.galleryGroups" ? !quarantineOnlyGroup(item) : true) : [];
   if (!oldItems.length) return [];
   if (!Array.isArray(after) || !after.length) return [{ supplierId, path, reason: "collection_missing" }];
   return [];
@@ -57,16 +73,17 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
     for (const key of ["images", "galleryGroups", "features", "featureGroups", "rooms"] as const) {
       issues.push(...collectionIssues(oldEntry.supplierId, `detail.${key}`, before[key], after[key]));
     }
-    if (removedStrings(before.images, after.images).length) {
+    if (removedMedia(before.images, after.images).length) {
       issues.push({ supplierId: oldEntry.supplierId, path: "detail.images", reason: "item_removed" });
     }
     const afterGalleryGroups = new Map(records(after.galleryGroups).map((group) => [String(group.title || ""), group]));
     for (const group of records(before.galleryGroups)) {
+      if (quarantineOnlyGroup(group)) continue;
       const title = String(group.title || "");
       const nextGroup = afterGalleryGroups.get(title);
       if (!nextGroup) {
         issues.push({ supplierId: oldEntry.supplierId, path: "detail.galleryGroups", reason: "item_removed" });
-      } else if (removedStrings(group.images, nextGroup.images).length) {
+      } else if (removedMedia(group.images, nextGroup.images).length) {
         issues.push({ supplierId: oldEntry.supplierId, path: "detail.galleryGroups.images", reason: "item_removed" });
       }
     }
@@ -78,7 +95,7 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
       for (const key of ["images", "features", "featureGroups"] as const) {
         issues.push(...collectionIssues(oldEntry.supplierId, `detail.rooms.${roomId}.${key}`, room[key], nextRoom[key]));
       }
-      if (removedStrings(room.images, nextRoom.images).length || removedStrings(room.features, nextRoom.features).length) {
+      if (removedMedia(room.images, nextRoom.images).length || removedStrings(room.features, nextRoom.features).length) {
         issues.push({ supplierId: oldEntry.supplierId, path: `detail.rooms.${roomId}`, reason: "item_removed" });
       }
     }

@@ -82,7 +82,7 @@ export async function inspectSupplierCatalogWorld(db: D1Database, world: Extract
     return total + rows.length;
   }, 0);
   const contentIssues = catalogContentIntegrityIssues(world, previous, candidate.entries);
-  return { world, fetchedAt: candidate.fetchedAt, diff: {
+  return { world, fetchedAt: candidate.fetchedAt, sourceInventory: candidate.sourceInventory, diff: {
     before: diff.before, candidate: diff.after, added: diff.added, changed: diff.changed,
     removed: diff.removed.slice(0, 100), removedTruncated: diff.removed.length > 100,
     removedChildren: diff.removedChildren.slice(0, 100), removedChildrenTruncated: diff.removedChildren.length > 100,

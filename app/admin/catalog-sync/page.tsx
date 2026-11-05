@@ -88,7 +88,8 @@ function RunDiagnostics({ world, runId }: { world: World; runId: string }) {
 
 type CandidateInspection = {
   fetchedAt: string;
-  diff: { before: number; candidate: number; added: number; changed: number; removed: number[]; removedTruncated: boolean };
+  sourceInventory?: { listedCount: number; activeCount: number; inactiveIds: number[]; inactiveIdsTruncated: boolean; unknownActivityIds: number[]; unknownActivityIdsTruncated: boolean };
+  diff: { before: number; candidate: number; added: number; changed: number; removed: number[]; removedTruncated: boolean; removalWithinGuard?: boolean };
   contentIssues: Array<{ supplierId: number; path: string; reason: string }>;
   contentIssuesTruncated: boolean;
 };
@@ -114,6 +115,8 @@ function CandidateComparison({ world }: { world: "vacations" | "events" }) {
     <small style={{ display: "block", marginBlock: 8 }}>השוואה בלבד, ללא פרסום שינויים בקטלוג</small>
     {error ? <p role="alert">{error}</p> : null}
     {result ? <div role="status"><p>נבדק: {date(result.fetchedAt)}</p><p>מקומות בקטלוג: {result.diff.before} · מהספק: {result.diff.candidate}</p><p>נוספו: {result.diff.added} · השתנו: {result.diff.changed} · לא התקבלו: {result.diff.removed.length}{result.diff.removedTruncated ? " ומעלה" : ""}</p>
+      {result.sourceInventory ? <><p>רשומות ברשימת הספק: {result.sourceInventory.listedCount} · פעילות במפורש: {result.sourceInventory.activeCount}</p><details><summary>סימון פעילות אצל הספק</summary><p>סומנו כלא פעילים:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.inactiveIds.join(", ") || "0"}{result.sourceInventory.inactiveIdsTruncated ? "..." : ""}</p><p>ללא סימון פעילות:</p><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.sourceInventory.unknownActivityIds.join(", ") || "0"}{result.sourceInventory.unknownActivityIdsTruncated ? "..." : ""}</p></details></> : null}
+      {result.diff.removalWithinGuard === false ? <p>היקף הגריעה מחייב בדיקה לפני פרסום</p> : null}
       {result.diff.removed.length ? <details><summary>מזהי המקומות שלא התקבלו</summary><p dir="ltr" style={{ overflowWrap: "anywhere" }}>{result.diff.removed.join(", ")}</p></details> : null}
       <p>{result.contentIssues.length ? "נמצאו נתונים שדורשים בדיקה" : "לא נמצא אובדן תוכן במקומות שנבדקו"}</p>
       {result.contentIssues.length ? <ul>{result.contentIssues.map((issue, index) => <li key={`${issue.supplierId}-${index}`}><span>מזהה מקום: </span><span dir="ltr">{issue.supplierId} · {issue.path} · {issue.reason}</span></li>)}</ul> : null}

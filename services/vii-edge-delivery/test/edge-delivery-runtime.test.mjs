@@ -7,8 +7,17 @@ function harness(originResponse, options = {}) {
   const oldFetch = globalThis.fetch; const oldCaches = globalThis.caches;
   globalThis.caches = { default: { async match(key) { if (options.neverMatch) return new Promise(() => {}); if (options.rejectMatch) throw new Error('cache_down'); return entries.get(key.url) || undefined; }, async put(key, response) { entries.set(key.url, response.clone()); writes.push(key.url); } } };
   globalThis.fetch = async (request) => { originCalls++; if (request.url.startsWith('https://vii-vacation-calendar')) return new Response(originResponse.body || '<html>ok</html>', { status: originResponse.status || 200, headers: originResponse.headers }); return new Response('passthrough', { status: 200 }); };
-  return { ctx: { waitUntil(p) { return p; } }, stats: () => ({ originCalls, writes: [...writes] }), restore() { globalThis.fetch = oldFetch; globalThis.caches = oldCaches; } };
+  return { ctx: { waitUntil(p) { return p; } }, stats: () => ({ originCalls, writes: [...writes], entries }), restore() { globalThis.fetch = oldFetch; globalThis.caches = oldCaches; } };
 }
+
+test('internal cache keeps the origin hard expiry while client freshness stays capped', async () => {
+  const until = Date.now() + 600_000; const originHeaders = headers(); originHeaders.set('X-VII-Cache-Until', String(until)); const h = harness({ headers: originHeaders });
+  try {
+    const first = await worker.fetch(new Request('https://edge.test/search', { headers: { Accept: 'text/html' } }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, h.ctx);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    const stored = [...h.stats().entries.values()][0]; assert.ok(Number(stored.headers.get('Cache-Control').match(/max-age=(\d+)/)[1]) > 60);
+  } finally { h.restore(); }
+});
 
 const headers = () => new Headers({ 'Content-Type': 'text/html; charset=utf-8', 'X-VII-Cache-Build': 'test-build', 'X-VII-Cache-Until': String(Date.now() + 60_000), 'Set-Cookie': '__cf_bm=infra; Path=/' });
 

@@ -323,7 +323,12 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       await Promise.all(Array.from({ length: Math.min(4, detailIndexes.length) }, worker));
       if (entries.some((entry) => entry === undefined)) throw new Error("invalid_sergey_catalog");
       if (excludedMediaIds.length) console.warn("VII supplier places withheld without media", { world, siteIDs: excludedMediaIds.sort((a, b) => a - b) });
-      return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null) };
+      const inactiveIds = list.places.map(record).filter((place) => place.active === false).map((place) => positive(place.siteID)).filter((id): id is number => Boolean(id));
+      const unknownActivityIds = list.places.map(record).filter((place) => place.active !== true && place.active !== false).map((place) => positive(place.siteID)).filter((id): id is number => Boolean(id));
+      return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null),
+        sourceInventory: { listedCount: list.places.length, activeCount: active.length,
+          inactiveIds: inactiveIds.slice(0, 100), inactiveIdsTruncated: inactiveIds.length > 100,
+          unknownActivityIds: unknownActivityIds.slice(0, 100), unknownActivityIdsTruncated: unknownActivityIds.length > 100 } };
     },
   };
 }

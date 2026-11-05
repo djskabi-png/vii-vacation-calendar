@@ -15,6 +15,7 @@ import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
 import { formatMapPrice, priceModeFromLabel, validMapPrice, verifiedPriceFromLabel, type MapPriceQuote } from "../lib/map-price";
 import { trackMapInteraction } from "../lib/analytics";
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../lib/map-marker-layout";
+import { mapResultSummary } from "../lib/map-result-summary.ts";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -45,6 +46,7 @@ type MapPlace = {
   reviews?: number;
   precision?: "exact" | "area";
   illustrativeImage?: boolean;
+  representedCount?: number;
 };
 
 type PlacesMapProps = {
@@ -59,6 +61,7 @@ type PlacesMapProps = {
   activePlaceId?: string | null;
   onActivePlaceChange?: (id: string | null) => void;
   regional?: boolean;
+  resultKind?: "places" | "trails";
 };
 
 function safeMarkerLabel(value: string) {
@@ -90,7 +93,7 @@ function markerIcon(tone: MapTone) {
   return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
 }
 
-function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange, regional = false }: PlacesMapProps) {
+function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange, regional = false, resultKind = "places" }: PlacesMapProps) {
   // Keep equivalent parent renders from rebuilding Leaflet without serializing
   // entire image arrays and records on every hover or selection render.
   const placesSignature = incomingPlaces.map((place) => [
@@ -111,12 +114,14 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     place.reviews ?? "",
     place.precision ?? "",
     place.illustrativeImage ? "1" : "0",
+    place.representedCount ?? 1,
   ].join(":")).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const places = useMemo(() => incomingPlaces, [placesSignature]);
   const placesRef = useRef(places);
   placesRef.current = places;
   const { language } = useSiteLanguage();
+  const resultSummary = mapResultSummary(places, language, resultKind);
   const cardCopy = language === "en"
     ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area", priced: "with verified price", review: "reviews" }
     : language === "ru"
@@ -783,7 +788,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         <span className="map-preview-label">{placeFallback ? fallbackLabel : mapCopy.preview}</span>
         <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
         <div>
-          <h3>{single ? preview.name : `${places.length} ${mapCopy.onMap}`}</h3>
+          <h3>{single ? preview.name : `${resultSummary.count} ${resultSummary.trailLabel || mapCopy.onMap}`}</h3>
           <p>{single ? `${preview.location}, ${preview.area}` : mapCopy.together}</p>
         </div>
         {!enabled && <button className="button map-load-button" type="button" onClick={activateMap}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
@@ -802,7 +807,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
       <span>{mapCopy.open}</span>
     </button>}
-    {!single && <div className="map-results-summary" aria-live="polite" data-place-count={places.length} data-priced-count={pricedPlaceCount}><strong>{places.length} {cardCopy.visible}</strong>{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
+    {!single && <div className="map-results-summary" aria-live="polite" data-place-count={resultSummary.count} data-marker-count={resultSummary.markers} data-priced-count={pricedPlaceCount}><strong>{resultSummary.count} {resultSummary.trailLabel || cardCopy.visible}</strong>{resultKind === "trails" && regional ? <span> · {resultSummary.approximateLabel}</span> : null}{pricedPlaceCount > 0 && <span>{pricedPlaceCount} {cardCopy.priced}</span>}</div>}
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={() => { trackMapInteraction({ action: "close", world: tone, resultCount: places.length }); onClose(); }} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
@@ -967,6 +972,7 @@ export function TrailMap({ trails, autoLoad = false, onClose, onVisibleCountChan
       href: `/trails?area=${encodeURIComponent(area)}${query.size > 1 ? `&${[...query].filter(([key]) => key !== "area").map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join("&")}` : ""}`,
       markerLabel: language === "he" ? `${groupCount} מסלולים` : language === "en" ? `${groupCount} ${groupCount === 1 ? "trail" : "trails"}` : language === "ru" ? `Маршруты: ${groupCount}` : `${groupCount} ${groupCount === 1 ? "itinéraire" : "itinéraires"}`,
       markerKind: "count" as const,
+      representedCount: groupCount,
       precision: "area" as const,
     };
   // areaNames is a fixed vocabulary; only the selected locale changes it.
@@ -981,5 +987,5 @@ export function TrailMap({ trails, autoLoad = false, onClose, onVisibleCountChan
     onVisibleCountChange?.(ids.length);
     onVisiblePlaceIdsChange?.(ids);
   };
-  return <PlacesMap places={places} tone="activities" regional autoLoad={autoLoad} onClose={onClose} onVisiblePlaceIdsChange={reportVisibleTrails} activePlaceId={activeGroupId} onActivePlaceChange={onActivePlaceChange} />;
+  return <PlacesMap places={places} tone="activities" regional resultKind="trails" autoLoad={autoLoad} onClose={onClose} onVisiblePlaceIdsChange={reportVisibleTrails} activePlaceId={activeGroupId} onActivePlaceChange={onActivePlaceChange} />;
 }

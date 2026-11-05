@@ -5,6 +5,19 @@ const LOCAL_MEDIA_ROOT = "/api/vii/media/";
 // surface drops it without ever substituting another business's media.
 const QUARANTINED_GALLERY_FILENAMES = new Set(["796a2fc6bf52100.png"]);
 
+/** Exact approved quarantine on trusted supplier or local media paths only. */
+export function isQuarantinedGalleryMedia(value: unknown) {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value, LEGACY_GALLERY_ROOT);
+    const legacy = ["vii.co.il", "www.vii.co.il"].includes(url.hostname) && url.pathname.startsWith("/gallery/");
+    const local = value.startsWith(LOCAL_MEDIA_ROOT) || (["vii.spaplus.co", "vii-vacation-calendar.adir-naor-7510.chatgpt.site"].includes(url.hostname) && url.pathname.startsWith(LOCAL_MEDIA_ROOT));
+    if (!legacy && !local) return false;
+    const filename = decodeURIComponent(url.pathname.slice((legacy ? "/gallery/" : LOCAL_MEDIA_ROOT).length));
+    return QUARANTINED_GALLERY_FILENAMES.has(filename.toLowerCase());
+  } catch { return false; }
+}
+
 function validGalleryFilename(value: string) {
   return /^[A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp)$/i.test(value)
     && !QUARANTINED_GALLERY_FILENAMES.has(value.toLowerCase())

@@ -1,6 +1,6 @@
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
-const EXPECTED_BUILD = "905d5f64-da48-41ed-a232-1ef715e320bc";
-const EDGE_CACHE_VERSION = "v6";
+const EXPECTED_BUILD = "pending-v802-20261105-media-map";
+const EDGE_CACHE_VERSION = "v7";
 const allowedQuery = new Set(["accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice", "months", "online", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole", "_rsc"]);
 const allowedUtm = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]);
 const variantHeaders = ["Accept", "RSC", "Next-Router-State-Tree", "Next-Router-Prefetch", "Next-Router-Segment-Prefetch", "Next-Url", "X-Vinext-Interception-Context", "X-Vinext-Mounted-Slots", "X-Vinext-Rsc-Render-Mode"];
@@ -137,8 +137,12 @@ export default { async fetch(request: Request, env: { ORIGIN?: string; EXPECTED_
   const reason = response.status !== 200 ? "status" : !contentType.includes(expectedType) ? "content_type" : response.headers.get("X-VII-Cache-Build") !== expectedBuild ? "build_mismatch" : hasUnknownSetCookie ? "set_cookie" : /(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*(?:,|=|$))/i.test(control) ? "private_or_no_store" : vary.some((name) => !allowedVary.has(name)) ? "vary" : (Number.isFinite(declaredSize) && declaredSize > maxBytes) ? "oversize" : !Number.isFinite(until) || remaining <= 0 ? "missing_expiry" : null;
   if (reason) { const headers = new Headers(response.headers); headers.set("X-VII-Edge-Cache-Skip", reason); return new Response(response.body, { status: response.status, headers }); }
   const headers = new Headers(response.headers); headers.delete("Set-Cookie"); headers.set("Cache-Control", `public, max-age=${Math.min(60, Math.floor(remaining / 1000))}`); headers.set("X-VII-Edge-Delivery", "MISS"); headers.set("X-VII-Edge-Cache-Backend", cache ? "available" : "unavailable");
-  const stored = new Response(response.body, { status: response.status, headers });
-  if (cache) ctx.waitUntil(boundedBody(stored.clone().body).then((body) => body ? cache.put(key, new Response(body, { status: stored.status, headers })) : undefined).catch(() => undefined));
+  const storedHeaders = new Headers(headers);
+  // The browser-facing response remains capped at 60s, while the internal
+  // Cache API entry may live for the origin-approved hard expiry.
+  storedHeaders.set("Cache-Control", `public, max-age=${Math.max(0, Math.floor(remaining / 1000))}`);
+  const stored = new Response(response.body, { status: response.status, headers: storedHeaders });
+  if (cache) ctx.waitUntil(boundedBody(stored.clone().body).then((body) => body ? cache.put(key, new Response(body, { status: stored.status, headers: storedHeaders })) : undefined).catch(() => undefined));
   const clientHeaders = new Headers(response.headers); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 } };

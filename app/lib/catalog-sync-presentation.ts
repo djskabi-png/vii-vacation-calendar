@@ -36,6 +36,9 @@ function percentage(removed: number, before: number) {
 export function catalogRunExplanation(world: SupplierCatalogWorld, errorCode: string | null | undefined,
   diagnostics?: CatalogSyncDiagnostics) {
   const labels = catalogDiagnosticLabels(world);
+  if (errorCode === "catalog_content_requires_review") {
+    return "בתשובת הספק זוהה שינוי בתוכן שדורש בדיקה. הקטלוג הפעיל נשמר. אפשר לפתוח את האבחון לפרטים.";
+  }
   if (errorCode === "catalog_removal_requires_review") {
     const removedPlaces = diagnostics?.removedCount || 0;
     const removedChildren = diagnostics?.units?.removedTotal || 0;
@@ -77,5 +80,5 @@ export function catalogRunExplanation(world: SupplierCatalogWorld, errorCode: st
     return `שמירת הקטלוג נקטעה בשלב מסד הנתונים${progress}. הדור הקודם נשמר ולא פורסם דור חלקי.`;
   }
   if (failure) return "המשיכה נעצרה לפני פרסום. הקטלוג הקודם נשמר ופרטי השלב מופיעים באבחון.";
-  return "המשיכה לא אושרה והקטלוג הקודם נשמר. בריצה הישנה הזאת לא נשמר אבחון מפורט.";
+  return "המשיכה לא אושרה והקטלוג הקודם נשמר. אפשר לפתוח את האבחון לפרטים.";
 }

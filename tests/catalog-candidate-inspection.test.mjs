@@ -16,7 +16,7 @@ test("candidate inspection compares without writing and bounds the public result
   const db = dbFixture();
   const payloads = {
     "/locations": { cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] },
-    "/vacations": { places: [{ active: true, siteID: 1, siteName: "New", location: { cityID: 1 }, galleries: [] }] },
+    "/vacations": { places: [{ active: true, siteID: 1, siteName: "New", location: { cityID: 1 }, galleries: [] }, { active: false, siteID: 2 }, { siteID: 3 }] },
     "/vacations/types": { amenities: [], amenity_categories: [] },
     "/vacations/1": { id: 1, active: true, name: "New", location: { city: 1 }, rooms: [], galleries: { main: { title: "מקום", pictures: ["/gallery/fixture.jpg"] } } },
   };
@@ -30,6 +30,8 @@ test("candidate inspection compares without writing and bounds the public result
   assert.equal(Object.hasOwn(result, "detail"), false);
   assert.equal(JSON.stringify(result).includes("fixture.jpg"), false);
   assert.equal(result.diff.removalWithinGuard, true);
+  assert.deepEqual(result.sourceInventory.inactiveIds, [2]);
+  assert.deepEqual(result.sourceInventory.unknownActivityIds, [3]);
 });
 
 test("provider failure during readonly inspection cannot write or replace accepted data",async()=>{

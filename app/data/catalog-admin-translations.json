@@ -1,4 +1,7 @@
 {
+  "בתשובת הספק זוהה שינוי בתוכן שדורש בדיקה. הקטלוג הפעיל נשמר. אפשר לפתוח את האבחון לפרטים.": { "en": "The supplier response contains a content change that requires review. The active catalog was kept. Open diagnostics for details.", "ru": "В ответе поставщика обнаружено изменение содержимого, требующее проверки. Активный каталог сохранён. Откройте диагностику для подробностей.", "fr": "La réponse du fournisseur contient une modification nécessitant une vérification. Le catalogue actif a été conservé. Ouvrez le diagnostic pour les détails." },
+  "המשיכה לא אושרה והקטלוג הקודם נשמר. אפשר לפתוח את האבחון לפרטים.": { "en": "The refresh was not approved and the previous catalog was kept. Open diagnostics for details.", "ru": "Обновление не было подтверждено, предыдущий каталог сохранён. Откройте диагностику для подробностей.", "fr": "La synchronisation n’a pas été approuvée et le catalogue précédent conservé. Ouvrez le diagnostic pour les détails." },
+  "אזור משוער": { "en": "Approximate area", "ru": "Примерный район", "fr": "Zone approximative" },
   "אחר": { "en": "Other", "ru": "Другое", "fr": "Autre" },
   "טוענים מקומות...": { "en": "Loading places...", "ru": "Загружаем места...", "fr": "Chargement des lieux..." },
   "טרם עודכן": { "en": "Not updated yet", "ru": "Пока не обновлялось", "fr": "Pas encore mis à jour" },
