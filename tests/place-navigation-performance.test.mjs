@@ -5,17 +5,19 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const source = async (path) => readFile(new URL(path, root), "utf8");
 
-test("internal business cards keep navigation inside the app", async () => {
-  const [properties, events, spas, showcase] = await Promise.all([
+test("place cards open detail destinations in a new tab", async () => {
+  const [properties, events, spas, showcase, preview] = await Promise.all([
     source("app/components/property-card.tsx"),
     source("app/components/event-last-minute.tsx"),
     source("app/components/spa-package-deals.tsx"),
     source("app/components/home-showcase.tsx"),
+    source("app/components/place-preview-card.tsx"),
   ]);
-  assert.doesNotMatch(properties, /propertyHref[^\n]*target="_blank"/);
-  assert.doesNotMatch(events, /href=\{href\}\s+newTab/);
-  assert.doesNotMatch(spas, /spa-deal-card__body[^\n]*target="_blank"/);
-  assert.doesNotMatch(showcase, /home-rating-card__gallery[^\n]*target="_blank"/);
+  assert.match(properties, /propertyHref[^\n]*target="_blank"/);
+  assert.match(events, /<PlacePreviewCard[\s\S]*href=\{href\}/);
+  assert.match(preview, /newTab = true/);
+  assert.match(spas, /spa-deal-card__body[^\n]*target="_blank"/);
+  assert.match(showcase, /home-rating-card__gallery[^\n]*target="_blank"/);
 });
 
 test("every place-detail route has an immediate shared loading state", async () => {

@@ -19,7 +19,7 @@ test("destination search indexes named places in every bookable world", () => {
 test("named place results are distinct from region and town suggestions", () => {
   assert.match(searchBox, /translate\("מקומות מתאימים"\)/);
   assert.match(searchBox, /translate\("אזורים ויישובים"\)/);
-  assert.match(searchBox, /<Link key=\{`\$\{mode\}-\$\{place\.id\}`\} className="location-place-result" href=\{localizedPath\(place\.href, language\)\}>/);
+  assert.match(searchBox, /<Link key=\{`\$\{mode\}-\$\{place\.id\}`\} className="location-place-result" href=\{localizedPath\(place\.href, language\)\} target="_blank" rel="noopener noreferrer">/);
   assert.match(searchBox, /הקלידו עיר, אזור או שם מקום/);
 });
 

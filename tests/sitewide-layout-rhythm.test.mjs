@@ -12,7 +12,7 @@ test('review cards protect common header, quote, author/date and CTA rows',()=>{
  assert.match(css,/\.home-rating-card__top h3 \{[^}]*min-block-size: 2\.7em;[^}]*-webkit-line-clamp: 2/);
  assert.match(css,/\.home-rating-card__byline > time \{ flex: 0 0 auto; white-space: nowrap/);
  assert.match(source,/<time dateTime=\{reviewDate\} dir="ltr">\{new Intl\.DateTimeFormat/);
- assert.match(source,/title=\{name\}>\{name\}<\/Link>/);
+ assert.match(source,/title=\{name\}[\s\S]*?target="_blank"[^>]*>\{name\}<\/Link>/);
  assert.match(source,/language === "he" \? homeReviewExcerpt\(reviewText\) : copy\.review/);
  assert.match(source,/homeReviewExcerpt\(reviewText\)/);
 });

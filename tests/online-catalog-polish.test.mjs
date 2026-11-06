@@ -94,7 +94,7 @@ test("card galleries advance past broken supplier images and withdraw media afte
     readEffectiveWorldCss(),
   ]);
   assert.match(gallery, /onOriginalFailure=\{\(\) => \{[\s\S]*const failed = new Set\(brokenImages\)\.add\(currentImage\)[\s\S]*setImageIndex\(nextIndex\)/);
-  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?previewImageLoader\.load\(previewLoadSource\(src\)\)\)/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?loadPreviewImage\(src\)/);
   assert.match(loader, /for \(let index = startIndex; index >= 0 && index < images\.length; index \+= direction\)/);
   assert.match(gallery, /galleryImages\.every\(\(image\) => brokenImages\.has\(image\)\)/);
   assert.match(gallery, /onMediaUnavailable\?\.\(\)/);

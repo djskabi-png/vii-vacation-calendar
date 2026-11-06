@@ -14,8 +14,8 @@ test("event fallback never renders beside a contradictory empty state", () => {
 
 test("preview navigation warms the responsive derivative", () => {
   const source = read("app/components/use-preview-gallery.tsx");
-  assert.match(source, /optimizedCardMediaUrl\(src, 640\)/);
-  assert.match(source, /previewImageLoader\.load\(previewLoadSource\(src\)/);
+  assert.match(source, /responsiveCardMedia\(src\)/);
+  assert.match(source, /previewImageLoader\.load\(media\.src,[\s\S]*srcSet: media\.srcSet/);
 });
 
 test("preview navigation changes the visible frame before derivative verification", () => {
