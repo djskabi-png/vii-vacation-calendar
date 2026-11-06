@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-05T22:43:42.495390Z",
+  "updated_at": "2026-11-06T03:57:05.459197Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -231,6 +231,15 @@
         "next_action": "Continue actual map UI verification and remaining core architecture capabilities"
       },
       "updated_at": "2026-11-05T22:43:42.495374Z"
+    },
+    {
+      "id": "access:old-site-artifact",
+      "source": "access_obstacle",
+      "statement": "Recover the exact previously deployed Site asset archive without restarting a stale publication conversation",
+      "acceptance_check": "Verify old deployed source/build archive through an authorized read-only route, preserve uncertain-operation protection and continue independent core work",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",

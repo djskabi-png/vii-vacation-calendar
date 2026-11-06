@@ -27,7 +27,8 @@
         "PHASE_06_VERIFICATION.md",
         "PHASE_07.md",
         "PHASE_07_VERIFICATION.md",
-        "PHASE_08_VERIFICATION.md"
+        "PHASE_08_VERIFICATION.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -119,7 +120,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -177,7 +179,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_03.md"
+        "PHASE_03.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -203,7 +206,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_11.md"
       ]
     },
     {
@@ -216,7 +221,10 @@
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_09.md"
+        "PHASE_09.md",
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_11.md",
+        "PHASE_12.md"
       ]
     },
     {
@@ -233,7 +241,10 @@
         "PHASE_06.md",
         "PHASE_08.md",
         "PHASE_08_VERIFICATION.md",
-        "PHASE_09.md"
+        "PHASE_09.md",
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_11.md",
+        "PHASE_12.md"
       ]
     },
     {
@@ -333,7 +344,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -353,7 +365,8 @@
         "PHASE_02.md",
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -367,7 +380,8 @@
         "PHASE_06.md",
         "PHASE_07.md",
         "PHASE_07_VERIFICATION.md",
-        "PHASE_08_VERIFICATION.md"
+        "PHASE_08_VERIFICATION.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -381,7 +395,8 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -413,8 +428,10 @@
       "id": "Q15",
       "title": "אימות מקור ומטמון",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_10_VERIFICATION.md"
+      ]
     },
     {
       "id": "Q16",
@@ -427,7 +444,8 @@
         "PHASE_06.md",
         "PHASE_06_VERIFICATION.md",
         "PHASE_08.md",
-        "PHASE_08_VERIFICATION.md"
+        "PHASE_08_VERIFICATION.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -492,7 +510,8 @@
         "PHASE_02.md",
         "PHASE_04.md",
         "PHASE_08.md",
-        "PHASE_09.md"
+        "PHASE_09.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -531,7 +550,8 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_10_VERIFICATION.md"
       ]
     },
     {
@@ -544,7 +564,10 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_11.md",
+        "PHASE_12.md"
       ]
     },
     {
@@ -584,13 +607,12 @@
     }
   ],
   "activeWorkstreams": [
-    "Root: baseline, critical latency, integration and release-source preservation",
-    "QQQAAA specialist: run/incident reliability with executable race tests",
-    "World specialist: spa CSS boundary with computed-style isolation"
+    "Root: implement and integrate the unified V and QQQAAA core; document3 remains deferred",
+    "Independent read-only review: affected release preflight; no parallel source owner active"
   ],
-  "lastUpdated": "2026-11-05T23:40:31.279468+02:00",
+  "lastUpdated": "2026-11-06T04:00:38.129225+00:00",
   "completionClaim": false,
-  "currentSourceHead": "5fb85058951f9bcab0f87404f3820bef0fd5e41c",
+  "currentSourceHead": "dc77440d29dbc4bf578e2337a45917cb3989a118",
   "sourceCheckpoints": [
     {
       "commit": "5fb85058",
@@ -699,11 +721,28 @@
     {
       "id": "quality-durable-job-api-ui-history-outbox",
       "state": "local_tests_passed",
-      "limit": "Cron interim wiring only, production runtime and Queue/resource isolation pending"
+      "limit": "Private real Cloud browser negative smoke, actual negative Cron and private Cloud restore observed; live administration activation and matching-generation acceptance pending"
+    },
+    {
+      "id": "quality-private-cloud-canary",
+      "state": "actual_negative_cron_verified_quiesced",
+      "limit": "One actual Cron/Queue/D1 job blocked the older public generation; matching-generation public acceptance and continuous activation pending"
+    },
+    {
+      "id": "per-unit-artifact-preflight",
+      "state": "real_git_artifact_tests_passed",
+      "limit": "Limited schema2 preflight never grants publication; full global orchestration pending"
+    },
+    {
+      "id": "retained-static-asset-reader",
+      "state": "local_handler_workerd_tests_passed",
+      "limit": "Actual old public archive recovery, full seed, live Edge readback and release-gate integration pending"
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Freeze and qualify phase6 browser family; actual private Cloud execution, migration/restore and remaining core/public acceptance stay pending",
-  "updatedAt": "2026-11-06T01:58:42.175Z"
+  "nextStep": "Complete old immutable asset capture/seed and per-unit release orchestration; continue source/data, speed, real browser families and exact public acceptance before claiming the core complete",
+  "updatedAt": "2026-11-06T04:00:38.129225+00:00",
+  "privateCloudResourcesUpdated": true,
+  "publicSitePublicationPerformed": false
 }

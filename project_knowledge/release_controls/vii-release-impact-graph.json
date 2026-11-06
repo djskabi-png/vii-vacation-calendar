@@ -305,7 +305,10 @@
       "buildUnits": [
         "edge-delivery"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "services/vii-edge-delivery/test/retained-assets.test.mjs",
+        "tests/retained-assets-workerd.test.mjs"
+      ]
     },
     "image-delivery": {
       "dependsOn": [],

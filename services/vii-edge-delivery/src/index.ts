@@ -2,6 +2,7 @@ import { warmPublicDocuments } from "./public-warm.ts";
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
+import {readRetainedAsset,retainedAssetRequest} from './retained-assets.ts';
 type DeliveryEnv=QualityGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -147,7 +148,12 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
     const upstream = new Request(new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)), request);
-    return fetch(new Request(upstream, { redirect: "manual" }));
+    const response=await fetch(new Request(upstream, { redirect: "manual" }));
+    if((response.status===404||response.status===410)&&retainedAssetRequest(request)){
+      const retained=await readRetainedAsset(request,env.PUBLIC_CACHE);
+      if(retained){void response.body?.cancel().catch(()=>undefined);return retained;}
+    }
+    return response;
   }
   const cache = (globalThis.caches as unknown as { default?: Cache } | undefined)?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
