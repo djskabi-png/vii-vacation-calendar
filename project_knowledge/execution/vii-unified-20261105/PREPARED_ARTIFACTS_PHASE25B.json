@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-local-only",
+  "candidateSource": "7c1bf64fffd12d750453759ff2f94a583b2affe8",
+  "observedAt": "2026-11-06T10:12:42.807Z",
+  "buildIdentity": "9c0d7af6-dde2-5768-45a2-d23280eb91e9",
+  "units": [
+    {
+      "unit": "managed-site",
+      "source": "7c1bf64fffd12d750453759ff2f94a583b2affe8",
+      "tree": "b4ed62eabcb246b1a18a690b82a89319155fd9a5",
+      "artifact": {
+        "path": ".qa-output/phase25b-frozen-site.tar.gz",
+        "sha256": "f942c9f52d614fa6a6830a733e32266063b54c773ca9217840876ffc10cf95c1",
+        "bytes": 109244927
+      },
+      "inputFingerprint": "f20263ad8591a4820ac0a9cdd65cce6f0aa00b2bd6b22e0d98bf3ed317dd2c83",
+      "buildReceiptPath": ".qa-output/phase25b-managed-site-build.json",
+      "auditReceiptPath": ".qa-output/phase25b-managed-site-audit.json"
+    },
+    {
+      "unit": "quality-controller",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase25-quality-controller.worker.json",
+        "sha256": "da67ad762e4aea6b754de5a6b037efe5eebeab951e9be544ad31116897ee96bc",
+        "bytes": 241405
+      },
+      "buildReceiptPath": ".qa-output/phase25-quality-controller-build.json",
+      "auditReceiptPath": ".qa-output/phase25-quality-controller-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "tree": "0d007b9bfed4012a9b753e1a3ff7f4ddfb263c68",
+      "inputFingerprint": "9cd7a4ad112c382493cf361da3e7b04e4bb78adc2b42ebfaffc26418bd1d96e7"
+    },
+    {
+      "unit": "quality-browser",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase25-quality-browser.worker.json",
+        "sha256": "3b84502be91224f48c28b7c4654bd932f21dd994196d0769ec741ede8c506da6",
+        "bytes": 4261731
+      },
+      "buildReceiptPath": ".qa-output/phase25-quality-browser-build.json",
+      "auditReceiptPath": ".qa-output/phase25-quality-browser-audit.json",
+      "modules": 1,
+      "imports": 484,
+      "source": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "tree": "0d007b9bfed4012a9b753e1a3ff7f4ddfb263c68",
+      "inputFingerprint": "d6d60f6dce37340793e2d6fa4bb92a5a703d3d15f21e731067042269648a7fde"
+    },
+    {
+      "unit": "edge-delivery",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase25-edge-delivery.worker.json",
+        "sha256": "2371ca6b3755cd4c23587c1e29b43b5208ec2e176c11a72029aa6a28e6dd1632",
+        "bytes": 69140
+      },
+      "buildReceiptPath": ".qa-output/phase25-edge-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase25-edge-delivery-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "tree": "0d007b9bfed4012a9b753e1a3ff7f4ddfb263c68",
+      "inputFingerprint": "a265118d1c5b2edff836a49e5ea342a2b8a93c7410e3c50b6bd560fc36f44fe6"
+    },
+    {
+      "unit": "image-delivery",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase18b-image-delivery.worker.json",
+        "sha256": "9a833decbfd5be99839ba22998f3465aa1d08dd344a2a3c9c69b46a4ceb491ff",
+        "bytes": 1412715
+      },
+      "buildReceiptPath": ".qa-output/phase18b-image-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-image-delivery-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "inputFingerprint": "ae709bafb8a61f51b9020ed197406851fbb8a64204a9cffb98bd01117a0223c6"
+    }
+  ],
+  "proposedRuntimeBindingsToVerify": {
+    "quality-controller": {
+      "EXPECTED_SOURCE_VERSION": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "EXPECTED_BROWSER_SOURCE_VERSION": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "EXPECTED_APP_SOURCE_VERSION": "7c1bf64fffd12d750453759ff2f94a583b2affe8",
+      "EXPECTED_BUILD_ID": "9c0d7af6-dde2-5768-45a2-d23280eb91e9"
+    },
+    "quality-browser": {
+      "EXPECTED_SOURCE_VERSION": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "EXPECTED_BUILD_ID": "9c0d7af6-dde2-5768-45a2-d23280eb91e9"
+    },
+    "edge-delivery": {
+      "EXPECTED_BUILD": "9c0d7af6-dde2-5768-45a2-d23280eb91e9",
+      "EXPECTED_BUILD_ID": "9c0d7af6-dde2-5768-45a2-d23280eb91e9",
+      "EXPECTED_APP_SOURCE_VERSION": "7c1bf64fffd12d750453759ff2f94a583b2affe8"
+    }
+  },
+  "runtimeBindingsApplied": false,
+  "cloudReadbackVerified": false,
+  "uploaded": false,
+  "publicationApproved": false,
+  "publicReleaseVerified": false
+}

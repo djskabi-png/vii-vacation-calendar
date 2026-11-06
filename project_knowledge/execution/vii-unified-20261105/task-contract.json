@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T08:35:26.753290+00:00",
+  "updated_at": "2026-11-06T10:16:19.599218Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -300,6 +300,15 @@
       ],
       "reason": "Actual deployed matching-generation execution and provider-authorized release readback remain required",
       "updated_at": "2026-11-06T08:35:26.753290+00:00"
+    },
+    {
+      "id": "quality:discovery-snapshot-readiness",
+      "source": "approved_plan",
+      "statement": "Bind release acceptance to all current vacation and event discovery snapshots, not only page shell HTTP status",
+      "acceptance_check": "Server-owned immutable checks reject refreshing, missing proof, stale or mismatched snapshots, accept genuinely verified empty offers, and run against matching exact candidate before publication",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",
