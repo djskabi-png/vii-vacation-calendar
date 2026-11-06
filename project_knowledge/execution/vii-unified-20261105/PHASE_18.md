@@ -57,6 +57,10 @@ Unified V and QQQAAA core continues; document 3 remains deferred.
 - Independent code review found no material regression in the final event
   projection or Worker package implementation. This is local review, not live
   provisioning or public acceptance.
+- The first frozen type check rejected an incorrect singular CMS content type
+  in the new projection. It was corrected to the existing `events` contract,
+  and the projection test now asserts that exact content type. The failed
+  operation remains recorded; no build or publication followed that failure.
 
 ## Not established by this phase
 

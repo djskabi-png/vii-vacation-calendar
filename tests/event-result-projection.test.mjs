@@ -40,7 +40,7 @@ function resultReader(dependencies){
 test('actual result projection keeps editorial edits and accepted removals fresh without a full-world projection',async()=>{
  const f=database();let title='Editorial one',stateReads=0,overlayReads=0,projectionRows=0;
  try{
-  const read=resultReader({publicCatalogDatabase:async()=>({database:f.db}),readPublishedItems:async()=>{overlayReads++;return[{key:'1',content:{title,summary:'Edited summary'}}];},readSupplierCatalogState:async()=>{stateReads++;return{activeRunId:f.sqlite.prepare('SELECT active_run_id FROM supplier_catalog_state').get().active_run_id};},readSupplierCatalogSelectedSummariesPinned,bundled:()=>f.places,publicSummaries:async(_world,entries)=>{projectionRows+=entries.length;return entries;},console:{warn(){}}});
+  const read=resultReader({publicCatalogDatabase:async()=>({database:f.db}),readPublishedItems:async(_db,type)=>{assert.equal(type,'events');overlayReads++;return[{key:'1',content:{title,summary:'Edited summary'}}];},readSupplierCatalogState:async()=>{stateReads++;return{activeRunId:f.sqlite.prepare('SELECT active_run_id FROM supplier_catalog_state').get().active_run_id};},readSupplierCatalogSelectedSummariesPinned,bundled:()=>f.places,publicSummaries:async(_world,entries)=>{projectionRows+=entries.length;return entries;},console:{warn(){}}});
   const ids=Array.from({length:40},(_,i)=>i+1);
   let rows=await read(ids);assert.equal(rows.length,40);assert.equal(rows.find(p=>p.supplierId===1).name,'Editorial one');assert.equal(projectionRows,40);
   title='Editorial two';f.sqlite.prepare('DELETE FROM supplier_catalog_entries WHERE run_id=? AND supplier_id=?').run('old:accepted',17);

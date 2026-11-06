@@ -134,7 +134,7 @@ export async function publicEventResultSummaries<T>(supplierIds: readonly number
   let overlays: Promise<{ key: string; content: EditorialContent }[]> = Promise.resolve([]);
   try {
     const { database: db } = await publicCatalogDatabase();
-    overlays = readPublishedItems(db, "event").catch(() => []);
+    overlays = readPublishedItems(db, "events").catch(() => []);
     const state = await readSupplierCatalogState(db, "events");
     entries = state?.activeRunId
       ? await readSupplierCatalogSelectedSummariesPinned(db, "events", state.activeRunId, ids)
