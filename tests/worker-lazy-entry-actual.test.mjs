@@ -6,6 +6,7 @@ import { publicCachePolicy } from '../worker/public-response-cache.ts';
 import { servePublicGalleryMedia } from '../worker/public-gallery-media.ts';
 import galleryManifest from '../app/data/legacy-gallery-media.json' with {type:'json'};
 import { withServerRequestReads } from '../app/lib/server-request-reads.ts';
+import { GET as publicQualityKeys } from '../app/.well-known/vii-quality-jwks.json/route.ts';
 
 const source=await readFile(new URL('../worker/index.ts',import.meta.url),'utf8');
 const transform=context=>root=>{
@@ -13,13 +14,14 @@ const transform=context=>root=>{
     if(ts.isImportDeclaration(node)||ts.isExportAssignment(node))return undefined;
     if(ts.isCallExpression(node)&&node.expression.kind===ts.SyntaxKind.ImportKeyword&&node.arguments[0]?.text==='vinext/server/app-router-entry') return ts.factory.createCallExpression(ts.factory.createIdentifier('loadApp'),undefined,[]);
     if(ts.isCallExpression(node)&&node.expression.kind===ts.SyntaxKind.ImportKeyword&&node.arguments[0]?.text==='./public-gallery-media.ts') return ts.factory.createCallExpression(ts.factory.createIdentifier('loadGallery'),undefined,[]);
+    if(ts.isCallExpression(node)&&node.expression.kind===ts.SyntaxKind.ImportKeyword&&node.arguments[0]?.text==='../app/.well-known/vii-quality-jwks.json/route.ts') return ts.factory.createCallExpression(ts.factory.createIdentifier('loadQualityKeys'),undefined,[]);
     return ts.visitEachChild(node,visit,context);
   };
   return ts.visitNode(root,visit);
 };
 const executable=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext},transformers:{before:[transform]}}).outputText.replace(/^export \{\};?\s*$/gm,'');
 function instance({loadApp,read=async()=>null,onCacheRead=()=>{}}){
-  const dependencies={loadApp,loadGallery:async()=>({servePublicGalleryMedia}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
+  const dependencies={loadApp,loadGallery:async()=>({servePublicGalleryMedia}),loadQualityKeys:async()=>({GET:publicQualityKeys}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
     legacyDisposition:()=>null,looksLikeUninventoriedLegacyPath:()=>false,publicCachePolicy,
     readPublicCache:async(...args)=>{onCacheRead();return read(...args);},refreshPublicCacheAhead:()=> 'fresh',
     storePublicCache:response=>response,editorialWorldLinks:[],withServerRequestReads};
@@ -27,6 +29,26 @@ function instance({loadApp,read=async()=>null,onCacheRead=()=>{}}){
 }
 const ctx={waitUntil(){}};
 const request=path=>new Request(`https://vii.spaplus.co${path}`,{headers:{Accept:'text/html'}});
+
+test('actual Worker serves public quality verification keys even when generic app routing misses dot directories',async()=>{
+  const oldSecret=process.env.VII_AUTH_SECRET;
+  process.env.VII_AUTH_SECRET='synthetic-worker-routing-regression-only';
+  let routerCalls=0,cacheCalls=0;
+  const worker=instance({loadApp:async()=>{routerCalls++;return {default:{fetch:async()=>new Response('not found',{status:404})}};},onCacheRead:()=>cacheCalls++});
+  const path='/.well-known/vii-quality-jwks.json';
+  try {
+    const response=await worker.fetch(request(path),{},ctx);
+    assert.equal(response.status,200);
+    assert.match(response.headers.get('Content-Type'),/application\/json/);
+    const {keys}=await response.json();assert.equal(keys.length,1);
+    assert.equal(keys[0].kty,'OKP');assert.equal(keys[0].crv,'Ed25519');assert.equal(typeof keys[0].x,'string');assert.equal(keys[0].d,undefined);
+    const head=await worker.fetch(new Request('https://vii.spaplus.co'+path,{method:'HEAD'}),{},ctx);
+    assert.equal(head.status,200);assert.equal(await head.text(),'');
+    const write=await worker.fetch(new Request('https://vii.spaplus.co'+path,{method:'POST'}),{},ctx);
+    assert.equal(write.status,405);assert.equal(write.headers.get('Allow'),'GET, HEAD');
+    assert.equal(routerCalls,0);assert.equal(cacheCalls,0);
+  } finally {if(oldSecret===undefined)delete process.env.VII_AUTH_SECRET;else process.env.VII_AUTH_SECRET=oldSecret;}
+});
 
 test('actual worker cache HIT never initializes application or scheduler modules',async()=>{
   let imports=0;
@@ -43,7 +65,8 @@ test('actual worker concurrent MISS shares one module load and preserves locale 
     seen.push({pathname:new URL(req.url).pathname,locale:req.headers.get('x-vii-locale'),document:req.headers.get('x-vii-pathname')});
     return new Response('{}',{headers:{'Content-Type':'application/json'}});
   }}};}});
-  await Promise.all([worker.fetch(request('/search'),{},ctx),worker.fetch(request('/en/search.rsc'),{},ctx)]);
+  const responses=await Promise.all([worker.fetch(request('/search'),{},ctx),worker.fetch(request('/en/search.rsc'),{},ctx)]);
+  for(const response of responses)assert.match(response.headers.get('Server-Timing'),/vii-app-load;dur=\d+, vii-app-render;dur=\d+/);
   assert.equal(imports,1);
   assert.deepEqual(Object.fromEntries(seen.map(({pathname,...context})=>[pathname,context])),{'/search':{locale:'he',document:'/search'},'/en/search.rsc':{locale:'en',document:'/en/search'}});
 });

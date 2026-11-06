@@ -59,9 +59,14 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
   };
   let browser:Browser|undefined,context:BrowserContext|undefined,page:Page|undefined,finished=false,requestCount=0,blockedWrites=0,steps=0;
   let status:'passed'|'failed'|'blocked'='blocked',reason:string|undefined,evidenceKey:string|undefined;
+  let currentStep='launch';
+  const attemptedWrites:Array<{method:string;origin:string;path:string}> = [];
+  const safeWritePath=(path:string)=>path==='/api/vii/live-search'||path==='/api/experience/metrics'||path==='/api/lead'||path==='/api/booking'||path==='/api/payments'||path==='/api/admin/quality'?path:'<redacted>';
+  const safeWriteOrigin=(value:string)=>origins.has(value)?value:'<external>';
   const path=job.scenario==='gallery-next'?'/business?id=vacation-116':worldPaths[job.world];
   try {
     if(signal?.aborted)throw new CheckFailure('cancelled');
+    currentStep='launch';
     browser=await step(() => (factory.launch().then(async value=>{ if(finished)await close(value);return value; })));
     if(!browser)throw new CheckFailure('browser_launch_unavailable');
     context=await step(() => (browser!.newContext({viewport:job.device==='mobile'?{width:390,height:844}:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:false})));
@@ -69,7 +74,11 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     await step(() => (context!.route('**/*',async route=>{
       const request=route.request();requestCount++;
       let url:URL;try{url=new URL(request.url());}catch{return route.abort();}
-      if(request.method()!=='GET' && !isReadOnlyDiscoveryRequest(request,origin)){blockedWrites++;return route.abort();}
+      if(request.method()!=='GET' && !isReadOnlyDiscoveryRequest(request,origin)){
+        blockedWrites++;
+        if(attemptedWrites.length<8){try{const attempted=new URL(request.url());attemptedWrites.push({method:/^[A-Z]{3,7}$/.test(request.method())?request.method():'OTHER',origin:safeWriteOrigin(attempted.origin),path:safeWritePath(attempted.pathname)});}catch{attemptedWrites.push({method:'OTHER',origin:'<external>',path:'<redacted>'});}}
+        return route.abort();
+      }
       const publicAsset=['image','font','stylesheet'].includes(request.resourceType()) && assetHosts.has(url.hostname);
       if(requestCount>maxRequests || url.protocol!=='https:' || (url.origin!==origin && !publicAsset) || url.username || url.password || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin'))return route.abort();
       return route.continue();
@@ -77,27 +86,35 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     page=await step(() => (context!.newPage()));
     context.on('page',unexpected=>{if(unexpected!==page)void close(unexpected);});
     page.setDefaultTimeout(5_000);page.setDefaultNavigationTimeout(10_000);
+    currentStep='navigate';
     const response=await step(() => (page!.goto(origin+path,{waitUntil:'domcontentloaded',timeout:10_000})));steps++;
     if(!response || response.status()!==200 || new URL(response.url()).origin!==origin || new URL(response.url()).pathname!==new URL(origin+path).pathname)throw new CheckFailure('unexpected_document_response');
     if(await step(() => (response.headerValue('x-vii-cache-build')))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
     if(job.scenario!=='gallery-next') {
       const surface=browserWorldSurfaceSelectors[job.world];
+      currentStep='world-surface';
       if(surface){await step(()=>page!.locator(surface).waitFor({state:'visible'}));steps++;}
+      currentStep='world-heading';
       const heading=page.locator('main h1').first();
       await step(()=>heading.waitFor({state:'visible'}));
       const text=await step(()=>heading.textContent());
       if(!text||!browserWorldHeadingMatches(job.world,text))throw new CheckFailure('world_heading_mismatch');steps++;
     }
     if(job.scenario==='map-open-close') {
+      currentStep='map-open-click';
       await step(() => (page!.locator('button.map-button[data-map-interactive="true"][aria-pressed="false"]').first().click()));steps++;
+      currentStep='map-ready';
       const canvas=page.locator('.listing-map-shell[data-map-ready="true"] > .listing-map.leaflet-container');
       await step(() => (canvas.waitFor({state:'visible'})));
       if(!(Number(await step(() => (canvas.getAttribute('data-map-rendered-markers'))))>0))throw new CheckFailure('map_markers_missing');steps++;
+      currentStep='map-close-click';
       await step(() => (page!.getByRole('button',{name:'חזרה לרשימה',exact:true}).click()));
+      currentStep='map-detach';
       await step(() => (page!.locator('.listing-map').waitFor({state:'detached'})));steps++;
     }
     if(job.scenario==='gallery-next') {
+      currentStep='gallery-open';
       const gallery=page.locator('.property-gallery').first();await step(() => (gallery.waitFor({state:'visible'})));
       const active=gallery.locator('img.is-active, .property-gallery__image.is-active img').first();
       const before=await step(() => (active.getAttribute('src')));
@@ -109,6 +126,7 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       },before)));steps++;
     }
     if(job.scenario==='responsive-shell') {
+      currentStep='responsive-overflow';
       const overflow=await step(() => (page!.locator('html').evaluate(node=>node.scrollWidth>node.clientWidth+1)));
       if(overflow)throw new CheckFailure('horizontal_overflow');steps++;
     }
@@ -128,5 +146,5 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       } catch { evidenceKey=undefined; }
     }
   } finally { finished=true;await Promise.all([close(page),close(context),close(browser)]); }
-  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,engineVersion:engineDefinition.sha256,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey};
+  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,engineVersion:engineDefinition.sha256,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey,...(status!=='passed'?{failureStep:currentStep,attemptedWrites}: {})};
 }

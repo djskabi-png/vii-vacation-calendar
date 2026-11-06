@@ -186,6 +186,18 @@ const worker = {
       return Response.redirect(`${primaryOrigin}${url.pathname}${url.search}`, 301);
     }
 
+    // Public verification keys must remain addressable independently of the
+    // framework's route discovery for dot-prefixed directories. The private
+    // quality service verifies delegated admin requests against this endpoint.
+    if (url.pathname === "/.well-known/vii-quality-jwks.json") {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return new Response(null, { status: 405, headers: { Allow: "GET, HEAD", "Cache-Control": "no-store" } });
+      }
+      const { GET } = await import("../app/.well-known/vii-quality-jwks.json/route.ts");
+      const response = await GET();
+      return request.method === "HEAD" ? new Response(null, { status: response.status, headers: response.headers }) : response;
+    }
+
     // Preserve the normal host/redirect policy before the manifest-bound
     // public photo fast path. Streaming R2 bytes does not need the app router.
     if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/api/vii/media/")) {
@@ -239,7 +251,14 @@ const worker = {
     requestHeaders.set("x-vii-pathname", documentPathname);
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
-    const response = await (await appHandler()).fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    const appLoadStarted = performance.now();
+    const handler = await appHandler();
+    const appLoadMs = Math.round(performance.now() - appLoadStarted);
+    const appRenderStarted = performance.now();
+    const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    // Separate lazy module startup from time spent producing response headers.
+    // These fixed numeric metrics contain no URL, SQL, identity or user input.
+    response.headers.append("Server-Timing", `vii-app-load;dur=${appLoadMs}, vii-app-render;dur=${Math.round(performance.now() - appRenderStarted)}`);
     // API routes can report a more precise runtime origin such as the accepted
     // D1 fallback used during an Aurora incident. Preserve that evidence and
     // only supply the configured database mode when the route did not.

@@ -31,6 +31,7 @@ const scope = (boxId: string, requirementId: string, depth: QualityCheckScopeMet
 });
 
 const metadataEntries: Array<[string, QualityCheckScopeMetadata]> = [
+  ["quality.public-verification-keys", scope("quality-auth", "V17", "full")],
   ["global.home.semantic", scope("global-shell", "V14", "full")],
   ["global.home.en.semantic", scope("multilingual-shell", "V05", "medium")],
   ["global.home.fr.semantic", scope("multilingual-shell", "V05", "medium")],

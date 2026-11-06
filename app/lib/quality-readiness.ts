@@ -16,6 +16,18 @@ export type ReadinessResult = {
 const record = (value: unknown): Record<string, unknown> | null => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null;
 const positive = (value: unknown) => Number.isSafeInteger(value) && Number(value) > 0;
 function fresh(value: unknown, now: number, maxAge: number) { const cache = record(value), checked = Date.parse(typeof cache?.checkedAt === 'string' ? cache.checkedAt : ''); return Number.isFinite(checked) && checked <= now && now - checked <= maxAge; }
+function eventTillMatchesDate(value: unknown, from: string) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const calendar = (date: string) => {
+        const parsed = new Date(`${date}T00:00:00Z`);
+        return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === date ? parsed.valueOf() : NaN;
+    };
+    const fromMs = calendar(from), tillMs = calendar(value);
+    if (!Number.isFinite(fromMs) || !Number.isFinite(tillMs)) return false;
+    // Event supplier offers may represent a same-day slot or an overnight
+    // event. Compare UTC calendar dates so Israel DST cannot change the rule.
+    return tillMs === fromMs || tillMs === fromMs + 86_400_000;
+}
 export function validateVacationReadiness(value: unknown, expected: {
     from: string;
     till: string;
@@ -49,7 +61,7 @@ export function validateEventReadiness(value: unknown, expected: {
     const ids = new Set<number>();
     for (let index = 0; index < row.results.length; index++) {
         const offer = record(row.results[index]), place = record(row.places[index]);
-        if (!offer || !place || !positive(offer.siteID) || ids.has(Number(offer.siteID)) || place.slug !== `event-${offer.siteID}` || offer.available !== true || offer.from !== expected.date || offer.till !== undefined && offer.till !== expected.date || offer.priceGuests !== expected.guests || offer.slot !== 'morning' && offer.slot !== 'evening' || offer.total !== null && (typeof offer.total !== 'number' || !Number.isFinite(offer.total) || offer.total <= 0))
+        if (!offer || !place || !positive(offer.siteID) || ids.has(Number(offer.siteID)) || place.slug !== `event-${offer.siteID}` || offer.available !== true || offer.from !== expected.date || !eventTillMatchesDate(offer.till, expected.date) || offer.priceGuests !== expected.guests || offer.slot !== 'morning' && offer.slot !== 'evening' || offer.total !== null && (typeof offer.total !== 'number' || !Number.isFinite(offer.total) || offer.total <= 0))
             return { ok: false, reason: 'offer_contract' };
         ids.add(Number(offer.siteID));
     }

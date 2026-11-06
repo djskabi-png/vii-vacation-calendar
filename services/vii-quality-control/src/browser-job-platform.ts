@@ -19,7 +19,7 @@ export type BrowserJobEnvironment = {
   EXPECTED_BUILD_ID: string;
   PUBLIC_ORIGIN: string;
 };
-export type BrowserJobExecutor = (input: { jobId: string; sourceSha: string; buildId: string; profileId: string; signal: AbortSignal; browser: BrowserJobEnvironment["QUALITY_BROWSER"] }) => Promise<{ jobId:string;status: "passed" | "failed" | "blocked"; reason?: string; requestCount: number; steps: number; evidenceKey?: string; elapsedMs: number; sourceVersion: string; buildId: string; profileId: string }>;
+export type BrowserJobExecutor = (input: { jobId: string; sourceSha: string; buildId: string; profileId: string; signal: AbortSignal; browser: BrowserJobEnvironment["QUALITY_BROWSER"] }) => Promise<{ jobId:string;status: "passed" | "failed" | "blocked"; reason?: string; requestCount: number; steps: number; evidenceKey?: string; elapsedMs: number; sourceVersion: string; buildId: string; profileId: string; failureStep?: string; attemptedWrites?: Array<{method:string;origin:string;path:string}> }>;
 
 async function schema(db: D1Database) {
   await ensureQualityJobSchema(db);
@@ -80,7 +80,7 @@ export async function consumeBrowserQualityJob(db: D1Database, runId: string, en
       const result = await Promise.race([execute({ jobId: runId, sourceSha: env.EXPECTED_SOURCE_VERSION, buildId: env.EXPECTED_BUILD_ID, profileId, signal: controller.signal, browser: env.QUALITY_BROWSER }),interrupted]);
       if (result.jobId!==runId || result.sourceVersion !== env.EXPECTED_SOURCE_VERSION || result.buildId !== env.EXPECTED_BUILD_ID || result.profileId !== profileId)return await block('browser_result_identity_mismatch');
       releaseLane=true;
-      const committed = await commitQualityJobCheck(db, { runId, leaseToken: token, index: job.nextIndex, now: clock().toISOString(), receipt: { checkId: entry.checkId, status: result.status, observed: result.reason ?? "browser_observed", checkedAt: clock().toISOString(), durationMs: result.elapsedMs, ...(result.evidenceKey ? { evidenceUrl: result.evidenceKey } : {}) } });
+      const committed = await commitQualityJobCheck(db, { runId, leaseToken: token, index: job.nextIndex, now: clock().toISOString(), receipt: { checkId: entry.checkId, status: result.status, observed: result.reason ?? "browser_observed", checkedAt: clock().toISOString(), durationMs: result.elapsedMs, ...(result.evidenceKey ? { evidenceUrl: result.evidenceKey } : {}), ...(result.failureStep ? { failureStep: result.failureStep } : {}), ...(result.attemptedWrites ? { attemptedWrites: result.attemptedWrites } : {}) } });
       if (!committed)return await block('browser_commit_fenced');
       if(!await finishQualityJobSlice(db, { runId, leaseToken: token, status: "completed", now: clock().toISOString() }))return await block('browser_completion_fenced');
       const saved = await readQualityJob(db, runId); if (saved) await persistQualityJobProgress(db, saved);

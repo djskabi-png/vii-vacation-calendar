@@ -67,7 +67,7 @@ test('gallery requires a changed image and unimplemented world contracts cannot 
 test('wrong observed build, overflow and attempted writes cannot produce green evidence',async()=>{
   for(const [options,scenario,reason] of [[{wrongBuild:true},'world-shell','observed_build_mismatch'],[{overflow:true},'responsive-shell','horizontal_overflow'],[{extraRequest:['POST',env.PUBLIC_ORIGIN+'/api/lead']},'world-shell','write_request_attempted']]){
     const f=browserFixture(options);const result=await runBrowserJob({...job,scenario},env,f.factory);assert.notEqual(result.status,'passed');assert.equal(result.reason,reason);assertClosed(f.state);
-    if(options.extraRequest)assert.equal(f.state.requests.at(-1).disposition,'aborted');
+    if(options.extraRequest){assert.equal(f.state.requests.at(-1).disposition,'aborted');assert.equal(result.failureStep,'world-heading');assert.deepEqual(result.attemptedWrites,[{method:'POST',origin:env.PUBLIC_ORIGIN,path:'/api/lead'}]);assert.ok(!JSON.stringify(result).includes('?'));}
   }
 });
 
@@ -95,7 +95,7 @@ test('pre-cancel does not launch, and a browser arriving after deadline is close
   await new Promise(resolve=>setTimeout(resolve,45));assert.equal(late.state.browserClosed,1);
 });
 test('stalled actions stop within the run deadline and release every browser resource',async()=>{
-  const f=browserFixture({stallAction:true});const result=await runBrowserJob({...job,scenario:'map-open-close'},{...env,MAX_RUN_MS:'20'},f.factory);assert.equal(result.reason,'deadline_exceeded');assertClosed(f.state);
+  const f=browserFixture({stallAction:true});const result=await runBrowserJob({...job,scenario:'map-open-close'},{...env,MAX_RUN_MS:'20'},f.factory);assert.equal(result.reason,'deadline_exceeded');assert.equal(result.failureStep,'map-open-click');assert.deepEqual(result.attemptedWrites,[]);assertClosed(f.state);
 });
 test('an exhausted deadline prevents starting the next browser operation',async()=>{
   const f=browserFixture(),original=Date.now,started=original();

@@ -119,6 +119,7 @@ export const qualityRegistry: readonly QualityCheck[] = [
     releaseBlocking: true, contentKind: "xml", minBytes: 200, requiredAll: ["<urlset", "<loc>"],
   })),
   ...discoveryReadinessDefinitions.map(({checkId,world,route})=>json({checkId,world,route,family:'discovery-readiness',severity:'critical',cadenceMinutes:30,timeoutMs:10_000,expected:'Current exposed preset has a verified accepted snapshot, including a genuinely empty supplier result',releaseBlocking:true,semanticContract:DISCOVERY_READINESS_VERSION})),
+  json({ checkId: "quality.public-verification-keys", family: "quality-auth", world: "all", route: "/.well-known/vii-quality-jwks.json", severity: "critical", cadenceMinutes: 5, timeoutMs: 10_000, expected: "The public delegated-auth verification endpoint resolves through the deployed Worker and exposes only the Ed25519 public key", releaseBlocking: true, requiredAll: ['"keys":', '"kty":"OKP"', '"crv":"Ed25519"', '"x":'], forbidden: ['"d":'] }),
 ] as const;
 
 export function qualityHeartbeatWindow(now = new Date()) {

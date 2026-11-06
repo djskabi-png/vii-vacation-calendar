@@ -71,6 +71,7 @@ function fixture() {
 }
 
 const success = async (url, options) => {
+  if(url.endsWith('/.well-known/vii-quality-jwks.json'))return Response.json({keys:[{kty:'OKP',crv:'Ed25519',x:'synthetic-public-key'}]});
   if(url.includes('/api/vii/home-deals?')){const period=new URL(url).searchParams.get('period');return Response.json({period,dates:homeDealDates(period),availabilityStatus:'verified',cache:{checkedAt:new Date().toISOString()},deals:[]});}
   if(url.endsWith('/api/vii/live-search')){const request=JSON.parse(options.body);return Response.json({world:'events',discoveryVersion:3,scope:{date:request.from,guests:20},cache:{checkedAt:new Date().toISOString()},results:[],places:[]});}
   if (url.includes("/api/vii/business-amenities")) return Response.json({ source: "biz-shared-amenities", groups: [{ title: "מתחם חיצוני", items: ["בריכה"] }, { title: "מתחם פנימי", items: ["מזגן"] }] });
@@ -98,6 +99,17 @@ test("the first dashboard exposes the real registry without a run, incident or n
     assert.equal(reloaded.runs.length,0);
     assert.equal(reloaded.deliveries.length,0);
   } finally {sqlite.close();}
+});
+
+test('deployed key route check rejects a missing route and private key material',async()=>{
+  for(const [response,expected] of [
+    [new Response('not found',{status:404}),'failed'],
+    [Response.json({keys:[{kty:'OKP',crv:'Ed25519',x:'public',d:'synthetic-private-must-reject'}]}),'failed'],
+    [Response.json({keys:[{kty:'OKP',crv:'Ed25519',x:'public'}]}),'passed'],
+  ]){
+    const {sqlite,db}=fixture();
+    try{const result=await runQualityChecks(db,{origin:'https://example.test',trigger:'manual',level:'full',scope:{changedBoxes:[],consumers:['quality.public-verification-keys']},fetcher:async()=>response});assert.equal(result.status,expected);assert.equal(result.checkCount,1);}finally{sqlite.close();}
+  }
 });
 
 test("recurring registry is comprehensive, read-only and excludes accessibility and typography audits", () => {

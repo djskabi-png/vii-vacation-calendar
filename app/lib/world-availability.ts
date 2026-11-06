@@ -1,4 +1,5 @@
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
+import { forgetServerRequestRead, readOnceInServerRequest } from "./server-request-reads.ts";
 
 export const controllableWorlds = ["vacation", "events", "corporate", "spa", "hourly", "providers", "trails", "attractions", "gift-card"] as const;
 export type ControllableWorld = typeof controllableWorlds[number];
@@ -30,15 +31,21 @@ async function database() {
 
 export async function readWorldAvailability(): Promise<WorldAvailability> {
   if (cached && cached.until > Date.now()) return { ...cached.value };
-  try {
-    const rows = await (await runtimeDatabase()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>();
-    const state = { ...defaultWorldAvailability };
-    for (const row of rows.results) if (controllableWorlds.includes(row.world as ControllableWorld)) state[row.world as ControllableWorld] = row.enabled === 1;
-    cached = { until: Date.now() + 15_000, value: state };
-    return { ...state };
-  } catch {
-    return { ...defaultWorldAvailability };
-  }
+  return { ...await readOnceInServerRequest("world-availability", async () => {
+    // The layout and the home page both ask for this state. Deduplicate only
+    // within the current request; the existing 15-second isolate cache remains
+    // the cross-request fast path and setter invalidation remains authoritative.
+    if (cached && cached.until > Date.now()) return { ...cached.value };
+    try {
+      const rows = await (await runtimeDatabase()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>();
+      const state = { ...defaultWorldAvailability };
+      for (const row of rows.results) if (controllableWorlds.includes(row.world as ControllableWorld)) state[row.world as ControllableWorld] = row.enabled === 1;
+      cached = { until: Date.now() + 15_000, value: state };
+      return { ...state };
+    } catch {
+      return { ...defaultWorldAvailability };
+    }
+  }) };
 }
 
 export async function setWorldAvailability(world: ControllableWorld, enabled: boolean, actor: string) {
@@ -47,6 +54,7 @@ export async function setWorldAvailability(world: ControllableWorld, enabled: bo
     ON CONFLICT(world) DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at, updated_by = excluded.updated_by`)
     .bind(world, enabled ? 1 : 0, new Date().toISOString(), actor.slice(0, 200)).run();
   cached = null;
+  forgetServerRequestRead("world-availability");
   return readWorldAvailability();
 }
 

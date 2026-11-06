@@ -1,0 +1,33 @@
+{
+  "authorization_boundary": "Same requested VII project, read existing authorized browser session; no permission grant, credential extraction or new role",
+  "observedAt": "2026-11-06T14:00:54.516303+02:00",
+  "routes": [
+    {
+      "status": "not_applicable",
+      "evidence": "Browser session recovery succeeded; Sites ownership is separately verified and not a replacement for admin UI authentication",
+      "kind": "connector"
+    },
+    {
+      "status": "checked",
+      "evidence": "Chrome existing authenticated session opened https://vii.spaplus.co/admin/quality, actual administration navigation, logout, quality controls and cadence inventory rendered",
+      "result": "succeeded",
+      "kind": "authorized_session"
+    },
+    {
+      "status": "not_applicable",
+      "evidence": "No direct API session or cookie extraction needed after successful existing Chrome route",
+      "kind": "project_cli_api"
+    },
+    {
+      "status": "not_applicable",
+      "evidence": "Google chooser in IAB offered only the same account already denied; did not retry it or modify permissions",
+      "kind": "official_connection"
+    }
+  ],
+  "verified_result": "Actual VII quality administration page rendered in existing authorized Chrome session, no auth redirect or role changes",
+  "diagnosis": "Session-specific account route failure; an existing authorized Chrome session opens the actual admin quality page",
+  "outcome": "recovered",
+  "category": "permission",
+  "ready_work_remaining": true,
+  "observed_error": "Existing in-app browser admin login returned admin_forbidden for its selected Google account"
+}

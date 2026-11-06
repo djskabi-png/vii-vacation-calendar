@@ -19,3 +19,9 @@ export function readOnceInServerRequest<T>(key: string, load: () => Promise<T>):
   store.set(key,value);
   return value;
 }
+
+/** Forget one request-local read after an intentional same-request mutation. */
+export function forgetServerRequestRead(key: string): void {
+  const store = requestReads.getStore();
+  if (store && key) store.delete(key);
+}

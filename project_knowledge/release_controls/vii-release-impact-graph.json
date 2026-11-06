@@ -77,7 +77,10 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/world-availability-contract.test.mjs",
+        "tests/world-availability-request-dedupe.test.mjs"
+      ]
     },
     "search": {
       "dependsOn": [
@@ -549,7 +552,9 @@
       "dependsOn": [
         "runtime-http"
       ],
-      "requiredChecks": [],
+      "requiredChecks": [
+        "quality.public-verification-keys"
+      ],
       "buildUnits": [
         "managed-site",
         "quality-controller"
@@ -557,7 +562,8 @@
       "requiredLocalTests": [
         "tests/quality-attestation.test.mjs",
         "tests/quality-attestation-workerd.test.mjs",
-        "tests/quality-gateway.test.mjs"
+        "tests/quality-gateway.test.mjs",
+        "tests/worker-lazy-entry-actual.test.mjs"
       ]
     },
     "quality-runtime": {
@@ -635,7 +641,8 @@
         "app/lib/public-chrome-client.ts",
         "app/lib/world-surface-contract.ts",
         "app/site-header.tsx",
-        "app/globals.css"
+        "app/globals.css",
+        "app/lib/world-availability.ts"
       ]
     },
     {

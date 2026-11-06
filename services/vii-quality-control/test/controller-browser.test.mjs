@@ -10,11 +10,11 @@ function enabled(f,changes={}){return {...f.env,BROWSER_ENABLED:'true',EXPECTED_
 
 test('private controller admits one browser job, dispatches it and uses only the browser executor',async()=>{
  const f=fixture();let calls=0;try{
-  const env=enabled(f);const original=env.QUALITY_BROWSER.fetch;env.QUALITY_BROWSER.fetch=async(...args)=>{calls++;return original(...args);};
+  const env=enabled(f,{status:'failed',reason:'write_request_attempted',failureStep:'world-heading',attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]});const original=env.QUALITY_BROWSER.fetch;env.QUALITY_BROWSER.fetch=async(...args)=>{calls++;return original(...args);};
   for(let i=0;i<2;i++){const response=await f.controller.handle(request(),env,'trusted-admin',body);assert.equal(response.status,202);const payload=await response.json();assert.equal(payload.job.executionKind,'browser');assert.equal(payload.job.sourceVersion,source);assert.equal(payload.job.buildId,build);}
   assert.equal(f.messages.length,1);assert.equal(calls,0);const message=f.messages[0];const saved=await readQualityJob(f.db,message.runId);assert.equal(saved.actor,'trusted-admin');assert.equal(saved.checks[0].configuration.origin,'https://vii.spaplus.co');
   await f.controller.consume(env,message);await f.controller.consume(env,message);
-  const completed=await readQualityJob(f.db,message.runId);assert.equal(completed.status,'completed');assert.equal(completed.receipts[0].status,'passed');assert.equal(completed.receipts[0].durationMs,12);assert.equal(calls,1);assert.equal(f.executions(),0);
+  const completed=await readQualityJob(f.db,message.runId);assert.equal(completed.status,'completed');assert.equal(completed.receipts[0].status,'failed');assert.equal(completed.receipts[0].durationMs,12);assert.equal(completed.receipts[0].failureStep,'world-heading');assert.deepEqual(completed.receipts[0].attemptedWrites,[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]);assert.equal(calls,1);assert.equal(f.executions(),0);
   const metadata=await(await f.controller.handle(new Request('https://vii.spaplus.co/api/admin/quality?engine=browser'),env,'trusted-viewer')).json();assert.equal(metadata.enabled,true);assert.equal(metadata.profiles.length,34);
  }finally{f.sqlite.close();}
 });

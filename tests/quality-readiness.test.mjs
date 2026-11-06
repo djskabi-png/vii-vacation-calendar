@@ -89,10 +89,17 @@ test('a forged readiness route cannot turn the quality executor into a generic P
 
 test('event readiness rejects partial joins, wrong version, guests, date and invalid offer price',()=>{
   const scope={date:'2026-11-07',guests:20};
-  const offer={siteID:7,from:scope.date,priceGuests:20,available:true,slot:'evening',total:null};
+  const offer={siteID:7,from:scope.date,till:scope.date,priceGuests:20,available:true,slot:'evening',total:null};
   const value={world:'events',discoveryVersion:3,scope,cache,results:[offer],places:[{slug:'event-7'}]};
   assert.equal(validateEventReadiness(value,scope,now).ok,true,'confirmed contact-only availability is legitimate');
-  for(const changed of [{...value,discoveryVersion:undefined},{...value,cache:undefined},{...value,places:[]},{...value,places:[{slug:'event-8'}]},{...value,scope:{...scope,guests:2}},{...value,results:[{...offer,total:0}]},{...value,results:[{...offer,from:'2026-11-08'}]},{...value,results:[{...offer,till:'2026-11-08'}]}])assert.equal(validateEventReadiness(changed,scope,now).ok,false);
+  for(const changed of [{...value,discoveryVersion:undefined},{...value,cache:undefined},{...value,places:[]},{...value,places:[{slug:'event-8'}]},{...value,scope:{...scope,guests:2}},{...value,results:[{...offer,total:0}]},{...value,results:[{...offer,from:'2026-11-08'}]},{...value,results:[{...offer,till:'2026-11-09'}]},{...value,results:[{...offer,till:'2026-11-06'}]},{...value,results:[{...offer,till:undefined}]}])assert.equal(validateEventReadiness(changed,scope,now).ok,false);
+});
+test('event readiness accepts the supplier overnight calendar date but rejects longer or missing dates',()=>{
+  const scope={date:'2026-11-07',guests:20};
+  const base={world:'events',discoveryVersion:3,scope,cache,results:[{siteID:8,from:scope.date,till:'2026-11-08',priceGuests:20,available:true,slot:'morning',total:1200}],places:[{slug:'event-8'}]};
+  assert.deepEqual(validateEventReadiness(base,scope,now),{ok:true});
+  assert.deepEqual(validateEventReadiness({...base,results:[{...base.results[0],till:scope.date}]},scope,now),{ok:true});
+  for(const till of ['2026-11-09','2026-11-06','2026-02-30',undefined]) assert.equal(validateEventReadiness({...base,results:[{...base.results[0],till}]},scope,now).ok,false,till);
 });
 test("event readiness requires exact date and guests with fresh proof", () => {
   const value = { discoveryVersion: 3, world: "events", scope: { date: "2026-11-07", guests: 20 }, cache, results: [], places: [] };

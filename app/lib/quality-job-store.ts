@@ -1,9 +1,10 @@
+const browserDiagnosticPaths = new Set(["<redacted>","/api/vii/live-search","/api/experience/metrics","/api/lead","/api/booking","/api/payments","/api/admin/quality"]);
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { initializeSchemaOnce } from "./schema-initializer.ts";
 
 export type QualityJobStatus = "queued" | "running" | "completed" | "blocked" | "cancelled";
 export type QualityJobCheck = { checkId: string; definitionVersion: string; timeoutMs?: number; configuration: Record<string, unknown> };
-export type QualityJobReceipt = { checkId: string; status: "passed" | "failed" | "degraded" | "blocked"; observed: string; checkedAt: string; statusCode?: number | null; durationMs?: number; evidenceUrl?: string; evidenceValidUntil?: string };
+export type QualityJobReceipt = { checkId: string; status: "passed" | "failed" | "degraded" | "blocked"; observed: string; checkedAt: string; statusCode?: number | null; durationMs?: number; evidenceUrl?: string; evidenceValidUntil?: string; failureStep?: string; attemptedWrites?: Array<{method:string;origin:string;path:string}> };
 export type QualityJob = {
   runId: string; actor: string; idempotencyKey: string; payloadHash: string; sourceVersion: string;
   definitionVersion: string; checks: QualityJobCheck[]; expectedCheckIds: string[]; receipts: QualityJobReceipt[];
@@ -121,6 +122,8 @@ export async function commitQualityJobCheck(db: D1Database, input: {
   runId: string; leaseToken: string; index: number; receipt: QualityJobReceipt; now: string;
 }) {
   if (typeof input.receipt.observed !== "string" || input.receipt.observed.length > 4000 || !["passed", "failed", "degraded", "blocked"].includes(input.receipt.status)) throw new Error("invalid_quality_receipt");
+  if (input.receipt.failureStep !== undefined && (typeof input.receipt.failureStep !== "string" || !/^[a-z0-9-]{1,64}$/.test(input.receipt.failureStep))) throw new Error("invalid_quality_receipt");
+  if (input.receipt.attemptedWrites !== undefined && (!Array.isArray(input.receipt.attemptedWrites) || input.receipt.attemptedWrites.length > 8 || input.receipt.attemptedWrites.some(item => !item || !/^[A-Z]{3,7}$/.test(item.method) || !["https://vii.spaplus.co","https://www.vii.co.il","https://vii-vacation-calendar.adir-naor-7510.chatgpt.site","<external>"].includes(item.origin) || !browserDiagnosticPaths.has(item.path) || item.path.includes("?") || item.path.includes("#")))) throw new Error("invalid_quality_receipt");
   const result = await db.prepare(`UPDATE quality_jobs SET next_index=next_index+1,active_index=NULL,
     receipts_json=json_insert(receipts_json,'$[#]',json(?)),updated_at=? WHERE run_id=? AND status='running'
     AND lease_token=? AND lease_until>? AND cancel_requested_at IS NULL AND next_index=? AND active_index=?

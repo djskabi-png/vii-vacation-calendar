@@ -1,9 +1,11 @@
+const browserDiagnosticPaths = new Set(["<redacted>","/api/vii/live-search","/api/experience/metrics","/api/lead","/api/booking","/api/payments","/api/admin/quality"]);
 import { browserProfile } from "./browser-profiles.ts";
 
 export const BROWSER_RUN_PATH = "https://vii-quality-browser.internal/run";
 export type BrowserBinding = { fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> };
 export type BrowserExecutionInput = { jobId: string; sourceSha: string; buildId: string; profileId: string; signal?: AbortSignal; browser: BrowserBinding };
-export type BrowserExecutionResult = { jobId: string; sourceVersion: string; buildId: string; profileId: string; status: "passed" | "failed" | "blocked"; reason?: string; requestCount: number; steps: number; evidenceKey?: string; elapsedMs: number };
+export type BrowserDiagnosticWrite = { method: string; origin: string; path: string };
+export type BrowserExecutionResult = { jobId: string; sourceVersion: string; buildId: string; profileId: string; status: "passed" | "failed" | "blocked"; reason?: string; requestCount: number; steps: number; evidenceKey?: string; elapsedMs: number; failureStep?: string; attemptedWrites?: BrowserDiagnosticWrite[] };
 const maxResponseBytes = 16 * 1024;
 const validSha = (v: string) => /^[a-f0-9]{40}$/.test(v);
 const validBuild = (v: string) => /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(v);
@@ -45,6 +47,10 @@ export async function executeBrowserProfile(input: BrowserExecutionInput): Promi
   if(result.status==='passed' && (Number(result.steps)<2 || Number(result.requestCount)<1 || result.reason!=null || result.evidenceKey!=null))throw new Error('browser_result_invalid');
   if(result.status!=='passed' && (typeof result.reason!=='string' || !/^[a-z0-9_]{1,160}$/.test(result.reason)))throw new Error('browser_result_invalid');
   if (result.evidenceKey !== undefined && result.evidenceKey!==`qqqaaa/failures/${input.sourceSha}/${input.jobId}/${profile.device}-${profile.scenario}.jpg`) throw new Error("browser_result_invalid");
-  return { jobId: input.jobId, sourceVersion: input.sourceSha, buildId: input.buildId, profileId: input.profileId, status: result.status as BrowserExecutionResult["status"], ...(typeof result.reason === "string" ? { reason: result.reason.slice(0, 160) } : {}), requestCount: Number(result.requestCount), steps: Number(result.steps), ...(typeof result.evidenceKey === "string" ? { evidenceKey: result.evidenceKey } : {}), elapsedMs: Number(result.durationMs) };
+  if(result.failureStep!==undefined&&!(typeof result.failureStep==='string'&&/^[a-z0-9-]{1,64}$/.test(result.failureStep)))throw new Error('browser_result_invalid');
+  if(result.attemptedWrites!==undefined&&!(Array.isArray(result.attemptedWrites)&&result.attemptedWrites.length<=8&&result.attemptedWrites.every(x=>x&&typeof x==='object'&&/^[A-Z]{3,7}$/.test(String((x as Record<string,unknown>).method))&&['https://vii.spaplus.co','https://www.vii.co.il','https://vii-vacation-calendar.adir-naor-7510.chatgpt.site','<external>'].includes(String((x as Record<string,unknown>).origin))&&browserDiagnosticPaths.has(String((x as Record<string,unknown>).path))&& !String((x as Record<string,unknown>).path).includes('?')&&!String((x as Record<string,unknown>).path).includes('#'))))throw new Error('browser_result_invalid');
+  const failureStep=typeof result.failureStep==='string'?result.failureStep:undefined;
+  const attemptedWrites=Array.isArray(result.attemptedWrites)?result.attemptedWrites as BrowserDiagnosticWrite[]:undefined;
+  return { jobId: input.jobId, sourceVersion: input.sourceSha, buildId: input.buildId, profileId: input.profileId, status: result.status as BrowserExecutionResult["status"], ...(typeof result.reason === "string" ? { reason: result.reason.slice(0, 160) } : {}), requestCount: Number(result.requestCount), steps: Number(result.steps), ...(typeof result.evidenceKey === "string" ? { evidenceKey: result.evidenceKey } : {}), elapsedMs: Number(result.durationMs), ...(failureStep?{failureStep}:{}), ...(attemptedWrites?{attemptedWrites}: {}) };
   }finally{clearTimeout(timer);if(onAbort)signal.removeEventListener('abort',onAbort);}
 }
