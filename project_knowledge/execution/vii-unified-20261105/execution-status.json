@@ -959,8 +959,8 @@
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": true,
-  "nextStep": "Qualify local commit-navigation repair and isolated calendar source; verify actual loading failure/close/retry and precise public performance before next full release subject. Complete remaining administration/recovery/scheduling acceptance. Document3 deferred.",
-  "updatedAt": "2026-11-06T16:35:04.151704+00:00",
+  "nextStep": "Repair and retest actual locale hydration discrepancy before integrating isolated performance branch. Complete measured origin-miss diagnosis and first/repeat performance acceptance. Document3 remains deferred.",
+  "updatedAt": "2026-11-06T17:09:59.210693+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": true,
   "sourceHeadMeaning": "Last observed active private controller/browser generation; Site retains app1d96 and original Edge/images artifacts. New platform classification and calendar experiment are pending.",
@@ -1163,17 +1163,19 @@
     "evidence": ".qa-output/phase49-diagnostic-readback.json"
   },
   "lastPrivateActivation": {
-    "source": "2274368361e938a31aedc82822e328098d39f51f",
-    "browserVersion": "833eadb6-6189-40df-8b82-9131079014a9",
-    "controllerVersion": "4a764aef-0e28-4e7f-a23d-8d88fa5250ae",
-    "evidence": "PHASE_51_PRIVATE_AND_PERFORMANCE_CHECKPOINT.md"
+    "source": "d3d1cf24776336cd97f7762534c57193cd08a6c8",
+    "browserVersion": "15ab5a00-5e0f-4efa-a66a-e089856c611e",
+    "controllerVersion": "2c65c9d1-9a2b-4ca2-8db5-d36ef15acffd",
+    "evidence": "PHASE_54_CHECKPOINT.json"
   },
   "lastTargetedDiagnostic": {
-    "runId": "a4055635-3126-4927-b613-e54b233b53a3",
-    "status": "blocked",
-    "step": "navigate",
-    "requests": 117,
-    "businessWrites": 0,
-    "evidence": ".qa-output/phase51-diagnostic-readback.json"
+    "runId": "3aa55596-090c-4c7d-b43a-f090d49366bf",
+    "status": "passed",
+    "requests": 162,
+    "businessWriteDenials": 0,
+    "platformAborted": 1,
+    "ttfbMs": 6035,
+    "fcpMs": 7480,
+    "wholeSpeedAccepted": false
   }
 }

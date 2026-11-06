@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-11-06T17:09:46.537845+00:00",
+  "privateActiveSource": "d3d1cf24776336cd97f7762534c57193cd08a6c8",
+  "publicAppSource": "1d96d3c4c8222a21674b092c34ad54895956743b",
+  "publicBuild": "2f74283b-12fe-cffa-db0b-5dab682e329b",
+  "phase54": {
+    "runId": "3aa55596-090c-4c7d-b43a-f090d49366bf",
+    "status": "passed",
+    "requests": 162,
+    "businessWriteDenials": 0,
+    "platformAborted": 1,
+    "ttfbMs": 6035,
+    "fcpMs": 7480,
+    "wholeSpeedAccepted": false
+  },
+  "localeExperiment": {
+    "buildSource": "6252255b2ae40e96d042750d31efc405eaf018d8",
+    "verificationHead": "b287a0ca098ab87a2e33d8f1a18a7cad164dca81",
+    "localNativeWorkerBuild": "4fc27d4c-f92f-12f9-74d6-fc66213b1bf2",
+    "baselineUniqueJsBytes": 1243398,
+    "candidateUniqueJsBytes": 948113,
+    "initialLocaleChunkBytes": 113288,
+    "originalLocaleChunkBytes": 408815,
+    "enSettledAndDateOpen": "observed",
+    "frSettledAndDateOpen": "observed",
+    "frHydrationError": {
+      "at": "2026-11-06T17:06:17.205Z",
+      "code": "React418-text",
+      "cause": "not proven; selected-locale initial-data parity hypothesis under repair"
+    },
+    "ru": "not yet observed",
+    "publiclyPublished": false
+  },
+  "evidence": [
+    ".qa-output/phase53-*",
+    ".qa-output/phase54-diagnostic-readback.json",
+    "performance worktree .qa-output/root-locale-*"
+  ],
+  "wholeProject": "not_verified",
+  "document3": "deferred"
+}
