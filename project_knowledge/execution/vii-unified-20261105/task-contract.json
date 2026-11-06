@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T17:09:46.537845+00:00",
+  "updated_at": "2026-11-06T17:39:08.375257+00:00",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -523,6 +523,106 @@
       "evidence": [],
       "reason": null,
       "updated_at": "2026-11-06T17:09:46.537845+00:00"
+    },
+    {
+      "id": "feedback:20261106:approved-results-parity",
+      "source": "user_request",
+      "statement": "Approved semantic pages use the full world search controls and detailed preview cards; holiday and period routes remain unchanged.",
+      "acceptance_check": "Compare zimmers and supplied approved vacation route on desktop/mobile; same filters, sort, map/list, card actions, complete reachable inventory and retained intent; holiday/period regression unchanged.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:legacy-sitemap-coverage",
+      "source": "user_request",
+      "statement": "Discover every referenced legacy sitemap and reconcile event and other semantic pages, content and redirects.",
+      "acceptance_check": "Inventory each sitemap and entry; classify mapped, missing, duplicate, inactive or intentionally excluded; test direct canonical destination and intentional301 without chains; no invented inventory/content.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:event-map-card-layout",
+      "source": "user_request",
+      "statement": "Event cards beside desktop map follow the established vacation layout while retaining event facts.",
+      "acceptance_check": "Check supported desktop widths, resize, scroll, card and marker selection with aligned content and no overflow or loss of event capacity/slot facts.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:spa-pool-membership",
+      "source": "user_request",
+      "statement": "Reconcile Tel Aviv spa pool membership with supplier facility identifiers and package eligibility.",
+      "acceptance_check": "Compare matching provider IDs, city, active status and pool amenities including reported Kempinski and David examples; distinguish facility from package access; propagate to page, filters, counts and map.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:cross-provider-family-parity",
+      "source": "user_request",
+      "statement": "Audit source-to-public transformations for all connected vacation, event, spa and hourly families.",
+      "acceptance_check": "Reconcile source IDs and statuses through adapter, snapshots, catalog, API and UI; cover characteristics, media, units, coordinates, quotes and contact actions; sample tests plus full inventory reconciliation.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:vacation-2417-status",
+      "source": "user_request",
+      "statement": "Investigate vacation2417 active/public status without inferring inactive from legacy absence.",
+      "acceptance_check": "Inspect explicit supplier visibility/status and legacy destination; if inactive exclude every public discovery surface and apply appropriate direct-page behavior, preserving internal record.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:place-new-tab",
+      "source": "user_request",
+      "statement": "Every place detail navigation opens a new browser tab.",
+      "acceptance_check": "Test cards, image/title/CTA, sliders, list and map previews across worlds desktop/mobile; preserve dates, party, unit and offer; search tabs keep their own behavior.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:slider-recovery",
+      "source": "user_request",
+      "statement": "Eliminate sliders stuck until manual retry.",
+      "acceptance_check": "Reproduce initial/mid-tab/transient failure, bounded automatic recovery and explicit exhausted retry; maintain correctly scoped verified result without contradictory errors or false availability; hard refresh/back/mobile included.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:gallery-lookahead",
+      "source": "user_request",
+      "statement": "Improve preview gallery sequence with bounded upcoming-image preloading.",
+      "acceptance_check": "Next-two lookahead and decode readiness, rapid prev/next races, mobile bandwidth behavior, limited concurrency and no eager full-gallery download or first-paint regression.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+    },
+    {
+      "id": "feedback:20261106:vacation-2188-media",
+      "source": "user_request",
+      "statement": "Repair provider/media delivery and unit gallery identity for vacation2188 and affected gallery family.",
+      "acceptance_check": "Reconcile exact source and unit photo IDs with legacy/API, test original/CDN delivery and encoding, thumbnails/fullsize and sequence; no unrelated unit/business substitution.",
+      "status": "pending",
+      "evidence": [],
+      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
+      "updated_at": "2026-11-06T17:39:08.375257+00:00"
     }
   ],
   "verification_status": "in_progress",
