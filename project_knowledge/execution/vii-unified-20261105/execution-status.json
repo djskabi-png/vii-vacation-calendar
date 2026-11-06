@@ -3,7 +3,7 @@
   "status": "in_progress",
   "scope": "Plans1+2 as one project",
   "deferred": "Document3 corrective backlog, until core implementation complete",
-  "sourceHead": "7c1bf64fffd12d750453759ff2f94a583b2affe8",
+  "sourceHead": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
   "planSources": {
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md": "f9fe333f1bfeff17e0c7fbf546a479eb988ad60c2542cf46f9fb01d253b48d71",
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md": "00e92c9a451dca2bd64b522af4ad408809172e78097f5b969241b32117f2979a"
@@ -32,7 +32,8 @@
         "PHASE_13_VERIFICATION.md",
         "PHASE_21_VERIFICATION.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -110,7 +111,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -131,7 +133,8 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -190,7 +193,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -224,7 +228,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -251,7 +256,8 @@
         "PHASE_18.md",
         "PHASE_21_VERIFICATION.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -274,7 +280,8 @@
         "PHASE_18.md",
         "PHASE_20_VERIFICATION.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -298,7 +305,8 @@
         "PHASE_13_VERIFICATION.md",
         "PHASE_14.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -349,7 +357,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -362,7 +371,8 @@
         "PHASE_02.md",
         "PHASE_04.md",
         "PHASE_05.md",
-        "PHASE_23_VERIFICATION.md"
+        "PHASE_23_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -463,7 +473,8 @@
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_23_VERIFICATION.md"
+        "PHASE_23_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -480,7 +491,8 @@
         "PHASE_18.md",
         "PHASE_21_VERIFICATION.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -495,7 +507,8 @@
         "PHASE_06_VERIFICATION.md",
         "PHASE_07_VERIFICATION.md",
         "PHASE_21_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -507,7 +520,8 @@
         "PHASE_10_VERIFICATION.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -525,7 +539,8 @@
         "PHASE_10_VERIFICATION.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_21_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -618,7 +633,8 @@
         "PHASE_06.md",
         "PHASE_16.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -652,7 +668,8 @@
         "PHASE_16.md",
         "PHASE_18.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -674,7 +691,8 @@
         "PHASE_16.md",
         "PHASE_18.md",
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -691,7 +709,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_23_VERIFICATION.md",
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -707,7 +726,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     },
     {
@@ -716,7 +736,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_25B_VERIFICATION.md"
+        "PHASE_25B_VERIFICATION.md",
+        "PHASE_27_VERIFICATION.md"
       ]
     }
   ],
@@ -848,7 +869,7 @@
     {
       "id": "quality-scoped-selection",
       "state": "qualified_local",
-      "limit": "61 server check metadata entries and34 browser profiles are registered and locally tested; complete live journey acceptance remains open"
+      "limit": "69 server HTTP semantic metadata entries and34 browser profiles locally qualified. Matching-generation actual runtime/public acceptance remains open."
     },
     {
       "id": "quality-small-polling",
@@ -898,7 +919,7 @@
     {
       "id": "search-client-server-data-boundaries",
       "state": "qualified_local_exact_archive",
-      "limit": "Phase25b cumulative Site archive passed payload parity and six-world compiled map QA. Public speed and field percentiles remain unverified."
+      "limit": "Phase27 exact Site archive and compiled narrow desktop/mobile period and map verification passed. Complete six-world map UI pass retained from unchanged phase25 implementation. Public speed and field percentiles remain unverified."
     },
     {
       "id": "active-build-client-asset-private-retention",
@@ -928,33 +949,42 @@
     {
       "id": "independent-controller-source-and-artifacts",
       "state": "qualified_local_exact_packages",
-      "limit": "Phase25 controller/browser/Edge original artifacts and phase18 image artifact reused by actual input fingerprint, digest and ancestry proof. New phase25b Site archive qualified. Runtime bindings not applied."
+      "limit": "Phase27 Site/controller newly built; browser and Edge phase25, image phase18 retained by actual source/ancestry/input/digest proof. Runtime bindings not applied."
+    },
+    {
+      "id": "discovery-semantic-readiness-and-original-receipt-expiry",
+      "state": "qualified_local_exact_artifacts",
+      "limit": "Eight readiness-v2 checks accept verified empty snapshots, reject refreshing/mismatched data and expire original durable proof at snapshot TTL/Israel date cutoff. Matching actual cloud/supplier/public suite remains required."
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Complete semantic release snapshot readiness gate without blocking visitor provider calls; then freeze only changed units, require owner-scoped publication recovery and actual matching-generation cloud/public/restore/performance acceptance. Document3 remains deferred.",
-  "updatedAt": "2026-11-06T10:15:00.573282+00:00",
+  "nextStep": "Await pending authorization for owner-workspace infrastructure diagnostic chat; reconcile old publication operation and restore supported connection to the exact existing Site, then business/media restore, immutable full current runtime subject and coordinated public release/acceptance. Document3 remains deferred.",
+  "updatedAt": "2026-11-06T10:53:12.549338+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": false,
-  "sourceHeadMeaning": "Last frozen phase25b source qualification and exact Site archive, not a deployed release. Phase26 snapshot readiness gate in progress.",
+  "sourceHeadMeaning": "Last frozen phase27 local source and exact per-unit artifact qualification. No public release or whole-project acceptance.",
   "privateCloudAssetSeed": {
     "files": 240,
     "sourceBuild": "00bca36c-4f1c-403d-9a13-ceea797015ae",
     "publicRouteChanged": false
   },
   "initialSourceHead": "2c6fda304c04a0a0d8507bd8c3be6df53429a724",
-  "siteArtifactStatus": "phase25b_exact_archive_qualified_phase26_core_acceptance_changes_in_progress",
-  "preparedArtifacts": "PREPARED_ARTIFACTS_PHASE25B.json",
+  "siteArtifactStatus": "phase27_exact_archive_qualified_owner_context_and_actual_runtime_acceptance_required",
+  "preparedArtifacts": "PREPARED_ARTIFACTS_PHASE27.json",
   "latestQualification": {
-    "source": "7c1bf64fffd12d750453759ff2f94a583b2affe8",
-    "tests": 2466,
-    "passed": 2465,
+    "source": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
+    "tests": 2474,
+    "passed": 2473,
     "failed": 0,
     "skipped": 1,
-    "buildMs": 24736,
-    "suiteMs": 116654.2107,
-    "archiveSha256": "f942c9f52d614fa6a6830a733e32266063b54c773ca9217840876ffc10cf95c1",
-    "evidence": "PHASE_25B_VERIFICATION.md"
-  }
+    "controllerTestsPassed": 95,
+    "buildMs": 26168.4067,
+    "suiteMs": 131869.3775,
+    "archiveSha256": "3e2703ebb77747e6c6d48654268100b82eab268526a62c1f63edf9de6b8788da",
+    "evidence": "PHASE_27_VERIFICATION.md"
+  },
+  "executionGate": "owner_workspace_diagnostic_authorization_pending",
+  "independentReadySourceWorkIdentifiedByCurrentReview": false,
+  "currentAccessReview": "access-owner-publication-handoff.json"
 }

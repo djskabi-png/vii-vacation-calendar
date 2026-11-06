@@ -1,0 +1,45 @@
+{
+  "observed_error": "The existing VII project is absent from this chat's selected native Sites workspace and exact get_site/get_version calls returned PROJECT_NOT_FOUND, while the authorized browser opens the real project's settings and original database.",
+  "category": "permission",
+  "diagnosis": "Selected owner-workspace publication context mismatch. This is not evidence of a Cloudflare outage or a missing Site. A historical owner publication operation has not been safely reconciled, so it is not repeated.",
+  "authorization_boundary": "Existing VII implementation and eventual publication are authorized. Creating or sending a prompt to a separate user-owned infrastructure chat still requires explicit authorization under the chat tools' rules. No new chat, prompt, upload or publication was performed.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "The native Sites exact-project lookups returned PROJECT_NOT_FOUND; its bounded owned/editable catalog matched the Premium workspace's unrelated Sites. Supported methods expose no workspace/account selector. No unchanged lookup was repeated."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "The original authorized Business browser workspace opens VII's exact settings, domain and connected original database. No direct upload/publication/backup export control was exposed. The old Publish VII Release surface displayed an unfinished historical operation. Its prompt was not repeated. Native chat inventory/history inspection did not expose that owner operation through a supported read_thread identity."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "The official Sites packager produced and audited the exact local archive; it does not change connector owner context. Existing Wrangler authorization verified private Cloudflare resources and supported a bounded negative runtime probe, but the account's private quality database is not the original managed business database. No unsupported credential extraction, Git push/autopublish, replacement Site or publication bypass was used."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "The supported Sites library and project Edit/settings paths and account/workspace selection were investigated. Original owner context was restored. The current connector has no supported context-switch parameter. A dedicated owner-context diagnostic chat was proposed with read-only scope and remains awaiting explicit approval; the concrete prompt and resumption checks are saved in OWNER_WORKSPACE_RECOVERY_HANDOFF.md."
+    }
+  ],
+  "outcome": "human_required",
+  "ready_work_remaining": false,
+  "minimum_human_action": "Answer the pending request authorizing a dedicated VII owner-workspace infrastructure chat to inspect the publication connection and old operation, without publishing. This is the next permission boundary, not a request to repeat general publication authorization.",
+  "resume_when": "The owner-context diagnostic chat is explicitly authorized; first reconcile the old operation and verify a supported connection to the same existing project. Public release then still requires business/media restore and complete matching-generation acceptance.",
+  "independent_work_evidence": "Frozen phase27 full source/type/build/test qualification, exact per-unit artifacts and archive parity, compiled desktop/mobile period and map checks, independent readiness/expiry review and owned-resource verification are retained. No further bounded independent source correction was identified by the current review. This does not mark all58 chapters accepted or substitute local evidence for production.",
+  "evidence": [
+    "PHASE_17_ACCESS.md",
+    "PHASE_23_VERIFICATION.md",
+    "PHASE_25B_VERIFICATION.md",
+    "PHASE_27_VERIFICATION.md",
+    "PREPARED_ARTIFACTS_PHASE27.json",
+    "OWNER_WORKSPACE_RECOVERY_HANDOFF.md"
+  ]
+}

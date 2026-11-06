@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T10:26:37.405599Z",
+  "updated_at": "2026-11-06T10:55:01.636800Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -95,18 +95,26 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Exact phase27 compiled Site period/map desktop/mobile and actual local Worker/SQLite paths inspected. Owner-scoped cloud/public/restore acceptance remains blocked and is not inferred from local observations. See PHASE_27_VERIFICATION.md.",
+        "Full2474 main tests2473pass1existing skip,95controller tests,69HTTP metadata,34browser definitions; exact per-unit archive/digest parity and original retained sources verified. Document3 deferred; no public deployment.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T10:54:50.955911Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=0, prevented_failures=1, elapsed_minutes=257329.006012203; Whole task elapsed wall time, not billable compute. No new user correction during this execution window. One reproduced actual local RUM source-generation acceptance defect is counted; other local guard improvements are not claimed as measured production incident reductions. Public baseline and whole-project acceptance remain unavailable pending owner context."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T10:54:57.513867Z"
     },
     {
       "id": "lesson:ADIR-QA-001",
@@ -285,9 +293,57 @@
       "source": "access_obstacle",
       "statement": "Resolve the observed Sites connector workspace mismatch without changing site ownership or audience",
       "acceptance_check": "Verify the same existing VII project through its authorized owner workspace and supported publication route; preserve pending-operation protection",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "blocked",
+      "evidence": [
+        "project_knowledge/execution/vii-unified-20261105/access-owner-publication-handoff.json"
+      ],
+      "reason": "Pending explicit approval for dedicated owner-context diagnostic chat; current native publication connector is scoped to another workspace. Exact local candidate retained; no publication retry.",
+      "access_recovery": {
+        "observed_error": "The existing VII project is absent from this chat's selected native Sites workspace and exact get_site/get_version calls returned PROJECT_NOT_FOUND, while the authorized browser opens the real project's settings and original database.",
+        "category": "permission",
+        "diagnosis": "Selected owner-workspace publication context mismatch. This is not evidence of a Cloudflare outage or a missing Site. A historical owner publication operation has not been safely reconciled, so it is not repeated.",
+        "authorization_boundary": "Existing VII implementation and eventual publication are authorized. Creating or sending a prompt to a separate user-owned infrastructure chat still requires explicit authorization under the chat tools' rules. No new chat, prompt, upload or publication was performed.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "The native Sites exact-project lookups returned PROJECT_NOT_FOUND; its bounded owned/editable catalog matched the Premium workspace's unrelated Sites. Supported methods expose no workspace/account selector. No unchanged lookup was repeated."
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "The original authorized Business browser workspace opens VII's exact settings, domain and connected original database. No direct upload/publication/backup export control was exposed. The old Publish VII Release surface displayed an unfinished historical operation. Its prompt was not repeated. Native chat inventory/history inspection did not expose that owner operation through a supported read_thread identity."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "checked",
+            "result": "failed",
+            "evidence": "The official Sites packager produced and audited the exact local archive; it does not change connector owner context. Existing Wrangler authorization verified private Cloudflare resources and supported a bounded negative runtime probe, but the account's private quality database is not the original managed business database. No unsupported credential extraction, Git push/autopublish, replacement Site or publication bypass was used."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "human_required",
+            "evidence": "The supported Sites library and project Edit/settings paths and account/workspace selection were investigated. Original owner context was restored. The current connector has no supported context-switch parameter. A dedicated owner-context diagnostic chat was proposed with read-only scope and remains awaiting explicit approval; the concrete prompt and resumption checks are saved in OWNER_WORKSPACE_RECOVERY_HANDOFF.md."
+          }
+        ],
+        "outcome": "human_required",
+        "ready_work_remaining": false,
+        "minimum_human_action": "Answer the pending request authorizing a dedicated VII owner-workspace infrastructure chat to inspect the publication connection and old operation, without publishing. This is the next permission boundary, not a request to repeat general publication authorization.",
+        "resume_when": "The owner-context diagnostic chat is explicitly authorized; first reconcile the old operation and verify a supported connection to the same existing project. Public release then still requires business/media restore and complete matching-generation acceptance.",
+        "independent_work_evidence": "Frozen phase27 full source/type/build/test qualification, exact per-unit artifacts and archive parity, compiled desktop/mobile period and map checks, independent readiness/expiry review and owned-resource verification are retained. No further bounded independent source correction was identified by the current review. This does not mark all58 chapters accepted or substitute local evidence for production.",
+        "evidence": [
+          "PHASE_17_ACCESS.md",
+          "PHASE_23_VERIFICATION.md",
+          "PHASE_25B_VERIFICATION.md",
+          "PHASE_27_VERIFICATION.md",
+          "PREPARED_ARTIFACTS_PHASE27.json",
+          "OWNER_WORKSPACE_RECOVERY_HANDOFF.md"
+        ]
+      },
+      "updated_at": "2026-11-06T10:52:31.881356Z"
     },
     {
       "id": "quality:durable-release-subject",
@@ -306,13 +362,25 @@
       "source": "approved_plan",
       "statement": "Bind release acceptance to all current vacation and event discovery snapshots, not only page shell HTTP status",
       "acceptance_check": "Server-owned immutable checks reject refreshing, missing proof, stale or mismatched snapshots, accept genuinely verified empty offers, and run against matching exact candidate before publication",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "blocked",
+      "evidence": [
+        "project_knowledge/execution/vii-unified-20261105/PHASE_27_VERIFICATION.md",
+        "project_knowledge/execution/vii-unified-20261105/PREPARED_ARTIFACTS_PHASE27.json"
+      ],
+      "reason": "Local readiness-v2 and original receipt-expiry implementation qualified. Actual matching-generation cloud/supplier/public acceptance depends on the unresolved owner publication context; this requirement is not passed.",
+      "updated_at": "2026-11-06T10:53:08.983218Z"
     }
   ],
-  "verification_status": "in_progress",
-  "verification_errors": [],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "goal: pending",
+    "lesson:ADIR-QA-001: pending",
+    "lesson:ADIR-DATA-001: pending",
+    "project:protected-source: pending",
+    "access:sites-workspace-scope: blocked: Pending explicit approval for dedicated owner-context diagnostic chat; current native publication connector is scoped to another workspace. Exact local candidate retained; no publication retry.",
+    "quality:durable-release-subject: pending",
+    "quality:discovery-snapshot-readiness: blocked: Local readiness-v2 and original receipt-expiry implementation qualified. Actual matching-generation cloud/supplier/public acceptance depends on the unresolved owner publication context; this requirement is not passed."
+  ],
   "predictive_results": {
     "midpoint": {
       "observed_at": "2026-11-05T22:28:14.662802Z",
@@ -322,6 +390,24 @@
       "findings": [
         "Broad SPA CSS cascade extraction changed layout and was reverted before acceptance; narrow original-position CSS slot passed. Cold snapshot miss was incorrectly treated as storage outage and repaired. Complete project/public acceptance remains pending."
       ]
+    },
+    "adversarial": {
+      "observed_at": "2026-11-06T10:54:50.955852Z",
+      "attacks": [
+        "Wrong period/date/guest, refreshing, missing/stale/future snapshot proof and malformed offers rejected by eight real server registry checks",
+        "Forged readiness route or old semantic version blocked before any network request",
+        "Actual original durable subject becomes blocked at snapshot/Israel cutoff expiry; missing or extended expiry cannot preserve acceptance; completed jobs not replaced"
+      ],
+      "natural_destination_evidence": "Exact phase27 compiled Site period/map desktop/mobile and actual local Worker/SQLite paths inspected. Owner-scoped cloud/public/restore acceptance remains blocked and is not inferred from local observations. See PHASE_27_VERIFICATION.md.",
+      "affected_family_evidence": "Full2474 main tests2473pass1existing skip,95controller tests,69HTTP metadata,34browser definitions; exact per-unit archive/digest parity and original retained sources verified. Document3 deferred; no public deployment."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-11-06T10:54:57.513804Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 0,
+      "prevented_failures": 1,
+      "elapsed_minutes": 257329.006012203,
+      "baseline_note": "Whole task elapsed wall time, not billable compute. No new user correction during this execution window. One reproduced actual local RUM source-generation acceptance defect is counted; other local guard improvements are not claimed as measured production incident reductions. Public baseline and whole-project acceptance remain unavailable pending owner context."
     }
   },
   "last_freshness_check_at": "2026-11-06T10:26:37.405547Z",
