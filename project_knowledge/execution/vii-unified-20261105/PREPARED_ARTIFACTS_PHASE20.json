@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-local-only",
+  "candidateSource": "aee16f79bc8a496421dd6206b2eaf7112de438da",
+  "observedAt": "2026-11-06T07:37:59.916Z",
+  "buildIdentity": "29bcc155-7ff3-52a3-f661-21d9d91c9376",
+  "units": [
+    {
+      "unit": "edge-delivery",
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "artifact": {
+        "path": ".qa-output/phase18b-edge-delivery.worker.json",
+        "sha256": "3edb39b6c5db1e02f7ccfce4a915a9336c561fc2f00ebac6da46b281cfd83453",
+        "bytes": 68496
+      },
+      "inputFingerprint": "28c433be1a24aca39831bab30a18f9bf21c29f5051269c5250caff01ecd30b3b",
+      "buildReceiptPath": ".qa-output/phase18b-edge-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-edge-delivery-audit.json"
+    },
+    {
+      "unit": "image-delivery",
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "artifact": {
+        "path": ".qa-output/phase18b-image-delivery.worker.json",
+        "sha256": "9a833decbfd5be99839ba22998f3465aa1d08dd344a2a3c9c69b46a4ceb491ff",
+        "bytes": 1412715
+      },
+      "inputFingerprint": "ae709bafb8a61f51b9020ed197406851fbb8a64204a9cffb98bd01117a0223c6",
+      "buildReceiptPath": ".qa-output/phase18b-image-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-image-delivery-audit.json"
+    },
+    {
+      "unit": "managed-site",
+      "source": "9f7d03d25b995bede7b3c631c33fefeaf48f3cbd",
+      "tree": "9185999fcd16fbfe061774e385adf12b58426cf4",
+      "artifact": {
+        "path": ".qa-output/phase19-frozen-site.tar.gz",
+        "sha256": "b593a9485b5d6699108e4190ba57d4054b5e39655dcbd645eeb4133d7dc9672a",
+        "bytes": 109245999
+      },
+      "inputFingerprint": "e5a9de4bb38ce27bdc73398e8fa48c4a72ed63e6b6daeeb70f925f752cbff110",
+      "buildReceiptPath": ".qa-output/phase19-managed-site-build.json",
+      "auditReceiptPath": ".qa-output/phase19-managed-site-audit.json"
+    },
+    {
+      "unit": "quality-browser",
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "artifact": {
+        "path": ".qa-output/phase18b-quality-browser.worker.json",
+        "sha256": "4d7f7ee6b932909520b900ce8841eb144bbcdb3c39f14306401b0dd1d54c03ff",
+        "bytes": 4255615
+      },
+      "inputFingerprint": "e39897990cc8ada84cdd781a50ad046d346b5b1582d92cd8bc5862cdba5999a9",
+      "buildReceiptPath": ".qa-output/phase18b-quality-browser-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-quality-browser-audit.json"
+    },
+    {
+      "unit": "quality-controller",
+      "source": "aee16f79bc8a496421dd6206b2eaf7112de438da",
+      "tree": "b90703d377d322f2f3d7b992fa3fc91f5ca477fe",
+      "artifact": {
+        "path": ".qa-output/phase20b-quality-controller.worker.json",
+        "sha256": "65dc7bd0fd99643861c2b72eff1a0aa6e381af76e7a792eaec1fb78c0e0d1d33",
+        "bytes": 219825
+      },
+      "inputFingerprint": "683303bd62519ba3171b732e493746d3ed00ab5d1bcdf672f9b06a217feada49",
+      "buildReceiptPath": ".qa-output/phase20b-quality-controller-build.json",
+      "auditReceiptPath": ".qa-output/phase20b-quality-controller-audit.json"
+    }
+  ],
+  "proposedRuntimeBindingsToVerify": {
+    "quality-controller": {
+      "EXPECTED_SOURCE_VERSION": "aee16f79bc8a496421dd6206b2eaf7112de438da",
+      "EXPECTED_BROWSER_SOURCE_VERSION": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "EXPECTED_APP_SOURCE_VERSION": "9f7d03d25b995bede7b3c631c33fefeaf48f3cbd",
+      "EXPECTED_BUILD_ID": "29bcc155-7ff3-52a3-f661-21d9d91c9376"
+    },
+    "quality-browser": {
+      "EXPECTED_SOURCE_VERSION": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "EXPECTED_BUILD_ID": "29bcc155-7ff3-52a3-f661-21d9d91c9376"
+    },
+    "edge-delivery": {
+      "EXPECTED_BUILD": "29bcc155-7ff3-52a3-f661-21d9d91c9376",
+      "EXPECTED_BUILD_ID": "29bcc155-7ff3-52a3-f661-21d9d91c9376",
+      "EXPECTED_APP_SOURCE_VERSION": "9f7d03d25b995bede7b3c631c33fefeaf48f3cbd"
+    }
+  },
+  "runtimeBindingsApplied": false,
+  "cloudReadbackVerified": false,
+  "uploaded": false,
+  "publicationApproved": false,
+  "publicReleaseVerified": false
+}
