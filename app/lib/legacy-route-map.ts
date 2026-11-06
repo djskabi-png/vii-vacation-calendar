@@ -1,5 +1,6 @@
 import inventory from "../data/legacy-redirect-inventory.json" with { type: "json" };
 import {canonicalLegacyTarget,legacySearchStateKeys as searchStateKeys} from './legacy-target-policy.ts';
+import legacyEventSearchPages from "../data/legacy-event-search-pages.json" with { type: "json" };
 
 export type LegacyDisposition = { status: 301; target: string } | { status: 410 };
 
@@ -28,6 +29,10 @@ const reviewedLegacyCanonicalRedirects: Record<string, string> = {
   "/villa_la_familiya": "/business?id=vacation-1197",
   "/villa_monsoon_premium": "/business?id=vacation-458",
 };
+for (const page of legacyEventSearchPages as Array<{ legacySourcePath?: string; canonicalPath?: string }>) {
+  if (page.legacySourcePath && page.canonicalPath) reviewedLegacyCanonicalRedirects[page.legacySourcePath.toLowerCase()] = page.canonicalPath;
+}
+reviewedLegacyCanonicalRedirects["/events/s/qiryat_atta/11235130831"] = "/events/search/kiryat-ata";
 
 export function normalizedLegacySource(input: URL | string) {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
@@ -38,11 +43,15 @@ export function normalizedLegacySource(input: URL | string) {
   return `${pathname}?${search.toString()}`;
 }
 
+for (const page of legacyEventSearchPages as Array<{ legacySourcePath?: string; canonicalPath?: string }>) {
+  if (page.legacySourcePath && page.canonicalPath) reviewedLegacyCanonicalRedirects[normalizedLegacySource(page.legacySourcePath)] = page.canonicalPath;
+}
+
 export function legacyDisposition(input: URL | string): LegacyDisposition | null {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const exact = normalizedLegacySource(url);
   const path = normalizedLegacySource(url.pathname);
-  let target = reviewedLegacyCanonicalRedirects[path] || redirects[exact] || redirects[path];
+  let target = reviewedLegacyCanonicalRedirects[exact] || reviewedLegacyCanonicalRedirects[path] || redirects[exact] || redirects[path];
   // Legacy search pages were published without booking state. A dated legacy
   // URL must still resolve to the same approved semantic page while retaining
   // the visitor's dates and party for the new search experience.

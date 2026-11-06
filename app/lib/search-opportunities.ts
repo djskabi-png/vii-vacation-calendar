@@ -9,6 +9,7 @@ import { curatedVacationSearchPages } from "../data/curated-vacation-search-page
 import { holidayWorldPath } from "./holiday-world.ts";
 import { completeLegacySearchFilters, completeLegacySearchSourcePath } from "./legacy-search-intent.ts";
 import { legacyMissingSearchPages } from "../data/legacy-missing-search-pages.ts";
+import legacyEventSearchPages from "../data/legacy-event-search-pages.json" with { type: "json" };
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -62,6 +63,7 @@ type LegacySearchPageRecord = {
   body?: string; faq?: Array<{ question: string; answer: string }>;
   filters?: Record<string, string | number | boolean>; fallbackMode?: "nearby";
   editPath?: string;
+  world?: SearchWorld;
 };
 type LegacySearchOpportunity = SearchOpportunity & { legacySourcePath: string };
 
@@ -75,7 +77,7 @@ function legacyBody(page: LegacySearchPageRecord) {
 
 function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunity {
   const generatedAt = legacySearchPublications.generatedAt;
-  return { ...page, sourcePath: completeLegacySearchSourcePath(page), origin: "managed", world: "vacation", locale: "he", filters: completeLegacySearchFilters(page),
+  return { ...page, sourcePath: page.world === "events" ? page.sourcePath : completeLegacySearchSourcePath(page), origin: "managed", world: page.world || "vacation", locale: "he", filters: page.world === "events" ? { ...(page.filters || {}) } : completeLegacySearchFilters(page),
     proposedPath: page.canonicalPath, suggestedTitle: page.h1, firstSeenAt: generatedAt, lastSeenAt: generatedAt,
     searches: 0, uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
     zeroResults: 0, status: "published", assignee: null, body: legacyBody(page), faq: page.faq || [], robotsIndex: true,
@@ -90,7 +92,7 @@ export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "ti
   return true;
 }
 
-const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages] as LegacySearchPageRecord[])
+const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages, ...(legacyEventSearchPages as LegacySearchPageRecord[]).map(page => ({ ...page, world: "events" as const }))] as LegacySearchPageRecord[])
   .map(hydrateLegacyPage)
   .filter(publicSearchOpportunityAllowed);
 

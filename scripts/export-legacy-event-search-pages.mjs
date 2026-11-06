@@ -26,7 +26,7 @@ function extract(html) {
     if (a["data-siteid"] && a["data-sitename"] && a["data-link"]) { row.resultIds.push(a["data-siteid"]); row.resultNames.push(clean(a["data-sitename"])); }
     const selected = Object.prototype.hasOwnProperty.call(a, "checked") || Object.prototype.hasOwnProperty.call(a, "selected");
     const hiddenRelevant = a.type?.toLowerCase() === "hidden" && /^(locationor|freesearch(?:param|type)|from|till|guests|date)/i.test(a.name || "");
-    if (a.name && a.value && (selected || hiddenRelevant) && /^(location|type|roomtypes|marea|area|sett|guests|eventtype|feature|features|from|till|date|free)/i.test(a.name)) addFilter(a.name, a.value, labels.get(a.id) || "");
+    if (a.name && a.value && (selected || hiddenRelevant) && /^(attr|location|type|roomtypes|marea|area|sett|guests|eventtype|feature|features|from|till|date|free)/i.test(a.name)) addFilter(a.name, a.value, labels.get(a.id) || "");
     if (classes.includes("selected") && a["data-name"] && a["data-free-type"]) row.filters[a["data-free-type"]] = clean(a["data-name"]);
   });
   row.resultIds = [...new Set(row.resultIds)]; row.resultNames = [...new Set(row.resultNames)];
