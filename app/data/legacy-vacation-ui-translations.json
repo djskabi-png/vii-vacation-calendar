@@ -1,19 +1,7 @@
 {
-  "התאמה מומלצת": {
-    "en": "Recommended match",
-    "ru": "Рекомендуемый порядок",
-    "fr": "Pertinence recommandée"
-  },
-  "ציון": {
-    "en": "Rating",
-    "ru": "Оценка",
-    "fr": "Note"
-  },
-  "מתוך 10,": {
-    "en": "out of 10,",
-    "ru": "из 10,",
-    "fr": "sur 10,"
-  },
+  "התאמה מומלצת": { "en": "Recommended match", "ru": "Рекомендуемый порядок", "fr": "Pertinence recommandée" },
+  "ציון": { "en": "Rating", "ru": "Оценка", "fr": "Note" },
+  "מתוך 10,": { "en": "out of 10,", "ru": "из 10,", "fr": "sur 10," },
   "8 חדרי שינה עם חדרי רחצה פרטיים": {
     "en": "8 bedrooms with private bathrooms",
     "ru": "8 спален с отдельными ванными",
@@ -90,9 +78,9 @@
     "fr": "2 téléviseurs"
   },
   "ערוצי yes": {
-    "en": "Yes TV channels",
-    "ru": "Телеканалы Yes",
-    "fr": "Chaînes de télévision Yes"
+    "en": "yes TV channels",
+    "ru": "Телеканалы yes",
+    "fr": "Chaînes de télévision yes"
   },
   "2 פינות אוכל": {
     "en": "2 dining areas",
@@ -252,7 +240,7 @@
   "פינות שיזוף": {
     "en": "Sunbathing areas",
     "ru": "Зоны для загара",
-    "fr": "Espaces bains de soleil"
+    "fr": "Espaces de bronzage"
   },
   "מסך 75 אינץ׳": {
     "en": "75-inch television",
@@ -709,21 +697,9 @@
     "ru": "Опубликовано 180 отзывов",
     "fr": "180 avis publiés"
   },
-  "האזור הקודם": {
-    "en": "Previous region",
-    "ru": "Предыдущий регион",
-    "fr": "Région précédente"
-  },
-  "האזור הבא": {
-    "en": "Next region",
-    "ru": "Следующий регион",
-    "fr": "Région suivante"
-  },
-  "מקום": {
-    "en": "Place",
-    "ru": "Место",
-    "fr": "Lieu"
-  },
+  "האזור הקודם": { "en": "Previous region", "ru": "Предыдущий регион", "fr": "Région précédente" },
+  "האזור הבא": { "en": "Next region", "ru": "Следующий регион", "fr": "Région suivante" },
+  "מקום": { "en": "Place", "ru": "Место", "fr": "Lieu" },
   "מתחם בקתות עץ": {
     "en": "Wooden cabin retreat",
     "ru": "Комплекс деревянных домиков",
@@ -754,11 +730,7 @@
     "ru": "Двухместное джакузи в каждом домике",
     "fr": "Jacuzzi double dans chaque chalet"
   },
-  "ג׳קוזי זוגי": {
-    "en": "Double hot tub",
-    "ru": "Двухместное джакузи",
-    "fr": "Jacuzzi double"
-  },
+  "ג׳קוזי זוגי": { "en": "Double hot tub", "ru": "Двухместное джакузи", "fr": "Jacuzzi double" },
   "חדר אוכל ומטבח משותף": {
     "en": "Shared dining room and kitchen",
     "ru": "Общая столовая и кухня",
@@ -794,36 +766,44 @@
     "ru": "Смарт-телевизор 50 дюймов",
     "fr": "Télévision connectée de 50 pouces"
   },
+  "ערוצי yes": {
+    "en": "Yes TV channels",
+    "ru": "Телеканалы Yes",
+    "fr": "Chaînes de télévision Yes"
+  },
   "במתחם המשותף": {
     "en": "Shared grounds",
     "ru": "Общая территория",
     "fr": "Espaces communs"
+  },
+  "ריהוט גן": {
+    "en": "Garden furniture",
+    "ru": "Садовая мебель",
+    "fr": "Mobilier de jardin"
+  },
+  "פינות שיזוף": {
+    "en": "Sunbathing areas",
+    "ru": "Зоны для загара",
+    "fr": "Espaces bains de soleil"
   },
   "מדשאות": {
     "en": "Lawns",
     "ru": "Газоны",
     "fr": "Pelouses"
   },
+  "מטבח חוץ": {
+    "en": "Outdoor kitchen",
+    "ru": "Летняя кухня",
+    "fr": "Cuisine extérieure"
+  },
   "במטבח": {
     "en": "Kitchen equipment",
     "ru": "На кухне",
     "fr": "Dans la cuisine"
   },
-  "מיקרוגל": {
-    "en": "Microwave",
-    "ru": "Микроволновая печь",
-    "fr": "Micro-ondes"
-  },
-  "מקרר": {
-    "en": "Refrigerator",
-    "ru": "Холодильник",
-    "fr": "Réfrigérateur"
-  },
-  "קומקום חשמלי": {
-    "en": "Electric kettle",
-    "ru": "Электрический чайник",
-    "fr": "Bouilloire électrique"
-  },
+  "מיקרוגל": { "en": "Microwave", "ru": "Микроволновая печь", "fr": "Micro-ondes" },
+  "מקרר": { "en": "Refrigerator", "ru": "Холодильник", "fr": "Réfrigérateur" },
+  "קומקום חשמלי": { "en": "Electric kettle", "ru": "Электрический чайник", "fr": "Bouilloire électrique" },
   "כיריים חשמליות": {
     "en": "Electric hob",
     "ru": "Электрическая варочная панель",
@@ -849,11 +829,7 @@
     "ru": "Выезд до 11:00",
     "fr": "Départ avant 11 h"
   },
-  "מידע חשוב": {
-    "en": "Important information",
-    "ru": "Важная информация",
-    "fr": "Informations importantes"
-  },
+  "מידע חשוב": { "en": "Important information", "ru": "Важная информация", "fr": "Informations importantes" },
   "מתאים למשפחות, לזוגות ולקבוצות": {
     "en": "Suitable for families, couples and groups",
     "ru": "Подходит семьям, парам и группам",
@@ -869,36 +845,16 @@
     "ru": "В 5 минутах от Кинерета",
     "fr": "À 5 minutes du lac de Tibériade"
   },
-  "4 בקתות": {
-    "en": "4 cabins",
-    "ru": "4 домика",
-    "fr": "4 chalets"
-  },
+  "4 בקתות": { "en": "4 cabins", "ru": "4 домика", "fr": "4 chalets" },
   "ארבע בקתות עץ שניתן להזמין לפי הרכב האורחים וזמינות היחידות.": {
     "en": "Four wooden cabins, selected according to the guest group and unit availability.",
     "ru": "Четыре деревянных домика, которые подбираются по составу гостей и наличию.",
     "fr": "Quatre chalets en bois, choisis selon le nombre de voyageurs et les disponibilités."
   },
-  "בקתה 1": {
-    "en": "Cabin 1",
-    "ru": "Домик 1",
-    "fr": "Chalet 1"
-  },
-  "בקתה 2": {
-    "en": "Cabin 2",
-    "ru": "Домик 2",
-    "fr": "Chalet 2"
-  },
-  "בקתה 3": {
-    "en": "Cabin 3",
-    "ru": "Домик 3",
-    "fr": "Chalet 3"
-  },
-  "בקתה 4": {
-    "en": "Cabin 4",
-    "ru": "Домик 4",
-    "fr": "Chalet 4"
-  },
+  "בקתה 1": { "en": "Cabin 1", "ru": "Домик 1", "fr": "Chalet 1" },
+  "בקתה 2": { "en": "Cabin 2", "ru": "Домик 2", "fr": "Chalet 2" },
+  "בקתה 3": { "en": "Cabin 3", "ru": "Домик 3", "fr": "Chalet 3" },
+  "בקתה 4": { "en": "Cabin 4", "ru": "Домик 4", "fr": "Chalet 4" },
   "האורחת ציינה שהבקתות מרווחות ומאובזרות, ושיבחה במיוחד את הנוף.": {
     "en": "The guest found the cabins spacious and well equipped, and especially praised the view.",
     "ru": "Гостья отметила просторные и хорошо оборудованные домики и особенно похвалила вид.",
@@ -914,544 +870,116 @@
     "ru": "Семья отметила чистоту, простор, внимательное обслуживание Лирона и удобство для детей.",
     "fr": "La famille a souligné la propreté, l’espace, l’accueil attentionné de Liron et l’adaptation aux enfants."
   },
-  "יחידות לפי נתוני המקום": {
-    "en": "Units according to the venue",
-    "ru": "Номера по данным объекта",
-    "fr": "Unités selon les données de l'établissement"
-  },
-  "אורחים ביחידה": {
-    "en": "guests per unit",
-    "ru": "гостей в номере",
-    "fr": "personnes par unité"
-  },
-  "כניסה:": {
-    "en": "Check-in:",
-    "ru": "Заезд:",
-    "fr": "Arrivée :"
-  },
-  "שעת הכניסה נקבעת באישור ההזמנה": {
-    "en": "Check-in time is confirmed with the booking",
-    "ru": "Время заезда подтверждается при бронировании",
-    "fr": "L'heure d'arrivée est confirmée lors de la réservation"
-  },
-  "· עזיבה:": {
-    "en": "· Check-out:",
-    "ru": "· Выезд:",
-    "fr": "· Départ :"
-  },
-  "· עזיבה בשבת:": {
-    "en": "· Saturday check-out:",
-    "ru": "· Выезд в субботу:",
-    "fr": "· Départ le samedi :"
-  },
-  ". יש לאשר את השעות מול המקום.": {
-    "en": ". Please confirm times with the venue.",
-    "ru": ". Уточните время у объекта.",
-    "fr": ". Veuillez confirmer les horaires auprès de l'établissement."
-  },
-  "חוות דעת מארכיון V": {
-    "en": "Review from the V archive",
-    "ru": "Отзыв из архива V",
-    "fr": "Avis provenant des archives V"
-  },
-  "עוד חוות דעת (": {
-    "en": "More reviews (",
-    "ru": "Другие отзывы (",
-    "fr": "Plus d'avis ("
-  },
-  "חוות דעת בארכיון המקום": {
-    "en": "Reviews in the venue archive",
-    "ru": "Отзывы в архиве объекта",
-    "fr": "Avis dans les archives de l'établissement"
-  },
-  "טקסט חוות הדעת אינו זמין במקור הנתונים הנוכחי.": {
-    "en": "Review text is unavailable in the current data source.",
-    "ru": "Текст отзыва недоступен в текущем источнике данных.",
-    "fr": "Le texte de l'avis n'est pas disponible dans la source actuelle."
-  },
-  "מתחמים לפי נתוני המקום": {
-    "en": "Spaces according to the venue",
-    "ru": "Площадки по данным объекта",
-    "fr": "Espaces selon les données du lieu"
-  },
-  "משתתפים ביחידה": {
-    "en": "attendees per space",
-    "ru": "участников на площадке",
-    "fr": "participants par espace"
-  },
-  "הערות המקום": {
-    "en": "Venue notes",
-    "ru": "Примечания объекта",
-    "fr": "Notes de l'établissement"
-  },
+  "יחידות לפי נתוני המקום": { "en": "Units according to the venue", "ru": "Номера по данным объекта", "fr": "Unités selon les données de l'établissement" },
+  "אורחים ביחידה": { "en": "guests per unit", "ru": "гостей в номере", "fr": "personnes par unité" },
+  "כניסה:": { "en": "Check-in:", "ru": "Заезд:", "fr": "Arrivée :" },
+  "שעת הכניסה נקבעת באישור ההזמנה": { "en": "Check-in time is confirmed with the booking", "ru": "Время заезда подтверждается при бронировании", "fr": "L'heure d'arrivée est confirmée lors de la réservation" },
+  "· עזיבה:": { "en": "· Check-out:", "ru": "· Выезд:", "fr": "· Départ :" },
+  "· עזיבה בשבת:": { "en": "· Saturday check-out:", "ru": "· Выезд в субботу:", "fr": "· Départ le samedi :" },
+  ". יש לאשר את השעות מול המקום.": { "en": ". Please confirm times with the venue.", "ru": ". Уточните время у объекта.", "fr": ". Veuillez confirmer les horaires auprès de l'établissement." },
+  "חוות דעת מארכיון V": { "en": "Review from the V archive", "ru": "Отзыв из архива V", "fr": "Avis provenant des archives V" },
+  "עוד חוות דעת (": { "en": "More reviews (", "ru": "Другие отзывы (", "fr": "Plus d'avis (" },
+  "חוות דעת בארכיון המקום": { "en": "Reviews in the venue archive", "ru": "Отзывы в архиве объекта", "fr": "Avis dans les archives de l'établissement" },
+  "טקסט חוות הדעת אינו זמין במקור הנתונים הנוכחי.": { "en": "Review text is unavailable in the current data source.", "ru": "Текст отзыва недоступен в текущем источнике данных.", "fr": "Le texte de l'avis n'est pas disponible dans la source actuelle." },
+  "מתחמים לפי נתוני המקום": { "en": "Spaces according to the venue", "ru": "Площадки по данным объекта", "fr": "Espaces selon les données du lieu" },
+  "משתתפים ביחידה": { "en": "attendees per space", "ru": "участников на площадке", "fr": "participants par espace" },
+  "הערות המקום": { "en": "Venue notes", "ru": "Примечания объекта", "fr": "Notes de l'établissement" },
   "האורח שיבח את הניקיון, את המרחב ואת המענה המהיר לכל בקשה.": {
     "en": "The guest praised the cleanliness, the spacious grounds and the quick response to every request.",
     "ru": "Гость похвалил чистоту, просторную территорию и быстрый ответ на каждую просьбу.",
     "fr": "Le client a apprécié la propreté, les grands espaces et la réponse rapide à chaque demande."
   },
-  "נבדק מול מערכת הזמינות": {
-    "en": "Checked against the availability system",
-    "ru": "Проверено по системе доступности",
-    "fr": "Vérifié dans le système de disponibilités"
-  },
-  "מקומות פנויים לחג": {
-    "en": "Available stays for the holiday",
-    "ru": "Свободные варианты на праздник",
-    "fr": "Séjours disponibles pour la fête"
-  },
-  "התוצאות כאן מוצגות רק לאחר שהמערכת אישרה זמינות ומחיר לתאריכים.": {
-    "en": "Results appear here only after the system confirms availability and price for the dates.",
-    "ru": "Результаты появляются здесь только после подтверждения доступности и цены на выбранные даты.",
-    "fr": "Les résultats s’affichent ici uniquement après confirmation des disponibilités et du prix pour ces dates."
-  },
-  "לכל תוצאות החג": {
-    "en": "View all holiday results",
-    "ru": "Все результаты на праздник",
-    "fr": "Voir tous les résultats pour la fête"
-  },
-  "בודקים זמינות ומחירים לתאריכי החג": {
-    "en": "Checking availability and prices for the holiday dates",
-    "ru": "Проверяем доступность и цены на праздничные даты",
-    "fr": "Vérification des disponibilités et des prix pour les dates de la fête"
-  },
-  "התוצאות יופיעו כאן ברגע שהבדיקה תסתיים": {
-    "en": "Results will appear here as soon as the check is complete",
-    "ru": "Результаты появятся здесь сразу после завершения проверки",
-    "fr": "Les résultats apparaîtront ici dès la fin de la vérification"
-  },
-  "אין כרגע מקומות מאומתים לחלון הזה": {
-    "en": "No verified stays are currently available for this window",
-    "ru": "Сейчас нет подтверждённых вариантов на этот период",
-    "fr": "Aucun séjour vérifié n’est disponible pour cette période"
-  },
-  "אפשר לפתוח את החיפוש המלא ולבחור חלון אחר בתוך החג.": {
-    "en": "Open the full search and choose another window during the holiday.",
-    "ru": "Откройте полный поиск и выберите другой период праздника.",
-    "fr": "Ouvrez la recherche complète et choisissez une autre période pendant la fête."
-  },
-  "פתיחת החיפוש": {
-    "en": "Open search",
-    "ru": "Открыть поиск",
-    "fr": "Ouvrir la recherche"
-  },
-  "אזורים שמתאימים לחיפוש": {
-    "en": "Regions that match your search",
-    "ru": "Регионы, подходящие для поиска",
-    "fr": "Régions adaptées à votre recherche"
-  },
-  "יישובים": {
-    "en": "Towns and cities",
-    "ru": "Города и населённые пункты",
-    "fr": "Villes et localités"
-  },
-  "אזורים נוספים שכדאי להכיר": {
-    "en": "More regions worth exploring",
-    "ru": "Другие регионы, которые стоит открыть",
-    "fr": "D’autres régions à découvrir"
-  },
-  "סוגי מקום": {
-    "en": "Place types",
-    "ru": "Типы размещения",
-    "fr": "Types d’hébergement"
-  },
-  "חיפושים חכמים": {
-    "en": "Smart searches",
-    "ru": "Умные подборки",
-    "fr": "Recherches intelligentes"
-  },
-  "ספקים שיכולים להשלים את החופשה": {
-    "en": "Providers that can complete your stay",
-    "ru": "Поставщики услуг для вашего отдыха",
-    "fr": "Prestataires pour compléter votre séjour"
-  },
-  "לא מצאנו מקום לאירוע בתוך": {
-    "en": "We did not find an event venue in",
-    "ru": "Мы не нашли площадку для мероприятия в",
-    "fr": "Nous n’avons pas trouvé de lieu événementiel à"
-  },
-  "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. היישוב האמיתי נשאר גלוי בכל כרטיס.": {
-    "en": "Showing nearby places by distance from the selected town. Each card still shows the actual town.",
-    "ru": "Показываем ближайшие места по расстоянию от выбранного города. В каждой карточке указан фактический город.",
-    "fr": "Nous affichons les lieux proches selon leur distance depuis la localité choisie. La localité réelle reste visible sur chaque carte."
-  },
-  "ק״מ": {
-    "en": "km",
-    "ru": "км",
-    "fr": "km"
-  },
-  "לא נמצאה התאמה או מקום קרוב": {
-    "en": "No match or nearby place found",
-    "ru": "Подходящих или ближайших мест не найдено",
-    "fr": "Aucune correspondance ni lieu proche trouvé"
-  },
-  "מתי": {
-    "en": "When",
-    "ru": "Когда",
-    "fr": "Quand"
-  },
-  "איך מוצאים מקום פנוי ל": {
-    "en": "How do I find an available stay for ",
-    "ru": "Как найти свободное место на ",
-    "fr": "Comment trouver un séjour disponible pour "
-  },
-  "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות V בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת.": {
-    "en": "Choose a date window and party here. On the results page, V checks availability and price with the system before showing a verified deal.",
-    "ru": "Выберите даты и состав гостей. На странице результатов V проверит доступность и цену в системе перед показом подтверждённого предложения.",
-    "fr": "Choisissez ici une période et la composition du groupe. Sur la page de résultats, V vérifie les disponibilités et le prix avant d’afficher une offre vérifiée."
-  },
-  "אפשר לחפש מקום לקבוצה גדולה?": {
-    "en": "Can I search for a large group?",
-    "ru": "Можно искать вариант для большой группы?",
-    "fr": "Puis-je rechercher pour un grand groupe ?"
-  },
-  "כן. החיפוש לקבוצות מוגדר לעד 20 אורחים, ובעמוד התוצאות אפשר לשנות את מספר האורחים בהתאם להרכב המדויק.": {
-    "en": "Yes. Group search is set for up to 20 guests, and you can adjust the exact party size on the results page.",
-    "ru": "Да. Поиск для групп рассчитан на состав до 20 гостей, а точное число можно изменить на странице результатов.",
-    "fr": "Oui. La recherche de groupe est configurée pour jusqu’à 20 personnes, et vous pouvez ajuster le nombre exact sur la page de résultats."
-  },
-  "חגים ומועדים": {
-    "en": "Holidays and special dates",
-    "ru": "Праздники и особые даты",
-    "fr": "Fêtes et dates spéciales"
-  },
-  "מצאו לי מקום פנוי": {
-    "en": "Find me an available stay",
-    "ru": "Найти свободный вариант",
-    "fr": "Trouver un séjour disponible"
-  },
-  "בחרו חיפוש מדויק": {
-    "en": "Choose a precise search",
-    "ru": "Выберите точный поиск",
-    "fr": "Choisissez une recherche précise"
-  },
-  "בוחרים את החלון שמתאים לכם": {
-    "en": "Choose the window that suits you",
-    "ru": "Выберите подходящий период",
-    "fr": "Choisissez la période qui vous convient"
-  },
-  "לא רשימה אחת לכולם": {
-    "en": "Not one list for everyone",
-    "ru": "Не один список для всех",
-    "fr": "Pas une seule liste pour tout le monde"
-  },
-  "איך תרצו לצאת לחג?": {
-    "en": "How would you like to spend the holiday?",
-    "ru": "Как вы хотите провести праздник?",
-    "fr": "Comment souhaitez-vous profiter de la fête ?"
-  },
-  "כל כרטיס כבר כולל תאריכים והרכב. אפשר לשנות אותם בכל רגע בעמוד התוצאות.": {
-    "en": "Each card already includes dates and party size. You can change them at any time on the results page.",
-    "ru": "В каждой карточке уже указаны даты и состав гостей. Их можно изменить на странице результатов.",
-    "fr": "Chaque carte inclut déjà les dates et la composition du groupe. Vous pouvez les modifier à tout moment sur la page de résultats."
-  },
-  "לצפייה במקומות המתאימים": {
-    "en": "View matching stays",
-    "ru": "Смотреть подходящие варианты",
-    "fr": "Voir les séjours adaptés"
-  },
-  "מתכננים בלי לנחש": {
-    "en": "Plan without guessing",
-    "ru": "Планируйте без догадок",
-    "fr": "Planifiez sans deviner"
-  },
-  "מה חשוב לדעת לפני שסוגרים?": {
-    "en": "What should you know before booking?",
-    "ru": "Что важно знать перед бронированием?",
-    "fr": "Que faut-il savoir avant de réserver ?"
-  },
-  "בוחרים חלון": {
-    "en": "Choose a window",
-    "ru": "Выберите период",
-    "fr": "Choisissez une période"
-  },
-  "לא חייבים לחפש את כל ימי החג יחד.": {
-    "en": "You do not need to search the entire holiday at once.",
-    "ru": "Не обязательно искать на весь праздник сразу.",
-    "fr": "Vous n’avez pas besoin de rechercher toute la période de fête en une seule fois."
-  },
-  "מגדירים הרכב": {
-    "en": "Set your party",
-    "ru": "Укажите состав гостей",
-    "fr": "Définissez votre groupe"
-  },
-  "מספר האורחים משפיע על המקומות ועל המחיר.": {
-    "en": "The number of guests affects available places and prices.",
-    "ru": "Количество гостей влияет на доступные места и цену.",
-    "fr": "Le nombre de personnes influence les lieux disponibles et le prix."
-  },
-  "בודקים בזמן אמת": {
-    "en": "Check in real time",
-    "ru": "Проверяйте в реальном времени",
-    "fr": "Vérifiez en temps réel"
-  },
-  "רק תוצאה שחזרה מהמערכת מוצגת כדיל פנוי.": {
-    "en": "Only a result confirmed by the system is shown as an available deal.",
-    "ru": "Как доступное предложение показывается только результат, подтверждённый системой.",
-    "fr": "Seul un résultat confirmé par le système est affiché comme offre disponible."
-  },
-  "תשובות קצרות לפני שיוצאים": {
-    "en": "Quick answers before you go",
-    "ru": "Короткие ответы перед поездкой",
-    "fr": "Réponses rapides avant de partir"
-  },
-  "שאלות על נופש ב": {
-    "en": "Questions about stays during ",
-    "ru": "Вопросы об отдыхе на ",
-    "fr": "Questions sur les séjours pendant "
-  },
-  "חנוכה": {
-    "en": "Hanukkah",
-    "ru": "Ханука",
-    "fr": "Hanoucca"
-  },
-  "חופשה זוגית": {
-    "en": "Couples getaway",
-    "ru": "Отдых для пары",
-    "fr": "Escapade en couple"
-  },
-  "שני אורחים, שני לילות בתוך החג": {
-    "en": "Two guests, two nights during the holiday",
-    "ru": "Два гостя, две ночи во время праздника",
-    "fr": "Deux personnes, deux nuits pendant la fête"
-  },
-  "משפחה עד 6 אורחים": {
-    "en": "Family of up to 6 guests",
-    "ru": "Семья до 6 гостей",
-    "fr": "Famille jusqu’à 6 personnes"
-  },
-  "מקומות שמתאימים לחופשה משפחתית": {
-    "en": "Places suited to a family holiday",
-    "ru": "Варианты для семейного отдыха",
-    "fr": "Lieux adaptés aux vacances en famille"
-  },
-  "משפחות וקבוצות עד 20": {
-    "en": "Families and groups of up to 20",
-    "ru": "Семьи и группы до 20 человек",
-    "fr": "Familles et groupes jusqu’à 20 personnes"
-  },
-  "מתחמים גדולים להרכב מורחב": {
-    "en": "Large complexes for an extended group",
-    "ru": "Большие комплексы для расширенной группы",
-    "fr": "Grands complexes pour les groupes élargis"
-  },
-  "תחילת": {
-    "en": "Start of",
-    "ru": "Начало",
-    "fr": "Début de"
-  },
-  "אמצע": {
-    "en": "Middle of",
-    "ru": "Середина",
-    "fr": "Milieu de"
-  },
-  "חלון קצר באמצע ימי החג": {
-    "en": "A short window in the middle of the holiday",
-    "ru": "Короткий период в середине праздника",
-    "fr": "Une courte période au milieu de la fête"
-  },
-  "סוף": {
-    "en": "End of",
-    "ru": "Конец",
-    "fr": "Fin de"
-  },
-  "דילים לחנוכה 2026 שמתחילים בהרכב ובתאריך שלכם": {
-    "en": "Hanukkah 2026 deals shaped around your dates and party",
-    "ru": "Предложения на Хануку 2026 по вашим датам и составу",
-    "fr": "Offres Hanoucca 2026 adaptées à vos dates et à votre groupe"
-  },
-  "שמונה ימים. הרבה דרכים לצאת לחופשה.": {
-    "en": "Eight days. Many ways to get away.",
-    "ru": "Восемь дней. Много способов отдохнуть.",
-    "fr": "Huit jours. De nombreuses façons de partir."
-  },
-  "בוחרים זוג, משפחה או קבוצה, מחליטים אם יוצאים בתחילת החג, באמצע או בסופו, וממשיכים ישר לחיפוש שמתאים להרכב שלכם.": {
-    "en": "Choose a couple, family or group, decide whether to travel at the start, middle or end of the holiday, and continue directly to a search that fits your party.",
-    "ru": "Выберите пару, семью или группу, решите, ехать в начале, середине или конце праздника, и перейдите к подходящему поиску.",
-    "fr": "Choisissez couple, famille ou groupe, puis le début, le milieu ou la fin de la fête, et accédez directement à une recherche adaptée."
-  },
-  "נר ראשון של חנוכה תשפ״ז יודלק בערב יום שישי, 4 בדצמבר 2026. ימי החג יחולו מיום שבת, 5 בדצמבר, ועד יום שבת, 12 בדצמבר 2026. בגלל שהחג משתרע על פני כמה סופי שבוע וימי חול, חילקנו את החיפוש לחלונות קצרים וברורים במקום להציג רשימה אחת ארוכה ולא מדויקת.": {
-    "en": "The first Hanukkah candle of 5787 will be lit on Friday evening, December 4, 2026. The holiday runs from Saturday, December 5 through Saturday, December 12, 2026. Because it spans weekends and weekdays, the search is divided into clear short windows instead of one long, imprecise list.",
-    "ru": "Первую свечу Хануки 5787 зажгут вечером в пятницу, 4 декабря 2026 года. Праздник продлится с субботы, 5 декабря, по субботу, 12 декабря 2026 года. Поэтому поиск разделён на короткие понятные периоды.",
-    "fr": "La première bougie de Hanoucca 5787 sera allumée le vendredi soir 4 décembre 2026. La fête se déroulera du samedi 5 au samedi 12 décembre 2026. Comme elle couvre des week-ends et des jours de semaine, la recherche est divisée en périodes courtes et claires."
-  },
-  "דילים לחנוכה 2026 | נופש לזוגות, משפחות וקבוצות": {
-    "en": "Hanukkah 2026 deals | Stays for couples, families and groups",
-    "ru": "Предложения на Хануку 2026 | Отдых для пар, семей и групп",
-    "fr": "Offres Hanoucca 2026 | Séjours pour couples, familles et groupes"
-  },
-  "מוצאים נופש לחנוכה 2026 לפי תאריך והרכב: זוגות, משפחות עד 6 וקבוצות עד 20 אורחים, בתחילת החג, באמצע או בסוף.": {
-    "en": "Find a Hanukkah 2026 stay by date and party: couples, families up to 6 and groups up to 20, at the start, middle or end of the holiday.",
-    "ru": "Найдите отдых на Хануку 2026 по датам и составу: пары, семьи до 6 и группы до 20 человек, в начале, середине или конце праздника.",
-    "fr": "Trouvez un séjour pour Hanoucca 2026 selon vos dates et votre groupe : couples, familles jusqu’à 6 et groupes jusqu’à 20, au début, au milieu ou à la fin de la fête."
-  },
-  "הילת הנוף בגליל, תמונת המקום": {
-    "en": "Hilat Hanof in the Galilee, property photo",
-    "ru": "Hilat Hanof в Галилее, фото объекта",
-    "fr": "Hilat Hanof en Galilée, photo de l’établissement"
-  },
-  "ערב 4 בדצמבר עד 12 בדצמבר 2026": {
-    "en": "Evening of December 4 through December 12, 2026",
-    "ru": "С вечера 4 декабря по 12 декабря 2026 года",
-    "fr": "Du soir du 4 décembre au 12 décembre 2026"
-  },
-  "חיפוש לפי הרכב": {
-    "en": "Search by party",
-    "ru": "Поиск по составу гостей",
-    "fr": "Recherche selon le groupe"
-  },
-  "זמינות נבדקת בזמן אמת": {
-    "en": "Availability checked in real time",
-    "ru": "Доступность проверяется в реальном времени",
-    "fr": "Disponibilités vérifiées en temps réel"
-  },
-  "דילים ל": {
-    "en": "Deals for ",
-    "ru": "Предложения на ",
-    "fr": "Offres pour "
-  },
-  "מתכננים את": {
-    "en": "Plan ",
-    "ru": "Планируем ",
-    "fr": "Planifiez "
-  },
-  "בדרך שמתאימה לכם": {
-    "en": "your way",
-    "ru": "по-своему",
-    "fr": "à votre façon"
-  },
-  "בוחרים הרכב וחלק בחג וממשיכים לחיפוש נופש ממוקד ל": {
-    "en": "Choose your party and part of the holiday, then continue to a focused stay search for ",
-    "ru": "Выберите состав и период праздника, затем перейдите к точному поиску на ",
-    "fr": "Choisissez votre groupe et la période de fête, puis lancez une recherche ciblée pour "
-  },
-  "חל בין": {
-    "en": "takes place between",
-    "ru": "проходит с",
-    "fr": "a lieu entre"
-  },
-  "לבין": {
-    "en": "and",
-    "ru": "по",
-    "fr": "et"
-  },
-  ". אפשר להתחיל מחיפוש לזוג, למשפחה או לקבוצה, ולבדוק את הזמינות בפועל לתאריכים שבחרתם.": {
-    "en": ". Start with a search for a couple, family or group and check actual availability for your dates.",
-    "ru": ". Начните с поиска для пары, семьи или группы и проверьте реальную доступность на выбранные даты.",
-    "fr": ". Commencez par une recherche pour un couple, une famille ou un groupe et vérifiez les disponibilités réelles pour vos dates."
-  },
-  "| נופש בישראל": {
-    "en": "| Stays in Israel",
-    "ru": "| Отдых в Израиле",
-    "fr": "| Séjours en Israël"
-  },
-  "חיפוש נופש ל": {
-    "en": "Search for stays during ",
-    "ru": "Поиск отдыха на ",
-    "fr": "Recherche de séjours pour "
-  },
-  "לפי תאריך והרכב, עם מעבר ישיר לזמינות ולמחירים לתקופה שבחרתם.": {
-    "en": "by date and party, with direct access to availability and prices for your selected period.",
-    "ru": "по датам и составу гостей с прямым переходом к доступности и ценам на выбранный период.",
-    "fr": "selon les dates et le groupe, avec accès direct aux disponibilités et aux prix de la période choisie."
-  },
-  "מתחם נופש בישראל, תמונת המקום": {
-    "en": "Holiday complex in Israel, property photo",
-    "ru": "Комплекс отдыха в Израиле, фото объекта",
-    "fr": "Complexe de vacances en Israël, photo de l’établissement"
-  },
-  "לא מצאנו מקום בתוך": {
-    "en": "We did not find a stay in",
-    "ru": "Мы не нашли вариант в",
-    "fr": "Nous n’avons pas trouvé de séjour à"
-  },
-  "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. העיר האמיתית של כל מקום נשארת גלויה בכרטיס.": {
-    "en": "Showing nearby places by distance from the selected town. Each card keeps the place’s actual city visible.",
-    "ru": "Показываем ближайшие варианты по расстоянию от выбранного города. В каждой карточке остаётся фактический город объекта.",
-    "fr": "Nous affichons les lieux proches selon leur distance depuis la localité choisie. La ville réelle de chaque lieu reste visible sur la carte."
-  },
-  "נופש לזוג": {
-    "en": "Stay for a couple",
-    "ru": "Отдых для пары",
-    "fr": "Séjour en couple"
-  },
-  "נופש למשפחה": {
-    "en": "Family stay",
-    "ru": "Семейный отдых",
-    "fr": "Séjour en famille"
-  },
-  "נופש לקבוצה": {
-    "en": "Group stay",
-    "ru": "Отдых для группы",
-    "fr": "Séjour en groupe"
-  },
-  "לא נמצאה התאמה מדויקת או מקום קרוב": {
-    "en": "No exact match or nearby place found",
-    "ru": "Точного совпадения или ближайшего места не найдено",
-    "fr": "Aucune correspondance exacte ni lieu proche trouvé"
-  },
-  "נופש באבן מנחם עם בריכת שחייה פרטית מחוממת ומקורה": {
-    "en": "Stays in Even Menachem with a private heated indoor pool",
-    "ru": "Отдых в Эвен-Менахеме с частным отапливаемым крытым бассейном",
-    "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée"
-  },
-  "נופש באבן מנחם עם בריכה פרטית מחוממת ומקורה": {
-    "en": "Stays in Even Menachem with a private heated indoor pool",
-    "ru": "Отдых в Эвен-Менахеме с частным отапливаемым крытым бассейном",
-    "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée"
-  },
-  "מקומות נופש באבן מנחם עם בריכת שחייה פרטית מחוממת ומקורה.": {
-    "en": "Stays in Even Menachem with a private heated indoor pool.",
-    "ru": "Варианты отдыха в Эвен-Менахеме с частным отапливаемым крытым бассейном.",
-    "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée."
-  },
-  "בריכה פרטית, מחוממת ומקורה מאפשרת לשלב שחייה בחופשה באבן מנחם גם כשקריר בחוץ. כאן מרוכזים מקומות שמסומנים בכל שלושת המאפיינים, לצד פרטי היחידות, התמונות והרכב האורחים המתאים.": {
-    "en": "A private, heated indoor pool makes swimming possible in Even Menachem even when it is cool outside. This page brings together places marked with all three features, alongside unit details, photos and suitable guest capacities.",
-    "ru": "Частный отапливаемый крытый бассейн позволяет плавать в Эвен-Менахеме даже в прохладную погоду. Здесь собраны объекты со всеми тремя характеристиками, а также данные об апартаментах, фото и подходящем составе гостей.",
-    "fr": "Une piscine intérieure privée chauffée permet de nager à Even Menahem même lorsqu’il fait frais. Cette page rassemble les lieux signalés par ces trois critères, avec les détails des unités, les photos et la capacité adaptée."
-  },
-  "מה כולל הסינון בעמוד?": {
-    "en": "What does this page’s filter include?",
-    "ru": "Что включает фильтр этой страницы?",
-    "fr": "Que comprend le filtre de cette page ?"
-  },
-  "הסינון משלב מיקום באבן מנחם עם בריכה פרטית, מחוממת ומקורה.": {
-    "en": "The filter combines the Even Menachem location with a private heated indoor pool.",
-    "ru": "Фильтр объединяет расположение в Эвен-Менахеме с частным отапливаемым крытым бассейном.",
-    "fr": "Le filtre associe la localité d’Even Menahem à une piscine intérieure privée chauffée."
-  },
-  "מתחמי נופש ליום האהבה": {
-    "en": "Holiday complexes for Valentine’s Day",
-    "ru": "Комплексы для отдыха ко Дню святого Валентина",
-    "fr": "Complexes de vacances pour la Saint-Valentin"
-  },
-  "מתחמי נופש רומנטיים ליום האהבה ברחבי הארץ.": {
-    "en": "Romantic holiday complexes across Israel for Valentine’s Day.",
-    "ru": "Романтические комплексы для отдыха по всему Израилю ко Дню святого Валентина.",
-    "fr": "Complexes de vacances romantiques partout en Israël pour la Saint-Valentin."
-  },
-  "חופשה זוגית ליום האהבה מתחילה בבחירת מקום שמתאים לשניכם. אפשר להשוות צימרים, סוויטות ומקומות אירוח לזוגות ברחבי הארץ, לעיין בגלריות ולצמצם לפי האזור והמתקנים שחשובים לכם.": {
-    "en": "A Valentine’s getaway for two starts with choosing a place that suits you both. Compare cabins, suites and couple-friendly stays across Israel, browse galleries and narrow the search by area and the amenities that matter to you.",
-    "ru": "Романтический отдых на День святого Валентина начинается с выбора места, подходящего вам обоим. Сравнивайте гостевые дома, люксы и варианты для пар по всему Израилю, просматривайте галереи и уточняйте поиск по региону и важным удобствам.",
-    "fr": "Une escapade de Saint-Valentin à deux commence par le choix d’un lieu qui vous convient. Comparez les chalets, suites et hébergements pour couples en Israël, consultez les galeries et affinez la recherche par région et équipements importants."
-  },
-  "איך ממקדים את החיפוש לזוג?": {
-    "en": "How do I narrow the search to couples?",
-    "ru": "Как сузить поиск для пары?",
-    "fr": "Comment cibler la recherche pour un couple ?"
-  },
-  "העמוד מציג מקומות המתאימים לזוגות. אפשר להוסיף אזור, תאריכים ומאפיינים באמצעות סרגל החיפוש והמסננים.": {
-    "en": "This page shows places suitable for couples. Add an area, dates and features using the search bar and filters.",
-    "ru": "На странице показаны места, подходящие для пар. Добавьте регион, даты и характеристики с помощью строки поиска и фильтров.",
-    "fr": "Cette page présente des lieux adaptés aux couples. Ajoutez une région, des dates et des équipements à l’aide de la barre de recherche et des filtres."
-  },
-  "יחידות עם ג'קוזי": {
-    "en": "Units with a hot tub",
-    "ru": "Номера с джакузи",
-    "fr": "Unités avec jacuzzi"
-  },
-  "מתקנים ושירותים נוספים": {
-    "en": "Additional facilities and services",
-    "ru": "Дополнительные удобства и услуги",
-    "fr": "Autres équipements et services"
-  }
+  "נבדק מול מערכת הזמינות": { "en": "Checked against the availability system", "ru": "Проверено по системе доступности", "fr": "Vérifié dans le système de disponibilités" },
+  "מקומות פנויים לחג": { "en": "Available stays for the holiday", "ru": "Свободные варианты на праздник", "fr": "Séjours disponibles pour la fête" },
+  "התוצאות כאן מוצגות רק לאחר שהמערכת אישרה זמינות ומחיר לתאריכים.": { "en": "Results appear here only after the system confirms availability and price for the dates.", "ru": "Результаты появляются здесь только после подтверждения доступности и цены на выбранные даты.", "fr": "Les résultats s’affichent ici uniquement après confirmation des disponibilités et du prix pour ces dates." },
+  "לכל תוצאות החג": { "en": "View all holiday results", "ru": "Все результаты на праздник", "fr": "Voir tous les résultats pour la fête" },
+  "בודקים זמינות ומחירים לתאריכי החג": { "en": "Checking availability and prices for the holiday dates", "ru": "Проверяем доступность и цены на праздничные даты", "fr": "Vérification des disponibilités et des prix pour les dates de la fête" },
+  "התוצאות יופיעו כאן ברגע שהבדיקה תסתיים": { "en": "Results will appear here as soon as the check is complete", "ru": "Результаты появятся здесь сразу после завершения проверки", "fr": "Les résultats apparaîtront ici dès la fin de la vérification" },
+  "אין כרגע מקומות מאומתים לחלון הזה": { "en": "No verified stays are currently available for this window", "ru": "Сейчас нет подтверждённых вариантов на этот период", "fr": "Aucun séjour vérifié n’est disponible pour cette période" },
+  "אפשר לפתוח את החיפוש המלא ולבחור חלון אחר בתוך החג.": { "en": "Open the full search and choose another window during the holiday.", "ru": "Откройте полный поиск и выберите другой период праздника.", "fr": "Ouvrez la recherche complète et choisissez une autre période pendant la fête." },
+  "פתיחת החיפוש": { "en": "Open search", "ru": "Открыть поиск", "fr": "Ouvrir la recherche" },
+  "אזורים שמתאימים לחיפוש": { "en": "Regions that match your search", "ru": "Регионы, подходящие для поиска", "fr": "Régions adaptées à votre recherche" },
+  "יישובים": { "en": "Towns and cities", "ru": "Города и населённые пункты", "fr": "Villes et localités" },
+  "אזורים נוספים שכדאי להכיר": { "en": "More regions worth exploring", "ru": "Другие регионы, которые стоит открыть", "fr": "D’autres régions à découvrir" },
+  "סוגי מקום": { "en": "Place types", "ru": "Типы размещения", "fr": "Types d’hébergement" },
+  "חיפושים חכמים": { "en": "Smart searches", "ru": "Умные подборки", "fr": "Recherches intelligentes" },
+  "ספקים שיכולים להשלים את החופשה": { "en": "Providers that can complete your stay", "ru": "Поставщики услуг для вашего отдыха", "fr": "Prestataires pour compléter votre séjour" },
+  "לא מצאנו מקום לאירוע בתוך": { "en": "We did not find an event venue in", "ru": "Мы не нашли площадку для мероприятия в", "fr": "Nous n’avons pas trouvé de lieu événementiel à" },
+  "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. היישוב האמיתי נשאר גלוי בכל כרטיס.": { "en": "Showing nearby places by distance from the selected town. Each card still shows the actual town.", "ru": "Показываем ближайшие места по расстоянию от выбранного города. В каждой карточке указан фактический город.", "fr": "Nous affichons les lieux proches selon leur distance depuis la localité choisie. La localité réelle reste visible sur chaque carte." },
+  "ק״מ": { "en": "km", "ru": "км", "fr": "km" },
+  "לא נמצאה התאמה או מקום קרוב": { "en": "No match or nearby place found", "ru": "Подходящих или ближайших мест не найдено", "fr": "Aucune correspondance ni lieu proche trouvé" },
+  "מתי": { "en": "When", "ru": "Когда", "fr": "Quand" },
+  "איך מוצאים מקום פנוי ל": { "en": "How do I find an available stay for ", "ru": "Как найти свободное место на ", "fr": "Comment trouver un séjour disponible pour " },
+  "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות V בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת.": { "en": "Choose a date window and party here. On the results page, V checks availability and price with the system before showing a verified deal.", "ru": "Выберите даты и состав гостей. На странице результатов V проверит доступность и цену в системе перед показом подтверждённого предложения.", "fr": "Choisissez ici une période et la composition du groupe. Sur la page de résultats, V vérifie les disponibilités et le prix avant d’afficher une offre vérifiée." },
+  "אפשר לחפש מקום לקבוצה גדולה?": { "en": "Can I search for a large group?", "ru": "Можно искать вариант для большой группы?", "fr": "Puis-je rechercher pour un grand groupe ?" },
+  "כן. החיפוש לקבוצות מוגדר לעד 20 אורחים, ובעמוד התוצאות אפשר לשנות את מספר האורחים בהתאם להרכב המדויק.": { "en": "Yes. Group search is set for up to 20 guests, and you can adjust the exact party size on the results page.", "ru": "Да. Поиск для групп рассчитан на состав до 20 гостей, а точное число можно изменить на странице результатов.", "fr": "Oui. La recherche de groupe est configurée pour jusqu’à 20 personnes, et vous pouvez ajuster le nombre exact sur la page de résultats." },
+  "חגים ומועדים": { "en": "Holidays and special dates", "ru": "Праздники и особые даты", "fr": "Fêtes et dates spéciales" },
+  "מצאו לי מקום פנוי": { "en": "Find me an available stay", "ru": "Найти свободный вариант", "fr": "Trouver un séjour disponible" },
+  "בחרו חיפוש מדויק": { "en": "Choose a precise search", "ru": "Выберите точный поиск", "fr": "Choisissez une recherche précise" },
+  "בוחרים את החלון שמתאים לכם": { "en": "Choose the window that suits you", "ru": "Выберите подходящий период", "fr": "Choisissez la période qui vous convient" },
+  "לא רשימה אחת לכולם": { "en": "Not one list for everyone", "ru": "Не один список для всех", "fr": "Pas une seule liste pour tout le monde" },
+  "איך תרצו לצאת לחג?": { "en": "How would you like to spend the holiday?", "ru": "Как вы хотите провести праздник?", "fr": "Comment souhaitez-vous profiter de la fête ?" },
+  "כל כרטיס כבר כולל תאריכים והרכב. אפשר לשנות אותם בכל רגע בעמוד התוצאות.": { "en": "Each card already includes dates and party size. You can change them at any time on the results page.", "ru": "В каждой карточке уже указаны даты и состав гостей. Их можно изменить на странице результатов.", "fr": "Chaque carte inclut déjà les dates et la composition du groupe. Vous pouvez les modifier à tout moment sur la page de résultats." },
+  "לצפייה במקומות המתאימים": { "en": "View matching stays", "ru": "Смотреть подходящие варианты", "fr": "Voir les séjours adaptés" },
+  "מתכננים בלי לנחש": { "en": "Plan without guessing", "ru": "Планируйте без догадок", "fr": "Planifiez sans deviner" },
+  "מה חשוב לדעת לפני שסוגרים?": { "en": "What should you know before booking?", "ru": "Что важно знать перед бронированием?", "fr": "Que faut-il savoir avant de réserver ?" },
+  "בוחרים חלון": { "en": "Choose a window", "ru": "Выберите период", "fr": "Choisissez une période" },
+  "לא חייבים לחפש את כל ימי החג יחד.": { "en": "You do not need to search the entire holiday at once.", "ru": "Не обязательно искать на весь праздник сразу.", "fr": "Vous n’avez pas besoin de rechercher toute la période de fête en une seule fois." },
+  "מגדירים הרכב": { "en": "Set your party", "ru": "Укажите состав гостей", "fr": "Définissez votre groupe" },
+  "מספר האורחים משפיע על המקומות ועל המחיר.": { "en": "The number of guests affects available places and prices.", "ru": "Количество гостей влияет на доступные места и цену.", "fr": "Le nombre de personnes influence les lieux disponibles et le prix." },
+  "בודקים בזמן אמת": { "en": "Check in real time", "ru": "Проверяйте в реальном времени", "fr": "Vérifiez en temps réel" },
+  "רק תוצאה שחזרה מהמערכת מוצגת כדיל פנוי.": { "en": "Only a result confirmed by the system is shown as an available deal.", "ru": "Как доступное предложение показывается только результат, подтверждённый системой.", "fr": "Seul un résultat confirmé par le système est affiché comme offre disponible." },
+  "תשובות קצרות לפני שיוצאים": { "en": "Quick answers before you go", "ru": "Короткие ответы перед поездкой", "fr": "Réponses rapides avant de partir" },
+  "שאלות על נופש ב": { "en": "Questions about stays during ", "ru": "Вопросы об отдыхе на ", "fr": "Questions sur les séjours pendant " },
+  "חנוכה": { "en": "Hanukkah", "ru": "Ханука", "fr": "Hanoucca" },
+  "חופשה זוגית": { "en": "Couples getaway", "ru": "Отдых для пары", "fr": "Escapade en couple" },
+  "שני אורחים, שני לילות בתוך החג": { "en": "Two guests, two nights during the holiday", "ru": "Два гостя, две ночи во время праздника", "fr": "Deux personnes, deux nuits pendant la fête" },
+  "משפחה עד 6 אורחים": { "en": "Family of up to 6 guests", "ru": "Семья до 6 гостей", "fr": "Famille jusqu’à 6 personnes" },
+  "מקומות שמתאימים לחופשה משפחתית": { "en": "Places suited to a family holiday", "ru": "Варианты для семейного отдыха", "fr": "Lieux adaptés aux vacances en famille" },
+  "משפחות וקבוצות עד 20": { "en": "Families and groups of up to 20", "ru": "Семьи и группы до 20 человек", "fr": "Familles et groupes jusqu’à 20 personnes" },
+  "מתחמים גדולים להרכב מורחב": { "en": "Large complexes for an extended group", "ru": "Большие комплексы для расширенной группы", "fr": "Grands complexes pour les groupes élargis" },
+  "תחילת": { "en": "Start of", "ru": "Начало", "fr": "Début de" },
+  "אמצע": { "en": "Middle of", "ru": "Середина", "fr": "Milieu de" },
+  "חלון קצר באמצע ימי החג": { "en": "A short window in the middle of the holiday", "ru": "Короткий период в середине праздника", "fr": "Une courte période au milieu de la fête" },
+  "סוף": { "en": "End of", "ru": "Конец", "fr": "Fin de" },
+  "דילים לחנוכה 2026 שמתחילים בהרכב ובתאריך שלכם": { "en": "Hanukkah 2026 deals shaped around your dates and party", "ru": "Предложения на Хануку 2026 по вашим датам и составу", "fr": "Offres Hanoucca 2026 adaptées à vos dates et à votre groupe" },
+  "שמונה ימים. הרבה דרכים לצאת לחופשה.": { "en": "Eight days. Many ways to get away.", "ru": "Восемь дней. Много способов отдохнуть.", "fr": "Huit jours. De nombreuses façons de partir." },
+  "בוחרים זוג, משפחה או קבוצה, מחליטים אם יוצאים בתחילת החג, באמצע או בסופו, וממשיכים ישר לחיפוש שמתאים להרכב שלכם.": { "en": "Choose a couple, family or group, decide whether to travel at the start, middle or end of the holiday, and continue directly to a search that fits your party.", "ru": "Выберите пару, семью или группу, решите, ехать в начале, середине или конце праздника, и перейдите к подходящему поиску.", "fr": "Choisissez couple, famille ou groupe, puis le début, le milieu ou la fin de la fête, et accédez directement à une recherche adaptée." },
+  "נר ראשון של חנוכה תשפ״ז יודלק בערב יום שישי, 4 בדצמבר 2026. ימי החג יחולו מיום שבת, 5 בדצמבר, ועד יום שבת, 12 בדצמבר 2026. בגלל שהחג משתרע על פני כמה סופי שבוע וימי חול, חילקנו את החיפוש לחלונות קצרים וברורים במקום להציג רשימה אחת ארוכה ולא מדויקת.": { "en": "The first Hanukkah candle of 5787 will be lit on Friday evening, December 4, 2026. The holiday runs from Saturday, December 5 through Saturday, December 12, 2026. Because it spans weekends and weekdays, the search is divided into clear short windows instead of one long, imprecise list.", "ru": "Первую свечу Хануки 5787 зажгут вечером в пятницу, 4 декабря 2026 года. Праздник продлится с субботы, 5 декабря, по субботу, 12 декабря 2026 года. Поэтому поиск разделён на короткие понятные периоды.", "fr": "La première bougie de Hanoucca 5787 sera allumée le vendredi soir 4 décembre 2026. La fête se déroulera du samedi 5 au samedi 12 décembre 2026. Comme elle couvre des week-ends et des jours de semaine, la recherche est divisée en périodes courtes et claires." },
+  "דילים לחנוכה 2026 | נופש לזוגות, משפחות וקבוצות": { "en": "Hanukkah 2026 deals | Stays for couples, families and groups", "ru": "Предложения на Хануку 2026 | Отдых для пар, семей и групп", "fr": "Offres Hanoucca 2026 | Séjours pour couples, familles et groupes" },
+  "מוצאים נופש לחנוכה 2026 לפי תאריך והרכב: זוגות, משפחות עד 6 וקבוצות עד 20 אורחים, בתחילת החג, באמצע או בסוף.": { "en": "Find a Hanukkah 2026 stay by date and party: couples, families up to 6 and groups up to 20, at the start, middle or end of the holiday.", "ru": "Найдите отдых на Хануку 2026 по датам и составу: пары, семьи до 6 и группы до 20 человек, в начале, середине или конце праздника.", "fr": "Trouvez un séjour pour Hanoucca 2026 selon vos dates et votre groupe : couples, familles jusqu’à 6 et groupes jusqu’à 20, au début, au milieu ou à la fin de la fête." },
+  "הילת הנוף בגליל, תמונת המקום": { "en": "Hilat Hanof in the Galilee, property photo", "ru": "Hilat Hanof в Галилее, фото объекта", "fr": "Hilat Hanof en Galilée, photo de l’établissement" },
+  "ערב 4 בדצמבר עד 12 בדצמבר 2026": { "en": "Evening of December 4 through December 12, 2026", "ru": "С вечера 4 декабря по 12 декабря 2026 года", "fr": "Du soir du 4 décembre au 12 décembre 2026" },
+  "חיפוש לפי הרכב": { "en": "Search by party", "ru": "Поиск по составу гостей", "fr": "Recherche selon le groupe" },
+  "זמינות נבדקת בזמן אמת": { "en": "Availability checked in real time", "ru": "Доступность проверяется в реальном времени", "fr": "Disponibilités vérifiées en temps réel" },
+  "דילים ל": { "en": "Deals for ", "ru": "Предложения на ", "fr": "Offres pour " },
+  "מתכננים את": { "en": "Plan ", "ru": "Планируем ", "fr": "Planifiez " },
+  "בדרך שמתאימה לכם": { "en": "your way", "ru": "по-своему", "fr": "à votre façon" },
+  "בוחרים הרכב וחלק בחג וממשיכים לחיפוש נופש ממוקד ל": { "en": "Choose your party and part of the holiday, then continue to a focused stay search for ", "ru": "Выберите состав и период праздника, затем перейдите к точному поиску на ", "fr": "Choisissez votre groupe et la période de fête, puis lancez une recherche ciblée pour " },
+  "חל בין": { "en": "takes place between", "ru": "проходит с", "fr": "a lieu entre" },
+  "לבין": { "en": "and", "ru": "по", "fr": "et" },
+  ". אפשר להתחיל מחיפוש לזוג, למשפחה או לקבוצה, ולבדוק את הזמינות בפועל לתאריכים שבחרתם.": { "en": ". Start with a search for a couple, family or group and check actual availability for your dates.", "ru": ". Начните с поиска для пары, семьи или группы и проверьте реальную доступность на выбранные даты.", "fr": ". Commencez par une recherche pour un couple, une famille ou un groupe et vérifiez les disponibilités réelles pour vos dates." },
+  "| נופש בישראל": { "en": "| Stays in Israel", "ru": "| Отдых в Израиле", "fr": "| Séjours en Israël" },
+  "חיפוש נופש ל": { "en": "Search for stays during ", "ru": "Поиск отдыха на ", "fr": "Recherche de séjours pour " },
+  "לפי תאריך והרכב, עם מעבר ישיר לזמינות ולמחירים לתקופה שבחרתם.": { "en": "by date and party, with direct access to availability and prices for your selected period.", "ru": "по датам и составу гостей с прямым переходом к доступности и ценам на выбранный период.", "fr": "selon les dates et le groupe, avec accès direct aux disponibilités et aux prix de la période choisie." },
+  "מתחם נופש בישראל, תמונת המקום": { "en": "Holiday complex in Israel, property photo", "ru": "Комплекс отдыха в Израиле, фото объекта", "fr": "Complexe de vacances en Israël, photo de l’établissement" },
+  "לא מצאנו מקום בתוך": { "en": "We did not find a stay in", "ru": "Мы не нашли вариант в", "fr": "Nous n’avons pas trouvé de séjour à" },
+  "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. העיר האמיתית של כל מקום נשארת גלויה בכרטיס.": { "en": "Showing nearby places by distance from the selected town. Each card keeps the place’s actual city visible.", "ru": "Показываем ближайшие варианты по расстоянию от выбранного города. В каждой карточке остаётся фактический город объекта.", "fr": "Nous affichons les lieux proches selon leur distance depuis la localité choisie. La ville réelle de chaque lieu reste visible sur la carte." },
+  "נופש לזוג": { "en": "Stay for a couple", "ru": "Отдых для пары", "fr": "Séjour en couple" },
+  "נופש למשפחה": { "en": "Family stay", "ru": "Семейный отдых", "fr": "Séjour en famille" },
+  "נופש לקבוצה": { "en": "Group stay", "ru": "Отдых для группы", "fr": "Séjour en groupe" },
+  "לא נמצאה התאמה מדויקת או מקום קרוב": { "en": "No exact match or nearby place found", "ru": "Точного совпадения или ближайшего места не найдено", "fr": "Aucune correspondance exacte ni lieu proche trouvé" },
+  "נופש באבן מנחם עם בריכת שחייה פרטית מחוממת ומקורה": { "en": "Stays in Even Menachem with a private heated indoor pool", "ru": "Отдых в Эвен-Менахеме с частным отапливаемым крытым бассейном", "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée" },
+  "נופש באבן מנחם עם בריכה פרטית מחוממת ומקורה": { "en": "Stays in Even Menachem with a private heated indoor pool", "ru": "Отдых в Эвен-Менахеме с частным отапливаемым крытым бассейном", "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée" },
+  "מקומות נופש באבן מנחם עם בריכת שחייה פרטית מחוממת ומקורה.": { "en": "Stays in Even Menachem with a private heated indoor pool.", "ru": "Варианты отдыха в Эвен-Менахеме с частным отапливаемым крытым бассейном.", "fr": "Séjours à Even Menahem avec piscine intérieure privée chauffée." },
+  "בריכה פרטית, מחוממת ומקורה מאפשרת לשלב שחייה בחופשה באבן מנחם גם כשקריר בחוץ. כאן מרוכזים מקומות שמסומנים בכל שלושת המאפיינים, לצד פרטי היחידות, התמונות והרכב האורחים המתאים.": { "en": "A private, heated indoor pool makes swimming possible in Even Menachem even when it is cool outside. This page brings together places marked with all three features, alongside unit details, photos and suitable guest capacities.", "ru": "Частный отапливаемый крытый бассейн позволяет плавать в Эвен-Менахеме даже в прохладную погоду. Здесь собраны объекты со всеми тремя характеристиками, а также данные об апартаментах, фото и подходящем составе гостей.", "fr": "Une piscine intérieure privée chauffée permet de nager à Even Menahem même lorsqu’il fait frais. Cette page rassemble les lieux signalés par ces trois critères, avec les détails des unités, les photos et la capacité adaptée." },
+  "מה כולל הסינון בעמוד?": { "en": "What does this page’s filter include?", "ru": "Что включает фильтр этой страницы?", "fr": "Que comprend le filtre de cette page ?" },
+  "הסינון משלב מיקום באבן מנחם עם בריכה פרטית, מחוממת ומקורה.": { "en": "The filter combines the Even Menachem location with a private heated indoor pool.", "ru": "Фильтр объединяет расположение в Эвен-Менахеме с частным отапливаемым крытым бассейном.", "fr": "Le filtre associe la localité d’Even Menahem à une piscine intérieure privée chauffée." },
+  "מתחמי נופש ליום האהבה": { "en": "Holiday complexes for Valentine’s Day", "ru": "Комплексы для отдыха ко Дню святого Валентина", "fr": "Complexes de vacances pour la Saint-Valentin" },
+  "מתחמי נופש רומנטיים ליום האהבה ברחבי הארץ.": { "en": "Romantic holiday complexes across Israel for Valentine’s Day.", "ru": "Романтические комплексы для отдыха по всему Израилю ко Дню святого Валентина.", "fr": "Complexes de vacances romantiques partout en Israël pour la Saint-Valentin." },
+  "חופשה זוגית ליום האהבה מתחילה בבחירת מקום שמתאים לשניכם. אפשר להשוות צימרים, סוויטות ומקומות אירוח לזוגות ברחבי הארץ, לעיין בגלריות ולצמצם לפי האזור והמתקנים שחשובים לכם.": { "en": "A Valentine’s getaway for two starts with choosing a place that suits you both. Compare cabins, suites and couple-friendly stays across Israel, browse galleries and narrow the search by area and the amenities that matter to you.", "ru": "Романтический отдых на День святого Валентина начинается с выбора места, подходящего вам обоим. Сравнивайте гостевые дома, люксы и варианты для пар по всему Израилю, просматривайте галереи и уточняйте поиск по региону и важным удобствам.", "fr": "Une escapade de Saint-Valentin à deux commence par le choix d’un lieu qui vous convient. Comparez les chalets, suites et hébergements pour couples en Israël, consultez les galeries et affinez la recherche par région et équipements importants." },
+  "איך ממקדים את החיפוש לזוג?": { "en": "How do I narrow the search to couples?", "ru": "Как сузить поиск для пары?", "fr": "Comment cibler la recherche pour un couple ?" },
+  "העמוד מציג מקומות המתאימים לזוגות. אפשר להוסיף אזור, תאריכים ומאפיינים באמצעות סרגל החיפוש והמסננים.": { "en": "This page shows places suitable for couples. Add an area, dates and features using the search bar and filters.", "ru": "На странице показаны места, подходящие для пар. Добавьте регион, даты и характеристики с помощью строки поиска и фильтров.", "fr": "Cette page présente des lieux adaptés aux couples. Ajoutez une région, des dates et des équipements à l’aide de la barre de recherche et des filtres." },
+  "יחידות עם ג'קוזי": { "en": "Units with a hot tub", "ru": "Номера с джакузи", "fr": "Unités avec jacuzzi" },
+  "מתקנים ושירותים נוספים": {"en": "Additional facilities and services", "ru": "Дополнительные удобства и услуги", "fr": "Autres équipements et services"}
 }
