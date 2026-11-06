@@ -631,7 +631,10 @@
         "app/lib/max-compounds-api.ts",
         "app/lib/sergey-vii-api.ts",
         "app/lib/online-booking-capability.ts",
-        "app/lib/supplier-starting-price.ts"
+        "app/lib/supplier-starting-price.ts",
+        "app/lib/catalog-status-mcp.ts",
+        "app/mcp/route.ts",
+        "app/lib/provider-catalog-inspection.ts"
       ]
     },
     {
@@ -646,7 +649,12 @@
         "app/lib/world-surface-contract.ts",
         "app/site-header.tsx",
         "app/globals.css",
-        "app/lib/world-availability.ts"
+        "app/lib/world-availability.ts",
+        "app/components/discovery-card.tsx",
+        "app/components/masu-experience.tsx",
+        "app/components/new-tab-navigation.tsx",
+        "app/components/world-landing.tsx",
+        "app/favorites/"
       ]
     },
     {
@@ -668,7 +676,12 @@
         "app/data/vacation-landings.ts",
         "app/data/world-search-landings.ts",
         "app/components/vacation-landing-route.tsx",
-        "app/components/search-box.tsx"
+        "app/components/search-box.tsx",
+        "app/components/managed-search-landing.tsx",
+        "app/lib/legacy-route-map.ts",
+        "app/lib/managed-search-params.ts",
+        "app/lib/new-tab-policy.ts",
+        "app/lib/search-opportunities.ts"
       ]
     },
     {
@@ -690,7 +703,8 @@
         "app/worlds/events/",
         "app/lib/public-event-search.ts",
         "app/lib/event-last-minute-props.ts",
-        "app/components/event-last-minute.tsx"
+        "app/components/event-last-minute.tsx",
+        "app/components/event-result-card.tsx"
       ]
     },
     {
@@ -698,7 +712,10 @@
       "ownerBox": "spa",
       "match": [
         "app/spas/",
-        "app/worlds/spa/"
+        "app/worlds/spa/",
+        "app/lib/spa-discovery-card.ts",
+        "app/lib/spa-editorial-policy.ts",
+        "app/lib/spaplus-catalog-client.ts"
       ]
     },
     {
@@ -706,7 +723,8 @@
       "ownerBox": "hourly",
       "match": [
         "app/hourly/",
-        "app/worlds/hourly/"
+        "app/worlds/hourly/",
+        "app/components/hourly-results.tsx"
       ]
     },
     {
@@ -743,7 +761,9 @@
         "app/lib/request-stage-timing.ts",
         "app/lib/request-catalog-reader.ts",
         "app/lib/home-deal-dates.ts",
-        "app/lib/vii-home-deals.ts"
+        "app/lib/vii-home-deals.ts",
+        "app/components/home-showcase.tsx",
+        "app/lib/discovery-client-cache.ts"
       ]
     },
     {
@@ -800,7 +820,9 @@
       "id": "image-delivery",
       "ownerBox": "image-delivery",
       "match": [
-        "services/vii-public-images/"
+        "services/vii-public-images/",
+        "worker/public-gallery-media.ts",
+        "public/media-recovery/"
       ]
     },
     {
@@ -899,7 +921,18 @@
       "id": "media-gallery",
       "ownerBox": "media-gallery",
       "match": [
-        "app/components/gallery-experience.tsx"
+        "app/components/gallery-experience.tsx",
+        "app/components/place-preview-card.tsx",
+        "app/components/preview-card-gallery.tsx",
+        "app/components/responsive-card-image.tsx",
+        "app/components/spa-package-deals.tsx",
+        "app/components/use-preview-gallery.tsx",
+        "app/lib/preview-image-loader.ts",
+        "app/lib/responsive-media.ts",
+        "app/lib/sergey-gallery.ts",
+        "app/lib/verified-media-recovery.ts",
+        "app/preview-card-consistency.css",
+        "app/api/vii/media/"
       ]
     },
     {
