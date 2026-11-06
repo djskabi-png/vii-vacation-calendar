@@ -23,7 +23,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_06_VERIFICATION.md",
+        "PHASE_07.md"
       ]
     },
     {
@@ -32,7 +34,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_07.md"
       ]
     },
     {
@@ -355,7 +358,8 @@
       "evidence": [
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_07.md"
       ]
     },
     {
@@ -392,7 +396,8 @@
       "evidence": [
         "PHASE_03.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_06_VERIFICATION.md"
       ]
     },
     {
@@ -410,7 +415,8 @@
       "evidence": [
         "PHASE_03.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_06_VERIFICATION.md"
       ]
     },
     {
@@ -437,7 +443,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_07.md"
       ]
     },
     {

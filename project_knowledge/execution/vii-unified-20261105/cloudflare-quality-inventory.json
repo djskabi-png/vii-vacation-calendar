@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-11-06T00:40:20.520842+00:00",
+  "verifiedAt": "2026-11-06T02:26:51.967928+00:00",
   "project": "VII",
   "accountId": "45b2f6dcf2cfe44204d2c470cbe682d9",
   "status": "private_services_provisioned_authority_inactive_no_public_cutover",
@@ -11,10 +11,12 @@
     "tablesAtCreationVerification": 0,
     "businessDatabase": false,
     "historyMigration": "not_started",
-    "initializedTables": 14,
+    "initializedTables": 16,
     "jobsAtSchemaVerification": 0,
     "runsAtSchemaVerification": 0,
-    "notificationsAtSchemaVerification": 0
+    "notificationsAtSchemaVerification": 0,
+    "backupRestoreScope": "private SQL export restored into local SQLite,14 empty qualitytables before additive change",
+    "schemaUpdateEvidence": "PHASE_07.md"
   },
   "queues": [
     {
@@ -50,23 +52,24 @@
   },
   "deployment": {
     "controller": {
-      "versionId": "0325aa4b-da50-489a-9d3a-0f11ad0a6cf0",
-      "source": "8bca3aab44ae6325ea7814d33053eb500149f5be",
+      "versionId": "9a5379f7-30de-4c9d-b4de-f64ccfe8ef9e",
+      "source": "a5233c18c34eaf3b238180676cefb077849df466",
       "authorityEnabled": false,
       "executionEnabled": false,
       "scheduleEnabled": false,
       "workersDevEnabled": false,
-      "previewsEnabled": false
+      "previewsEnabled": false,
+      "browserEnabled": false
     },
     "browserEngine": {
-      "versionId": "183d1412-fbe7-4494-bd88-c0c9aadbb138",
-      "source": "8bca3aab44ae6325ea7814d33053eb500149f5be",
+      "versionId": "d7e716c2-b2a1-4b33-8134-13090ec50750",
+      "source": "a5233c18c34eaf3b238180676cefb077849df466",
       "workersDevEnabled": false,
       "previewsEnabled": false,
       "browserExecutionVerified": false,
-      "controllerBindingAdded": false
+      "controllerBindingAdded": true
     },
-    "expectedBuildId": "2b2dd30a-6b21-4a6c-bbe4-066e5fe51153",
+    "expectedBuildId": "37aea992-09c1-a1bf-7173-9af66834d35e",
     "edgeCutover": false,
     "edgeVersionUnchanged": "605a1a2c-3714-4fbb-befd-5eb603609254"
   },
@@ -82,6 +85,9 @@
     ".qa-output/phase4-browser-version-readback.json",
     ".qa-output/phase4-browser-private-access.json",
     ".qa-output/phase4-queue-binding-readback.json",
-    ".qa-output/phase4-edge-unchanged-readback.log"
+    ".qa-output/phase4-edge-unchanged-readback.log",
+    ".qa-output/phase7-private-update-readback.json",
+    ".qa-output/phase7-private-quality-backup-operation.json",
+    ".qa-output/phase7-private-schema-update-operation.json"
   ]
 }
