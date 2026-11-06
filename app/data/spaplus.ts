@@ -2,7 +2,11 @@ import catalog from "./spaplus-public-catalog.json";
 export { spaPlusArea } from "./spa-regions";
 export { spaPlusAudience } from "./spa-audience";
 
-export type SpaPlusSite = (typeof catalog.sites)[number] & { gallery?: string[] };
+export type SpaPlusSite = (typeof catalog.sites)[number] & {
+  gallery?: string[];
+  facilityIds?: number[];
+  features?: string[];
+};
 export type SpaPlusPackage = SpaPlusSite["packages"][number];
 
 export const spaPlusSites: SpaPlusSite[] = catalog.sites;
