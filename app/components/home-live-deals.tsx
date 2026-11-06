@@ -157,8 +157,8 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
-      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
-      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v2", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
+      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v2", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
     let expiryTimer: ReturnType<typeof setTimeout> | undefined;
     const armExpiry = (value: ResponseData | undefined) => {
       if (expiryTimer) clearTimeout(expiryTimer);
