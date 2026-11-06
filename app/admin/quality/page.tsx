@@ -6,6 +6,7 @@ import styles from "./quality.module.css";
 import { readQualityJobIntent, persistQualityJobIntent, clearQualityJobIntent, type QualityJobIntent } from "../../lib/quality-job-intent";
 import SchedulerAttention, { type SchedulerAttentionRow } from "./scheduler-attention.tsx";
 import BrowserProfileControl, {type BrowserProfileOptions} from "./browser-profile-control.tsx";
+import ExperienceMetricsControl from './experience-metrics-control';
 
 type Run = { id: string; triggerKind: string; releaseId: string | null; status: string; startedAt: string; finishedAt: string | null; passedCount: number; failedCount: number; degradedCount: number; blockedCount: number; durationMs: number | null; totalChecks: number; currentCheckId: string | null };
 type Incident = { id: string; checkId: string; family: string; world: string; route: string; viewport: string; severity: string; status: string; firstSeenAt: string; lastSeenAt: string; recoveredAt: string | null; occurrences: number; lastObserved: string };
@@ -221,6 +222,7 @@ export default function QualityPage() {
   };
   return <main className={styles.page} dir="rtl">
     <header className={styles.header}><div><p>V Quality Control</p><h1>איכות ויציבות</h1><span>QQQAAA בודקת את האתר ומערכת הניהול בלי ליצור הזמנות, פניות, חוות דעת או תשלומים.</span></div><div className={styles.actions}><button type="button" onClick={() => void load()} disabled={loading || running} aria-label="רענון"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button><button type="button" className={styles.run} onClick={() => void runNow()} disabled={running || Boolean(activeRun) || jobRunning} aria-busy={running || Boolean(activeRun) || jobRunning}>{running || activeRun || jobRunning ? <RefreshCw size={18} className={styles.spin} /> : <Play size={18} />} {running || activeRun || jobRunning ? "QQQAAA רצה עכשיו..." : "הפעלת QQQAAA"}</button></div></header>
+    <ExperienceMetricsControl />
     {job ? <section className={styles.section} aria-label="בדיקות ברקע">
       <h2>{jobRunning ? "הבדיקה מתקדמת ברקע" : job.status === "completed" ? "ריצת הבדיקות הסתיימה" : job.status === "cancelled" ? "הבדיקה בוטלה" : "הבדיקה נעצרה לפני השלמה"}</h2>
       <p>{job.executionKind==='browser'?'בדיקת דפדפן':'בדיקות שרת ונתונים'}</p>

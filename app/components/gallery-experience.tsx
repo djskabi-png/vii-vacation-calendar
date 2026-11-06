@@ -2,11 +2,12 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
 import { uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { signalExperienceStage } from '../lib/experience-signals';
 
 type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "galleryGroups" | "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
 
@@ -24,6 +25,11 @@ export type GuestPhoto = {
   alt: string;
   author: string;
 };
+
+function reportVisibleGalleryImage(image: HTMLImageElement, phase: 'ready' | 'error', scope: string) {
+  const rect = image.getBoundingClientRect();
+  if (rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth && (phase === 'error' || image.naturalWidth > 0)) signalExperienceStage('gallery_ready', phase, scope);
+}
 
 function galleryItemLabel(topic: string, placeName: string, index: number) {
   return index === 0
@@ -50,6 +56,18 @@ function resolvedInitialTopic(items: GalleryItem[], property: GallerySubject, re
 
 export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", initialTopic, guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; initialTopic?: string | null; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number, topic: string | null) => void; onClose: () => void }) {
   const { language } = useSiteLanguage();
+  const experienceScope = useId();
+  const reportImage = (image: HTMLImageElement, phase: 'ready' | 'error') => reportVisibleGalleryImage(image, phase, experienceScope);
+  useEffect(() => {
+    if (!open) return;
+    signalExperienceStage('gallery_ready', 'start', experienceScope);
+    const frame = requestAnimationFrame(() => {
+      dialog.current?.querySelectorAll<HTMLImageElement>('.story-gallery__mobile-tour img,.story-gallery__mobile-image,.story-gallery__image').forEach(image => {
+        if (image.complete) reportVisibleGalleryImage(image, image.naturalWidth > 0 ? 'ready' : 'error', experienceScope);
+      });
+    });
+    return () => { cancelAnimationFrame(frame); signalExperienceStage('gallery_ready', 'cancelled', experienceScope); };
+  }, [open, experienceScope]);
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
   const gestureStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
@@ -212,13 +230,13 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </article>)}
     </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
-        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab("all"); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" /></button>)}</div></section>)}
+        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab("all"); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /></button>)}</div></section>)}
       </div>
       <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__mobile-media">
           <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לגלריה</button>
           <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
-          {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
+          {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /> : null}
           {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">{language === "he" ? "›" : "‹"}</span></button>
           <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">{language === "he" ? "‹" : "›"}</span></button></> : null}
           <span className="story-gallery__mobile-position" aria-live="polite">{selected + 1}/{visibleItems.length}</span>
@@ -227,7 +245,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </div>
       <div className="story-gallery__story" onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
-        {current ? <img className="story-gallery__image" src={current.src} alt={current.label} title={current.label} /> : null}
+        {current ? <img className="story-gallery__image" src={current.src} alt={current.label} title={current.label} onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /> : null}
         {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">{language === "he" ? "›" : "‹"}</span></button>
         <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">{language === "he" ? "‹" : "›"}</span></button></> : null}
         <div className="story-gallery__caption"><span>{current?.topic || tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>

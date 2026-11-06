@@ -2,6 +2,7 @@
 
 import { Children, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { signalExperienceStage } from '../lib/experience-signals';
 
 type ResultKind = "places" | "trails" | "providers";
 
@@ -77,6 +78,13 @@ function ProgressiveResultsWindow({
   const remaining = Math.max(0, controlled ? effectiveTotalCount - effectiveVisibleCount : uncontrolledRemaining);
   const nextCount = Math.min(increment, remaining);
   const labels = copy[language][kind];
+
+  useEffect(() => {
+    if (!effectiveVisibleCount) return;
+    let second = 0;
+    const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => signalExperienceStage('results_ready', 'ready')); });
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
+  }, [effectiveVisibleCount]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;

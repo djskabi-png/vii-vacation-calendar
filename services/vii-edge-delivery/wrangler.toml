@@ -11,5 +11,7 @@ binding = "PUBLIC_CACHE"
 bucket_name = "vii-public-document-cache"
 
 [vars]
+EXPERIENCE_ENABLED = "false"
+EXPERIENCE_SAMPLE_RATE_BPS = "500"
 ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site"
 EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae"

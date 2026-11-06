@@ -3,7 +3,8 @@ import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
 import {readRetainedAsset,retainedAssetRequest} from './retained-assets.ts';
-type DeliveryEnv=QualityGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
+import { experienceGateway, type ExperienceGatewayEnvironment } from './experience-gateway.ts';
+type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae";
@@ -140,6 +141,8 @@ function deliveryTiming(headers: Headers, lookupMs: number, originMs?: number) {
 
 async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext, refresh = false): Promise<Response> {
   if (env.QUALITY_CONTROL_ENABLED === "true") {
+    const experience = await experienceGateway(request, env);
+    if (experience) return experience;
     const quality = await qualityGateway(request, env);
     if (quality) return quality;
   }

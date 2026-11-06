@@ -26,3 +26,13 @@ test('actual Cron canary admits only its selected check and expires before any d
   env.SCHEDULE_CHECK_IDS='["global.home.semantic"]';await run({},env);assert.equal(f.messages.length,1);assert.equal(f.sqlite.prepare('SELECT check_id FROM quality_scheduler_admissions').get().check_id,'global.home.semantic');await run({},env);assert.equal(f.messages.length,1);
  }finally{f.sqlite.close();}
 });
+
+test('experience retention is independently gated and cannot stop quality recovery',async()=>{
+ let pruned=0,recovered=0;
+ const run=actualScheduled({pruneExperience:async()=>{pruned++;throw Error('retention fixture failure');},controller:{async recover(){recovered++;}},schedulerWindowOpen:()=>true,scheduledCheckSelection:()=>[],admitScheduledChecks:async()=>[],ensureControlAuxiliarySchema:async()=>{},qualityBuildIdentity:()=> 'test-build'});
+ const env={EXPERIENCE_ENABLED:'true',AUTHORITY_ENABLED:'false'};
+ await run({},env);assert.equal(pruned,1);assert.equal(recovered,0);
+ const db={prepare(){return {bind(){return this;},async run(){}};}};
+ await run({},{...env,AUTHORITY_ENABLED:'true',EXECUTION_ENABLED:'true',QUALITY_DB:db});assert.equal(pruned,2);assert.equal(recovered,1);
+ await run({},{...env,EXPERIENCE_ENABLED:'false'});assert.equal(pruned,2);
+});

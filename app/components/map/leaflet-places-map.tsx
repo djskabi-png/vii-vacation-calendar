@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { MapPinned } from "lucide-react";
 import { useSiteLanguage } from "../../i18n/locale-provider";
@@ -8,6 +8,7 @@ import { localizedPath } from "../../i18n/locale-routing";
 import { PreviewCardGallery } from "../preview-card-gallery";
 import { mapSnapshotPublicUrl } from "../../lib/map-snapshot-url";
 import { trackMapInteraction } from "../../lib/analytics";
+import { signalExperienceStage } from '../../lib/experience-signals';
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib/map-marker-layout";
 import { mapResultSummary } from "../../lib/map-result-summary.ts";
 import { keepMapFocusInViewport } from "../../lib/map-focus-policy.ts";
@@ -134,6 +135,16 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
   const [snapshotUnavailable, setSnapshotUnavailable] = useState(true);
   const [providerError, setProviderError] = useState<unknown>(null);
   const [providerRetry, setProviderRetry] = useState(0);
+  const experienceScope = useId();
+  useEffect(() => {
+    if (!enabled) return;
+    signalExperienceStage('map_ready', 'start', experienceScope);
+    return () => signalExperienceStage('map_ready', 'cancelled', experienceScope);
+  }, [enabled, providerRetry, experienceScope]);
+  useEffect(() => {
+    if (enabled && mapReady) signalExperienceStage('map_ready', 'ready', experienceScope);
+    else if (enabled && providerError) signalExperienceStage('map_ready', 'error', experienceScope);
+  }, [enabled, mapReady, providerError, experienceScope]);
   const previewImageRef = useRef<HTMLImageElement>(null);
   const preview = places[0] ?? null;
   const snapshotUrl = preview ? mapSnapshotPublicUrl(tone, preview.id) : "";

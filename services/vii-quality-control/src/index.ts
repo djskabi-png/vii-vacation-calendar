@@ -7,8 +7,11 @@ import { admitScheduledChecks, schedulerJobIntentKey,scheduledCheckSelection,sch
 import { readQualityJob } from "../../../app/lib/quality-job-store.ts";
 import { ensureControlAuxiliarySchema } from "./control-schema.ts";
 import {verifyHttpResponseBuild} from './http-generation.ts';
+import { experienceHandler, type ExperienceEnvironment } from './experience-handler.ts';
+import { ensureExperienceSchema, pruneExperience } from './experience-store.ts';
+import { readExperienceSummary } from './experience-summary.ts';
 
-type Env = ControllerEnvironment & { PUBLIC_ORIGIN: string; EXPECTED_BUILD_ID: string; AUTHORITY_ENABLED?: string; SCHEDULE_ENABLED?: string;SCHEDULE_CHECK_IDS?:string;SCHEDULE_UNTIL?:string };
+type Env = ControllerEnvironment & ExperienceEnvironment & { PUBLIC_ORIGIN: string; EXPECTED_BUILD_ID: string; AUTHORITY_ENABLED?: string; SCHEDULE_ENABLED?: string;SCHEDULE_CHECK_IDS?:string;SCHEDULE_UNTIL?:string };
 const controller = createController({ create: createManualQualityJob, consume: (db,runId)=>consumeQualityJob(db,runId,{fetcher:async(input,init)=>verifyHttpResponseBuild(await fetch(input,init),qualityBuildIdentity())}) });
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 let cachedKey: { key: JsonWebKey; until: number } | undefined;
@@ -26,6 +29,8 @@ async function publicKey() {
 
 export default {
   async fetch(request: Request, env: Env) {
+    const experience = await experienceHandler(request, env);
+    if (experience) return experience;
     if (env.AUTHORITY_ENABLED !== "true") return Response.json({ error: "quality_authority_not_activated" }, { status: 503, headers });
     const url = new URL(request.url);
     if (env.PUBLIC_ORIGIN !== "https://vii.spaplus.co" || url.origin !== env.PUBLIC_ORIGIN || url.pathname !== "/api/admin/quality" || !["GET", "POST"].includes(request.method) || request.headers.has("cookie") || request.headers.has("authorization")) return Response.json({ error: "forbidden" }, { status: 403, headers });
@@ -47,6 +52,12 @@ export default {
       await ensureControlAuxiliarySchema(env.QUALITY_DB);
       const consumed = await env.QUALITY_DB.prepare("INSERT OR IGNORE INTO quality_authorization_nonces(nonce,expires_at) VALUES(?,?)").bind(nonce, claims.exp).run();
       if (Number(consumed.meta?.changes) !== 1) return Response.json({ error: "authorization_replayed" }, { status: 409, headers });
+      if (request.method === 'GET' && url.searchParams.has('experience')) {
+        if (url.search !== '?experience=1') return Response.json({ error: 'invalid_query' }, { status: 400, headers });
+        if (env.EXPERIENCE_ENABLED !== 'true' || !env.EXPECTED_APP_SOURCE_VERSION) return Response.json({ state: 'disabled' }, { headers });
+        await ensureExperienceSchema(env.QUALITY_DB);
+        return Response.json(await readExperienceSummary(env.QUALITY_DB, { buildId: env.EXPECTED_BUILD_ID, sourceVersion: env.EXPECTED_APP_SOURCE_VERSION }), { headers });
+      }
       return controller.handle(request, env, claims.email, body);
     } catch (error) {
       const code = error instanceof Error && ["quality_verifier_unavailable", "invalid_quality_public_key"].includes(error.message) ? error.message : error instanceof RequestBodyError ? error.message : error instanceof Error ? error.name : "unknown_error";
@@ -60,6 +71,10 @@ export default {
     }
   },
   async scheduled(_event: unknown, env: Env) {
+    if (env.EXPERIENCE_ENABLED === 'true') {
+      try { await pruneExperience(env.QUALITY_DB); }
+      catch { console.warn('VII experience retention unavailable'); }
+    }
     if (env.AUTHORITY_ENABLED !== "true" || env.EXECUTION_ENABLED !== "true") return;
     if(!schedulerWindowOpen(env.SCHEDULE_UNTIL))return;
     const checkIds=env.SCHEDULE_ENABLED==='true'?scheduledCheckSelection(env.SCHEDULE_CHECK_IDS):undefined;

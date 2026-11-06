@@ -49,7 +49,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_03.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -139,7 +140,8 @@
         "PHASE_02.md",
         "PHASE_04.md",
         "PHASE_05.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -151,7 +153,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_05.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -178,7 +181,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -218,7 +222,8 @@
         "PHASE_02.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_11.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -236,7 +241,8 @@
         "PHASE_11.md",
         "PHASE_12.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -366,8 +372,10 @@
       "id": "Q09",
       "title": "ריל טיים ומשתמשים אמיתיים",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_16.md"
+      ]
     },
     {
       "id": "Q10",
@@ -470,8 +478,10 @@
       "id": "Q17",
       "title": "מדדי מהירות וחוויית משתמש",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_16.md"
+      ]
     },
     {
       "id": "Q18",
@@ -515,7 +525,8 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -530,7 +541,8 @@
         "PHASE_08.md",
         "PHASE_09.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -543,7 +555,8 @@
         "PHASE_02.md",
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -555,7 +568,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -571,7 +585,8 @@
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -589,7 +604,8 @@
         "PHASE_11.md",
         "PHASE_12.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_16.md"
       ]
     },
     {
@@ -632,9 +648,9 @@
     "Root: complete core V and QQQAAA; next real experience metrics and per-unit release/data operations",
     "Independent checker: scoped reviews completed; new material release changes require new review"
   ],
-  "lastUpdated": "2026-11-06T04:42:58.040573+00:00",
+  "lastUpdated": "2026-11-06T05:28:13.357388+00:00",
   "completionClaim": false,
-  "currentSourceHead": "7fd8e143a3007833d2ad70d8378b4deaadd675f7",
+  "currentSourceHead": "5a12e8b3bef4506f01755be5705b01e26c7ea8ab",
   "sourceCheckpoints": [
     {
       "commit": "5fb85058",
@@ -706,6 +722,12 @@
       "priorBaselineErrors": 41,
       "currentErrors": 0,
       "log": ".qa-output/plan-execution-typecheck-verified.log"
+    },
+    {
+      "command": "phase16 focused quality/Edge/runtime/UI/gallery/graph regression",
+      "passed": 188,
+      "failed": 0,
+      "log": ".qa-output/phase16-focused-tests.log"
     }
   ],
   "implementedSlices": [
@@ -783,15 +805,20 @@
       "id": "active-build-client-asset-private-retention",
       "state": "actual_private_storage_readback_verified",
       "limit": "All240active public manifest assets captured and privately stored; new Edge fallback not yet deployed"
+    },
+    {
+      "id": "consented-experience-measurement",
+      "state": "locally_implemented_flags_off",
+      "limit": "188 focused tests and full TypeScript pass; no new production metric tables, collection, public deployment, live field percentiles or exact-artifact visual approval"
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Continue remaining core integration; phase15 Node compatibility changes require the next frozen application artifact. Preserve actual old client assets and scoped evidence; main publication access, business-data restore and full public acceptance remain open.",
-  "updatedAt": "2026-11-06T04:42:58.040573+00:00",
+  "nextStep": "Finish per-unit release orchestration and remaining core/data operations. Freeze one exact cumulative candidate for build/package/visual and live acceptance. Keep experience flags off until exact generation canary. Document3 remains deferred.",
+  "updatedAt": "2026-11-06T05:28:13.357388+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": false,
-  "sourceHeadMeaning": "Last observed committed source at status write; phase15 package flag is a newer unqualified change",
+  "sourceHeadMeaning": "Last committed source before phase16 source checkpoint; new experience changes are locally tested, not a qualified published artifact",
   "privateCloudAssetSeed": {
     "files": 240,
     "sourceBuild": "00bca36c-4f1c-403d-9a13-ceea797015ae",
