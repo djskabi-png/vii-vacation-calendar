@@ -1,36 +1,87 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-11-06T02:02:00+02:00",
+  "verifiedAt": "2026-11-06T00:40:20.520842+00:00",
   "project": "VII",
   "accountId": "45b2f6dcf2cfe44204d2c470cbe682d9",
-  "status": "isolated_resources_created_not_connected_to_public_traffic",
+  "status": "private_services_provisioned_authority_inactive_no_public_cutover",
   "database": {
     "name": "vii-quality-control",
     "id": "9c96d3dd-e8d1-400f-9b17-2df4509b1095",
     "location": "EEUR",
     "tablesAtCreationVerification": 0,
     "businessDatabase": false,
-    "historyMigration": "not_started"
+    "historyMigration": "not_started",
+    "initializedTables": 14,
+    "jobsAtSchemaVerification": 0,
+    "runsAtSchemaVerification": 0,
+    "notificationsAtSchemaVerification": 0
   },
   "queues": [
-    { "name": "vii-quality-release", "id": "30854fc6dc934d6aa21d8709f46ba281", "producers": 0, "consumers": 0 },
-    { "name": "vii-quality-monitor", "id": "4b04708ba6a2499e823e0408128c5986", "producers": 0, "consumers": 0 },
-    { "name": "vii-quality-deadletter", "id": "26fe219ff48e4db09dde5d8fe6dd5b1d", "producers": 0, "consumers": 0 }
+    {
+      "name": "vii-quality-release",
+      "id": "30854fc6dc934d6aa21d8709f46ba281",
+      "producers": 1,
+      "consumers": 1
+    },
+    {
+      "name": "vii-quality-monitor",
+      "id": "4b04708ba6a2499e823e0408128c5986",
+      "producers": 1,
+      "consumers": 1
+    },
+    {
+      "name": "vii-quality-deadletter",
+      "id": "26fe219ff48e4db09dde5d8fe6dd5b1d",
+      "producers": 0,
+      "consumers": 0
+    }
   ],
   "evidence": {
     "bucket": "vii-quality-evidence",
     "publicDevUrlEnabled": false,
     "customDomains": [],
     "lifecycleReadbackVerified": true,
-    "retentionDays": { "qqqaaa/failures/": 30, "qqqaaa/traces/": 7, "qqqaaa/summaries/": 90 },
+    "retentionDays": {
+      "qqqaaa/failures/": 30,
+      "qqqaaa/traces/": 7,
+      "qqqaaa/summaries/": 90
+    },
     "existingBusinessMediaTouched": false
   },
-  "deployment": { "controller": false, "browserEngine": false, "edgeCutover": false },
+  "deployment": {
+    "controller": {
+      "versionId": "0325aa4b-da50-489a-9d3a-0f11ad0a6cf0",
+      "source": "8bca3aab44ae6325ea7814d33053eb500149f5be",
+      "authorityEnabled": false,
+      "executionEnabled": false,
+      "scheduleEnabled": false,
+      "workersDevEnabled": false,
+      "previewsEnabled": false
+    },
+    "browserEngine": {
+      "versionId": "183d1412-fbe7-4494-bd88-c0c9aadbb138",
+      "source": "8bca3aab44ae6325ea7814d33053eb500149f5be",
+      "workersDevEnabled": false,
+      "previewsEnabled": false,
+      "browserExecutionVerified": false,
+      "controllerBindingAdded": false
+    },
+    "expectedBuildId": "2b2dd30a-6b21-4a6c-bbe4-066e5fe51153",
+    "edgeCutover": false,
+    "edgeVersionUnchanged": "605a1a2c-3714-4fbb-befd-5eb603609254"
+  },
   "evidenceSources": [
     ".qa-output/phase4-quality-d1-info.json",
     ".qa-output/phase4-create-vii-quality-release.log",
     ".qa-output/phase4-create-vii-quality-monitor.log",
     ".qa-output/phase4-create-vii-quality-deadletter.log",
-    ".qa-output/phase4-evidence-retention-readback.log"
+    ".qa-output/phase4-evidence-retention-readback.log",
+    ".qa-output/phase4-private-schema-readback.json",
+    ".qa-output/phase4-controller-version-readback.json",
+    ".qa-output/phase4-controller-private-access.json",
+    ".qa-output/phase4-browser-version-readback.json",
+    ".qa-output/phase4-browser-private-access.json",
+    ".qa-output/phase4-queue-binding-readback.json",
+    ".qa-output/phase4-edge-unchanged-readback.log"
   ]
 }
