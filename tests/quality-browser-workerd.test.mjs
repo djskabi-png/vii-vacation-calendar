@@ -14,7 +14,7 @@ let messages=[],legacyCalls=0;
 const controller=createController({create:async()=>{throw Error('legacy create forbidden')},consume:async()=>{legacyCalls++;throw Error('legacy consume forbidden')}});
 export default {async fetch(request,bindings){
  const input=await request.json();
- const env={...bindings,RELEASE_QUEUE:{send:async message=>{messages.push(message)}},MONITOR_QUEUE:{send:async()=>{throw Error('monitor forbidden')}},EXECUTION_ENABLED:'true',BROWSER_ENABLED:'true',EXPECTED_SOURCE_VERSION:'${source}',EXPECTED_BUILD_ID:'${buildId}',PUBLIC_ORIGIN:'https://vii.spaplus.co'};
+ const env={...bindings,RELEASE_QUEUE:{send:async message=>{messages.push(message)}},MONITOR_QUEUE:{send:async()=>{throw Error('monitor forbidden')}},EXECUTION_ENABLED:'true',BROWSER_ENABLED:'true',EXPECTED_SOURCE_VERSION:'${'b'.repeat(40)}',EXPECTED_BROWSER_SOURCE_VERSION:'${source}',EXPECTED_BUILD_ID:'${buildId}',PUBLIC_ORIGIN:'https://vii.spaplus.co'};
  if(input.command==='enqueue')return controller.handle(new Request('https://vii.spaplus.co/api/admin/quality',{method:'POST'}),env,'trusted-runtime-fixture',{action:'enqueue-browser',profileId:input.profileId,idempotencyKey:input.key});
  const message=messages.find(value=>value.runId===input.jobId);
  if(!message)return Response.json({error:'message missing'},{status:404});
