@@ -457,7 +457,8 @@
         "tests/quality-browser-workerd.test.mjs",
         "services/vii-quality-control/test/evidence-access.test.mjs",
         "services/vii-quality-control/test/http-generation.test.mjs",
-        "tests/quality-cron-workerd.test.mjs"
+        "tests/quality-cron-workerd.test.mjs",
+        "services/vii-quality-control/test/release-subject.test.mjs"
       ]
     },
     "media-gallery": {

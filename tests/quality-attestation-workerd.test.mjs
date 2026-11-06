@@ -5,12 +5,14 @@ import { createSignedValue } from '../app/lib/google-auth.ts';
 import { ensureAdminGrantSchema } from '../app/lib/admin-grants.ts';
 import { verifyQualityAttestation } from '../app/lib/quality-attestation.ts';
 import { ensureSchedulerSchema } from '../services/vii-quality-control/src/scheduler.ts';
+import { releaseDefinitionSetSha256 } from '../services/vii-quality-control/src/release-subject.ts';
 
 const require=createRequire(import.meta.url);
 const {build}=require(require.resolve('esbuild',{paths:[require.resolve('vite/package.json')]}));
 const {Miniflare,Log,LogLevel,Request:RuntimeRequest}=require(require.resolve('miniflare',{paths:[require.resolve('wrangler')]}));
 const secret='synthetic-quality-workerd-only-secret-2026';
 const buildId='7f2325ab-dbef-4327-a11a-2247c01e0d7e';
+const releaseBindings={RELEASE_AUTHORITY_ENABLED:'true',EXPECTED_SOURCE_VERSION:'a'.repeat(40),EXPECTED_APP_SOURCE_VERSION:'b'.repeat(40),EXPECTED_BROWSER_SOURCE_VERSION:'c'.repeat(40),EXPECTED_BUILD_ID:buildId,PUBLIC_ORIGIN:'https://vii.spaplus.co'};
 test('actual source attestation and JWKS execute under workerd and enforce exact delegated target permissions',{timeout:20000},async()=>{
  const bundle=await build({stdin:{contents:`import {POST} from './app/api/admin/quality-attestation/route.ts';import {GET} from './app/.well-known/vii-quality-jwks.json/route.ts';export default {fetch(r){return new URL(r.url).pathname.endsWith('.json')?GET():POST(r)}};`,resolveDir:process.cwd(),loader:'ts'},bundle:true,format:'esm',platform:'browser',target:'es2022',write:false,external:['cloudflare:workers'],define:{__VII_CACHE_BUILD_ID__:JSON.stringify(buildId)}});
  // The bundled local binary supports dates through 2026-05-22. This tests
@@ -18,7 +20,7 @@ test('actual source attestation and JWKS execute under workerd and enforce exact
  const controlBundle=await build({entryPoints:['services/vii-quality-control/src/index.ts'],bundle:true,format:'esm',platform:'browser',target:'es2022',write:false,external:['cloudflare:workers'],define:{__VII_CACHE_BUILD_ID__:JSON.stringify(buildId)}});
  const mf=new Miniflare({log:new Log(LogLevel.WARN),workers:[
   {name:'source',modules:[{type:'ESModule',path:'quality-source-fixture.mjs',contents:bundle.outputFiles[0].text}],compatibilityDate:'2026-05-22',compatibilityFlags:['nodejs_compat'],bindings:{VII_AUTH_SECRET:secret,VII_ADMIN_EMAILS:'owner@example.test',VII_ACCESS_MANAGER_EMAILS:'owner@example.test'},d1Databases:{DB:'quality-source-auth-fixture'}},
-  {name:'control',modules:[{type:'ESModule',path:'quality-control-fixture.mjs',contents:controlBundle.outputFiles[0].text}],compatibilityDate:'2026-05-22',compatibilityFlags:['nodejs_compat'],bindings:{PUBLIC_ORIGIN:'https://vii.spaplus.co',EXPECTED_BUILD_ID:buildId,AUTHORITY_ENABLED:'true',EXECUTION_ENABLED:'false'},d1Databases:{QUALITY_DB:'quality-isolated-control-fixture'},outboundService:'source'},
+  {name:'control',modules:[{type:'ESModule',path:'quality-control-fixture.mjs',contents:controlBundle.outputFiles[0].text}],compatibilityDate:'2026-05-22',compatibilityFlags:['nodejs_compat'],bindings:{...releaseBindings,AUTHORITY_ENABLED:'true',EXECUTION_ENABLED:'false'},d1Databases:{QUALITY_DB:'quality-isolated-control-fixture'},outboundService:'source'},
  ]});
  try{
   const db=await mf.getD1Database('DB');await ensureAdminGrantSchema(db);
@@ -64,5 +66,24 @@ test('actual source attestation and JWKS execute under workerd and enforce exact
     const result=await control.fetch('https://vii.spaplus.co/api/admin/quality',{method:'POST',headers:{'Content-Type':'application/json','X-VII-Quality-Attestation':(await authorization.json()).token,'X-VII-Quality-Nonce':recoveryNonce},body:recoveryJson});assert.equal(result.status,200);assert.equal((await result.json()).reconciliation.status,'operator-cleared');
   }
   assert.equal((await controlDb.prepare('SELECT COUNT(*) AS n FROM quality_scheduler_reconciliation_audit').first()).n,1);
+
+  // Actual source permission/Ed25519/nonce verification and Worker D1 protect
+  // release context too. Context registration starts no execution or Queue work.
+  const descriptor={schemaVersion:1,candidateSource:'d'.repeat(40),candidateTree:'e'.repeat(40),applicationSource:releaseBindings.EXPECTED_APP_SOURCE_VERSION,controllerSource:releaseBindings.EXPECTED_SOURCE_VERSION,browserSource:releaseBindings.EXPECTED_BROWSER_SOURCE_VERSION,buildId,artifactSetSha256:'1'.repeat(64),environmentSetSha256:'2'.repeat(64),definitionSetSha256:await releaseDefinitionSetSha256(releaseBindings),issuedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3_600_000).toISOString()};
+  async function privateRelease(method,path,body) {
+    const text=body?JSON.stringify(body):'',hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+    const nonce=crypto.randomUUID().replaceAll('-','');
+    const authorization=await mf.dispatchFetch(request({method,path,bodyHash:hash,nonce}));assert.equal(authorization.status,200);
+    const token=(await authorization.json()).token;
+    return control.fetch('https://vii.spaplus.co'+path,{method,headers:{'Content-Type':'application/json','X-VII-Quality-Attestation':token,'X-VII-Quality-Nonce':nonce},...(body?{body:text}:{})});
+  }
+  const registered=await privateRelease('POST','/api/admin/quality',{action:'release-register',descriptor});
+  assert.equal(registered.status,201,await registered.clone().text());const subject=await registered.json();assert.equal(subject.publicationApproved,false);
+  const duplicate=await privateRelease('POST','/api/admin/quality',{action:'release-register',descriptor});assert.equal(duplicate.status,201);assert.deepEqual(await duplicate.json(),subject);
+  const releaseView=await privateRelease('GET','/api/admin/quality?releaseSubjectId='+subject.subjectId);
+  assert.equal(releaseView.status,200);const releaseEvidence=await releaseView.json();assert.equal(releaseEvidence.requiredJobs,35);assert.equal(releaseEvidence.passedJobs,0);assert.equal(releaseEvidence.runtimeEvidenceStatus,'incomplete');assert.equal(releaseEvidence.publicationApproved,false);
+  assert.equal((await privateRelease('POST','/api/admin/quality',{action:'release-enqueue',subjectId:subject.subjectId,checkKey:'http-full'})).status,503);
+  assert.equal((await controlDb.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE name='quality_jobs'").first()).n,1);
+  assert.equal((await controlDb.prepare("SELECT COUNT(*) AS n FROM quality_jobs").first()).n,0);
  }finally{await mf.dispose();}
 });

@@ -9,9 +9,10 @@ import { executeBrowserProfile } from "./browser-executor.ts";
 import { evidenceKey } from "../../vii-quality-browser/src/evidence.ts";
 import { readPrivateJpeg } from "../../../shared/private-jpeg.ts";
 import {verifyHttpTargetBuild,type GenerationResult} from './http-generation.ts';
+import { registerReleaseSubject, enqueueReleaseCheck, readReleaseSubjectEvidence, releaseJobContext, type ReleaseSubjectEnvironment } from './release-subject.ts';
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
-export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string; EXPECTED_BROWSER_SOURCE_VERSION?: string };
+export type ControllerEnvironment = Partial<BrowserJobEnvironment> & ReleaseSubjectEnvironment & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string; EXPECTED_BROWSER_SOURCE_VERSION?: string };
 export type ControllerPlatform = {
   create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }, generation?: { targetBuildId?: string }): Promise<{ job: QualityJob; duplicate: boolean }>;
   consume(db: D1Database, runId: string, generation?: { targetBuildId?: string }): Promise<unknown>;
@@ -56,8 +57,18 @@ function scopeValue(raw: unknown) {
  * attestation. This module never reads a cookie, accepts a browser actor, executes
  * checks on GET/POST, or sends a notification from an HTTP request. */
 export function createController(platform: ControllerPlatform) {
+  async function releaseAllowed(env: ControllerEnvironment, job: QualityJob) {
+    const context=await releaseJobContext(env,job);
+    if (context.allowed) return true;
+    await env.QUALITY_DB.prepare("UPDATE quality_jobs SET status='blocked',reason=?,updated_at=? WHERE run_id=? AND status='queued' AND active_index IS NULL")
+      .bind(context.reason,new Date().toISOString(),job.runId).run();
+    const saved=await readQualityJob(env.QUALITY_DB,job.runId);
+    if(saved?.status==='blocked') await persistQualityJobProgress(env.QUALITY_DB,saved);
+    return false;
+  }
   async function dispatch(env: ControllerEnvironment, job: QualityJob, priority: QueueMessage["priority"] = "release") {
     if (env.EXECUTION_ENABLED !== "true" || job.status !== "queued") return;
+    if (!await releaseAllowed(env,job)) return;
     const admission = await scheduledDispatchAdmission(env.QUALITY_DB,job);
     if(admission==='deferred')return;
     if(admission==='superseded') {
@@ -89,6 +100,10 @@ export function createController(platform: ControllerPlatform) {
     try {
       const db = env.QUALITY_DB;
       if (request.method === "GET") {
+        if (url.searchParams.has('releaseSubjectId')) {
+          if ([...url.searchParams.keys()].some(key=>key!=='releaseSubjectId') || url.searchParams.getAll('releaseSubjectId').length!==1) return json({ error:'invalid_release_query' },400);
+          return json(await readReleaseSubjectEvidence(env,url.searchParams.get('releaseSubjectId')));
+        }
         if(url.searchParams.get('engine')==='browser')return json(browserOptions(env));
         if (url.searchParams.get("evidence") === "1") {
           // Evidence is addressable only through the durable job receipt. The
@@ -145,6 +160,18 @@ export function createController(platform: ControllerPlatform) {
         return json({...dashboard,scheduler,browser:browserOptions(env)});
       }
       if (!body) return json({ error: "invalid_request" }, 400);
+      if (typeof body.idempotencyKey==='string' && body.idempotencyKey.startsWith('release:')) return json({error:'reserved_release_intent'},400);
+      if (body.action==='release-register') {
+        if (Object.keys(body).some(key=>!['action','descriptor'].includes(key))) return json({error:'invalid_release_request'},400);
+        return json(await registerReleaseSubject(env,body.descriptor,actor),201);
+      }
+      if (body.action==='release-enqueue') {
+        if (Object.keys(body).some(key=>!['action','subjectId','checkKey'].includes(key))) return json({error:'invalid_release_request'},400);
+        if (!browserReady(env)) return json({error:'browser_runner_not_activated'},503);
+        const queued=await enqueueReleaseCheck(env,body.subjectId,body.checkKey);
+        await dispatch(env,queued.job);
+        return json({job:jobView(await readQualityJob(db,queued.job.runId)??queued.job),duplicate:queued.duplicate},202);
+      }
       if(body.action==='enqueue-browser') {
         if(!browserReady(env))return json({error:'browser_runner_not_activated'},503);
         if(typeof body.profileId!=='string' || typeof body.idempotencyKey!=='string')return json({error:'browser_job_definition_invalid'},400);
@@ -186,6 +213,10 @@ export function createController(platform: ControllerPlatform) {
       return json({ error: "invalid_request" }, 400);
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
+      if (['release_descriptor_invalid','release_actor_invalid','release_check_unknown'].includes(code)) return json({error:code},400);
+      if (['release_context_mismatch','release_subject_expired','release_registration_stale','release_subject_corrupt'].includes(code)) return json({error:code},409);
+      if (code==='release_subject_not_registered') return json({error:code},404);
+      if (code==='release_authority_not_activated') return json({error:code},503);
       if (code === "quality_job_idempotency_conflict" || code === "dispatch_immutable_conflict") return json({ error: code }, 409);
       if(code==='scheduler_job_still_active')return json({error:code},409);
       if (["invalid_scope", "invalid_quality_schedule", "invalid_quality_job", "browser_job_definition_invalid", "browser_profile_unsupported", "invalid_scheduler_reconciliation", "scheduler_admission_not_found", "quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(code)) return json({ error: code }, 400);
@@ -200,6 +231,7 @@ export function createController(platform: ControllerPlatform) {
     await ensureQualityJobSchema(env.QUALITY_DB);
     const job = await readQualityJob(env.QUALITY_DB, value.runId);
     if (!job || job.sourceVersion !== value.sourceVersion || job.nextIndex !== value.expectedIndex || !["queued", "running"].includes(job.status)) return { status: "obsolete" };
+    if (!await releaseAllowed(env,job)) return { status:'blocked',reason:'release_context_not_current' };
     // The durable runner owns the execution lease and commit fence. Duplicate
     // Queue deliveries cannot execute an already committed check again.
     const isBrowser=job.checks[0]?.configuration.executionKind==='browser';

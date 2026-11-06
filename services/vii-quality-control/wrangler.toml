@@ -46,6 +46,7 @@ dead_letter_queue = "vii-quality-deadletter"
 crons = ["* * * * *"]
 
 [vars]
+RELEASE_AUTHORITY_ENABLED = "false"
 EXPERIENCE_ENABLED = "false"
 EXPERIENCE_SAMPLE_RATE_BPS = "500"
 PUBLIC_ORIGIN = "https://vii.spaplus.co"

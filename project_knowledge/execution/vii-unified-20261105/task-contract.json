@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T06:45:48.557008+00:00",
+  "updated_at": "2026-11-06T08:35:26.753290+00:00",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -288,6 +288,18 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "quality:durable-release-subject",
+      "source": "approved_plan",
+      "statement": "Bind runtime verification to an immutable release subject before job admission; never accept local receipts as private execution provenance",
+      "acceptance_check": "Actual authenticated private controller registers the immutable context and executes every required current HTTP/browser job; provider readback matches independently audited artifact/environment sets before release acceptance",
+      "status": "pending",
+      "evidence": [
+        "Phase22 local source/TypeScript,93controller tests and15interface tests passed. Actual workerd source attestation,private D1 registration and authenticated subject read passed. Full runtime suite positive case uses controlled SQLite CAS receipts, not cloud execution. Publication remains false. See PHASE_22.md."
+      ],
+      "reason": "Actual deployed matching-generation execution and provider-authorized release readback remain required",
+      "updated_at": "2026-11-06T08:35:26.753290+00:00"
     }
   ],
   "verification_status": "in_progress",
