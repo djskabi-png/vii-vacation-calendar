@@ -904,7 +904,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   const dictionaries = JSON.parse(translations);
   assert.match(layout, /icons:\s*\{\s*icon:/);
   assert.equal(favicon.length > 0, true);
-  assert.match(layout, /<LocaleProvider initialLanguage=\{locale\}>/);
+  assert.match(layout, /<LocaleProvider\s+initialLanguage=\{locale\}(?:\s|>)/);
   assert.match(localeRouting, /"he" \| "en" \| "ru" \| "fr"/);
   assert.match(locale, /document\.documentElement\.dir/);
   assert.equal(Object.keys(dictionaries.en).length >= 2000, true);
