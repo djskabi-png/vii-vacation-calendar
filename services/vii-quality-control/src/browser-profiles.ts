@@ -1,6 +1,7 @@
 import engineDefinition from '../../vii-quality-browser/engine-definition.json' with {type:'json'};
+import type { PublicBrowserWorld } from '../../vii-quality-browser/src/public-world-contract.ts';
 export const browserEngineVersion=engineDefinition.sha256;
-export type BrowserWorld = "vacations" | "events" | "hourly" | "spa";
+export type BrowserWorld = PublicBrowserWorld;
 export type BrowserDevice = "desktop" | "mobile";
 export type BrowserScenario = "world-shell" | "map-open-close" | "responsive-shell" | "gallery-next";
 export type BrowserProfile = Readonly<{
@@ -23,6 +24,14 @@ for (const device of devices) profiles.push({
   profileId: `vacations-${device}-gallery-next`, definitionVersion,engineVersion:browserEngineVersion, world: "vacations", device, scenario: "gallery-next", gallery: true,
   boxIds: ["vacations", "quality-browser"], requirementIds: ["V08", "Q14", "Q16"], timeoutMs: 45_000, maxRequests: 180,
 });
+// Additional public worlds have verified entry/viewport contracts only.
+// Do not advertise map or gallery interactions without their own definitions.
+for (const world of ['providers', 'activities', 'trails', 'global'] as const) for (const device of devices) {
+  const scenario = device === 'mobile' ? 'responsive-shell' : 'world-shell';
+  profiles.push({profileId:`${world}-${device}-${scenario}`,definitionVersion,engineVersion:browserEngineVersion,
+    world,device,scenario,boxIds:[world==='global'?'global-shell':world,'quality-browser'],
+    requirementIds:['V05','Q14','Q16'],timeoutMs:45_000,maxRequests:180});
+}
 
 export const browserProfiles: readonly BrowserProfile[] = Object.freeze(profiles.map(profile => Object.freeze({ ...profile, boxIds: Object.freeze([...profile.boxIds]), requirementIds: Object.freeze([...profile.requirementIds]) })));
 const byId = new Map(browserProfiles.map(profile => [profile.profileId, profile]));

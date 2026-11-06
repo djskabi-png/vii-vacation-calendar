@@ -1,7 +1,9 @@
 import type { Browser, BrowserContext, Page } from '@cloudflare/playwright';
 import engineDefinition from '../engine-definition.json' with {type:'json'};
+import { browserWorldPaths, browserWorldHeadingMatches, browserWorldSurfaceSelectors, type PublicBrowserWorld } from './public-world-contract.ts';
+import { isReadOnlyDiscoveryRequest } from './read-only-discovery.ts';
 
-export type World = 'vacations' | 'events' | 'hourly' | 'spa' | 'activities';
+export type World = PublicBrowserWorld;
 export type BrowserJob = { jobId: string; sourceVersion: string; buildId: string; engineVersion:string;world: World; device: 'desktop' | 'mobile'; scenario: 'world-shell' | 'map-open-close' | 'gallery-next' | 'responsive-shell' };
 export type BrowserEnvironment = {
   PUBLIC_ORIGIN: string; EXPECTED_SOURCE_VERSION: string; EXPECTED_BUILD_ID: string;
@@ -9,7 +11,7 @@ export type BrowserEnvironment = {
   EVIDENCE?: { put(key: string, value: Uint8Array, options?: { httpMetadata?: { contentType: string }; customMetadata?: Record<string,string> }): Promise<unknown> };
 };
 export type BrowserFactory = { launch(): Promise<Browser> };
-const worldPaths: Record<World,string> = { vacations:'/search', events:'/events/search', hourly:'/hourly', spa:'/spas', activities:'/attractions' };
+const worldPaths = browserWorldPaths;
 const origins = new Set(['https://vii.spaplus.co','https://www.vii.co.il','https://vii-vacation-calendar.adir-naor-7510.chatgpt.site']);
 const assetHosts = new Set(['tile.openstreetmap.org','a.tile.openstreetmap.org','b.tile.openstreetmap.org','c.tile.openstreetmap.org','a.basemaps.cartocdn.com','b.basemaps.cartocdn.com','c.basemaps.cartocdn.com','fonts.googleapis.com','fonts.gstatic.com']);
 export function validJob(value: unknown): value is BrowserJob {
@@ -67,7 +69,7 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     await step(() => (context!.route('**/*',async route=>{
       const request=route.request();requestCount++;
       let url:URL;try{url=new URL(request.url());}catch{return route.abort();}
-      if(request.method()!=='GET'){blockedWrites++;return route.abort();}
+      if(request.method()!=='GET' && !isReadOnlyDiscoveryRequest(request,origin)){blockedWrites++;return route.abort();}
       const publicAsset=['image','font','stylesheet'].includes(request.resourceType()) && assetHosts.has(url.hostname);
       if(requestCount>maxRequests || url.protocol!=='https:' || (url.origin!==origin && !publicAsset) || url.username || url.password || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin'))return route.abort();
       return route.continue();
@@ -80,11 +82,12 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     if(await step(() => (response.headerValue('x-vii-cache-build')))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
     if(job.scenario!=='gallery-next') {
+      const surface=browserWorldSurfaceSelectors[job.world];
+      if(surface){await step(()=>page!.locator(surface).waitFor({state:'visible'}));steps++;}
       const heading=page.locator('main h1').first();
       await step(()=>heading.waitFor({state:'visible'}));
       const text=await step(()=>heading.textContent());
-      const expected:Record<World,RegExp>={vacations:/נופש|צימרים|וילות/,events:/אירוע/,spa:/ספא/,hourly:/שעה|שעות/,activities:/אטרקצי|פעילו/};
-      if(!text||!expected[job.world].test(text))throw new CheckFailure('world_heading_mismatch');steps++;
+      if(!text||!browserWorldHeadingMatches(job.world,text))throw new CheckFailure('world_heading_mismatch');steps++;
     }
     if(job.scenario==='map-open-close') {
       await step(() => (page!.locator('button.map-button[data-map-interactive="true"][aria-pressed="false"]').first().click()));steps++;

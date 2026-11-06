@@ -20,6 +20,10 @@ test('the actual deployment guard rejects a changed engine before packaging',()=
   const original=spawnSync(process.execPath,[script],{encoding:'utf8'});assert.equal(original.status,0,original.stderr);
   const engine=join(fixture,'services/vii-quality-browser/src/engine.ts');writeFileSync(engine,readFileSync(engine,'utf8')+'\n// changed engine input\n');
   const changed=spawnSync(process.execPath,[script],{encoding:'utf8'});assert.notEqual(changed.status,0);assert.match(changed.stderr,/browser_definition_changed_regenerate_and_requalify/);
+  // A read-only exception cannot silently survive a changed owned API.
+  copyFileSync(join(root,'services/vii-quality-browser/src/engine.ts'),engine);
+  const endpoint=join(fixture,'app/api/vii/live-search/route.ts');writeFileSync(endpoint,readFileSync(endpoint,'utf8')+'\n// changed discovery endpoint contract\n');
+  const apiChanged=spawnSync(process.execPath,[script],{encoding:'utf8'});assert.notEqual(apiChanged.status,0);assert.match(apiChanged.stderr,/browser_definition_changed_regenerate_and_requalify/);
   assert.equal(JSON.parse(readFileSync(join(fixture,'services/vii-quality-browser/engine-definition.json'),'utf8')).sha256,definition.sha256);
  }finally{assert.equal(resolve(dirname(fixture)),resolve(tmpdir()));assert.ok(basename(fixture).startsWith('vii-browser-definition-'));rmSync(fixture,{recursive:true,force:true});}
 });

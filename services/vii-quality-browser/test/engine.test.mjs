@@ -8,17 +8,17 @@ const env={PUBLIC_ORIGIN:'https://vii.spaplus.co',EXPECTED_SOURCE_VERSION:source
 const job={jobId:'job-12345678',sourceVersion,buildId,engineVersion:definition.sha256,scenario:'world-shell',world:'vacations',device:'desktop'};
 function browserFixture(options={}) {
   const state={pageClosed:0,contextClosed:0,browserClosed:0,contextsCreated:0,map:false,image:0,launches:0,requests:[],events:[],puts:[]};let intercept;
-  const request=async(method='GET',url=env.PUBLIC_ORIGIN+'/search',resourceType='document')=>{
-    let disposition;await intercept({request:()=>({method:()=>method,url:()=>url,resourceType:()=>resourceType}),abort:async()=>{disposition='aborted'},continue:async()=>{disposition='continued'}});
+  const request=async(method='GET',url=env.PUBLIC_ORIGIN+'/search',resourceType='document',body=null,headers={})=>{
+    let disposition;await intercept({request:()=>({method:()=>method,url:()=>url,resourceType:()=>resourceType,postData:()=>body,headers:()=>headers}),abort:async()=>{disposition='aborted'},continue:async()=>{disposition='continued'}});
     state.requests.push({method,url,disposition});return disposition;
   };
   const locator=selector=>({
     first(){return this;},locator:child=>locator(child),getByRole:(_role,value)=>locator(value.name),
-    async waitFor({state:expected}){if(options.missingMain && selector==='main')throw Error('missing');if(options.missingMap && selector.includes('leaflet-container'))throw Error('missing');if(expected==='detached'&&state.map)throw Error('map still mounted');},
+    async waitFor({state:expected}){if(options.missingMain && selector==='main')throw Error('missing');if(options.missingWorldMarker && ['main.world-page--providers','main.attractions-page','main.trails-page','main.home-page'].includes(selector))throw Error('missing world surface');if(options.missingMap && selector.includes('leaflet-container'))throw Error('missing');if(expected==='detached'&&state.map)throw Error('map still mounted');},
     async click(){if(options.stallAction)return new Promise(()=>{});if(selector.includes('map-button')){if(options.missingButton)throw Error('missing');state.map=true;}if(selector==='חזרה לרשימה'&&!options.closeBroken)state.map=false;if(selector==='התמונה הבאה'&&!options.frozenGallery)state.image++;},
     async getAttribute(name){if(name==='data-map-rendered-markers')return options.emptyMarkers?'0':'12';if(name==='src')return 'image-'+state.image;return null;},
     async evaluate(){return Boolean(options.overflow);},
-    async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':'נופש ברחבי הארץ';},
+    async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':path.startsWith('/providers')?'ספקים לאירוח ולאירועים':path.startsWith('/trails')?'מסלולי טיול בישראל למטייל העצמאי':path==='/'?'כל מה שעושים בחופש, במקום אחד':'נופש ברחבי הארץ';},
   });
   const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),
     async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async()=>options.wrongBuild?'wrong':buildId};},
@@ -33,7 +33,7 @@ function browserFixture(options={}) {
 function assertClosed(state){assert.equal(state.pageClosed,1);assert.equal(state.contextClosed,1);assert.equal(state.browserClosed,1);}
 
 test('each world uses its own actual route and verifies the observed build',async()=>{
-  for(const [world,path] of Object.entries({vacations:'/search',events:'/events/search',hourly:'/hourly',spa:'/spas',activities:'/attractions'})){
+  for(const [world,path] of Object.entries({vacations:'/search',events:'/events/search',hourly:'/hourly',spa:'/spas',activities:'/attractions',providers:'/providers',trails:'/trails',global:'/'})){
     const f=browserFixture();const result=await runBrowserJob({...job,world},env,f.factory);
     assert.equal(result.status,'passed');assert.equal(new URL(f.state.url).pathname,path);assertClosed(f.state);
     assert.deepEqual(f.state.events.slice(0,3),['route','new-page','goto']);
@@ -44,6 +44,13 @@ test('a valid build and visible main cannot disguise an error screen as a health
  for(const heading of ['', 'העמוד לא נטען במלואו', 'בתי ספא בישראל']){
   const f=browserFixture({heading});const result=await runBrowserJob(job,env,f.factory);
   assert.equal(result.status,'failed');assert.equal(result.reason,'world_heading_mismatch');assertClosed(f.state);
+ }
+});
+test('additional worlds require their own surface while accepting editable nonempty headings',async()=>{
+ for(const world of ['providers','activities','trails','global']){
+  const edited=browserFixture({heading:'בוחרים חוויה בדרך שלכם'});assert.equal((await runBrowserJob({...job,world},env,edited.factory)).status,'passed');assertClosed(edited.state);
+  const missing=browserFixture({missingWorldMarker:true});assert.equal((await runBrowserJob({...job,world},env,missing.factory)).status,'failed');assertClosed(missing.state);
+  const error=browserFixture({heading:'העמוד לא נטען במלואו'});assert.equal((await runBrowserJob({...job,world},env,error.factory)).reason,'world_heading_mismatch');
  }
 });
 test('map requires actionable controls, markers and an observed return to the list',async()=>{
@@ -62,6 +69,19 @@ test('wrong observed build, overflow and attempted writes cannot produce green e
     const f=browserFixture(options);const result=await runBrowserJob({...job,scenario},env,f.factory);assert.notEqual(result.status,'passed');assert.equal(result.reason,reason);assertClosed(f.state);
     if(options.extraRequest)assert.equal(f.state.requests.at(-1).disposition,'aborted');
   }
+});
+
+test('automatic read-only discovery POST is admitted without granting business writes',async()=>{
+ const body=JSON.stringify({world:'events',from:'2026-11-06',till:'2026-11-06',guests:20,includePlaces:true,discoveryVersion:2});
+ const headers={'content-type':'application/json'};
+ const f=browserFixture({extraRequest:['POST',env.PUBLIC_ORIGIN+'/api/vii/live-search','fetch',body,headers]});
+ const result=await runBrowserJob({...job,world:'global'},env,f.factory);assert.equal(result.status,'passed');assert.equal(f.state.requests.at(-1).disposition,'continued');assertClosed(f.state);
+ for(const path of ['/api/booking','/api/lead','/api/payments','/api/admin/quality']){
+  const denied=browserFixture({extraRequest:['POST',env.PUBLIC_ORIGIN+path,'fetch',body,headers]});
+  const outcome=await runBrowserJob(job,env,denied.factory);assert.equal(outcome.status,'failed');assert.equal(outcome.reason,'write_request_attempted');assert.equal(denied.state.requests.at(-1).disposition,'aborted');assertClosed(denied.state);
+ }
+ const invalid=browserFixture({extraRequest:['POST',env.PUBLIC_ORIGIN+'/api/vii/live-search','fetch',JSON.stringify({action:'book',phone:'synthetic'}),headers]});
+ assert.equal((await runBrowserJob(job,env,invalid.factory)).reason,'write_request_attempted');
 });
 test('outbound/admin traffic is intercepted and the request budget is enforced',async()=>{
   for(const request of [['GET','https://evil.test/track','script'],['GET',env.PUBLIC_ORIGIN+'/api/admin/users']]){

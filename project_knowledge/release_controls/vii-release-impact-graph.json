@@ -237,6 +237,7 @@
         "tests/quality-job-api.test.mjs",
         "tests/quality-scheduler-ui.test.mjs",
         "tests/experience-metrics-control.test.mjs",
+        "tests/browser-profile-control.test.mjs",
         "tests/quality-job-platform.test.mjs",
         "tests/quality-job-runner.test.mjs",
         "tests/quality-job-projection.test.mjs",
@@ -425,6 +426,7 @@
       ],
       "requiredLocalTests": [
         "services/vii-quality-browser/test/engine.test.mjs",
+        "services/vii-quality-browser/test/read-only-discovery.test.mjs",
         "services/vii-quality-browser/test/definition.test.mjs",
         "services/vii-quality-browser/test/evidence.test.mjs"
       ]

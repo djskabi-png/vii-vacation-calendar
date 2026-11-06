@@ -1,5 +1,6 @@
 import type { D1Database } from "../../../types/cloudflare-runtime";
 import { browserProfile } from "./browser-profiles.ts";
+import { browserWorldPaths } from "../../vii-quality-browser/src/public-world-contract.ts";
 import { payloadHash } from "../../../app/lib/quality-job-store.ts";
 import { persistQualityJobProgress } from "../../../app/lib/quality-platform.ts";
 import {
@@ -38,7 +39,7 @@ async function laneRelease(db: D1Database, runId: string, token: string) {
 export function browserQualityCheck(input:{sourceVersion:string;buildId:string;profileId:string;origin:string}) {
   const profile = browserProfile(input.profileId);
   if (!SOURCE.test(input.sourceVersion) || !BUILD.test(input.buildId) || input.origin !== "https://vii.spaplus.co" || !profile) throw new Error("browser_job_definition_invalid");
-  const route=profile.scenario==='gallery-next'?'/business?id=vacation-116':({vacations:'/search',events:'/events/search',spa:'/spas',hourly:'/hourly'} as const)[profile.world];
+  const route=profile.scenario==='gallery-next'?'/business?id=vacation-116':browserWorldPaths[profile.world];
   return { checkId: `browser:${input.profileId}`, definitionVersion: profile.definitionVersion, timeoutMs: profile.timeoutMs, configuration: { executionKind: "browser", profile:structuredClone(profile),profileId: input.profileId, sourceVersion: input.sourceVersion, buildId: input.buildId, origin: input.origin,level:'full', check: { checkId: `browser:${input.profileId}`, family: "quality-browser", world: profile.world, route, viewport: profile.device, severity: "high", cadenceMinutes: 60, timeoutMs: profile.timeoutMs, expected: profile.scenario, releaseBlocking: true } } };
 }
 export async function createBrowserQualityJob(db: D1Database, input: { actor: string; idempotencyKey: string; sourceVersion: string; buildId: string; profileId: string; origin: string }) {

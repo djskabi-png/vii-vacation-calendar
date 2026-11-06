@@ -1,15 +1,21 @@
 {
   "schemaVersion": 1,
-  "sha256": "f1ac6dab039df672cd1727d6aa7c2495daaad4ac7797ca2118b078329c2be076",
+  "sha256": "448fa1a3b718c6859480702285d7c3328fe24345085ce91bda237dfe31de0644",
   "files": [
     "services/vii-quality-browser/build-definition.mjs",
     "services/vii-quality-browser/src/engine.ts",
+    "services/vii-quality-browser/src/public-world-contract.ts",
+    "services/vii-quality-browser/src/read-only-discovery.ts",
     "services/vii-quality-browser/src/index.ts",
     "services/vii-quality-browser/src/request-body.ts",
     "services/vii-quality-browser/src/evidence.ts",
     "services/vii-quality-browser/package.json",
     "services/vii-quality-browser/pnpm-lock.yaml",
     "services/vii-quality-control/src/browser-profiles.ts",
-    "services/vii-quality-control/src/browser-executor.ts"
+    "services/vii-quality-control/src/browser-executor.ts",
+    "app/api/vii/live-search/route.ts",
+    "app/lib/vii-live-search.ts",
+    "app/lib/discovery-offer-cache.ts",
+    "app/lib/event-discovery-offers.ts"
   ]
 }

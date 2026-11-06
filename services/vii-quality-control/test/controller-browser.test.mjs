@@ -15,7 +15,7 @@ test('private controller admits one browser job, dispatches it and uses only the
   assert.equal(f.messages.length,1);assert.equal(calls,0);const message=f.messages[0];const saved=await readQualityJob(f.db,message.runId);assert.equal(saved.actor,'trusted-admin');assert.equal(saved.checks[0].configuration.origin,'https://vii.spaplus.co');
   await f.controller.consume(env,message);await f.controller.consume(env,message);
   const completed=await readQualityJob(f.db,message.runId);assert.equal(completed.status,'completed');assert.equal(completed.receipts[0].status,'passed');assert.equal(completed.receipts[0].durationMs,12);assert.equal(calls,1);assert.equal(f.executions(),0);
-  const metadata=await(await f.controller.handle(new Request('https://vii.spaplus.co/api/admin/quality?engine=browser'),env,'trusted-viewer')).json();assert.equal(metadata.enabled,true);assert.equal(metadata.profiles.length,26);
+  const metadata=await(await f.controller.handle(new Request('https://vii.spaplus.co/api/admin/quality?engine=browser'),env,'trusted-viewer')).json();assert.equal(metadata.enabled,true);assert.equal(metadata.profiles.length,34);
  }finally{f.sqlite.close();}
 });
 

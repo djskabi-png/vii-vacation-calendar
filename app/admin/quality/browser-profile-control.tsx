@@ -5,7 +5,7 @@ import styles from "./quality.module.css";
 
 export type BrowserProfileOption = {profileId:string;world:string;device:string;scenario:string};
 export type BrowserProfileOptions = {enabled:boolean;profiles:BrowserProfileOption[]};
-const worlds:Record<string,string>={vacations:'נופש',events:'אירועים',hourly:'לפי שעה',spa:'ספא'};
+const worlds:Record<string,string>={vacations:'נופש',events:'אירועים',hourly:'לפי שעה',spa:'ספא',providers:'ספקים',activities:'אטרקציות',trails:'מסלולי טיול',global:'דף הבית'};
 const devices:Record<string,string>={desktop:'מחשב',mobile:'נייד'};
 const scenarios:Record<string,string>={'world-shell':'פתיחת עולם','map-open-close':'פתיחת מפה וסגירתה','responsive-shell':'התאמת העמוד למסך','gallery-next':'מעבר תמונה בגלריה'};
 
@@ -16,7 +16,7 @@ export default function BrowserProfileControl({options,disabled,onRun,initialPro
   const [device,setDevice]=useState(initial?.device||'mobile');
   const [scenario,setScenario]=useState(initial?.scenario||'world-shell');
   const available=options.profiles.filter(p=>p.world===world&&p.device===device);
-  const selected=available.find(p=>p.scenario===scenario)||available.find(p=>p.scenario==='world-shell');
+  const selected=available.find(p=>p.scenario===scenario)||available.find(p=>p.scenario==='world-shell')||available[0];
   const blocked=disabled||!canEdit||!options.enabled||!selected;
   function run(){if(blocked||!selected)return;onRun(selected.profileId);}
   return <section className={`${styles.section} ${styles.browserSection}`} aria-label="בדיקות דפדפן">
