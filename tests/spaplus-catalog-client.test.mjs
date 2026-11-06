@@ -69,6 +69,17 @@ test("preserves an explicit empty facility response instead of treating it as mi
   assert.deepEqual(site.facilityIds, []);
 });
 
+test("skips an explicitly disabled facility row without treating unknown flags as disabled", () => {
+  const changed = structuredClone(payload);
+  changed.sites[42].facilities = [
+    { id: 193, title: "בריכה", active: false },
+    { id: 194, title: "סאונה", status: "retired" },
+  ];
+  const [site] = normalizeSpaPlusCatalog(changed).map((entry) => entry.summary);
+  assert.deepEqual(site.facilityIds, [194]);
+  assert.deepEqual(site.features, ["סאונה"]);
+});
+
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {
   const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async (url) => {
     assert.equal(url.searchParams.get("key"), "private-test-key");

@@ -48,6 +48,10 @@ function sourceFacilities(site: Record<string, unknown>) {
       if (typeof item === "number" || typeof item === "string" && /^\d+$/.test(item)) ids.add(Number(item));
       else if (item && typeof item === "object" && !Array.isArray(item)) {
         const row = item as Record<string, unknown>;
+        // Supplier facility rows may remain in the payload after being
+        // withdrawn. Only explicit known status flags suppress the row;
+        // an unknown field must never be treated as an availability signal.
+        if (row.active === false || row.enabled === false || row.isActive === false) continue;
         const id = positive(row.id ?? row.facilityId ?? row.accessoryId);
         if (id) ids.add(id);
         const label = typeof (row.label ?? row.title ?? row.name ?? row.description) === "string"
