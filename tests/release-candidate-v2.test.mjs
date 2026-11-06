@@ -8,8 +8,9 @@ import {auditFrozenUnitArtifact} from '../tools/release-unit-candidate.mjs';
 
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const objectHash=value=>hash(JSON.stringify(value));
-async function candidate(){
+async function candidate({withBrowser=false}={}){
  const f=fixture({configure({graph,write}){
+  if(withBrowser){graph.nodes.fixture.buildUnits.push('quality-browser');graph.buildUnits['quality-browser']={source:'services/vii-quality-browser/wrangler.toml'};write('services/vii-quality-browser/wrangler.toml','main="src/index.ts"');write('services/vii-quality-browser/src/index.ts','export default {};');}
   graph.nodes.fixture.requiredChecks=['fixture.http'];
   graph.nodes.fixture.requiredLocalTests=['tests/actual.test.mjs'];
   graph.entries[0].match.push('tests/');
@@ -18,7 +19,7 @@ async function candidate(){
   write('project_knowledge/release_controls/vii-release-impact-graph.json',graph);
   write('project_knowledge/release_controls/vii-release-acceptance-policy.json',{
    schemaVersion:1,policyId:'synthetic-policy',browserFamilies:['fixture'],browserFixtureAllowedFamilies:[],
-   unitAuditDefinitions:{'managed-site':'site-archive-v1','quality-controller':'worker-package-v1'},
+   unitAuditDefinitions:{'managed-site':'site-archive-v1','quality-controller':'worker-package-v1','quality-browser':'worker-package-v1'},
    interfaces:[{id:'synthetic-interface',units:['managed-site','quality-controller'],definitionVersion:'synthetic-v1'}],
   });
  }});
@@ -39,14 +40,15 @@ async function candidate(){
   const evidencePath='.qa-output/raw-observation.txt';f.write(evidencePath,'Synthetic test evidence. Never live acceptance.');
   const raw={evidencePath,evidenceSha256:hash('Synthetic test evidence. Never live acceptance.')};
   const configurations=[];
-  for(const unit of ['managed-site','quality-controller']){
-   const c={schemaVersion:1,engine:'environment-readback',status:'passed',unit,observedAt,configurationSha256:hash('current '+unit),previousConfigurationSha256:hash('previous '+unit),environmentRevision:12,bindingsVerified:true,targetBuildIdentity:m.candidate.buildIdentity,...raw};
+  for(const unit of m.unitArtifacts.map(entry=>entry.unit)){
+   const c={schemaVersion:1,engine:'environment-readback',status:'passed',unit,observedAt,configurationSha256:hash('current '+unit),previousConfigurationSha256:hash('previous '+unit),environmentRevision:12,bindingsVerified:true,targetBuildIdentity:m.candidate.buildIdentity,artifactSource:f.base,targetApplicationSource:f.base,...raw};
+   if(withBrowser&&unit==='quality-controller')c.browserRunnerSource=f.base;
    const path=`.qa-output/config-${unit}.json`;f.write(path,c);m.configurationEvidencePaths.push(path);configurations.push(c);
    const rollbackPath=`.qa-output/rollback-${unit}.json`;
    f.write(rollbackPath,{schemaVersion:1,engine:'rollback-readback',status:'passed',unit,observedAt,source:f.base,tree:f.git(['rev-parse',`${f.base}^{tree}`]),artifactSha256:hash('previous '+unit),deployment:'synthetic-previous-'+unit,environmentRevision:11,procedureVersion:'synthetic-v1',...raw});m.rollbackEvidencePaths.push(rollbackPath);
   }
   configurations.sort((a,b)=>a.unit.localeCompare(b.unit));
-  m.candidate.environmentRevision=objectHash(configurations.map(({unit,configurationSha256,environmentRevision,targetBuildIdentity})=>({unit,configurationSha256,environmentRevision,targetBuildIdentity})));
+  m.candidate.environmentRevision=objectHash(configurations.map(({unit,configurationSha256,environmentRevision,targetBuildIdentity,artifactSource,targetApplicationSource,browserRunnerSource})=>({unit,configurationSha256,environmentRevision,targetBuildIdentity,artifactSource,targetApplicationSource,browserRunnerSource:browserRunnerSource??null})));
   const receipt=extra=>({schemaVersion:2,status:'passed',source:f.source,tree:m.candidate.tree,buildIdentity:m.candidate.buildIdentity,artifactSetSha256:m.artifactSetSha256,environmentSetSha256:m.candidate.environmentRevision,observedAt,failedCount:0,blockedCount:0,cancelledCount:0,executedCheckIds:[],evidencePath,evidenceSha256:hash('Synthetic test evidence. Never live acceptance.'),...extra});
   for(const [name,extra] of [
    ['local',{engine:'local-test',exitCode:0,executedCheckIds:['tests/actual.test.mjs']}],
@@ -92,6 +94,17 @@ test('config target, incomplete rollback, stale bindings and operator self-revie
   for(const mutate of [x=>{x.targetBuildIdentity='wrong'},x=>{x.bindingsVerified=false},x=>{x.observedAt=new Date(f.now-3600001).toISOString()}]){const c=structuredClone(config);mutate(c);f.write(path,c);assert.equal((await f.run()).status,'blocked');}f.write(path,config);
   const rollback=f.manifest.rollbackEvidencePaths;f.manifest.rollbackEvidencePaths=[];assert.equal((await f.run()).status,'blocked');f.manifest.rollbackEvidencePaths=rollback;
   const seal=f.json(f.manifest.independentEvidencePath);seal.checker=seal.operator;f.write(f.manifest.independentEvidencePath,seal);assert.equal((await f.run()).status,'blocked');
+ }finally{f.cleanup();}
+});
+test('configuration sources follow retained artifact provenance rather than the newer repository HEAD',async()=>{
+ const f=await candidate({withBrowser:true});try{
+  const admitted=await f.run();assert.equal(admitted.status,'passed',JSON.stringify(admitted.failures));
+  const path=f.manifest.configurationEvidencePaths.find(p=>p.includes('quality-controller')),original=f.json(path);
+  for(const key of ['artifactSource','targetApplicationSource']){
+   const wrong={...original,[key]:f.source};f.write(path,wrong);const result=await f.run();
+   assert.ok(result.failures.includes(key==='artifactSource'?'configuration_artifact_source_mismatch:quality-controller':'configuration_application_source_mismatch:quality-controller'));
+  }
+  f.write(path,{...original,browserRunnerSource:f.source});assert.ok((await f.run()).failures.includes('configuration_browser_source_mismatch'));
  }finally{f.cleanup();}
 });
 test('published stage requires exact deployments and fresh public evidence for every changed unit',async()=>{

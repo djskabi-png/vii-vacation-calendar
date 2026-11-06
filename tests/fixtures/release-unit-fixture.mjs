@@ -21,7 +21,7 @@ export function fixture({ configure } = {}){
  configure?.({ root, graph, contract, write, git });
  const base=commit(),tree=git(['rev-parse','HEAD^{tree}']),now=Date.now(),observedAt=new Date(now).toISOString();
  const unitArtifacts=[];
- for(const unit of ['managed-site','quality-controller']){
+ for(const unit of graph.nodes.fixture.buildUnits){
   const path='.qa-output/'+unit+'.tar',bytes='synthetic immutable bytes for '+unit,digest=createHash('sha256').update(bytes).digest('hex');write(path,bytes);
   const buildReceiptPath='.qa-output/'+unit+'-build.json',auditReceiptPath='.qa-output/'+unit+'-audit.json';
   write(buildReceiptPath,{schemaVersion:1,engine:'build',status:'passed',exitCode:0,unit,source:base,tree,observedAt,inputFingerprint:fingerprintUnit({root,source:base,unit}).fingerprint,artifactSha256:digest});

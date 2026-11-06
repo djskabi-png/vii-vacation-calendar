@@ -30,3 +30,10 @@ The managed Site, Edge, image service and browser artifacts should remain reused
 after actual input/ancestry/digest verification. Activation must configure the
 browser source from its retained artifact receipt, not this controller's newer
 Git commit. The core project remains in progress; document 3 is deferred.
+
+Local release evidence admission also checks configuration sources against
+each retained artifact's original source, not the newest repository HEAD.
+Application target source and controller-to-browser runner source are distinct
+fields and enter the environment fingerprint. This remains a verification-only
+tool, not a substitute for private durable runner provenance or deployment
+readback. Additional source-binding tests require their own recorded execution.

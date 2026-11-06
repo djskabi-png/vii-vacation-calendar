@@ -100,9 +100,15 @@ export async function auditReleaseCandidate(manifest, { root = process.cwd(), no
     for (const item of configurations) {
       if (item.schemaVersion !== 1 || item.engine !== 'environment-readback' || item.status !== 'passed' || !fresh(item.observedAt, now, 3600000) || !DIGEST.test(item.configurationSha256 ?? '') || !DIGEST.test(item.previousConfigurationSha256 ?? '') || !['string','number'].includes(typeof item.environmentRevision) || String(item.environmentRevision).length === 0 || item.bindingsVerified !== true || !intactEvidence(item)) fail(`configuration_not_verified:${item.unit}`);
       if (['managed-site','edge-delivery','quality-controller','quality-browser'].includes(item.unit) && item.targetBuildIdentity !== manifest.candidate.buildIdentity) fail(`target_build_mismatch:${item.unit}`);
+      const ownArtifact = artifacts.find(proof => proof.unit === item.unit);
+      const applicationArtifact = artifacts.find(proof => proof.unit === 'managed-site');
+      if (item.artifactSource !== ownArtifact?.artifactSource) fail(`configuration_artifact_source_mismatch:${item.unit}`);
+      if (applicationArtifact && ['managed-site','edge-delivery','quality-controller','quality-browser'].includes(item.unit) && item.targetApplicationSource !== applicationArtifact.artifactSource) fail(`configuration_application_source_mismatch:${item.unit}`);
+      const browserArtifact = artifacts.find(proof => proof.unit === 'quality-browser');
+      if (item.unit === 'quality-controller' && browserArtifact && item.browserRunnerSource !== browserArtifact.artifactSource) fail('configuration_browser_source_mismatch');
     }
     configurations.sort((a, b) => a.unit.localeCompare(b.unit));
-    environmentSetSha256 = hashObject(configurations.map(({ unit, configurationSha256, environmentRevision, targetBuildIdentity }) => ({ unit, configurationSha256, environmentRevision, targetBuildIdentity: targetBuildIdentity ?? null })));
+    environmentSetSha256 = hashObject(configurations.map(({ unit, configurationSha256, environmentRevision, targetBuildIdentity, artifactSource, targetApplicationSource, browserRunnerSource }) => ({ unit, configurationSha256, environmentRevision, targetBuildIdentity: targetBuildIdentity ?? null, artifactSource, targetApplicationSource: targetApplicationSource ?? null, browserRunnerSource: browserRunnerSource ?? null })));
     if (manifest.candidate.environmentRevision !== environmentSetSha256) fail('environment_set_mismatch');
 
     function accepted(receipt, maxAge = 86400000, runtime = true) {
