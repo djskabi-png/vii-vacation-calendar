@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "node tools/generate-vacation-intent-index.mjs --check && node scripts/generate-deployment-media-aliases.mjs && node scripts/verify-rsc-assets.mjs --clean && vinext build && node scripts/verify-rsc-assets.mjs && node scripts/prune-server-css-duplicates.mjs && node scripts/prune-deployment-assets.mjs && node scripts/verify-worker-startup-budget.mjs",
+    "build": "node build/generate-vacation-intent-index.mjs --check && node scripts/generate-deployment-media-aliases.mjs && node scripts/verify-rsc-assets.mjs --clean && vinext build && node scripts/verify-rsc-assets.mjs && node scripts/prune-server-css-duplicates.mjs && node scripts/prune-deployment-assets.mjs && node scripts/verify-worker-startup-budget.mjs",
     "start": "vinext start",
     "test": "pnpm build && node --test tests/*.test.mjs",
     "audit:search": "node scripts/audit-search-state.cjs",

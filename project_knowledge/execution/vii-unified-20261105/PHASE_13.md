@@ -28,6 +28,9 @@ The generator has explicit `--write` and `--check` modes. The production build
 checks both committed projections before compiling and fails if stale. It
 does not rewrite a frozen candidate during build. Any catalog/editorial source
 update that changes these lookups requires generation, review and commit.
+The generator lives under `build/`, which participates in managed Site input
+fingerprinting. Other independent release tools remain under `tools/`.
+Freshness canonicalizes Windows line endings without accepting content drift.
 
 ## Evidence before freeze
 

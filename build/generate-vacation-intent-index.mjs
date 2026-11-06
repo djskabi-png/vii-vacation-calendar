@@ -21,6 +21,6 @@ if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
  else for(const [name,generate]of outputs){
   const expected=generate(),output=fileURLToPath(new URL('../app/data/'+name,import.meta.url));
   if(process.argv[2]==='--write'){await writeFile(output,expected);console.log(JSON.stringify({status:'generated',name,bytes:Buffer.byteLength(expected)}));}
-  else{let actual;try{actual=await readFile(output,'utf8');}catch{}if(actual!==expected){console.error('client_lookup_stale:'+name+': run generator --write, review and commit before building');process.exitCode=1;}}
+  else{let actual;try{actual=(await readFile(output,'utf8')).replace(/\r\n/g,'\n');}catch{}if(actual!==expected){console.error('client_lookup_stale:'+name+': run generator --write, review and commit before building');process.exitCode=1;}}
  }
 }

@@ -701,6 +701,7 @@
         "package.json",
         "pnpm-lock.yaml",
         "build/world-style-slots.mjs",
+        "build/generate-vacation-intent-index.mjs",
         "app/worlds/style-slots.json"
       ]
     },
