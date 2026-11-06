@@ -131,6 +131,25 @@ function deliveryTiming(headers: Headers, lookupMs: number, originMs?: number) {
   // Origin cache timings can be retained inside stored public HTML. These
   // distinct names always describe this delivery, never the original fill.
   headers.delete("X-VII-Edge-Origin-Ms");
+  // Stored HTML may carry timing entries from the request that populated it.
+  // Preserve application/server timings, but never expose stale Edge timings
+  // as if they described this delivery.
+  const existing = headers.get("Server-Timing");
+  if (existing) {
+    const entries: string[] = []; let start = 0; let quoted = false; let escaped = false;
+    for (let index = 0; index < existing.length; index++) {
+      const character = existing[index];
+      if (escaped) { escaped = false; continue; }
+      if (quoted && character === "\\") { escaped = true; continue; }
+      if (character === '"') { quoted = !quoted; continue; }
+      if (!quoted && character === ",") { entries.push(existing.slice(start, index).trim()); start = index + 1; }
+    }
+    entries.push(existing.slice(start).trim());
+    const current = entries
+      .filter((value) => !/^vii-edge-(?:lookup|origin)\s*(?:;|$)/i.test(value));
+    if (current.length) headers.set("Server-Timing", current.join(", "));
+    else headers.delete("Server-Timing");
+  }
   const timings = [`vii-edge-lookup;dur=${lookupMs}`];
   if (originMs != null) {
     headers.set("X-VII-Edge-Origin-Ms", String(originMs));

@@ -22,14 +22,14 @@ test('internal cache keeps the origin hard expiry while client freshness stays c
 const headers = () => new Headers({ 'Content-Type': 'text/html; charset=utf-8', 'X-VII-Cache-Build': 'test-build', 'X-VII-Cache-Until': String(Date.now() + 60_000), 'Set-Cookie': '__cf_bm=infra; Path=/' });
 
 test('delivery timing describes this lookup and distinguishes retained origin fill timing',async()=>{
- const originHeaders=headers();originHeaders.set('Server-Timing','vii-cache;dur=999');originHeaders.set('X-VII-Cache-Read-Ms','999');const h=harness({headers:originHeaders});
+ const originHeaders=headers();originHeaders.set('Server-Timing','vii-cache;dur=999, vii-edge-lookup;dur=8888, vii-edge-origin;dur=7777, app;desc="one,vii-edge-origin;dur=42"');originHeaders.set('X-VII-Cache-Read-Ms','999');const h=harness({headers:originHeaders});
  const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
  try{
  const first=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html'}}),env,h.ctx);
  assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.ok(Number.isFinite(Number(first.headers.get('X-VII-Edge-Origin-Ms'))));assert.match(first.headers.get('Server-Timing'),/vii-edge-origin;dur=/);
  await new Promise(resolve=>setTimeout(resolve,0));
  const hit=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html'}}),env,h.ctx);
- assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(hit.headers.get('X-VII-Edge-Origin-Ms'),null);assert.match(hit.headers.get('X-VII-Edge-Lookup-Ms'),/^\d+$/);assert.match(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-origin/);assert.equal(hit.headers.get('X-VII-Cache-Read-Ms'),'999');assert.equal(h.stats().originCalls,1);
+ assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(hit.headers.get('X-VII-Edge-Origin-Ms'),null);assert.match(hit.headers.get('X-VII-Edge-Lookup-Ms'),/^\d+$/);assert.match(hit.headers.get('Server-Timing'),/vii-cache;dur=999/);assert.match(hit.headers.get('Server-Timing'),/app;desc="one,vii-edge-origin;dur=42"/);assert.match(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=8888/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-origin;dur=7777/);assert.equal(hit.headers.get('X-VII-Cache-Read-Ms'),'999');assert.equal(h.stats().originCalls,1);
  }finally{h.restore();}
 });
 
