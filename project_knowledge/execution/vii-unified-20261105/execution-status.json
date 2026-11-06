@@ -3,7 +3,7 @@
   "status": "in_progress",
   "scope": "Plans1+2 as one project",
   "deferred": "Document3 corrective backlog, until core implementation complete",
-  "sourceHead": "2c6fda304c04a0a0d8507bd8c3be6df53429a724",
+  "sourceHead": "e720bf1ba78981f6b2c985f5ef53627d944f101f",
   "planSources": {
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md": "f9fe333f1bfeff17e0c7fbf546a479eb988ad60c2542cf46f9fb01d253b48d71",
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md": "00e92c9a451dca2bd64b522af4ad408809172e78097f5b969241b32117f2979a"
@@ -29,7 +29,9 @@
         "PHASE_07_VERIFICATION.md",
         "PHASE_08_VERIFICATION.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_21_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -39,7 +41,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_04.md",
-        "PHASE_07.md"
+        "PHASE_07.md",
+        "PHASE_20_VERIFICATION.md"
       ]
     },
     {
@@ -50,7 +53,9 @@
       "evidence": [
         "PHASE_03.md",
         "PHASE_04.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_20_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -61,7 +66,8 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_21_VERIFICATION.md"
       ]
     },
     {
@@ -129,7 +135,8 @@
       "evidence": [
         "PHASE_04.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -186,7 +193,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_18_VERIFICATION.md"
       ]
     },
     {
@@ -197,7 +205,8 @@
       "evidence": [
         "PHASE_03.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -228,7 +237,9 @@
         "PHASE_11.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_21_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -248,7 +259,9 @@
         "PHASE_13_VERIFICATION.md",
         "PHASE_14.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_20_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -270,7 +283,8 @@
         "PHASE_11.md",
         "PHASE_12.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -331,7 +345,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -360,7 +375,9 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_21_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -395,7 +412,8 @@
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -411,7 +429,8 @@
         "PHASE_07_VERIFICATION.md",
         "PHASE_08_VERIFICATION.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_14.md"
+        "PHASE_14.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -426,7 +445,8 @@
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -440,7 +460,9 @@
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_21_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -453,7 +475,8 @@
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
         "PHASE_06_VERIFICATION.md",
-        "PHASE_07_VERIFICATION.md"
+        "PHASE_07_VERIFICATION.md",
+        "PHASE_21_VERIFICATION.md"
       ]
     },
     {
@@ -463,7 +486,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_10_VERIFICATION.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -479,7 +503,8 @@
         "PHASE_08.md",
         "PHASE_08_VERIFICATION.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_21_VERIFICATION.md"
       ]
     },
     {
@@ -499,7 +524,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -536,7 +562,8 @@
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_21_VERIFICATION.md"
       ]
     },
     {
@@ -552,7 +579,8 @@
         "PHASE_09.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_14.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -566,7 +594,8 @@
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -579,7 +608,8 @@
         "PHASE_02.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -597,7 +627,8 @@
         "PHASE_10_VERIFICATION.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -617,7 +648,8 @@
         "PHASE_13_VERIFICATION.md",
         "PHASE_14.md",
         "PHASE_16.md",
-        "PHASE_18.md"
+        "PHASE_18.md",
+        "PHASE_23_VERIFICATION.md"
       ]
     },
     {
@@ -631,8 +663,10 @@
       "id": "Q28",
       "title": "תנאי קבלה של המוצר המאוחד",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_23_VERIFICATION.md"
+      ]
     },
     {
       "id": "Q29",
@@ -657,12 +691,13 @@
     }
   ],
   "activeWorkstreams": [
-    "Root: complete core V and QQQAAA; next real experience metrics and per-unit release/data operations",
-    "Independent checker: scoped reviews completed; new material release changes require new review"
+    "Root: exact unit release/provider evidence and core acceptance; owner-scoped publication remains unresolved",
+    "Map specialist: explicit coordinate precision propagation and snapshot consistency; focused implementation only",
+    "Independent checker: phase22/23 scoped source reviews complete, no cloud/public approval"
   ],
-  "lastUpdated": "2026-11-06T05:28:13.357388+00:00",
+  "lastUpdated": "2026-11-06T09:05:40.958246+00:00",
   "completionClaim": false,
-  "currentSourceHead": "5a12e8b3bef4506f01755be5705b01e26c7ea8ab",
+  "currentSourceHead": "e720bf1ba78981f6b2c985f5ef53627d944f101f",
   "sourceCheckpoints": [
     {
       "commit": "5fb85058",
@@ -698,6 +733,20 @@
       "tests": {
         "total": 2409,
         "passed": 2408,
+        "failed": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "phase": "23",
+      "source": "e720bf1ba78981f6b2c985f5ef53627d944f101f",
+      "tree": "fe6be61e4477e94c5ab07a253d74a3b3051ba6ca",
+      "status": "qualified_controller_and_tools_only",
+      "controllerArtifactSha256": "4e751fc8d0c60b54f3711460e61e530d55e27f297caf8ca4e3ae53bf56e5cc14",
+      "siteArtifactStatus": "rebuild_required_after_remaining_core_changes",
+      "tests": {
+        "total": 2455,
+        "passed": 2454,
         "failed": 0,
         "skipped": 1
       }
@@ -740,6 +789,14 @@
       "passed": 188,
       "failed": 0,
       "log": ".qa-output/phase16-focused-tests.log"
+    },
+    {
+      "command": "phase23 frozen source,fullTypeScript,privatecontroller93,fullapplication2455,controllerdryrun exact package",
+      "passed": 2454,
+      "failed": 0,
+      "skipped": 1,
+      "log": ".qa-output/phase23-frozen-suite.stdout.log",
+      "evidence": "PHASE_23_VERIFICATION.md"
     }
   ],
   "implementedSlices": [
@@ -760,8 +817,8 @@
     },
     {
       "id": "quality-scoped-selection",
-      "state": "partial",
-      "limit": "Only two explicit HTTP check mappings, no claim of browser coverage"
+      "state": "qualified_local",
+      "limit": "61 server check metadata entries and34 browser profiles are registered and locally tested; complete live journey acceptance remains open"
     },
     {
       "id": "quality-small-polling",
@@ -770,8 +827,8 @@
     },
     {
       "id": "spa-css-owned-slot",
-      "state": "local_parity_passed",
-      "limit": "One coherent spa block, not all worlds extracted"
+      "state": "qualified_local_exact_cascade_parity",
+      "limit": "Phase4 expanded ownership to882 exact-position fragments across vacation,events,hourly,spa. This is source isolation within one managed build, not four independent frontends."
     },
     {
       "id": "normalized-map-adapters",
@@ -800,18 +857,18 @@
     },
     {
       "id": "per-unit-artifact-preflight",
-      "state": "real_git_artifact_tests_passed",
-      "limit": "Limited schema2 preflight never grants publication; full global orchestration pending"
+      "state": "qualified_local_with_provider_reader",
+      "limit": "Exact artifact/configuration/rollback/interface admission and authenticated provider runtime combination implemented; full matching-generation cloud/public release remains pending"
     },
     {
       "id": "retained-static-asset-reader",
       "state": "local_handler_workerd_tests_passed",
-      "limit": "Actual old public archive recovery, full seed, live Edge readback and release-gate integration pending"
+      "limit": "All240active client assets captured and privately retained/readback verified. Full prior server archive, deployed Edge fallback and public rollover verification remain pending"
     },
     {
       "id": "search-client-server-data-boundaries",
-      "state": "qualified_local_and_rendered",
-      "limit": "Actual216104byte search entry vs6864710previous candidate, all1388canonicalkeys preserved; not public speed or field percentiles, newer build portability change unqualified"
+      "state": "historically_qualified_local_and_rendered",
+      "limit": "Phase21 exact Site was qualified; newer shared job platform/store source needs a new final Site artifact. Public speed and field percentiles remain unverified"
     },
     {
       "id": "active-build-client-asset-private-retention",
@@ -822,18 +879,39 @@
       "id": "consented-experience-measurement",
       "state": "locally_implemented_flags_off",
       "limit": "188 focused tests and full TypeScript pass; no new production metric tables, collection, public deployment, live field percentiles or exact-artifact visual approval"
+    },
+    {
+      "id": "public-browser-eight-world-coverage",
+      "state": "qualified_local_compiled_ui",
+      "limit": "34profiles; compiled desktop/mobile administration selection verified with read-only fixture; no cloud job execution acceptance"
+    },
+    {
+      "id": "immutable-release-subjects",
+      "state": "qualified_sqlite_and_workerd",
+      "limit": "Server-owned fullHTTP/allbrowser suite, immutable source/build/context, deterministic jobs, recovery fences; actual matching-generation cloud positive remains open"
+    },
+    {
+      "id": "provider-authenticated-runtime-readback",
+      "state": "controlled_positive_and_actual_negative_verified",
+      "limit": "Exact CF version/module/DB generation reads implemented, actual older generation rejected; no full positive cloud suite or publication approval"
+    },
+    {
+      "id": "independent-controller-source-and-artifacts",
+      "state": "qualified_local_exact_package",
+      "limit": "Controller source and browser source remain independent. Controller phase23 packaged; Edge,image,browser retained. Current Site rebuild required."
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Finish per-unit release orchestration and remaining core/data operations. Freeze one exact cumulative candidate for build/package/visual and live acceptance. Keep experience flags off until exact generation canary. Document3 remains deferred.",
-  "updatedAt": "2026-11-06T05:28:13.357388+00:00",
+  "nextStep": "Finish core map precision/provider contracts and remaining independently implementable core gaps. Build the final cumulative Site once after source changes, then require matching-generation provider/owner publication, business restore and complete public acceptance. Document3 remains deferred.",
+  "updatedAt": "2026-11-06T09:05:40.958246+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": false,
-  "sourceHeadMeaning": "Last committed source before phase16 source checkpoint; new experience changes are locally tested, not a qualified published artifact",
+  "sourceHeadMeaning": "Last frozen phase23 source qualification, not a published Site. Current map work remains unqualified until its own source checkpoint.",
   "privateCloudAssetSeed": {
     "files": 240,
     "sourceBuild": "00bca36c-4f1c-403d-9a13-ceea797015ae",
     "publicRouteChanged": false
-  }
+  },
+  "initialSourceHead": "2c6fda304c04a0a0d8507bd8c3be6df53429a724"
 }
