@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
 import {verifyRscAssets} from './verify-rsc-assets.mjs';
 import {auditWorkerStartup,verifyServerLiteralImports} from './verify-worker-startup-budget.mjs';
+export const ARTIFACT_AUDIT_DEFINITION_VERSION = 'site-archive-v1';
 
 async function digest(path){const hash=createHash('sha256');for await(const bytes of createReadStream(path))hash.update(bytes);return hash.digest('hex');}
 function safeEntry(path){
@@ -67,7 +68,7 @@ export async function auditReleaseArtifact({archivePath,projectRoot=process.cwd(
   const manifests=await verifyRscAssets(stage);
   const imports=await verifyServerLiteralImports(join(stage,'dist/server'));
   const startup=await auditWorkerStartup(join(stage,'dist/server/index.js'));
-  return{status:'passed',engine:'artifact-audit',artifactSha256:await digest(archive),artifactBytes:info.size,compiledFilesCompared:compared,files:files.length,executedCheckIds:['artifact.fixture-exclusion','artifact.import-integrity','artifact.tested-payload-parity'],manifests:{agree:manifests.manifestsAgree,references:manifests.references},imports,startup:{bytes:startup.bytes,modules:startup.modules,maxBytes:startup.maxBytes}};
+  return{status:'passed',engine:'artifact-audit',definitionVersion:ARTIFACT_AUDIT_DEFINITION_VERSION,artifactSha256:await digest(archive),artifactBytes:info.size,compiledFilesCompared:compared,files:files.length,executedCheckIds:['artifact.fixture-exclusion','artifact.import-integrity','artifact.tested-payload-parity'],manifests:{agree:manifests.manifestsAgree,references:manifests.references},imports,startup:{bytes:startup.bytes,modules:startup.modules,maxBytes:startup.maxBytes}};
  }finally{await rm(stage,{recursive:true,force:true});}
 }
 

@@ -76,14 +76,25 @@ test('Site inventory includes media, build configuration, hosting and migrations
  }finally{f.cleanup();}
 });
 
-test('missing digest, altered bytes, stale receipts and actual dirty state all block reuse',async()=>{
+test('missing digest, altered bytes, invalid timestamps and actual dirty state all block reuse',async()=>{
  const f=fixture();try{
   await assert.rejects(f.validate(f.base,{receipt:{...f.receipt(),artifactSha256:undefined}}),/receipt_invalid/);
   await assert.rejects(f.validate(f.base,{receipt:{...f.receipt(),inputFingerprint:'f'.repeat(64)}}),/fingerprint_mismatch/);
-  await assert.rejects(f.validate(f.base,{receipt:{...f.receipt(),observedAt:'2000-01-01T00:00:00Z'}}),/receipt_invalid/);
+  await assert.rejects(f.validate(f.base,{receipt:{...f.receipt(),observedAt:'invalid'}}),/receipt_invalid/);
+  await assert.rejects(f.validate(f.base,{receipt:{...f.receipt(),observedAt:'2100-01-01T00:00:00Z'}}),/receipt_invalid/);
   f.write('.qa-output/candidate.tar','tampered');await assert.rejects(f.validate(f.base),/artifact_digest_mismatch/);
   f.write('untracked-source.ts','unsafe change');await assert.rejects(f.validate(f.base),/working_tree_dirty/);
   assert.equal(f.fingerprint().source,f.base);
+ }finally{f.cleanup();}
+});
+
+test('old immutable build receipts retain their original date and still require exact inputs and bytes',async()=>{
+ const f=fixture();try{
+  const old={...f.receipt(),observedAt:'2020-01-01T00:00:00Z'};
+  assert.equal((await f.validate(f.base,{receipt:old})).status,'reusable');
+  assert.equal(old.observedAt,'2020-01-01T00:00:00Z');
+  f.write('public/preserved.jpg','changed media');const changed=f.commit('changed actual artifact input');
+  await assert.rejects(f.validate(changed,{receipt:old}),/input_fingerprint_mismatch/);
  }finally{f.cleanup();}
 });
 

@@ -106,7 +106,10 @@ export async function validateReusableArtifact({root=process.cwd(),receipt,unit,
  if(text(root,['status','--porcelain=v1','--untracked-files=all']))throw new Error('working_tree_dirty');
  if(text(root,['rev-parse','HEAD'])!==source)throw new Error('candidate_worktree_not_frozen');
  const age=now-Date.parse(receipt?.observedAt);
- if(receipt?.schemaVersion!==1||receipt.status!=='passed'||receipt.engine!=='build'||receipt.exitCode!==0||receipt.unit!==unit||!SHA.test(receipt.source??'')||!SHA.test(receipt.tree??'')||!DIGEST.test(receipt.artifactSha256??'')||!DIGEST.test(receipt.inputFingerprint??'')||!Number.isFinite(age)||age<0||age>24*60*60*1000)throw new Error('artifact_receipt_invalid');
+ // A successful immutable build does not expire merely with age. Recompute
+ // ancestry, complete inputs and the actual archive digest on every reuse.
+ // Fresh artifact audits and runtime/environment proofs remain separate gates.
+ if(receipt?.schemaVersion!==1||receipt.status!=='passed'||receipt.engine!=='build'||receipt.exitCode!==0||receipt.unit!==unit||!SHA.test(receipt.source??'')||!SHA.test(receipt.tree??'')||!DIGEST.test(receipt.artifactSha256??'')||!DIGEST.test(receipt.inputFingerprint??'')||!Number.isFinite(age)||age<0)throw new Error('artifact_receipt_invalid');
  if(text(root,['rev-parse',receipt.source+'^{tree}'])!==receipt.tree)throw new Error('artifact_source_tree_mismatch');
  try{git(root,['merge-base','--is-ancestor',receipt.source,source]);}catch{throw new Error('artifact_source_not_ancestor');}
  const original=fingerprintUnit({root,source:receipt.source,unit}),current=fingerprintUnit({root,source,unit});

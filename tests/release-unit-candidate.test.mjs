@@ -37,6 +37,15 @@ function fixture(){
 test('real frozen descendant reuses both exact artifacts but never grants publication approval',async()=>{
  const f=fixture();try{const r=await f.run();assert.equal(r.status,'passed',JSON.stringify(r.failures));assert.equal(r.units.length,2);assert.ok(r.units.every(x=>x.reused&&x.artifactSource===f.base));assert.equal(r.publicationApproved,false);assert.equal(r.publicReleaseVerified,false);}finally{f.cleanup();}
 });
+test('old immutable builds require fresh independent artifact audits, not redated build claims',async()=>{
+ const f=fixture();try{
+  for(const entry of f.manifest.unitArtifacts){const receipt=f.json(entry.buildReceiptPath);receipt.observedAt='2020-01-01T00:00:00Z';f.write(entry.buildReceiptPath,receipt);}
+  assert.equal((await f.run()).status,'passed');
+  const entry=f.manifest.unitArtifacts[0],audit=f.json(entry.auditReceiptPath);audit.observedAt=new Date(f.now-86400001).toISOString();f.write(entry.auditReceiptPath,audit);
+  assert.ok((await f.run()).failures.includes('managed-site:artifact_audit_invalid'));
+  assert.equal(f.json(entry.buildReceiptPath).observedAt,'2020-01-01T00:00:00Z');
+ }finally{f.cleanup();}
+});
 test('coverage is derived from committed impact graph, not caller required-unit claims',async()=>{
  const f=fixture();try{
   for(const units of [[],[f.manifest.unitArtifacts[0]],[...f.manifest.unitArtifacts,f.manifest.unitArtifacts[0]],[...f.manifest.unitArtifacts,{unit:'untrusted'}]]){
