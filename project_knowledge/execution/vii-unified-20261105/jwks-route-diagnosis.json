@@ -1,0 +1,29 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public verification-key URL returns404 HTML and the authenticated quality dashboard cannot load data",
+  "expected_behavior": "GET returns an Ed25519 public JWK set; HEAD returns the same headers without a body; unsupported methods return405",
+  "environment": "Public v810, application074586b5190a0c64caf0dffcd6cd1e464c185064; local correction77cc8e07bdbc9df4767b8a1282287c93437b4e61, not yet published",
+  "reproduction": {
+    "steps": ["Request /.well-known/vii-quality-jwks.json on the public origin", "Exercise actual Worker routing with a generic router that returns404", "Run the current Vinext Node glob route-discovery pattern"],
+    "evidence": "Public404 HTML; Worker regression failed404!=200 before repair;74 route files discovered and no well-known route"
+  },
+  "observations": [
+    {"observation": "The file-based GET handler exists but is absent from discovered routes", "evidence": "app/.well-known/vii-quality-jwks.json/route.ts and Node fs.glob **/route.{tsx,ts,jsx,js}"},
+    {"observation": "The existing integration fixture bypassed actual Worker dispatch", "evidence": "tests/quality-attestation-workerd.test.mjs imports GET directly into a synthetic fixture dispatcher"}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "Framework glob route discovery omits the dot-prefixed directory", "prediction": "No key route in discovered routes; actual Worker falls through to generic404", "discriminating_test": "Compare actual Node route glob and actual Worker dispatch to direct handler integration", "result": "74 discovered files omit well-known; direct handler integration passes; actual Worker regression reproduced404", "status": "supported"},
+    {"id": "H2", "mechanism": "Missing signing secret or unsupported crypto causes the key handler to fail", "prediction": "Handler is reached and returns503 JSON rather than404 HTML", "discriminating_test": "Execute actual key generation and delegated authentication under workerd; inspect production response type/status", "result": "Crypto/auth integration passes; production returns404 HTML, not handler503 JSON", "status": "rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change": "Dispatch the existing handler explicitly from Worker before generic router/cache, preserving host canonicalization; add a blocking public route check", "evidence": "Actual Worker regression now passes GET/HEAD/405/public-key-only/no-generic-app-startup;54 related tests passed in phase36-jwk-family-final.log. Public correction remains pending"},
+  "affected_family": ["public verification keys", "delegated admin quality gateway", "canonical host handling", "Worker lazy app entry", "release check registry and scope/impact mapping"],
+  "regression_checks": [
+    {"check": "Actual Worker key endpoint and related dispatch/cache behavior", "status": "passed", "evidence": "tests/worker-lazy-entry-actual.test.mjs"},
+    {"check": "Delegated Ed25519 authentication, permissions, replay protection and registry scope", "status": "passed", "evidence": ".qa-output/phase36-jwk-family-final.log:54 passed, zero failed"},
+    {"check": "Exact public correction", "status": "pending", "evidence": "No corrected public deployment has occurred"}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Post-publication observed dashboard recovery is required"],
+  "authorization_boundary": "Authorized VII repair and existing public deployment; no role grants, secret changes, business messages or transactions"
+}

@@ -195,6 +195,7 @@ const worker = {
       }
       const { GET } = await import("../app/.well-known/vii-quality-jwks.json/route.ts");
       const response = await GET();
+      response.headers.set("X-VII-App-Build", publicCacheBuild);
       return request.method === "HEAD" ? new Response(null, { status: response.status, headers: response.headers }) : response;
     }
 
@@ -256,6 +257,9 @@ const worker = {
     const appLoadMs = Math.round(performance.now() - appLoadStarted);
     const appRenderStarted = performance.now();
     const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    // Generation identity belongs to the application, including uncached HTML.
+    // Cache admission stays separate and must not be implied by this header.
+    response.headers.set("X-VII-App-Build", publicCacheBuild);
     // Separate lazy module startup from time spent producing response headers.
     // These fixed numeric metrics contain no URL, SQL, identity or user input.
     response.headers.append("Server-Timing", `vii-app-load;dur=${appLoadMs}, vii-app-render;dur=${Math.round(performance.now() - appRenderStarted)}`);

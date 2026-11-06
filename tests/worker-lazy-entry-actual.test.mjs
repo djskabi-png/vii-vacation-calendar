@@ -67,6 +67,7 @@ test('actual worker concurrent MISS shares one module load and preserves locale 
   }}};}});
   const responses=await Promise.all([worker.fetch(request('/search'),{},ctx),worker.fetch(request('/en/search.rsc'),{},ctx)]);
   for(const response of responses)assert.match(response.headers.get('Server-Timing'),/vii-app-load;dur=\d+, vii-app-render;dur=\d+/);
+  for(const response of responses)assert.equal(response.headers.get('X-VII-App-Build'),'local','uncached app responses retain their own generation identity');
   assert.equal(imports,1);
   assert.deepEqual(Object.fromEntries(seen.map(({pathname,...context})=>[pathname,context])),{'/search':{locale:'he',document:'/search'},'/en/search.rsc':{locale:'en',document:'/en/search'}});
 });

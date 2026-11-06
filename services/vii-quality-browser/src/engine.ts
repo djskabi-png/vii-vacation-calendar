@@ -89,7 +89,9 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     currentStep='navigate';
     const response=await step(() => (page!.goto(origin+path,{waitUntil:'domcontentloaded',timeout:10_000})));steps++;
     if(!response || response.status()!==200 || new URL(response.url()).origin!==origin || new URL(response.url()).pathname!==new URL(origin+path).pathname)throw new CheckFailure('unexpected_document_response');
-    if(await step(() => (response.headerValue('x-vii-cache-build')))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
+    const appBuild=await step(()=>response.headerValue('x-vii-app-build'));
+    const cacheBuild=await step(()=>response.headerValue('x-vii-cache-build'));
+    if((appBuild??cacheBuild)!==job.buildId || appBuild&&appBuild!==job.buildId || cacheBuild&&cacheBuild!==job.buildId)throw new CheckFailure('observed_build_mismatch');
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
     if(job.scenario!=='gallery-next') {
       const surface=browserWorldSurfaceSelectors[job.world];

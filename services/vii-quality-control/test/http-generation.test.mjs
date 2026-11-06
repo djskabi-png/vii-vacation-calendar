@@ -21,6 +21,10 @@ test('uncooperative late fetch is bounded, cancelled and never admitted afterwar
 });
 
 test('route response cannot hide an old HTML cache behind a matching generation probe',()=>{
+ const uncached=new Response('<html/>',{headers:{'Content-Type':'text/html','X-VII-App-Build':build}});
+ assert.equal(verifyHttpResponseBuild(uncached,build).status,200);
+ const conflicting=new Response('<html/>',{headers:{'Content-Type':'text/html','X-VII-App-Build':build,'X-VII-Cache-Build':other}});
+ assert.throws(()=>verifyHttpResponseBuild(conflicting,build),/observed_build_mismatch/);
  assert.equal(verifyHttpResponseBuild(document(),build).status,200);
  assert.throws(()=>verifyHttpResponseBuild(document(other),build),/observed_build_mismatch/);
  assert.throws(()=>verifyHttpResponseBuild(new Response('<html/>',{headers:{'Content-Type':'text/html'}}),build),/generation_unavailable/);

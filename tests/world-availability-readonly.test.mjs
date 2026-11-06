@@ -1,9 +1,13 @@
-import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';import ts from 'typescript';
+import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';import {createRequire} from 'node:module';import ts from 'typescript';
 const source=readFileSync(new URL('../app/lib/world-availability.ts',import.meta.url),'utf8');
 const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;
-function harness(){let now=0,enabled=0,fail=false;const calls=[],exports={};
+const requestReadsSource=readFileSync(new URL('../app/lib/server-request-reads.ts',import.meta.url),'utf8');
+const requestReadsJs=ts.transpileModule(requestReadsSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;
+const hostRequire=createRequire(import.meta.url);
+function harness(){let now=0,enabled=0,fail=false;const calls=[],exports={},requestReads={};
  const db={prepare(sql){let args;calls.push(sql);return{bind(...values){args=values;return this;},async all(){if(fail)throw Error('offline');return{results:[{world:'events',enabled}]};},async run(){enabled=args[1];return{meta:{changes:1}};}};},async batch(statements){calls.push('schema-batch');return statements.map(()=>({meta:{changes:1}}));}};
- vm.runInNewContext(js,{exports,module:{exports},require(){return{requiredRuntimeDatabase:async()=>db};},Date:class extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}});
+ vm.runInNewContext(requestReadsJs,{exports:requestReads,module:{exports:requestReads},require:hostRequire});
+ vm.runInNewContext(js,{exports,module:{exports},require(name){if(name.includes('runtime-database'))return{requiredRuntimeDatabase:async()=>db};if(name.includes('server-request-reads'))return requestReads;return hostRequire(name);},Date:class extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}});
  return{api:exports,calls,advance(value){now+=value;},fail(){fail=true;}};
 }
 test('actual cold public availability reads only SELECT and respects disabled worlds and15second cache',async()=>{

@@ -14,8 +14,9 @@ export async function verifyHttpTargetBuild(input:{origin:string;buildId:string;
    onAbort=()=>reject(new Error('generation_probe_cancelled'));signal.addEventListener('abort',onAbort,{once:true});
    timer=setTimeout(()=>timeout.abort(),Math.max(1,Math.min(4000,input.timeoutMs??4000)));if(signal.aborted)onAbort();
   })]);
-  if(response.status!==200||!/\btext\/html\b/i.test(response.headers.get('Content-Type')??'')||!BUILD.test(response.headers.get('X-VII-Cache-Build')??''))return{status:'blocked',reason:'target_generation_unavailable'};
-  return response.headers.get('X-VII-Cache-Build')===input.buildId?{status:'passed'}:{status:'blocked',reason:'observed_build_mismatch'};
+  const observed=response.headers.get('X-VII-App-Build')??response.headers.get('X-VII-Cache-Build');
+  if(response.status!==200||!/\btext\/html\b/i.test(response.headers.get('Content-Type')??'')||!BUILD.test(observed??''))return{status:'blocked',reason:'target_generation_unavailable'};
+  try{verifyHttpResponseBuild(response,input.buildId);return{status:'passed'};}catch{return{status:'blocked',reason:'observed_build_mismatch'};}
  }catch{return{status:'blocked',reason:'target_generation_unavailable'};}
  finally{finished=true;if(timer)clearTimeout(timer);if(onAbort)signal.removeEventListener('abort',onAbort);void response?.body?.cancel().catch(()=>undefined);timeout.abort();}
 }
@@ -23,7 +24,7 @@ export async function verifyHttpTargetBuild(input:{origin:string;buildId:string;
 /** Recheck the actual response too: one route may retain an older edge entry
  * even when the probe already observes the new active generation. */
 export function verifyHttpResponseBuild(response:Response,buildId:string){
- const observed=response.headers.get('X-VII-Cache-Build'),html=/\btext\/html\b/i.test(response.headers.get('Content-Type')??'');
- if(!BUILD.test(buildId)||observed&&observed!==buildId||html&&!observed){void response.body?.cancel().catch(()=>undefined);throw new Error(observed?'observed_build_mismatch':'target_generation_unavailable');}
+ const app=response.headers.get('X-VII-App-Build'),cache=response.headers.get('X-VII-Cache-Build'),observed=app??cache,html=/\btext\/html\b/i.test(response.headers.get('Content-Type')??'');
+ if(!BUILD.test(buildId)||app&&app!==buildId||cache&&cache!==buildId||html&&!observed){void response.body?.cancel().catch(()=>undefined);throw new Error(observed?'observed_build_mismatch':'target_generation_unavailable');}
  return response;
 }

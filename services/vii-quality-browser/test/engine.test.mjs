@@ -21,7 +21,7 @@ function browserFixture(options={}) {
     async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':path.startsWith('/providers')?'ספקים לאירוח ולאירועים':path.startsWith('/trails')?'מסלולי טיול בישראל למטייל העצמאי':path==='/'?'כל מה שעושים בחופש, במקום אחד':'נופש ברחבי הארץ';},
   });
   const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),
-    async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async()=>options.wrongBuild?'wrong':buildId};},
+    async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
     async waitForFunction(){if(options.frozenGallery)throw Error('image unchanged');},
     async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;},
   };
@@ -64,6 +64,13 @@ test('gallery requires a changed image and unimplemented world contracts cannot 
   const frozen=browserFixture({frozenGallery:true});assert.equal((await runBrowserJob({...job,scenario:'gallery-next'},env,frozen.factory)).status,'failed');assertClosed(frozen.state);
   const unsupported=browserFixture();assert.equal((await runBrowserJob({...job,world:'spa',scenario:'gallery-next'},env,unsupported.factory)).status,'blocked');assert.equal(unsupported.state.launches,0);
 });
+test('uncached app identity is accepted while a conflicting cached identity stays blocked',async()=>{
+  const uncached=browserFixture({generationHeaders:{'x-vii-app-build':buildId}});
+  assert.equal((await runBrowserJob(job,env,uncached.factory)).status,'passed');
+  const conflict=browserFixture({generationHeaders:{'x-vii-app-build':buildId,'x-vii-cache-build':'wrong'}});
+  assert.equal((await runBrowserJob(job,env,conflict.factory)).reason,'observed_build_mismatch');
+});
+
 test('wrong observed build, overflow and attempted writes cannot produce green evidence',async()=>{
   for(const [options,scenario,reason] of [[{wrongBuild:true},'world-shell','observed_build_mismatch'],[{overflow:true},'responsive-shell','horizontal_overflow'],[{extraRequest:['POST',env.PUBLIC_ORIGIN+'/api/lead']},'world-shell','write_request_attempted']]){
     const f=browserFixture(options);const result=await runBrowserJob({...job,scenario},env,f.factory);assert.notEqual(result.status,'passed');assert.equal(result.reason,reason);assertClosed(f.state);
