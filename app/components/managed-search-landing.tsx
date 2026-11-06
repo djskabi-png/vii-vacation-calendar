@@ -78,7 +78,7 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
   if (page.world === "events") {
     return <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
       initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, value === true ? "1" : String(value)]))}
-      managedBody={page.body} managedFaq={page.faq} />;
+      managedPath={page.canonicalPath} managedBody={page.body} managedFaq={page.faq} />;
   }
   if (page.world === "spa" || page.world === "hourly") {
     const discoveryItems = page.world === "spa"

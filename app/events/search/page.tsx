@@ -45,7 +45,8 @@ import { normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventV
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
-import { managedSearchParams } from "../../lib/managed-search-params";
+import { eventMatchesFeatureSelection, eventFeatureSelectionLabel } from "../../lib/event-search-features.ts";
+import { managedPresentationHref, managedSearchParams } from "../../lib/managed-search-params";
 import type { MapPriceQuote } from "../../lib/map-price";
 
 type EventSortKey = DiscoverySortKey | "capacity";
@@ -56,7 +57,7 @@ function runtimeEventPlace(value: unknown): EventPlace {
   return { ...place, description: supplierDisplayDescription(place) };
 }
 
-export default function EventSearchPage({ initialArea, landingTitle, landingDescription, initialSearchParams, managedBody, managedFaq }: { initialArea?: string; landingTitle?: string; landingDescription?: string; initialSearchParams?: Record<string, string>; managedBody?: string; managedFaq?: Array<{ question: string; answer: string }> }) {
+export default function EventSearchPage({ initialArea, landingTitle, landingDescription, initialSearchParams, managedPath, managedBody, managedFaq }: { initialArea?: string; landingTitle?: string; landingDescription?: string; initialSearchParams?: Record<string, string>; managedPath?: string; managedBody?: string; managedFaq?: Array<{ question: string; answer: string }> }) {
   const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -76,7 +77,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const initialParams = managedSearchParams(searchQuery, initialSearchParams);
   const initialEventFrom = initialParams.get("from");
   const initialGuests = Number(initialParams.get("guests") || 0);
-  const [area, setArea] = useState(initialParams.get("location") || initialArea || "הכל");
+  const [area, setArea] = useState(initialParams.get("location") || (initialArea === "כל הארץ" ? "הכל" : initialArea) || "הכל");
   const [type, setType] = useState(normalizeEventVenueType(initialParams.get("type")));
   const [eventType, setEventType] = useState(initialParams.get("eventType") || "הכל");
   const [facility, setFacility] = useState(initialParams.get("features") || "הכל");
@@ -93,6 +94,8 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const [liveRetry, setLiveRetry] = useState(0);
 
   function updateUrl(updates: Record<string, string | null>) {
+    const presentationHref = managedPresentationHref(managedPath, searchQuery, updates);
+    if (presentationHref) { router.push(localizedPath(presentationHref, language)); return; }
     const params = managedSearchParams(window.location.search, initialSearchParams);
     Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
     const requestedArea = updates.location === undefined ? area : updates.location || "הכל";
@@ -120,7 +123,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       const params = managedSearchParams(window.location.search, initialSearchParams);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 0);
-      setArea(requestedArea && requestedArea !== "כל הארץ" ? requestedArea : initialArea || "הכל");
+      setArea(requestedArea && requestedArea !== "כל הארץ" ? requestedArea : initialArea && initialArea !== "כל הארץ" ? initialArea : "הכל");
       setGuests(Number.isFinite(requestedGuests) && requestedGuests > 0 ? Math.max(10, requestedGuests) : params.get("from") ? 20 : 0);
       setType(normalizeEventVenueType(params.get("type")));
       setEventType(params.get("eventType") || "הכל");
@@ -203,9 +206,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const types = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.map((place) => place.type), eventVenueTypeOrder)], [eventPlaces]);
   const eventTypes = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.eventTypes), eventOccasionOrder)], [eventPlaces]);
   const facilities = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.features), eventFacilityOrder)], [eventPlaces]);
-  const matchesHardFilters = (place: EventPlace) => (!types.includes(type) || type === "הכל" || place.type === type)
-    && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType))
-    && (!facilities.includes(facility) || facility === "הכל" || place.features.includes(facility))
+  const matchesHardFilters = (place: EventPlace) => (type === "הכל" || place.type === type)
+    && (eventType === "הכל" || place.eventTypes.includes(eventType))
+    && eventMatchesFeatureSelection(place, facility)
     && (!guests || place.capacityScope === "unit" || place.guests >= guests)
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
     && (!accessibleOnly || matchesVacationSearchFilter(place, "accessible"));
@@ -280,7 +283,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
 
   function reset() { const datedGuests = eventFrom ? 20 : 0; setArea("הכל"); setType("הכל"); setEventType("הכל"); setFacility("הכל"); setGuests(datedGuests); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); setSlot(undefined); updateUrl({ location: null, type: null, eventType: null, features: null, guests: datedGuests ? String(datedGuests) : null, noise: null, accessible: null, sort: null, hours: null, slot: null }); }
 
-  const eventBreadcrumbFilters = [area !== "הכל" ? area : null, types.includes(type) && type !== "הכל" ? type : null, eventTypes.includes(eventType) && eventType !== "הכל" ? eventType : null, facilities.includes(facility) && facility !== "הכל" ? facility : null].filter((item): item is string => Boolean(item));
+  const eventBreadcrumbFilters = [area !== "הכל" ? area : null, types.includes(type) && type !== "הכל" ? type : null, eventTypes.includes(eventType) && eventType !== "הכל" ? eventType : null, facility !== "הכל" ? eventFeatureSelectionLabel(facility) : null].filter((item): item is string => Boolean(item));
   const eventHeading = `${types.includes(type) && type !== "הכל" ? type : "מקומות לאירועים"}${eventTypes.includes(eventType) && eventType !== "הכל" ? ` ל${eventType}` : ""}${area !== "הכל" ? ` ב${area}` : " בישראל"}`;
   const contextualSearchSuggestions: ContextualSearchSuggestion[] = [
     ...types.filter((item) => item !== "הכל" && item !== type).map((item) => ({ label: item, params: { type: item } })),
@@ -312,7 +315,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
               <ModernSelect label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />
               <ModernSelect label="סוג מקום" value={type} onChange={(value) => changeFilter("type", value)} options={types.map((item) => ({ value: item, label: item }))} />
               <ModernSelect label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
-              <ModernSelect label="מתקנים ושירותים" value={facility} onChange={(value) => changeFilter("features", value)} options={facilities.map((item) => ({ value: item, label: item }))} />
+              <ModernSelect label="מתקנים ושירותים" value={facility} onChange={(value) => changeFilter("features", value)} options={[...facilities.map((item) => ({ value: item, label: item })), ...(facility !== "הכל" && !facilities.includes(facility) ? [{ value: facility, label: eventFeatureSelectionLabel(facility) }] : [])]} />
               <ModernSelect label={slotCopy.label} value={slot || "both"} onChange={(value) => changeFilter("slot", value === "both" ? "" : value)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} />
               {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}
               <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => changeFilter("noise", event.target.checked)} /> ללא הגבלת רעש</label>
@@ -325,7 +328,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
               <button className="button subtle wide filter-reset" type="button" onClick={reset}>ניקוי סינונים</button></div>
           </aside>
           <section className={`event-list results-view results-view--${viewMode}${mapOpen ? " event-list--map-open" : ""}`}>
-            <section className="results-heading"><div><h1>{landingTitle && area === initialArea && type === "הכל" && eventType === "הכל" ? landingTitle : eventHeading}</h1><div className="results-heading__meta">{!eventAvailabilityPending && !eventAvailabilityError ? <p>{displayed.length} מקומות מתאימים לחיפוש</p> : null}{landingDescription && area === initialArea && type === "הכל" && eventType === "הכל" ? <p>{landingDescription}</p> : null}</div></div></section>
+            <section className="results-heading"><div><h1>{landingTitle && (initialSearchParams || area === initialArea && type === "הכל" && eventType === "הכל") ? landingTitle : eventHeading}</h1><div className="results-heading__meta">{!eventAvailabilityPending && !eventAvailabilityError ? <p>{displayed.length} מקומות מתאימים לחיפוש</p> : null}{landingDescription && (initialSearchParams || area === initialArea && type === "הכל" && eventType === "הכל") ? <p>{landingDescription}</p> : null}</div></div></section>
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {datedEventSearch && (eventAvailabilityPending || eventAvailabilityError || supplierSearch.stale || !resultSet.length) ? <div className="online-booking-filter-notice" role={eventAvailabilityError ? "alert" : "status"} aria-busy={eventAvailabilityPending}>
               <p>{eventAvailabilityPending ? "בודקים אילו מקומות פנויים למועד ולכמות המשתתפים שבחרתם..." : eventAvailabilityError ? "לא הצלחנו לבדוק זמינות כרגע. אפשר לנסות שוב או לשנות את החיפוש." : supplierSearch.stale ? "מוצגות תוצאות הבדיקה האחרונה. הזמינות תאושר שוב לפני ההזמנה." : "לא נמצאו מקומות פנויים בבחירה הזו."}</p>

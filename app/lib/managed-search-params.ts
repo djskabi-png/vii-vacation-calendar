@@ -24,7 +24,6 @@ export function managedPresentationHref(landingPath: string | undefined, current
     if (value == null || value === "recommended") params.delete(key);
     else params.set(key, value);
   }
-  for (const key of ["location", "type", "types", "pool", "spa", "whole", "accessible", "online", "features"]) params.delete(key);
   const query = params.toString();
   return query ? `${landingPath}?${query}` : landingPath;
 }

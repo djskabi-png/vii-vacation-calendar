@@ -447,7 +447,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
-    const presentationHref = managedPresentationHref(landing?.path, initialParams.toString(), updates);
+    const presentationHref = managedPresentationHref(landing?.initialFilters ? landing.path : undefined, searchQuery, updates);
     if (presentationHref) {
       router.push(localizedPath(presentationHref, language), { scroll: false });
       return;

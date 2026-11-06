@@ -11,7 +11,7 @@ test('sorting an approved pool page retains semantic filters without a bare quer
  assert.equal(params.get('pool'),'1');assert.equal(params.get('features'),'heated-pool');assert.equal(params.get('sort'),'price-asc');
 });
 test('sorting an approved landing keeps its canonical path and only carries presentation state',()=>{
- const href=managedPresentationHref('/search/vacations/israel-20770-4e3f6ed0','pool=1&sort=price-desc&guests=4',{sort:'price-asc'});
+ const href=managedPresentationHref('/search/vacations/israel-20770-4e3f6ed0','sort=price-desc&guests=4',{sort:'price-asc'});
  assert.equal(href,'/search/vacations/israel-20770-4e3f6ed0?sort=price-asc&guests=4');
 });
 test('semantic changes do not bypass the canonical search builder',()=>{
@@ -26,4 +26,9 @@ test('explicit visitor changes override semantic defaults and removing pool does
 test('state synchronization and URL updates use the same approved-page intent and do not freeze its initial result IDs',()=>{
  const source=readFileSync(new URL('../app/search/page.tsx',import.meta.url),'utf8');assert.match(source,/const params = managedSearchParams\(searchQuery, landing\?\.initialFilters\)/);assert.match(source,/buildVacationSearchUrl\(initialParams\.toString\(\), updates/);
  const managed=readFileSync(new URL('../app/components/managed-search-landing.tsx',import.meta.url),'utf8');assert.doesNotMatch(managed,/listingSlugs: results\.map/);
+});
+
+test('explicit semantic query overrides are retained when only presentation changes',()=>{
+ assert.equal(managedPresentationHref('/search/vacations/approved','pool=0&guests=4',{sort:'price-asc'}),'/search/vacations/approved?pool=0&guests=4&sort=price-asc');
+ assert.equal(managedPresentationHref(undefined,'pool=1',{sort:'price-asc'}),null);
 });

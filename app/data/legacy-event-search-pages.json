@@ -17,7 +17,6 @@
     "updatedAt": "2026-11-06T21:10:51.218Z",
     "body": "מקומות לאירועים בעבדון, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/01-f1def288a280fa85.html",
     "sourceSha256": "f1def288a280fa854f42202d6b261af5b1dbfce0ff4c7112bf68b72127e44346"
   },
   {
@@ -38,7 +37,6 @@
     "updatedAt": "2026-11-06T21:10:51.231Z",
     "body": "מקומות לאירועים בבת ים, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/02-8b370aed5e1a4eee.html",
     "sourceSha256": "8b370aed5e1a4eee255a849fb8ab6e3d39520d43f2efaaef558cdd7e67bfbb02"
   },
   {
@@ -59,7 +57,6 @@
     "updatedAt": "2026-11-06T21:10:51.153Z",
     "body": "מחפשים מקום לאירוע מרהיב ובלתי נשכח באזור המרכז? אצלנו בווי אירועים תמצאו מגוון רב של מקומות מדהימים המתאימים לכל סוג אירוע שרק תחלמו עליו לפרטים והזמנות כנסו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/03-4fc0acbdb03d56a1.html",
     "sourceSha256": "4fc0acbdb03d56a1ff1201731d6797568b301edcc42511ebbfa7f54af1530987"
   },
   {
@@ -80,7 +77,6 @@
     "updatedAt": "2026-11-06T21:10:51.199Z",
     "body": "מקומות לאירועים במישור החוף והשפלה, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/04-6e97c7ba88a954af.html",
     "sourceSha256": "6e97c7ba88a954afdaf89dd0e0606ed1f11a894fd9eb0b123a5ce10a8c9409fb"
   },
   {
@@ -101,7 +97,6 @@
     "updatedAt": "2026-11-06T21:10:52.629Z",
     "body": "מקומות לאירועים בשרון, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/05-c44f86ec1ea46b8c.html",
     "sourceSha256": "c44f86ec1ea46b8c765033876868d43a90ddcf9c38d0e62cf8f6c61d6c23376f"
   },
   {
@@ -122,7 +117,6 @@
     "updatedAt": "2026-11-06T21:10:52.657Z",
     "body": "וילות ומתחמי אירוח בחיפה וחוף הכרמל לאירועים קטנים וגדולים – מצאו את המקום המושלם באתר vii events",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/06-ab70f9d041161770.html",
     "sourceSha256": "ab70f9d041161770f21727dc21dfc9c79a5b7937a61393eb2dbf412ba2e7d2cc"
   },
   {
@@ -143,7 +137,6 @@
     "updatedAt": "2026-11-06T21:10:52.592Z",
     "body": "מקומות לאירועים בעמק חפר, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/07-d4227ad2c9f43dc2.html",
     "sourceSha256": "d4227ad2c9f43dc273c8851f224f6627f7f3b89133da105def27740fd5957096"
   },
   {
@@ -168,16 +161,15 @@
     "updatedAt": "2026-11-06T21:10:52.568Z",
     "body": "מתחמי אירוח מקומות לאירועים , מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/08-0da2bff2618f4018.html",
     "sourceSha256": "0da2bff2618f40182127203058582009e3aa4934526dee25a606d3a6babf1d31"
   },
   {
     "id": "legacy-event-21de374f22a3",
     "legacySourcePath": "/events/s/Israel/11235131839",
-    "sourcePath": "/events/search?features=%D7%A2%D7%A8%D7%9B%D7%AA+%D7%A7%D7%A8%D7%99%D7%95%D7%A7%D7%99%2Camenity-10",
+    "sourcePath": "/events/search?features=amenity-10",
     "location": "כל הארץ",
     "filters": {
-      "features": "ערכת קריוקי,amenity-10"
+      "features": "amenity-10"
     },
     "sourceFilterLabels": {
       "attr[]": "ערכת קריוקי"
@@ -193,16 +185,15 @@
     "updatedAt": "2026-11-06T21:10:53.983Z",
     "body": "מקומות לאירועים , עם המאפיינים: ערכת קריוקי מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/09-b9654edf9d30de51.html",
     "sourceSha256": "b9654edf9d30de5117048639565ea3a2194c30d2e6607c162141aa3f41ea44e0"
   },
   {
     "id": "legacy-event-2b28c794655f",
     "legacySourcePath": "/events/s/Israel/11235131840",
-    "sourcePath": "/events/search?features=%D7%A4%D7%99%D7%A0%D7%AA+%D7%9E%D7%A0%D7%92%D7%9C%2Camenity-12",
+    "sourcePath": "/events/search?features=amenity-12",
     "location": "כל הארץ",
     "filters": {
-      "features": "פינת מנגל,amenity-12"
+      "features": "amenity-12"
     },
     "sourceFilterLabels": {
       "attr[]": "פינת מנגל"
@@ -218,16 +209,15 @@
     "updatedAt": "2026-11-06T21:10:53.934Z",
     "body": "מקומות לאירועים , עם המאפיינים: פינת מנגל מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/10-2a11c6ab5f91a9fb.html",
     "sourceSha256": "2a11c6ab5f91a9fbfe791c99c189ce100e6191cc3ed0a6efc47fef458876ef48"
   },
   {
     "id": "legacy-event-9da341409105",
     "legacySourcePath": "/events/s/Israel/11235131852",
-    "sourcePath": "/events/search?features=%D7%9E%D7%99%D7%A7%D7%A8%D7%95%D7%92%D7%9C%2Camenity-27",
+    "sourcePath": "/events/search?features=amenity-27",
     "location": "כל הארץ",
     "filters": {
-      "features": "מיקרוגל,amenity-27"
+      "features": "amenity-27"
     },
     "sourceFilterLabels": {
       "attr[]": "מיקרוגל"
@@ -243,16 +233,15 @@
     "updatedAt": "2026-11-06T21:10:54.006Z",
     "body": "מקומות לאירועים , עם המאפיינים: מיקרוגל מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/11-d136a2d40552d162.html",
     "sourceSha256": "d136a2d40552d162567fd3f35dce9405c25eebb5e25664b14a2ac06eed7876d9"
   },
   {
     "id": "legacy-event-8cb1d64797b3",
     "legacySourcePath": "/events/s/Israel/11235131870",
-    "sourcePath": "/events/search?features=%D7%9E%D7%A1%D7%99%D7%91%D7%95%D7%AA+%D7%94%D7%A4%D7%AA%D7%A2%D7%94%2Camenity-59",
+    "sourcePath": "/events/search?features=amenity-59",
     "location": "כל הארץ",
     "filters": {
-      "features": "מסיבות הפתעה,amenity-59"
+      "features": "amenity-59"
     },
     "sourceFilterLabels": {
       "attr[]": "מסיבות הפתעה"
@@ -268,16 +257,15 @@
     "updatedAt": "2026-11-06T21:10:54.038Z",
     "body": "מקומות לאירועים , עם המאפיינים: מסיבות הפתעה מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/12-235281df166e66c9.html",
     "sourceSha256": "235281df166e66c9f81141f8d4a820c6aa313b2c42e3fe8bf9016f086b0b7f18"
   },
   {
     "id": "legacy-event-aae460cacf64",
     "legacySourcePath": "/events/s/Israel/11235131877",
-    "sourcePath": "/events/search?features=%D7%A7%D7%95%D7%9E%D7%A7%D7%95%D7%9D+%D7%97%D7%A9%D7%9E%D7%9C%D7%99%2Camenity-71",
+    "sourcePath": "/events/search?features=amenity-71",
     "location": "כל הארץ",
     "filters": {
-      "features": "קומקום חשמלי,amenity-71"
+      "features": "amenity-71"
     },
     "sourceFilterLabels": {
       "attr[]": "קומקום חשמלי"
@@ -293,16 +281,15 @@
     "updatedAt": "2026-11-06T21:10:55.238Z",
     "body": "מקומות לאירועים , עם המאפיינים: קומקום חשמלי מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/13-99432febf5ab7caf.html",
     "sourceSha256": "99432febf5ab7caf5af563a2cb2947b038f86ef26d351aa58437b9f9049cd873"
   },
   {
     "id": "legacy-event-2ee50f0b0f34",
     "legacySourcePath": "/events/s/Israel/11235131883",
-    "sourcePath": "/events/search?features=%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A4%D7%99%D7%A0%D7%92+%D7%A4%D7%95%D7%A0%D7%92%2Camenity-82",
+    "sourcePath": "/events/search?features=amenity-82",
     "location": "כל הארץ",
     "filters": {
-      "features": "שולחן פינג פונג,amenity-82"
+      "features": "amenity-82"
     },
     "sourceFilterLabels": {
       "attr[]": "שולחן פינג פונג"
@@ -318,16 +305,15 @@
     "updatedAt": "2026-11-06T21:10:55.262Z",
     "body": "מקומות לאירועים , עם המאפיינים: שולחן פינג פונג מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/14-34672c703adb6079.html",
     "sourceSha256": "34672c703adb6079d35867038f66a69899eea7c8803e996ba422b63502ae8301"
   },
   {
     "id": "legacy-event-8e443a39575a",
     "legacySourcePath": "/events/s/Israel/11235131885",
-    "sourcePath": "/events/search?features=%D7%97%D7%99%D7%91%D7%95%D7%A8+%D7%9C%D7%A2%D7%A8%D7%95%D7%A6%D7%99+yes%2Camenity-96",
+    "sourcePath": "/events/search?features=amenity-96",
     "location": "כל הארץ",
     "filters": {
-      "features": "חיבור לערוצי yes,amenity-96"
+      "features": "amenity-96"
     },
     "sourceFilterLabels": {
       "attr[]": "חיבור לערוצי yes"
@@ -343,16 +329,15 @@
     "updatedAt": "2026-11-06T21:10:55.288Z",
     "body": "מקומות לאירועים , עם המאפיינים: חיבור לערוצי yes מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/15-68c8ccd929d3694c.html",
     "sourceSha256": "68c8ccd929d3694c3d50dd09a4dc385b1c1ab69c3afef5397b69a4db281cc142"
   },
   {
     "id": "legacy-event-b3370bdf82f8",
     "legacySourcePath": "/events/s/Israel/11235131897",
-    "sourcePath": "/events/search?features=%D7%97%D7%A0%D7%99%D7%94+%D7%A4%D7%A8%D7%98%D7%99%D7%AA%2Camenity-142",
+    "sourcePath": "/events/search?features=amenity-142",
     "location": "כל הארץ",
     "filters": {
-      "features": "חניה פרטית,amenity-142"
+      "features": "amenity-142"
     },
     "sourceFilterLabels": {
       "attr[]": "חניה פרטית"
@@ -368,16 +353,15 @@
     "updatedAt": "2026-11-06T21:10:55.350Z",
     "body": "מקומות לאירועים , עם המאפיינים: חניה פרטית מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/16-c8f8928e89c7128e.html",
     "sourceSha256": "c8f8928e89c7128e74122be4ca45b84b926f41b76dddca0a2178af224c9a2b13"
   },
   {
     "id": "legacy-event-bdfa471d63c2",
     "legacySourcePath": "/events/s/Israel/11235131899",
-    "sourcePath": "/events/search?features=%D7%9E%D7%96%D7%92%D7%9F%2Camenity-150",
+    "sourcePath": "/events/search?features=amenity-150",
     "location": "כל הארץ",
     "filters": {
-      "features": "מזגן,amenity-150"
+      "features": "amenity-150"
     },
     "sourceFilterLabels": {
       "attr[]": "מזגן"
@@ -393,16 +377,15 @@
     "updatedAt": "2026-11-06T21:10:56.669Z",
     "body": "מקומות לאירועים , עם המאפיינים: מזגן מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/17-27c3b1edd1d512c2.html",
     "sourceSha256": "27c3b1edd1d512c2a40bdb610b1ddc06a9bd6ea636df5ada0c2597f6f4ccbf70"
   },
   {
     "id": "legacy-event-03b86d09b27c",
     "legacySourcePath": "/events/s/Israel/11235131939",
-    "sourcePath": "/events/search?features=%D7%9E%D7%AA%D7%90%D7%99%D7%9D+%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D%2Camenity-232",
+    "sourcePath": "/events/search?features=amenity-232",
     "location": "כל הארץ",
     "filters": {
-      "features": "מתאים לאירועים,amenity-232"
+      "features": "amenity-232"
     },
     "sourceFilterLabels": {
       "attr[]": "מתאים לאירועים"
@@ -418,16 +401,15 @@
     "updatedAt": "2026-11-06T21:10:56.735Z",
     "body": "מקומות לאירועים , עם המאפיינים: מתאים לאירועים מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/18-97f0498d8f7685d5.html",
     "sourceSha256": "97f0498d8f7685d5aa4cef69f214e73cab0123212d1d083c12f716f575845dd7"
   },
   {
     "id": "legacy-event-5d0dac0a4e64",
     "legacySourcePath": "/events/s/Israel/11235131941",
-    "sourcePath": "/events/search?features=%D7%9E%D7%A7%D7%A8%D7%95%D7%A4%D7%95%D7%A0%D7%99%D7%9D+%D7%90%D7%9C%D7%97%D7%95%D7%98%D7%99%D7%99%D7%9D%2Camenity-235",
+    "sourcePath": "/events/search?features=amenity-235",
     "location": "כל הארץ",
     "filters": {
-      "features": "מקרופונים אלחוטיים,amenity-235"
+      "features": "amenity-235"
     },
     "sourceFilterLabels": {
       "attr[]": "מקרופונים אלחוטיים"
@@ -443,16 +425,15 @@
     "updatedAt": "2026-11-06T21:10:56.606Z",
     "body": "מקומות לאירועים , עם המאפיינים: מקרופונים אלחוטיים מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/19-e4c0c50e64fa259b.html",
     "sourceSha256": "e4c0c50e64fa259b175407104f99371499eb1766731ee568736ca6c010970a8f"
   },
   {
     "id": "legacy-event-f3e7478ec60c",
     "legacySourcePath": "/events/s/Israel/11235131959",
-    "sourcePath": "/events/search?features=%D7%9B%D7%99%D7%91%D7%95%D7%93+%D7%A7%D7%9C%2Camenity-280",
+    "sourcePath": "/events/search?features=amenity-280",
     "location": "כל הארץ",
     "filters": {
-      "features": "כיבוד קל,amenity-280"
+      "features": "amenity-280"
     },
     "sourceFilterLabels": {
       "attr[]": "כיבוד קל"
@@ -468,16 +449,15 @@
     "updatedAt": "2026-11-06T21:10:56.640Z",
     "body": "מקומות לאירועים , עם המאפיינים: כיבוד קל מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/20-68bdfffaac4ed097.html",
     "sourceSha256": "68bdfffaac4ed0975074b485d8afcac0d4bc48d3299984c17d6f3d2f5176b488"
   },
   {
     "id": "legacy-event-8799a1c14589",
     "legacySourcePath": "/events/s/Israel/11235131973",
-    "sourcePath": "/events/search?features=%D7%A9%D7%95%D7%9C%D7%97%D7%A0%D7%95%D7%AA+%D7%95%D7%9B%D7%99%D7%A1%D7%90%D7%95%D7%AA%2Camenity-318",
+    "sourcePath": "/events/search?features=amenity-318",
     "location": "כל הארץ",
     "filters": {
-      "features": "שולחנות וכיסאות,amenity-318"
+      "features": "amenity-318"
     },
     "sourceFilterLabels": {
       "attr[]": "שולחנות וכיסאות"
@@ -493,16 +473,15 @@
     "updatedAt": "2026-11-06T21:10:57.955Z",
     "body": "מקומות לאירועים , עם המאפיינים: שולחנות וכיסאות מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/21-9430fcce14db6344.html",
     "sourceSha256": "9430fcce14db63449465c2f2425cdffdd81bac50497a6927cca5405c1b970ed8"
   },
   {
     "id": "legacy-event-75a1b18393e3",
     "legacySourcePath": "/events/s/Israel/11235131977",
-    "sourcePath": "/events/search?features=%D7%97%D7%A0%D7%99%D7%94+%D7%97%D7%99%D7%A0%D7%9D%2Camenity-336",
+    "sourcePath": "/events/search?features=amenity-336",
     "location": "כל הארץ",
     "filters": {
-      "features": "חניה חינם,amenity-336"
+      "features": "amenity-336"
     },
     "sourceFilterLabels": {
       "attr[]": "חניה חינם"
@@ -518,16 +497,15 @@
     "updatedAt": "2026-11-06T21:10:57.920Z",
     "body": "מקומות לאירועים , עם המאפיינים: חניה חינם מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/22-5e13d0b137c5f4fd.html",
     "sourceSha256": "5e13d0b137c5f4fd054ab99e7380b7510e8129386a48f345a7b576bf2b777243"
   },
   {
     "id": "legacy-event-4b85aacdbf4a",
     "legacySourcePath": "/events/s/Israel/11235131995",
-    "sourcePath": "/events/search?features=%D7%97%D7%93%D7%A8%D7%99+%D7%A9%D7%99%D7%A0%D7%94%2Camenity-371",
+    "sourcePath": "/events/search?features=amenity-371",
     "location": "כל הארץ",
     "filters": {
-      "features": "חדרי שינה,amenity-371"
+      "features": "amenity-371"
     },
     "sourceFilterLabels": {
       "attr[]": "חדרי שינה"
@@ -543,7 +521,6 @@
     "updatedAt": "2026-11-06T21:10:57.968Z",
     "body": "מקומות לאירועים , עם המאפיינים: חדרי שינה מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/23-16bc03f1fe72b588.html",
     "sourceSha256": "16bc03f1fe72b5888daad6f14ec72015b743e0713659b15a49e85f2507bc9794"
   },
   {
@@ -564,7 +541,6 @@
     "updatedAt": "2026-11-06T21:10:58.019Z",
     "body": "חוגגים אירוע בלתי נשכח בירושלים והרי יהודה! באתר VII EVENTS תמצאו מתחמי נופש יוקרתיים לאירועים, שבתות חתן ומסיבות באווירה קסומה. היכנסו והזמינו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/24-ff561cf088705697.html",
     "sourceSha256": "ff561cf0887056971d25bfcc48cb7c4424ce7bf5d14d05d9e5882cc97701463c"
   },
   {
@@ -585,7 +561,6 @@
     "updatedAt": "2026-11-06T21:10:59.321Z",
     "body": "מחפשים רגעים קטנים של חוויות מלאות באושר ואירועים בלתי נשכחים באזור כפר טרומן? אצלנו בווי אירועים תמצאו מגוון רב של מקומות מדהימים לכל סוג שתבקשו לפרטים כנסו והזמינו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/25-cc2c5c48af70b587.html",
     "sourceSha256": "cc2c5c48af70b587d36ee7a1b183f0c285c94fa5b1727c552f9f4a0fce0874cb"
   },
   {
@@ -606,7 +581,6 @@
     "updatedAt": "2026-11-06T21:10:59.298Z",
     "body": "מחפשים מתחם מרשים לחגוג את האירוע הבא שלכם בסטייל באזור קריית אתא ולא מוצאים? תפסיקו לחפש.. אצלנו בווי אירועים תמצאו מגוון רב של מקומות באזור קריית אתא כנסו והזמינו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/26-f66329dfb258ba48.html",
     "sourceSha256": "f66329dfb258ba48d44bf71bdde0110189811cee21361c26c325794a708af804"
   },
   {
@@ -627,7 +601,6 @@
     "updatedAt": "2026-11-06T21:10:59.310Z",
     "body": "מקומות לאירועים בנשר, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/27-678bf1c3bdb9b37d.html",
     "sourceSha256": "678bf1c3bdb9b37d941d6c2cdeea99323eeb37a8b4d54e99ff8a48dacc0c35aa"
   },
   {
@@ -648,7 +621,6 @@
     "updatedAt": "2026-11-06T21:10:59.362Z",
     "body": "כל המקומות לאירועים בנתניה מחכים לכם ב-vii events. וילות יוקרתיות עם בריכה מול הים, לופטים לריקודים וצימרים אינטימיים. היכנסו עכשיו, השוו מחירים ושריינו את המקום המושלם לאירוע שלכם! (170 תווים)קצר וממוקד SEO:vii events: הפורטל שלכם למציאת מקומות לאירועים בנתניה. מבחר עצום של וילות, צימרים ולופטים המתאימים לכל סוגי האירועים במחירים אטרקטיביים. כנסו עכשיו ובחרו מקום.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/28-0e7119812a2a13a0.html",
     "sourceSha256": "0e7119812a2a13a06cb7b3aa9bacf8cd25830e9b122694b15bdf763560c0d77f"
   },
   {
@@ -669,7 +641,6 @@
     "updatedAt": "2026-11-06T21:11:00.755Z",
     "body": "מחפשים מתחם או מקום באזור הצפוןשבו תחוו אירועים בלתי נשכחים? אצלנו בווי אירועים תמצאו מגוון רב של מתחמים הנותנים את המענה. כנסו עכשיו ותמצאו את האירוע הבא",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/29-67d920c80e535582.html",
     "sourceSha256": "67d920c80e535582924ca2aed243277e963f9c167cc56df56032bc209273b00d"
   },
   {
@@ -690,7 +661,6 @@
     "updatedAt": "2026-11-06T21:11:00.718Z",
     "body": "מחפשים מקום לאירוע בפתח תקווה? ב-vii events תמצאו מגוון וילות, צימרים ולופטים לחגיגות פרטיות, ימי הולדת ועוד. מתחמים מעוצבים עם כל האבזור הנדרש לאירוע מושלם במרכז.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/30-0d68d7c8798fde55.html",
     "sourceSha256": "0d68d7c8798fde553f94b568b0c0787b2dea308c8138d530a11c9624ca500d67"
   },
   {
@@ -711,7 +681,6 @@
     "updatedAt": "2026-11-06T21:11:00.688Z",
     "body": "מחפשים מקום או מתחם לאירוע הבא שלכם? הגעתם למקום הנכוןאצלנו תמצאו מגוון רחב של מקומות מדהימים העונים על כל בקשה שתחפשו לפרטים והזמנות כנסו עכשיו ותסגרו את האירוע המושלם",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/32-923d7f4ff8d702f0.html",
     "sourceSha256": "923d7f4ff8d702f09e300ef927a63fc895fb88a86ce967ec02225282a5b5d611"
   },
   {
@@ -732,7 +701,6 @@
     "updatedAt": "2026-11-06T21:11:02.120Z",
     "body": "מקומות לאירועים בשדה צבי, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/33-62232b17eddb9361.html",
     "sourceSha256": "62232b17eddb9361170e1cf1e6357cd7307aa06e01b890bac9d171ae3d86a57d"
   },
   {
@@ -753,7 +721,6 @@
     "updatedAt": "2026-11-06T21:11:02.046Z",
     "body": "מחפשים מקום לאירוע מרהיב ובלתי נשכח באזור הדרום? אצלנו בווי אירועים תמצאו מגוון רב של מקומות מדהימים המתאימים לכל סוג אירוע שרק תחלמו עליו לפרטים והזמנות כנסו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/34-d65fdc959e619cab.html",
     "sourceSha256": "d65fdc959e619cab6c2894103eef4d29628d42f545ead5a2f2a3b75222f356cb"
   },
   {
@@ -774,7 +741,6 @@
     "updatedAt": "2026-11-06T21:11:02.399Z",
     "body": "מקומות לאירועים במישור החוף הדרומי, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/35-03f314fb6d024c9e.html",
     "sourceSha256": "03f314fb6d024c9e6422dff86f205a1747d46dc29662a212c4b7ba43fa64d3f7"
   },
   {
@@ -795,7 +761,6 @@
     "updatedAt": "2026-11-06T21:11:02.087Z",
     "body": "מקומות לאירועים בתל אביב, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/36-0cc9dc913091fc5f.html",
     "sourceSha256": "0cc9dc913091fc5f49f73c2d31673a2fb9e954003302036d0ed6e7f9bf8f33c8"
   },
   {
@@ -816,7 +781,6 @@
     "updatedAt": "2026-11-06T21:11:03.655Z",
     "body": "מחפשים לוקיישן מנצח? ב-VII Events תמצאו וילות יוקרה וצימרים לאירועים בגליל המערבי. פתרון מושלם לאירועים. הזמינו מקום עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/37-fbd87d57a1791c86.html",
     "sourceSha256": "fbd87d57a1791c86accd66b52339eb0d355352d8b7a11e9e47ca68672178ed03"
   },
   {
@@ -837,7 +801,6 @@
     "updatedAt": "2026-11-06T21:11:03.468Z",
     "body": "מקומות לאירועים בירכא, מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/38-d265c412f78fbbe7.html",
     "sourceSha256": "d265c412f78fbbe792e3253c17ae8eb91d9817e5078edfb5f96b62bf97f8d114"
   },
   {
@@ -862,16 +825,15 @@
     "updatedAt": "2026-11-06T21:11:03.437Z",
     "body": "מחפשים לחגוג אירוע בוילה מדהימה ולא יודעים מאיפה להתחיל לחפש? אצלנו בווי אירועים תמצאו מגוון רב של וילות המתאימות לכל סוגי האירועים שרק חלמתם עם אבזור מושלם לפרטים כנסו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/39-e66bccfa275c0cf8.html",
     "sourceSha256": "e66bccfa275c0cf8b0a14426df8c1c3dcfe825d7bb3c8ff55a9a62ee170f1577"
   },
   {
     "id": "legacy-event-9a754b73dd34",
     "legacySourcePath": "/events/s/israel/11235131836",
-    "sourcePath": "/events/search?features=%D7%91%D7%A8%D7%99%D7%9B%D7%AA+%D7%A9%D7%97%D7%99%D7%99%D7%94+%D7%9E%D7%97%D7%95%D7%9E%D7%9E%D7%AA+%D7%95%D7%9E%D7%A7%D7%95%D7%A8%D7%94%2Camenity-7",
+    "sourcePath": "/events/search?features=amenity-7",
     "location": "כל הארץ",
     "filters": {
-      "features": "בריכת שחייה מחוממת ומקורה,amenity-7"
+      "features": "amenity-7"
     },
     "sourceFilterLabels": {
       "attr[]": "בריכת שחייה מחוממת ומקורה"
@@ -887,16 +849,15 @@
     "updatedAt": "2026-11-06T21:11:03.826Z",
     "body": "מחפשים מקום לאירוע מדהים ומהנה לכל הגילאים ולכל סיבה ומתחשק לכם להוסיף הנאה עם בריכה מחוממת מקורה? הגעתם למקום הנכון אצלנו בווי אירועים תמצאו מגוון רב של מקומות עם בריכה מחוממת ומקורה שיתאימו לכם במיוחד",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/40-e8cf16a5e3354981.html",
     "sourceSha256": "e8cf16a5e3354981c3be32709607b4dd49d14eda7809f2dd6625684fa37e9b93"
   },
   {
     "id": "legacy-event-b0f6e76c3652",
     "legacySourcePath": "/events/s/israel/11235131843",
-    "sourcePath": "/events/search?features=%D7%A4%D7%99%D7%A0%D7%AA+%D7%90%D7%95%D7%9B%D7%9C%2Camenity-15",
+    "sourcePath": "/events/search?features=amenity-15",
     "location": "כל הארץ",
     "filters": {
-      "features": "פינת אוכל,amenity-15"
+      "features": "amenity-15"
     },
     "sourceFilterLabels": {
       "attr[]": "פינת אוכל"
@@ -912,16 +873,15 @@
     "updatedAt": "2026-11-06T21:11:04.739Z",
     "body": "האירוע שלכם מתחיל כאן: מתחמי אירועים לאירוח אינטימי או עסקי כולל פינת אוכל מאובזרת וחגיגית. כנסו עכשיו לאתר vii events והזמינו את המקום המושלם",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/41-30922aab52d58ea9.html",
     "sourceSha256": "30922aab52d58ea9d46eeb6c41bb9ed3a3a7e2ecf975802598d7b7262a4dbf31"
   },
   {
     "id": "legacy-event-709a9afefe58",
     "legacySourcePath": "/events/s/israel/11235131867",
-    "sourcePath": "/events/search?features=%D7%A2%D7%A8%D7%91%D7%99+%D7%92%D7%99%D7%91%D7%95%D7%A9%2Camenity-54",
+    "sourcePath": "/events/search?features=amenity-54",
     "location": "כל הארץ",
     "filters": {
-      "features": "ערבי גיבוש,amenity-54"
+      "features": "amenity-54"
     },
     "sourceFilterLabels": {
       "attr[]": "ערבי גיבוש"
@@ -937,16 +897,15 @@
     "updatedAt": "2026-11-06T21:11:04.847Z",
     "body": "מתחמי אירוח פרטיים לערבי גיבוש ואירועי חברה. מגוון לוקיישנים עם בריכה, ג'קוזי ומטבח מאובזר, המבטיחים פרטיות מלאה ואווירה מושלמת לגיבוש העובדים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/42-5ac0a64faf4a2b9c.html",
     "sourceSha256": "5ac0a64faf4a2b9cdec15935857b1117bf49217804e8ca2b775af30367f4348c"
   },
   {
     "id": "legacy-event-5bba6dcb3410",
     "legacySourcePath": "/events/s/israel/11235131875",
-    "sourcePath": "/events/search?features=%D7%A9%D7%99%D7%A8%D7%95%D7%AA%D7%99%D7%9D+%D7%97%D7%99%D7%A6%D7%95%D7%A0%D7%99%D7%99%D7%9D%2Camenity-66",
+    "sourcePath": "/events/search?features=amenity-66",
     "location": "כל הארץ",
     "filters": {
-      "features": "שירותים חיצוניים,amenity-66"
+      "features": "amenity-66"
     },
     "sourceFilterLabels": {
       "attr[]": "שירותים חיצוניים"
@@ -962,16 +921,15 @@
     "updatedAt": "2026-11-06T21:11:04.925Z",
     "body": "אירועים בסטייל שלכם: מקומות לאירועים עם אפשרות לשירותים חיצוניים באתר vii events. חופש בחירה מלא בקייטרינג וספקים במבחר לוקיישנים נבחרים. היכנסו ובחרו מקום!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/43-f8053bc8ffcabd5a.html",
     "sourceSha256": "f8053bc8ffcabd5a9b83d591e81fb49b9b0b221eb42d15c056588773eb73391a"
   },
   {
     "id": "legacy-event-d6847ee6302f",
     "legacySourcePath": "/events/s/israel/11235131957",
-    "sourcePath": "/events/search?features=%D7%91%D7%A8%D7%99%D7%9B%D7%94%2Camenity-277",
+    "sourcePath": "/events/search?features=amenity-277",
     "location": "כל הארץ",
     "filters": {
-      "features": "בריכה,amenity-277"
+      "features": "amenity-277"
     },
     "sourceFilterLabels": {
       "attr[]": "בריכה"
@@ -987,16 +945,15 @@
     "updatedAt": "2026-11-06T21:11:05.144Z",
     "body": "מקומות לאירועים , עם בריכה , מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/44-24f6ec36db6197e0.html",
     "sourceSha256": "24f6ec36db6197e06b185a3a8a5e1765adb2718dc9818bd993dff53ef1976198"
   },
   {
     "id": "legacy-event-61e28c0ed029",
     "legacySourcePath": "/events/s/israel/11235131961",
-    "sourcePath": "/events/search?features=%D7%A9%D7%95%D7%9C%D7%97%D7%9F+%D7%A9%D7%95%D7%A7%2Camenity-287",
+    "sourcePath": "/events/search?features=amenity-287",
     "location": "כל הארץ",
     "filters": {
-      "features": "שולחן שוק,amenity-287"
+      "features": "amenity-287"
     },
     "sourceFilterLabels": {
       "attr[]": "שולחן שוק"
@@ -1012,16 +969,15 @@
     "updatedAt": "2026-11-06T21:11:06.202Z",
     "body": "מחפשים וילה לאירוע עם שולחן שוק? ב-vii events תמצאו מתחמי יוקרה מושלמים לאירועים פרטיים ועסקיים, עם שפע קולינרי ואווירה בלתי נשכחת. היכנסו ובחרו את הוילה שלכם!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/45-ea01bd81a6c3a3be.html",
     "sourceSha256": "ea01bd81a6c3a3be86b1b0e974f6dfbb4e428d9517211762653f386d929006bb"
   },
   {
     "id": "legacy-event-58866d321e84",
     "legacySourcePath": "/events/s/israel/11235131965",
-    "sourcePath": "/events/search?features=%D7%A6%D7%9C%D7%9D+%D7%9E%D7%92%D7%A0%D7%98%D7%99%D7%9D%2Camenity-292",
+    "sourcePath": "/events/search?features=amenity-292",
     "location": "כל הארץ",
     "filters": {
-      "features": "צלם מגנטים,amenity-292"
+      "features": "amenity-292"
     },
     "sourceFilterLabels": {
       "attr[]": "צלם מגנטים"
@@ -1037,7 +993,6 @@
     "updatedAt": "2026-11-06T21:11:06.140Z",
     "body": "רוצים לשדרג את חווית האירוע הבא שלכם במתחם מדהים עם אפשרות להוסיף צלם מגנטים? אצלנו בווי אירועים תמצאו מגוון רב של מתחמים הנותנים את המענה. כנסו עכשיו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/46-cb96d2ec138816c3.html",
     "sourceSha256": "cb96d2ec138816c3d64f2b5012790c9c0561721bc55039b9f82392fbf5c685ea"
   },
   {
@@ -1062,7 +1017,6 @@
     "updatedAt": "2026-11-06T21:11:06.336Z",
     "body": "היתרון בלחגוג בלופט הוא שהוא ניתן לעיצוב בכל דרך שתרצו, אצלנו בווי אירועים תמצאו מגוון רחב של לופטים שיתאימו במיוחד עבורכם כנסו עכשיו והזמינואת האירוע הבא שלכם",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/47-63821b9bb59053c8.html",
     "sourceSha256": "63821b9bb59053c821634d4eaa7bcc806f371d72a1cfc7e5449ff9c6030809f5"
   },
   {
@@ -1087,16 +1041,15 @@
     "updatedAt": "2026-11-06T21:11:06.435Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/48-9ac94c69d1d6fd67.html",
     "sourceSha256": "9ac94c69d1d6fd670f54f00d6863f613fdc08b00aa76e78355a31526dc40f26c"
   },
   {
     "id": "legacy-event-a250ce5c56b0",
     "legacySourcePath": "https://www.vii.co.il/events/s/?marea=2&attr=49",
-    "sourcePath": "/events/search?location=%D7%9E%D7%A8%D7%9B%D7%96&features=%D7%9E%D7%A1%D7%99%D7%91%D7%AA+%D7%A8%D7%95%D7%95%D7%A7%D7%95%D7%AA%2Camenity-49",
+    "sourcePath": "/events/search?location=%D7%9E%D7%A8%D7%9B%D7%96&features=amenity-49",
     "location": "מרכז",
     "filters": {
-      "features": "מסיבת רווקות,amenity-49"
+      "features": "amenity-49"
     },
     "sourceFilterLabels": {
       "attr[]": "מסיבת רווקות"
@@ -1112,17 +1065,16 @@
     "updatedAt": "2026-11-06T21:11:07.738Z",
     "body": "מחפשות לופט או מתחם נופש למסיבת רווקות במרכז? באתר vii events תמצאו חללים מעוצבים, וילות עם בריכה ופינוקים לחגיגה בלתי נשכחת. הזמינו עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/49-a21ddd5df103c5e7.html",
     "sourceSha256": "a21ddd5df103c5e70499e409f964e24a00a0999a0411e241642dda75eff4c464"
   },
   {
     "id": "legacy-event-e0b3b0194ab1",
     "legacySourcePath": "https://www.vii.co.il/events/s/?marea=2&roomTypes=4&attr=50",
-    "sourcePath": "/events/search?location=%D7%9E%D7%A8%D7%9B%D7%96&type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=%D7%9E%D7%A1%D7%99%D7%91%D7%AA+%D7%A8%D7%95%D7%95%D7%A7%D7%99%D7%9D%2Camenity-50",
+    "sourcePath": "/events/search?location=%D7%9E%D7%A8%D7%9B%D7%96&type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=amenity-50",
     "location": "מרכז",
     "filters": {
       "type": "וילות",
-      "features": "מסיבת רווקים,amenity-50"
+      "features": "amenity-50"
     },
     "sourceFilterLabels": {
       "roomTypes[]": "וילות",
@@ -1139,7 +1091,6 @@
     "updatedAt": "2026-11-06T21:11:07.751Z",
     "body": "מחפשים וילה למסיבת רווקים במרכז? באתר vii events תמצאו וילות יוקרה עם בריכה, מערכות הגברה ופרטיות מלאה. חגגו בסטייל במתחמים הכי שווים. הזמינו עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/50-09d3636761181fac.html",
     "sourceSha256": "09d3636761181face907f4ff942dff128498ed2c8395cda5deda4d62f446f4a2"
   },
   {
@@ -1164,7 +1115,6 @@
     "updatedAt": "2026-11-06T21:11:07.695Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/51-946695804981f2f7.html",
     "sourceSha256": "946695804981f2f7e54f64cf6874bae1350c6a282afcdaf7eee03dff6f9d7d5c"
   },
   {
@@ -1189,17 +1139,16 @@
     "updatedAt": "2026-11-06T21:11:07.829Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/52-35030e8cf3fccb66.html",
     "sourceSha256": "35030e8cf3fccb66ac88c08e56fb62afdde56c68fc6ee60133876556486ab552"
   },
   {
     "id": "legacy-event-f9ec4cb0a48d",
     "legacySourcePath": "https://www.vii.co.il/events/s/?roomTypes=4&attr=232",
-    "sourcePath": "/events/search?type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=%D7%9E%D7%AA%D7%90%D7%99%D7%9D+%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D%2Camenity-232",
+    "sourcePath": "/events/search?type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=amenity-232",
     "location": "כל הארץ",
     "filters": {
       "type": "וילות",
-      "features": "מתאים לאירועים,amenity-232"
+      "features": "amenity-232"
     },
     "sourceFilterLabels": {
       "roomTypes[]": "וילות",
@@ -1216,17 +1165,16 @@
     "updatedAt": "2026-11-06T21:11:09.329Z",
     "body": "מחפשים וילות לאירועים? באתר vii events תמצאו וילות יוקרה מרהיבות לחתונה, בר מצווה, אירועי חברה ומסיבות פרטיות. חללים מעוצבים עם בריכה וציוד מלא. הזמינו עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/53-221ef7fdc9252a22.html",
     "sourceSha256": "221ef7fdc9252a22a8f43b2e005a77f86f10595fbc0c02ed23bbb5375a74dd26"
   },
   {
     "id": "legacy-event-5d8231c0236b",
     "legacySourcePath": "https://www.vii.co.il/events/s/?roomTypes=4&attr=241",
-    "sourcePath": "/events/search?type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=%D7%A9%D7%91%D7%AA%D7%95%D7%AA+%D7%97%D7%AA%D7%9F%2Camenity-241",
+    "sourcePath": "/events/search?type=%D7%95%D7%99%D7%9C%D7%95%D7%AA&features=amenity-241",
     "location": "כל הארץ",
     "filters": {
       "type": "וילות",
-      "features": "שבתות חתן,amenity-241"
+      "features": "amenity-241"
     },
     "sourceFilterLabels": {
       "roomTypes[]": "וילות",
@@ -1243,17 +1191,16 @@
     "updatedAt": "2026-11-06T21:11:09.343Z",
     "body": "מחפשים וילה לשבת חתן? באתר vii events תמצאו וילות יוקרה מותאמות למשפחות וחברים, עם חדרי שינה מרווחים, פלטות, מייחמים ובתי כנסת בקרבת מקום. הזמינו עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/54-67d1a36a8133c412.html",
     "sourceSha256": "67d1a36a8133c412de724acd0a42ec3d079974f4b72cb942ecbfd4f5154ce0de"
   },
   {
     "id": "legacy-event-23d585e2a64b",
     "legacySourcePath": "https://www.vii.co.il/events/s/?roomTypes=5&attr=232",
-    "sourcePath": "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98%D7%99%D7%9D&features=%D7%9E%D7%AA%D7%90%D7%99%D7%9D+%D7%9C%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D%2Camenity-232",
+    "sourcePath": "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98%D7%99%D7%9D&features=amenity-232",
     "location": "כל הארץ",
     "filters": {
       "type": "לופטים",
-      "features": "מתאים לאירועים,amenity-232"
+      "features": "amenity-232"
     },
     "sourceFilterLabels": {
       "roomTypes[]": "לופטים",
@@ -1270,17 +1217,16 @@
     "updatedAt": "2026-11-06T21:11:09.443Z",
     "body": "הפקת אירוע בלתי נשכח מתחילה כאן. VII Events מציג: לופטים יוקרתיים ומעוצבים לאירועים פרטיים ועסקיים. מערכות סאונד, סטייל מנצח ופרטיות מלאה. הזמינו עכשיו!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/55-ce25beb4ecbdd57e.html",
     "sourceSha256": "ce25beb4ecbdd57ee69113ac9af6786a02e420186e75723b9e95c7dd861173bd"
   },
   {
     "id": "legacy-event-131eed2f80d0",
     "legacySourcePath": "https://www.vii.co.il/events/s/?roomTypes=5&attr=54",
-    "sourcePath": "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98%D7%99%D7%9D&features=%D7%A2%D7%A8%D7%91%D7%99+%D7%92%D7%99%D7%91%D7%95%D7%A9%2Camenity-54",
+    "sourcePath": "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98%D7%99%D7%9D&features=amenity-54",
     "location": "כל הארץ",
     "filters": {
       "type": "לופטים",
-      "features": "ערבי גיבוש,amenity-54"
+      "features": "amenity-54"
     },
     "sourceFilterLabels": {
       "roomTypes[]": "לופטים",
@@ -1297,7 +1243,6 @@
     "updatedAt": "2026-11-06T21:11:09.551Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/56-8c8a66c5cfae9a6d.html",
     "sourceSha256": "8c8a66c5cfae9a6d3c49988d1ebad0a5e4e942c5cf0ff56355e883cfdbac8cde"
   },
   {
@@ -1322,7 +1267,6 @@
     "updatedAt": "2026-11-06T21:11:10.740Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/57-618ac2751f55fdd1.html",
     "sourceSha256": "618ac2751f55fdd12ccce0a19e4a1f96b6eef152f4f9121273e0d2038308ceee"
   },
   {
@@ -1347,7 +1291,6 @@
     "updatedAt": "2026-11-06T21:11:11.022Z",
     "body": "מחפשים לופטים בראשון לציון? באתר vii events תמצאו את הלופטים הכי שווים למסיבות ואירועים. חללים מעוצבים, מערכות הגברה מתקדמות ופינוקים. הזמינו עכשיו לופט מנצח!",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/58-31db3c3cdd16ae0f.html",
     "sourceSha256": "31db3c3cdd16ae0f3385d21fbc216cf13fb8135e7a826f4ee19aca25f49437b9"
   },
   {
@@ -1372,16 +1315,15 @@
     "updatedAt": "2026-11-06T21:11:10.814Z",
     "body": "",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/59-2601583d45562630.html",
     "sourceSha256": "2601583d4556263028755f2521fc4f2ad9a133726cf6aeb1f92b8e72c74834c7"
   },
   {
     "id": "legacy-event-26a420e44871",
     "legacySourcePath": "https://www.vii.co.il/events/s/Israel/11235131863",
-    "sourcePath": "/events/search?features=%D7%9E%D7%A1%D7%99%D7%91%D7%AA+%D7%A8%D7%95%D7%95%D7%A7%D7%95%D7%AA%2Camenity-49",
+    "sourcePath": "/events/search?features=amenity-49",
     "location": "כל הארץ",
     "filters": {
-      "features": "מסיבת רווקות,amenity-49"
+      "features": "amenity-49"
     },
     "sourceFilterLabels": {
       "attr[]": "מסיבת רווקות"
@@ -1397,16 +1339,15 @@
     "updatedAt": "2026-11-06T21:11:10.974Z",
     "body": "מקומות לאירועים , עם המאפיינים: מסיבת רווקות מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/60-04111df96e964b24.html",
     "sourceSha256": "04111df96e964b24aa9225c7e752488107bd57d03e4791e2ca6846fba0cac9d2"
   },
   {
     "id": "legacy-event-a94ef29a3a4c",
     "legacySourcePath": "https://www.vii.co.il/events/s/Israel/11235131864",
-    "sourcePath": "/events/search?features=%D7%9E%D7%A1%D7%99%D7%91%D7%AA+%D7%A8%D7%95%D7%95%D7%A7%D7%99%D7%9D%2Camenity-50",
+    "sourcePath": "/events/search?features=amenity-50",
     "location": "כל הארץ",
     "filters": {
-      "features": "מסיבת רווקים,amenity-50"
+      "features": "amenity-50"
     },
     "sourceFilterLabels": {
       "attr[]": "מסיבת רווקים"
@@ -1422,16 +1363,15 @@
     "updatedAt": "2026-11-06T21:11:12.584Z",
     "body": "מקומות לאירועים , עם המאפיינים: מסיבת רווקים מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/61-003e1a55c981f3a7.html",
     "sourceSha256": "003e1a55c981f3a7adef180c7073e10ebf029dc5237a537de31ed457415a2f78"
   },
   {
     "id": "legacy-event-198ad45daa7a",
     "legacySourcePath": "https://www.vii.co.il/events/s/Israel/11235131987",
-    "sourcePath": "/events/search?features=%D7%9E%D7%A1%D7%99%D7%91%D7%AA+%D7%92%D7%99%D7%95%D7%A1%2Camenity-362",
+    "sourcePath": "/events/search?features=amenity-362",
     "location": "כל הארץ",
     "filters": {
-      "features": "מסיבת גיוס,amenity-362"
+      "features": "amenity-362"
     },
     "sourceFilterLabels": {
       "attr[]": "מסיבת גיוס"
@@ -1447,16 +1387,15 @@
     "updatedAt": "2026-11-06T21:11:12.226Z",
     "body": "מקומות לאירועים , עם המאפיינים: מסיבת גיוס מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/62-2ab0b8473cf26255.html",
     "sourceSha256": "2ab0b8473cf26255e7c504fe99ead65a893f33539b4f47b315cfa7534cb5d06d"
   },
   {
     "id": "legacy-event-72803137169e",
     "legacySourcePath": "https://www.vii.co.il/events/s/Israel/11235132014",
-    "sourcePath": "/events/search?features=%D7%91%D7%A8%D7%99%D7%AA%2F%D7%94%2Camenity-394",
+    "sourcePath": "/events/search?features=amenity-394",
     "location": "כל הארץ",
     "filters": {
-      "features": "ברית/ה,amenity-394"
+      "features": "amenity-394"
     },
     "sourceFilterLabels": {
       "attr[]": "ברית/ה"
@@ -1472,16 +1411,15 @@
     "updatedAt": "2026-11-06T21:11:12.470Z",
     "body": "מקומות לאירועים , עם המאפיינים: ברית/ה מציאת המקום לאירוע שלכם באמצעות בדיקת מחירים, זמינות המקום, חוות דעת ועוד מגוון כלים אצלנו בוי אירועים.",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/63-91651bb5bdc43ad9.html",
     "sourceSha256": "91651bb5bdc43ad9646216f910ebd74f3c8e287bdd5ea85d7deeb605db89bbf3"
   },
   {
     "id": "legacy-event-146d829287f4",
     "legacySourcePath": "https://www.vii.co.il/events/s/israel/11235131881",
-    "sourcePath": "/events/search?features=%D7%91%D7%A8%2F+%D7%AA+%D7%9E%D7%A6%D7%95%D7%95%D7%94%2Camenity-78",
+    "sourcePath": "/events/search?features=amenity-78",
     "location": "כל הארץ",
     "filters": {
-      "features": "בר/ ת מצווה,amenity-78"
+      "features": "amenity-78"
     },
     "sourceFilterLabels": {
       "attr[]": "בר/ ת מצווה"
@@ -1497,16 +1435,15 @@
     "updatedAt": "2026-11-06T21:11:12.524Z",
     "body": "מחפשים מתחם לאירוע הבא שלכם שיתאים לחגיגות בר או בת מצווה שכולם ידברו עליו בלי סוף? אצלנו בווי אירועים תמצאו מגוון רב של מתחמים הנותנים את המענה. כנסו והזמינו עכשיו",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/64-a4f36fcafdd01165.html",
     "sourceSha256": "a4f36fcafdd011656529dc9c3a68ab904d765377307e107773385eedec5f267f"
   },
   {
     "id": "legacy-event-3892f428167b",
     "legacySourcePath": "https://www.vii.co.il/events/s/israel/11235131888",
-    "sourcePath": "/events/search?features=%D7%97%D7%AA%D7%95%D7%A0%D7%95%D7%AA%2Camenity-109",
+    "sourcePath": "/events/search?features=amenity-109",
     "location": "כל הארץ",
     "filters": {
-      "features": "חתונות,amenity-109"
+      "features": "amenity-109"
     },
     "sourceFilterLabels": {
       "attr[]": "חתונות"
@@ -1522,7 +1459,6 @@
     "updatedAt": "2026-11-06T21:11:13.630Z",
     "body": "מחפשים מתחם מושלם לחתונה שלכם? תפסיקו לחפש.. הגעתם למקום הנכון.כאן תמצאו מגוון רחב של מתחמים מדהימים לחתונות שלא תשכחו לעולם עם מגוון רב של אטרקציות ומחשבה על כל הפרטים",
     "faq": [],
-    "sourceHtmlPath": ".qa-output/legacy-events-html-current/65-1e38baace7be5bae.html",
     "sourceSha256": "1e38baace7be5baebbc3fb4900612f5c6913b6fd9411d63153260d0cc1060b4b"
   }
 ]
