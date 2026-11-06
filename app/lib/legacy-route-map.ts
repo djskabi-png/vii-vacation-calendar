@@ -55,15 +55,17 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
   // Legacy search pages were published without booking state. A dated legacy
   // URL must still resolve to the same approved semantic page while retaining
   // the visitor's dates and party for the new search experience.
-  if (!target && url.pathname.toLowerCase() === "/s") {
+  if (!target && /^(?:\/s|\/events\/s)(?:\/|$)/i.test(url.pathname)) {
     const semantic = new URL(url);
     // A published legacy price combination is itself a registered intent.
     // Try it before treating an added price as transactional state.
     for (const key of searchStateKeys) if (!legacyPriceKeys.has(key)) semantic.searchParams.delete(key);
-    target = redirects[normalizedLegacySource(semantic)];
+    const semanticKey = normalizedLegacySource(semantic);
+    target = reviewedLegacyCanonicalRedirects[semanticKey] || redirects[semanticKey];
     if (!target) {
       for (const key of legacyPriceKeys) semantic.searchParams.delete(key);
-      target = redirects[normalizedLegacySource(semantic)];
+      const priceFreeKey = normalizedLegacySource(semantic);
+      target = reviewedLegacyCanonicalRedirects[priceFreeKey] || redirects[priceFreeKey];
     }
   }
   if (target) return {status:301,target:canonicalLegacyTarget(url,target)};

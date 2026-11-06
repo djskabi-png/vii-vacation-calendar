@@ -11,6 +11,14 @@ test("all captured legacy event search pages have unique approved canonical path
   for (const page of pages) {
     const result = legacyDisposition(page.legacySourcePath);
     assert.deepEqual(result, { status: 301, target: page.canonicalPath }, page.legacySourcePath);
+    const dated = new URL(page.legacySourcePath, "https://www.vii.co.il");
+    dated.searchParams.set("from", "2026-12-10");
+    dated.searchParams.set("till", "2026-12-12");
+    dated.searchParams.set("guests", "8");
+    const datedResult = legacyDisposition(dated);
+    assert.equal(datedResult?.status, 301, `${page.legacySourcePath} dated`);
+    assert.equal(datedResult?.target.includes("from=2026-12-10"), true, `${page.legacySourcePath} preserves dates`);
+    assert.equal(datedResult?.target.includes("guests=8"), true, `${page.legacySourcePath} preserves party`);
     assert.ok(page.filters && Object.keys(page.filters).length >= 0);
     assert.ok(page.latestResultCount > 0, page.legacySourcePath);
   }
