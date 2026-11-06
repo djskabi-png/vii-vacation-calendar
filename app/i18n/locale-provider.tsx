@@ -19,7 +19,31 @@ let emailPolishTranslations: AuxiliaryDictionary = {};
 let worldDepthTranslations: AuxiliaryDictionary = {};
 let visitorUiTranslations: AuxiliaryDictionary = {};
 
+function seedAuxiliaryTranslations(language: GeneratedLanguage, seed: AuxiliarySeed) {
+  if (auxiliaryDictionaries[language]) return;
+  const merge = (current: AuxiliaryDictionary, selected: Record<string, string>): AuxiliaryDictionary => {
+    const result = { ...current };
+    for (const [key, value] of Object.entries(selected)) {
+      const existing = current[key];
+      result[key] = { ...(typeof existing === "object" ? existing : {}), [language]: value };
+    }
+    return result;
+  };
+  legacyVacationUiTranslations = merge(legacyVacationUiTranslations, seed.legacyVacationUiTranslations);
+  bookingHubTranslations = merge(bookingHubTranslations, seed.bookingHubTranslations);
+  hourlyUiTranslations = merge(hourlyUiTranslations, seed.hourlyUiTranslations);
+  providerJoinTranslations = merge(providerJoinTranslations, seed.providerJoinTranslations);
+  spaUiTranslations = merge(spaUiTranslations, seed.spaUiTranslations);
+  catalogAdminTranslations = merge(catalogAdminTranslations, seed.catalogAdminTranslations);
+  emailPolishTranslations = merge(emailPolishTranslations, seed.emailPolishTranslations);
+  worldDepthTranslations = merge(worldDepthTranslations, seed.worldDepthTranslations);
+  visitorUiTranslations = merge(visitorUiTranslations, seed.visitorUiTranslations);
+  publicReviewByLanguage[language] = seed.publicReviewTranslations;
+  auxiliaryDictionaries[language] = { seeded: "true" };
+}
+
 function loadAuxiliaryTranslations(language: GeneratedLanguage) {
+  if (auxiliaryDictionaries[language]) return Promise.resolve();
   const existing = auxiliaryRequests[language];
   if (existing) return existing;
   const request = Promise.all([
@@ -1524,24 +1548,14 @@ export function LocaleProvider({ children, initialLanguage = "he", initialAuxili
   // Localized HTML is translated at the edge before hydration. The first
   // browser render must therefore derive the same locale from the URL instead
   // of replaying a Hebrew RSC default over an already localized document.
-  const [language, setLanguageState] = useState<SiteLanguage>(initialLanguage);
+  const [language, setLanguageState] = useState<SiteLanguage>(() => {
+    if (initialAuxiliarySeed && initialLanguage !== "he") seedAuxiliaryTranslations(initialLanguage, initialAuxiliarySeed);
+    return initialLanguage;
+  });
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
 
-  if (initialAuxiliarySeed && initialLanguage !== "he" && !auxiliaryDictionaries[initialLanguage]) {
-    const expand = (dictionary: Record<string, string>) => Object.fromEntries(Object.entries(dictionary).map(([key, value]) => [key, { [initialLanguage]: value }]));
-    legacyVacationUiTranslations = expand(initialAuxiliarySeed.legacyVacationUiTranslations);
-    bookingHubTranslations = expand(initialAuxiliarySeed.bookingHubTranslations);
-    hourlyUiTranslations = expand(initialAuxiliarySeed.hourlyUiTranslations);
-    providerJoinTranslations = expand(initialAuxiliarySeed.providerJoinTranslations);
-    spaUiTranslations = expand(initialAuxiliarySeed.spaUiTranslations);
-    catalogAdminTranslations = expand(initialAuxiliarySeed.catalogAdminTranslations);
-    emailPolishTranslations = expand(initialAuxiliarySeed.emailPolishTranslations);
-    worldDepthTranslations = expand(initialAuxiliarySeed.worldDepthTranslations);
-    visitorUiTranslations = expand(initialAuxiliarySeed.visitorUiTranslations);
-    publicReviewByLanguage[initialLanguage] = initialAuxiliarySeed.publicReviewTranslations;
-    auxiliaryDictionaries[initialLanguage] = { seeded: "true" };
-  }
+
 
   useEffect(() => {
     document.documentElement.setAttribute("data-vii-hydrated", "true");
