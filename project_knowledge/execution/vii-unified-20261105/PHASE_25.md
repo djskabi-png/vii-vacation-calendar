@@ -47,3 +47,14 @@ Tests use only synthetic local observations and dispose every Worker runtime.
 Business data, live consent collection, real-user field percentiles, supplier
 calls and outbound alerts are not established by these tests. Document 3 stays
 deferred.
+
+The first frozen full application run at `5fdd37582d17c20364063eb7279d17f9f3d2e404`
+had 2,466 tests: 2,462 passed, three failed, one existing skip. A new fallback
+phrase was missing from the shared three-language dictionary; two older map
+identity harnesses did not load the extracted real precision functions. The
+phrase was added and the harnesses now load the actual policy and assert the
+provider-host type as well as stable focus keys. Nine focused localization,
+stream-identity and provider-host checks passed afterward. The original failed
+run is retained and the candidate still requires a fresh full pass and artifact.
+The independently passed private-controller/browser/Edge builds were captured
+with their original source identities; they have no publication approval.
