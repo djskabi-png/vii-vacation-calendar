@@ -820,9 +820,7 @@
       "id": "image-delivery",
       "ownerBox": "image-delivery",
       "match": [
-        "services/vii-public-images/",
-        "worker/public-gallery-media.ts",
-        "public/media-recovery/"
+        "services/vii-public-images/"
       ]
     },
     {
@@ -932,7 +930,10 @@
         "app/lib/sergey-gallery.ts",
         "app/lib/verified-media-recovery.ts",
         "app/preview-card-consistency.css",
-        "app/api/vii/media/"
+        "app/api/vii/media/",
+        "worker/public-gallery-media.ts",
+        "worker/optimized-media-source.ts",
+        "public/media-recovery/"
       ]
     },
     {
