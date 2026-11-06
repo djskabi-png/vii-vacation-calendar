@@ -27,6 +27,8 @@ test("reviewed legacy search and event sources have exact canonical destinations
   assert.equal(legacyPlaceDestination("/Sol-_Events_And_Parties"), "/events/place/event-871");
   assert.equal(legacyPlaceDestination("/Willig_Bar_Events"), "/events/place/event-930");
   assert.equal(legacyPlaceDestination("/Sunset_Events"), "/events/place/event-2524");
+  assert.equal(legacyPlaceDestination("/ahuzat_romema"), "/business?id=vacation-2740");
+  assert.equal(legacyPlaceDestination("/villa_narkis_eilat"), "/business?id=vacation-2736");
 });
 
 test("legacy gone sources are not shadowed by a path-level redirect", async () => {
