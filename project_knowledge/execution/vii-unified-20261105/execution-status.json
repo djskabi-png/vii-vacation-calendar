@@ -746,7 +746,7 @@
     "Map specialist: explicit coordinate precision propagation and snapshot consistency; focused implementation only",
     "Independent checker: phase22/23 scoped source reviews complete, no cloud/public approval"
   ],
-  "lastUpdated": "2026-11-06T09:05:40.958246+00:00",
+  "lastUpdated": "2026-11-06T11:05:40.958246+02:00",
   "completionClaim": false,
   "currentSourceHead": "e720bf1ba78981f6b2c985f5ef53627d944f101f",
   "sourceCheckpoints": [
@@ -959,8 +959,8 @@
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Await pending authorization for owner-workspace infrastructure diagnostic chat; reconcile old publication operation and restore supported connection to the exact existing Site, then business/media restore, immutable full current runtime subject and coordinated public release/acceptance. Document3 remains deferred.",
-  "updatedAt": "2026-11-06T10:53:12.549338+00:00",
+  "nextStep": "Existing owning Cloud task recovered and v809 reconciled. Synchronize exact qualified source/archive, stage compatible private Workers with flags off, coordinate Site publication and exact deployed acceptance. Document3 follows core acceptance.",
+  "updatedAt": "2026-11-06T11:23:45.9766828+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": false,
   "sourceHeadMeaning": "Last frozen phase27 local source and exact per-unit artifact qualification. No public release or whole-project acceptance.",
@@ -984,7 +984,7 @@
     "archiveSha256": "3e2703ebb77747e6c6d48654268100b82eab268526a62c1f63edf9de6b8788da",
     "evidence": "PHASE_27_VERIFICATION.md"
   },
-  "executionGate": "owner_workspace_diagnostic_authorization_pending",
+  "executionGate": "owner_recovered_coordinated_release_in_progress",
   "independentReadySourceWorkIdentifiedByCurrentReview": false,
-  "currentAccessReview": "access-owner-publication-handoff.json"
+  "currentAccessReview": "access-owner-cloud-recovered.json"
 }

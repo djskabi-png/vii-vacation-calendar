@@ -1,0 +1,16 @@
+{
+  "observed_error": "Local native Sites lookup still returns PROJECT_NOT_FOUND, and an obsolete historical g-project chat returned Unknown error for one read-only diagnostic.",
+  "category": "capability",
+  "diagnosis": "The previously documented owning Cloud task was different from the obsolete/forced-local view. Opening its actual Recent link restored current owner Sites execution.",
+  "authorization_boundary": "Adir explicitly directed reuse of the existing publication conversation and completion/publication of unified documents1+2 before document3. Existing VII identity and permissions are preserved; no new user-owned chat or security access was created.",
+  "routes": [
+    {"kind":"connector","status":"checked","result":"failed","evidence":"One current exact-project native get_site call again returned Sites project not found. No repeated identical native calls were made."},
+    {"kind":"authorized_session","status":"checked","result":"succeeded","evidence":"Visible existing Recent link opened the owning Cloud task without forced hostId. Last completed v809 result matched retained IDs. A new single read-only operation completed at13:10 with current Site/history and supported backup/publication capability observations."},
+    {"kind":"project_cli_api","status":"checked","result":"succeeded","evidence":"Retained v809 publication and prior owner-access-recovered receipts identified this exact owning task. Git origin is the known GitHub VII repository; read-only ls-remote found the current branch at the observed live source. Private Cloudflare account resources remain separate from managed business DB."},
+    {"kind":"official_connection","status":"checked","result":"succeeded","evidence":"The owning Cloud task successfully used its existing Sites connection to read same project, v809/environment32/PUBLIC, exact source/tree/deployment and ten succeeded deployments. It confirmed archive-backed save and managed source sync. No Site recreation or access change."}
+  ],
+  "outcome":"recovered",
+  "verified_result":"Existing owner publication route is usable again; current read-only reconciliation completed. The earlier new-chat-approval dependency is superseded. Business backup and exact cumulative runtime/public acceptance remain separate uncompleted requirements.",
+  "ready_work_remaining":true,
+  "next_action":"Preserve proven route in project master knowledge, sync exact approved source and archive, prepare independent service generation readback, and continue controlled existing-site release with cumulative acceptance."
+}

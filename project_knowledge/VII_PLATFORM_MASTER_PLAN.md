@@ -107,3 +107,15 @@ Every future main release must follow `services/vii-edge-delivery/README.md`: su
 - מסמך 3: `plans/VII_DOCUMENT_3_LIRAN_ADIR_COMMENTS_20261105.md`, גרסה 1.0.
 
 הריכוז כולל 28 דיווחי לירן מ־5 בנובמבר, בחלון שתועד 11:14 עד 12:21, 27 משפחות הערות אדיר מההיסטוריה המצטברת ו־14 הוראות משלימות. אינו טוען לקריאת הודעות חדשות אחרי חלון המקור או להשלמת תיקוני האתר. קובצי מסמך 3 נשמרו ב־`C:/Users/Adir/Documents/vii.co.il/deliverables/VII-document-3-20261105/`.
+
+## Existing publication route and execution order, 6 November2026
+
+Read `project_knowledge/VII_PUBLICATION_ROUTING.md` before any access handoff.
+The existing owning Cloud task is reached from its actual Recent link at
+`https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045`, without forcing
+`hostId=local`. Its visible v809 result matches the retained deployment receipt.
+The older g-project conversation titled Publish VII Release is a different stale
+surface. Native connector PROJECT_NOT_FOUND does not prove this owner route is
+unavailable. Inspect existing authorized context and current operations first.
+This records a verified route, not a permanent session or a new release.
+Adir reconfirmed: complete and accept the unified documents1+2, then document3.
