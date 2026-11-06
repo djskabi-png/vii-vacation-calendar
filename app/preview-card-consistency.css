@@ -34,7 +34,8 @@
 
 /* Every event card has the same content slots, including the quote/status slot.
    Long descriptive prose and amenity lists remain on the full place page. */
-.event-list > .event-result-card > .event-result-card__body {
+.event-list > .event-result-card > .event-result-card__body,
+.event-map-results > .event-result-card > .event-result-card__body {
   min-width: 0;
   flex: 1;
   display: flex;
@@ -115,5 +116,21 @@
 
 @media (max-width: 620px) {
   .event-list.results-view--list > .event-result-card { display: flex; flex-direction: column; gap: 0; padding: 0; }
-  .event-list > .event-result-card > .event-result-card__body { padding: 16px; }
+  .event-list > .event-result-card > .event-result-card__body,
+.event-map-results > .event-result-card > .event-result-card__body { padding: 16px; }
 }
+
+
+/* Map results contain a nested result pane, so direct-child list rules cannot
+   supply their card layout. Keep the same complete card slots in this pane. */
+.event-list.event-list--map-open { grid-template-columns: minmax(0, 1fr); }
+.event-map-results.results-view--grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: stretch; }
+.event-map-results > .event-result-card {
+  min-width: 0; display: flex; flex-direction: column; gap: 0; overflow: hidden;
+  padding: 0; border: 1px solid #d8e5e7; border-radius: 24px; background: #fff;
+}
+.event-map-results > .event-result-card > .event-card-gallery { padding: 0; min-width: 0; }
+.event-map-results > .event-result-card > .event-card-gallery img { width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 0; object-fit: cover; }
+.event-map-results.results-view--list { grid-template-columns: minmax(0, 1fr); }
+.event-map-results.results-view--list > .event-result-card { display: grid; grid-template-columns: minmax(150px, 38%) minmax(0, 1fr); }
+.event-map-results.results-view--list > .event-result-card > .event-card-gallery img { height: 100%; min-height: 245px; aspect-ratio: auto; }

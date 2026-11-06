@@ -812,7 +812,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         </div>}
         <span className="map-selection-card__meta">{selected.meta}</span>
         {selected.precision === "area" && <span className="map-selection-card__precision">{precisionCopy}</span>}
-        <Link href={localizedPath(selected.href, language)}>{cardCopy.details}</Link>
+        <Link href={localizedPath(selected.href, language)} target="_blank" rel="noopener noreferrer">{cardCopy.details}</Link>
       </div>
       <button className="map-selection-card__close" type="button" onClick={closeSelectedPlace} aria-label={cardCopy.close}>×</button>
     </article>}

@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { localizedPath } from "../i18n/locale-routing";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { currencyLabelParts } from "../lib/currency-label";
@@ -58,7 +58,6 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
 }
 
 export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { item: DiscoveryItem; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
-  const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const localized = language === "he" ? null : worldCopy[language][item.world];
   const ui = language === "he" ? null : interfaceCopy[language];
@@ -87,7 +86,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     .filter(Boolean))];
 
   const imageFit = item.imageFit || "cover";
-  const detailsHref = `/discover/place/${item.id}`;
+  const detailsHref = localizedPath(`/discover/place/${item.id}`, language);
 
   return <article
     className={`discovery-card discovery-card--${item.world}${mapActive ? " is-map-active" : ""}`}
@@ -99,7 +98,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     onClick={(event) => {
       const target = event.target as HTMLElement;
       if (target.closest("a,button,input,select,textarea,[role='button']")) return;
-      router.push(detailsHref);
+      window.open(detailsHref, "_blank", "noopener,noreferrer");
     }}
   >
     <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={detailsHref} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={localizedName} linkLabel={`${details}: ${localizedName}`}>
@@ -109,7 +108,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link className="discovery-card__stretched-link" href={detailsHref}>{localizedName}<span className="sr-only"></span></Link></h3>
+      <h3><Link className="discovery-card__stretched-link" href={detailsHref} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
       <HorizontalChipRail className="discovery-card__chips" labels={features} ariaLabel={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]} />
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
