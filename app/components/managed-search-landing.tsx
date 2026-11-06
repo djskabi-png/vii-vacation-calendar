@@ -86,8 +86,9 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
       : hourlyPlacesFromCatalog(await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"));
     return <WorldLanding world={page.world} title={page.h1} description={page.metaDescription} items={discoveryItems}
       searchMode={page.world === "spa" ? "spa" : "hourly"} initialSearchLocation={page.location}
+      initialSpaAudience={page.world === "spa" && typeof page.filters.spaFor === "string" ? page.filters.spaFor : undefined}
       initialSpaFilters={page.world === "spa" && typeof page.filters.features === "string" ? page.filters.features.split(",").filter(Boolean) : undefined}
-      initialFilters={page.filters} managedBody={page.body} managedFaq={page.faq}
+      initialFilters={page.filters} managedBody={page.body} managedFaq={page.faq} managedTitle={page.h1}
       breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: page.world === "spa" ? "בתי ספא" : "חדרים לפי שעה", path: page.sourcePath.split("?")[0] }, { name: page.h1 }]}
       collectionTitle={page.h1} />;
   }

@@ -71,6 +71,7 @@ export async function WorldLanding({
   initialFilters,
   managedBody,
   managedFaq,
+  managedTitle,
 }: {
   world: WorldId;
   title: string;
@@ -89,6 +90,7 @@ export async function WorldLanding({
   initialFilters?: Record<string, string | number | boolean>;
   managedBody?: string;
   managedFaq?: Array<{ question: string; answer: string }>;
+  managedTitle?: string;
 }) {
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
@@ -107,8 +109,8 @@ export async function WorldLanding({
     : null;
   const heroPresentation = managedPresentation ? {
     ...managedPresentation,
-    title: world === "hourly" && initialSearchLocation ? title : managedPresentation.title,
-    description: world === "hourly" && initialSearchLocation ? description : managedPresentation.description,
+    title: managedTitle || (world === "hourly" && initialSearchLocation ? title : managedPresentation.title),
+    description: managedTitle ? description : (world === "hourly" && initialSearchLocation ? description : managedPresentation.description),
   } : null;
 
   return <PageShell variant={world}>
