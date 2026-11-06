@@ -1,15 +1,15 @@
 import { readJsonBody, RequestBodyError } from '../../../shared/request-body.ts';
-import { parseExperienceBatch } from '../../../shared/experience-metrics.ts';
+import { parseExperienceBatch, EXPERIENCE_SOURCE_HEADER, EXPERIENCE_INGESTION_PATH, EXPERIENCE_INGESTION_VERSION, EXPERIENCE_PROTOCOL_HEADER } from '../../../shared/experience-metrics.ts';
 
 const ORIGIN = 'https://vii.spaplus.co';
-const PRIVATE = 'https://vii-quality-control.internal/__vii/experience';
+const PRIVATE = `https://vii-quality-control.internal${EXPERIENCE_INGESTION_PATH}`;
 const safeHeaders = { 'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex, nofollow' };
 export type ExperienceGatewayEnvironment = { EXPERIENCE_ENABLED?: string; EXPECTED_BUILD_ID?: string; EXPECTED_APP_SOURCE_VERSION?: string; EXPERIENCE_SAMPLE_RATE_BPS?: string; QUALITY_CONTROL?: { fetch(request: Request): Promise<Response> } };
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: safeHeaders });
 const validBuild = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
 const validSource = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
 
-async function forwardBounded(binding: NonNullable<ExperienceGatewayEnvironment['QUALITY_CONTROL']>, body: string, signal: AbortSignal) {
+async function forwardBounded(binding: NonNullable<ExperienceGatewayEnvironment['QUALITY_CONTROL']>, body: string, sourceVersion: string, signal: AbortSignal) {
   const controller = new AbortController();
   let discarded = false, timer: ReturnType<typeof setTimeout> | undefined;
   let abort = () => {};
@@ -21,7 +21,7 @@ async function forwardBounded(binding: NonNullable<ExperienceGatewayEnvironment[
   });
   try {
     if (signal.aborted) return await interruption;
-    const work = binding.fetch(new Request(PRIVATE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, signal: controller.signal })).then(response => {
+    const work = binding.fetch(new Request(PRIVATE, { method: 'POST', headers: { 'Content-Type': 'application/json', [EXPERIENCE_SOURCE_HEADER]: sourceVersion, [EXPERIENCE_PROTOCOL_HEADER]: EXPERIENCE_INGESTION_VERSION }, body, signal: controller.signal })).then(response => {
       if (discarded) { void response.body?.cancel().catch(() => undefined); throw Error('late_measurement_response'); }
       return response;
     });
@@ -46,8 +46,8 @@ export async function experienceGateway(request: Request, env: ExperienceGateway
     const payload = await readJsonBody(request, { maxBytes: 8192, deadlineMs: 2000 });
     const parsed = parseExperienceBatch(payload);
     if (!parsed || parsed.buildId !== env.EXPECTED_BUILD_ID || parsed.sampleRateBps !== rate) return json({ accepted: false }, 400);
-    const response = await forwardBounded(env.QUALITY_CONTROL!, JSON.stringify(parsed), request.signal);
-    if (response.status !== 202) { void response.body?.cancel().catch(() => undefined); return json({ accepted: false }, 503); }
+    const response = await forwardBounded(env.QUALITY_CONTROL!, JSON.stringify(parsed), env.EXPECTED_APP_SOURCE_VERSION!, request.signal);
+    if (response.status !== 202 || response.headers.get(EXPERIENCE_PROTOCOL_HEADER) !== EXPERIENCE_INGESTION_VERSION) { void response.body?.cancel().catch(() => undefined); return json({ accepted: false }, 503); }
     const result = await readJsonBody<{ accepted?: unknown }>(new Request(PRIVATE, { method: 'POST', body: response.body, duplex: 'half' } as RequestInit), { maxBytes: 1024, deadlineMs: 2000, signal: request.signal });
     return json({ accepted: result?.accepted === true }, result?.accepted === true ? 202 : 503);
   } catch (error) { return json({ accepted: false }, error instanceof RequestBodyError ? error.status : 503); }

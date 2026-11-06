@@ -1,8 +1,27 @@
 import test from 'node:test'; import assert from 'node:assert/strict'; import { experienceGateway } from '../src/experience-gateway.ts';
 const build='3c7a8daa-22e0-e220-dcc1-a437aee9374d', source='a'.repeat(40); const body=()=>({schemaVersion:1,definitionVersion:'experience-v1',batchId:'11111111-1111-4111-8111-111111111111',buildId:build,consent:'granted',sentAt:Math.floor((Date.now()-60000)/60000)*60000,sampleRateBps:500,context:{world:'global',routeKind:'home',device:'desktop',locale:'en',network:'4g',cache:'miss'},samples:[{metric:'lcp',status:'measured',value:100,observationId:'33333333-3333-4333-8333-333333333333',revision:1}]});
-const env=(fetch=async()=>new Response('{"accepted":true}',{status:202,headers:{'Content-Type':'application/json'}}))=>({EXPERIENCE_ENABLED:'true',EXPECTED_BUILD_ID:build,EXPECTED_APP_SOURCE_VERSION:source,QUALITY_CONTROL:{fetch}});
+const env=(fetch=async()=>new Response('{"accepted":true}',{status:202,headers:{'Content-Type':'application/json','X-VII-Experience-Protocol':'experience-source-v2'}}))=>({EXPERIENCE_ENABLED:'true',EXPECTED_BUILD_ID:build,EXPECTED_APP_SOURCE_VERSION:source,QUALITY_CONTROL:{fetch}});
+
+test('private source comes only from trusted Edge configuration, never a supplied browser header',async()=>{
+ let forwarded;
+ const runtime=env(async request=>{forwarded=request;return Response.json({accepted:true},{status:202,headers:{'X-VII-Experience-Protocol':'experience-source-v2'}});});
+ const request=new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json','X-VII-Experience-Source':'b'.repeat(40)},body:JSON.stringify(body())});
+ assert.equal((await experienceGateway(request,runtime)).status,202);
+ assert.equal(forwarded.headers.get('X-VII-Experience-Source'),source);
+ assert.equal(forwarded.headers.get('X-VII-Experience-Protocol'),'experience-source-v2');
+ assert.equal(new URL(forwarded.url).pathname,'/__vii/experience/v2');
+ assert.equal(forwarded.headers.has('cookie'),false);assert.equal(forwarded.headers.has('authorization'),false);
+});
+
+test('an old or undeclared private response protocol cannot acknowledge a measurement',async()=>{
+ for(const version of [undefined,'experience-v1']) {
+  const runtime=env(async()=>Response.json({accepted:true},{status:202,headers:version?{'X-VII-Experience-Protocol':version}:{}}));
+  const request=new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json'},body:JSON.stringify(body())});
+  assert.equal((await experienceGateway(request,runtime)).status,503);
+ }
+});
 test('policy fail closed and enabled',async()=>{assert.equal((await experienceGateway(new Request('https://vii.spaplus.co/api/experience/policy'),{})).json instanceof Function,true); const r=await experienceGateway(new Request('https://vii.spaplus.co/api/experience/policy'),env()); assert.equal((await r.json()).enabled,true);});
-test('metrics forwards canonical body without credentials',async()=>{let seen; const r=await experienceGateway(new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json','Sec-Fetch-Site':'same-origin'},body:JSON.stringify(body())}),env(async req=>{seen=req;return new Response('{"accepted":true}',{status:202})})); assert.equal(r.status,202); assert.equal(seen.headers.get('cookie'),null); assert.equal(seen.headers.get('authorization'),null); assert.equal(seen.url,'https://vii-quality-control.internal/__vii/experience');});
+test('metrics forwards canonical body without credentials',async()=>{let seen; const r=await experienceGateway(new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json','Sec-Fetch-Site':'same-origin'},body:JSON.stringify(body())}),env(async req=>{seen=req;return new Response('{"accepted":true}',{status:202,headers:{'X-VII-Experience-Protocol':'experience-source-v2'}})})); assert.equal(r.status,202); assert.equal(seen.headers.get('cookie'),null); assert.equal(seen.headers.get('authorization'),null); assert.equal(seen.url,'https://vii-quality-control.internal/__vii/experience/v2');});
 test('rejects staff cookies and action headers but allows customer cookies',async()=>{const u='https://vii.spaplus.co/api/experience/metrics'; const h={Origin:'https://vii.spaplus.co','Content-Type':'application/json'}; assert.equal((await experienceGateway(new Request(u,{method:'POST',headers:{...h,Cookie:'vii_admin_session=x'},body:JSON.stringify(body())}),env())).status,403); assert.equal((await experienceGateway(new Request(u,{method:'POST',headers:{...h,'Next-Action':'x'},body:JSON.stringify(body())}),env())).status,403); assert.equal((await experienceGateway(new Request(u,{method:'POST',headers:{...h,Cookie:'vii_customer_session=x'},body:JSON.stringify(body())}),env())).status,202);});
 test('rejects source and sample rate mismatches',async()=>{assert.equal((await experienceGateway(new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json'},body:JSON.stringify({...body(),sampleRateBps:499})}),env())).status,400); assert.equal((await experienceGateway(new Request('https://vii.spaplus.co/api/experience/metrics',{method:'POST',headers:{Origin:'https://vii.spaplus.co','Content-Type':'application/json'},body:JSON.stringify(body())}),env(async()=>new Response('{"accepted":false}',{status:202})))).status,503);});
 test('rejects wrong origin and unsupported methods',async()=>{assert.equal((await experienceGateway(new Request('https://evil.invalid/api/experience/policy'),env())).status,403); assert.equal((await experienceGateway(new Request('https://vii.spaplus.co/api/experience/policy',{method:'POST'}),env())).status,405);});

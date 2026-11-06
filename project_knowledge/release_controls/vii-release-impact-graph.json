@@ -475,7 +475,7 @@
       "dependsOn": [],
       "requiredChecks": [],
       "buildUnits": ["managed-site", "edge-delivery", "quality-controller"],
-      "requiredLocalTests": ["services/vii-quality-control/test/experience-contract.test.mjs", "services/vii-quality-control/test/experience-store.test.mjs", "services/vii-quality-control/test/experience-summary.test.mjs", "services/vii-edge-delivery/test/experience-gateway.test.mjs", "tests/experience-buffer.test.mjs", "tests/experience-runtime.test.mjs"]
+      "requiredLocalTests": ["services/vii-quality-control/test/experience-contract.test.mjs", "services/vii-quality-control/test/experience-store.test.mjs", "services/vii-quality-control/test/experience-summary.test.mjs", "services/vii-edge-delivery/test/experience-gateway.test.mjs", "tests/experience-buffer.test.mjs", "tests/experience-runtime.test.mjs", "tests/experience-ingestion-workerd.test.mjs"]
     },
     "experience-client": {
       "dependsOn": ["global-shell", "experience-contract"],

@@ -1,4 +1,9 @@
 export const EXPERIENCE_DEFINITION_VERSION = "experience-v1" as const;
+/** Private Service Binding identity, never taken from a browser payload. */
+export const EXPERIENCE_SOURCE_HEADER = "X-VII-Experience-Source" as const;
+export const EXPERIENCE_INGESTION_VERSION = "experience-source-v2" as const;
+export const EXPERIENCE_INGESTION_PATH = "/__vii/experience/v2" as const;
+export const EXPERIENCE_PROTOCOL_HEADER = "X-VII-Experience-Protocol" as const;
 const worlds = ["vacation","events","spa","hourly","activities","trails","providers","global"] as const;
 const routes = ["home","world","results","place","editorial"] as const;
 const devices = ["mobile","desktop"] as const;
