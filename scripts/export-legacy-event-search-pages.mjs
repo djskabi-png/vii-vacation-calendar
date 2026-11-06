@@ -20,7 +20,9 @@ function extract(html) {
     if (a.id === "freeSearchType") row.locationType = clean(a.value);
     if (a.id === "freeSearchParam") row.locationId = clean(a.value);
     if (a["data-siteid"] && a["data-sitename"] && a["data-link"]) { row.resultIds.push(a["data-siteid"]); row.resultNames.push(clean(a["data-sitename"])); }
-    if (a.name && a.value && /^(location|type|roomtypes|marea|area|sett|guests|eventtype|feature|features|from|till|date)/i.test(a.name)) row.filters[a.name] = a.value;
+    const selected = Object.prototype.hasOwnProperty.call(a, "checked") || Object.prototype.hasOwnProperty.call(a, "selected");
+    const hiddenRelevant = a.type?.toLowerCase() === "hidden" && /^(locationor|freesearch(?:param|type)|from|till|guests|date)/i.test(a.name || "");
+    if (a.name && a.value && (selected || hiddenRelevant) && /^(location|type|roomtypes|marea|area|sett|guests|eventtype|feature|features|from|till|date|free)/i.test(a.name)) row.filters[a.name] = a.value;
     if (classes.includes("selected") && a["data-name"] && a["data-free-type"]) row.filters[a["data-free-type"]] = clean(a["data-name"]);
   });
   row.resultIds = [...new Set(row.resultIds)]; row.resultNames = [...new Set(row.resultNames)];
@@ -29,9 +31,10 @@ function extract(html) {
   if (row.locationId) row.filters.locationId = row.locationId;
   return row;
 }
+await mkdir(".qa-output/legacy-events-html-current", { recursive: true });
 const rows = new Array(links.length); let cursor = 0;
 async function worker() { while (cursor < links.length) { const index = cursor++; const sourcePath = links[index]; const url = new URL(sourcePath, base); const started = Date.now(); try {
-  const response = await fetch(url, { redirect: "follow", headers: { Accept: "text/html", "User-Agent": "VII event search inventory/1.0" }, signal: AbortSignal.timeout(deadlineMs) }); const html = await response.text(); const body = response.ok ? extract(html) : { title: "", h1: "", description: "", location: "", locationType: "", locationId: "", resultIds: [], resultNames: [], filters: {} }; rows[index] = { sourcePath, sourceUrl: url.toString(), finalUrl: response.url, status: response.status, sha256: createHash("sha256").update(html).digest("hex"), fetchedAt: new Date().toISOString(), elapsedMs: Date.now() - started, ...body };
+  const response = await fetch(url, { redirect: "follow", headers: { Accept: "text/html", "User-Agent": "VII event search inventory/2.0" }, signal: AbortSignal.timeout(deadlineMs) }); const html = await response.text(); const sha256 = createHash("sha256").update(html).digest("hex"); const htmlPath = `.qa-output/legacy-events-html-current/${String(index + 1).padStart(2, "0")}-${sha256.slice(0, 16)}.html`; await writeFile(htmlPath, html); const body = response.ok ? extract(html) : { title: "", h1: "", description: "", location: "", locationType: "", locationId: "", resultIds: [], resultNames: [], filters: {} }; rows[index] = { sourcePath, sourceUrl: url.toString(), finalUrl: response.url, status: response.status, sha256, htmlPath, fetchedAt: new Date().toISOString(), elapsedMs: Date.now() - started, ...body };
  } catch (error) { rows[index] = { sourcePath, sourceUrl: url.toString(), status: null, finalUrl: null, sha256: null, fetchedAt: new Date().toISOString(), elapsedMs: Date.now() - started, error: error instanceof Error ? error.message : String(error), title: "", h1: "", description: "", location: "", locationType: "", locationId: "", resultIds: [], resultNames: [], filters: {} }; } } }
 await Promise.all(Array.from({ length: concurrency }, worker));
-const output = ".qa-output/legacy-events-search-pages-current.json"; await mkdir(".qa-output", { recursive: true }); await writeFile(output, JSON.stringify({ schemaVersion: 1, source: base, checkedAt: new Date().toISOString(), concurrency, count: rows.length, rows }, null, 2) + "\n"); console.log(JSON.stringify({ output, count: rows.length, ok: rows.filter(row => row.status === 200).length, failures: rows.filter(row => row.status !== 200).length }));
+const output = ".qa-output/legacy-events-search-pages-current.json"; await mkdir(".qa-output/legacy-events-html-current", { recursive: true }); await writeFile(output, JSON.stringify({ schemaVersion: 2, source: base, checkedAt: new Date().toISOString(), concurrency, count: rows.length, rows }, null, 2) + "\n"); console.log(JSON.stringify({ output, count: rows.length, ok: rows.filter(row => row.status === 200).length, failures: rows.filter(row => row.status !== 200).length }));
