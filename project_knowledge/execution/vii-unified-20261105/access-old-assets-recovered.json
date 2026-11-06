@@ -1,0 +1,36 @@
+{
+  "observed_error": "Native saved Site version lookup returned Sites project not found; old publication conversation still displays an unfinished historical operation.",
+  "category": "capability",
+  "diagnosis": "The native selected Site route did not address this historical project. The required rollover asset inventory was recovered through the actual public bundler manifest rather than restarting uncertain publication or asking for new access. The private server tar was not recovered.",
+  "authorization_boundary": "Read-only public asset capture and approved private storage in the existing user Cloudflare account; no Site, Edge, DNS, booking, authentication or outbound messaging changes.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "Exact get_site_version for the recorded v809 version returned Sites project not found; no save or deploy call occurred."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The correct existing Site settings were visibly available; no secret fields or access settings changed. The exact active client inventory was then read anonymously from the public host."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The active /.vite/manifest.json listed240 output assets. All bytes were captured with identical manifest SHA and00bca build before and after, then private R2 stored/readback-verified240objects. Independent derived-key and envelope/source completeness passed."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "failed",
+      "evidence": "The official Site Edit UI routed to the local Codex project. The older native Publish VII Release UI showed a pending historical v737 operation, so no request was posted or repeated there."
+    }
+  ],
+  "outcome": "recovered",
+  "human_action_required": false,
+  "verified_result": "Rollover client asset need recovered: all240 declared active-build output files,16,552,021bytes, manifest SHA5abdd76b5846597716b0943899d57ecc3f207fbead9ee269888e3fa5f90c62e9, exact derived keys and provenance tied to actual private R2 binary readbacks. Full server archive and public publication route remain separate unresolved workstreams.",
+  "next_action": "Integrate retained client assets into the tested Edge release, continue main deployment ownership recovery and the remaining core plan."
+}

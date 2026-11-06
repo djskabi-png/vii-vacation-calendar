@@ -28,7 +28,8 @@
         "PHASE_07.md",
         "PHASE_07_VERIFICATION.md",
         "PHASE_08_VERIFICATION.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -79,15 +80,18 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
       "id": "V08",
       "title": "מדיה גלריות ווידאו",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_14.md"
+      ]
     },
     {
       "id": "V09",
@@ -121,7 +125,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_04.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -133,7 +138,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -144,7 +150,8 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -153,7 +160,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -180,7 +188,8 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_03.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -208,7 +217,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_10_VERIFICATION.md",
-        "PHASE_11.md"
+        "PHASE_11.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -224,7 +234,9 @@
         "PHASE_09.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_11.md",
-        "PHASE_12.md"
+        "PHASE_12.md",
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -244,7 +256,9 @@
         "PHASE_09.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_11.md",
-        "PHASE_12.md"
+        "PHASE_12.md",
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -381,7 +395,8 @@
         "PHASE_07.md",
         "PHASE_07_VERIFICATION.md",
         "PHASE_08_VERIFICATION.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -408,7 +423,8 @@
         "PHASE_03.md",
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -430,7 +446,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -445,7 +462,8 @@
         "PHASE_06_VERIFICATION.md",
         "PHASE_08.md",
         "PHASE_08_VERIFICATION.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -511,7 +529,8 @@
         "PHASE_04.md",
         "PHASE_08.md",
         "PHASE_09.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -551,7 +570,8 @@
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_10_VERIFICATION.md"
+        "PHASE_10_VERIFICATION.md",
+        "PHASE_13_VERIFICATION.md"
       ]
     },
     {
@@ -567,7 +587,9 @@
         "PHASE_06.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_11.md",
-        "PHASE_12.md"
+        "PHASE_12.md",
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_14.md"
       ]
     },
     {
@@ -607,12 +629,12 @@
     }
   ],
   "activeWorkstreams": [
-    "Root: implement and integrate the unified V and QQQAAA core; document3 remains deferred",
-    "Independent read-only review: affected release preflight; no parallel source owner active"
+    "Root: complete core V and QQQAAA; next real experience metrics and per-unit release/data operations",
+    "Independent checker: scoped reviews completed; new material release changes require new review"
   ],
-  "lastUpdated": "2026-11-06T04:00:38.129225+00:00",
+  "lastUpdated": "2026-11-06T04:42:58.040573+00:00",
   "completionClaim": false,
-  "currentSourceHead": "dc77440d29dbc4bf578e2337a45917cb3989a118",
+  "currentSourceHead": "7fd8e143a3007833d2ad70d8378b4deaadd675f7",
   "sourceCheckpoints": [
     {
       "commit": "5fb85058",
@@ -637,6 +659,20 @@
     {
       "commit": "77e9cc67",
       "description": "Preserve approved VII execution, QQQAAA and deferred comments documents"
+    },
+    {
+      "phase": "13",
+      "source": "7fd8e143a3007833d2ad70d8378b4deaadd675f7",
+      "tree": "046ecb9be7e5469e7236f33291c140c44d7b4afb",
+      "buildId": "3c7a8daa-22e0-e220-dcc1-a437aee9374d",
+      "status": "qualified_local_not_public",
+      "artifactSha256": "3c8915ee26ceecf96eef9d8044f1349a6c98f656c362cca0631099769472274e",
+      "tests": {
+        "total": 2409,
+        "passed": 2408,
+        "failed": 0,
+        "skipped": 1
+      }
     }
   ],
   "localEvidence": [
@@ -737,12 +773,28 @@
       "id": "retained-static-asset-reader",
       "state": "local_handler_workerd_tests_passed",
       "limit": "Actual old public archive recovery, full seed, live Edge readback and release-gate integration pending"
+    },
+    {
+      "id": "search-client-server-data-boundaries",
+      "state": "qualified_local_and_rendered",
+      "limit": "Actual216104byte search entry vs6864710previous candidate, all1388canonicalkeys preserved; not public speed or field percentiles, newer build portability change unqualified"
+    },
+    {
+      "id": "active-build-client-asset-private-retention",
+      "state": "actual_private_storage_readback_verified",
+      "limit": "All240active public manifest assets captured and privately stored; new Edge fallback not yet deployed"
     }
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Complete old immutable asset capture/seed and per-unit release orchestration; continue source/data, speed, real browser families and exact public acceptance before claiming the core complete",
-  "updatedAt": "2026-11-06T04:00:38.129225+00:00",
+  "nextStep": "Continue remaining core integration; phase15 Node compatibility changes require the next frozen application artifact. Preserve actual old client assets and scoped evidence; main publication access, business-data restore and full public acceptance remain open.",
+  "updatedAt": "2026-11-06T04:42:58.040573+00:00",
   "privateCloudResourcesUpdated": true,
-  "publicSitePublicationPerformed": false
+  "publicSitePublicationPerformed": false,
+  "sourceHeadMeaning": "Last observed committed source at status write; phase15 package flag is a newer unqualified change",
+  "privateCloudAssetSeed": {
+    "files": 240,
+    "sourceBuild": "00bca36c-4f1c-403d-9a13-ceea797015ae",
+    "publicRouteChanged": false
+  }
 }
