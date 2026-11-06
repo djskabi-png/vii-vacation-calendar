@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T14:36:39.232Z",
+  "updated_at": "2026-11-06T15:28:05.644Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -357,10 +357,11 @@
       "evidence": [
         "project_knowledge/execution/vii-unified-20261105/PHASE_27_VERIFICATION.md",
         "project_knowledge/execution/vii-unified-20261105/PREPARED_ARTIFACTS_PHASE27.json",
-        ".qa-output/phase39-discovery-semantic-readback.json"
+        ".qa-output/phase39-discovery-semantic-readback.json",
+        ".qa-output/phase45-formal-settled-readback.json"
       ],
-      "reason": "Fresh public semantic smoke passed; immutable formal current-release evidence remains outstanding. Original failed receipts were not rewritten.",
-      "updated_at": "2026-11-06T13:53:29.827Z"
+      "reason": "All8 current immutable discovery checks passed within the formal70HTTP run after the conditional v811 repair publication. Whole release acceptance remains not ready because17 browser failures and1 blocked profile remain; do not rewrite historical prepublication evidence.",
+      "updated_at": "2026-11-06T15:28:05.644Z"
     },
     {
       "id": "feedback:reuse-existing-owner-publication-chat",
@@ -454,13 +455,16 @@
       "source": "user_request",
       "statement": "Keep actual over-budget browser failures and safe quota diagnostics independently deployable",
       "acceptance_check": "Executable181-request failure survives parsing and durable storage; private limits reads actual SDK shape without launching a browser",
-      "status": "pending",
+      "status": "passed",
       "evidence": [
         ".qa-output/phase40-budget-contract-reproduction.mjs",
-        ".qa-output/phase40-private-suites.log"
+        ".qa-output/phase40-private-suites.log",
+        "PHASE_45_FORMAL_RUNTIME.md",
+        ".qa-output/phase45-live-browser-limits-readback.json",
+        ".qa-output/phase45-formal-settled-readback.json"
       ],
       "reason": null,
-      "updated_at": "2026-11-06T13:53:06.578Z"
+      "updated_at": "2026-11-06T15:28:05.644Z"
     },
     {
       "id": "quality:public-discovery-semantic-smoke",
@@ -486,6 +490,19 @@
       ],
       "reason": null,
       "updated_at": "2026-11-06T14:36:39.232Z"
+    },
+    {
+      "id": "quality:formal-http-v811",
+      "source": "approved_plan",
+      "statement": "Run all current server-owned HTTP and semantic definitions against the exact deployed generation",
+      "acceptance_check": "One immutable formal subject records exactly70 matching passed server receipts",
+      "status": "passed",
+      "evidence": [
+        "PHASE_45_FORMAL_RUNTIME.md",
+        ".qa-output/phase45-formal-settled-readback.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T15:28:05.644Z"
     }
   ],
   "verification_status": "in_progress",

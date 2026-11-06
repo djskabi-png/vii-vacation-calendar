@@ -8,6 +8,16 @@ const request=()=>new Request('https://vii.spaplus.co/api/admin/quality',{method
 const body={action:'enqueue-browser',idempotencyKey:'browser-controller-1234',profileId:'spa-mobile-world-shell',sourceVersion:'forged-source',origin:'https://untrusted.invalid'};
 function enabled(f,changes={}){return {...f.env,BROWSER_ENABLED:'true',EXPECTED_SOURCE_VERSION:source,EXPECTED_BROWSER_SOURCE_VERSION:source,EXPECTED_BUILD_ID:build,PUBLIC_ORIGIN:'https://vii.spaplus.co',QUALITY_BROWSER:{async fetch(url,input){const job=JSON.parse(input.body);assert.equal(url,'https://vii-quality-browser.internal/run');assert.equal(input.headers.Cookie,undefined);assert.equal(input.headers.Authorization,undefined);return Response.json({...job,status:'passed',requestCount:4,steps:3,durationMs:12,...changes});}}};}
 
+test('safe traffic classifications reach the actual durable observation without broadening receipt schema',async()=>{
+ const f=fixture();try{
+  const traffic={resourceCounts:{document:1,script:1,stylesheet:0,image:1,font:0,fetch:1,other:0},deniedCounts:{external:0,budget:0,write:1,admin:0,invalid:0},writeKinds:['cloudflare_challenge']};
+  const navigationMetrics={ttfbMs:321,responseEndMs:500,domInteractiveMs:600,domContentLoadedMs:null,fcpMs:550};
+  const env=enabled(f,{status:'failed',reason:'write_request_attempted',traffic,navigationMetrics,attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]});
+  const queued=await(await f.controller.handle(request(),env,'trusted-admin',body)).json();await f.controller.consume(env,f.messages[0]);
+  const saved=await readQualityJob(f.db,queued.job.runId);assert.equal(saved.status,'completed');assert.equal(saved.receipts[0].status,'failed');assert.match(saved.receipts[0].observed,/write_kinds=cloudflare_challenge/);assert.match(saved.receipts[0].observed,/requests=4/);assert.match(saved.receipts[0].observed,/navigation_ms=.*"ttfbMs":321/);assert.equal(saved.receipts[0].traffic,undefined);assert.equal(saved.receipts[0].navigationMetrics,undefined);assert.equal(f.executions(),0);
+ }finally{f.sqlite.close();}
+});
+
 test('controller preserves an over-budget failure and actual request count in the durable receipt',async()=>{
  const f=fixture();try{
   const env=enabled(f,{status:'failed',reason:'request_budget_exceeded',requestCount:181,failureStep:'map-ready'});

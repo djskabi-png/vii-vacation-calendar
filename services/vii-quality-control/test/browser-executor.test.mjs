@@ -42,3 +42,12 @@ test('an actual over-budget failed result stays a verified failure with its real
  const actual=await read(payload);assert.equal(actual.status,'failed');assert.equal(actual.requestCount,181);assert.equal(actual.reason,'request_budget_exceeded');
  for(const bad of [{status:'passed',reason:undefined},{status:'blocked'},{reason:'browser_step_failed'},{requestCount:1_000_001},{requestCount:181.5}])await assert.rejects(read({...payload,...bad}),/result_invalid/);
 });
+test('private traffic transport enforces counts and never accepts a passing denied-write result',async()=>{
+ const traffic={resourceCounts:{document:1,script:1,stylesheet:0,image:1,font:0,fetch:1,other:0},deniedCounts:{external:0,budget:0,write:1,admin:0,invalid:0},writeKinds:['cloudflare_challenge']};
+ const payload={jobId:good.jobId,sourceVersion:good.sourceSha,buildId:good.buildId,world:'vacations',device:'mobile',scenario:'gallery-next',status:'failed',reason:'write_request_attempted',requestCount:4,steps:2,durationMs:12,traffic};
+ const read=value=>api.executeBrowserProfile({...good,browser:{fetch:async()=>response(value)}});
+ assert.deepEqual((await read(payload)).traffic,traffic);
+ await assert.rejects(read({...payload,status:'passed',reason:undefined}),/browser_result_invalid/);
+ await assert.rejects(read({...payload,traffic:{...traffic,secret:'private-test-sentinel'}}),/browser_traffic_invalid/);
+ await assert.rejects(read({...payload,traffic:{...traffic,resourceCounts:{...traffic.resourceCounts,image:2}}}),/browser_traffic_invalid/);
+});

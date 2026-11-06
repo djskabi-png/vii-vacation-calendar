@@ -20,10 +20,10 @@ function browserFixture(options={}) {
     async evaluate(){return Boolean(options.overflow);},
     async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':path.startsWith('/providers')?'ספקים לאירוח ולאירועים':path.startsWith('/trails')?'מסלולי טיול בישראל למטייל העצמאי':path==='/'?'כל מה שעושים בחופש, במקום אחד':'נופש ברחבי הארץ';},
   });
-  const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),
+  const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),async evaluate(callback){return callback();},
     async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.burstRequests)for(let i=0;i<options.burstRequests;i++)await request('GET',url,'fetch');if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
     async waitForFunction(predicate,previous){if(options.frozenGallery)throw Error('image unchanged');const old=globalThis.document;globalThis.document={querySelector:()=>({complete:!options.unloadedGalleryImage,naturalWidth:options.unloadedGalleryImage?0:120,getAttribute:name=>name==='src'?`image-${state.image}`:null})};try{if(!predicate(previous))throw Error('image unchanged')}finally{globalThis.document=old;}},
-    async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;},
+    async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;if(options.lateCloseRequest)await request(...options.lateCloseRequest);},
   };
   const context={async route(_pattern,handler){intercept=handler;state.events.push('route');},async newPage(){state.events.push('new-page');return page;},on(){},async close(){state.contextClosed++;}};
   const browser={async newContext(){state.contextsCreated++;return context;},async close(){state.browserClosed++;}};
@@ -103,6 +103,25 @@ test('outbound/admin traffic is intercepted and the request budget is enforced',
     const f=browserFixture({extraRequest:request});await runBrowserJob(job,env,f.factory);assert.equal(f.state.requests.at(-1).disposition,'aborted');
   }
   const f=browserFixture({extraRequest:['GET',env.PUBLIC_ORIGIN+'/extra']});assert.equal((await runBrowserJob(job,{...env,MAX_REQUESTS:'1'},f.factory)).reason,'request_budget_exceeded');
+});
+test('owned image CDN is allowed only for the exact responsive-media contract and traffic is bounded',async()=>{
+ const good='https://vii-public-images.djskabi.workers.dev/?url=%2Fapi%2Fvii%2Fmedia%2Fabcdef12.jpg&w=828&q=82';
+ const f=browserFixture({extraRequest:['GET',good,'image']});const result=await runBrowserJob(job,env,f.factory);
+ assert.equal(f.state.requests.at(-1).disposition,'continued');assert.equal(result.traffic.resourceCounts.image,1);assert.equal(result.traffic.deniedCounts.external,0);assertClosed(f.state);
+ const total=Object.values(result.traffic.resourceCounts).reduce((a,b)=>a+b,0);assert.equal(total,result.requestCount);assert.ok(!JSON.stringify(result.traffic).includes('vii.spaplus'));assert.ok(!JSON.stringify(result.traffic).includes('?'));
+ const denied=[...['script','font','stylesheet'].map(type=>[good,type]),...[
+  good.replace('https:','http:'),good.replace('.workers.dev','.workers.dev.evil.test'),good.replace('https://','https://user:secret@'),good.replace('.dev/','.dev:444/'),good.replace('.dev/','.dev/other'),
+  good.replace('w=828','w=999'),good.replace('w=828','w=8.28e2'),good.replace('q=82','q=0x52'),good+'&w=640',good+'&extra=private-test-sentinel',good+'#fragment',good.replace('%2Fapi%2Fvii%2Fmedia%2Fabcdef12.jpg','https%3A%2F%2Fevil.test%2Fprivate-test-sentinel.jpg')
+ ].map(url=>[url,'image'])];
+ for(const [url,type]of denied){const invalid=browserFixture({extraRequest:['GET',url,type]});const rejected=await runBrowserJob(job,env,invalid.factory);assert.equal(invalid.state.requests.at(-1).disposition,'aborted',url);assert.equal(rejected.traffic.deniedCounts.external+rejected.traffic.deniedCounts.invalid,1);assert.equal(JSON.stringify(rejected.traffic).includes('private-test-sentinel'),false);assertClosed(invalid.state);}
+});
+test('denied writes remain denied and expose only bounded write kind labels',async()=>{
+ const cases=[['/api/lead','other'],['/api/booking','other'],['/api/experience/metrics','experience_metrics'],['/api/vii/live-search','live_search'],['/api/analytics/search','analytics_search'],['/api/analytics/business','analytics_business'],['/api/analytics/search-not-this','other'],['/cdn-cgi/challenge-platform/h/hidden-token','cloudflare_challenge'],['/unknown','server_action',{'next-action':'private-test-sentinel'}]];
+ for(const [path,expected,headers={}]of cases){const f=browserFixture({extraRequest:['POST',env.PUBLIC_ORIGIN+path,'fetch','private-test-sentinel',headers]});const result=await runBrowserJob(job,env,f.factory);assert.equal(result.reason,'write_request_attempted');assert.equal(f.state.requests.at(-1).disposition,'aborted');assert.equal(result.traffic.deniedCounts.write,1);assert.deepEqual(result.traffic.writeKinds,[expected]);assert.equal(JSON.stringify(result.traffic).includes('private-test-sentinel'),false);assert.equal(JSON.stringify(result.traffic).includes('hidden-token'),false);assertClosed(f.state);}
+});
+test('late close callbacks cannot turn write or request-budget failures into passing receipts',async()=>{
+ const late=browserFixture({lateCloseRequest:['POST',env.PUBLIC_ORIGIN+'/api/lead','fetch']});const write=await runBrowserJob(job,env,late.factory);assert.equal(write.status,'failed');assert.equal(write.reason,'write_request_attempted');assert.equal(write.failureStep,'cleanup');assert.equal(write.traffic.deniedCounts.write,1);assert.equal(write.requestCount,2);assertClosed(late.state);
+ const capped=browserFixture({lateCloseRequest:['GET',env.PUBLIC_ORIGIN+'/late','fetch']});const budget=await runBrowserJob(job,{...env,MAX_REQUESTS:'1'},capped.factory);assert.equal(budget.status,'failed');assert.equal(budget.reason,'request_budget_exceeded');assert.equal(budget.failureStep,'cleanup');assert.equal(budget.requestCount,2);assert.equal(capped.state.requests.at(-1).disposition,'aborted');assertClosed(capped.state);
 });
 test('pre-cancel does not launch, and a browser arriving after deadline is closed',async()=>{
   const controller=new AbortController();controller.abort();const cancelled=browserFixture();assert.equal((await runBrowserJob(job,env,cancelled.factory,controller.signal)).reason,'cancelled');assert.equal(cancelled.state.launches,0);

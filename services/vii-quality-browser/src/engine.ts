@@ -2,6 +2,7 @@ import type { Browser, BrowserContext, Page } from '@cloudflare/playwright';
 import engineDefinition from '../engine-definition.json' with {type:'json'};
 import { browserWorldPaths, browserWorldHeadingMatches, browserWorldSurfaceSelectors, type PublicBrowserWorld } from './public-world-contract.ts';
 import { isReadOnlyDiscoveryRequest } from './read-only-discovery.ts';
+import { readNavigationMetrics, type NavigationMetrics } from './navigation-metrics.ts';
 
 export type World = PublicBrowserWorld;
 export type BrowserJob = { jobId: string; sourceVersion: string; buildId: string; engineVersion:string;world: World; device: 'desktop' | 'mobile'; scenario: 'world-shell' | 'map-open-close' | 'gallery-next' | 'responsive-shell' };
@@ -14,6 +15,26 @@ export type BrowserFactory = { launch(): Promise<Browser> };
 const worldPaths = browserWorldPaths;
 const origins = new Set(['https://vii.spaplus.co','https://www.vii.co.il','https://vii-vacation-calendar.adir-naor-7510.chatgpt.site']);
 const assetHosts = new Set(['tile.openstreetmap.org','a.tile.openstreetmap.org','b.tile.openstreetmap.org','c.tile.openstreetmap.org','a.basemaps.cartocdn.com','b.basemaps.cartocdn.com','c.basemaps.cartocdn.com','fonts.googleapis.com','fonts.gstatic.com']);
+const cdnHost='vii-public-images.djskabi.workers.dev';
+const imageWidths=new Set([384,640,750,828,960,1280,1600]),imageQualities=new Set([75,82,85,88]);
+const trafficTypes=['document','script','stylesheet','image','font','fetch','other'] as const;
+type TrafficType=typeof trafficTypes[number];
+const emptyTraffic=()=>({resourceCounts:Object.fromEntries(trafficTypes.map(type=>[type,0])) as Record<TrafficType,number>,deniedCounts:{external:0,budget:0,write:0,admin:0,invalid:0},writeKinds:[] as string[]});
+function cdnImageUrl(url:URL){
+  if(url.origin!==`https://${cdnHost}`||url.username||url.password||url.hash||url.pathname!=='/'||url.searchParams.getAll('url').length!==1||url.searchParams.getAll('w').length!==1||url.searchParams.getAll('q').length!==1||[...url.searchParams.keys()].some(key=>!['url','w','q'].includes(key)))return false;
+  const source=url.searchParams.get('url')||'',width=Number(url.searchParams.get('w')),quality=Number(url.searchParams.get('q'));
+  return /^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(source)&&imageWidths.has(width)&&String(width)===url.searchParams.get('w')&&imageQualities.has(quality)&&String(quality)===url.searchParams.get('q');
+}
+function resourceType(value:string):TrafficType{return value==='xhr'?'fetch':trafficTypes.includes(value as TrafficType)?value as TrafficType:'other';}
+function writeKind(url:URL,method:string,headers:Record<string,string>){
+  if(url.origin==='https://vii.spaplus.co'&&url.pathname.startsWith('/cdn-cgi/challenge-platform/'))return 'cloudflare_challenge';
+  if(headers['next-action']!==undefined&&url.origin==='https://vii.spaplus.co')return 'server_action';
+  if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/experience/metrics')return 'experience_metrics';
+  if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/vii/live-search')return 'live_search';
+  if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/analytics/search')return 'analytics_search';
+  if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/analytics/business')return 'analytics_business';
+  return 'other';
+}
 export function validJob(value: unknown): value is BrowserJob {
   if(!value || typeof value!=='object' || Array.isArray(value))return false;
   const job=value as Record<string,unknown>;
@@ -48,7 +69,7 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
   const origin=new URL(env.PUBLIC_ORIGIN).origin;
   if(!origins.has(origin) || env.PUBLIC_ORIGIN!==origin)throw new CheckFailure('target_not_allowlisted');
   if(job.sourceVersion!==env.EXPECTED_SOURCE_VERSION || job.buildId!==env.EXPECTED_BUILD_ID)throw new CheckFailure('source_definition_mismatch');
-  if(job.scenario==='gallery-next' && job.world!=='vacations')return {jobId:job.jobId,status:'blocked' as const,reason:'world_gallery_contract_not_implemented'};
+  if(job.scenario==='gallery-next' && job.world!=='vacations')return {jobId:job.jobId,status:'blocked' as const,reason:'world_gallery_contract_not_implemented',traffic:emptyTraffic()};
   const started=Date.now(),deadline=started+number(env.MAX_RUN_MS,45_000,10,60_000);
   const maxRequests=number(env.MAX_REQUESTS,180,1,300),maxEvidence=number(env.MAX_EVIDENCE_BYTES,1_000_000,256,2_000_000);
   const step=<T>(operation:()=>Promise<T>)=>{
@@ -58,8 +79,10 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     return bounded(operation(),Math.min(8_000,remaining),signal);
   };
   let browser:Browser|undefined,context:BrowserContext|undefined,page:Page|undefined,finished=false,requestCount=0,blockedWrites=0,steps=0;
+  const traffic=emptyTraffic();
   let status:'passed'|'failed'|'blocked'='blocked',reason:string|undefined,evidenceKey:string|undefined;
   let currentStep='launch';
+  let navigationMetrics:NavigationMetrics|undefined;
   const attemptedWrites:Array<{method:string;origin:string;path:string}> = [];
   const safeWritePath=(path:string)=>path==='/api/vii/live-search'||path==='/api/experience/metrics'||path==='/api/lead'||path==='/api/booking'||path==='/api/payments'||path==='/api/admin/quality'?path:'<redacted>';
   const safeWriteOrigin=(value:string)=>origins.has(value)?value:'<external>';
@@ -72,15 +95,22 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     context=await step(() => (browser!.newContext({viewport:job.device==='mobile'?{width:390,height:844}:{width:1440,height:900},serviceWorkers:'block',acceptDownloads:false})));
     // Interception precedes page creation and applies to popup/subframe requests.
     await step(() => (context!.route('**/*',async route=>{
-      const request=route.request();requestCount++;
-      let url:URL;try{url=new URL(request.url());}catch{return route.abort();}
+      const request=route.request();requestCount++;traffic.resourceCounts[resourceType(request.resourceType())]++;
+      let url:URL;try{url=new URL(request.url());}catch{traffic.deniedCounts.invalid++;return route.abort();}
+      const headers=request.headers();
       if(request.method()!=='GET' && !isReadOnlyDiscoveryRequest(request,origin)){
-        blockedWrites++;
+        blockedWrites++;traffic.deniedCounts.write++;const kind=writeKind(url,request.method(),headers);if(!traffic.writeKinds.includes(kind)&&traffic.writeKinds.length<7)traffic.writeKinds.push(kind);
         if(attemptedWrites.length<8){try{const attempted=new URL(request.url());attemptedWrites.push({method:/^[A-Z]{3,7}$/.test(request.method())?request.method():'OTHER',origin:safeWriteOrigin(attempted.origin),path:safeWritePath(attempted.pathname)});}catch{attemptedWrites.push({method:'OTHER',origin:'<external>',path:'<redacted>'});}}
         return route.abort();
       }
-      const publicAsset=['image','font','stylesheet'].includes(request.resourceType()) && assetHosts.has(url.hostname);
-      if(requestCount>maxRequests || url.protocol!=='https:' || (url.origin!==origin && !publicAsset) || url.username || url.password || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api/admin'))return route.abort();
+      if(finished||signal?.aborted||Date.now()>=deadline){traffic.deniedCounts.invalid++;return route.abort();}
+      const type=request.resourceType(),publicAsset=['image','font','stylesheet'].includes(type) && assetHosts.has(url.hostname),publicCdn=type==='image'&&cdnImageUrl(url);
+      const sameOriginPath=url.origin===origin;
+      if(requestCount>maxRequests){traffic.deniedCounts.budget++;return route.abort();}
+      if(url.protocol!=='https:'||url.username||url.password){traffic.deniedCounts.invalid++;return route.abort();}
+      if(sameOriginPath&&(url.pathname.startsWith('/admin')||url.pathname.startsWith('/api/admin'))){traffic.deniedCounts.admin++;return route.abort();}
+      if(url.origin!==origin && !publicAsset && !publicCdn){traffic.deniedCounts.external++;return route.abort();}
+      if(url.hostname===cdnHost&&!publicCdn){traffic.deniedCounts.invalid++;return route.abort();}
       return route.continue();
     })));
     page=await step(() => (context!.newPage()));
@@ -93,6 +123,7 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     const cacheBuild=await step(()=>response.headerValue('x-vii-cache-build'));
     if((appBuild??cacheBuild)!==job.buildId || appBuild&&appBuild!==job.buildId || cacheBuild&&cacheBuild!==job.buildId)throw new CheckFailure('observed_build_mismatch');
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
+    navigationMetrics=await step(()=>readNavigationMetrics(page!));
     if(job.scenario!=='gallery-next') {
       const surface=browserWorldSurfaceSelectors[job.world];
       currentStep='world-surface';
@@ -151,5 +182,9 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       } catch { evidenceKey=undefined; }
     }
   } finally { finished=true;await Promise.all([close(page),close(context),close(browser)]); }
-  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,engineVersion:engineDefinition.sha256,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey,...(status!=='passed'?{failureStep:currentStep,attemptedWrites}: {})};
+  // Network callbacks may finish while the context is closing. Classify the
+  // final counters, rather than returning a passing result with late denials.
+  if(requestCount>maxRequests){if(status==='passed')currentStep='cleanup';status='failed';reason='request_budget_exceeded';}
+  else if(status==='passed'&&blockedWrites){currentStep='cleanup';status='failed';reason='write_request_attempted';}
+  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,engineVersion:engineDefinition.sha256,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey,traffic:{resourceCounts:{...traffic.resourceCounts},deniedCounts:{...traffic.deniedCounts},writeKinds:[...traffic.writeKinds]},...(navigationMetrics?{navigationMetrics}:{}),...(status!=='passed'?{failureStep:currentStep,attemptedWrites}: {})};
 }

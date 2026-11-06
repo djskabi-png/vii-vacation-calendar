@@ -3,7 +3,7 @@
   "status": "in_progress",
   "scope": "Plans1+2 as one project",
   "deferred": "Document3 corrective backlog, until core implementation complete",
-  "sourceHead": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
+  "sourceHead": "c127f203f068884197442dee7a31f704a0943e11",
   "planSources": {
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md": "f9fe333f1bfeff17e0c7fbf546a479eb988ad60c2542cf46f9fb01d253b48d71",
     "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md": "00e92c9a451dca2bd64b522af4ad408809172e78097f5b969241b32117f2979a"
@@ -958,21 +958,36 @@
     }
   ],
   "deferredBacklogUntouched": true,
-  "publicationPerformed": false,
-  "nextStep": "Existing owning Cloud task recovered and v809 reconciled. Synchronize exact qualified source/archive, stage compatible private Workers with flags off, coordinate Site publication and exact deployed acceptance. Document3 follows core acceptance.",
-  "updatedAt": "2026-11-06T11:23:45.9766828+00:00",
+  "publicationPerformed": true,
+  "nextStep": "Qualify the confirmed private CDN interception repair and sanitized diagnostics; retain original failed formal receipts, run one bounded diagnostic before another full subject. Complete performance/admin/recovery acceptance. Document3 deferred.",
+  "updatedAt": "2026-11-06T15:25:40.702Z",
   "privateCloudResourcesUpdated": true,
-  "publicSitePublicationPerformed": false,
-  "sourceHeadMeaning": "Last frozen phase27 local source and exact per-unit artifact qualification. No public release or whole-project acceptance.",
+  "publicSitePublicationPerformed": true,
+  "sourceHeadMeaning": "Frozen current private controller/browser candidate. Site retains independently built and published application source1d96. Per-unit evidence, not whole-project approval.",
   "privateCloudAssetSeed": {
     "files": 240,
     "sourceBuild": "00bca36c-4f1c-403d-9a13-ceea797015ae",
     "publicRouteChanged": false
   },
   "initialSourceHead": "2c6fda304c04a0a0d8507bd8c3be6df53429a724",
-  "siteArtifactStatus": "phase27_exact_archive_qualified_owner_context_and_actual_runtime_acceptance_required",
-  "preparedArtifacts": "PREPARED_ARTIFACTS_PHASE27.json",
+  "siteArtifactStatus": "v811_deployed_public_generation_and_bounded_smoke_verified_whole_project_pending",
+  "preparedArtifacts": ".qa-output/phase44-prepared-artifacts.json",
   "latestQualification": {
+    "source": "c127f203f068884197442dee7a31f704a0943e11",
+    "scope": "Two independently built private quality units; three original artifacts retained by byte/input/ancestry proof",
+    "privateTestsPassed": 133,
+    "privateTestsFailed": 0,
+    "typecheck": "passed",
+    "evidence": [
+      "PHASE_43_BROWSER_DIAGNOSTIC.md",
+      ".qa-output/phase44-prepared-artifacts.json",
+      ".qa-output/phase45-enabled-config-readback.json"
+    ]
+  },
+  "executionGate": "public_v811_active_browser_findings_under_repair",
+  "independentReadySourceWorkIdentifiedByCurrentReview": false,
+  "currentAccessReview": "access-owner-cloud-recovered.json",
+  "previousQualification": {
     "source": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
     "tests": 2474,
     "passed": 2473,
@@ -984,7 +999,152 @@
     "archiveSha256": "3e2703ebb77747e6c6d48654268100b82eab268526a62c1f63edf9de6b8788da",
     "evidence": "PHASE_27_VERIFICATION.md"
   },
-  "executionGate": "owner_recovered_coordinated_release_in_progress",
-  "independentReadySourceWorkIdentifiedByCurrentReview": false,
-  "currentAccessReview": "access-owner-cloud-recovered.json"
+  "applicationSource": "1d96d3c4c8222a21674b092c34ad54895956743b",
+  "publicRelease": {
+    "version": "v811",
+    "deploymentId": "appgdep_6aedd69781308191a6b189cc41b63c43",
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a85b1d5864408191819b3df7ba316eea",
+    "applicationSource": "1d96d3c4c8222a21674b092c34ad54895956743b",
+    "buildIdentity": "2f74283b-12fe-cffa-db0b-5dab682e329b",
+    "environment": 32,
+    "acceptance": "whole_project_not_verified"
+  },
+  "currentRuntime": {
+    "observedAt": "2026-11-06T14:45:57.213Z",
+    "units": [
+      {
+        "worker": "vii-quality-control",
+        "versionId": "d71c0ccf-9ddf-4a64-a42c-34aa1de4f6a1"
+      },
+      {
+        "worker": "vii-quality-browser",
+        "versionId": "4d01b0b2-f6b6-4c64-b93d-6890e5a61067"
+      },
+      {
+        "worker": "vii-edge-delivery",
+        "versionId": "1108e705-adbf-4b04-9ec0-932722412c4a"
+      },
+      {
+        "worker": "vii-public-images",
+        "versionId": "848da60a-629b-4e27-b17d-ac3191dbc4e5"
+      }
+    ],
+    "ownedRoute": [
+      {
+        "id": "522992f79a08414bab92dd721e8187cc",
+        "pattern": "vii.spaplus.co/*",
+        "script": "vii-edge-delivery",
+        "request_limit_fail_open": true
+      }
+    ],
+    "unrelatedRoutesPreserved": 21
+  },
+  "actualManualMobileMaps": {
+    "evidence": ".qa-output/phase45-mobile-map-observations.json",
+    "worlds": [
+      "vacations",
+      "events",
+      "spa",
+      "hourly"
+    ],
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scope": "Open, markers, close, selected event card, cluster zoom and one landscape case; not coordinate/price-anchor truth or whole map approval"
+  },
+  "formalCurrentRun": {
+    "operation": "phase45-v811-native-release-admission",
+    "state": "settled_not_ready",
+    "subjectId": "1c7626aa0b4283ac2442d4a769596fce5e074523ad0e9ea52f78609ab510ab00",
+    "http": {
+      "runId": "77aa318c-03ef-4c61-8b57-a978d1a26bf8",
+      "passed": 70,
+      "failed": 0,
+      "receiptCount": 70,
+      "checkIds": [
+        "global.home.semantic",
+        "global.home.en.semantic",
+        "global.home.fr.semantic",
+        "global.home.ru.semantic",
+        "locale.en.gift-card.semantic",
+        "locale.en.guides.semantic",
+        "locale.en.place.semantic",
+        "locale.fr.gift-card.semantic",
+        "locale.fr.guides.semantic",
+        "locale.fr.place.semantic",
+        "locale.ru.gift-card.semantic",
+        "locale.ru.guides.semantic",
+        "locale.ru.place.semantic",
+        "search.location.semantic",
+        "place.vacation.semantic",
+        "place.vacation.legacy-parity",
+        "place.vacation.sleeping-fallback",
+        "world.vacations.semantic",
+        "world.events.semantic",
+        "world.events.region.north.semantic",
+        "world.hourly.semantic",
+        "world.spas.semantic",
+        "world.attractions.semantic",
+        "place.event.semantic",
+        "place.hourly.semantic",
+        "place.spa.semantic",
+        "world.trails.semantic",
+        "world.providers.semantic",
+        "world.holidays.semantic",
+        "world.last-minute.semantic",
+        "world.events.last-minute.semantic",
+        "world.events.thursday.semantic",
+        "world.events.friday.semantic",
+        "world.spas.today.semantic",
+        "world.spas.tomorrow.semantic",
+        "map.snapshot.vacation",
+        "map.snapshot.event",
+        "map.snapshot.hourly",
+        "map.snapshot.spa",
+        "api.catalog.vacations",
+        "api.vacation.amenity-groups",
+        "api.catalog.events",
+        "api.catalog.hourly",
+        "api.catalog.spa",
+        "api.home.presentation",
+        "api.starting-prices",
+        "api.reviews.read",
+        "content.guides",
+        "content.questions",
+        "content.contact",
+        "legal.terms",
+        "legal.privacy",
+        "seo.sitemap.xml",
+        "seo.sitemap.core",
+        "seo.sitemap.holidays",
+        "seo.sitemap.vacations",
+        "seo.sitemap.events",
+        "seo.sitemap.spas",
+        "seo.sitemap.hourly",
+        "seo.sitemap.discovery",
+        "seo.sitemap.search-pages",
+        "discovery.vacation.tomorrow.ready",
+        "discovery.vacation.weekend.ready",
+        "discovery.vacation.friday-weekend.ready",
+        "discovery.vacation.thursday.ready",
+        "discovery.vacation.friday.ready",
+        "discovery.events.lastminute.ready",
+        "discovery.events.thursday.ready",
+        "discovery.events.friday.ready",
+        "quality.public-verification-keys"
+      ]
+    },
+    "browser": {
+      "passed": 16,
+      "failed": 17,
+      "blocked": 1
+    },
+    "cron": "disarmed_provider_verified",
+    "evidence": [
+      "PHASE_45_FORMAL_RUNTIME.md",
+      ".qa-output/phase45-formal-settled-readback.json",
+      ".qa-output/phase45-native-disarm-operation.json"
+    ]
+  }
 }
