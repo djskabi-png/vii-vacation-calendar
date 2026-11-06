@@ -100,7 +100,7 @@ test("both discovery surfaces use real event deals, preserving slot and particip
   assert.match(slider, /guests: String\(guests\)/);
   assert.match(slider, /search.status === "error"/);
   assert.match(readFileSync(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"), /<EventLastMinute places=\{eventPlaces\}/);
-  assert.match(readFileSync(new URL("../app/events/page.tsx", import.meta.url), "utf8"), /<EventLastMinute places=\{eventPlaces\}/);
+  assert.match(readFileSync(new URL("../app/events/page.tsx", import.meta.url), "utf8"), /<EventLastMinute places=\{eventLastMinuteProps\(eventPlaces\)\}/);
   assert.match(readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"), /params.set\("slot", selectedEventSlot\)/);
   assert.match(slider, /const availablePlaces = search\.places \|\| places/);
   assert.match(slider, /search\.resultOrder\.length/);

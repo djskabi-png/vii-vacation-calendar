@@ -127,7 +127,7 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": ["tests/event-last-minute-props.test.mjs"]
     },
     "spa": {
       "dependsOn": [
@@ -613,7 +613,9 @@
       "ownerBox": "events",
       "match": [
         "app/events/",
-        "app/worlds/events/"
+        "app/worlds/events/",
+        "app/lib/event-last-minute-props.ts",
+        "app/components/event-last-minute.tsx"
       ]
     },
     {

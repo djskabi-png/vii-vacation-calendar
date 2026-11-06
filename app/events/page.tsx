@@ -14,6 +14,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { EventRegionCarousel, type EventRegionCarouselItem } from "../components/event-region-carousel";
 import { EventRail } from "../components/event-rail";
 import { EventLastMinute } from "../components/event-last-minute";
+import { eventLastMinuteProps } from "../lib/event-last-minute-props";
 import { DiscoveryCard } from "../components/discovery-card";
 import { PlacePreviewCard } from "../components/place-preview-card";
 import { discoveryItems } from "../data/world-data";
@@ -113,7 +114,7 @@ export default async function EventsPage() {
         </section>
         <div className="shell world-popular-searches"><HomeQuickSearches world="events" /></div>
       <EventQuickSearches eyebrow={presentation.quickSearchEyebrow} title={presentation.quickSearchTitle} items={presentation.quickSearches} />
-        <EventLastMinute places={eventPlaces} />
+        <EventLastMinute places={eventLastMinuteProps(eventPlaces)} />
         <section className="section shell event-region-section">
           <div className="section-head">
             <div>

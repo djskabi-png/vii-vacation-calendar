@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { EventPlace } from "../data/site-data";
+import type { EventLastMinutePlace } from "../lib/event-last-minute-props";
 import { eventOfferHref, eventPlaceHref } from "../lib/event-place-href";
 import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
@@ -34,7 +34,7 @@ const copy = {
   fr: { title: "Lieux événementiels pour les prochaines dates", all: "Tous les lieux événementiels", tabs: ["Dernière minute", "Jeudi", "Vendredi"], loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être actualisée pour le moment", retry: "Réessayer", empty: "Aucune offre vérifiée pour cette date.", fallbackTitle: "Autres lieux à vérifier", fallbackStatus: "La disponibilité à cette date n’est pas encore vérifiée. Contactez directement le lieu.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", today: "Disponible aujourd’hui", tomorrow: "Disponible demain", thursday: "Disponible jeudi", friday: "Disponible vendredi" },
 };
 
-export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20, fixedPreset, sectionTitle, layout = "rail" }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number; fixedPreset?: EventDealPresetId; sectionTitle?: string; layout?: "rail" | "grid" }) {
+export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20, fixedPreset, sectionTitle, layout = "rail" }: { places: EventLastMinutePlace[]; sectionId?: string; region?: string; initialGuests?: number; fixedPreset?: EventDealPresetId; sectionTitle?: string; layout?: "rail" | "grid" }) {
   const { language, translate } = useSiteLanguage();
   const clock = useDealClock();
   const documentSeed = useDocumentSeed();
