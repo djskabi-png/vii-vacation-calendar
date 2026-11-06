@@ -1177,5 +1177,46 @@
     "ttfbMs": 6035,
     "fcpMs": 7480,
     "wholeSpeedAccepted": false
-  }
+  },
+  "latestCheckpoint": "PHASE_55_CHECKPOINT.json",
+  "latestPerformanceCandidate": {
+    "worktree": "C:\\Users\\Adir\\Documents\\vii.co.il\\.perf-calendar-20261106",
+    "source": "be963109ea56974f1b30cea73a668907b3ba10f5",
+    "testOnlyFollowup": "8c774028",
+    "build": "58723ea0-d387-a7a5-07c7-06c6792fb091",
+    "initialJsBytes": 948692,
+    "baselineInitialJsBytes": 1243398,
+    "published": false,
+    "merged": false
+  },
+  "latestBoundedLocaleBrowserEvidence": {
+    "provenance": "Root observed via CUA this continuation, summarized here after observation; not a saved console export",
+    "baseline": {
+      "artifact": "phase37-1d96d3-site.tar.gz",
+      "sameLocalNativeWorker": true,
+      "frHydrationErrors": 0
+    },
+    "candidate": {
+      "exactUninstrumentedCompiledClientSha256": "e2b24743696f54b615bff8bd9bc83d2c8bec82ba8c8f656fecb16a3f5aabc5fc",
+      "cleanOrigin": "http://127.0.0.1:4192",
+      "languages": [
+        "fr",
+        "en",
+        "ru"
+      ],
+      "settledHydrationErrors": 0,
+      "dateOpenClose": [
+        "fr",
+        "ru",
+        "en"
+      ]
+    },
+    "limits": [
+      "Earlier React418 observation preserved; latest clean-origin checks do not reproduce it. Exact earlier mechanism not established.",
+      "Local empty DB does not establish public availability/admin parity.",
+      "No deployed performance improvement measurement yet."
+    ]
+  },
+  "latestUnpublishedEdgeTimingCommit": "610c46ce",
+  "wholeProject": "not_verified"
 }
