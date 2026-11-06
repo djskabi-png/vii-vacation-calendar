@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {managedSearchParams} from '../app/lib/managed-search-params.ts';
+import {managedPresentationHref,managedSearchParams} from '../app/lib/managed-search-params.ts';
 import {buildVacationSearchUrl} from '../app/lib/vacation-search-url.ts';
 
 test('sorting an approved pool page retains semantic filters without a bare query',()=>{
@@ -9,6 +9,13 @@ test('sorting an approved pool page retains semantic filters without a bare quer
  const url=buildVacationSearchUrl(current.toString(),{sort:'price-asc'},['צימרים'],'כל הארץ');
  const params=new URL(url,'https://vii.spaplus.co').searchParams;
  assert.equal(params.get('pool'),'1');assert.equal(params.get('features'),'heated-pool');assert.equal(params.get('sort'),'price-asc');
+});
+test('sorting an approved landing keeps its canonical path and only carries presentation state',()=>{
+ const href=managedPresentationHref('/search/vacations/israel-20770-4e3f6ed0','pool=1&sort=price-desc&guests=4',{sort:'price-asc'});
+ assert.equal(href,'/search/vacations/israel-20770-4e3f6ed0?sort=price-asc&guests=4');
+});
+test('semantic changes do not bypass the canonical search builder',()=>{
+ assert.equal(managedPresentationHref('/search/vacations/israel-20770-4e3f6ed0','pool=1',{sort:'price-asc',pool:null}),null);
 });
 test('explicit visitor changes override semantic defaults and removing pool does not keep a hidden duplicate',()=>{
  const defaults={pool:true,type:'צימרים',features:'pool,heated-pool'};

@@ -14,3 +14,17 @@ export function managedSearchParams(query: string, initial?: Record<string, stri
   }
   return params;
 }
+
+/** Keep an approved landing URL when the visitor only changes presentation.
+ * Semantic filter changes must continue through the canonical search builder. */
+export function managedPresentationHref(landingPath: string | undefined, currentSearch: string, updates: Record<string, string | null>) {
+  if (!landingPath || Object.keys(updates).some(key => key !== "sort")) return null;
+  const params = managedSearchParams(currentSearch);
+  for (const [key, value] of Object.entries(updates)) {
+    if (value == null || value === "recommended") params.delete(key);
+    else params.set(key, value);
+  }
+  for (const key of ["location", "type", "types", "pool", "spa", "whole", "accessible", "online", "features"]) params.delete(key);
+  const query = params.toString();
+  return query ? `${landingPath}?${query}` : landingPath;
+}

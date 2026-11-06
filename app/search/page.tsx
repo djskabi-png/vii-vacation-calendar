@@ -36,7 +36,7 @@ import { isWholeCountrySelection, matchesSearchLocation } from "../data/search-t
 import { cleanVacationPath, vacationRegionByLabel, vacationBreadcrumbTrail } from "../data/vacation-landings";
 import { VacationGeographyNav } from "../components/vacation-geography-nav";
 import { currencyLabelParts } from "../lib/currency-label";
-import { managedSearchParams } from "../lib/managed-search-params.ts";
+import { managedPresentationHref, managedSearchParams } from "../lib/managed-search-params.ts";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
@@ -447,6 +447,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
+    const presentationHref = managedPresentationHref(landing?.path, initialParams.toString(), updates);
+    if (presentationHref) {
+      router.push(localizedPath(presentationHref, language), { scroll: false });
+      return;
+    }
     const nextUrl = buildVacationSearchUrl(initialParams.toString(), updates, nextTypes, nextArea);
     router.push(localizedPath(nextUrl, language), { scroll: false });
   }
