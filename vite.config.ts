@@ -2,17 +2,17 @@ import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
-import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { worldStyleSlotsPlugin } from "./build/world-style-slots.mjs";
+import { releaseBuildIdentity } from "./scripts/release-build-identity.mjs";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
 const ASSET_RELEASE = "calendar-close-v25";
 // Each immutable build owns its HTML and Flight responses. A redeployment
 // must never reuse cached markup that references removed prior-build chunks.
-const publicCacheBuildId = randomUUID();
+const publicCacheBuildId = releaseBuildIdentity();
 
 const { d1, r2 } = hostingConfig;
 

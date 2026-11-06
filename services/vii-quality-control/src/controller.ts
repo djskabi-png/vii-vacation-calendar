@@ -2,6 +2,7 @@ import type { D1Database } from "../../../types/cloudflare-runtime";
 import { readQualityDashboard, readQualityRunStatus, readQualityScopeOptions, persistQualityJobProgress, updateQualityIncident, updateQualitySchedule, type QualityRunLevel } from "../../../app/lib/quality-platform.ts";
 import { ensureQualityJobSchema, readQualityJob, readQualityJobByIntent, requestQualityJobCancel, type QualityJob } from "../../../app/lib/quality-job-store.ts";
 import { ensureDispatchSchema, reserveDispatch, dispatchWithTransport, recoverExpiredDispatches } from "./dispatch-outbox.ts";
+import { readSchedulerAttention, reconcileSchedulerAdmission, scheduledDispatchAdmission, markScheduledAdmissionUnknown } from "./scheduler-recovery.ts";
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
 export type ControllerEnvironment = { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
@@ -30,6 +31,14 @@ function scopeValue(raw: unknown) {
 export function createController(platform: ControllerPlatform) {
   async function dispatch(env: ControllerEnvironment, job: QualityJob, priority: QueueMessage["priority"] = "release") {
     if (env.EXECUTION_ENABLED !== "true" || job.status !== "queued") return;
+    const admission = await scheduledDispatchAdmission(env.QUALITY_DB,job);
+    if(admission==='deferred')return;
+    if(admission==='superseded') {
+      await env.QUALITY_DB.prepare("UPDATE quality_jobs SET status='blocked',reason='scheduled_admission_superseded',updated_at=? WHERE run_id=? AND status='queued' AND active_index IS NULL").bind(new Date().toISOString(),job.runId).run();
+      const blocked=await readQualityJob(env.QUALITY_DB,job.runId);
+      if(blocked)await persistQualityJobProgress(env.QUALITY_DB,blocked);
+      return;
+    }
     await ensureDispatchSchema(env.QUALITY_DB);
     const row = await reserveDispatch(env.QUALITY_DB, { runId: job.runId, expectedIndex: job.nextIndex, sourceVersion: job.sourceVersion, priority });
     if (!row) throw new Error("dispatch_not_reserved");
@@ -41,6 +50,7 @@ export function createController(platform: ControllerPlatform) {
       await env.QUALITY_DB.prepare("UPDATE quality_jobs SET status='blocked',reason='queue_dispatch_unverified',updated_at=? WHERE run_id=? AND status='queued' AND next_index=? AND active_index IS NULL")
         .bind(new Date().toISOString(), job.runId, job.nextIndex).run();
       const saved = await readQualityJob(env.QUALITY_DB, job.runId);
+      if(saved?.status==='blocked' && saved.checks[0]?.configuration.trigger==='scheduled')await markScheduledAdmissionUnknown(env.QUALITY_DB,saved.runId);
       if (saved) await persistQualityJobProgress(env.QUALITY_DB, saved);
     }
   }
@@ -71,9 +81,11 @@ export function createController(platform: ControllerPlatform) {
           if (id && !/^[A-Za-z0-9:_-]{1,120}$/.test(id)) return json({ error: "invalid_run_id" }, 400);
           return json(await readQualityRunStatus(db, { runId: id, activeOnly: !id }));
         }
-        return json(await readQualityDashboard(db));
+        const [dashboard,scheduler]=await Promise.all([readQualityDashboard(db),readSchedulerAttention(db)]);
+        return json({...dashboard,scheduler});
       }
       if (!body) return json({ error: "invalid_request" }, 400);
+      if(body.action==='scheduler-reconcile' && typeof body.checkId==='string' && Number.isSafeInteger(body.bucket) && (body.mode==='inspect'||body.mode==='allow-next'))return json({reconciliation:await reconcileSchedulerAdmission(db,{actor,checkId:body.checkId,bucket:Number(body.bucket),mode:body.mode})});
       if (body.action === "enqueue") {
         // A disabled or incompletely provisioned controller cannot accept new
         // work and leave the interface reporting an indefinitely queued run.
@@ -107,7 +119,8 @@ export function createController(platform: ControllerPlatform) {
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
       if (code === "quality_job_idempotency_conflict" || code === "dispatch_immutable_conflict") return json({ error: code }, 409);
-      if (["invalid_scope", "invalid_quality_schedule", "quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(code)) return json({ error: code }, 400);
+      if(code==='scheduler_job_still_active')return json({error:code},409);
+      if (["invalid_scope", "invalid_quality_schedule", "invalid_scheduler_reconciliation", "scheduler_admission_not_found", "quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(code)) return json({ error: code }, 400);
       return json({ error: "quality_unavailable" }, 503);
     }
   }
@@ -132,7 +145,9 @@ export function createController(platform: ControllerPlatform) {
     // Repair the commit-before-dispatch gap only. An uncertain send keeps its
     // original reservation and is never converted into another network send.
     await ensureQualityJobSchema(env.QUALITY_DB);
-    const rows = await env.QUALITY_DB.prepare("SELECT jobs.run_id AS runId,COALESCE(outbox.priority,'release') AS priority FROM quality_jobs AS jobs LEFT JOIN quality_dispatch_outbox AS outbox ON outbox.run_id=jobs.run_id AND outbox.expected_index=jobs.next_index WHERE jobs.status='queued' ORDER BY jobs.created_at LIMIT 2").all<{ runId: string; priority: QueueMessage['priority'] }>();
+    const {ensureSchedulerSchema}=await import('./scheduler.ts');
+    await ensureSchedulerSchema(env.QUALITY_DB);
+    const rows = await env.QUALITY_DB.prepare("SELECT jobs.run_id AS runId,COALESCE(outbox.priority,CASE WHEN json_extract(jobs.checks_json,'$[0].configuration.trigger')='scheduled' THEN 'monitor' ELSE 'release' END) AS priority FROM quality_jobs AS jobs LEFT JOIN quality_dispatch_outbox AS outbox ON outbox.run_id=jobs.run_id AND outbox.expected_index=jobs.next_index LEFT JOIN quality_scheduler_admissions AS admission ON jobs.idempotency_key='scheduled:'||REPLACE(admission.check_id,'.','_')||':'||admission.bucket WHERE jobs.status='queued' AND (COALESCE(json_extract(jobs.checks_json,'$[0].configuration.trigger'),'manual')<>'scheduled' OR admission.status IN ('linked','operator-cleared')) ORDER BY jobs.created_at LIMIT 2").all<{ runId: string; priority: QueueMessage['priority'] }>();
     for (const row of rows.results) { const job = await readQualityJob(env.QUALITY_DB, row.runId); if (job) await dispatch(env, job, row.priority); }
   }
   return { handle, consume, recover, dispatch };

@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { createSignedValue } from '../app/lib/google-auth.ts';
 import { ensureAdminGrantSchema } from '../app/lib/admin-grants.ts';
 import { verifyQualityAttestation } from '../app/lib/quality-attestation.ts';
+import { ensureSchedulerSchema } from '../services/vii-quality-control/src/scheduler.ts';
 
 const require=createRequire(import.meta.url);
 const {build}=require(require.resolve('esbuild',{paths:[require.resolve('vite/package.json')]}));
@@ -42,5 +43,17 @@ test('actual source attestation and JWKS execute under workerd and enforce exact
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:controlHeaders})).status,409);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=changed',{headers:controlHeaders})).status,403);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:{...controlHeaders,cookie:'must-not-cross-boundary=1'}})).status,403);
+  // The existing source grant remains authoritative for a real private write.
+  await db.prepare('UPDATE vii_admin_grants SET permissions_json=? WHERE email=?').bind(JSON.stringify({quality:'edit'}),'viewer@example.test').run();
+  const controlDb=await mf.getD1Database('QUALITY_DB','control');await ensureSchedulerSchema(controlDb);
+  await controlDb.prepare("INSERT INTO quality_scheduler_admissions(check_id,bucket,generation,status,created_at) VALUES(?,?,?,'unknown',?)").bind('global.home.semantic',2,'fixture-generation',600000).run();
+  const recoveryBody={action:'scheduler-reconcile',checkId:'global.home.semantic',bucket:2,mode:'allow-next'};
+  const recoveryJson=JSON.stringify(recoveryBody),recoveryHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(recoveryJson)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+  for(const suffix of ['first','repeat']) {
+    const recoveryNonce=`recovery_nonce_${suffix}_1234567890`;
+    const authorization=await mf.dispatchFetch(request({method:'POST',path:'/api/admin/quality',bodyHash:recoveryHash,nonce:recoveryNonce}));assert.equal(authorization.status,200);
+    const result=await control.fetch('https://vii.spaplus.co/api/admin/quality',{method:'POST',headers:{'Content-Type':'application/json','X-VII-Quality-Attestation':(await authorization.json()).token,'X-VII-Quality-Nonce':recoveryNonce},body:recoveryJson});assert.equal(result.status,200);assert.equal((await result.json()).reconciliation.status,'operator-cleared');
+  }
+  assert.equal((await controlDb.prepare('SELECT COUNT(*) AS n FROM quality_scheduler_reconciliation_audit').first()).n,1);
  }finally{await mf.dispose();}
 });

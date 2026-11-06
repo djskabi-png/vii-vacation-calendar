@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildImpact, loadImpactGraph } from './release-impact-graph.mjs';
+import { releaseBuildIdentity } from './release-build-identity.mjs';
 
 const sha = value => createHash('sha256').update(value).digest('hex');
 const validSource = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
@@ -21,6 +22,10 @@ export function validateReleaseCandidate(manifest, options = {}) {
   const readJson = path => JSON.parse(read(path).toString('utf8'));
   const currentTree = options.treeForSource || (source => execFileSync('git',['rev-parse',`${source}^{tree}`],{cwd:root,encoding:'utf8'}).trim());
   const candidate = manifest?.candidate || {};
+  try {
+    const actualIdentity=options.buildIdentityForSource ? options.buildIdentityForSource(candidate.source) : releaseBuildIdentity({cwd:root});
+    if(!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(candidate.buildIdentity || '') || candidate.buildIdentity!==actualIdentity)fail('candidate_build_identity_mismatch');
+  } catch { fail('candidate_build_identity_unavailable'); }
   try {
     const state=options.workingState || {
       source:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),
@@ -59,7 +64,7 @@ export function validateReleaseCandidate(manifest, options = {}) {
       const receipt=readJson(path);
       const age=now-Date.parse(receipt.observedAt);
       const exitRequired=['build','local-test'].includes(receipt.engine);
-      if(receipt.status!=='passed' || exitRequired && receipt.exitCode!==0 || receipt.exitCode!=null && receipt.exitCode!==0 || receipt.failedCount>0 || receipt.blockedCount>0 || receipt.source!==candidate.source || receipt.tree!==candidate.tree || receipt.artifactSha256!==artifact.sha256 || !Number.isFinite(age) || age<0 || age>24*60*60*1000)fail(`invalid_candidate_receipt:${path}`);
+      if(receipt.status!=='passed' || exitRequired && receipt.exitCode!==0 || receipt.exitCode!=null && receipt.exitCode!==0 || receipt.failedCount>0 || receipt.blockedCount>0 || receipt.source!==candidate.source || receipt.tree!==candidate.tree || receipt.buildIdentity!==candidate.buildIdentity || receipt.artifactSha256!==artifact.sha256 || !Number.isFinite(age) || age<0 || age>24*60*60*1000)fail(`invalid_candidate_receipt:${path}`);
       else evidence.push(receipt);
     } catch { fail(`evidence_unavailable:${path}`); }
   }
@@ -92,7 +97,11 @@ export function validateReleaseCandidate(manifest, options = {}) {
 
 if(process.argv[1] && fileURLToPath(import.meta.url)===resolve(process.argv[1])) {
   let report;
-  try { report=validateReleaseCandidate(JSON.parse(readFileSync(resolve(process.argv[2]),'utf8'))); }
+  try {
+    const rootIndex=process.argv.indexOf('--root');
+    const options=rootIndex>=0?{root:process.argv[rootIndex+1]}:{};
+    report=validateReleaseCandidate(JSON.parse(readFileSync(resolve(process.argv[2]),'utf8')),options);
+  }
   catch { report={status:'blocked',publicationApproved:false,failures:['manifest_unavailable_or_invalid']}; }
   console.log(JSON.stringify(report,null,2));
   if(report.status!=='passed')process.exitCode=1;

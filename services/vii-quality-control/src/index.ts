@@ -3,7 +3,9 @@ import { createManualQualityJob, createScheduledQualityJob, consumeQualityJob, q
 import { verifyQualityAttestation } from "../../../app/lib/quality-attestation.ts";
 import { readJsonBody, RequestBodyError } from "../../../shared/request-body.ts";
 import { handleQueueDelivery, type QueueDelivery } from "./queue-consumer.ts";
-import { admitScheduledChecks } from "./scheduler.ts";
+import { admitScheduledChecks, schedulerJobIntentKey } from "./scheduler.ts";
+import { readQualityJob } from "../../../app/lib/quality-job-store.ts";
+import { ensureControlAuxiliarySchema } from "./control-schema.ts";
 
 type Env = ControllerEnvironment & { PUBLIC_ORIGIN: string; EXPECTED_BUILD_ID: string; AUTHORITY_ENABLED?: string; SCHEDULE_ENABLED?: string };
 const controller = createController({ create: createManualQualityJob, consume: consumeQualityJob });
@@ -41,7 +43,7 @@ export default {
       // Nonces are consumed before any mutation. A replay or uncertain result
       // cannot repeat acknowledge/reopen/schedule operations under a new job key.
       stage = "nonce_store";
-      await env.QUALITY_DB.prepare("CREATE TABLE IF NOT EXISTS quality_authorization_nonces (nonce TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)").run();
+      await ensureControlAuxiliarySchema(env.QUALITY_DB);
       const consumed = await env.QUALITY_DB.prepare("INSERT OR IGNORE INTO quality_authorization_nonces(nonce,expires_at) VALUES(?,?)").bind(nonce, claims.exp).run();
       if (Number(consumed.meta?.changes) !== 1) return Response.json({ error: "authorization_replayed" }, { status: 409, headers });
       return controller.handle(request, env, claims.email, body);
@@ -58,12 +60,17 @@ export default {
   },
   async scheduled(_event: unknown, env: Env) {
     if (env.AUTHORITY_ENABLED !== "true" || env.EXECUTION_ENABLED !== "true") return;
+    await ensureControlAuxiliarySchema(env.QUALITY_DB);
     await controller.recover(env);
-    await admitScheduledChecks(env.QUALITY_DB, { enabled: env.SCHEDULE_ENABLED === 'true', now: Date.now(), generation: qualityBuildIdentity(), createScheduledJob: async (admission) => {
-      const queued = await createScheduledQualityJob(env.QUALITY_DB, { actor: 'cloudflare-scheduler', idempotencyKey: `scheduled:${admission.checkId}:${admission.bucket}`, origin: env.PUBLIC_ORIGIN, checkId: admission.checkId });
-      await controller.dispatch(env, queued.job, 'monitor');
+    const admissions=await admitScheduledChecks(env.QUALITY_DB, { enabled: env.SCHEDULE_ENABLED === 'true', now: Date.now(), generation: qualityBuildIdentity(), createScheduledJob: async (admission) => {
+      const queued = await createScheduledQualityJob(env.QUALITY_DB, { actor: 'cloudflare-scheduler', idempotencyKey: schedulerJobIntentKey(admission.checkId,admission.bucket), origin: env.PUBLIC_ORIGIN, checkId: admission.checkId });
       return queued.job.runId;
     } });
+    for(const admission of admissions) {
+      if(admission.status!=='linked'||!admission.runId)continue;
+      const job=await readQualityJob(env.QUALITY_DB,admission.runId);
+      if(job)await controller.dispatch(env,job,'monitor');
+    }
     await env.QUALITY_DB.prepare("DELETE FROM quality_authorization_nonces WHERE expires_at < ?").bind(Math.floor(Date.now() / 1000) - 60).run();
   },
 };

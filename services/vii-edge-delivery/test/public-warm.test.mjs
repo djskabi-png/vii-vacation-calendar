@@ -42,10 +42,15 @@ test('one failed document cannot stop other routes and owned background work is 
     const path=new URL(request.url).pathname;paths.push(path);active++;maxActive=Math.max(maxActive,active);
     ctx.waitUntil(Promise.resolve().then(()=>{active--;background++;}));
     if(path==='/events')throw Error('transient');
-    return new Response('ok');
+    return new Response('ok',{headers:{'X-VII-Edge-Delivery':'MISS'}});
   },{waitUntil(){}});
   assert.equal(result.attempted,16);assert.equal(result.completed,15);assert.equal(result.failed,1);
   assert.equal(background,16);assert.equal(maxActive,1);assert.deepEqual(paths,publicWarmRequests.map(r=>new URL(r.path,'https://vii.spaplus.co').pathname));
+});
+
+test('a successful HTTP response rejected by cache admission is not counted as warm',async()=>{
+ const result=await warmPublicDocuments(async()=>new Response('old build',{headers:{'X-VII-Edge-Cache-Skip':'build_mismatch'}}),{waitUntil(){}});
+ assert.equal(result.attempted,16);assert.equal(result.completed,0);assert.equal(result.failed,16);
 });
 
 test('warming aborts each stalled read and never exceeds its total90second budget',async()=>{

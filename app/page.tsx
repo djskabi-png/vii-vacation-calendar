@@ -16,6 +16,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { bundledPublicCatalogSummaries, publicCatalogReviewPreviews } from "./lib/public-catalog-read.ts";
+import { createRequestCatalogReader, type RequestCatalogReader } from "./lib/request-catalog-reader.ts";
 import { rotateDaily } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
@@ -65,11 +66,11 @@ function homeShowcaseProperties(properties: Property[]) {
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
 }
 
-async function HomeCatalogShowcase() {
+async function HomeCatalogShowcase({ readCatalog }: { readCatalog: RequestCatalogReader }) {
   const [properties, eventPlaces, hourlyCatalogPlaces] = await Promise.all([
-    bundledPublicCatalogSummaries<Property>("vacations").catch(() => []),
-    bundledPublicCatalogSummaries<EventPlace>("events").catch(() => []),
-    bundledPublicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
+    readCatalog<Property>("vacations").catch(() => []),
+    readCatalog<EventPlace>("events").catch(() => []),
+    readCatalog<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
@@ -84,8 +85,8 @@ async function HomeCatalogShowcase() {
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
 }
 
-async function HomeRatings() {
-  const properties = await bundledPublicCatalogSummaries<Property>("vacations").catch(() => []);
+async function HomeRatings({ readCatalog }: { readCatalog: RequestCatalogReader }) {
+  const properties = await readCatalog<Property>("vacations").catch(() => []);
   const ratedPlaces = await homeRatedPlaces(properties).catch(() => []);
   return ratedPlaces.length ? <HomeRatingsSection ratedPlaces={ratedPlaces} /> : null;
 }
@@ -99,6 +100,7 @@ async function HomeMagazineSection() {
 }
 
 export default async function HomePage() {
+  const readCatalog = createRequestCatalogReader(bundledPublicCatalogSummaries);
   const { translate } = await serverPublicCopy();
   const worldAvailability = await readWorldAvailability();
   return (
@@ -114,8 +116,8 @@ export default async function HomePage() {
         </section>
 
         <HomeLiveSections />
-        <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase /></Suspense>
-        <Suspense fallback={null}><HomeRatings /></Suspense>
+        <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase readCatalog={readCatalog} /></Suspense>
+        <Suspense fallback={null}><HomeRatings readCatalog={readCatalog} /></Suspense>
 
         {worldAvailability["gift-card"] || worldAvailability.corporate ? <section className="section home-corporate-gift"><div className="shell">{worldAvailability["gift-card"] ? <Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link> : null}{worldAvailability.corporate ? <Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>{worldAvailability["gift-card"] ? "מקום, תוכן, ספקים וגיפט קארד במסלול אחד." : "מקום, תוכן וספקים במסלול אחד."}</p><strong>למרכז הארגוני</strong></div></Link> : null}</div></section> : null}
 

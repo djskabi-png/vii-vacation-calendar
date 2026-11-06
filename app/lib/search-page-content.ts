@@ -1,3 +1,4 @@
+import { readOnceInServerRequest } from "./server-request-reads.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { spaLandings, spaLandingHref } from "../data/spa-landings.ts";
@@ -54,6 +55,7 @@ export async function searchPageDatabase() {
 }
 
 export async function publishedSearchPage(path: string): Promise<SearchPageDefinition | null> {
+  return readOnceInServerRequest(`published-search-page:${path}`, async () => {
   const definition = searchPageDefinition(path);
   if (!definition) return null;
   try {
@@ -69,6 +71,7 @@ export async function publishedSearchPage(path: string): Promise<SearchPageDefin
     const row = await (await db()).prepare("SELECT title, description FROM vii_search_page_versions WHERE path = ? AND (status = 'published' OR (status = 'scheduled' AND scheduled_at <= ?)) ORDER BY version DESC LIMIT 1").bind(path, now).first<{ title: string; description: string }>();
     return row ? { ...definition, title: row.title, description: row.description } : definition;
   } catch { return definition; }
+  });
 }
 
 export async function searchPageInventory(database: D1Database) {

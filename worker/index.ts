@@ -1,3 +1,4 @@
+import { withServerRequestReads } from "../app/lib/server-request-reads.ts";
 import type { PublicLocale } from "./localized-html.ts";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
@@ -148,6 +149,7 @@ const worker = {
     }));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
+    return withServerRequestReads(async () => {
     // Vinext's local production server does not provide Cloudflare bindings.
     // Keep the public bundled-data paths testable locally while production
     // continues to receive the real Env object from Cloudflare.
@@ -377,6 +379,7 @@ const worker = {
     return storePublicCache(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
     }), cachePolicy, env, ctx);
+    });
   },
 };
 

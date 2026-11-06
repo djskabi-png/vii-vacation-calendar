@@ -35,7 +35,9 @@ export async function warmPublicDocuments(read: (request: Request, ctx: Context)
         }
       } finally { reader?.releaseLock(); }
       while (tasks.size) await Promise.allSettled([...tasks]);
-      if (!response.ok) throw new Error("warm_document_unavailable");
+      // A 200 can still be rejected for a mismatched build, private response or
+      // unsupported variant. It is not evidence of a warmed cache entry.
+      if (!response.ok || !["HIT", "MISS"].includes(response.headers.get("X-VII-Edge-Delivery") || "") || response.headers.has("X-VII-Edge-Cache-Skip")) throw new Error("warm_document_not_admitted");
     })().then(() => true, () => false);
     const deadline = new Promise<false>(resolve => { timer = setTimeout(() => {
       controller.abort(new DOMException("Public warming deadline", "TimeoutError")); resolve(false);

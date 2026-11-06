@@ -124,6 +124,19 @@ function keyFor(request: Request, url: URL, build: string) {
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
 }
 
+function deliveryTiming(headers: Headers, lookupMs: number, originMs?: number) {
+  headers.set("X-VII-Edge-Lookup-Ms", String(lookupMs));
+  // Origin cache timings can be retained inside stored public HTML. These
+  // distinct names always describe this delivery, never the original fill.
+  headers.delete("X-VII-Edge-Origin-Ms");
+  const timings = [`vii-edge-lookup;dur=${lookupMs}`];
+  if (originMs != null) {
+    headers.set("X-VII-Edge-Origin-Ms", String(originMs));
+    timings.push(`vii-edge-origin;dur=${originMs}`);
+  }
+  headers.append("Server-Timing", timings.join(", "));
+}
+
 async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext, refresh = false): Promise<Response> {
   if (env.QUALITY_CONTROL_ENABLED === "true") {
     const quality = await qualityGateway(request, env);
@@ -139,6 +152,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const cache = (globalThis.caches as unknown as { default?: Cache } | undefined)?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
   const key = keyFor(request, url, expectedBuild);
+  const lookupStarted = performance.now();
   let hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
   if(hit&&(!Number.isFinite(Number(hit.headers.get('X-VII-Cache-Until')))||Number(hit.headers.get('X-VII-Cache-Until'))<=Date.now()))hit=undefined;
   let hitLayer='available';
@@ -165,13 +179,17 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
     }
     const remaining = Math.floor((hitExpiry - Date.now()) / 1000);
     const headers = new Headers(hit.headers);
+    deliveryTiming(headers, Math.round(performance.now() - lookupStarted));
     headers.delete(refreshAfterHeader);
     headers.set("Cache-Control", `public, max-age=${discovery?0:Math.min(60, remaining)}`);
     headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", hitLayer);
     return new Response(hit.body, { status: hit.status, headers });
   }
   const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
+  const lookupMs = Math.round(performance.now() - lookupStarted);
+  const originStarted = performance.now();
   const response = await fetchPublicRead(request, origin);
+  const originMs = Math.round(performance.now() - originStarted);
   const contentType = response.headers.get("Content-Type") || "";
   const expectedType = discovery?'application/json':url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";
   const control = (response.headers.get("Cache-Control") || "").toLowerCase();
@@ -182,7 +200,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const declaredSize = Number(response.headers.get("Content-Length"));
   const hasUnknownSetCookie = response.headers.has("Set-Cookie") && !infrastructureSetCookieOnly(response.headers.get("Set-Cookie"));
   const reason = response.status !== 200 ? "status" : !contentType.includes(expectedType) ? "content_type" : response.headers.get("X-VII-Cache-Build") !== expectedBuild ? "build_mismatch" : hasUnknownSetCookie ? "set_cookie" : /(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*(?:,|=|$))/i.test(control) ? "private_or_no_store" : vary.some((name) => !allowedVary.has(name)) ? "vary" : (Number.isFinite(declaredSize) && declaredSize > maxBytes) ? "oversize" : !Number.isFinite(until) || remaining <= 0 ? "missing_expiry" : discovery&&(response.headers.get('X-VII-Discovery-Verified')!=='1'||until>discovery.expiresAt+1000)?'discovery_authority':null;
-  if (reason) { const headers = new Headers(response.headers); headers.set("X-VII-Edge-Cache-Skip", reason); return new Response(response.body, { status: response.status, headers }); }
+  if (reason) { const headers = new Headers(response.headers); deliveryTiming(headers, lookupMs, originMs); headers.set("X-VII-Edge-Cache-Skip", reason); return new Response(response.body, { status: response.status, headers }); }
   const headers = new Headers(response.headers); headers.delete("Set-Cookie"); headers.set("Cache-Control", `public, max-age=${Math.min(60, Math.floor(remaining / 1000))}`); headers.set("X-VII-Edge-Delivery", "MISS"); headers.set("X-VII-Edge-Cache-Backend", cache ? "available" : "unavailable");
   const storedHeaders = new Headers(headers);
   // The browser-facing response remains capped at 60s, while the internal
@@ -198,6 +216,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
     ]);
   }).catch(()=>undefined));
   const clientHeaders = new Headers(response.headers); clientHeaders.delete(refreshAfterHeader); clientHeaders.set("X-VII-Edge-Delivery", "MISS");
+  deliveryTiming(clientHeaders, lookupMs, originMs);
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };

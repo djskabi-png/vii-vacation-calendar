@@ -224,10 +224,10 @@ test("internal destinations warm on real pointer, focus or touch intent", async 
 
 test("homepage keeps rated-place details outside the critical world-summary boundary", async () => {
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
-  assert.match(home, /async function HomeCatalogShowcase\(\)/);
-  assert.match(home, /async function HomeRatings\(\)/);
-  assert.match(home, /<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase \/><\/Suspense>/);
-  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings \/><\/Suspense>/);
+  assert.match(home, /async function HomeCatalogShowcase\(\{ readCatalog \}/);
+  assert.match(home, /async function HomeRatings\(\{ readCatalog \}/);
+  assert.match(home, /<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase readCatalog=\{readCatalog\} \/><\/Suspense>/);
+  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings readCatalog=\{readCatalog\} \/><\/Suspense>/);
   assert.doesNotMatch(home, /hourlyCatalogPlaces, ratedPlaces\] = await Promise\.all/);
 });
 

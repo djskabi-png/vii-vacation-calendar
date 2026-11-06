@@ -60,7 +60,9 @@
       ]
     },
     "global-shell": {
-      "dependsOn": [],
+      "dependsOn": [
+        "request-lifecycle"
+      ],
       "requiredChecks": [
         "global.home.semantic",
         "global.home.en.semantic",
@@ -219,6 +221,7 @@
       ],
       "requiredLocalTests": [
         "tests/quality-job-api.test.mjs",
+        "tests/quality-scheduler-ui.test.mjs",
         "tests/quality-job-platform.test.mjs",
         "tests/quality-job-runner.test.mjs",
         "tests/quality-job-projection.test.mjs",
@@ -261,7 +264,8 @@
     "seo": {
       "dependsOn": [
         "catalog-source",
-        "global-shell"
+        "global-shell",
+        "request-lifecycle"
       ],
       "requiredChecks": [
         "seo.sitemap.xml",
@@ -276,7 +280,9 @@
       "requiredLocalTests": []
     },
     "edge-cache": {
-      "dependsOn": [],
+      "dependsOn": [
+        "request-lifecycle"
+      ],
       "requiredChecks": [
         "global.home.semantic",
         "world.vacations.semantic"
@@ -318,6 +324,8 @@
       "requiredLocalTests": [
         "tests/deployment-artifact-budget.test.mjs",
         "tests/release-baseline-integrity.test.mjs",
+        "tests/release-build-identity.test.mjs",
+        "tests/release-handoff-operator.test.mjs",
         "tests/world-style-composition.test.mjs"
       ]
     },
@@ -326,7 +334,8 @@
       "requiredChecks": [],
       "buildUnits": [],
       "requiredLocalTests": [
-        "tests/release-impact-graph.test.mjs"
+        "tests/release-impact-graph.test.mjs",
+        "tests/release-candidate-manifest.test.mjs"
       ]
     },
     "multilingual-shell": {
@@ -405,7 +414,11 @@
       ],
       "requiredLocalTests": [
         "services/vii-quality-control/test/controller.test.mjs",
-        "services/vii-quality-control/test/dispatch-outbox.test.mjs"
+        "services/vii-quality-control/test/dispatch-outbox.test.mjs",
+        "services/vii-quality-control/test/scheduler.test.mjs",
+        "services/vii-quality-control/test/scheduled-handler.test.mjs",
+        "services/vii-quality-control/test/scheduler-recovery.test.mjs",
+        "services/vii-quality-control/test/queue-consumer.test.mjs"
       ]
     },
     "runtime-http": {
@@ -453,6 +466,17 @@
         "tests/quality-scoped-api-integration.test.mjs",
         "tests/quality-scope-admission.test.mjs"
       ]
+    },
+    "request-lifecycle": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/server-request-reads.test.mjs",
+        "tests/home-request-catalog-dedup.test.mjs"
+      ]
     }
   },
   "entries": [
@@ -487,6 +511,7 @@
       "ownerBox": "global-shell",
       "match": [
         "app/components/page-shell.tsx",
+        "app/page.tsx",
         "app/components/site-footer.tsx",
         "app/lib/public-chrome-client.ts",
         "app/lib/world-surface-contract.ts",
@@ -567,7 +592,8 @@
         "app/lib/discovery-public-index.ts",
         "app/lib/home-deal-curation.ts",
         "app/lib/warm-vacation-discovery-cache.ts",
-        "app/lib/request-stage-timing.ts"
+        "app/lib/request-stage-timing.ts",
+        "app/lib/request-catalog-reader.ts"
       ]
     },
     {
@@ -600,7 +626,8 @@
       "ownerBox": "seo",
       "match": [
         "app/sitemap.xml/",
-        "app/sitemaps/"
+        "app/sitemaps/",
+        "app/lib/search-page-content.ts"
       ]
     },
     {
@@ -631,6 +658,8 @@
       "ownerBox": "build-system",
       "match": [
         "vite.config.ts",
+        "scripts/release-build-identity.mjs",
+        ".openai/prepare-vii-release-handoff.ps1",
         "package.json",
         "pnpm-lock.yaml",
         "build/world-style-slots.mjs",
@@ -710,6 +739,13 @@
         "app/lib/quality-job-store.ts",
         "app/lib/quality-platform.ts",
         "app/lib/quality-check-scope.ts"
+      ]
+    },
+    {
+      "id": "request-lifecycle",
+      "ownerBox": "request-lifecycle",
+      "match": [
+        "app/lib/server-request-reads.ts"
       ]
     }
   ]

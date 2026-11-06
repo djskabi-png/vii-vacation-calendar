@@ -4,11 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, Clock3, Eye, Play, RefreshCw, ShieldCheck, WifiOff } from "lucide-react";
 import styles from "./quality.module.css";
 import { readQualityJobIntent, persistQualityJobIntent, clearQualityJobIntent, type QualityJobIntent } from "../../lib/quality-job-intent";
+import SchedulerAttention, { type SchedulerAttentionRow } from "./scheduler-attention.tsx";
 
 type Run = { id: string; triggerKind: string; releaseId: string | null; status: string; startedAt: string; finishedAt: string | null; passedCount: number; failedCount: number; degradedCount: number; blockedCount: number; durationMs: number | null; totalChecks: number; currentCheckId: string | null };
 type Incident = { id: string; checkId: string; family: string; world: string; route: string; viewport: string; severity: string; status: string; firstSeenAt: string; lastSeenAt: string; recoveredAt: string | null; occurrences: number; lastObserved: string };
 type Check = { checkId: string; family: string; world: string; route: string; viewport: string; severity: string; cadenceMinutes: number; expected: string; active: number };
-type Dashboard = { generatedAt: string; notificationProvider: { email: string; queued?: number; uncertain?: number }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }> };
+type Dashboard = { generatedAt: string; notificationProvider: { email: string; queued?: number; uncertain?: number }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }>; scheduler?: {attention: SchedulerAttentionRow[]} };
 type BackgroundJob = { runId: string; status: "queued" | "running" | "completed" | "blocked" | "cancelled"; nextIndex: number; totalChecks: number; passedCount: number; attentionCount: number; reason: string | null; receipts: Array<{ checkId: string; status: string; observed: string }> };
 type ScopeMetadata = { metadata: Record<string, { boxIds: string[]; engine: string }>; boxes: string[]; scopes: Record<string, Record<RunLevel, { supported: boolean; checkIds: string[] }>> };
 const scopeLabels: Record<string, string> = { "global-shell": "מעטפת האתר", "multilingual-shell": "שפות", search: "חיפוש", vacations: "נופש", events: "אירועים", spa: "ספא", hourly: "לפי שעה", activities: "אטרקציות", trails: "מסלולים", providers: "ספקים", maps: "מפות", "catalog-source": "נתוני המקור", "home-sliders": "סליידרים", "quality-control": "בקרת איכות", content: "תוכן ומידע", legal: "מדיניות ותקנון", seo: "עמודי קידום" };
@@ -231,6 +232,7 @@ export default function QualityPage() {
     {error ? <div className={styles.error} role="alert"><WifiOff size={18} />{error}</div> : null}
     {loading && !data ? <div className={styles.loading} role="status"><RefreshCw className={styles.spin} />טוענים את מצב האיכות...</div> : null}
     {data ? <>
+      {data.scheduler?<SchedulerAttention rows={data.scheduler.attention} labels={Object.fromEntries(data.checks.map(check=>[check.checkId,`${familyLabel[check.family]||check.family} · ${worldLabel[check.world]||check.world}`]))} refresh={load}/>:null}
       <section className={styles.section} aria-label="בחירת תחום בדיקה">
         <label>עולם או רכיב
           <select value={scopeBox} onChange={(event) => {

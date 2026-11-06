@@ -4,8 +4,17 @@ import type { D1Database } from "../../../types/cloudflare-runtime";
 import { ensureQualitySchema } from "../../../app/lib/quality-platform.ts";
 import { ensureQualityJobSchema } from "../../../app/lib/quality-job-store.ts";
 export type SchedulerDb = D1Database;
-export type ScheduledAdmission = { checkId: string; bucket: number; priority: "monitor"; generation: string };
+export type ScheduledAdmission = { checkId: string; bucket: number; priority: "monitor"; generation: string; status?: "linked" | "unknown"; runId?: string };
 type Existing = { checkId: string; status: string };
+
+export function schedulerJobIntentKey(checkId: string, bucket: number) {
+  // Registry IDs are dot-separated and cannot contain underscores. Replacing
+  // dots is therefore injective and keeps the durable job key's safe alphabet.
+  if(!/^[a-z0-9-]+(?:\.[a-z0-9-]+)*$/.test(checkId)||!Number.isSafeInteger(bucket)||bucket<0)throw new Error('invalid_scheduler_intent');
+  const key=`scheduled:${checkId.replaceAll('.','_')}:${bucket}`;
+  if(key.length>120)throw new Error('invalid_scheduler_intent');
+  return key;
+}
 
 export async function ensureSchedulerSchema(db: SchedulerDb) {
   await db.prepare(`CREATE TABLE IF NOT EXISTS quality_scheduler_admissions (
@@ -26,7 +35,7 @@ export async function admitScheduledChecks(db: SchedulerDb, input: { now: number
   await ensureQualityJobSchema(db);
   const orphaned = await db.prepare("SELECT check_id AS checkId,bucket,created_at AS createdAt FROM quality_scheduler_admissions WHERE status='admitted' ORDER BY created_at LIMIT 2").all<{checkId:string;bucket:number;createdAt:number}>();
   for(const row of orphaned.results) {
-    const job = await db.prepare("SELECT run_id AS runId FROM quality_jobs WHERE actor='cloudflare-scheduler' AND idempotency_key=?").bind(`scheduled:${row.checkId}:${row.bucket}`).first<{runId:string}>();
+    const job = await db.prepare("SELECT run_id AS runId FROM quality_jobs WHERE actor='cloudflare-scheduler' AND idempotency_key=?").bind(schedulerJobIntentKey(row.checkId,row.bucket)).first<{runId:string}>();
     if(job) await db.prepare("UPDATE quality_scheduler_admissions SET status='linked',run_id=? WHERE check_id=? AND bucket=? AND status='admitted'").bind(job.runId,row.checkId,row.bucket).run();
     else if(input.now-row.createdAt>60000) await db.prepare("UPDATE quality_scheduler_admissions SET status='unknown' WHERE check_id=? AND bucket=? AND status='admitted'").bind(row.checkId,row.bucket).run();
   }
@@ -34,7 +43,7 @@ export async function admitScheduledChecks(db: SchedulerDb, input: { now: number
   const overrideRows = await db.prepare("SELECT check_id AS checkId,cadence_minutes AS cadenceMinutes FROM quality_schedule_overrides").all<{checkId:string;cadenceMinutes:number}>();
   const overrides = new Map(overrideRows.results.map(row => [row.checkId,row.cadenceMinutes]));
   for(const [key,value] of input.overrides || []) overrides.set(key,value);
-  const activeRows = await db.prepare(`SELECT DISTINCT json_extract(entry.value,'$.checkId') AS checkId, jobs.status FROM quality_jobs AS jobs,json_each(jobs.checks_json) AS entry WHERE jobs.status IN ('queued','running') OR (jobs.status='blocked' AND jobs.reason IN ('queue_dispatch_unverified','interrupted_check_uncommitted','queue_attempt_budget_exhausted'))`).all<Existing>();
+  const activeRows = await db.prepare(`SELECT DISTINCT json_extract(entry.value,'$.checkId') AS checkId, jobs.status FROM quality_jobs AS jobs,json_each(jobs.checks_json) AS entry WHERE jobs.status IN ('queued','running')`).all<Existing>();
   const stored = await db.prepare(`SELECT check_id AS checkId,MAX(created_at) AS lastAt,MAX(CASE WHEN status='unknown' THEN 1 ELSE 0 END) AS unknown FROM quality_scheduler_admissions GROUP BY check_id`).all<{ checkId: string; lastAt: number; unknown: number }>();
   const last = new Map(stored.results.map(row => [row.checkId, row]));
   const existing = new Map([...activeRows.results, ...(input.existing || [])].map(row => [row.checkId, row.status]));
@@ -59,8 +68,17 @@ export async function admitScheduledChecks(db: SchedulerDb, input: { now: number
     const changes = Number((result as { meta?: { changes?: number } }).meta?.changes ?? 0);
     if (changes !== 1) continue;
     usedSlots.add(nextSlot); nextSlot++;
-    try { const runId=await input.createScheduledJob(admission, check); if(!runId) throw new Error('scheduled_job_identity_missing'); await db.prepare("UPDATE quality_scheduler_admissions SET status='linked',run_id=? WHERE check_id=? AND bucket=? AND status='admitted'").bind(runId,admission.checkId,bucket).run(); admitted.push(admission); }
-    catch (error) { await db.prepare(`UPDATE quality_scheduler_admissions SET status='unknown' WHERE check_id=? AND bucket=? AND status='admitted'`).bind(admission.checkId, bucket).run(); throw error; }
+    try {
+      const runId=await input.createScheduledJob(admission, check);
+      if(!runId) throw new Error('scheduled_job_identity_missing');
+      await db.prepare("UPDATE quality_scheduler_admissions SET status='linked',run_id=? WHERE check_id=? AND bucket=? AND status='admitted'").bind(runId,admission.checkId,bucket).run();
+      admitted.push({...admission,status:'linked',runId});
+    } catch {
+      await db.prepare(`UPDATE quality_scheduler_admissions SET status='unknown' WHERE check_id=? AND bucket=? AND status='admitted'`).bind(admission.checkId, bucket).run();
+      // One failed admission consumes one slot but cannot cancel unrelated due
+      // checks. Its explicit unknown state remains operator-visible.
+      admitted.push({...admission,status:'unknown'});
+    }
   }
   return admitted;
 }

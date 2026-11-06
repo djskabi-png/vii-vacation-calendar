@@ -7,23 +7,23 @@ import { validateReleaseCandidate } from '../scripts/release-candidate-manifest.
 
 function fixture() {
   const root=resolve('.qa-output',`manifest-test-${randomUUID()}`);mkdirSync(root,{recursive:true});
-  const files=[],source='1'.repeat(40),tree='2'.repeat(40),now=Date.now();
+  const files=[],source='1'.repeat(40),tree='2'.repeat(40),now=Date.now(),buildIdentity='11111111-2222-3333-4444-555555555555';
   const digest=createHash('sha256').update('synthetic artifact').digest('hex');
   const write=(name,value)=>{files.push(name);writeFileSync(resolve(root,name),typeof value==='string'?value:JSON.stringify(value));return name;};
   write('artifact.zip','synthetic artifact');
-  const receipt=extra=>({status:'passed',source,tree,artifactSha256:digest,observedAt:new Date(now).toISOString(),...extra});
+  const receipt=extra=>({status:'passed',source,tree,buildIdentity,artifactSha256:digest,observedAt:new Date(now).toISOString(),...extra});
   write('source.json',{verificationScope:'source-integrity-only',status:'passed',clean:true,head:source,tree});
   write('build.json',receipt({engine:'build',exitCode:0}));
   write('audit.json',receipt({engine:'artifact-audit',executedCheckIds:['artifact.fixture-exclusion','artifact.import-integrity']}));
   write('http.json',receipt({engine:'http',executedCheckIds:['global.home.semantic']}));
   write('rollback.json',{status:'passed',source:'3'.repeat(40),tree:'4'.repeat(40),deployment:'synthetic-deployment',environmentRevision:8,artifactSha256:'5'.repeat(64),procedureVersion:'restore-fixture-v1',observedAt:new Date(now).toISOString()});
   const graph={schemaVersion:2,graphId:'test-graph',buildUnits:{},entries:[{id:'fixture',ownerBox:'fixture',match:['fixture.ts']}],nodes:{fixture:{dependsOn:[],requiredChecks:['global.home.semantic'],buildUnits:[]}}};
-  const manifest={schemaVersion:1,stage:'candidate',graphId:'test-graph',changedFiles:['fixture.ts'],candidate:{source,tree,artifact:{path:'artifact.zip',sha256:digest},environmentRevision:9},sourceEvidencePath:'source.json',evidencePaths:['build.json','audit.json','http.json'],rollbackEvidencePath:'rollback.json'};
+  const manifest={schemaVersion:1,stage:'candidate',graphId:'test-graph',changedFiles:['fixture.ts'],candidate:{source,tree,buildIdentity,artifact:{path:'artifact.zip',sha256:digest},environmentRevision:9},sourceEvidencePath:'source.json',evidencePaths:['build.json','audit.json','http.json'],rollbackEvidencePath:'rollback.json'};
   // Registry expansion still reads the real repository; only artifact receipt
   // paths and source identity are isolated fixtures.
   const repo=process.cwd();
-  const options={root,registryRoot:repo,now,treeForSource:()=>tree,workingState:{source,dirty:false},graph,changedFiles:['fixture.ts']};
-  return {root,source,tree,now,write,receipt,manifest,options,repo,cleanup(){for(const name of files)unlinkSync(resolve(root,name));rmdirSync(root);}};
+  const options={root,registryRoot:repo,now,treeForSource:()=>tree,buildIdentityForSource:()=>buildIdentity,workingState:{source,dirty:false},graph,changedFiles:['fixture.ts']};
+  return {root,source,tree,now,write,receipt,manifest,options,repo,cleanup(){for(const name of new Set(files))unlinkSync(resolve(root,name));rmdirSync(root);}};
 }
 
 test('missing or mismatched publication evidence fails closed',()=>{
@@ -38,6 +38,17 @@ test('missing or mismatched publication evidence fails closed',()=>{
     const dirty=validateReleaseCandidate(f.manifest,{...f.options,workingState:{source:f.source,dirty:true}});
     assert.ok(dirty.failures.includes('candidate_worktree_not_frozen'));
   }finally{f.cleanup();}
+});
+
+test('source input identity and receipt identity must both match the compiled candidate',()=>{
+ const f=fixture();try{
+  const changed=validateReleaseCandidate(f.manifest,{...f.options,buildIdentityForSource:()=> 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'});
+  assert.ok(changed.failures.includes('candidate_build_identity_mismatch'));
+  f.write('build.json',f.receipt({engine:'build',exitCode:0,buildIdentity:'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'}));
+  const staleArtifact=validateReleaseCandidate(f.manifest,f.options);
+  assert.ok(staleArtifact.failures.includes('invalid_candidate_receipt:build.json'));
+  assert.ok(staleArtifact.failures.includes('build_not_verified'));
+ }finally{f.cleanup();}
 });
 
 test('HTTP evidence cannot replace desktop/mobile browser evidence for a changed public component',()=>{
