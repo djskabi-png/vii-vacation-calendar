@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {discoveryEvidenceValidUntil}from'../../../app/lib/quality-readiness.ts';
 import { fixture } from './fixture.mjs';
 import { createController } from '../src/controller.ts';
 import { browserProfiles } from '../src/browser-profiles.ts';
@@ -20,10 +21,28 @@ async function complete(db,job,status='passed') {
   for(let index=0;index<job.checks.length;index++) {
     const checkedAt=new Date().toISOString();
     assert.equal(await startQualityJobCheck(db,{runId:job.runId,leaseToken,index,now:checkedAt}),true);
-    assert.equal(await commitQualityJobCheck(db,{runId:job.runId,leaseToken,index,now:checkedAt,receipt:{checkId:job.checks[index].checkId,status,observed:'controlled fixture result',checkedAt}}),true);
+    assert.equal(await commitQualityJobCheck(db,{runId:job.runId,leaseToken,index,now:checkedAt,receipt:{checkId:job.checks[index].checkId,status,observed:'controlled fixture result',checkedAt,...(job.checks[index].configuration.check?.semanticContract?{evidenceValidUntil:discoveryEvidenceValidUntil({cache:{checkedAt}},Date.parse(checkedAt))}:{})}}),true);
   }
   assert.equal(await finishQualityJobSlice(db,{runId:job.runId,leaseToken,status:'completed',now:new Date().toISOString()}),true);
 }
+
+test('original complete runtime evidence becomes blocked at snapshot expiry without replacing or rerunning jobs',async()=>{
+  const f=await setup();try{
+    f.descriptor.expiresAt=new Date(Date.now()+3*3_600_000).toISOString();
+    const {subjectId}=await registerReleaseSubject(f.env,f.descriptor,'owner');let http;
+    for(const key of ['http-full',...browserProfiles.map(p=>`browser:${p.profileId}`)]){const {job}=await enqueueReleaseCheck(f.env,subjectId,key);await complete(f.db,job);if(key==='http-full')http=job;}
+    assert.equal((await readReleaseSubjectEvidence(f.env,subjectId)).runtimeEvidenceStatus,'passed');
+    const original=f.sqlite.prepare('SELECT receipts_json AS value FROM quality_jobs WHERE run_id=?').get(http.runId).value;
+    const receipts=JSON.parse(original),firstExpiry=Math.min(...receipts.filter(r=>r.evidenceValidUntil).map(r=>Date.parse(r.evidenceValidUntil)));
+    assert.equal((await readReleaseSubjectEvidence(f.env,subjectId,firstExpiry-1)).runtimeEvidenceStatus,'passed');
+    assert.equal((await readReleaseSubjectEvidence(f.env,subjectId,firstExpiry)).runtimeEvidenceStatus,'blocked');
+    assert.equal(f.sqlite.prepare('SELECT receipts_json AS value FROM quality_jobs WHERE run_id=?').get(http.runId).value,original);
+    for(const mutation of [r=>({...r,evidenceValidUntil:undefined}),r=>({...r,evidenceValidUntil:new Date(Date.parse(r.checkedAt)+2*3_600_000).toISOString()})]){
+      f.sqlite.prepare('UPDATE quality_jobs SET receipts_json=? WHERE run_id=?').run(JSON.stringify(receipts.map(r=>r.evidenceValidUntil?mutation(r):r)),http.runId);
+      assert.equal((await readReleaseSubjectEvidence(f.env,subjectId)).runtimeEvidenceStatus,'blocked');
+    }
+  }finally{f.sqlite.close();}
+});
 
 test('registration is immutable context, runtime sources and definitions are server validated, no runtime pin or publication claim',async()=>{
   const f=await setup();try {

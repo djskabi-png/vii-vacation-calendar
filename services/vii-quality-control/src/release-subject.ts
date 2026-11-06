@@ -5,6 +5,7 @@ import { createManualQualityJob, qualityHttpJobCheckSnapshot } from '../../../ap
 import { selectManualQualityChecks } from '../../../app/lib/quality-platform.ts';
 import { browserProfiles } from './browser-profiles.ts';
 import { browserQualityCheck, createBrowserQualityJob } from './browser-job-platform.ts';
+import { discoveryReceiptCurrent } from '../../../app/lib/quality-readiness.ts';
 
 const SOURCE = /^[a-f0-9]{40}$/, DIGEST = /^[a-f0-9]{64}$/;
 const BUILD = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
@@ -148,6 +149,7 @@ async function validJob(job: QualityJob, definition: Definition, registeredAt: s
     || job.nextIndex !== definition.checks.length || job.activeIndex !== null || job.cancelRequestedAt !== null || job.leaseToken !== null || job.leaseUntil !== null
     || job.receipts.length !== definition.checks.length) return false;
   return job.receipts.every((receipt, index) => receipt.checkId === definition.checks[index].checkId && receipt.status === 'passed'
+    && (!(definition.checks[index].configuration.check as {semanticContract?:string}|undefined)?.semanticContract||discoveryReceiptCurrent(receipt,now))
     && Number.isFinite(Date.parse(receipt.checkedAt)) && Date.parse(receipt.checkedAt) >= Date.parse(job.createdAt) && Date.parse(receipt.checkedAt) <= Date.parse(job.updatedAt));
 }
 

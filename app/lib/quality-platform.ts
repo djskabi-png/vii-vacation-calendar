@@ -2,7 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { initializeSchemaOnce } from "./schema-initializer.ts";
 import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope, type QualityScopeSelection } from "./quality-check-scope.ts";
 import type { QualityJob } from "./quality-job-store.ts";
-import { DISCOVERY_READINESS_VERSION, discoveryReadinessDefinitions, discoveryReadinessProbe } from "./quality-readiness.ts";
+import { DISCOVERY_READINESS_VERSION, discoveryReadinessDefinitions, discoveryReadinessProbe, discoveryEvidenceValidUntil } from "./quality-readiness.ts";
 
 export type QualitySeverity = "critical" | "high" | "medium" | "low";
 export type QualityStatus = "passed" | "failed" | "degraded" | "blocked";
@@ -238,15 +238,16 @@ export async function executeQualityCheck(check: QualityCheck, origin: string, f
     const hasAny = !check.requiredAny?.length || check.requiredAny.some((token) => body.includes(token));
     const forbidden = (check.forbidden || []).filter((token) => body.includes(token));
     const readiness=probe?(()=>{try{return probe.validate(JSON.parse(body),Date.now());}catch{return {ok:false,reason:'invalid_snapshot_json'};}})():{ok:true};
+    const evidenceValidUntil=probe&&readiness.ok?discoveryEvidenceValidUntil(JSON.parse(body),started):null;
     const passed = response.status >= 200 && response.status < 400 && expectedType && bytes.byteLength >= (check.minBytes || 256)
-      && missingAll.length === 0 && hasAny && forbidden.length === 0 && readiness.ok;
+      && missingAll.length === 0 && hasAny && forbidden.length === 0 && readiness.ok && (!probe||evidenceValidUntil!==null&&Date.parse(evidenceValidUntil)>Date.now());
     const assertions = [
       missingAll.length ? `missing:${missingAll.join("|")}` : null,
       !hasAny ? `missing-any:${check.requiredAny?.join("|")}` : null,
       forbidden.length ? `forbidden:${forbidden.join("|")}` : null,
       !readiness.ok&&'reason' in readiness?`snapshot:${readiness.reason}`:null,
     ].filter(Boolean).join("; ");
-    return { status: passed ? "passed" as const : "failed" as const, statusCode: response.status,
+    return { status: passed ? "passed" as const : "failed" as const, statusCode: response.status, ...(passed&&evidenceValidUntil?{evidenceValidUntil}:{}),
       durationMs: Date.now() - started, observed: `${response.status} ${type || "unknown"}; ${bytes.byteLength} bytes${assertions ? `; ${assertions}` : ""}`, url };
   } catch (error) {
     return { status: "failed" as const, statusCode: null, durationMs: Date.now() - started,

@@ -3,7 +3,7 @@ import { initializeSchemaOnce } from "./schema-initializer.ts";
 
 export type QualityJobStatus = "queued" | "running" | "completed" | "blocked" | "cancelled";
 export type QualityJobCheck = { checkId: string; definitionVersion: string; timeoutMs?: number; configuration: Record<string, unknown> };
-export type QualityJobReceipt = { checkId: string; status: "passed" | "failed" | "degraded" | "blocked"; observed: string; checkedAt: string; statusCode?: number | null; durationMs?: number; evidenceUrl?: string };
+export type QualityJobReceipt = { checkId: string; status: "passed" | "failed" | "degraded" | "blocked"; observed: string; checkedAt: string; statusCode?: number | null; durationMs?: number; evidenceUrl?: string; evidenceValidUntil?: string };
 export type QualityJob = {
   runId: string; actor: string; idempotencyKey: string; payloadHash: string; sourceVersion: string;
   definitionVersion: string; checks: QualityJobCheck[]; expectedCheckIds: string[]; receipts: QualityJobReceipt[];

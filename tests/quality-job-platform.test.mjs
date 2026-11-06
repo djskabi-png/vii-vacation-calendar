@@ -8,6 +8,7 @@ import {enqueueQualityJob,readQualityJob,payloadHash,dueQualityJobIds} from '../
 import {runQualityJobSlice} from '../app/lib/quality-job-runner.ts';
 import {schedulerJobIntentKey} from '../services/vii-quality-control/src/scheduler.ts';
 import {qualityScopeMetadata} from '../app/lib/quality-check-scope.ts';
+import {homeDealDates}from'../app/lib/home-deal-dates.ts';
 
 function fixture(){const sqlite=new DatabaseSync(':memory:');const db={prepare(sql){let args=[];const statement={bind(...values){args=values;return statement;},async run(){return{meta:{changes:Number(sqlite.prepare(sql).run(...args).changes)}};},async first(){return sqlite.prepare(sql).get(...args)??null;},async all(){return{results:sqlite.prepare(sql).all(...args)};}};return statement;},async batch(statements){return Promise.all(statements.map(statement=>statement.run()));}};return{sqlite,db};}
 function platform(build='fixture-build'){
@@ -16,6 +17,20 @@ function platform(build='fixture-build'){
  const deps={qualityScopeMetadata,executeQualityCheck,selectManualQualityChecks,persistQualityJobProgress,enqueueQualityJob,readQualityJob,payloadHash,dueQualityJobIds,runQualityJobSlice,__VII_CACHE_BUILD_ID__:build};
  return new Function(...Object.keys(deps),`${js};return {createManualQualityJob,createScheduledQualityJob,consumeQualityJob};`)(...Object.values(deps));
 }
+
+test('actual scheduled executor preserves snapshot expiry in its original durable CAS receipt',async()=>{
+ const f=fixture(),p=platform();try{
+  const {job}=await p.createScheduledQualityJob(f.db,{actor:'scheduler',idempotencyKey:'snapshot-expiry-1234',origin:'https://qa.example.test',checkId:'discovery.vacation.tomorrow.ready'});
+  let fetches=0;
+  const result=await p.consumeQualityJob(f.db,job.runId,{fetcher:async()=>{fetches++;return Response.json({period:'tomorrow',dates:homeDealDates('tomorrow'),availabilityStatus:'verified',cache:{checkedAt:new Date().toISOString()},deals:[]});}});
+  assert.equal(result.status,'completed');
+  const saved=await readQualityJob(f.db,job.runId),receipt=saved.receipts[0];
+  assert.equal(receipt.status,'passed');assert.ok(Date.parse(receipt.evidenceValidUntil)>Date.parse(receipt.checkedAt));
+  const original=f.sqlite.prepare('SELECT receipts_json AS value FROM quality_jobs WHERE run_id=?').get(job.runId).value;
+  await p.consumeQualityJob(f.db,job.runId,{fetcher:async()=>{throw Error('completed receipt cannot be replaced');}});
+  assert.equal(fetches,1);assert.equal(f.sqlite.prepare('SELECT receipts_json AS value FROM quality_jobs WHERE run_id=?').get(job.runId).value,original);
+ }finally{f.sqlite.close();}
+});
 test('actual platform persists selected immutable scope, executes read-only checks and updates the existing run history',async()=>{
  const f=fixture();const p=platform();const requested=[];
  try{

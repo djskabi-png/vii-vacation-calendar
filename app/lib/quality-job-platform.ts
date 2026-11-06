@@ -66,7 +66,7 @@ export async function consumeQualityJob(db: D1Database, runId: string, options: 
       const check = entry.configuration.check as QualityCheck;
       if (check.checkId !== entry.checkId) throw new Error("quality_job_snapshot_mismatch");
       const result = await executeQualityCheck(check, String(entry.configuration.origin), options.fetcher ?? fetch, signal);
-      return { status: result.status, observed: result.observed, statusCode: result.statusCode, durationMs: result.durationMs, evidenceUrl: result.url };
+      return { status: result.status, observed: result.observed, statusCode: result.statusCode, durationMs: result.durationMs, evidenceUrl: result.url, ...('evidenceValidUntil' in result&&typeof result.evidenceValidUntil==='string'?{evidenceValidUntil:result.evidenceValidUntil}:{}) };
     },
   });
   const saved = await readQualityJob(db, runId);

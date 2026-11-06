@@ -1,7 +1,8 @@
 import { homeDealDates, homeDealPeriods, type HomeDealPeriod } from './home-deal-dates.ts';
 import { eventDealPresets } from './event-deal-dates.ts';
 import { EVENT_DISCOVERY_VERSION, EVENT_DISCOVERY_MAX_AGE_MS } from './event-discovery-contract.ts';
-export const DISCOVERY_READINESS_VERSION = 'discovery-readiness-v1' as const;
+export const DISCOVERY_READINESS_VERSION = 'discovery-readiness-v2' as const;
+export const DISCOVERY_EVIDENCE_MAX_AGE_MS = 60 * 60000;
 export const discoveryReadinessDefinitions = [
     ...homeDealPeriods.map(({ id }) => ({ checkId: `discovery.vacation.${id}.ready`, world: 'vacations', route: `/api/vii/home-deals?period=${id}&guests=2`, period: id })),
     ...(['lastminute', 'thursday', 'friday'] as const).map(preset => ({ checkId: `discovery.events.${preset}.ready`, world: 'events', route: '/api/vii/live-search', preset })),
@@ -66,4 +67,47 @@ export function discoveryReadinessProbe(checkId: string, now = new Date()) {
     }
     const date = eventDealPresets(now).find(entry => entry.id === definition.preset)!.date;
     return { route: definition.route, method: 'POST' as const, body: JSON.stringify({ world: 'events', from: date, till: date, guests: 20, includePlaces: true }), validate: (value: unknown, completedAt: number) => validateEventReadiness(value, { date, guests: 20 }, completedAt) };
+}
+const israelClock = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' });
+function clockWindow(now: number) {
+    const parts = israelClock.formatToParts(new Date(now));
+    const part = (name: string) => parts.find(item => item.type === name)!.value;
+    return `${part('year')}-${part('month')}-${part('day')}:${Number(part('hour')) < 14 ? 'before' : 'after'}`;
+}
+/** Bounded in-memory search uses the actual Israel clock, including DST. */
+export function nextDiscoveryClockBoundary(now: number) {
+    if (!Number.isFinite(now))
+        throw Error('invalid_discovery_clock');
+    const window = clockWindow(now);
+    let low = now, high = now + 3600000;
+    for (let step = 0; step < 26 && clockWindow(high) === window; step++) {
+        low = high;
+        high += 3600000;
+    }
+    if (clockWindow(high) === window)
+        throw Error('discovery_clock_boundary_unavailable');
+    while (high - low > 1) {
+        const middle = Math.floor((low + high) / 2);
+        if (clockWindow(middle) === window)
+            low = middle;
+        else
+            high = middle;
+    }
+    return high;
+}
+export function discoveryEvidenceValidUntil(value: unknown, startedAt: number) {
+    const checkedAt = Date.parse(String(record(record(value)?.cache)?.checkedAt ?? ''));
+    if (!Number.isFinite(checkedAt))
+        return null;
+    return new Date(Math.min(checkedAt + DISCOVERY_EVIDENCE_MAX_AGE_MS, nextDiscoveryClockBoundary(startedAt))).toISOString();
+}
+/** Dynamic output is read from the original CAS-written durable receipt. */
+export function discoveryReceiptCurrent(receipt: {
+    checkedAt: string;
+    evidenceValidUntil?: string;
+}, now: number) {
+    const checked = Date.parse(receipt.checkedAt), until = Date.parse(receipt.evidenceValidUntil ?? '');
+    return Number.isFinite(checked) && Number.isFinite(until) && new Date(until).toISOString() === receipt.evidenceValidUntil
+        && checked <= now && until > now && until > checked && until <= checked + DISCOVERY_EVIDENCE_MAX_AGE_MS
+        && until <= nextDiscoveryClockBoundary(checked);
 }

@@ -8,6 +8,7 @@ import {registerReleaseSubject,releaseDefinitionSetSha256,enqueueReleaseCheck} f
 import {browserProfiles} from '../services/vii-quality-control/src/browser-profiles.ts';
 import {claimQualityJob,startQualityJobCheck,commitQualityJobCheck,finishQualityJobSlice,ensureQualityJobSchema} from '../app/lib/quality-job-store.ts';
 import {readPrivateReleaseAuthority} from '../tools/release-private-authority.mjs';
+import {discoveryEvidenceValidUntil}from'../app/lib/quality-readiness.ts';
 
 const root=process.cwd(),hash=b=>createHash('sha256').update(b).digest('hex'),buildId='11111111-2222-3333-4444-555555555555';
 const contract=JSON.parse(readFileSync('project_knowledge/release_controls/vii-private-quality-resources.json','utf8'));
@@ -57,7 +58,7 @@ async function setup(options={}) {
     for(const key of ['http-full',...browserProfiles.map(p=>`browser:${p.profileId}`)]) {
       const {job}=await enqueueReleaseCheck(env,subjectId,key),leaseToken=crypto.randomUUID();
       await claimQualityJob(f.db,job.runId,{leaseToken,now:new Date().toISOString(),leaseUntil:new Date(Date.now()+60_000).toISOString()});
-      for(let index=0;index<job.checks.length;index++){const now=new Date().toISOString();await startQualityJobCheck(f.db,{runId:job.runId,leaseToken,index,now});await commitQualityJobCheck(f.db,{runId:job.runId,leaseToken,index,now,receipt:{checkId:job.checks[index].checkId,status:'passed',observed:'controlled fixture',checkedAt:now}});}
+      for(let index=0;index<job.checks.length;index++){const now=new Date().toISOString();await startQualityJobCheck(f.db,{runId:job.runId,leaseToken,index,now});await commitQualityJobCheck(f.db,{runId:job.runId,leaseToken,index,now,receipt:{checkId:job.checks[index].checkId,status:'passed',observed:'controlled fixture',checkedAt:now,...(job.checks[index].configuration.check?.semanticContract?{evidenceValidUntil:discoveryEvidenceValidUntil({cache:{checkedAt:now}},Date.parse(now))}:{})}});}
       await finishQualityJobSlice(f.db,{runId:job.runId,leaseToken,status:'completed',now:new Date().toISOString()});
     }
   }

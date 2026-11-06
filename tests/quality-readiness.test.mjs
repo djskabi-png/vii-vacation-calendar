@@ -5,6 +5,7 @@ import { discoveryReadinessDefinitions, discoveryReadinessProbe } from '../app/l
 import { executeQualityCheck,qualityRegistry } from '../app/lib/quality-platform.ts';
 import { homeDealDates } from '../app/lib/home-deal-dates.ts';
 import { qualityScopeMetadata } from '../app/lib/quality-check-scope.ts';
+import { nextDiscoveryClockBoundary,discoveryEvidenceValidUntil,discoveryReceiptCurrent } from '../app/lib/quality-readiness.ts';
 
 const now = Date.parse("2026-11-06T12:00:00Z");
 const dates = { from: "2026-11-07", till: "2026-11-09", nights: 2 };
@@ -50,15 +51,36 @@ test('all eight registry checks execute real semantic verification, with one fix
       assert.equal(init.method,'GET');assert.equal(init.body,undefined);
       return Response.json({period:definition.period,dates:homeDealDates(definition.period),availabilityStatus:'verified',cache:{checkedAt},deals:[]});
     };
-    assert.equal((await executeQualityCheck(check,'https://example.test',fetcher)).status,'passed',definition.checkId);
+    const result=await executeQualityCheck(check,'https://example.test',fetcher);
+    assert.equal(result.status,'passed',definition.checkId);
+    assert.ok(Date.parse(result.evidenceValidUntil)>Date.now());
     assert.equal(calls,1);
     assert.equal((await executeQualityCheck(check,'https://example.test',async()=>Response.json({availabilityStatus:'refreshing',deals:[]}))).status,'failed');
   }
 });
 
+test('receipt proof expires at snapshot TTL or the exact Israel clock rollover, including DST weekends',()=>{
+  for(const [start,boundary] of [
+    ['2026-11-06T11:59:59Z','2026-11-06T12:00:00Z'],
+    ['2026-11-06T21:59:59Z','2026-11-06T22:00:00Z'],
+    ['2026-03-27T00:00:00Z','2026-03-27T11:00:00Z'],
+    ['2026-10-25T00:00:00Z','2026-10-25T12:00:00Z'],
+  ])assert.equal(new Date(nextDiscoveryClockBoundary(Date.parse(start))).toISOString(),new Date(boundary).toISOString());
+  const checked=Date.parse('2026-11-06T11:59:30Z');
+  const evidenceValidUntil=discoveryEvidenceValidUntil({cache:{checkedAt:new Date(checked).toISOString()}},checked);
+  assert.equal(evidenceValidUntil,'2026-11-06T12:00:00.000Z');
+  const receipt={checkedAt:new Date(checked).toISOString(),evidenceValidUntil};
+  assert.equal(discoveryReceiptCurrent(receipt,Date.parse('2026-11-06T11:59:59.999Z')),true);
+  assert.equal(discoveryReceiptCurrent(receipt,Date.parse(evidenceValidUntil)),false);
+  assert.equal(discoveryReceiptCurrent({...receipt,evidenceValidUntil:'2026-11-06T13:00:00.000Z'},checked),false,'an extended expiry cannot cross the clock window');
+  assert.equal(discoveryReceiptCurrent({checkedAt:receipt.checkedAt},checked),false);
+  const earlier=Date.parse('2026-11-06T08:00:00Z');
+  assert.equal(discoveryEvidenceValidUntil({cache:{checkedAt:new Date(earlier).toISOString()}},earlier+30*60_000),'2026-11-06T09:00:00.000Z');
+});
+
 test('a forged readiness route cannot turn the quality executor into a generic POST facility',async()=>{
   const check=qualityRegistry.find(row=>row.checkId==='discovery.events.lastminute.ready');let calls=0;
-  for(const changed of [{...check,route:'/api/vii/booking'},{...check,semanticContract:undefined},{...check,checkId:'attacker.post'}]){
+  for(const changed of [{...check,route:'/api/vii/booking'},{...check,semanticContract:undefined},{...check,semanticContract:'discovery-readiness-v1'},{...check,checkId:'attacker.post'}]){
     const result=await executeQualityCheck(changed,'https://example.test',async()=>{calls++;return Response.json({});});
     assert.equal(result.status,'blocked');
   }
