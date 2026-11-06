@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
 import { lookupPublicCopy } from "./public-copy";
+import type { AuxiliarySeed } from "./server-auxiliary-seed";
 
 type AuxiliaryDictionary = Record<string, Record<string, string> | string>;
 const auxiliaryDictionaries: Record<string, AuxiliaryDictionary> = {};
@@ -1519,13 +1520,28 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
   });
 }
 
-export function LocaleProvider({ children, initialLanguage = "he" }: { children: ReactNode; initialLanguage?: SiteLanguage }) {
+export function LocaleProvider({ children, initialLanguage = "he", initialAuxiliarySeed }: { children: ReactNode; initialLanguage?: SiteLanguage; initialAuxiliarySeed?: AuxiliarySeed }) {
   // Localized HTML is translated at the edge before hydration. The first
   // browser render must therefore derive the same locale from the URL instead
   // of replaying a Hebrew RSC default over an already localized document.
   const [language, setLanguageState] = useState<SiteLanguage>(initialLanguage);
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
+
+  if (initialAuxiliarySeed && initialLanguage !== "he" && !auxiliaryDictionaries[initialLanguage]) {
+    const expand = (dictionary: Record<string, string>) => Object.fromEntries(Object.entries(dictionary).map(([key, value]) => [key, { [initialLanguage]: value }]));
+    legacyVacationUiTranslations = expand(initialAuxiliarySeed.legacyVacationUiTranslations);
+    bookingHubTranslations = expand(initialAuxiliarySeed.bookingHubTranslations);
+    hourlyUiTranslations = expand(initialAuxiliarySeed.hourlyUiTranslations);
+    providerJoinTranslations = expand(initialAuxiliarySeed.providerJoinTranslations);
+    spaUiTranslations = expand(initialAuxiliarySeed.spaUiTranslations);
+    catalogAdminTranslations = expand(initialAuxiliarySeed.catalogAdminTranslations);
+    emailPolishTranslations = expand(initialAuxiliarySeed.emailPolishTranslations);
+    worldDepthTranslations = expand(initialAuxiliarySeed.worldDepthTranslations);
+    visitorUiTranslations = expand(initialAuxiliarySeed.visitorUiTranslations);
+    publicReviewByLanguage[initialLanguage] = initialAuxiliarySeed.publicReviewTranslations;
+    auxiliaryDictionaries[initialLanguage] = { seeded: "true" };
+  }
 
   useEffect(() => {
     document.documentElement.setAttribute("data-vii-hydrated", "true");
