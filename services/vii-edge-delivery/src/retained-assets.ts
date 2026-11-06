@@ -16,7 +16,7 @@ function identityValid(identity:AssetIdentity,now:number){return Boolean(extensi
 /** Packaging primitive only. The release capture must prove full old-asset
  * inventory and compare existing keys before any private R2 write. */
 export async function encodeRetainedAsset(identity:AssetIdentity,body:Uint8Array,now=Date.now()){
- if(!identityValid(identity,now)||body.byteLength<1||body.byteLength>MAX_BYTES)throw Error('retained_asset_identity_invalid');
+ if(!identityValid(identity,now)||body.byteLength>MAX_BYTES)throw Error('retained_asset_identity_invalid');
  const metadata=encoder.encode(JSON.stringify({schemaVersion:1,...identity,bytes:body.byteLength,sha256:await digest(body)}));
  if(metadata.byteLength>MAX_META)throw Error('retained_asset_metadata_too_large');
  const result=new Uint8Array(4+metadata.length+body.length);new DataView(result.buffer).setUint32(0,metadata.length);result.set(metadata,4);result.set(body,4+metadata.length);return result;
@@ -37,7 +37,7 @@ export async function readRetainedAsset(request:Request,bucket:PublicCacheBucket
   finally{reader.releaseLock();}
   if(expired||size!==object.size)return undefined;
   const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.byteLength;}
-  const length=new DataView(bytes.buffer).getUint32(0);if(length<1||length>MAX_META||4+length>=size)return undefined;
+  const length=new DataView(bytes.buffer).getUint32(0);if(length<1||length>MAX_META||4+length>size)return undefined;
   const metadata=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(4,4+length)));
   const body=bytes.subarray(4+length);
   if(metadata.schemaVersion!==1||metadata.path!==path||!identityValid(metadata,now)||body.length>MAX_BYTES||metadata.bytes!==body.length||!DIGEST.test(metadata.sha256??'')||await digest(body)!==metadata.sha256||expired)return undefined;

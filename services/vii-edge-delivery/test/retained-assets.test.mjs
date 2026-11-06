@@ -20,6 +20,11 @@ test('only public hashed static paths participate, never private/action/range/qu
  }
  assert.equal(f.reads(),0);
 });
+test('an authoritative empty compiled JS module stays empty instead of being dropped',async()=>{
+ const f=await fixture(),encoded=await encodeRetainedAsset(f.identity,new Uint8Array(),f.now);
+ const response=await readRetainedAsset(f.request,{async get(){return{size:encoded.length,body:new Blob([encoded]).stream()}}},{now:f.now});
+ assert.equal(response.status,200);assert.equal(response.headers.get('Content-Length'),'0');assert.equal(await response.text(),'');
+});
 test('expired, wrong-path, corrupted and oversized objects never supply substitute code',async()=>{
  const f=await fixture();
  assert.equal(await readRetainedAsset(f.request,f.bucket,{now:f.identity.retainUntil}),undefined);

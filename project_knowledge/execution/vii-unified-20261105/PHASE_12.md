@@ -36,6 +36,14 @@ Logs: `.qa-output/phase12-edge-retention-tests.log`,
 `phase12-typecheck.log`, `phase12-edge-package.log`,
 `phase12-retention-supported-runtime.log`.
 
+The first preparation against the full actual phase-eight archive stopped
+before output creation on a genuine empty compiled JS module. Empty generated
+modules are valid assets and must remain in the inventory. The encoder/reader
+now preserve their exact zero bytes and empty-content digest. A new regression
+and the real-workerd test passed together7/7. No asset was omitted to get past
+the check. The original failed preparation receipt is retained before the
+bounded repaired attempt.
+
 ## Open release integration
 
 The actual previously public build is `00bca36c-4f1c-403d-9a13-ceea797015ae`.
