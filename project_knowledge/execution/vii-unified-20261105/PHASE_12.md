@@ -44,6 +44,15 @@ and the real-workerd test passed together7/7. No asset was omitted to get past
 the check. The original failed preparation receipt is retained before the
 bounded repaired attempt.
 
+The repaired attempt then found a different mechanism: the actual generated
+search JS is6,864,710bytes, beyond the original4MiB per-asset preservation cap.
+No files were written or omitted. Preservation now allows up to8MiB per asset
+while retaining the32MiB total inventory budget, and failures identify the
+specific asset instead of an ambiguous generic identity error. Reducing that
+client bundle is separate performance work; changing the preservation cap
+does not itself improve visitor speed. This evidenced distinct mechanism
+starts a new bounded repair cycle, not an unchanged retry of the empty file.
+
 ## Open release integration
 
 The actual previously public build is `00bca36c-4f1c-403d-9a13-ceea797015ae`.

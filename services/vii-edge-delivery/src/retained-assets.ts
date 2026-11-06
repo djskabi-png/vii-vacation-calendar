@@ -1,6 +1,8 @@
 import type {PublicCacheBucket} from './global-public-cache.ts';
 
-const MAX_BYTES=4*1024*1024,MAX_META=4096,MAX_RETENTION=14*86400000;
+// The qualified predecessor contains one6.86MB search chunk. Preserve it
+// while the separate client-data split reduces the next version's payload.
+const MAX_BYTES=8*1024*1024,MAX_META=4096,MAX_RETENTION=14*86400000;
 const DIGEST=/^[a-f0-9]{64}$/,SOURCE=/^[a-f0-9]{40}$/,BUILD=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/;
 const encoder=new TextEncoder();
 const mime:Record<string,string>={js:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',avif:'image/avif',svg:'image/svg+xml',ico:'image/x-icon'};
@@ -16,7 +18,8 @@ function identityValid(identity:AssetIdentity,now:number){return Boolean(extensi
 /** Packaging primitive only. The release capture must prove full old-asset
  * inventory and compare existing keys before any private R2 write. */
 export async function encodeRetainedAsset(identity:AssetIdentity,body:Uint8Array,now=Date.now()){
- if(!identityValid(identity,now)||body.byteLength>MAX_BYTES)throw Error('retained_asset_identity_invalid');
+ if(!identityValid(identity,now))throw Error('retained_asset_identity_invalid');
+ if(body.byteLength>MAX_BYTES)throw Error('retained_asset_body_too_large');
  const metadata=encoder.encode(JSON.stringify({schemaVersion:1,...identity,bytes:body.byteLength,sha256:await digest(body)}));
  if(metadata.byteLength>MAX_META)throw Error('retained_asset_metadata_too_large');
  const result=new Uint8Array(4+metadata.length+body.length);new DataView(result.buffer).setUint32(0,metadata.length);result.set(metadata,4);result.set(body,4+metadata.length);return result;

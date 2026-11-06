@@ -31,7 +31,8 @@ export async function prepareRetainedAssets({root=process.cwd(),artifactPath,bui
  for(const file of files.sort((a,b)=>a.name.localeCompare(b.name))){
   const path='/assets/'+file.name,key=await retainedAssetKey(path),body=new Uint8Array(await readFile(join(assets,file.name)));
   totalBytes+=body.length;if(totalBytes>32*1024*1024)throw Error('retention_inventory_budget_exceeded');
-  const encoded=await encodeRetainedAsset({path,source:receipt.source,buildId,createdAt:now,retainUntil:now+7*86400000},body,now);
+  let encoded;try{encoded=await encodeRetainedAsset({path,source:receipt.source,buildId,createdAt:now,retainUntil:now+7*86400000},body,now);}
+  catch(error){throw Error(error.message+':'+path);}
   prepared.push({path,key,bytes:body.length,sha256:sha(body),envelopeBytes:encoded.length,envelopeSha256:sha(encoded),encoded});
  }
  await mkdir(output,{recursive:false});
