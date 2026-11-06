@@ -7,10 +7,10 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(legacyPlaceDestination("/Azulat_Anof"), "/business?id=vacation-1");
   assert.equal(legacyPlaceDestination("/events/Enrico_Events"), "/events/place/event-2684");
   assert.equal(legacyPlaceDestination("/rooms/ascape_room"), "/discover/place/hourly-1915");
-  assert.deepEqual(legacyDisposition("/tzimar_beshadot_shel_hamushev"), { status: 410 });
-  assert.deepEqual(legacyDisposition("/dream_eilat_villa"), { status: 410 });
-  assert.deepEqual(legacyDisposition("/gesher_laahava"), { status: 410 });
-  assert.deepEqual(legacyDisposition("/vila_bereshit"), { status: 410 });
+  assert.equal(legacyPlaceDestination("/tzimar_beshadot_shel_hamushev"), "/business?id=vacation-2197");
+  assert.equal(legacyPlaceDestination("/dream_eilat_villa"), "/business?id=vacation-2709");
+  assert.equal(legacyPlaceDestination("/gesher_laahava"), "/business?id=vacation-2728");
+  assert.equal(legacyPlaceDestination("/vila_bereshit"), "/business?id=vacation-2730");
   assert.deepEqual(legacyDisposition("/%d7%94%d7%9e%d7%aa%d7%97%d7%9d_%d7%a9%d7%9c_%d7%a8%d7%95%d7%a2%d7%99.html"), { status: 410 });
   assert.equal(legacyPlaceDestination("/unverified-place"), null);
   assert.deepEqual(legacyDisposition("/אהבה_בשניים"), { status: 410 });
