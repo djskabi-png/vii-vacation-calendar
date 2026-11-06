@@ -1,8 +1,9 @@
-/** Intent-only warming. No requests are made by constructing the loader. */
+/** Bounded warming. Constructing the loader never starts a request. */
+type ResponsivePreview = { srcSet?: string; sizes?: string };
 export function createPreviewImageLoader(createImage: () => HTMLImageElement = () => new Image()) {
   const ready = new Map<string, true>();
-  const pending = new Map<string, { src: string; promise: Promise<boolean>; resolve: (ready: boolean) => void }>();
-  const queue: Array<{ src: string; promise: Promise<boolean>; resolve: (ready: boolean) => void }> = [];
+  const pending = new Map<string, { src: string; responsive?: ResponsivePreview; promise: Promise<boolean>; resolve: (ready: boolean) => void }>();
+  const queue: Array<{ src: string; responsive?: ResponsivePreview; promise: Promise<boolean>; resolve: (ready: boolean) => void }> = [];
   let active = 0;
 
   function pump() {
@@ -34,11 +35,13 @@ export function createPreviewImageLoader(createImage: () => HTMLImageElement = (
       };
       image.onerror = () => finish(false);
       image.decoding = "async";
+      if (job.responsive?.sizes) image.sizes = job.responsive.sizes;
+      if (job.responsive?.srcSet) image.srcset = job.responsive.srcSet;
       image.src = job.src;
     }
   }
 
-  function load(src: string, urgent = true): Promise<boolean> {
+  function load(src: string, urgent = true, responsive?: ResponsivePreview): Promise<boolean> {
     if (!src) return Promise.resolve(false);
     if (ready.has(src)) {
       ready.delete(src);
@@ -53,7 +56,7 @@ export function createPreviewImageLoader(createImage: () => HTMLImageElement = (
     }
     let resolve!: (ok: boolean) => void;
     const promise = new Promise<boolean>((done) => { resolve = done; });
-    const job = { src, promise, resolve };
+    const job = { src, responsive, promise, resolve };
     pending.set(src, job);
     if (urgent) queue.unshift(job); else queue.push(job);
     // Keep the most recent intent. Resolve discarded work so callers never hang.

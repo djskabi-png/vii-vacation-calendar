@@ -14,3 +14,17 @@ test('actual preview hook advances immediately and ignores a late earlier image 
  pending[1](2);await Promise.resolve();assert.equal(render().pending,false);
  assert.equal(render(['new-a','new-b']).imageIndex,0);
 });
+
+
+test('actual preview hook warms the next two responsive photos and respects save-data',async()=>{
+ const source=ts.transpileModule(readFileSync(new URL('../app/components/use-preview-gallery.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const cells=[];let cursor=0,first=true;const calls=[];const navigator={connection:{saveData:false}};
+ const react={useRef:initial=>{const index=cursor++;return cells[index]??(cells[index]={current:initial})},useState:initial=>{const index=cursor++;if(!(index in cells))cells[index]=initial;return[cells[index],value=>cells[index]=typeof value==='function'?value(cells[index]):value]},useEffect:fn=>{if(first)fn()}};
+ const exports={};new Function('require','exports','navigator',source)(id=>id==='react'?react:id.includes('preview-image-loader')?{findReadyPreviewImage:async(images,index,direction,load)=>await load(images[index])?index:null,previewImageLoader:{load:async(src,urgent,options)=>{calls.push({src,urgent,options});return true}}}:id.includes('responsive-media')?{defaultCardImageSizes:'420px',responsiveCardMedia:src=>({src:'responsive-'+src,srcSet:src+' 828w'}),isOptimizableCardMedia:()=>true}:{},exports,navigator);
+ const render=()=>{cursor=0;const result=exports.usePreviewGallery(['a','b','c','d','e']);first=false;return result};
+ let gallery=render();assert.equal(calls.length,0);
+ gallery.warmImages();await Promise.resolve();assert.deepEqual(calls.map(x=>x.src),['responsive-b','responsive-c']);assert.ok(calls.every(x=>x.urgent===false&&x.options.sizes==='420px'));
+ calls.length=0;gallery.setImageIndex(2);await Promise.resolve();await Promise.resolve();gallery=render();calls.length=0;
+ gallery.warmImages();await Promise.resolve();assert.deepEqual(calls.map(x=>x.src),['responsive-d','responsive-e','responsive-b']);
+ navigator.connection.saveData=true;calls.length=0;gallery.warmImages();assert.equal(calls.length,0);
+});

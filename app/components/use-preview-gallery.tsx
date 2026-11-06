@@ -2,11 +2,18 @@
 
 import { useEffect, useRef, useState, type SetStateAction } from "react";
 import { findReadyPreviewImage, previewImageLoader } from "../lib/preview-image-loader";
-import { isOptimizableCardMedia, optimizedCardMediaUrl } from "../lib/responsive-media";
+import { defaultCardImageSizes, isOptimizableCardMedia, responsiveCardMedia } from "../lib/responsive-media";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
 function previewLoadSource(src: string) {
-  return isOptimizableCardMedia(src) ? optimizedCardMediaUrl(src, 640) : src;
+  return responsiveCardMedia(src);
+}
+
+async function loadPreviewImage(src: string, urgent = true) {
+  const media = previewLoadSource(src);
+  const ready = await previewImageLoader.load(media.src, urgent, { srcSet: media.srcSet, sizes: defaultCardImageSizes });
+  // A derivative failure must retain the same supplier photo's original fallback.
+  return ready || (isOptimizableCardMedia(src) && await previewImageLoader.load(src, urgent));
 }
 
 export function usePreviewGallery(images: string[]) {
@@ -44,7 +51,7 @@ export function usePreviewGallery(images: string[]) {
     setState({ key: imageKey, index: target, pending: true, error: false });
     const direction: -1 | 1 = target >= imageIndex ? 1 : -1;
     void findReadyPreviewImage(imagesRef.current, target, direction,
-      (src) => previewImageLoader.load(previewLoadSource(src))).then((readyIndex) => {
+      (src) => loadPreviewImage(src)).then((readyIndex) => {
       if (!alive.current || token !== request.current) return;
       wanted.current = readyIndex ?? imageIndex;
       setState({ key: imageKey, index: readyIndex ?? imageIndex, pending: false, error: readyIndex === null });
@@ -54,9 +61,9 @@ export function usePreviewGallery(images: string[]) {
   function warmImages() {
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
     if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) return;
-    for (const index of [wanted.current + 1, wanted.current - 1]) {
+    for (const index of [wanted.current + 1, wanted.current + 2, wanted.current - 1]) {
       const src = imagesRef.current[index];
-      if (src) void previewImageLoader.load(previewLoadSource(src), false);
+      if (src) void loadPreviewImage(src, false);
     }
   }
 

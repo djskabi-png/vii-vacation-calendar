@@ -1,3 +1,4 @@
+export const defaultCardImageSizes = "(max-width: 760px) calc(100vw - 32px), (max-width: 1180px) 50vw, 420px";
 export const cardImageWidths = [384, 640, 750, 828] as const;
 
 export function isOptimizableCardMedia(src: string) {

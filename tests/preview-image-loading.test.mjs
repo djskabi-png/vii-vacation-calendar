@@ -132,7 +132,7 @@ test("decoded cache has a bounded LRU of48 entries", async () => {
 
 test("both card families retain displayed index until success with latest-request and unmount guards", () => {
   const hook = fs.readFileSync(new URL("../app/components/use-preview-gallery.tsx", import.meta.url), "utf8");
-  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?previewImageLoader\.load\(previewLoadSource\(src\)\)\)/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?loadPreviewImage\(src\)\)/);
   assert.match(hook, /index: readyIndex \?\? imageIndex/);
   assert.match(hook, /token !== request\.current/);
   assert.match(hook, /!alive\.current/);
@@ -144,4 +144,16 @@ test("both card families retain displayed index until success with latest-reques
     assert.match(card, /PreviewGalleryStatus pending=\{pending\} error=\{error\}/);
     assert.match(card, /aria-busy=\{pending \|\| undefined\}/);
   }
+});
+
+
+test("responsive warming uses the visible image candidate rules before starting its request", async () => {
+  const assignments = [];
+  const image = { onload: null, onerror: null, naturalWidth: 900, decode: () => Promise.resolve(), removeAttribute() {},
+    set src(value) { assignments.push({ src: value, sizes: this.sizes, srcset: this.srcset }); } };
+  const loader = createPreviewImageLoader(() => image);
+  const pending = loader.load("fallback-828", false, { srcSet: "small 384w, large 828w", sizes: "420px" });
+  assert.deepEqual(assignments, [{ src: "fallback-828", sizes: "420px", srcset: "small 384w, large 828w" }]);
+  image.onload();
+  assert.equal(await pending, true);
 });

@@ -3,13 +3,13 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useState, type ImgHTMLAttributes } from "react";
-import { isOptimizableCardMedia, responsiveCardMedia } from "../lib/responsive-media";
+import { defaultCardImageSizes, isOptimizableCardMedia, responsiveCardMedia } from "../lib/responsive-media";
 
-const defaultSizes = "(max-width: 760px) calc(100vw - 32px), (max-width: 1180px) 50vw, 420px";
+
 
 export function ResponsiveCardImage({
   src,
-  sizes = defaultSizes,
+  sizes = defaultCardImageSizes,
   imageWidths,
   quality = 82,
   onOriginalFailure,

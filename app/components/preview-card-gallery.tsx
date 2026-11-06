@@ -98,6 +98,8 @@ export function PreviewCardGallery({
     <Link
       className="preview-card-gallery__link"
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       aria-label={linkLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`}
       onClick={(event) => {
         if (!didSwipe.current) return;
@@ -108,7 +110,7 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      <ResponsiveCardImage src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onOriginalFailure={() => {
+      <ResponsiveCardImage src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onLoad={warmImages} onOriginalFailure={() => {
         const failed = new Set(brokenImages).add(currentImage);
         setBrokenImages(failed);
         const nextIndex = galleryImages.findIndex((image) => !failed.has(image));
