@@ -22,3 +22,9 @@ test('MCP inspection authorizes existing administrator before provider reads and
  const denied=await (await catalogStatusMcp(request(headers,{world:'spa',supplierIds:[6],url:'https://untrusted.test'}),deps)).json();assert.ok(denied.error);assert.equal(inspections,0);
  const result=await (await catalogStatusMcp(request(headers),deps)).json();assert.equal(result.result.structuredContent.readOnly,true);assert.equal(inspections,1);
 });
+
+test('hourly rooms inspect only the fixed official rooms inventory with exact active flags',async()=>{
+ let seen;
+ const result=await inspectProviderCatalog('rooms',[42],{secret:async()=> 'fixture',fetchImpl:async(url)=>{seen=String(url);return Response.json({places:[{siteID:42,active:true,name:'fixture room'}]});}});
+ assert.equal(seen,'https://bizonline.co.il/api/ai/vii/rooms');assert.deepEqual(result.activeIds,[42]);assert.equal(result.requested[0].fields.active,true);
+});

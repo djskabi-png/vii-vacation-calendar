@@ -24,7 +24,7 @@ const pullTool = {
 const inspectionTool = {
   name: "vii_catalog_inspect",
   description: "Existing administrator only: read official provider inventory and public status/facility fields for at most four exact IDs. No catalog activation, data writes, booking or credential output.",
-  inputSchema: { type: "object", properties: { world: { type: "string", enum: ["vacations", "events", "spa"] }, supplierIds: { type: "array", minItems: 1, maxItems: 4, items: { type: "integer", minimum: 1 } } }, required: ["world", "supplierIds"], additionalProperties: false },
+  inputSchema: { type: "object", properties: { world: { type: "string", enum: ["vacations", "events", "rooms", "spa"] }, supplierIds: { type: "array", minItems: 1, maxItems: 4, items: { type: "integer", minimum: 1 } } }, required: ["world", "supplierIds"], additionalProperties: false },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
 };
 
@@ -40,7 +40,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   database: () => Promise<D1Database>;
   fallbackCounts: Record<SupplierCatalogWorld, number>;
   pull?: (world: SupplierCatalogWorld) => Promise<unknown>;
-  inspect?: (world: "vacations" | "events" | "spa", supplierIds: number[]) => Promise<unknown>;
+  inspect?: (world: "vacations" | "events" | "rooms" | "spa", supplierIds: number[]) => Promise<unknown>;
 }) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin && origin !== "https://chatgpt.com") {
@@ -105,8 +105,8 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   const params = object(message.params);
   if (params?.name === inspectionTool.name && dependencies.inspect) {
     const args = object(params.arguments);
-    if (!args || Object.keys(args).length !== 2 || !["vacations", "events", "spa"].includes(String(args.world)) || !Array.isArray(args.supplierIds) || !args.supplierIds.length || args.supplierIds.length > 4 || args.supplierIds.some(id => !Number.isSafeInteger(id) || id < 1)) return error(message.id, -32602, "One world and up to four exact supplier IDs required");
-    try { const value = await dependencies.inspect(args.world as "vacations" | "events" | "spa", args.supplierIds as number[]); return result({content:[{type:"text",text:JSON.stringify(value)}],structuredContent:value,isError:false}); }
+    if (!args || Object.keys(args).length !== 2 || !["vacations", "events", "rooms", "spa"].includes(String(args.world)) || !Array.isArray(args.supplierIds) || !args.supplierIds.length || args.supplierIds.length > 4 || args.supplierIds.some(id => !Number.isSafeInteger(id) || id < 1)) return error(message.id, -32602, "One world and up to four exact supplier IDs required");
+    try { const value = await dependencies.inspect(args.world as "vacations" | "events" | "rooms" | "spa", args.supplierIds as number[]); return result({content:[{type:"text",text:JSON.stringify(value)}],structuredContent:value,isError:false}); }
     catch { return result({content:[{type:"text",text:"Provider inspection unavailable"}],isError:true}); }
   }
   if (params?.name === pullTool.name && dependencies.pull) {

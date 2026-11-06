@@ -1,11 +1,11 @@
-type World = "vacations" | "events" | "spa";
+type World = "vacations" | "events" | "rooms" | "spa";
 type Dependencies = { secret: (name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") => Promise<string>; fetchImpl?: typeof fetch };
 const fields = ["siteID", "siteid", "name", "title", "siteName", "active", "isActive", "published", "isPublished", "city", "area", "type", "facilityIds", "facility_ids", "accessoryIds", "facilities", "accessories", "features"];
 
 /** Existing administrator identity only. Reads official source inventory without
  * staging, accepting, refreshing D1, exposing credentials or performing bookings. */
 export async function inspectProviderCatalog(world: World, supplierIds: number[], dependencies: Dependencies) {
-  if (!["vacations", "events", "spa"].includes(world) || !supplierIds.length || supplierIds.length > 4 || supplierIds.some(id => !Number.isSafeInteger(id) || id < 1)) throw Error("invalid_inspection");
+  if (!["vacations", "events", "rooms", "spa"].includes(world) || !supplierIds.length || supplierIds.length > 4 || supplierIds.some(id => !Number.isSafeInteger(id) || id < 1)) throw Error("invalid_inspection");
   const key = await dependencies.secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
   if (!key) throw Error("provider_inspection_unavailable");
   const url = world === "spa" ? new URL("https://www.spaplus.co.il/vii/") : new URL(`https://bizonline.co.il/api/ai/vii/${world}`);
