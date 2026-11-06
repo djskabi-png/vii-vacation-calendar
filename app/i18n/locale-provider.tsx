@@ -49,6 +49,10 @@ function loadAuxiliaryTranslations(language: GeneratedLanguage) {
       );
     }
     auxiliaryDictionaries[language] = { loaded: "true" };
+  }).catch((error: unknown) => {
+    // A later explicit language selection may retry a transient chunk failure.
+    delete auxiliaryRequests[language];
+    throw error;
   });
   auxiliaryRequests[language] = request;
   return request;
