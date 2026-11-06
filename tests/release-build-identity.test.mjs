@@ -43,3 +43,29 @@ test("text newline style is canonicalized while binary and text changes remain v
 test("build identity fails closed when no deployable inputs exist", () => {
   assert.throws(() => releaseBuildIdentity({ files: [] }), /release_source_identity_unavailable/);
 });
+
+test("Windows checkout text inputs match Linux across infrastructure and extensionless hosting files", () => {
+  const cwd = mkdtempSync(join(tmpdir(), "vii-cross-platform-id-"));
+  const files = ["infrastructure/deploy.py", "infrastructure/wrangler.jsonc", "infrastructure/.gitignore", "public/_headers", "public/_redirects"];
+  try {
+    mkdirSync(join(cwd, "infrastructure")); mkdirSync(join(cwd, "public"));
+    for (const path of files) writeFileSync(join(cwd, path), "first line\nsecond line\n");
+    const linux = releaseBuildIdentity({ cwd, files });
+    for (const path of files) writeFileSync(join(cwd, path), "first line\r\nsecond line\r\n");
+    assert.equal(releaseBuildIdentity({ cwd, files }), linux);
+    writeFileSync(join(cwd, "public/_headers"), "changed header\r\n");
+    assert.notEqual(releaseBuildIdentity({ cwd, files }), linux);
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test("binary newline bytes are never normalized", () => {
+  const cwd = mkdtempSync(join(tmpdir(), "vii-binary-id-"));
+  try {
+    mkdirSync(join(cwd, "public"));
+    const files = ["public/image.bin"];
+    writeFileSync(join(cwd, files[0]), Buffer.from([0, 255, 13, 10]));
+    const original = releaseBuildIdentity({ cwd, files });
+    writeFileSync(join(cwd, files[0]), Buffer.from([0, 255, 10]));
+    assert.notEqual(releaseBuildIdentity({ cwd, files }), original);
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});

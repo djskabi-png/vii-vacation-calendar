@@ -7,12 +7,13 @@ import { resolve } from "node:path";
 // are deliberately excluded; their artifacts have separate release digests.
 const deployRoots = ["app/", "worker/", "build/", "infrastructure/", "scripts/", "public/", "types/"];
 const rootInputs = /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.[^/]+|wrangler\.[^/]+|tsconfig[^/]*\.json|postcss\.config\.[^/]+|next\.config\.[^/]+|drizzle\.config\.[^/]+|instrumentation(?:-client)?\.[^/]+|proxy\.[^/]+|\.openai\/hosting\.json)$/;
-const textExtensions = /\.(?:css|cjs|html|js|json|mjs|md|mts|ps1|sql|svg|toml|ts|tsx|txt|yaml|yml)$/i;
+const textExtensions = /\.(?:css|cjs|html|js|json|jsonc|mjs|md|mts|ps1|psm1|py|sh|bash|bat|cmd|sql|svg|toml|ts|tsx|txt|yaml|yml)$/i;
+const textFileNames = /(?:^|\/)(?:\.gitignore|\.gitattributes|\.npmrc|_headers|_redirects)$/;
 const included = path => (rootInputs.test(path) || path.startsWith("shared/") || deployRoots.some(root => path.startsWith(root))) &&
   !path.startsWith("scripts/fixtures/") && !/(?:^|\/)(?:test|tests|docs)\//.test(path) && !path.endsWith(".map");
 
 function canonicalBytes(path, bytes) {
-  if (!textExtensions.test(path)) return bytes;
+  if (!textExtensions.test(path) && !textFileNames.test(path)) return bytes;
   return Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
 }
 

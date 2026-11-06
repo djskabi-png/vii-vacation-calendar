@@ -43,3 +43,15 @@ Reconcile uncertain saves/deployments before another request; preserve audience,
 original business database, bindings, source/tree, rollback and environment.
 No source code, credentials, cookies or private raw messages belong in this file.
 The unified V+QQQAAA core is first; Document3 follows its accepted completion.
+
+## Exact archive transport limit
+
+The owning Cloud attachment download executor returned an explicit32MiB per-file
+limit on6November2026 for the109248039-byte phase27 archive. This is a transfer
+limit, not a failed build or permission blocker. Split the identical archive
+into ordered parts below32MiB, attach through the existing authorized chat,
+download each official attachment, concatenate numeric order, then verify all
+part hashes and the original whole SHA256/byte count before save. Four28MiB-or-
+smaller pieces were reconstructed and verified by the owner task. Never rebuild,
+substitute another source, publish the parts, or retry an uncertain save merely
+because the original whole attachment could not be downloaded.
