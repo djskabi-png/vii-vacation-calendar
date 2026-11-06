@@ -764,7 +764,10 @@
         "app/lib/home-deal-dates.ts",
         "app/lib/vii-home-deals.ts",
         "app/components/home-showcase.tsx",
-        "app/lib/discovery-client-cache.ts"
+        "app/lib/discovery-client-cache.ts",
+        "app/lib/discovery-recovery-policy.ts",
+        "app/api/vii/home-holiday-deals/route.ts",
+        "app/components/holiday-live-deals.tsx"
       ]
     },
     {
