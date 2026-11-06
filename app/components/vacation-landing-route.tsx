@@ -10,7 +10,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-landings";
 import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 import { matchesSearchLocation } from "../data/search-taxonomy.ts";
-import { worldLocationPath } from "../lib/world-location-pages.ts";
+import { worldLocationPath } from "../lib/world-location-path.ts";
 
 export async function vacationLandingMetadata(regionSlug?: string | null): Promise<Metadata> {
   const region = vacationRegionBySlug(regionSlug);

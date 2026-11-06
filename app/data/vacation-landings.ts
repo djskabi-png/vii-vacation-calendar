@@ -1,7 +1,7 @@
 import type { Property } from "./site-data";
 import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy.ts";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
-import { worldLocationPath } from "../lib/world-location-pages.ts";
+import { worldLocationPath } from "../lib/world-location-path.ts";
 
 export type VacationRegion = {
   slug: string;

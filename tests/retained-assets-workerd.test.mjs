@@ -19,5 +19,12 @@ test('actual bundled Edge and real local R2 recover exact old JS only after orig
   const recovered=await mf.dispatchFetch('https://vii.spaplus.co'+path);assert.equal(recovered.status,200);assert.equal(await recovered.text(),new TextDecoder().decode(body));assert.equal(recovered.headers.get('X-VII-Asset-Retention'),'verified-fallback');
   status=200;const current=await mf.dispatchFetch('https://vii.spaplus.co'+path);assert.equal(await current.text(),'current');assert.equal(current.headers.get('X-VII-Asset-Retention'),null);
   status=404;const missing=await mf.dispatchFetch('https://vii.spaplus.co/assets/unknown-Abcd1234.js');assert.equal(missing.status,404);assert.equal(calls,3);
+  // Measured predecessor size, including exact zero-byte generated modules.
+  for(const size of [0,6864710]){
+   const path='/assets/retained-size'+size+'-Abcd1234.js',body=new Uint8Array(size);if(size){body[0]=47;body[size-1]=59;}
+   const bytes=await encodeRetainedAsset({path,source:'a'.repeat(40),buildId:'11111111-2222-3333-4444-555555555555',createdAt:now,retainUntil:now+86400000},body,now);
+   await bucket.put(await retainedAssetKey(path),bytes);const response=await mf.dispatchFetch('https://vii.spaplus.co'+path);
+   assert.equal(response.status,200);assert.deepEqual(new Uint8Array(await response.arrayBuffer()),body);
+  }
  }finally{await mf.dispose();}
 });

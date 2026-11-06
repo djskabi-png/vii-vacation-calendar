@@ -3,6 +3,8 @@ import { publicCatalogSummaries } from "./public-catalog-read.ts";
 import { isWholeCountrySelection, searchLocationOptions, type SearchMode } from "../data/search-taxonomy.ts";
 import { worldLocationSlug } from "./location-slug.ts";
 import approvedLocations from "../data/approved-world-locations.json" with { type: "json" };
+import {worldLocationPath} from './world-location-path.ts';
+export {worldLocationPath} from './world-location-path.ts';
 
 type CatalogLocation = {
   area?: string;
@@ -17,18 +19,7 @@ const catalogWorld: Record<SearchMode, "vacations" | "events" | "spa" | "rooms">
   hourly: "rooms",
 };
 
-const basePath: Record<SearchMode, string> = {
-  vacation: "/vacations/search",
-  events: "/events/search",
-  spa: "/spas/search",
-  hourly: "/hourly/search",
-};
-
 export { worldLocationSlug };
-
-export function worldLocationPath(mode: SearchMode, label: string) {
-  return `${basePath[mode]}/${worldLocationSlug(label)}`;
-}
 
 export async function worldLocationInventory(mode: SearchMode) {
   const entries = await publicCatalogSummaries<CatalogLocation>(catalogWorld[mode]);

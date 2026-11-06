@@ -85,7 +85,13 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/legacy-intent-client-boundary.test.mjs",
+        "tests/legacy-search-canonical-intent.test.mjs",
+        "tests/geographic-search-family.test.mjs",
+        "tests/world-location-seo-contract.test.mjs",
+        "tests/liran-geography-actual.test.mjs"
+      ]
     },
     "vacations": {
       "dependsOn": [
@@ -544,7 +550,19 @@
       "ownerBox": "search",
       "match": [
         "app/search/",
-        "app/api/vii/live-search/"
+        "app/api/vii/live-search/",
+        "app/lib/legacy-search-intent.ts",
+        "app/lib/legacy-search-intent-rules.ts",
+        "app/lib/legacy-search-intent-source.ts",
+        "app/lib/world-location-path.ts",
+        "app/lib/world-location-pages.ts",
+        "app/data/legacy-vacation-intents.generated.json",
+        "app/data/supplier-legacy-links.ts",
+        "app/data/supplier-legacy-links-source.ts",
+        "app/data/supplier-legacy-links.generated.json",
+        "app/data/vacation-landings.ts",
+        "app/data/world-search-landings.ts",
+        "app/components/vacation-landing-route.tsx"
       ]
     },
     {

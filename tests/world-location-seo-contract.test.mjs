@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import {worldLocationPath} from '../app/lib/world-location-path.ts';
 
 const read = (path) => fs.readFileSync(path, "utf8");
 const registry = JSON.parse(read("app/data/approved-world-locations.json"));
@@ -18,10 +19,7 @@ test("the approved location registry covers every world and keeps labels unique"
 test("all four worlds expose clean semantic location routes", () => {
   const inventory = read("app/lib/world-location-pages.ts");
   assert.match(inventory, /approvedLocations\[mode\]/);
-  assert.match(inventory, /vacation:\s*"\/vacations\/search"/);
-  assert.match(inventory, /events:\s*"\/events\/search"/);
-  assert.match(inventory, /spa:\s*"\/spas\/search"/);
-  assert.match(inventory, /hourly:\s*"\/hourly\/search"/);
+  for(const [mode,base]of Object.entries({vacation:'/vacations/search',events:'/events/search',spa:'/spas/search',hourly:'/hourly/search'}))assert.equal(worldLocationPath(mode,'ראשון לציון'),base+'/rishon-lezion');
   assert.match(read("app/lib/location-slug.ts"), /"ראשון לציון":\s*"rishon-lezion"/);
 });
 

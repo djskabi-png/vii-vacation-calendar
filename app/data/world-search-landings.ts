@@ -1,7 +1,7 @@
 import type { SearchMode } from "./search-taxonomy";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
-import { worldLocationSlug } from "../lib/world-location-pages.ts";
+import { worldLocationSlug } from "../lib/world-location-path.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",

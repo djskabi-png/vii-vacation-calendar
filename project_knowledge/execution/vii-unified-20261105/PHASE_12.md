@@ -53,6 +53,16 @@ client bundle is separate performance work; changing the preservation cap
 does not itself improve visitor speed. This evidenced distinct mechanism
 starts a new bounded repair cycle, not an unchanged retry of the empty file.
 
+That distinct repair cycle succeeded on the unchanged actual phase-eight
+archive: all245 assets,17,445,237 source bytes, one empty module, maximum
+6,864,710bytes. Every prepared envelope was decoded through the actual reader
+and compared to its recorded source byte count and SHA256 locally. The real
+workerd/R2 test also exercised both zero bytes and the measured6.86MB size.
+No upload or public deployment occurred. Receipts:
+`.qa-output/phase12-prepare-operation.json`,
+`phase12-complete-retention-roundtrip.json`,
+`phase12-measured-old-assets-runtime.log`.
+
 ## Open release integration
 
 The actual previously public build is `00bca36c-4f1c-403d-9a13-ceea797015ae`.
