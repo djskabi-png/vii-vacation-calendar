@@ -41,7 +41,7 @@ test('actual source attestation and JWKS execute under workerd and enforce exact
   const nonce='actual_controller_nonce_123456';
   const authorization=await mf.dispatchFetch(request({...requestBody,bodyHash,nonce}));assert.equal(authorization.status,200);const controllerToken=(await authorization.json()).token;
   const controlHeaders={'X-VII-Quality-Attestation':controllerToken,'X-VII-Quality-Nonce':nonce};
-  const metadata=await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:controlHeaders});assert.equal(metadata.status,200);assert.equal(Object.keys((await metadata.json()).metadata).length,61);
+  const metadata=await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:controlHeaders});assert.equal(metadata.status,200);const checkMetadata=(await metadata.json()).metadata;assert.equal(Object.keys(checkMetadata).length,69);assert.ok(checkMetadata['discovery.events.lastminute.ready']);assert.ok(checkMetadata['discovery.vacation.tomorrow.ready']);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:controlHeaders})).status,409);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=changed',{headers:controlHeaders})).status,403);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:{...controlHeaders,cookie:'must-not-cross-boundary=1'}})).status,403);

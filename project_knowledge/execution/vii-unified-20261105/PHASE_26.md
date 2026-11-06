@@ -47,3 +47,17 @@ snapshots, then run the complete matching immutable subject. A refreshing
 response fails readiness; it does not justify restoring blocking supplier work
 to ordinary page loads. Existing bounded public recovery and warming remain.
 No deployment, cloud write or business action occurred in this source slice.
+
+The first cumulative phase26 freeze at `1e45f370` passed source guard, full
+TypeScript and build. Its 2,472-test run had2,459 passes,12 failures and one
+existing skip. Eleven failures traced to the impact CLI unconditionally reading
+new constant-definition files even in synthetic projects whose registry does
+not use them. Dependency expansion now occurs only when the actual initializer
+references those definitions. The remaining failure was the authenticated
+workerd metadata test's pinned61 count; it now requires69 and the new IDs.
+These failed operation/log files are preserved. This is a causal correction,
+not a repeated unchanged run or a waiver of failed gates.
+
+The targeted actual registry/admission/attestation correction family then passed
+all23 tests in80.87 seconds. No failing checks were removed. The next frozen
+cumulative run must retain this correction and its original evidence.

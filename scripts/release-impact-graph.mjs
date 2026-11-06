@@ -21,9 +21,9 @@ export function registeredCheckIds(root = process.cwd()) {
   const initializer=trustedInitializer('app/lib/quality-platform.ts','qualityRegistry');
   // Evaluate only these reviewed constant initializers, never module bodies or
   // supplier loaders. The CLI and runtime expand the same canonical definitions.
-  const dependencies=`const homeDealPeriods=${trustedInitializer('app/lib/home-deal-dates.ts','homeDealPeriods')};
+  const dependencies=/\bdiscoveryReadinessDefinitions\b/.test(initializer)?`const homeDealPeriods=${trustedInitializer('app/lib/home-deal-dates.ts','homeDealPeriods')};
     const DISCOVERY_READINESS_VERSION=${trustedInitializer('app/lib/quality-readiness.ts','DISCOVERY_READINESS_VERSION')};
-    const discoveryReadinessDefinitions=${trustedInitializer('app/lib/quality-readiness.ts','discoveryReadinessDefinitions')};`;
+    const discoveryReadinessDefinitions=${trustedInitializer('app/lib/quality-readiness.ts','discoveryReadinessDefinitions')};`:'';
   const code = ts.transpileModule(`${dependencies} const html = input => input; const json = input => input; return (${initializer});`, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
   }).outputText;
