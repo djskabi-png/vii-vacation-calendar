@@ -9,6 +9,13 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   return catalogStatusMcp(request, {
+    async inspect(world, supplierIds) {
+      const { inspectProviderCatalog } = await import("../lib/provider-catalog-inspection.ts");
+      return inspectProviderCatalog(world, supplierIds, { secret: async name => {
+        const { env } = await import("cloudflare:workers");
+        return (env as unknown as Record<string, string | undefined>)[name] || "";
+      } });
+    },
     async pull(world) {
       // This callback is invoked only after Sites identity, administrator and input checks.
       const db = await requiredRuntimeDatabase("catalog_database_unavailable");

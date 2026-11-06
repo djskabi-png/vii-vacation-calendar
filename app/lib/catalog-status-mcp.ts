@@ -5,7 +5,7 @@ import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
 const versions = ["2025-11-25", "2025-06-18", "2025-03-26"];
 const modernVersion = "2026-07-28";
 const supportedVersions = [modernVersion, ...versions];
-const serverInfo = { name: "vii-catalog-status", title: "VII catalog status", version: "1.1.0" };
+const serverInfo = { name: "vii-catalog-status", title: "VII catalog status", version: "1.2.0" };
 const worlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 const responseHeaders = { "Cache-Control": "no-store" };
 const statusTool = {
@@ -21,6 +21,13 @@ const pullTool = {
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
 };
 
+const inspectionTool = {
+  name: "vii_catalog_inspect",
+  description: "Existing administrator only: read official provider inventory and public status/facility fields for at most four exact IDs. No catalog activation, data writes, booking or credential output.",
+  inputSchema: { type: "object", properties: { world: { type: "string", enum: ["vacations", "events", "spa"] }, supplierIds: { type: "array", minItems: 1, maxItems: 4, items: { type: "integer", minimum: 1 } } }, required: ["world", "supplierIds"], additionalProperties: false },
+  annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+};
+
 function object(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
@@ -33,6 +40,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   database: () => Promise<D1Database>;
   fallbackCounts: Record<SupplierCatalogWorld, number>;
   pull?: (world: SupplierCatalogWorld) => Promise<unknown>;
+  inspect?: (world: "vacations" | "events" | "spa", supplierIds: number[]) => Promise<unknown>;
 }) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin && origin !== "https://chatgpt.com") {
@@ -82,7 +90,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
       serverInfo });
   }
   if (message.method === "ping") return result({});
-  if (message.method === "tools/list") return result({ tools: dependencies.pull ? [statusTool, pullTool] : [statusTool],
+  if (message.method === "tools/list") return result({ tools: [statusTool, ...(dependencies.pull ? [pullTool] : []), ...(dependencies.inspect ? [inspectionTool] : [])],
     ...(modern ? { ttlMs: 0, cacheScope: "public" } : {}) });
   if (message.method !== "tools/call") return error(message.id, -32601, "Method not found");
 
@@ -95,6 +103,12 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   catch { return error(message.id, -32003, "Authorization unavailable", 403); }
   if (!allowed.includes(email)) return error(message.id, -32003, "Forbidden", 403);
   const params = object(message.params);
+  if (params?.name === inspectionTool.name && dependencies.inspect) {
+    const args = object(params.arguments);
+    if (!args || Object.keys(args).length !== 2 || !["vacations", "events", "spa"].includes(String(args.world)) || !Array.isArray(args.supplierIds) || !args.supplierIds.length || args.supplierIds.length > 4 || args.supplierIds.some(id => !Number.isSafeInteger(id) || id < 1)) return error(message.id, -32602, "One world and up to four exact supplier IDs required");
+    try { const value = await dependencies.inspect(args.world as "vacations" | "events" | "spa", args.supplierIds as number[]); return result({content:[{type:"text",text:JSON.stringify(value)}],structuredContent:value,isError:false}); }
+    catch { return result({content:[{type:"text",text:"Provider inspection unavailable"}],isError:true}); }
+  }
   if (params?.name === pullTool.name && dependencies.pull) {
     const args = object(params.arguments);
     if (!args || Object.keys(args).length !== 1 || typeof args.world !== "string"
