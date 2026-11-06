@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sha256": "bc040b19068b9a30cd9eec02677f6c50bcfb41e4fc4dce82832689da1d6589bb",
+  "sha256": "774dab5130bd0380e5f2e51bd24e17f3333eab2701b34214f10cfd6f64210f18",
   "files": [
     "services/vii-quality-browser/build-definition.mjs",
     "services/vii-quality-browser/src/engine.ts",
