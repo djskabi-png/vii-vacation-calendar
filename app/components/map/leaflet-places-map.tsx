@@ -818,10 +818,10 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     </article>}
   </div>;
 
-  if (single) return <MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider}>{mapCanvas}</MapProviderBoundary>;
+  if (single) return <MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider} onClose={onClose}>{mapCanvas}</MapProviderBoundary>;
 
   return <div className={`map-results-experience map-tone--${tone}`}>
-    <div className="map-results-canvas"><MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider}>{mapCanvas}</MapProviderBoundary></div>
+    <div className="map-results-canvas"><MapProviderBoundary places={places} tone={tone} language={language} providerError={providerError} onRetry={retryMapProvider} onClose={onClose}>{mapCanvas}</MapProviderBoundary></div>
   </div>;
 }
 

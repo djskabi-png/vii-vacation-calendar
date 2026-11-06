@@ -7,6 +7,14 @@ import { matchesVacationSearchFilter, vacationSearchFilterIds } from "../app/lib
 
 const vacations = catalog.places.filter((place) => place.world === "vacations");
 
+test("vacation light search preserves explicit coordinate precision without changing supplier coordinates",()=>{
+  for(const mapPrecision of ["area","exact",undefined]) {
+    const source={...vacations[0],mapPrecision};
+    const [projected]=publicVacationSearchProperties([source]);
+    assert.equal(projected.mapPrecision,mapPrecision);assert.equal(projected.lat,source.lat);assert.equal(projected.lng,source.lng);
+  }
+});
+
 test("vacation search projection preserves filter truth with a bounded payload", () => {
   const projected = publicVacationSearchProperties(vacations);
 

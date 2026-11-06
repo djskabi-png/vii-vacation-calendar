@@ -4,6 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { isWeeklyMapSnapshotWindow, mapSnapshotSourceHash, staticMapRequest } from "../app/lib/map-snapshot-store.ts";
+import { buildMapSnapshotCandidates, validSnapshotCoordinate } from "../app/lib/map-snapshot-candidates.ts";
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -69,8 +70,9 @@ test("map coverage inventory includes every mapped public world", async () => {
   const catalog = await read("app/lib/map-snapshot-catalog.ts");
   for (const source of ["properties", "eventPlaces", "discoveryItems"]) assert.match(catalog, new RegExp(`\\b${source}\\b`));
   for (const world of ["vacation", "events", "spa", "hourly", "activities"]) assert.match(catalog, new RegExp(`"${world}"`));
-  assert.match(catalog, /validCoordinate/);
-  assert.match(catalog, /new Map\(/);
+  assert.match(catalog, /validSnapshotCoordinate/);
+  const candidates = await read("app/lib/map-snapshot-candidates.ts");
+  assert.match(candidates, /new Map\(/);
 });
 
 test("snapshot delivery is server-side, cached and never exposes provider credentials", async () => {
@@ -104,6 +106,33 @@ test("provider requests and weekly Israel-time window are deterministic", () => 
   assert.notEqual(mapSnapshotSourceHash(candidate, "mapbox"), mapSnapshotSourceHash({ ...candidate, lat: 32.2 }, "mapbox"));
   assert.equal(isWeeklyMapSnapshotWindow(new Date("2026-10-26T01:45:00.000Z")), true);
   assert.equal(isWeeklyMapSnapshotWindow(new Date("2026-10-26T01:55:00.000Z")), false);
+});
+
+test("snapshot catalog rejects null-island and preserves explicit coordinate provenance", () => {
+  assert.equal(validSnapshotCoordinate(0, 0), false);
+  assert.equal(validSnapshotCoordinate(undefined, 35), false);
+  assert.equal(validSnapshotCoordinate(32.1, 34.8), true);
+  const candidates = buildMapSnapshotCandidates({
+    properties: [
+      { slug: "legacy", name: "Legacy", lat: 32, lng: 35 },
+      { slug: "area-stay", name: "Area stay", lat: 32, lng: 35, mapPrecision: "area" },
+      { slug: "exact-stay", name: "Exact stay", lat: 32, lng: 35, mapPrecision: "exact" },
+      ...[{ lat: 0, lng: 0 }, { lat: NaN, lng: 35 }, { lat: 91, lng: 35 }, { lat: 32, lng: 181 }, { lat: 32 }].map((coordinate,index)=>({slug:`invalid-${index}`,name:"Invalid coordinate",...coordinate})),
+    ],
+    eventPlaces: [{ slug: "area-event", name: "Area", lat: 32, lng: 35, mapPrecision: "area" }],
+    discoveryItems: [
+      { id: "unmarked", world: "spa", name: "Unmarked", lat: 32, lng: 35 },
+      { id: "exact", world: "spa", name: "Exact", lat: 32, lng: 35, mapPrecision: "exact" },
+    ],
+  });
+  assert.equal(candidates.find((candidate) => candidate.placeId === "legacy")?.precision, "exact");
+  assert.equal(candidates.find((candidate) => candidate.placeId === "area-stay")?.zoom, 12);
+  assert.equal(candidates.find((candidate) => candidate.placeId === "exact-stay")?.zoom, 14);
+  assert.equal(candidates.some(candidate=>candidate.placeId.startsWith("invalid-")),false);
+  assert.equal(candidates.length,6);
+  assert.equal(candidates.find((candidate) => candidate.placeId === "area-event")?.precision, "area");
+  assert.equal(candidates.find((candidate) => candidate.placeId === "unmarked")?.precision, "area");
+  assert.equal(candidates.find((candidate) => candidate.placeId === "exact")?.precision, "exact");
 });
 
 test("provider changes and authorized forced reconciliation can recover failed snapshots immediately", async () => {

@@ -1,4 +1,5 @@
 import type { MapPlace, MapTone } from "./map-place";
+import type { ComponentType } from "react";
 
 export type MapProviderProps = {
   places: MapPlace[];
@@ -13,4 +14,12 @@ export type MapProviderProps = {
   onActivePlaceChange?: (id: string | null) => void;
   regional?: boolean;
   resultKind?: "places" | "trails";
+};
+
+/** Provider implementations receive normalized presentation data only. */
+export type MapProviderDefinition = {
+  id: string;
+  Component: ComponentType<MapProviderProps>;
+  preload?: () => Promise<unknown> | null;
+  reset?: () => void;
 };

@@ -11,7 +11,7 @@ test("map provider boundary is wired around the normalized place renderer", () =
   const source = fs.readFileSync(new URL("../app/components/map/leaflet-places-map.tsx", import.meta.url), "utf8");
   const boundary = fs.readFileSync(new URL("../app/components/map-provider-boundary.tsx", import.meta.url), "utf8");
   assert.match(source, /MapProviderBoundary places=\{places\} tone=\{tone\}/);
-  assert.match(boundary, /places\.map\(\(place\) =>/);
+  assert.match(boundary, /places\.slice\(0, this\.state\.visibleCount\)\.map\(\(place\) =>/);
   assert.match(boundary, /ניסיון חוזר/);
   assert.match(boundary, /this\.state\.failed/);
   assert.match(source, /\.catch\(\(error: unknown\).*setProviderError/);
@@ -31,7 +31,7 @@ test("actual boundary preserves every result and destination, localizes failure,
     const component = new Boundary({ places, tone: "vacation", language, onRetry: () => retries++, children: React.createElement("div", { id: "provider" }, "map") });
     component.setState = update => { component.state = { ...component.state, ...update }; };
     assert.match(renderToStaticMarkup(component.render()), /id="provider"/);
-    component.state = Boundary.getDerivedStateFromError(new Error("synthetic renderer failure"));
+    component.state = { ...component.state, ...Boundary.getDerivedStateFromError(new Error("synthetic renderer failure")) };
     const fallback = component.render();
     const html = renderToStaticMarkup(fallback);
     assert.ok(html.includes(expected)); assert.equal((html.match(/<a /g) || []).length, 17);

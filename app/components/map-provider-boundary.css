@@ -1,0 +1,47 @@
+.map-provider-fallback {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--line, #dde3e5);
+  border-radius: 20px;
+  background: var(--surface, #fff);
+  color: var(--ink, #173b43);
+  font-family: var(--font-sans, Heebo, Assistant, Arial, sans-serif);
+  text-align: start;
+}
+.map-provider-fallback > strong { font-size: 1.15rem; line-height: 1.5; }
+.map-provider-fallback > span { color: var(--muted, #546a70); line-height: 1.7; }
+.map-provider-fallback > button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #087e8b;
+  border-radius: 12px;
+  background: #087e8b;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.map-provider-fallback > ul {
+  display: grid;
+  gap: 8px;
+  max-height: 30vh;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  list-style: none;
+}
+.map-provider-fallback li { min-width: 0; }
+.map-provider-fallback li a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line, #dde3e5);
+  border-radius: 10px;
+  color: #075d68;
+  font-family: inherit;
+  overflow-wrap: anywhere;
+}
+.map-provider-fallback :is(button, a):focus-visible { outline: 3px solid #075d68; outline-offset: 3px; }

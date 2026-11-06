@@ -29,3 +29,9 @@ test('world adapters preserve explicit date quote, precision and localized marke
   assert.equal(room.markerKind,'category');assert.equal(room.valueLabel,undefined);assert.equal(room.precision,'area');
   assert.equal(discoveryMapPlaces([{...hourly,lat:NaN}],'he',translate,fallback,'hourly').length,0);
 });
+
+test('listing coordinate provenance reaches the map marker without weakening the exact default', () => {
+  const base = { slug: 'area-place', name: 'Area place', location: 'North', area: 'North', type: 'וילה', guests: 4, image: '/a.jpg', lat: 32.8, lng: 35.1, price: 900 };
+  assert.equal(listingMapPlaces([{ ...base, mapPrecision: 'area' }], 'he', translate, fallback, 'vacation', undefined, undefined, units)[0].precision, 'area');
+  assert.equal(listingMapPlaces([base], 'he', translate, fallback, 'vacation', undefined, undefined, units)[0].precision, 'exact');
+});

@@ -40,6 +40,9 @@
       "requiredLocalTests": [
         "tests/map-canvas-ownership.test.mjs",
         "tests/map-provider-boundary.test.mjs",
+        "tests/map-provider-host.test.mjs",
+        "tests/map-place-adapters.test.mjs",
+        "tests/map-snapshot-pipeline.test.mjs",
         "tests/map-stream-identity-actual.test.mjs"
       ]
     },
@@ -548,7 +551,10 @@
         "app/lib/map/",
         "app/components/listing-map.tsx",
         "app/components/deferred-listing-map.tsx",
-        "app/components/map-provider-boundary.tsx"
+        "app/components/map-provider-boundary.tsx",
+        "app/components/map-provider-boundary.css",
+        "app/lib/map-snapshot-candidates.ts",
+        "app/lib/map-snapshot-catalog.ts"
       ]
     },
     {
@@ -609,6 +615,7 @@
         "app/vacations/",
         "app/business/",
         "app/components/property-card.tsx",
+        "app/lib/public-vacation-search.ts",
         "app/worlds/vacations/"
       ]
     },
@@ -618,6 +625,7 @@
       "match": [
         "app/events/",
         "app/worlds/events/",
+        "app/lib/public-event-search.ts",
         "app/lib/event-last-minute-props.ts",
         "app/components/event-last-minute.tsx"
       ]

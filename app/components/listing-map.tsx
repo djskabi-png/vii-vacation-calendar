@@ -8,7 +8,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import type { MapPriceQuote } from "../lib/map-price";
 import { listingMapPlaces, discoveryMapPlaces, trailAreaCenters, type MapPlace } from "../lib/map/map-place";
-import { LeafletPlacesMap as PlacesMap, preloadLeaflet as preloadProvider } from "./map/leaflet-places-map";
+import { MapProviderHost as PlacesMap, preloadDefaultMapProvider as preloadProvider } from "./map/map-provider-host";
 
 // Compatibility entry used by deferred-listing-map; no world data enters the provider.
 export function preloadLeaflet() { return preloadProvider(); }

@@ -37,6 +37,8 @@ export type Listing = {
   previewText?: string;
   lat?: number;
   lng?: number;
+  /** Provenance of the coordinates: supplier/entity point or an area fallback. */
+  mapPrecision?: "exact" | "area";
   scenario: "single" | "multi";
   score?: number;
   reviews?: number;

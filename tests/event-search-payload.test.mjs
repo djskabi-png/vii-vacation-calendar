@@ -9,6 +9,14 @@ import { readFile } from "node:fs/promises";
 
 const events = catalog.places.filter((place) => place.world === "events");
 
+test("event light search preserves explicit coordinate precision without replacing supplier points",()=>{
+  for(const mapPrecision of ["area","exact",undefined]) {
+    const source={...events[0],mapPrecision};
+    const [projected]=publicEventSearchPlaces([source]);
+    assert.equal(projected.mapPrecision,mapPrecision);assert.equal(projected.lat,source.lat);assert.equal(projected.lng,source.lng);
+  }
+});
+
 test("event search projection preserves discovery truth with a bounded payload", () => {
   const projected = publicEventSearchPlaces(events);
 

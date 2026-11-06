@@ -29,6 +29,7 @@ export function publicEventSearchPlaces(places: readonly EventPlace[], imageLimi
     badges: [],
     lat: place.lat,
     lng: place.lng,
+    mapPrecision: place.mapPrecision,
     scenario: place.scenario,
     score: place.score,
     reviews: place.reviews,
