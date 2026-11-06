@@ -23,6 +23,7 @@ import { NearbySearchNotice } from "./nearby-search-notice";
 import { useDocumentSeed } from "./use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 import { MapSplitResultList } from "./map-split-result-list";
+import { managedSearchParams } from "../lib/managed-search-params";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -43,10 +44,10 @@ export function HourlyResults({ items, initialLocation, initialFilters }: { item
   const requestedPrice = Number(searchParams.get("maxPrice") || initialFilters?.maxPrice || 0);
   const requestedFeatures = (searchParams.get("features") || String(initialFilters?.features || "")).split(",").filter((id) => featureFilters.some((filter) => filter.id === id));
   const requestedSort = searchParams.get("sort") || String(initialFilters?.sort || "recommended");
-  return <HourlyResultsPanel key={`${requestedLocation}-${requestedPrice}-${requestedFeatures.join(",")}-${requestedSort}`} items={items} requestedLocation={requestedLocation} requestedPrice={requestedPrice} requestedFeatures={requestedFeatures} requestedSort={requestedSort} />;
+  return <HourlyResultsPanel key={`${requestedLocation}-${requestedPrice}-${requestedFeatures.join(",")}-${requestedSort}`} items={items} requestedLocation={requestedLocation} requestedPrice={requestedPrice} requestedFeatures={requestedFeatures} requestedSort={requestedSort} initialFilters={initialFilters} />;
 }
 
-function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requestedFeatures, requestedSort }: { items: DiscoveryItem[]; requestedLocation: string; requestedPrice: number; requestedFeatures: string[]; requestedSort: string }) {
+function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requestedFeatures, requestedSort, initialFilters }: { items: DiscoveryItem[]; requestedLocation: string; requestedPrice: number; requestedFeatures: string[]; requestedSort: string; initialFilters?: Record<string, string | number | boolean> }) {
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
@@ -113,7 +114,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }, [features, resultItems.length, location, maximumPrice, sort]);
 
   function updateUrl(updates: Record<string, string>) {
-    const params = new URLSearchParams(window.location.search);
+    const params = managedSearchParams(window.location.search, initialFilters);
     Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" && value !== "0" ? params.set(key, value) : params.delete(key));
     const requestedLocation = updates.location === undefined ? location : updates.location || "כל הארץ";
     params.delete("location");

@@ -55,8 +55,6 @@ export function managedSearchPageMetadata(page: SearchOpportunity): Metadata {
 }
 
 export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }) {
-  const resolved = await resultsFor(page.world, page.location, page.filters, page.fallbackMode);
-  const results = resolved.items;
   const worldLabel = page.world === "events" ? "אירועים" : page.world === "vacation" ? "נופש" : page.world === "spa" ? "ספא" : "חדרים לפי שעה";
   const variant = page.world === "vacation" ? "vacation" : page.world === "events" ? "events" : page.world === "hourly" ? "hourly" : "spa";
   if (page.world === "vacation") {
@@ -79,7 +77,7 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
   }
   if (page.world === "events") {
     return <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
-      initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, String(value)]))}
+      initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, value === true ? "1" : String(value)]))}
       managedBody={page.body} managedFaq={page.faq} />;
   }
   if (page.world === "spa" || page.world === "hourly") {
@@ -93,6 +91,8 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
       breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: page.world === "spa" ? "בתי ספא" : "חדרים לפי שעה", path: page.sourcePath.split("?")[0] }, { name: page.h1 }]}
       collectionTitle={page.h1} />;
   }
+  const resolved = await resultsFor(page.world, page.location, page.filters, page.fallbackMode);
+  const results = resolved.items;
   return <PageShell variant={variant}><main id="main-content" className={styles.page} dir="rtl">
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1, path: page.canonicalPath }])} />
     <StructuredData data={collectionSchema(page.h1, page.metaDescription, page.canonicalPath, results.map((result) => ({ name: result.name, path: result.href, image: result.image })))} />
