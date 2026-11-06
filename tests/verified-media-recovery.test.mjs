@@ -27,3 +27,13 @@ test("native deployment declares the asset service used by exact media recovery"
  const config=readFileSync(new URL("../vite.config.ts",import.meta.url),"utf8");
  assert.match(config,/assets:\s*\{\s*binding:\s*"ASSETS"\s*\}/);
 });
+
+test('responsive derivatives use the same verified missing-object recovery and avoid the R2-only image service',async()=>{
+ const {optimizedMediaSource}=await import('../worker/optimized-media-source.ts');
+ const {responsiveCardMedia}=await import('../app/lib/responsive-media.ts');
+ const file=manifest.files[0],path='/api/vii/media/'+file.filename;
+ assert.ok(responsiveCardMedia(path).src.startsWith('/_vinext/image?'));
+ const bytes=readFileSync(new URL('../public'+file.path,import.meta.url));
+ const response=await optimizedMediaSource(path,absent,{fetch:async()=>new Response(bytes,{headers:{'Content-Type':file.contentType}})});
+ assert.equal(response.status,200);assert.equal(response.headers.get('X-VII-Media'),'recovered');assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);
+});

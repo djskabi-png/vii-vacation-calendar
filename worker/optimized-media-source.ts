@@ -28,11 +28,15 @@ export function localGalleryFilename(path: string) {
   return filename;
 }
 
-export async function optimizedMediaSource(path: string, uploads: R2Bucket) {
+export async function optimizedMediaSource(path: string, uploads: R2Bucket, assets?: { fetch(request: Request): Promise<Response> }) {
   const filename = localGalleryFilename(path);
   if (!filename) return null;
   const object = await uploads.get(`${galleryObjectPrefix}${filename}`);
-  if (!object) return new Response("Image not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  if (!object) {
+    const { recoverVerifiedGalleryMedia } = await import("../app/lib/verified-media-recovery.ts");
+    return await recoverVerifiedGalleryMedia(new Request(new URL(path, "https://vii.spaplus.co")), filename, assets)
+      || new Response("Image not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
   return new Response(object.body, {
     status: 200,
     headers: {

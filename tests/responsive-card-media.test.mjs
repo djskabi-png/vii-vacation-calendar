@@ -83,7 +83,7 @@ test("shared cards use responsive sources, original recovery and bounded priorit
   assert.match(property, /loading=\{priority \? "eager" : "lazy"\}/);
   assert.match(search, /priority=\{index < 3\}/);
   assert.doesNotMatch(search, /mapActive=.*priority=/);
-  assert.match(worker, /optimizedMediaSource\(path, env\.UPLOADS\)/);
+  assert.match(worker, /optimizedMediaSource\(path, env\.UPLOADS, env\.ASSETS\)/);
   assert.match(loading, /global-route-loading/);
   assert.match(loading, /aria-busy="true"/);
 });

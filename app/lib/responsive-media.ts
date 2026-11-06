@@ -1,3 +1,5 @@
+import recoveredMedia from "../data/verified-media-recovery.json" with { type: "json" };
+const recoveredPaths = new Set(recoveredMedia.files.map(file => `/api/vii/media/${file.filename}`));
 export const defaultCardImageSizes = "(max-width: 760px) calc(100vw - 32px), (max-width: 1180px) 50vw, 420px";
 export const cardImageWidths = [384, 640, 750, 828] as const;
 
@@ -16,7 +18,7 @@ export function isOptimizableCardMedia(src: string) {
 export function optimizedCardMediaUrl(src: string, width: number, quality = 82) {
   // This independent service is verified with real native output. Other
   // legacy filenames retain their existing original/optimizer fallback.
-  if (/^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(src)
+  if (!recoveredPaths.has(src) && /^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(src)
       && [384, 640, 750, 828, 960, 1280, 1600].includes(width) && [75, 82, 85, 88].includes(quality)) {
     return `https://vii-public-images.djskabi.workers.dev/?url=${encodeURIComponent(src)}&w=${width}&q=${quality}`;
   }
