@@ -8,7 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
 // Date pickers are interaction-only. Keep the initial search shell small and
 // load the relevant picker when the user opens dates, without changing its API.
-const DatePickerLoading = () => <div className="search-popover" role="status" aria-live="polite"><span>טוענים את לוח התאריכים…</span><button type="button" onClick={() => window.location.reload()}>ניסיון חוזר</button></div>;
+const DatePickerLoading = ({ error, retry, isLoading }: { error?: Error | null; retry?: () => void; isLoading?: boolean }) => {
+  const language = typeof document !== "undefined" ? document.documentElement.lang : "he";
+  const copy = language === "en" ? { loading: "Loading dates…", retry: "Try again" } : language === "ru" ? { loading: "Загрузка дат…", retry: "Повторить" } : language === "fr" ? { loading: "Chargement des dates…", retry: "Réessayer" } : { loading: "טוענים את לוח התאריכים…", retry: "ניסיון חוזר" };
+  return <div className="search-popover" role={error ? "alert" : "status"} aria-live="polite"><span>{error ? copy.retry : copy.loading}</span>{error && retry ? <button type="button" onClick={retry}>{copy.retry}</button> : null}</div>;
+};
 const CalendarDemo = dynamic(() => import("../calendar-demo").then((module) => module.CalendarDemo), { ssr: false, loading: DatePickerLoading });
 const EventDatePicker = dynamic(() => import("./event-date-picker").then((module) => module.EventDatePicker), { ssr: false, loading: DatePickerLoading });
 const SpaDatePicker = dynamic(() => import("./spa-date-picker").then((module) => module.SpaDatePicker), { ssr: false, loading: DatePickerLoading });
