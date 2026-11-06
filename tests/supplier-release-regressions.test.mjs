@@ -46,13 +46,15 @@ test("exact legacy source identities redirect without carrying an old price", as
 
 test("event attendance requests do not exclude places using lodging unit capacity", async () => {
   const normal = await (await render("/events/search")).text();
-  const large = await (await render("/events/search?guests=1000&type=unverified&eventType=unverified")).text();
+  const large = await (await render("/events/search?guests=1000")).text();
+  const unknown = await (await render("/events/search?type=unverified&eventType=unverified")).text();
   const cards = (html) => new Set([...html.matchAll(/href="\/events\/place\/(event-\d+)"/g)].map((match) => match[1])).size;
   const acceptedIds = new Set(acceptedCatalogState.worlds.events.ids);
   const acceptedEventCount = [...catalog.places, ...acceptedCatalogState.worlds.events.additions]
     .filter((place) => place.world === "events" && acceptedIds.has(place.supplierId)).length;
   assert.equal(cards(normal), acceptedEventCount);
   assert.equal(cards(large), cards(normal));
+  assert.equal(cards(unknown), 0, "unknown event filters must not silently show unrelated venues");
 });
 
 test("regional event search returns actual supplier records", async () => {
@@ -111,15 +113,17 @@ test("supplier event legacy redirects preserve locale", async () => {
   assert.match(new URL(response.headers.get("location"), "https://vii.spaplus.co").pathname, /^\/en\/events\/place\/event-\d+$/);
 });
 
-test("vacation SSR honors region before hydration and old unsupported filters do not empty the catalog", async () => {
+test("vacation SSR honors region, guest composition and explicit price/type filters before hydration", async () => {
   const center = await (await render(`/search?location=${encodeURIComponent("מרכז")}`)).text();
   assert.doesNotMatch(center, /href="\/business\?id=vacation-1(?:["&])/);
   assert.match(center, /business\?id=vacation-\d+/);
   const normal = await (await render("/search")).text();
-  const large = await (await render("/search?guests=1000&minPrice=9999&whole=1&types=villa")).text();
+  const large = await (await render("/search?guests=1000&whole=1")).text();
+  const constrained = await (await render("/search?guests=1000&minPrice=9999&whole=1&types=villa")).text();
   const cards = (html) => [...html.matchAll(/href="\/business\?id=vacation-\d+"/g)].length;
   assert.ok(cards(normal) >= 15);
   assert.equal(cards(large), cards(normal));
+  assert.equal(cards(constrained), 0, "a price/type restriction must never fall back to the unfiltered catalog");
   assert.match(large, /התאמת כמה יחידות להרכב שלכם תיבדק מול המקום/);
   assert.match(large, />טווח מחיר</);
   assert.match(large, />סוג מקום</);

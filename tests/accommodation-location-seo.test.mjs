@@ -10,6 +10,7 @@ import {
   indexableAccommodationLandings,
 } from "../app/data/accommodation-landings.ts";
 import { projectSergeyPublicCatalogValue } from "../app/lib/sergey-public-catalog-projection.ts";
+import { legacyDisposition } from "../app/lib/legacy-route-map.ts";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -106,7 +107,15 @@ test("the built worker resolves the complete legacy inventory in one permanent h
     ...redirects.gone.map((source) => ({ source, target: null, status: 410 })),
   ];
 
-  await Promise.all(rows.map(async ({ source, target, status }) => {
+  await Promise.all(rows.map(async (row) => {
+    const { source } = row;
+    // The reviewed equivalent-page overrides supersede the original migration
+    // inventory. Semantic correctness is exercised by the 64-page parity suite;
+    // this test verifies that the compiled worker carries that same policy.
+    const disposition = legacyDisposition(source);
+    assert.ok(disposition, `missing migration policy: ${source}`);
+    const { status } = disposition;
+    const target = disposition.status === 301 ? disposition.target : null;
     const response = await worker.fetch(new Request(new URL(source, "https://www.vii.co.il")), env, ctx);
     assert.equal(response.status, status, source);
     if (status !== 301) return;
