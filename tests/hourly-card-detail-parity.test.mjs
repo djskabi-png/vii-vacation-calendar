@@ -12,7 +12,7 @@ test("hourly cards use one stretched place link and keep contacts separate", asy
   assert.doesNotMatch(card, /className="discovery-card__details"/);
   assert.match(card, /className="discovery-card__stretched-link"/);
   assert.match(card, /target\.closest\("a,button,input,select,textarea,\[role='button'\]"\)/);
-  assert.match(card, /router\.push\(detailsHref\)/);
+  assert.match(card, /window\.open\(detailsHref, "_blank", "noopener,noreferrer"\)/);
   assert.match(card, /<CardContactActions[^>]+world="hourly"/s);
   assert.doesNotMatch(styles, /\.discovery-card__stretched-link::after[^}]+inset:0/s);
   const protectedControls = styles.match(/\.discovery-card :is\(([^)]*)\)[^{]*\{[^}]*z-index:2/s)?.[1] || "";
