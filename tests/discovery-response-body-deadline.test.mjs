@@ -24,3 +24,13 @@ test('a nontransient response is rejected before parsing and without a retry',as
   await assert.rejects(discoveryJson('/api/qa-404-body','not-found',{timeoutMs:15,retries:1}));assert.equal(calls,1);
  }finally{globalThis.fetch=original;}
 });
+
+
+test('a shared deadline limits the changed-cache retry and a retry never leaks totalTimeoutMs to fetch',async()=>{
+ const original=globalThis.fetch;let calls=0;const options=[];const start=Date.now();
+ try{
+  globalThis.fetch=async(_url,init)=>{calls++;options.push(init);return {ok:true,json:()=>new Promise(()=>{})};};
+  await assert.rejects(discoveryJson('/api/qa-total-deadline','bounded',{timeoutMs:35,totalTimeoutMs:50,retries:1}),error=>error.name==='TimeoutError');
+  assert.equal(calls,2);assert.equal(options[0].cache,'default');assert.equal(options[1].cache,'reload');assert.ok(options.every(x=>!('totalTimeoutMs' in x)));assert.ok(Date.now()-start<150);
+ }finally{globalThis.fetch=original;}
+});

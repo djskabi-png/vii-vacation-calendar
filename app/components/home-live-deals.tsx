@@ -187,11 +187,9 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       recover(false);
       return () => { controller.abort(); if (expiryTimer) clearTimeout(expiryTimer); };
     }
-    // One network attempt per poll. Only the server's explicit refreshing
-    // response permits another poll, within one shared selection deadline.
-    // A timed-out request must not silently multiply into transport retries
-    // and another four component retries while the visitor sees a skeleton.
-    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(5_000, remainingBudget()), retries: 0,
+    // One changed-cache retry can recover a transient read failure. Both
+    // attempts and refreshing polls share the same selection deadline.
+    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: 4_000, totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
       shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null) })
       .then((result) => {
         if (controller.signal.aborted) return;

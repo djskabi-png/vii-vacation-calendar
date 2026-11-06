@@ -1,6 +1,7 @@
 // Navigation reuse is discovery-only. Final detail and booking checks never use it.
 type DiscoveryRequestInit = RequestInit & {
   timeoutMs?: number;
+  totalTimeoutMs?: number;
   retries?: number;
   freshMs?: number;
   staleMs?: number;
@@ -24,7 +25,12 @@ function waitForInitialDocument(): Promise<void> {
   if (typeof window === "undefined" || typeof document === "undefined") return Promise.resolve();
   if (initialDocumentReady) return initialDocumentReady;
   initialDocumentReady = new Promise((resolve) => {
-    const afterLoad = () => requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    const afterLoad = () => {
+      // Background/new tabs may suspend animation frames. Parsing remains the
+      // boundary, but a paused frame must never strand an available result.
+      const fallback = setTimeout(resolve, 100);
+      requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(fallback); resolve(); }));
+    };
     if (document.readyState !== "loading") afterLoad();
     else document.addEventListener("DOMContentLoaded", afterLoad, { once: true });
   });
@@ -114,6 +120,7 @@ async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: numb
 export async function discoveryJson<T>(url: string, scope: string, init: DiscoveryRequestInit = {}): Promise<T> {
   const {
     timeoutMs = defaultTimeoutMs,
+    totalTimeoutMs,
     retries = 1,
     freshMs = defaultFreshMs,
     staleMs = defaultStaleMs,
@@ -131,16 +138,19 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
   const allowedRetries = method === "GET" ? Math.max(0, Math.min(1, Math.trunc(retries))) : 0;
   const boundedTimeout = Math.max(10, Math.min(20_000, Math.trunc(timeoutMs)));
   const load = async () => {
+    const deadline = totalTimeoutMs === undefined ? null : Date.now() + Math.max(1, Math.min(20_000, totalTimeoutMs));
     let failure: unknown;
     for (let attempt = 0; attempt <= allowedRetries; attempt += 1) {
       if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
       try {
+        const remaining = deadline === null ? boundedTimeout : Math.min(boundedTimeout, deadline - Date.now());
+        if (remaining <= 0) throw timeoutError();
         // The second read-only attempt deliberately bypasses a possibly wedged
         // browser HTTP-cache path. POST/live transaction checks never retry.
         const value = await fetchWithDeadline(url, {
           ...requestInit,
           cache: attempt ? "reload" : requestInit.cache ?? (method === "GET" ? "default" : "no-store"),
-        }, boundedTimeout);
+        }, remaining);
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
         if (shouldCache(value)) {
           const now = Date.now();
