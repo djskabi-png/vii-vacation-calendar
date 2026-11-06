@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {fixture} from './fixtures/release-unit-fixture.mjs';
-import {auditReleaseCandidate} from '../tools/release-candidate.mjs';
+import {auditReleaseCandidate,auditReleaseCandidateWithPrivateAuthority} from '../tools/release-candidate.mjs';
 import {releaseBuildIdentity} from '../scripts/release-build-identity.mjs';
 import {auditFrozenUnitArtifact} from '../tools/release-unit-candidate.mjs';
 
@@ -64,6 +64,31 @@ async function candidate({withBrowser=false}={}){
 
 test('complete local admission binds actual reusable artifacts but cannot confer publication authority',async()=>{
  const f=await candidate();try{const r=await f.run();assert.equal(r.status,'passed',JSON.stringify(r.failures));assert.equal(r.units.length,2);assert.ok(r.units.every(x=>x.reused));assert.equal(r.verificationOnly,true);assert.equal(r.privateAuthorityRequired,true);assert.equal(r.publicationApproved,false);assert.equal(r.publicReleaseVerified,false);}finally{f.cleanup();}
+});
+
+test('provider combination rejects incomplete local evidence before requests and binds independently retained unit sources',async()=>{
+ const f=await candidate({withBrowser:true});let calls=0,captured;
+ try{
+  const readAuthority=async input=>{calls++;captured=input;return{engine:'cloud-private-runtime-readback',status:'passed',providerReadsOnly:true,subjectId:input.subjectId,evidence:{subjectId:input.subjectId,descriptor:input.expected,runtimeEvidenceStatus:'passed',requiredJobs:2,passedJobs:2,jobs:[{key:'synthetic-http',status:'passed'},{key:'synthetic-browser',status:'passed'}]}};};
+  const run=()=>auditReleaseCandidateWithPrivateAuthority(f.manifest,{root:f.root,now:f.now,token:'synthetic-memory-token',readAuthority});
+  assert.ok((await run()).failures.includes('private_subject_required'));assert.equal(calls,0);
+  f.manifest.privateSubjectId='a'.repeat(64);
+  const result=await run();assert.equal(result.status,'passed',JSON.stringify(result.failures));assert.equal(result.privateRuntimeVerified,true);assert.equal(result.verificationOnly,true);assert.equal(result.publicationApproved,false);assert.equal(result.publicReleaseVerified,false);
+  assert.equal(captured.expected.controllerSource,f.base);assert.equal(captured.expected.browserSource,f.base);assert.equal(captured.expected.applicationSource,f.base);assert.equal(captured.expected.candidateSource,f.source);
+  assert.equal(captured.expected.artifactSetSha256,result.artifactSetSha256);assert.equal(captured.expected.environmentSetSha256,result.environmentSetSha256);assert.equal(captured.unitArtifacts.length,2);
+  const invalid=f.json(f.manifest.evidencePaths[0]);invalid.status='failed';f.write(f.manifest.evidencePaths[0],invalid);
+  assert.equal((await run()).status,'blocked');assert.equal(calls,1);
+ }finally{f.cleanup();}
+});
+
+test('private reader failure or changed returned candidate context cannot replace local evidence with a release approval',async()=>{
+ const f=await candidate({withBrowser:true});try{
+  f.manifest.privateSubjectId='a'.repeat(64);
+  const failed=await auditReleaseCandidateWithPrivateAuthority(f.manifest,{root:f.root,now:f.now,readAuthority:async()=>{throw Error('authority_runtime_generation_mismatch');}});
+  assert.equal(failed.status,'blocked');assert.ok(failed.failures.includes('authority_runtime_generation_mismatch'));assert.equal(failed.publicationApproved,false);
+  const wrong=await auditReleaseCandidateWithPrivateAuthority(f.manifest,{root:f.root,now:f.now,readAuthority:async input=>({engine:'cloud-private-runtime-readback',status:'passed',providerReadsOnly:true,subjectId:input.subjectId,evidence:{subjectId:input.subjectId,descriptor:{...input.expected,environmentSetSha256:'f'.repeat(64)},runtimeEvidenceStatus:'passed',requiredJobs:1,passedJobs:1,jobs:[{key:'synthetic-only',status:'passed'}]}})});
+  assert.equal(wrong.status,'blocked');assert.ok(wrong.failures.includes('private_runtime_evidence_not_verified'));
+ }finally{f.cleanup();}
 });
 test('source-only verification changes still require their actual local tests and cannot claim a public change',async()=>{
  const f=fixture({configure({graph,write}){

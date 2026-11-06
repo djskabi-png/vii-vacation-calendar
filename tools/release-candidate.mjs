@@ -7,6 +7,7 @@ import { auditUnitCandidate, auditFrozenUnitArtifact } from './release-unit-cand
 import { buildImpact } from '../scripts/release-impact-graph.mjs';
 import { releaseBuildIdentity } from '../scripts/release-build-identity.mjs';
 import { validateReleaseCandidate } from '../scripts/release-candidate-manifest.mjs';
+import { readPrivateReleaseAuthority } from './release-private-authority.mjs';
 
 const GRAPH = 'project_knowledge/release_controls/vii-release-impact-graph.json';
 const POLICY = 'project_knowledge/release_controls/vii-release-acceptance-policy.json';
@@ -155,10 +156,33 @@ export async function auditReleaseCandidate(manifest, { root = process.cwd(), no
   return { verificationScope: manifest?.stage === 'published' ? 'unit-aware-post-publication-evidence-admission' : 'unit-aware-pre-publication-evidence-admission', status: passed ? 'passed' : 'blocked', source, tree, artifactSetSha256, environmentSetSha256, units: artifacts, failures, verificationOnly: true, privateAuthorityRequired: true, publicationApproved: false, publicReleaseVerified: false };
 }
 
+/** Combine local evidence admission with an actual authenticated provider read.
+ * The durable suite is one requirement, not blanket provenance for local tests,
+ * integration evidence or independent review. Publication remains separate. */
+export async function auditReleaseCandidateWithPrivateAuthority(manifest, { root = process.cwd(), now, token, readAuthority = readPrivateReleaseAuthority } = {}) {
+  const local = await auditReleaseCandidate(manifest, { root, now: now ?? Date.now() });
+  const blocked = reason => ({ ...local, status:'blocked', privateRuntimeVerified:false, publicationApproved:false, publicReleaseVerified:false, failures:[...(local.failures??[]),reason] });
+  if(local.status!=='passed') return {...local,privateRuntimeVerified:false};
+  if(!DIGEST.test(manifest.privateSubjectId??'')) return blocked('private_subject_required');
+  const required=['managed-site','quality-controller','quality-browser'];
+  if(required.some(unit=>!local.units?.some(proof=>proof.unit===unit))) return blocked('private_runtime_artifact_coverage_missing');
+  const sourceOf=unit=>local.units.find(proof=>proof.unit===unit).artifactSource;
+  const expected={candidateSource:local.source,candidateTree:local.tree,applicationSource:sourceOf('managed-site'),controllerSource:sourceOf('quality-controller'),browserSource:sourceOf('quality-browser'),buildId:manifest.candidate.buildIdentity,artifactSetSha256:local.artifactSetSha256,environmentSetSha256:local.environmentSetSha256};
+  try {
+    const unitArtifacts=[...manifest.unitArtifacts,...(manifest.retainedArtifacts??[])].filter(entry=>['quality-controller','quality-browser'].includes(entry.unit)).map(entry=>({...entry,source:sourceOf(entry.unit)}));
+    const remote=await readAuthority({subjectId:manifest.privateSubjectId,expected,unitArtifacts,token,root,...(now===undefined?{}:{clock:()=>now})});
+    const evidence=remote.evidence,keys=Object.keys(expected);
+    if(remote.status!=='passed'||remote.engine!=='cloud-private-runtime-readback'||remote.providerReadsOnly!==true||remote.subjectId!==manifest.privateSubjectId||evidence?.subjectId!==manifest.privateSubjectId||evidence.runtimeEvidenceStatus!=='passed'||keys.some(key=>evidence.descriptor?.[key]!==expected[key])||!Number.isSafeInteger(evidence.requiredJobs)||evidence.requiredJobs<1||evidence.passedJobs!==evidence.requiredJobs||evidence.jobs?.length!==evidence.requiredJobs||new Set(evidence.jobs.map(job=>job.key)).size!==evidence.requiredJobs||evidence.jobs.some(job=>job.status!=='passed')) return blocked('private_runtime_evidence_not_verified');
+    return {...local,privateRuntimeVerified:true,privateAuthorityRequired:false,privateRuntimeEvidence:remote,verificationOnly:true,publicationApproved:false,publicReleaseVerified:false};
+  } catch(error) { return blocked(error instanceof Error&&/^(?:authority_|release_)[a-z0-9_]+$/.test(error.message)?error.message:'private_authority_read_unavailable'); }
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   let result;
-  try { result = await auditReleaseCandidate(JSON.parse(readFileSync(resolve(process.argv[2]), 'utf8').replace(/^\uFEFF/, ''))); }
+  let token=process.env.VII_QUALITY_READ_AUTH;delete process.env.VII_QUALITY_READ_AUTH;
+  try { const manifest=JSON.parse(readFileSync(resolve(process.argv[2]), 'utf8').replace(/^\uFEFF/, ''));result = process.argv[3]==='--private' ? await auditReleaseCandidateWithPrivateAuthority(manifest,{token}) : await auditReleaseCandidate(manifest); }
   catch { result = { status: 'blocked', publicationApproved: false, publicReleaseVerified: false, failures: ['manifest_unavailable_or_invalid'] }; }
+  finally { token=undefined; }
   console.log(JSON.stringify(result, null, 2));
   if (result.status !== 'passed') process.exitCode = 1;
 }

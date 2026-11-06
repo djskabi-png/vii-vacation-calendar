@@ -41,10 +41,11 @@ export function ensureQualityJobSchema(db: D1Database) {
 }
 
 type Row = Omit<QualityJob, "checks" | "expectedCheckIds" | "receipts"> & { checksJson: string; receiptsJson: string };
-const select = `SELECT run_id AS runId,actor,idempotency_key AS idempotencyKey,payload_hash AS payloadHash,
+export const qualityJobSelectSql = `SELECT run_id AS runId,actor,idempotency_key AS idempotencyKey,payload_hash AS payloadHash,
   source_version AS sourceVersion,definition_version AS definitionVersion,checks_json AS checksJson,
   receipts_json AS receiptsJson,next_index AS nextIndex,active_index AS activeIndex,status,
   lease_token AS leaseToken,lease_until AS leaseUntil,cancel_requested_at AS cancelRequestedAt,reason,created_at AS createdAt,updated_at AS updatedAt FROM quality_jobs`;
+const select = qualityJobSelectSql;
 function decode(row: Row | null): QualityJob | null {
   if (!row) return null;
   const { checksJson, receiptsJson, ...rest } = row;
@@ -80,8 +81,8 @@ export async function readQualityJob(db: D1Database, runId: string) {
   return decode(await db.prepare(`${select} WHERE run_id=?`).bind(runId).first<Row>());
 }
 
-export async function readQualityJobByIntent(db:D1Database,actor:string,idempotencyKey:string) {
-  await ensureQualityJobSchema(db);
+export async function readQualityJobByIntent(db:D1Database,actor:string,idempotencyKey:string, options: { initializeSchema?: boolean } = {}) {
+  if (options.initializeSchema !== false) await ensureQualityJobSchema(db);
   return decode(await db.prepare(`${select} WHERE actor=? AND idempotency_key=?`).bind(actor,idempotencyKey).first<Row>());
 }
 

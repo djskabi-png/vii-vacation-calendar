@@ -361,6 +361,7 @@
         "tests/release-unit-inputs.test.mjs",
         "tests/release-unit-candidate.test.mjs",
         "tests/release-candidate-v2.test.mjs",
+        "tests/release-private-authority.test.mjs",
         "tests/worker-release-package.test.mjs"
       ]
     },

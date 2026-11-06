@@ -74,10 +74,10 @@ async function schema(db: D1Database) {
     ]);
   });
 }
-async function load(env: ReleaseSubjectEnvironment, subjectId: unknown, now: number) {
+async function load(env: ReleaseSubjectEnvironment, subjectId: unknown, now: number, initializeSchema = true) {
   ready(env);
   if (typeof subjectId !== 'string' || !DIGEST.test(subjectId)) throw Error('release_context_mismatch');
-  await schema(env.QUALITY_DB);
+  if (initializeSchema) await schema(env.QUALITY_DB);
   const row = await env.QUALITY_DB.prepare('SELECT subject_id AS subjectId,descriptor_json AS descriptorJson,registered_at AS registeredAt,registered_by AS registeredBy FROM quality_release_subjects WHERE subject_id=?').bind(subjectId).first<Subject>();
   if (!row) throw Error('release_subject_not_registered');
   const context = await validateContext(env, JSON.parse(row.descriptorJson), now);
@@ -153,11 +153,11 @@ async function validJob(job: QualityJob, definition: Definition, registeredAt: s
 
 /** Read only original durable jobs. No receipt-import or caller-result path.
  * Runtime suite success is deliberately not complete release approval. */
-export async function readReleaseSubjectEvidence(env: ReleaseSubjectEnvironment, subjectId: unknown, now = Date.now()) {
-  const subject = await load(env, subjectId, now), definitions = await releaseRuntimeDefinitions(env);
+export async function readReleaseSubjectEvidence(env: ReleaseSubjectEnvironment, subjectId: unknown, now = Date.now(), options: { initializeSchema?: boolean } = {}) {
+  const subject = await load(env, subjectId, now, options.initializeSchema !== false), definitions = await releaseRuntimeDefinitions(env);
   const jobs: { key: string; runId: string | null; status: string }[] = [];
   for (const definition of definitions) {
-    const job = await readQualityJobByIntent(env.QUALITY_DB, releaseActor(subject.subjectId), await intent(subject.subjectId, definition.key));
+    const job = await readQualityJobByIntent(env.QUALITY_DB, releaseActor(subject.subjectId), await intent(subject.subjectId, definition.key), options);
     let status = !job ? 'missing' : job.status === 'completed'
       ? await validJob(job, definition, subject.registeredAt, now) ? 'passed' : 'invalid'
       : ['queued','running'].includes(job.status) ? 'pending' : 'blocked';
