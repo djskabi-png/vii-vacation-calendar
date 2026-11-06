@@ -30,6 +30,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
   const verifiedCoordinates = verifiedSpaMapLocation(site);
   const coordinates = verifiedCoordinates || spaAreaCoordinates[site.city];
   const approvedCopy = spaViiCopyOrNull(site.id);
+  const factualFeatures = Array.isArray(site.features) ? site.features.filter((value): value is string => typeof value === "string" && value.trim().length > 0) : [];
   return {
     id: `spa-${site.id}`,
     world: "spa",
@@ -38,8 +39,8 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     area: spaPlusArea(site.city),
     description: site.shortDescription || approvedCopy?.cardSummary || `${site.title}, מתחם ספא ב${site.city || "ישראל"}.`,
     filterText: approvedCopy?.filterText || [site.title, site.city, ...site.packages.map((pack) => pack.title)].filter(Boolean).join(" "),
-    features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
-    searchTerms: [...site.packages.map((pack) => pack.title), ...spaSourceServiceTerms(site)],
+    features: [...new Set([...audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`), ...factualFeatures])],
+    searchTerms: [...site.packages.map((pack) => pack.title), ...factualFeatures, ...spaSourceServiceTerms(site)],
     image: site.image || undefined,
     images: [...new Set([
       site.image,

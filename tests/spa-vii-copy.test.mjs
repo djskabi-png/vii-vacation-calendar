@@ -11,6 +11,8 @@ import { GET } from "../app/api/spa/description/route.ts";
 import { spaLandings, spaSourceServiceTerms, spaItemMatches } from "../app/data/spa-landings.ts";
 import { spaEditorialSummary } from "../app/data/spa-editorial.ts";
 import { spaViiCopyOrNull } from "../app/data/spa-vii-copy.ts";
+import { spaPlacesFromSites } from "../app/lib/spa-discovery-card.ts";
+import { spaSearchStateFromValues, spaItemMatchesSearch } from "../app/data/spa-search-landings.ts";
 
 test("all 159 active Spa sources are pinned, individually rewritten and fact-mapped", async () => {
   assert.equal(copies.length, 159);
@@ -77,6 +79,16 @@ test("official SpaPlus facility evidence survives editorial projection for the t
     if (id === 6) assert.ok(!projected.features.includes("ג'קוזי פרטי"));
     if (id === 385) assert.ok(!projected.features.includes("בריכה חיצונית"));
   }
+});
+
+test("verified facility facts reach the real Spa search pipeline without package inclusion claims", async () => {
+  const projected = await Promise.all([6, 385].map(async (id) => projectSpaViiSite(catalog.sites.find((site) => site.id === id))));
+  const cards = spaPlacesFromSites(projected);
+  const pool = spaSearchStateFromValues("תל אביב", undefined, ["pool"]);
+  assert.equal(cards.filter((card) => spaItemMatchesSearch(card, pool)).length, 2);
+  assert.ok(!cards.find((card) => card.id === "spa-385")?.searchTerms?.includes("החבילה כוללת כניסה לבריכה"));
+  const outdoor = spaSearchStateFromValues("תל אביב", undefined, ["pool"]);
+  assert.ok(spaItemMatchesSearch(cards.find((card) => card.id === "spa-6"), outdoor));
 });
 
 test("already-projected runtime Spa entries remain renderable after package updates", async () => {
