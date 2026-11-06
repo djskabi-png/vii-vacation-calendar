@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-11-06T20:15:14.813205+00:00",
+  "scope": "Exact supplier bytes for confirmed missing R2 objects. R2 remains primary. No external fetch at request time.",
+  "files": [
+    {
+      "filename": "216878a794a3e18.JPG",
+      "sourceUrl": "https://www.vii.co.il/gallery/216878a794a3e18.JPG",
+      "path": "/media-recovery/216878a794a3e18.JPG",
+      "sha256": "24956ac61db5b89647e2e7d04533d418b3a8356ef2c757e8aa21c290af3de255",
+      "bytes": 188716,
+      "contentType": "image/jpeg",
+      "width": 1027,
+      "height": 685,
+      "supplierId": 2188
+    },
+    {
+      "filename": "446878a794d749f.JPG",
+      "sourceUrl": "https://www.vii.co.il/gallery/446878a794d749f.JPG",
+      "path": "/media-recovery/446878a794d749f.JPG",
+      "sha256": "6e7a656ce790832929c343c2c796c4a1187e69fdf6474054e1d62bd9e268a5ad",
+      "bytes": 163685,
+      "contentType": "image/jpeg",
+      "width": 1027,
+      "height": 685,
+      "supplierId": 2188
+    }
+  ]
+}

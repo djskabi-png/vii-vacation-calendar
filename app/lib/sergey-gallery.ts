@@ -30,14 +30,9 @@ function comparableTitle(value: unknown): string {
   return typeof value === "string" ? value.trim().replace(/\s+/g, " ").replace(/^סוויטת(?=\s)/, "סוויטה") : "";
 }
 
-// Provider gallery titles are not a stable foreign key. Some generations
-// call a unit "יחידות עם ג'קוזי" while the matching gallery is titled
-// "יחידות אירוח עם ג'קוזי". Allow only a conservative distinctive-token
-// match after exact roomID and exact-title matching have failed. Generic
-// words alone must never assign a shared gallery to a unit.
-const genericUnitTitleTokens = new Set(["יחידה", "יחידות", "אירוח", "סוויטה", "סוויטות", "צימר", "צימרים"]);
-function distinctiveTitleTokens(value: string) {
-  return [...new Set(value.replace(/[,'’׳"״]/g, "").split(/\s+/).filter((token) => token.length > 2 && !genericUnitTitleTokens.has(token)))];
+// One verified provider wording alias, not a fuzzy amenity/title match.
+function unitTitleAlias(value: string) {
+  return value.replace(/^יחידות אירוח עם ג['’׳]?קוזי$/, "יחידות עם ג'קוזי").replace(/^יחידות עם ג['’׳]?קוזי$/, "יחידות עם ג'קוזי");
 }
 
 export function sergeyPlaceImages(galleries: unknown): string[] {
@@ -54,15 +49,12 @@ export function sergeyRoomImages(room: Record<string, unknown>, siteGalleries: u
   if (idMatches.length) return images(idMatches);
   const title = comparableTitle(room.roomName);
   if (!title) return [];
-  const exact = galleries.filter((gallery) => comparableTitle(gallery.title) === title);
+  // An explicit foreign room ID always outranks a title coincidence.
+  const unassigned = galleries.filter(gallery => !Number(gallery.roomID));
+  const exact = unassigned.filter((gallery) => comparableTitle(gallery.title) === title);
   if (exact.length) return images(exact);
-  const roomTokens = distinctiveTitleTokens(title);
-  if (!roomTokens.length) return [];
-  const semantic = galleries.filter((gallery) => {
-    const galleryTokens = new Set(distinctiveTitleTokens(comparableTitle(gallery.title)));
-    return roomTokens.every((token) => galleryTokens.has(token));
-  });
-  return images(semantic);
+  const aliased = unassigned.filter((gallery) => unitTitleAlias(comparableTitle(gallery.title)) === unitTitleAlias(title));
+  return aliased.length === 1 ? images(aliased) : [];
 }
 
 export function sergeyRoomFeatureGroups(room: Record<string, unknown>) {

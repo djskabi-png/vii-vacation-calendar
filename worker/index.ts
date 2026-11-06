@@ -203,7 +203,7 @@ const worker = {
     // public photo fast path. Streaming R2 bytes does not need the app router.
     if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/api/vii/media/")) {
       const { servePublicGalleryMedia } = await import("./public-gallery-media.ts");
-      return servePublicGalleryMedia(request, env.UPLOADS);
+      return servePublicGalleryMedia(request, env.UPLOADS, env.ASSETS);
     }
 
     const cachePolicy = await publicCachePolicy(request, url, publicCacheBuild);

@@ -33,24 +33,30 @@ function responseHeaders(contentType: string, source: "stored" | "migrated", eta
   };
 }
 
+async function recovery(request: Request, filename: string) {
+  const { env } = await import("cloudflare:workers");
+  const { recoverVerifiedGalleryMedia } = await import("../../../../lib/verified-media-recovery.ts");
+  return recoverVerifiedGalleryMedia(request, filename, (env as unknown as { ASSETS?: { fetch(request: Request): Promise<Response> } }).ASSETS);
+}
+
 async function storedObject(filename: string) {
   const bucket = await legacyGalleryBucket();
   return { bucket, object: await bucket.get(`${prefix}${filename}`) };
 }
 
-export async function HEAD(_request: Request, context: { params: Promise<{ filename: string }> }) {
+export async function HEAD(request: Request, context: { params: Promise<{ filename: string }> }) {
   const { filename } = await context.params;
   if (!validFilename(filename)) return new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
   try {
     const { object } = await storedObject(filename);
-    if (!object) return new Response(null, { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "missing" } });
+    if (!object) return await recovery(request, filename) || new Response(null, { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "missing" } });
     return new Response(null, { status: 200, headers: responseHeaders(object.httpMetadata?.contentType || "application/octet-stream", "stored", object.httpEtag) });
   } catch {
     return new Response(null, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }
 
-export async function GET(_request: Request, context: { params: Promise<{ filename: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ filename: string }> }) {
   const { filename } = await context.params;
   if (!validFilename(filename)) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   try {
@@ -58,6 +64,8 @@ export async function GET(_request: Request, context: { params: Promise<{ filena
     if (object) {
       return new Response(object.body as ReadableStream, { headers: responseHeaders(object.httpMetadata?.contentType || "application/octet-stream", "stored", object.httpEtag) });
     }
+    const recovered = await recovery(request, filename);
+    if (recovered) return recovered;
     if (!ALLOW_LEGACY_ORIGIN_FETCH) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "missing" } });
     const sourceUrl = `https://www.vii.co.il/gallery/${encodeURIComponent(filename)}`;
     const upstream = await fetch(sourceUrl, { headers: { Accept: "image/avif,image/webp,image/*" }, cache: "no-store", signal: AbortSignal.timeout(20_000) });
