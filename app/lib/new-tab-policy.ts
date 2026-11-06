@@ -1,4 +1,5 @@
 const businessDepthRoutes = [
+  /^\/business(?:\/|$)/,
   /^\/events\/place(?:\/|$)/,
   /^\/discover\/place(?:\/|$)/,
   /^\/guides\/[^/]+(?:\/|$)/,
@@ -6,6 +7,6 @@ const businessDepthRoutes = [
 ];
 
 export function isBusinessDepthRoute(pathname: string) {
-  const path = pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+  const path = pathname.split(/[?#]/, 1)[0].replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
   return businessDepthRoutes.some(pattern => pattern.test(path));
 }

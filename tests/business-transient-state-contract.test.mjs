@@ -25,10 +25,11 @@ test("supplier quote output is keyed to the complete current stay", () => {
   assert.match(bookingHub, /const rawNightlyPrice = displayedAvailability\?\.nightlyPrice/);
 });
 
-test("vacation place navigation stays in the app and has a stable loading surface", () => {
-  assert.doesNotMatch(newTabPolicy, /\^\\\/business/);
-  assert.match(newTabNavigation, /normalizeCurrentTabBusinessLink/);
-  assert.match(newTabNavigation, /removeAttribute\("target"\)/);
+test("vacation detail links retain the requested new-tab policy and a stable loading surface", () => {
+  assert.match(newTabPolicy, /business/);
+  assert.match(newTabNavigation, /normalizeBusinessDetailLink/);
+  assert.doesNotMatch(newTabNavigation, /removeAttribute\("target"\)/);
+  assert.match(newTabNavigation, /anchor.target = "_blank"/);
   assert.match(newTabNavigation, /attributeFilter: \["target", "rel"\]/);
   assert.match(loading, /global-route-loading/);
   assert.match(css, /\.global-route-loading \{[^}]*min-height: 100dvh;[^}]*background: #f7fbfb;/);

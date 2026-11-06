@@ -16,20 +16,22 @@ function shouldOpenInNewTab(anchor: HTMLAnchorElement) {
   return isBusinessDepthRoute(url.pathname);
 }
 
-function normalizeCurrentTabBusinessLink(anchor: HTMLAnchorElement) {
+function normalizeBusinessDetailLink(anchor: HTMLAnchorElement) {
   const rawHref = anchor.getAttribute("href") || "";
   if (!rawHref || rawHref.startsWith("#")) return false;
   const url = new URL(anchor.href, window.location.href);
   const path = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
   if (url.origin !== window.location.origin || !/^\/business(?:\/|$)/.test(path)) return false;
-  anchor.removeAttribute("target");
-  if (anchor.getAttribute("rel") === "noopener noreferrer") anchor.removeAttribute("rel");
+  if (anchor.hasAttribute("download")) return false;
+  if (anchor.target !== "_blank") anchor.target = "_blank";
+  const rel = [...new Set([...(anchor.getAttribute("rel") || "").split(/\s+/).filter(Boolean), "noopener", "noreferrer"])].join(" ");
+  if (anchor.rel !== rel) anchor.rel = rel;
   return true;
 }
 
 function applyNewTabPolicy(root: ParentNode) {
   root.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((anchor) => {
-    if (normalizeCurrentTabBusinessLink(anchor)) return;
+    if (normalizeBusinessDetailLink(anchor)) return;
     if (!shouldOpenInNewTab(anchor)) return;
     anchor.target = "_blank";
     anchor.rel = "noopener noreferrer";
@@ -45,12 +47,12 @@ export function NewTabNavigation() {
       observer = new MutationObserver((records) => {
         records.forEach((record) => {
           if (record.type === "attributes" && record.target instanceof HTMLAnchorElement) {
-            normalizeCurrentTabBusinessLink(record.target);
+            normalizeBusinessDetailLink(record.target);
             return;
           }
           record.addedNodes.forEach((node) => {
             if (!(node instanceof Element)) return;
-            if (node.matches("a[href]") && normalizeCurrentTabBusinessLink(node as HTMLAnchorElement)) return;
+            if (node.matches("a[href]") && normalizeBusinessDetailLink(node as HTMLAnchorElement)) return;
             if (node.matches("a[href]") && shouldOpenInNewTab(node as HTMLAnchorElement)) {
               const anchor = node as HTMLAnchorElement;
               anchor.target = "_blank";

@@ -36,6 +36,7 @@ import { isWholeCountrySelection, matchesSearchLocation } from "../data/search-t
 import { cleanVacationPath, vacationRegionByLabel, vacationBreadcrumbTrail } from "../data/vacation-landings";
 import { VacationGeographyNav } from "../components/vacation-geography-nav";
 import { currencyLabelParts } from "../lib/currency-label";
+import { managedSearchParams } from "../lib/managed-search-params.ts";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
@@ -381,21 +382,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
-  const onlineOnly = searchParams.get("online") === "1";
+  const initialParams = useMemo(() => managedSearchParams(searchQuery, landing?.initialFilters), [searchQuery, landing?.initialFilters]);
+  const onlineOnly = initialParams.get("online") === "1";
   const [openDatesRequest, setOpenDatesRequest] = useState(0);
   const [openLocationRequest, setOpenLocationRequest] = useState(0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
   const documentSeed = useDocumentSeed();
   const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
-  const initialParams = useMemo(() => {
-    const params = new URLSearchParams(searchQuery);
-    if (landing?.initialFilters) for (const [key, value] of Object.entries(landing.initialFilters)) {
-      if (value === false || value === undefined || value === null) continue;
-      params.set(key, value === true ? "1" : String(value));
-    }
-    return params;
-  }, [searchQuery, landing?.initialFilters]);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
   const initialArea = initialParams.get("location");
   const [sort, setSort] = useState(vacationSortOptions.some((option) => option.value === initialParams.get("sort")) ? initialParams.get("sort")! : "recommended");
@@ -404,7 +398,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [filterSection, setFilterSection] = useState<"types" | "more">(supplierTypeFilterAvailable ? "types" : "more");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("vacation");
-  const [area, setArea] = useState(initialArea && !isWholeCountrySelection(initialArea) ? initialArea : landing?.area || "הכל");
+  const [area, setArea] = useState(initialArea && !isWholeCountrySelection(initialArea) ? initialArea : landing?.area && !isWholeCountrySelection(landing.area) ? landing.area : "הכל");
   const [selectedTypes, setSelectedTypes] = useState<string[]>(landingType ? [landingType] : []);
   const [guests, setGuests] = useState(Number.isFinite(initialGuestCount) ? Math.max(1, initialGuestCount) : 2);
   const [bedrooms, setBedrooms] = useState(Math.max(0, Number(initialParams.get("bedrooms")) || 0));
@@ -412,7 +406,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [maxPrice, setMaxPrice] = useState(VACATION_PRICE_MAX);
   const [pool, setPool] = useState(initialParams.get("pool") === "1");
   const [spa, setSpa] = useState(initialParams.get("spa") === "1");
-  const [whole, setWhole] = useState(false);
+  const [whole, setWhole] = useState(initialParams.get("whole") === "1");
   const [accessibleOnly, setAccessibleOnly] = useState(vacationFeatureSelection(initialParams).accessibleOnly);
   const [selectedExtras, setSelectedExtras] = useState<string[]>(vacationFeatureSelection(initialParams).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
   const [draftFilters, setDraftFilters] = useState<VacationFilterState | null>(null);
@@ -437,7 +431,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
   useEffect(() => {
-    if (!landing || selectedStay || flexibleSearch) return;
+    if (!landing || landing.initialFilters || selectedStay || flexibleSearch) return;
     const canonical = buildVacationSearchUrl(searchQuery, {}, landingType ? [landingType] : selectedTypes, landing.area || area);
     const current = searchQuery ? `${pathname}?${searchQuery}` : pathname;
     if (canonical !== current && canonical.startsWith("/search/vacations/")) router.replace(localizedPath(canonical, language), { scroll: false });
@@ -453,7 +447,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
-    const nextUrl = buildVacationSearchUrl(window.location.search, updates, nextTypes, nextArea);
+    const nextUrl = buildVacationSearchUrl(initialParams.toString(), updates, nextTypes, nextArea);
     router.push(localizedPath(nextUrl, language), { scroll: false });
   }
 
@@ -583,7 +577,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(searchQuery);
+      const params = managedSearchParams(searchQuery, landing?.initialFilters);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || (Number(params.get("adults") || 2) + Number(params.get("children") || 0)));
       const requestedBedrooms = Math.max(0, Math.min(10, Number(params.get("bedrooms")) || 0));
@@ -607,7 +601,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         return;
       }
       if (requestedArea && !isWholeCountrySelection(requestedArea)) setArea(requestedArea);
-      else if (landing?.area) setArea(landing.area);
+      else if (landing?.area && !isWholeCountrySelection(landing.area)) setArea(landing.area);
       else setArea("הכל");
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
       setBedrooms(requestedBedrooms);
@@ -617,8 +611,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       else if (landingType) setSelectedTypes([landingType]);
       else setSelectedTypes([]);
       setPool(params.get("pool") === "1");
+      setWhole(params.get("whole") === "1");
       setSpa(params.get("spa") === "1");
-      setWhole(false);
       setAccessibleOnly(vacationFeatureSelection(params).accessibleOnly);
       setSelectedExtras(vacationFeatureSelection(params).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
       setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
