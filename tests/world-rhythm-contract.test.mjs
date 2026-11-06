@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 
 test("world landing intros share one compact vertical rhythm", async () => {
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   const events = await readFile(new URL("app/events/page.tsx", root), "utf8");
   const worldLanding = await readFile(new URL("app/components/world-landing.tsx", root), "utf8");
   assert.match(events, /className="events-page"/);
@@ -20,7 +21,7 @@ test("world landing intros share one compact vertical rhythm", async () => {
 });
 
 test("world landing spacing stays equal on mobile", async () => {
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.events-hero \{ padding: 10px 0 45px/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.world-page > \.section,\s*\.events-page > \.section \{ padding-block: 48px/);
 });

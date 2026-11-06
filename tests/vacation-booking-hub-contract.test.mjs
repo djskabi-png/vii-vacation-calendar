@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -49,7 +50,7 @@ test("multi-unit pricing is accepted only from the verified availability resolve
 
 test("the booking entry opens one calm responsive dialog with a reachable primary action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(hub, /aria-haspopup="dialog"/);
   assert.match(hub, /role="dialog" aria-modal="true"/);
   assert.match(hub, /document\.body\.style\.overflow = "hidden"/);
@@ -65,7 +66,7 @@ test("the booking entry opens one calm responsive dialog with a reachable primar
 test("changing the guest count keeps the mobile booking sheet stable while live availability refreshes", async () => {
   const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(page, /availabilityStatus=\{supplierSiteID \? supplierQuote\.status : vacationAvailabilityMode === "live" \? liveLegacyAvailability\.status : vacationAvailabilityMode === "demo" \? "ready" : "idle"\}/);
   assert.match(hub, /aria-busy=\{availabilityLoading\}/);
   assert.match(hub, /availabilityLoading \? <div className="vacation-booking-dialog__status vacation-booking-dialog__status--loading"/);
@@ -89,7 +90,7 @@ test("the availability launcher opens date selection directly when no dates exis
 test("telephone-only properties replace date selection with direct call and WhatsApp actions", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(hub, /title: "הזמינות במקום נבדקת ישירות מול הצוות"/);
   assert.match(hub, /if \(availabilityMode === "inquiry"\) return <section[\s\S]*vacation-booking-hub--inquiry-only/);
   assert.match(hub, /vacation-booking-hub__inquiry-actions[\s\S]*DirectPhoneLink[\s\S]*WhatsAppLeadButton/);

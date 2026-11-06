@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -9,7 +10,7 @@ test("hourly uses one filter system with state-driven headings", async () => {
     readFile(new URL("app/components/world-landing.tsx", root), "utf8"),
     readFile(new URL("app/components/hourly-results.tsx", root), "utf8"),
     readFile(new URL("app/components/semantic-world-heading.tsx", root), "utf8"),
-    readFile(new URL("app/globals.css", root), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(landing, /world !== "spa" && world !== "hourly" && <WorldQuickSearches/);

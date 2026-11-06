@@ -95,8 +95,11 @@ test("admin and public search are wired to the managed geography source", async 
     readFile(new URL("../app/components/use-managed-geography.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/geography/page.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(nav, /\/admin\/geography/);
-  assert.match(command, /ערים ואזורים/);
+  const navigationRegistry=await readFile(new URL("../app/admin/admin-navigation.ts", import.meta.url), "utf8");
+  assert.match(nav, /adminNavigationGroups as groups/);
+  assert.match(command, /adminCommands as commands/);
+  assert.match(navigationRegistry, /\/admin\/geography/);
+  assert.match(navigationRegistry, /ערים ואזורים/);
   assert.match(box, /useManagedGeography/);
   assert.match(hook, /fetch\("\/api\/vii\/geography"/);
   assert.match(page, /רענון מה־API/);

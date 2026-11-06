@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -20,7 +21,7 @@ test("vacation search preserves every legacy accommodation type", async () => {
 });
 
 test("vacation accommodation controls keep visible focus and responsive layout", async () => {
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(css, /\.vacation-filter-sections button:focus-visible/);
   assert.match(css, /\.vacation-type-options[^}]*grid-template-columns:\s*repeat\(2/);
 });
@@ -61,7 +62,7 @@ test("mobile vacation filters use a draft and apply contract", async () => {
 
 test("mobile vacation filter actions stay fixed across both filter sections", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   const mobileCss = await readFile(new URL("app/mobile-stability.css", root), "utf8");
   assert.match(source, /className="filter-panel__scroll"/);
   assert.match(source, /className="filter-panel__actions"/);
@@ -94,7 +95,7 @@ test("regional vacation pages never serialize the all-types default as an active
 
 test("additional vacation filters replace duplicated search fields with a real price range", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
-  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.doesNotMatch(source, /label="אזור" value=\{shownFilters\.area\}/);
   assert.doesNotMatch(source, /<legend>כמות אורחים מינימלית<\/legend>/);
   assert.match(source, /<legend>מחיר ללילה<\/legend>/);

@@ -89,3 +89,25 @@ Still required: a clean frozen integrated source, complete affected-family suite
 and build, compiled browser recheck, independent release verification, migration
 and restore rehearsal, private Worker deployment/readback, browser engine
 execution, production p95 evidence, and the other unfinished approved chapters.
+
+### First integrated frozen run
+
+Frozen source `4b21f6e9ddd191d53f7aad98d40a88f28ecca8ed` passed TypeScript,
+17 controller tests, 15 browser-engine tests, both private Worker dry-run
+packages, and the managed build (29.99 seconds). Source integrity passed with a
+clean tree. The full suite finished in 59.58 seconds: 2,363 tests, 2,350 passed,
+12 failed, one existing skip. All twelve failures were source-contract readers
+still looking in moved files, including four URL-root CSS readers missed by the
+initial helper conversion and two raw-slot assertions incorrectly converted to
+effective-CSS reads. Navigation checks still expected route strings in each UI
+consumer instead of the new shared registry. Their original assertions were
+retained against the appropriate composed CSS/raw source/registry. All 36 tests
+in those affected files passed afterward. The original full run remains failed;
+a new frozen complete run is required. No public deployment followed that run.
+
+Independent review found two activation blockers in the monitoring scheduler:
+unknown admission needs a visible operator reconciliation path, and failure of
+one admission must not abort unrelated due checks. These do not authorize
+activation; the new private services remain configured off. Review permitted
+only considering inactive private deployment after runtime/schema/queue smoke
+verification, not public Edge/Site activation or whole-project completion.

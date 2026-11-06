@@ -30,7 +30,8 @@ test("world launch control has one persisted source and is wired across public c
   assert.match(switcher, /headerWorldOptions\(language\)\.filter/);
   assert.match(switcher, /primaryWorlds\.filter\(enabled\)/);
   assert.match(footer, /filter\(\(item\) => enabled/);
-  assert.match(nav, /\/admin\/worlds/);
+  assert.match(nav, /adminNavigationGroups as groups/);
+  assert.match(await read("app/admin/admin-navigation.ts"), /\/admin\/worlds/);
   assert.match(policy, /id: "worlds"/);
   assert.match(state, /"gift-card"/);
   assert.match(state, /path\.startsWith\("\/gift-card"\)/);
