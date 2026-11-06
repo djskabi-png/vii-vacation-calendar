@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sha256": "3688b48d1652a06b23941863f4a650b23dde72f79be1e138e8c212c395e33bbd",
+  "sha256": "e25033ae64aa14bcd4eb81cc642efbbe30b4908d4c13d75a5680979402e40334",
   "files": [
     "services/vii-quality-browser/build-definition.mjs",
     "services/vii-quality-browser/src/engine.ts",
@@ -16,6 +16,8 @@
     "app/api/vii/live-search/route.ts",
     "app/lib/vii-live-search.ts",
     "app/lib/discovery-offer-cache.ts",
-    "app/lib/event-discovery-offers.ts"
+    "app/lib/event-discovery-offers.ts",
+    "app/components/property-gallery.tsx",
+    "app/components/gallery-experience.tsx"
   ]
 }

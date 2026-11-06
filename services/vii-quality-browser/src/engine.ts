@@ -117,15 +117,18 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     }
     if(job.scenario==='gallery-next') {
       currentStep='gallery-open';
-      const gallery=page.locator('.property-gallery').first();await step(() => (gallery.waitFor({state:'visible'})));
-      const active=gallery.locator('img.is-active, .property-gallery__image.is-active img').first();
+      const trigger=page.locator('[data-gallery-trigger]:visible').first();await step(() => (trigger.waitFor({state:'visible'})));await step(() => (trigger.click()));steps++;
+      const gallery=page.locator('.story-gallery[role="dialog"]').first();await step(() => (gallery.waitFor({state:'visible'})));
+      const active=gallery.locator('.story-gallery__image').first();
       const before=await step(() => (active.getAttribute('src')));
       if(!before)throw new CheckFailure('gallery_source_missing');
-      await step(() => (gallery.getByRole('button',{name:'התמונה הבאה',exact:true}).click()));steps++;
-      await step(() => (page!.waitForFunction(previous=>{
-        const image=document.querySelector('.property-gallery img.is-active, .property-gallery .property-gallery__image.is-active img');
-        return Boolean(image?.getAttribute('src') && image.getAttribute('src')!==previous);
+      currentStep='gallery-next-click';await step(() => (gallery.getByRole('button',{name:'התמונה הבאה',exact:true}).click()));steps++;
+      currentStep='gallery-image-change';await step(() => (page!.waitForFunction(previous=>{
+        const image=document.querySelector('.story-gallery[role="dialog"] .story-gallery__image') as HTMLImageElement | null;
+        return Boolean(image?.complete && image.naturalWidth>0 && image.getAttribute('src') && image.getAttribute('src')!==previous);
       },before)));steps++;
+      currentStep='gallery-close-click';await step(() => (gallery.getByRole('button',{name:'סגירת הגלריה',exact:true}).click()));
+      currentStep='gallery-detach';await step(() => (gallery.waitFor({state:'detached'})));steps++;
     }
     if(job.scenario==='responsive-shell') {
       currentStep='responsive-overflow';

@@ -24,6 +24,10 @@ test('failure diagnostics cross the private transport with bounded sanitized fie
  const payload={jobId:good.jobId,sourceVersion:good.sourceSha,buildId:good.buildId,world:'vacations',device:'mobile',scenario:'gallery-next',status:'failed',reason:'write_request_attempted',requestCount:4,steps:2,durationMs:12,failureStep:'world-heading',attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]};
  const out=await api.executeBrowserProfile({...good,browser:{fetch:async()=>response(payload)}});
  assert.equal(out.failureStep,'world-heading');assert.deepEqual(out.attemptedWrites,payload.attemptedWrites);
+ const extraFields={...payload,attemptedWrites:[{...payload.attemptedWrites[0],body:'private-test-sentinel',headers:{cookie:'private-test-sentinel'},query:'private-test-sentinel'}]};
+ const sanitized=await api.executeBrowserProfile({...good,browser:{fetch:async()=>response(extraFields)}});
+ assert.deepEqual(sanitized.attemptedWrites,payload.attemptedWrites);
+ assert.equal(JSON.stringify(sanitized).includes('private-test-sentinel'),false);
  const malformed={...payload,attemptedWrites:Array.from({length:9},()=>({method:'POST',origin:'https://vii.spaplus.co',path:'/api/lead'}))};
  await assert.rejects(api.executeBrowserProfile({...good,browser:{fetch:async()=>response(malformed)}}),/result_invalid/);
  const untrusted={...payload,attemptedWrites:[{method:'POST',origin:'https://tenant-secret.example.test',path:'/api/lead'}]};
