@@ -16,6 +16,8 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
+import { WorldLanding } from "./world-landing";
+import EventSearchPage from "../events/search/page";
 import styles from "../find/[slug]/search-landing.module.css";
 
 type Result = { id: string; name: string; location: string; area: string; description: string; image?: string; images: string[]; href: string };
@@ -67,7 +69,6 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
         breadcrumb: page.h1,
         type: typeof page.filters.type === "string" ? page.filters.type : "",
         area: page.location,
-        listingSlugs: results.map((result) => result.id),
         initialFilters: page.filters,
         guideTitle: page.h1,
         guideParagraphs: page.body.split(/\n{2,}/).filter(Boolean),
@@ -75,6 +76,22 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
         relatedLinks: [],
       }} />
     </>;
+  }
+  if (page.world === "events") {
+    return <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
+      initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, String(value)]))}
+      managedBody={page.body} managedFaq={page.faq} />;
+  }
+  if (page.world === "spa" || page.world === "hourly") {
+    const discoveryItems = page.world === "spa"
+      ? spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"))
+      : hourlyPlacesFromCatalog(await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"));
+    return <WorldLanding world={page.world} title={page.h1} description={page.metaDescription} items={discoveryItems}
+      searchMode={page.world === "spa" ? "spa" : "hourly"} initialSearchLocation={page.location}
+      initialSpaFilters={page.world === "spa" && typeof page.filters.features === "string" ? page.filters.features.split(",").filter(Boolean) : undefined}
+      initialFilters={page.filters} managedBody={page.body} managedFaq={page.faq}
+      breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: page.world === "spa" ? "בתי ספא" : "חדרים לפי שעה", path: page.sourcePath.split("?")[0] }, { name: page.h1 }]}
+      collectionTitle={page.h1} />;
   }
   return <PageShell variant={variant}><main id="main-content" className={styles.page} dir="rtl">
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1, path: page.canonicalPath }])} />

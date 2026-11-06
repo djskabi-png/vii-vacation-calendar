@@ -45,6 +45,7 @@ import { normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventV
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
+import { managedSearchParams } from "../../lib/managed-search-params";
 import type { MapPriceQuote } from "../../lib/map-price";
 
 type EventSortKey = DiscoverySortKey | "capacity";
@@ -55,7 +56,7 @@ function runtimeEventPlace(value: unknown): EventPlace {
   return { ...place, description: supplierDisplayDescription(place) };
 }
 
-export default function EventSearchPage({ initialArea, landingTitle, landingDescription }: { initialArea?: string; landingTitle?: string; landingDescription?: string }) {
+export default function EventSearchPage({ initialArea, landingTitle, landingDescription, initialSearchParams, managedBody, managedFaq }: { initialArea?: string; landingTitle?: string; landingDescription?: string; initialSearchParams?: Record<string, string>; managedBody?: string; managedFaq?: Array<{ question: string; answer: string }> }) {
   const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,7 +73,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const liveCopy = eventLiveCopy[language];
   const slotCopy = eventSlotCopy[language];
   const searchQuery = searchParams.toString();
-  const initialParams = typeof window === "undefined" ? searchParams : new URLSearchParams(window.location.search);
+  const initialParams = managedSearchParams(searchQuery, initialSearchParams);
   const initialEventFrom = initialParams.get("from");
   const initialGuests = Number(initialParams.get("guests") || 0);
   const [area, setArea] = useState(initialParams.get("location") || initialArea || "הכל");
@@ -92,7 +93,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const [liveRetry, setLiveRetry] = useState(0);
 
   function updateUrl(updates: Record<string, string | null>) {
-    const params = new URLSearchParams(window.location.search);
+    const params = managedSearchParams(window.location.search, initialSearchParams);
     Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
     const requestedArea = updates.location === undefined ? area : updates.location || "הכל";
     params.delete("location");
@@ -116,7 +117,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(window.location.search);
+      const params = managedSearchParams(window.location.search, initialSearchParams);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 0);
       setArea(requestedArea && requestedArea !== "כל הארץ" ? requestedArea : initialArea || "הכל");
@@ -338,6 +339,8 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
           </section>
         </div>
         {!catalogLoading && !catalogError ? <SearchAfterResults world="events" location={area} inventory={eventPlaces} searchSuggestions={contextualSearchSuggestions} /> : null}
+        {managedBody ? <section className="section shell managed-search-editorial" aria-labelledby="managed-event-content"><h2 id="managed-event-content">מה חשוב לדעת</h2>{managedBody.split(/\n{2,}/).filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</section> : null}
+        {managedFaq?.length ? <section className="section shell managed-search-faq" aria-labelledby="managed-event-faq"><h2 id="managed-event-faq">שאלות נפוצות</h2>{managedFaq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}
       </main>
     </PageShell>

@@ -68,6 +68,9 @@ export async function WorldLanding({
   collectionTitle: customCollectionTitle,
   providerCategory,
   beforeResults,
+  initialFilters,
+  managedBody,
+  managedFaq,
 }: {
   world: WorldId;
   title: string;
@@ -83,6 +86,9 @@ export async function WorldLanding({
   collectionTitle?: string;
   providerCategory?: ProviderCategoryId;
   beforeResults?: ReactNode;
+  initialFilters?: Record<string, string | number | boolean>;
+  managedBody?: string;
+  managedFaq?: Array<{ question: string; answer: string }>;
 }) {
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
@@ -144,8 +150,10 @@ export async function WorldLanding({
       {beforeResults}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
-        {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
+        {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} initialFilters={initialFilters} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
+      {managedBody ? <section className="section shell managed-search-editorial" aria-labelledby="managed-search-content"><h2 id="managed-search-content">מה חשוב לדעת</h2>{managedBody.split(/\n{2,}/).filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</section> : null}
+      {managedFaq?.length ? <section className="section shell managed-search-faq" aria-labelledby="managed-search-faq"><h2 id="managed-search-faq">שאלות נפוצות</h2>{managedFaq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section> : null}
       {world === "spa" && !beforeResults && !initialSpaAudience && !initialSpaFilters?.length ? <RegionalAvailability world="spa" region={initialSearchLocation} /> : null}
       {(world === "hourly" || world === "spa" || world === "providers" || world === "activities") ? <SearchAfterResults world={world} location={initialSearchLocation} baseParams={{ ...(initialSpaAudience ? { spaFor: initialSpaAudience } : {}), ...(initialSpaFilters?.length ? { features: initialSpaFilters.join(",") } : {}) }} inventory={items.map(item => ({ location: item.location, area: world === "activities" ? activityRegion(item) || "" : item.area, type: world === "activities" ? activityType(item) || undefined : undefined, serviceAreas: item.serviceAreas }))} reviewHighlights={items.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} /> : null}
       {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}

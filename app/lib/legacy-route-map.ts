@@ -29,7 +29,7 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const exact = normalizedLegacySource(url);
   const path = normalizedLegacySource(url.pathname);
-  let target = redirects[exact] || redirects[path] || reviewedLegacyCanonicalRedirects[path];
+  let target = reviewedLegacyCanonicalRedirects[path] || redirects[exact] || redirects[path];
   // Legacy search pages were published without booking state. A dated legacy
   // URL must still resolve to the same approved semantic page while retaining
   // the visitor's dates and party for the new search experience.

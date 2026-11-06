@@ -37,12 +37,12 @@ function twoHourPrice(item: DiscoveryItem) {
   return verifiedHourlyPrice(item.id, "שעתיים") ?? Number.POSITIVE_INFINITY;
 }
 
-export function HourlyResults({ items, initialLocation }: { items: DiscoveryItem[]; initialLocation?: string }) {
+export function HourlyResults({ items, initialLocation, initialFilters }: { items: DiscoveryItem[]; initialLocation?: string; initialFilters?: Record<string, string | number | boolean> }) {
   const searchParams = useSearchParams();
-  const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
-  const requestedPrice = Number(searchParams.get("maxPrice") || 0);
-  const requestedFeatures = (searchParams.get("features") || "").split(",").filter((id) => featureFilters.some((filter) => filter.id === id));
-  const requestedSort = searchParams.get("sort") || "recommended";
+  const requestedLocation = searchParams.get("location") || String(initialFilters?.location || initialLocation || "כל הארץ");
+  const requestedPrice = Number(searchParams.get("maxPrice") || initialFilters?.maxPrice || 0);
+  const requestedFeatures = (searchParams.get("features") || String(initialFilters?.features || "")).split(",").filter((id) => featureFilters.some((filter) => filter.id === id));
+  const requestedSort = searchParams.get("sort") || String(initialFilters?.sort || "recommended");
   return <HourlyResultsPanel key={`${requestedLocation}-${requestedPrice}-${requestedFeatures.join(",")}-${requestedSort}`} items={items} requestedLocation={requestedLocation} requestedPrice={requestedPrice} requestedFeatures={requestedFeatures} requestedSort={requestedSort} />;
 }
 
