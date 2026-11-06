@@ -28,7 +28,7 @@ test('event rail follows all result cards and empty recovery and retains eligibi
 
 test('regional Spa rail follows the complete world-results section; national slot stays before it', () => {
   const source = read('app/components/world-landing.tsx');
-  ordered(source, ['{beforeResults}', '<section id="world-results"', '<WorldMapResults', '</section>\n      {world === "spa"', '<RegionalAvailability world="spa"', '<SearchAfterResults']);
+  ordered(source, ['{beforeResults}', '<section id="world-results"', '<WorldMapResults', '</section>\n      {managedBody', '<RegionalAvailability world="spa"', '<SearchAfterResults']);
   assert.equal(source.match(/<RegionalAvailability world="spa"/g)?.length, 1);
   assert.match(source, /world === "spa" && !beforeResults && !initialSpaAudience && !initialSpaFilters\?\.length/);
   assert.match(read('app/spas/page.tsx'), /beforeResults=\{<SpaPackageDeals sectionId="spa-world-package-deals"/);

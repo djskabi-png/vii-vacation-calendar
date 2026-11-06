@@ -62,7 +62,7 @@ test('selection deadline caps the final request and prevents refresh polling aft
  try{
   const dates=homeDealDates('tomorrow',new Date(now));
   const pending={period:'tomorrow',dates,availabilityStatus:'refreshing',deals:[]};
-  const h=harness({loaded:pending,startedAt:now-9_500,now});await flush();assert.equal(h.requests[0].timeoutMs,500);assert.equal(h.requests[0].retries,0);assert.equal(h.state,'error');assert.equal(h.timers.size,0);h.cleanup();
+  const h=harness({loaded:pending,startedAt:now-9_500,now});await flush();assert.equal(h.requests[0].timeoutMs,500);assert.equal(h.requests[0].retries,1);assert.equal(h.requests[0].totalTimeoutMs,500);assert.equal(h.state,'error');assert.equal(h.timers.size,0);h.cleanup();
   const expired=harness({loaded:pending,startedAt:now-10_001,now});await flush();assert.equal(expired.requests.length,0);assert.equal(expired.state,'error');expired.cleanup();
  }finally{Date.now=original;}
 });
