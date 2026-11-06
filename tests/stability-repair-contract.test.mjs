@@ -6,7 +6,8 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 
 test("optional homepage supplier reads are isolated from the document shell", () => {
   const source = read("app/page.tsx");
-  assert.match(source, /bundledPublicCatalogSummaries<Property>\("vacations"\)\.catch\(\(\) => \[\]\)/);
+  assert.match(source, /createRequestCatalogReader\(bundledPublicCatalogSummaries\)/);
+  assert.match(source, /readCatalog<Property>\("vacations"\)\.catch\(\(\) => \[\]\)/);
   assert.match(source, /managedMagazineArticles\(magazineArticles\)\.catch\(\(\) => magazineArticles\)/);
   assert.match(read("app/error.tsx"), /Load again/);
   assert.match(read("app/global-error.tsx"), /Try again/);

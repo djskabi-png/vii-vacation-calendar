@@ -5,6 +5,7 @@ import ts from 'typescript';
 import { publicCachePolicy } from '../worker/public-response-cache.ts';
 import { servePublicGalleryMedia } from '../worker/public-gallery-media.ts';
 import galleryManifest from '../app/data/legacy-gallery-media.json' with {type:'json'};
+import { withServerRequestReads } from '../app/lib/server-request-reads.ts';
 
 const source=await readFile(new URL('../worker/index.ts',import.meta.url),'utf8');
 const transform=context=>root=>{
@@ -21,7 +22,7 @@ function instance({loadApp,read=async()=>null,onCacheRead=()=>{}}){
   const dependencies={loadApp,loadGallery:async()=>({servePublicGalleryMedia}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
     legacyDisposition:()=>null,looksLikeUninventoriedLegacyPath:()=>false,publicCachePolicy,
     readPublicCache:async(...args)=>{onCacheRead();return read(...args);},refreshPublicCacheAhead:()=> 'fresh',
-    storePublicCache:response=>response,editorialWorldLinks:[]};
+    storePublicCache:response=>response,editorialWorldLinks:[],withServerRequestReads};
   return new Function(...Object.keys(dependencies),executable+'\nreturn worker;')(...Object.values(dependencies));
 }
 const ctx={waitUntil(){}};

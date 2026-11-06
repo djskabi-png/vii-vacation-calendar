@@ -80,3 +80,13 @@ identity tests passed. Full TypeScript passed before the last Edge/operator
 changes. An integrated frozen build, full suite and compiled UI checks must
 follow before this phase can be accepted. No claim of whole-project readiness
 or future-proof correctness is made from these local tests.
+
+The first frozen integrated run (source `77e347e3`, tree `c8e801d8`) passed
+TypeScript, 27 controller tests, 15 browser tests, both private packages and the
+managed build. Its full suite failed: 2380 total, 2372 passed, seven failed,
+one existing skip. Two Home source contracts still expected the previous
+parameterless component/read spelling. The actual Worker source harness had
+removed the new request-scope import without supplying the real dependency,
+causing five related cases to throw before exercising the Worker. Those readers
+were updated while preserving their original stream/failure/lazy-load checks.
+The original failed run remains failed. A fresh frozen run is required.
