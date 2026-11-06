@@ -15,6 +15,7 @@ export function isReadOnlyDiscoveryRequest(request: BrowserRequest, origin: stri
     const url = new URL(request.url());
     if (request.method() !== 'POST' || url.origin !== origin || url.username || url.password || url.pathname !== '/api/vii/live-search' || url.search || url.hash) return false;
     const contentType = Object.entries(request.headers()).find(([key]) => key.toLowerCase() === 'content-type')?.[1];
+    if(Object.keys(request.headers()).some(key=>['next-action','x-server-action'].includes(key.toLowerCase())))return false;
     if (contentType?.split(';')[0].trim().toLowerCase() !== 'application/json') return false;
     const raw = request.postData();
     if (typeof raw !== 'string' || !raw || new TextEncoder().encode(raw).length > 8192) return false;

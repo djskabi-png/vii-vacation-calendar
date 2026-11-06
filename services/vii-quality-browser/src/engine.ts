@@ -19,16 +19,20 @@ const cdnHost='vii-public-images.djskabi.workers.dev';
 const imageWidths=new Set([384,640,750,828,960,1280,1600]),imageQualities=new Set([75,82,85,88]);
 const trafficTypes=['document','script','stylesheet','image','font','fetch','other'] as const;
 type TrafficType=typeof trafficTypes[number];
-const emptyTraffic=()=>({resourceCounts:Object.fromEntries(trafficTypes.map(type=>[type,0])) as Record<TrafficType,number>,deniedCounts:{external:0,budget:0,write:0,admin:0,invalid:0},writeKinds:[] as string[]});
+const emptyTraffic=()=>({resourceCounts:Object.fromEntries(trafficTypes.map(type=>[type,0])) as Record<TrafficType,number>,deniedCounts:{external:0,budget:0,write:0,admin:0,invalid:0,platform:0},writeKinds:[] as string[]});
 function cdnImageUrl(url:URL){
   if(url.origin!==`https://${cdnHost}`||url.username||url.password||url.hash||url.pathname!=='/'||url.searchParams.getAll('url').length!==1||url.searchParams.getAll('w').length!==1||url.searchParams.getAll('q').length!==1||[...url.searchParams.keys()].some(key=>!['url','w','q'].includes(key)))return false;
   const source=url.searchParams.get('url')||'',width=Number(url.searchParams.get('w')),quality=Number(url.searchParams.get('q'));
   return /^\/api\/vii\/media\/[a-f0-9]{8,128}\.(?:jpe?g|png|webp|avif)$/i.test(source)&&imageWidths.has(width)&&String(width)===url.searchParams.get('w')&&imageQualities.has(quality)&&String(quality)===url.searchParams.get('q');
 }
 function resourceType(value:string):TrafficType{return value==='xhr'?'fetch':trafficTypes.includes(value as TrafficType)?value as TrafficType:'other';}
-function writeKind(url:URL,method:string,headers:Record<string,string>){
-  if(url.origin==='https://vii.spaplus.co'&&url.pathname.startsWith('/cdn-cgi/challenge-platform/'))return 'cloudflare_challenge';
-  if(headers['next-action']!==undefined&&url.origin==='https://vii.spaplus.co')return 'server_action';
+function actionHeader(headers:Record<string,string>){return Object.keys(headers).some(key=>['next-action','x-server-action'].includes(key.toLowerCase()));}
+function passivePlatformTelemetry(method:string,url:URL,origin:string,headers:Record<string,string>){
+  return origin==='https://vii.spaplus.co'&&url.origin===origin&&!url.username&&!url.password&&!actionHeader(headers)&&method==='POST'&&url.pathname.startsWith('/cdn-cgi/challenge-platform/');
+}
+function writeKind(url:URL,method:string,headers:Record<string,string>,origin:string){
+  if(passivePlatformTelemetry(method,url,origin,headers))return 'cloudflare_challenge';
+  if(actionHeader(headers)&&url.origin==='https://vii.spaplus.co')return 'server_action';
   if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/experience/metrics')return 'experience_metrics';
   if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/vii/live-search')return 'live_search';
   if(url.origin==='https://vii.spaplus.co'&&url.pathname==='/api/analytics/search')return 'analytics_search';
@@ -99,8 +103,12 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       let url:URL;try{url=new URL(request.url());}catch{traffic.deniedCounts.invalid++;return route.abort();}
       const headers=request.headers();
       if(request.method()!=='GET' && !isReadOnlyDiscoveryRequest(request,origin)){
-        blockedWrites++;traffic.deniedCounts.write++;const kind=writeKind(url,request.method(),headers);if(!traffic.writeKinds.includes(kind)&&traffic.writeKinds.length<7)traffic.writeKinds.push(kind);
+        const platform=passivePlatformTelemetry(request.method(),url,origin,headers);
+        if(platform)traffic.deniedCounts.platform++;else{blockedWrites++;traffic.deniedCounts.write++;}
+        const kind=writeKind(url,request.method(),headers,origin);if(!traffic.writeKinds.includes(kind)&&traffic.writeKinds.length<7)traffic.writeKinds.push(kind);
         if(attemptedWrites.length<8){try{const attempted=new URL(request.url());attemptedWrites.push({method:/^[A-Z]{3,7}$/.test(request.method())?request.method():'OTHER',origin:safeWriteOrigin(attempted.origin),path:safeWritePath(attempted.pathname)});}catch{attemptedWrites.push({method:'OTHER',origin:'<external>',path:'<redacted>'});}}
+        // Platform telemetry is still aborted. This never completes a challenge
+        // or grants a write; actual interstitials fail the ordinary page checks.
         return route.abort();
       }
       if(finished||signal?.aborted||Date.now()>=deadline){traffic.deniedCounts.invalid++;return route.abort();}

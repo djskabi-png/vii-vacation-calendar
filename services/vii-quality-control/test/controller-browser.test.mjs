@@ -10,11 +10,11 @@ function enabled(f,changes={}){return {...f.env,BROWSER_ENABLED:'true',EXPECTED_
 
 test('safe traffic classifications reach the actual durable observation without broadening receipt schema',async()=>{
  const f=fixture();try{
-  const traffic={resourceCounts:{document:1,script:1,stylesheet:0,image:1,font:0,fetch:1,other:0},deniedCounts:{external:0,budget:0,write:1,admin:0,invalid:0},writeKinds:['cloudflare_challenge']};
+  const traffic={resourceCounts:{document:1,script:1,stylesheet:0,image:1,font:0,fetch:1,other:0},deniedCounts:{external:0,budget:0,write:1,admin:0,invalid:0,platform:0},writeKinds:['other']};
   const navigationMetrics={ttfbMs:321,responseEndMs:500,domInteractiveMs:600,domContentLoadedMs:null,fcpMs:550};
   const env=enabled(f,{status:'failed',reason:'write_request_attempted',traffic,navigationMetrics,attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]});
   const queued=await(await f.controller.handle(request(),env,'trusted-admin',body)).json();await f.controller.consume(env,f.messages[0]);
-  const saved=await readQualityJob(f.db,queued.job.runId);assert.equal(saved.status,'completed');assert.equal(saved.receipts[0].status,'failed');assert.match(saved.receipts[0].observed,/write_kinds=cloudflare_challenge/);assert.match(saved.receipts[0].observed,/requests=4/);assert.match(saved.receipts[0].observed,/navigation_ms=.*"ttfbMs":321/);assert.equal(saved.receipts[0].traffic,undefined);assert.equal(saved.receipts[0].navigationMetrics,undefined);assert.equal(f.executions(),0);
+  const saved=await readQualityJob(f.db,queued.job.runId);assert.equal(saved.status,'completed');assert.equal(saved.receipts[0].status,'failed');assert.match(saved.receipts[0].observed,/write_kinds=other/);assert.match(saved.receipts[0].observed,/requests=4/);assert.match(saved.receipts[0].observed,/navigation_ms=.*"ttfbMs":321/);assert.equal(saved.receipts[0].traffic,undefined);assert.equal(saved.receipts[0].navigationMetrics,undefined);assert.equal(f.executions(),0);
  }finally{f.sqlite.close();}
 });
 
@@ -25,6 +25,13 @@ test('controller preserves an over-budget failure and actual request count in th
   await f.controller.consume(env,f.messages[0]);
   const saved=await readQualityJob(f.db,admitted.job.runId);
   assert.equal(saved.status,'completed');assert.equal(saved.receipts.length,1);assert.equal(saved.receipts[0].status,'failed');assert.equal(saved.receipts[0].observed,'request_budget_exceeded; request_count=181');assert.equal(saved.receipts[0].failureStep,'map-ready');
+ }finally{f.sqlite.close();}
+});
+test('the durable passing flow distinguishes an aborted platform request from a forbidden business write',async()=>{
+ const f=fixture();try{
+  const traffic={resourceCounts:{document:1,script:1,stylesheet:0,image:1,font:0,fetch:1,other:0},deniedCounts:{external:0,budget:0,write:0,admin:0,invalid:0,platform:1},writeKinds:['cloudflare_challenge']};
+  const env=enabled(f,{traffic});const queued=await(await f.controller.handle(request(),env,'trusted-admin',body)).json();await f.controller.consume(env,f.messages[0]);
+  const saved=await readQualityJob(f.db,queued.job.runId);assert.equal(saved.status,'completed');assert.equal(saved.receipts[0].status,'passed');assert.match(saved.receipts[0].observed,/"write":0/);assert.match(saved.receipts[0].observed,/"platform":1/);assert.match(saved.receipts[0].observed,/write_kinds=cloudflare_challenge/);assert.equal(f.executions(),0);
  }finally{f.sqlite.close();}
 });
 

@@ -1,5 +1,5 @@
 export const browserResourceKinds = ['document','script','stylesheet','image','font','fetch','other'] as const;
-export const browserDenialKinds = ['external','budget','write','admin','invalid'] as const;
+export const browserDenialKinds = ['external','budget','write','admin','invalid','platform'] as const;
 export const browserWriteKinds = ['cloudflare_challenge','analytics_search','analytics_business','experience_metrics','live_search','server_action','other'] as const;
 export type BrowserTraffic = {
   resourceCounts: Record<typeof browserResourceKinds[number],number>;
@@ -25,7 +25,7 @@ export function normalizeBrowserTraffic(value:unknown,requestCount:number):Brows
   };
   const resourceCounts=counts(value.resourceCounts,browserResourceKinds),deniedCounts=counts(value.deniedCounts,browserDenialKinds);
   if(Object.values(resourceCounts).reduce((a,b)=>a+b,0)!==requestCount||Object.values(deniedCounts).reduce((a,b)=>a+b,0)>requestCount)return invalid();
-  if(!Array.isArray(value.writeKinds)||value.writeKinds.length>browserWriteKinds.length||new Set(value.writeKinds).size!==value.writeKinds.length||value.writeKinds.some(kind=>!browserWriteKinds.includes(kind))||(deniedCounts.write===0?value.writeKinds.length!==0:value.writeKinds.length===0))return invalid();
+  if(!Array.isArray(value.writeKinds)||value.writeKinds.length>browserWriteKinds.length||new Set(value.writeKinds).size!==value.writeKinds.length||value.writeKinds.some(kind=>!browserWriteKinds.includes(kind))||(deniedCounts.write+deniedCounts.platform===0?value.writeKinds.length!==0:value.writeKinds.length===0)||(deniedCounts.platform>0)!==value.writeKinds.includes('cloudflare_challenge'))return invalid();
   return {resourceCounts,deniedCounts,writeKinds:[...value.writeKinds] as BrowserTraffic['writeKinds']};
 }
 export function browserObservedResult(result:{reason?:string;requestCount:number;traffic?:BrowserTraffic;navigationMetrics?:BrowserNavigationMetrics}) {
