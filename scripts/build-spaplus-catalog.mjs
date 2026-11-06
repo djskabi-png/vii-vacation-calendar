@@ -7,6 +7,23 @@ const destination = new URL("../app/data/spaplus-catalog.json", import.meta.url)
 const stageOnly = process.argv.includes("--stage-only");
 const legacyDestination = new URL("../app/data/spaplus-legacy-aliases.json", import.meta.url);
 const imageField = "CONCAT('https://www.spaplus.co.il/gallery/',picture)";
+function sourceFacilities(site) {
+  const ids = new Set(); const labels = new Set();
+  for (const field of ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"]) {
+    const value = site?.[field];
+    const values = Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [value];
+    for (const item of values) {
+      if (typeof item === "number" || typeof item === "string" && /^\d+$/.test(item)) ids.add(Number(item));
+      else if (item && typeof item === "object" && !Array.isArray(item)) {
+        const id = Number(item.id ?? item.facilityId ?? item.accessoryId);
+        if (Number.isSafeInteger(id) && id > 0) ids.add(id);
+        const label = item.label ?? item.title ?? item.name ?? item.description;
+        if (typeof label === "string" && label.trim()) labels.add(label.trim());
+      } else if (typeof item === "string" && item.trim() && !/^\d+$/.test(item)) labels.add(item.trim());
+    }
+  }
+  return { ids: [...ids].sort((a, b) => a - b), labels: [...labels] };
+}
 
 function plainText(html) {
   const parts = [];
@@ -58,6 +75,7 @@ const sites = Object.entries(payload.sites).map(([key, site]) => {
       bookingUrl: safeSpaPlusUrl(pack.iframeurl),
     };
   });
+  const facilities = sourceFacilities(site);
   return {
     id: Number(site.siteid),
     title: String(site.title).trim(),
@@ -71,6 +89,8 @@ const sites = Object.entries(payload.sites).map(([key, site]) => {
     opening: Array.isArray(site.opening) ? site.opening.map(String) : [],
     bookingUrl: safeSpaPlusUrl(site.iframeurl),
     packages,
+    ...(facilities.ids.length ? { facilityIds: facilities.ids } : {}),
+    ...(facilities.labels.length ? { features: facilities.labels } : {}),
   };
 });
 const packageCount = sites.reduce((sum, site) => sum + site.packages.length, 0);

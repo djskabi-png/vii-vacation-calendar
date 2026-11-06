@@ -37,6 +37,26 @@ function positive(value: unknown) {
   return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
+function sourceFacilities(site: Record<string, unknown>) {
+  const ids = new Set<number>();
+  const labels = new Set<string>();
+  for (const field of ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"]) {
+    const value = site[field];
+    for (const item of Array.isArray(value) ? value : typeof value === "object" && value ? Object.values(value as Record<string, unknown>) : [value]) {
+      if (typeof item === "number" || typeof item === "string" && /^\d+$/.test(item)) ids.add(Number(item));
+      else if (item && typeof item === "object" && !Array.isArray(item)) {
+        const row = item as Record<string, unknown>;
+        const id = positive(row.id ?? row.facilityId ?? row.accessoryId);
+        if (id) ids.add(id);
+        const label = typeof (row.label ?? row.title ?? row.name ?? row.description) === "string"
+          ? String(row.label ?? row.title ?? row.name ?? row.description).trim() : "";
+        if (label) labels.add(label);
+      } else if (typeof item === "string" && item.trim() && !/^\d+$/.test(item)) labels.add(item.trim());
+    }
+  }
+  return { ids: [...ids].sort((a, b) => a - b), labels: [...labels] };
+}
+
 export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[] {
   const body = record(payload);
   const sites = body.sites;
@@ -71,6 +91,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
         bookingUrl: safeUrl(pack.iframeurl),
       };
     });
+    const facilities = sourceFacilities(site);
     return { supplierId: id, summary: {
       id,
       title,
@@ -85,6 +106,8 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
       opening: Array.isArray(site.opening) ? site.opening.map(String) : [],
       bookingUrl: safeUrl(site.iframeurl),
       packages,
+      ...(facilities.ids.length ? { facilityIds: facilities.ids } : {}),
+      ...(facilities.labels.length ? { features: facilities.labels } : {}),
     } };
   });
   if (!entries.length || new Set(entries.map((entry) => entry.supplierId)).size !== entries.length) {

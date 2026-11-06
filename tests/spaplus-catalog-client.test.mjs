@@ -51,6 +51,15 @@ test("keeps every supplier gallery image without truncation", () => {
   assert.equal(site.gallery.at(-1), "https://www.spaplus.co.il/gallery/39.jpg");
 });
 
+test("preserves authoritative facility IDs and labels when the supplier sends them", () => {
+  const expanded = structuredClone(payload);
+  expanded.sites[42].facilityIds = [193, 194, 193];
+  expanded.sites[42].facilities = [{ id: 176, title: "סאונה יבשה" }, { id: 177, name: "סאונה רטובה" }];
+  const [site] = normalizeSpaPlusCatalog(expanded).map((entry) => entry.summary);
+  assert.deepEqual(site.facilityIds, [176, 177, 193, 194]);
+  assert.deepEqual(site.features, ["סאונה יבשה", "סאונה רטובה"]);
+});
+
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {
   const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async (url) => {
     assert.equal(url.searchParams.get("key"), "private-test-key");
