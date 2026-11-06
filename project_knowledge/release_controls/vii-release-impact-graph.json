@@ -337,7 +337,8 @@
       "buildUnits": [],
       "requiredLocalTests": [
         "tests/release-impact-graph.test.mjs",
-        "tests/release-candidate-manifest.test.mjs"
+        "tests/release-candidate-manifest.test.mjs",
+        "tests/release-artifact-audit.test.mjs"
       ]
     },
     "multilingual-shell": {
@@ -402,7 +403,8 @@
       ],
       "requiredLocalTests": [
         "services/vii-quality-browser/test/engine.test.mjs",
-        "services/vii-quality-browser/test/definition.test.mjs"
+        "services/vii-quality-browser/test/definition.test.mjs",
+        "services/vii-quality-browser/test/evidence.test.mjs"
       ]
     },
     "quality-controller": {
@@ -427,7 +429,8 @@
         "services/vii-quality-control/test/browser-executor.test.mjs",
         "services/vii-quality-control/test/browser-job-platform.test.mjs",
         "services/vii-quality-control/test/controller-browser.test.mjs",
-        "tests/quality-browser-workerd.test.mjs"
+        "tests/quality-browser-workerd.test.mjs",
+        "services/vii-quality-control/test/evidence-access.test.mjs"
       ]
     },
     "runtime-http": {
@@ -440,7 +443,8 @@
         "quality-controller"
       ],
       "requiredLocalTests": [
-        "services/vii-quality-browser/test/request-body.test.mjs"
+        "services/vii-quality-browser/test/request-body.test.mjs",
+        "tests/private-jpeg.test.mjs"
       ]
     },
     "quality-auth": {
@@ -727,7 +731,8 @@
       "id": "runtime-http",
       "ownerBox": "runtime-http",
       "match": [
-        "shared/request-body.ts"
+        "shared/request-body.ts",
+        "shared/private-jpeg.ts"
       ]
     },
     {

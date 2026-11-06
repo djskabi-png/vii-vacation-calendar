@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "verifiedAt": "2026-11-06T02:26:51.967928+00:00",
+  "verifiedAt": "2026-11-06T02:35:40.868143+00:00",
   "project": "VII",
   "accountId": "45b2f6dcf2cfe44204d2c470cbe682d9",
   "status": "private_services_provisioned_authority_inactive_no_public_cutover",
@@ -16,7 +16,13 @@
     "runsAtSchemaVerification": 0,
     "notificationsAtSchemaVerification": 0,
     "backupRestoreScope": "private SQL export restored into local SQLite,14 empty qualitytables before additive change",
-    "schemaUpdateEvidence": "PHASE_07.md"
+    "schemaUpdateEvidence": "PHASE_07.md",
+    "retainedSmokeJobs": 1,
+    "activeJobs": 0,
+    "notificationOutbox": {
+      "superseded": 1,
+      "deliveries": 0
+    }
   },
   "queues": [
     {
@@ -52,7 +58,7 @@
   },
   "deployment": {
     "controller": {
-      "versionId": "9a5379f7-30de-4c9d-b4de-f64ccfe8ef9e",
+      "versionId": "15cb4bc0-20c4-4388-af65-f0dddd8ccf02",
       "source": "a5233c18c34eaf3b238180676cefb077849df466",
       "authorityEnabled": false,
       "executionEnabled": false,
@@ -66,8 +72,9 @@
       "source": "a5233c18c34eaf3b238180676cefb077849df466",
       "workersDevEnabled": false,
       "previewsEnabled": false,
-      "browserExecutionVerified": false,
-      "controllerBindingAdded": true
+      "browserExecutionVerified": true,
+      "controllerBindingAdded": true,
+      "verificationScope": "one intentional observed_build_mismatch negative smoke, no matching-generation pass"
     },
     "expectedBuildId": "37aea992-09c1-a1bf-7173-9af66834d35e",
     "edgeCutover": false,
@@ -88,6 +95,7 @@
     ".qa-output/phase4-edge-unchanged-readback.log",
     ".qa-output/phase7-private-update-readback.json",
     ".qa-output/phase7-private-quality-backup-operation.json",
-    ".qa-output/phase7-private-schema-update-operation.json"
+    ".qa-output/phase7-private-schema-update-operation.json",
+    "PHASE_07_VERIFICATION.md"
   ]
 }

@@ -38,3 +38,38 @@ export default {async fetch(request,bindings){
   const blocked=await call({command:'consume',jobId:second.job.runId});assert.equal(blocked.job.status,'blocked');assert.equal(blocked.job.receipts.length,0);assert.equal(blocked.legacyCalls,0);
  }finally{await mf.dispose();}
 });
+
+test('actual private evidence crosses Service Binding and R2 with persisted historical identity',{timeout:20000},async()=>{
+ const contents=`
+import {createController} from './services/vii-quality-control/src/controller.ts';
+import {createBrowserQualityJob} from './services/vii-quality-control/src/browser-job-platform.ts';
+import {evidenceKey} from './services/vii-quality-browser/src/evidence.ts';
+const controller=createController({create(){throw Error('No HTTP admission')},consume(){throw Error('No execution')}});
+export default {async fetch(request,bindings){
+ const input=await request.json(),env={...bindings,EXECUTION_ENABLED:'false',BROWSER_ENABLED:'false',EXPECTED_SOURCE_VERSION:'${'b'.repeat(40)}'};
+ if(input.command==='prepare'){
+  const {job}=await createBrowserQualityJob(bindings.QUALITY_DB,{actor:'runtime-evidence-fixture',idempotencyKey:'runtime-evidence-original',sourceVersion:'${source}',buildId:'${buildId}',profileId:'spa-mobile-world-shell',origin:'https://vii.spaplus.co'});
+  const key=evidenceKey({sourceVersion:job.sourceVersion,jobId:job.runId,device:'mobile',scenario:'world-shell'});
+  const receipt={checkId:job.checks[0].checkId,status:'blocked',observed:'observed_build_mismatch',checkedAt:new Date().toISOString(),evidenceUrl:key};
+  await bindings.QUALITY_DB.prepare("UPDATE quality_jobs SET status='completed',next_index=1,receipts_json=? WHERE run_id=?").bind(JSON.stringify([receipt]),job.runId).run();
+  return Response.json({jobId:job.runId,key});
+ }
+ return controller.handle(new Request('https://vii.spaplus.co/api/admin/quality?evidence=1&jobId='+input.jobId+(input.extra||'')),env,'trusted-runtime-viewer');
+}};`;
+ const controller=await build({stdin:{contents,resolveDir:process.cwd(),loader:'ts'},bundle:true,format:'esm',platform:'browser',target:'es2022',write:false,external:['cloudflare:workers']});
+ const browser=await build({entryPoints:['services/vii-quality-browser/src/index.ts'],bundle:true,format:'esm',platform:'browser',target:'es2022',write:false,external:['cloudflare:*','node:*']});
+ const mf=new Miniflare({log:new Log(LogLevel.WARN),workers:[
+  {name:'control',modules:[{type:'ESModule',path:'evidence-controller.mjs',contents:controller.outputFiles[0].text}],compatibilityDate:'2026-05-22',compatibilityFlags:['nodejs_compat'],d1Databases:{QUALITY_DB:'evidence-control-d1'},serviceBindings:{QUALITY_BROWSER:'browser'}},
+  {name:'browser',modules:[{type:'ESModule',path:'evidence-browser.mjs',contents:browser.outputFiles[0].text}],compatibilityDate:'2026-05-22',compatibilityFlags:['nodejs_compat'],r2Buckets:{EVIDENCE:'evidence-private-bucket'},bindings:{EXPECTED_SOURCE_VERSION:'b'.repeat(40)}},
+ ]});
+ try{
+  const control=await mf.getWorker('control');
+  const call=input=>control.fetch('https://fixture.invalid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+  const prepared=await(await call({command:'prepare'})).json();
+  const bucket=await mf.getR2Bucket('EVIDENCE','browser');await bucket.put(prepared.key,new Uint8Array([255,216,255,217]),{httpMetadata:{contentType:'image/jpeg'}});
+  const image=await call({command:'read',jobId:prepared.jobId});assert.equal(image.status,200,await image.clone().text());assert.equal(image.headers.get('content-type'),'image/jpeg');assert.equal(image.headers.get('cache-control'),'private, no-store');assert.deepEqual([...new Uint8Array(await image.arrayBuffer())],[255,216,255,217]);
+  assert.equal((await call({command:'read',jobId:prepared.jobId,extra:'&key=arbitrary'})).status,400);
+  assert.equal((await call({command:'read',jobId:'unknown-job-id'})).status,404);
+  await bucket.delete(prepared.key);assert.equal((await call({command:'read',jobId:prepared.jobId})).status,404);
+ }finally{await mf.dispose();}
+});

@@ -43,6 +43,15 @@ test('actual source attestation and JWKS execute under workerd and enforce exact
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:controlHeaders})).status,409);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=changed',{headers:controlHeaders})).status,403);
   assert.equal((await control.fetch('https://vii.spaplus.co/api/admin/quality?scope=metadata',{headers:{...controlHeaders,cookie:'must-not-cross-boundary=1'}})).status,403);
+  const evidenceTarget='/api/admin/quality?evidence=1&jobId=unknown-job-id';
+  const evidenceNonce='historical_evidence_read_123456789';
+  const evidenceAuth=await mf.dispatchFetch(request({method:'GET',path:evidenceTarget,bodyHash,nonce:evidenceNonce}));assert.equal(evidenceAuth.status,200);
+  const evidenceToken=(await evidenceAuth.json()).token;
+  // A read-only source grant authorizes this exact evidence lookup, not another
+  // job or an arbitrary R2 key. Missing data is404 after verified authorization.
+  const evidenceHeaders={'X-VII-Quality-Attestation':evidenceToken,'X-VII-Quality-Nonce':evidenceNonce};
+  assert.equal((await control.fetch('https://vii.spaplus.co'+evidenceTarget.replace('unknown-job-id','other-job-id'),{headers:evidenceHeaders})).status,403);
+  assert.equal((await control.fetch('https://vii.spaplus.co'+evidenceTarget,{headers:evidenceHeaders})).status,404);
   // The existing source grant remains authoritative for a real private write.
   await db.prepare('UPDATE vii_admin_grants SET permissions_json=? WHERE email=?').bind(JSON.stringify({quality:'edit'}),'viewer@example.test').run();
   const controlDb=await mf.getD1Database('QUALITY_DB','control');await ensureSchedulerSchema(controlDb);

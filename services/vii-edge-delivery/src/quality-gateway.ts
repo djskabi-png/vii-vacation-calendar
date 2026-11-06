@@ -1,4 +1,5 @@
 import { readJsonBody, RequestBodyError } from "../../../shared/request-body.ts";
+import { readPrivateJpeg } from "../../../shared/private-jpeg.ts";
 
 export type QualityGatewayEnvironment = {
   QUALITY_CONTROL_ENABLED?: string;
@@ -36,6 +37,11 @@ export async function qualityGateway(request: Request, env: QualityGatewayEnviro
     const response = await env.QUALITY_CONTROL.fetch(forwarded);
     // Never forward a private service cookie, cache admission header or body
     // from an authorization failure into the original visitor response.
+    const evidence = request.method === "GET" && url.searchParams.get("evidence") === "1";
+    if (evidence && response.ok) {
+      try{return await readPrivateJpeg(response,{signal:request.signal});}
+      catch{return Response.json({error:'invalid_evidence_response'},{status:502,headers});}
+    }
     return new Response(response.body, { status: response.status, headers: { ...headers, "Content-Type": "application/json" } });
   } catch (error) {
     return Response.json({ error: error instanceof RequestBodyError ? error.message : "quality_gateway_unavailable" }, { status: error instanceof RequestBodyError ? error.status : 503, headers });

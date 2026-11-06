@@ -1,11 +1,13 @@
 import type { D1Database } from "../../../types/cloudflare-runtime";
 import { readQualityDashboard, readQualityRunStatus, readQualityScopeOptions, persistQualityJobProgress, updateQualityIncident, updateQualitySchedule, type QualityRunLevel } from "../../../app/lib/quality-platform.ts";
-import { ensureQualityJobSchema, readQualityJob, readQualityJobByIntent, requestQualityJobCancel, type QualityJob } from "../../../app/lib/quality-job-store.ts";
+import { ensureQualityJobSchema, readQualityJob, readQualityJobByIntent, requestQualityJobCancel, payloadHash, type QualityJob } from "../../../app/lib/quality-job-store.ts";
 import { ensureDispatchSchema, reserveDispatch, dispatchWithTransport, recoverExpiredDispatches } from "./dispatch-outbox.ts";
 import { readSchedulerAttention, reconcileSchedulerAdmission, scheduledDispatchAdmission, markScheduledAdmissionUnknown } from "./scheduler-recovery.ts";
 import { browserProfiles } from "./browser-profiles.ts";
 import { createBrowserQualityJob, consumeBrowserQualityJob, type BrowserJobEnvironment } from "./browser-job-platform.ts";
 import { executeBrowserProfile } from "./browser-executor.ts";
+import { evidenceKey } from "../../vii-quality-browser/src/evidence.ts";
+import { readPrivateJpeg } from "../../../shared/private-jpeg.ts";
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
 export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
@@ -77,6 +79,38 @@ export function createController(platform: ControllerPlatform) {
       const db = env.QUALITY_DB;
       if (request.method === "GET") {
         if(url.searchParams.get('engine')==='browser')return json(browserOptions(env));
+        if (url.searchParams.get("evidence") === "1") {
+          // Evidence is addressable only through the durable job receipt. The
+          // caller never supplies an R2 key, profile, source or browser URL.
+          const id = url.searchParams.get("jobId") || "";
+          if (!/^[A-Za-z0-9-]{8,120}$/.test(id)||[...url.searchParams.keys()].some(key=>!['evidence','jobId'].includes(key))||url.searchParams.getAll('evidence').length!==1||url.searchParams.getAll('jobId').length!==1) return json({ error: "invalid_job_id" }, 400);
+          await ensureQualityJobSchema(db);
+          const job = await readQualityJob(db, id);
+          if (!job) return json({ error: "job_not_found" }, 404);
+          if (["queued", "running"].includes(job.status)) return json({ error: "evidence_not_ready" }, 409);
+          const entry = job.checks[0];
+          const configuration = entry?.configuration;
+          const profileId = typeof configuration?.profileId === "string" ? configuration.profileId : "";
+          const profile = configuration?.profile as Record<string,unknown>|undefined;
+          const receipt = job.receipts.find(item => item.checkId === entry?.checkId);
+          if (!entry ||job.checks.length!==1||configuration?.executionKind !== "browser"||configuration.sourceVersion!==job.sourceVersion||configuration.origin!=='https://vii.spaplus.co'||!profile||profile.profileId!==profileId||entry.checkId!==`browser:${profileId}`||!['desktop','mobile'].includes(String(profile.device))||!['world-shell','map-open-close','responsive-shell','gallery-next'].includes(String(profile.scenario))||!receipt?.evidenceUrl||!['failed','blocked'].includes(receipt.status)||await payloadHash(entry)!==job.definitionVersion) return json({ error: "evidence_not_found" }, 404);
+          let canonical: string;
+          try { canonical = evidenceKey({ sourceVersion: job.sourceVersion, jobId: job.runId, device: String(profile.device), scenario: String(profile.scenario) }); }
+          catch { return json({ error: "evidence_not_found" }, 404); }
+          if (receipt.evidenceUrl !== canonical || !env.QUALITY_BROWSER) return json({ error: "evidence_not_found" }, 404);
+          const browserUrl = new URL("https://vii-quality-browser.internal/evidence");
+          browserUrl.searchParams.set("sourceVersion", job.sourceVersion);
+          browserUrl.searchParams.set("jobId", job.runId);
+          browserUrl.searchParams.set("device", String(profile.device));
+          browserUrl.searchParams.set("scenario", String(profile.scenario));
+          const signal=AbortSignal.any([request.signal,AbortSignal.timeout(3000)]);
+          let late=false,onAbort:(()=>void)|undefined;
+          try{
+            const response=await Promise.race([env.QUALITY_BROWSER.fetch(browserUrl,{method:'GET',signal,headers:{'X-VII-Quality-Evidence-Source':job.sourceVersion}}).then(response=>{if(late)void response.body?.cancel().catch(()=>undefined);return response;}),new Promise<never>((_,reject)=>{onAbort=()=>reject(new Error('evidence_transport_timeout'));signal.addEventListener('abort',onAbort,{once:true});if(signal.aborted)onAbort();})]);
+            if(response.status===404){void response.body?.cancel().catch(()=>undefined);return json({error:'evidence_not_found'},404);}
+            return await readPrivateJpeg(response,{signal});
+          }finally{late=true;if(onAbort)signal.removeEventListener('abort',onAbort);}
+        }
         if (url.searchParams.get("scope") === "metadata") return json(readQualityScopeOptions());
         if (url.searchParams.has("intentKey")) {
           const key = url.searchParams.get("intentKey") || "";

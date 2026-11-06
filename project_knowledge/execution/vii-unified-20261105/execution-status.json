@@ -25,7 +25,8 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_06_VERIFICATION.md",
-        "PHASE_07.md"
+        "PHASE_07.md",
+        "PHASE_07_VERIFICATION.md"
       ]
     },
     {
@@ -227,7 +228,8 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
-        "PHASE_06.md"
+        "PHASE_06.md",
+        "PHASE_08.md"
       ]
     },
     {
@@ -359,7 +361,8 @@
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_07.md"
+        "PHASE_07.md",
+        "PHASE_07_VERIFICATION.md"
       ]
     },
     {
@@ -397,7 +400,8 @@
         "PHASE_03.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_06_VERIFICATION.md"
+        "PHASE_06_VERIFICATION.md",
+        "PHASE_07_VERIFICATION.md"
       ]
     },
     {
@@ -416,7 +420,8 @@
         "PHASE_03.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_06_VERIFICATION.md"
+        "PHASE_06_VERIFICATION.md",
+        "PHASE_08.md"
       ]
     },
     {
@@ -479,7 +484,8 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_08.md"
       ]
     },
     {
