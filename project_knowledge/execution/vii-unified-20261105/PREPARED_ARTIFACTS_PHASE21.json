@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-local-only",
+  "candidateSource": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+  "observedAt": "2026-11-06T08:20:48.025Z",
+  "buildIdentity": "a82013b7-82bc-5c5a-61ff-883b56cd5522",
+  "units": [
+    {
+      "unit": "edge-delivery",
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "artifact": {
+        "path": ".qa-output/phase18b-edge-delivery.worker.json",
+        "sha256": "3edb39b6c5db1e02f7ccfce4a915a9336c561fc2f00ebac6da46b281cfd83453",
+        "bytes": 68496
+      },
+      "inputFingerprint": "28c433be1a24aca39831bab30a18f9bf21c29f5051269c5250caff01ecd30b3b",
+      "buildReceiptPath": ".qa-output/phase18b-edge-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-edge-delivery-audit.json"
+    },
+    {
+      "unit": "image-delivery",
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "artifact": {
+        "path": ".qa-output/phase18b-image-delivery.worker.json",
+        "sha256": "9a833decbfd5be99839ba22998f3465aa1d08dd344a2a3c9c69b46a4ceb491ff",
+        "bytes": 1412715
+      },
+      "inputFingerprint": "ae709bafb8a61f51b9020ed197406851fbb8a64204a9cffb98bd01117a0223c6",
+      "buildReceiptPath": ".qa-output/phase18b-image-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-image-delivery-audit.json"
+    },
+    {
+      "unit": "managed-site",
+      "source": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "tree": "78b715504653a4fa92173acc5dbdb2667b74199d",
+      "artifact": {
+        "path": ".qa-output/phase21-frozen-site.tar.gz",
+        "sha256": "0978da3cd73359849ac965120bce7892982786e928f0bb543a054d8a1a69d52d",
+        "bytes": 109245046
+      },
+      "inputFingerprint": "f883f24e40c72d223519a27dcde09e70508b4fbba8325724967f4b19b22bd27c",
+      "buildReceiptPath": ".qa-output/phase21-managed-site-build.json",
+      "auditReceiptPath": ".qa-output/phase21-managed-site-audit.json"
+    },
+    {
+      "unit": "quality-browser",
+      "source": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "tree": "78b715504653a4fa92173acc5dbdb2667b74199d",
+      "artifact": {
+        "path": ".qa-output/phase21-quality-browser.worker.json",
+        "sha256": "0ad4c3b993e1f062aba21a2c44155bd194804ae8bc2e91fe1bff8537d490db33",
+        "bytes": 4261731
+      },
+      "inputFingerprint": "f73b7bae8eadd1da2e5ef5f2973ac475adb6e049bbe4a2ba442cfdf77db60d58",
+      "buildReceiptPath": ".qa-output/phase21-quality-browser-build.json",
+      "auditReceiptPath": ".qa-output/phase21-quality-browser-audit.json"
+    },
+    {
+      "unit": "quality-controller",
+      "source": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "tree": "78b715504653a4fa92173acc5dbdb2667b74199d",
+      "artifact": {
+        "path": ".qa-output/phase21-quality-controller.worker.json",
+        "sha256": "ddc13d8cbbf8333af880b39211b4b31b8404df73c9df4b915dbc3d1206fd4b60",
+        "bytes": 221437
+      },
+      "inputFingerprint": "3a85dc9fb041f6a8435033b84a0ba967104e41de93046e410f882c911f3716e9",
+      "buildReceiptPath": ".qa-output/phase21-quality-controller-build.json",
+      "auditReceiptPath": ".qa-output/phase21-quality-controller-audit.json"
+    }
+  ],
+  "proposedRuntimeBindingsToVerify": {
+    "quality-controller": {
+      "EXPECTED_SOURCE_VERSION": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "EXPECTED_BROWSER_SOURCE_VERSION": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "EXPECTED_APP_SOURCE_VERSION": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "EXPECTED_BUILD_ID": "a82013b7-82bc-5c5a-61ff-883b56cd5522"
+    },
+    "quality-browser": {
+      "EXPECTED_SOURCE_VERSION": "7628435ab4ebab1ac6255d9569b178a04a0ab717",
+      "EXPECTED_BUILD_ID": "a82013b7-82bc-5c5a-61ff-883b56cd5522"
+    },
+    "edge-delivery": {
+      "EXPECTED_BUILD": "a82013b7-82bc-5c5a-61ff-883b56cd5522",
+      "EXPECTED_BUILD_ID": "a82013b7-82bc-5c5a-61ff-883b56cd5522",
+      "EXPECTED_APP_SOURCE_VERSION": "7628435ab4ebab1ac6255d9569b178a04a0ab717"
+    }
+  },
+  "runtimeBindingsApplied": false,
+  "cloudReadbackVerified": false,
+  "uploaded": false,
+  "publicationApproved": false,
+  "publicReleaseVerified": false
+}
