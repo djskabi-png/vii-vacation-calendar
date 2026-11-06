@@ -118,11 +118,13 @@ test("vacation SSR honors region, guest composition and explicit price/type filt
   assert.doesNotMatch(center, /href="\/business\?id=vacation-1(?:["&])/);
   assert.match(center, /business\?id=vacation-\d+/);
   const normal = await (await render("/search")).text();
-  const large = await (await render("/search?guests=1000&whole=1")).text();
+  const large = await (await render("/search?guests=1000")).text();
+  const whole = await (await render("/search?guests=1000&whole=1")).text();
   const constrained = await (await render("/search?guests=1000&minPrice=9999&whole=1&types=villa")).text();
   const cards = (html) => [...html.matchAll(/href="\/business\?id=vacation-\d+"/g)].length;
   assert.ok(cards(normal) >= 15);
   assert.equal(cards(large), cards(normal));
+  assert.equal(cards(whole), 0, "whole-place capacity must be honored instead of showing undersized places");
   assert.equal(cards(constrained), 0, "a price/type restriction must never fall back to the unfiltered catalog");
   assert.match(large, /התאמת כמה יחידות להרכב שלכם תיבדק מול המקום/);
   assert.match(large, />טווח מחיר</);
