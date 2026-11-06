@@ -60,6 +60,15 @@ test("preserves authoritative facility IDs and labels when the supplier sends th
   assert.deepEqual(site.features, ["סאונה יבשה", "סאונה רטובה"]);
 });
 
+test("preserves an explicit empty facility response instead of treating it as missing", () => {
+  const explicitNone = structuredClone(payload);
+  explicitNone.sites[42].features = [];
+  explicitNone.sites[42].facilityIds = [];
+  const [site] = normalizeSpaPlusCatalog(explicitNone).map((entry) => entry.summary);
+  assert.deepEqual(site.features, []);
+  assert.deepEqual(site.facilityIds, []);
+});
+
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {
   const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async (url) => {
     assert.equal(url.searchParams.get("key"), "private-test-key");

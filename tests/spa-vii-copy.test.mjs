@@ -81,6 +81,15 @@ test("official SpaPlus facility evidence survives editorial projection for the t
   }
 });
 
+test("explicit supplier facility facts supersede reviewed fallback evidence", async () => {
+  const source = structuredClone(catalog.sites.find((entry) => entry.id === 6));
+  source.features = [];
+  source.facilityIds = [];
+  const projected = await projectSpaViiSite(source);
+  assert.deepEqual(projected.features, []);
+  assert.deepEqual(projected.facilityIds, []);
+});
+
 test("verified facility facts reach the real Spa search pipeline without package inclusion claims", async () => {
   const projected = await Promise.all([6, 385].map(async (id) => projectSpaViiSite(catalog.sites.find((site) => site.id === id))));
   const cards = spaPlacesFromSites(projected);

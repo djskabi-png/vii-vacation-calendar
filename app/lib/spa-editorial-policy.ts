@@ -48,7 +48,9 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
   const evidenceLabels = evidence?.labels || [];
   const optionalLabels = evidence?.optionalFeatures?.map((feature) => feature.label) || [];
   const evidenceIds = evidence?.providerFacilityIds || [];
-  const withFacilities = evidence
+  const providerFacilityFactsPresent = ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"]
+    .some((field) => Object.prototype.hasOwnProperty.call(site as object, field));
+  const withFacilities = evidence && !providerFacilityFactsPresent
     ? { ...canonicalSite,
       facilityIds: [...new Set([...(canonicalSite.facilityIds || []), ...evidenceIds])].sort((a, b) => a - b),
       features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels, ...optionalLabels])] }

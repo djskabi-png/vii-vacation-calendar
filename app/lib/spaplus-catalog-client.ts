@@ -40,7 +40,9 @@ function positive(value: unknown) {
 function sourceFacilities(site: Record<string, unknown>) {
   const ids = new Set<number>();
   const labels = new Set<string>();
-  for (const field of ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"]) {
+  const fields = ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"];
+  const present = fields.some((field) => Object.prototype.hasOwnProperty.call(site, field));
+  for (const field of fields) {
     const value = site[field];
     for (const item of Array.isArray(value) ? value : typeof value === "object" && value ? Object.values(value as Record<string, unknown>) : [value]) {
       if (typeof item === "number" || typeof item === "string" && /^\d+$/.test(item)) ids.add(Number(item));
@@ -54,7 +56,7 @@ function sourceFacilities(site: Record<string, unknown>) {
       } else if (typeof item === "string" && item.trim() && !/^\d+$/.test(item)) labels.add(item.trim());
     }
   }
-  return { ids: [...ids].sort((a, b) => a - b), labels: [...labels] };
+  return { ids: [...ids].sort((a, b) => a - b), labels: [...labels], present };
 }
 
 export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[] {
@@ -106,8 +108,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
       opening: Array.isArray(site.opening) ? site.opening.map(String) : [],
       bookingUrl: safeUrl(site.iframeurl),
       packages,
-      ...(facilities.ids.length ? { facilityIds: facilities.ids } : {}),
-      ...(facilities.labels.length ? { features: facilities.labels } : {}),
+      ...(facilities.present ? { facilityIds: facilities.ids, features: facilities.labels } : {}),
     } };
   });
   if (!entries.length || new Set(entries.map((entry) => entry.supplierId)).size !== entries.length) {
