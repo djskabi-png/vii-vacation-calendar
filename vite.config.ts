@@ -21,6 +21,9 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
   main: "./worker/index.ts",
+  // Runtime media/image readers require the static asset service in native
+  // Wrangler previews as well as managed Sites deployments.
+  assets: { binding: "ASSETS" },
   compatibility_flags: ["nodejs_compat"],
   triggers: { crons: ["*/10 * * * *"] },
   d1_databases: d1

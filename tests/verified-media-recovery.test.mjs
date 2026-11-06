@@ -22,3 +22,8 @@ test('recovery rejects wrong image bytes and unknown paths without origin or obj
  const response=await servePublicGalleryMedia(new Request('https://vii.spaplus.co/api/vii/media/'+file.filename),absent,{fetch:async()=>new Response(bytes,{headers:{'Content-Type':file.contentType}})});assert.equal(response.status,404);
  let reads=0;const unknown=await servePublicGalleryMedia(new Request('https://vii.spaplus.co/api/vii/media/not-approved.jpg'),absent,{fetch:async()=>{reads++;throw Error('must not read')}});assert.equal(unknown.status,404);assert.equal(reads,0);
 });
+
+test("native deployment declares the asset service used by exact media recovery",()=>{
+ const config=readFileSync(new URL("../vite.config.ts",import.meta.url),"utf8");
+ assert.match(config,/assets:\s*\{\s*binding:\s*"ASSETS"\s*\}/);
+});
