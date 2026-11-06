@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-local-only",
+  "candidateSource": "074586b5190a0c64caf0dffcd6cd1e464c185064",
+  "observedAt": "2026-11-06T11:41:20.798Z",
+  "buildIdentity": "2c4fe3b1-6749-5d0b-62d2-390c5a61c533",
+  "units": [
+    {
+      "unit": "managed-site",
+      "source": "074586b5190a0c64caf0dffcd6cd1e464c185064",
+      "tree": "fc732fd52b7ae9ef7a9ce36139e19e69bc4304dc",
+      "artifact": {
+        "path": ".qa-output/phase29-frozen-site.tar.gz",
+        "sha256": "4b8abf7b38dc18ac4ad5ac62ebd507cc7b2468cadcc8aae2c2ec30cc151027f8",
+        "bytes": 109247512
+      },
+      "inputFingerprint": "de122f77645f0e620f644ec8e951f208aebcc01cf5b2af269fb867072a72d0bf",
+      "buildReceiptPath": ".qa-output/phase29-managed-site-build.json",
+      "auditReceiptPath": ".qa-output/phase29-managed-site-audit-qualified.json"
+    },
+    {
+      "unit": "quality-controller",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase27-quality-controller.worker.json",
+        "sha256": "b844c635c96be4ebe222cabd8a92439a8237dc18669e9488a8e52d56f5130991",
+        "bytes": 259505
+      },
+      "buildReceiptPath": ".qa-output/phase27-quality-controller-build.json",
+      "auditReceiptPath": ".qa-output/phase27-quality-controller-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
+      "tree": "6525ed5d09e094a161b584e7dfc5371172e0df55",
+      "inputFingerprint": "4bc493dc08fa474a9ce7fe995adae93e8fe8d1e9aad53c06de1345c4f49e23c6"
+    },
+    {
+      "unit": "quality-browser",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase25-quality-browser.worker.json",
+        "sha256": "3b84502be91224f48c28b7c4654bd932f21dd994196d0769ec741ede8c506da6",
+        "bytes": 4261731
+      },
+      "buildReceiptPath": ".qa-output/phase25-quality-browser-build.json",
+      "auditReceiptPath": ".qa-output/phase25-quality-browser-audit.json",
+      "modules": 1,
+      "imports": 484,
+      "source": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "tree": "0d007b9bfed4012a9b753e1a3ff7f4ddfb263c68",
+      "inputFingerprint": "d6d60f6dce37340793e2d6fa4bb92a5a703d3d15f21e731067042269648a7fde"
+    },
+    {
+      "unit": "edge-delivery",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase25-edge-delivery.worker.json",
+        "sha256": "2371ca6b3755cd4c23587c1e29b43b5208ec2e176c11a72029aa6a28e6dd1632",
+        "bytes": 69140
+      },
+      "buildReceiptPath": ".qa-output/phase25-edge-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase25-edge-delivery-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "tree": "0d007b9bfed4012a9b753e1a3ff7f4ddfb263c68",
+      "inputFingerprint": "a265118d1c5b2edff836a49e5ea342a2b8a93c7410e3c50b6bd560fc36f44fe6"
+    },
+    {
+      "unit": "image-delivery",
+      "artifact": {
+        "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\phase18b-image-delivery.worker.json",
+        "sha256": "9a833decbfd5be99839ba22998f3465aa1d08dd344a2a3c9c69b46a4ceb491ff",
+        "bytes": 1412715
+      },
+      "buildReceiptPath": ".qa-output/phase18b-image-delivery-build.json",
+      "auditReceiptPath": ".qa-output/phase18b-image-delivery-audit.json",
+      "modules": 1,
+      "imports": 0,
+      "source": "02cb2fb468e89aefb9fb68e1080f45e2cee077f9",
+      "tree": "5db42634a8b5c647e3433eaa1e7cf01f7901b60c",
+      "inputFingerprint": "ae709bafb8a61f51b9020ed197406851fbb8a64204a9cffb98bd01117a0223c6"
+    }
+  ],
+  "proposedRuntimeBindingsToVerify": {
+    "quality-controller": {
+      "EXPECTED_SOURCE_VERSION": "c5579e25fa90a67cd7faa4c14972881e2e6a4261",
+      "EXPECTED_BROWSER_SOURCE_VERSION": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "EXPECTED_APP_SOURCE_VERSION": "074586b5190a0c64caf0dffcd6cd1e464c185064",
+      "EXPECTED_BUILD_ID": "2c4fe3b1-6749-5d0b-62d2-390c5a61c533"
+    },
+    "quality-browser": {
+      "EXPECTED_SOURCE_VERSION": "5fdd37582d17c20364063eb7279d17f9f3d2e404",
+      "EXPECTED_BUILD_ID": "2c4fe3b1-6749-5d0b-62d2-390c5a61c533"
+    },
+    "edge-delivery": {
+      "EXPECTED_BUILD": "2c4fe3b1-6749-5d0b-62d2-390c5a61c533",
+      "EXPECTED_BUILD_ID": "2c4fe3b1-6749-5d0b-62d2-390c5a61c533",
+      "EXPECTED_APP_SOURCE_VERSION": "074586b5190a0c64caf0dffcd6cd1e464c185064"
+    }
+  },
+  "runtimeBindingsApplied": false,
+  "cloudReadbackVerified": false,
+  "uploaded": false,
+  "publicationApproved": false,
+  "publicReleaseVerified": false,
+  "supersedes": "PHASE27 managed Site only: cross-platform identity root repair; four independent Worker artifacts retained unchanged"
+}
