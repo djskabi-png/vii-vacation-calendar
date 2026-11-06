@@ -125,11 +125,12 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     context.on('page',unexpected=>{if(unexpected!==page)void close(unexpected);});
     page.setDefaultTimeout(5_000);page.setDefaultNavigationTimeout(10_000);
     currentStep='navigate';
-    const response=await step(() => (page!.goto(origin+path,{waitUntil:'domcontentloaded',timeout:10_000})));steps++;
+    const response=await step(() => (page!.goto(origin+path,{waitUntil:'commit',timeout:10_000})));steps++;
     if(!response || response.status()!==200 || new URL(response.url()).origin!==origin || new URL(response.url()).pathname!==new URL(origin+path).pathname)throw new CheckFailure('unexpected_document_response');
     const appBuild=await step(()=>response.headerValue('x-vii-app-build'));
     const cacheBuild=await step(()=>response.headerValue('x-vii-cache-build'));
     if((appBuild??cacheBuild)!==job.buildId || appBuild&&appBuild!==job.buildId || cacheBuild&&cacheBuild!==job.buildId)throw new CheckFailure('observed_build_mismatch');
+    currentStep='main-visible';
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
     navigationMetrics=await step(()=>readNavigationMetrics(page!));
     if(job.scenario!=='gallery-next') {

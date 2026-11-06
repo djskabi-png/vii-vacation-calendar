@@ -959,8 +959,8 @@
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": true,
-  "nextStep": "Qualify and separately activate the strictly aborted platform-telemetry classification, then run one fresh exact diagnostic before another full subject. Calendar initial-load experiment remains isolated. Speed/admin/recovery and whole acceptance remain open; Document3 deferred.",
-  "updatedAt": "2026-11-06T16:05:50.509Z",
+  "nextStep": "Qualify local commit-navigation repair and isolated calendar source; verify actual loading failure/close/retry and precise public performance before next full release subject. Complete remaining administration/recovery/scheduling acceptance. Document3 deferred.",
+  "updatedAt": "2026-11-06T16:35:04.151704+00:00",
   "privateCloudResourcesUpdated": true,
   "publicSitePublicationPerformed": true,
   "sourceHeadMeaning": "Last observed active private controller/browser generation; Site retains app1d96 and original Edge/images artifacts. New platform classification and calendar experiment are pending.",
@@ -1161,5 +1161,19 @@
       "fcpMs": 3424
     },
     "evidence": ".qa-output/phase49-diagnostic-readback.json"
+  },
+  "lastPrivateActivation": {
+    "source": "2274368361e938a31aedc82822e328098d39f51f",
+    "browserVersion": "833eadb6-6189-40df-8b82-9131079014a9",
+    "controllerVersion": "4a764aef-0e28-4e7f-a23d-8d88fa5250ae",
+    "evidence": "PHASE_51_PRIVATE_AND_PERFORMANCE_CHECKPOINT.md"
+  },
+  "lastTargetedDiagnostic": {
+    "runId": "a4055635-3126-4927-b613-e54b233b53a3",
+    "status": "blocked",
+    "step": "navigate",
+    "requests": 117,
+    "businessWrites": 0,
+    "evidence": ".qa-output/phase51-diagnostic-readback.json"
   }
 }

@@ -21,7 +21,7 @@ function browserFixture(options={}) {
     async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':path.startsWith('/providers')?'ספקים לאירוח ולאירועים':path.startsWith('/trails')?'מסלולי טיול בישראל למטייל העצמאי':path==='/'?'כל מה שעושים בחופש, במקום אחד':'נופש ברחבי הארץ';},
   });
   const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),async evaluate(){return undefined;},
-    async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.burstRequests)for(let i=0;i<options.burstRequests;i++)await request('GET',url,'fetch');if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>options.documentStatus??200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
+    async goto(url,navigationOptions={}){state.events.push('goto');state.waitUntil=navigationOptions.waitUntil;state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.domContentLoadedStalls&&navigationOptions.waitUntil!=='commit')return new Promise(()=>{});if(options.extraRequest)await request(...options.extraRequest);if(options.burstRequests)for(let i=0;i<options.burstRequests;i++)await request('GET',url,'fetch');if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>options.documentStatus??200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
     async waitForFunction(predicate,previous){if(options.frozenGallery)throw Error('image unchanged');const old=globalThis.document;globalThis.document={querySelector:()=>({complete:!options.unloadedGalleryImage,naturalWidth:options.unloadedGalleryImage?0:120,getAttribute:name=>name==='src'?`image-${state.image}`:null})};try{if(!predicate(previous))throw Error('image unchanged')}finally{globalThis.document=old;}},
     async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;if(options.lateCloseRequest)await request(...options.lateCloseRequest);},
   };
@@ -38,6 +38,20 @@ test('each world uses its own actual route and verifies the observed build',asyn
     assert.equal(result.status,'passed');assert.equal(new URL(f.state.url).pathname,path);assertClosed(f.state);
     assert.deepEqual(f.state.events.slice(0,3),['route','new-page','goto']);
   }
+});
+test('commit navigation proceeds when DOMContentLoaded is delayed, while semantic readiness remains required',async()=>{
+ const mapJob={...job,world:'hourly',scenario:'map-open-close'};
+ const f=browserFixture({domContentLoadedStalls:true});
+ const result=await runBrowserJob(mapJob,env,f.factory);
+ assert.equal(result.status,'passed');assert.equal(f.state.waitUntil,'commit');assertClosed(f.state);
+ assert.equal(f.state.map,false);
+ const missing=browserFixture({domContentLoadedStalls:true,missingMain:true});
+ const failed=await runBrowserJob(mapJob,env,missing.factory);
+ assert.equal(failed.status,'failed');assert.equal(failed.failureStep,'main-visible');assertClosed(missing.state);
+ for(const options of [{heading:'העמוד לא נטען במלואו'},{missingMap:true},{emptyMarkers:true},{closeBroken:true}]){
+  const broken=browserFixture({domContentLoadedStalls:true,...options});
+  assert.notEqual((await runBrowserJob(mapJob,env,broken.factory)).status,'passed');assertClosed(broken.state);
+ }
 });
 
 test('a valid build and visible main cannot disguise an error screen as a healthy world',async()=>{
