@@ -68,6 +68,7 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
         type: typeof page.filters.type === "string" ? page.filters.type : "",
         area: page.location,
         listingSlugs: results.map((result) => result.id),
+        initialFilters: page.filters,
         guideTitle: page.h1,
         guideParagraphs: page.body.split(/\n{2,}/).filter(Boolean),
         faqs: page.faq,

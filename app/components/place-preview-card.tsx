@@ -5,7 +5,7 @@ import { CardContactActions, type CardContactActionsProps } from "./card-contact
 
 // Compact/editorial place previews share the same gallery as result cards.
 // The body link and image controls are siblings, never nested interactive links.
-export function PlacePreviewCard({ name, image, images = [], href, className, children, newTab = false, contact, priority = false }: {
+export function PlacePreviewCard({ name, image, images = [], href, className, children, newTab = true, contact, priority = false }: {
   name: string;
   image: string;
   images?: string[];

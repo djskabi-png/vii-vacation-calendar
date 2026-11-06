@@ -81,6 +81,7 @@ export type SearchLandingContext = {
   guideParagraphs?: string[];
   faqs?: Array<{ question: string; answer: string }>;
   relatedLinks?: Array<{ label: string; href: string }>;
+  initialFilters?: Record<string, string | number | boolean>;
 };
 
 type VacationFilterState = {
@@ -387,7 +388,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const documentSeed = useDocumentSeed();
   const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
-  const initialParams = new URLSearchParams(searchQuery);
+  const initialParams = useMemo(() => {
+    const params = new URLSearchParams(searchQuery);
+    if (landing?.initialFilters) for (const [key, value] of Object.entries(landing.initialFilters)) {
+      if (value === false || value === undefined || value === null) continue;
+      params.set(key, value === true ? "1" : String(value));
+    }
+    return params;
+  }, [searchQuery, landing?.initialFilters]);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
   const initialArea = initialParams.get("location");
   const [sort, setSort] = useState(vacationSortOptions.some((option) => option.value === initialParams.get("sort")) ? initialParams.get("sort")! : "recommended");
