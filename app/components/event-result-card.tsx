@@ -51,7 +51,7 @@ export function EventResultCard({ place, href, supplierStatus, startingPrice, ma
     </PreviewCardGallery>
     <div className="event-result-card__body">
       <small className="event-result-card__type">{type}</small>
-      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} title={name}>{name}</Link></h3>
+      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} target="_blank" rel="noopener noreferrer" title={name}>{name}</Link></h3>
       <p className="event-result-card__location"><PinIcon /><span>{location}, {area}</span></p>
       <div className="event-capacity">{language === "he" ? "עד" : language === "en" ? "Up to" : language === "ru" ? "До" : "Jusqu’à"} {place.guests} {copy.guests}</div>
       <div className="event-result-card__offer">{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}</div>
