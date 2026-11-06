@@ -31,6 +31,21 @@ test("drops only the quarantined item while preserving place and unit gallery id
   assert.deepEqual(unit, ["/api/vii/media/stayloft-unit.png"]);
 });
 
+test("matches a provider's expanded unit gallery title without borrowing generic galleries", () => {
+  const galleries = [
+    { title: "גלריה כללית", pictures: ["/gallery/property.png"] },
+    { title: "יחידות אירוח עם ג'קוזי", pictures: ["/gallery/jacuzzi-unit.png"] },
+    { title: "יחידות אירוח", pictures: ["/gallery/regular-unit.png"] },
+  ];
+  assert.deepEqual(sergeyRoomImages({ roomID: 4146, roomName: "יחידות עם ג'קוזי" }, galleries), [
+    "/api/vii/media/jacuzzi-unit.png",
+  ]);
+  assert.deepEqual(sergeyRoomImages({ roomID: 4147, roomName: "יחידות אירוח" }, galleries), [
+    "/api/vii/media/regular-unit.png",
+  ]);
+  assert.deepEqual(sergeyRoomImages({ roomID: 3689, roomName: "צימר משפחתי" }, galleries), []);
+});
+
 test("projects a quarantined cover to the first valid image from the same business", () => {
   const projected = projectSergeyPublicCatalogValue({
     world: "events",

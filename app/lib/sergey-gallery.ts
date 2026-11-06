@@ -30,6 +30,16 @@ function comparableTitle(value: unknown): string {
   return typeof value === "string" ? value.trim().replace(/\s+/g, " ").replace(/^סוויטת(?=\s)/, "סוויטה") : "";
 }
 
+// Provider gallery titles are not a stable foreign key. Some generations
+// call a unit "יחידות עם ג'קוזי" while the matching gallery is titled
+// "יחידות אירוח עם ג'קוזי". Allow only a conservative distinctive-token
+// match after exact roomID and exact-title matching have failed. Generic
+// words alone must never assign a shared gallery to a unit.
+const genericUnitTitleTokens = new Set(["יחידה", "יחידות", "אירוח", "סוויטה", "סוויטות", "צימר", "צימרים"]);
+function distinctiveTitleTokens(value: string) {
+  return [...new Set(value.replace(/[,'’׳"״]/g, "").split(/\s+/).filter((token) => token.length > 2 && !genericUnitTitleTokens.has(token)))];
+}
+
 export function sergeyPlaceImages(galleries: unknown): string[] {
   return images(galleryList(galleries));
 }
@@ -44,7 +54,15 @@ export function sergeyRoomImages(room: Record<string, unknown>, siteGalleries: u
   if (idMatches.length) return images(idMatches);
   const title = comparableTitle(room.roomName);
   if (!title) return [];
-  return images(galleries.filter((gallery) => comparableTitle(gallery.title) === title));
+  const exact = galleries.filter((gallery) => comparableTitle(gallery.title) === title);
+  if (exact.length) return images(exact);
+  const roomTokens = distinctiveTitleTokens(title);
+  if (!roomTokens.length) return [];
+  const semantic = galleries.filter((gallery) => {
+    const galleryTokens = new Set(distinctiveTitleTokens(comparableTitle(gallery.title)));
+    return roomTokens.every((token) => galleryTokens.has(token));
+  });
+  return images(semantic);
 }
 
 export function sergeyRoomFeatureGroups(room: Record<string, unknown>) {
