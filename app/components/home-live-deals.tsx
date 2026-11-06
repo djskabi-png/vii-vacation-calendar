@@ -21,11 +21,11 @@ import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
 import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer } from "../lib/home-offer-freshness.ts";
+import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
 
 type ResponseData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
-const automaticRecoveryDelays = [1_250, 2_500] as const;
-const selectionRecoveryBudgetMs = 10_000;
+const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -177,8 +177,8 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       const usable = isFreshHomeOffer(accepted);
       if (!usable) { lastGoodData.current.delete(selectionKey); setData(null); }
       const attempts = automaticRetries.current.get(selectionKey) || 0;
-      const delay = automaticRecoveryDelays[attempts];
-      if (!refreshPending || delay === undefined || remainingBudget() <= delay) { setState(usable ? "ready" : "error"); return; }
+      const delay = discoveryRecoveryDelay(attempts, remainingBudget());
+      if (!refreshPending || delay === null) { setState(usable ? "ready" : "error"); return; }
       automaticRetries.current.set(selectionKey, attempts + 1);
       setState(usable ? "ready" : "loading");
       retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);

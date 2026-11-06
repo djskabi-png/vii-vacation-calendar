@@ -1,4 +1,3 @@
-import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { getHomeHolidayDeals } from "../../../lib/vii-home-holidays";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
@@ -15,6 +14,8 @@ import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/va
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
+import { publicDiscoveryCatalogIndex } from "../../../lib/discovery-public-index.ts";
+import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 
 const headers = { "Cache-Control": "no-store" };
 const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
@@ -28,6 +29,12 @@ async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeal
 }
 
 export async function GET(request: Request) {
+  const timing = requestStageTiming();
+  const respond = (body: unknown, init: ResponseInit = {}) => {
+    const responseHeaders = new Headers(init.headers);
+    responseHeaders.set("Server-Timing", timing.header());
+    return Response.json(body, { ...init, headers: responseHeaders });
+  };
   const params = new URL(request.url).searchParams;
   const raw = params.get("id");
   const id = raw && /^\d+$/.test(raw) ? Number(raw) : NaN;
@@ -37,33 +44,38 @@ export async function GET(request: Request) {
   if (![2, 6, 20].includes(guests) || !holidayParts.includes(part as HolidayPart)) return Response.json({ error: "invalid_selection" }, { status: 400, headers });
   if ((params.has("from") || params.has("till")) && (!validDate(params.get("from")) || !validDate(params.get("till")) || part !== "all")) return Response.json({ error: "invalid_stay" }, { status: 400, headers });
   try {
-    const [names, publicSiteIds, token] = await Promise.all([
-      publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
-      publishedSupplierIds("vacations"), supplierToken(),
+    const databasePromise = timing.measure("database", () => runtimeCatalogDatabase());
+    const [db, index, token] = await Promise.all([
+      databasePromise,
+      databasePromise.then(db => timing.measure("catalog_index", () => publicDiscoveryCatalogIndex("vacations", db))),
+      timing.measure("token", () => supplierToken()),
     ]);
+    const { places: names, publishedIds: publicSiteIds } = index;
     const now = new Date();
-    const holidays = await getDiscoveryHolidays(token, now);
+    const holidays = await timing.measure("calendar", () => getDiscoveryHolidays(token, now));
     const holiday = holidays.find(item => item.id === id);
     if (!holiday) throw new Error("invalid_holiday");
     if (params.has("from") && (params.get("from")! < holiday.from || params.get("till")! > holiday.till || Date.parse(params.get("till")!) - Date.parse(params.get("from")!) !== holiday.nights * 86_400_000)) throw new Error("invalid_stay");
-    const db = await runtimeCatalogDatabase();
+    // Cache hits only require publication identities. Gallery/room enrichment
+    // belongs to the lease-owned refresh, never to every visitor's cache read.
+    const resolveCatalog = async (ids: number[]) => discoveryVacationCatalog(await publicCatalogSummaries<DiscoveryVacationPlace>("vacations"))(ids);
     const refresh = cachedDiscovery({ key: ["vacation-holiday", id, holiday.from, holiday.till, firstDealDate(now), guests, part, params.get("from"), params.get("till")], db, policy: HOLIDAY_DISCOVERY_POLICY,
-      load: () => getHomeHolidayDeals({ id, token, holidays, now, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(names), from: params.get("from") ?? undefined, till: params.get("till") ?? undefined, guests, part: part as HolidayPart }),
+      load: () => getHomeHolidayDeals({ id, token, holidays, now, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog, from: params.get("from") ?? undefined, till: params.get("till") ?? undefined, guests, part: part as HolidayPart }),
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     }).catch(() => null);
     const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 1200));
-    const cached = await Promise.race([refresh, timeout]);
+    const cached = await timing.measure("snapshot", () => Promise.race([refresh, timeout]));
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));
-      return Response.json({ holiday, dates: { from: holiday.from, till: holiday.till, nights: holiday.nights }, deals: [],
+      return respond({ holiday, dates: { from: holiday.from, till: holiday.till, nights: holiday.nights }, deals: [],
         availabilityStatus: "refreshing" },
       { headers: { ...headers, "X-VII-Discovery-Cache": "refreshing" } });
     }
     const result = cached.value;
     const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));
-    return Response.json({ ...result, deals, cache: cached.cache, availabilityStatus: "verified" }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    return respond({ ...result, deals, cache: cached.cache, availabilityStatus: "verified" }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";
-    return Response.json({ error: reason }, { status: reason === "invalid_holiday" ? 404 : ["invalid_stay", "invalid_selection"].includes(reason) ? 400 : 503, headers });
+    return respond({ error: reason }, { status: reason === "invalid_holiday" ? 404 : ["invalid_stay", "invalid_selection"].includes(reason) ? 400 : 503, headers });
   }
 }

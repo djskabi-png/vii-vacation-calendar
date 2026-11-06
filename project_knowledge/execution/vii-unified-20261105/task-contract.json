@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T17:39:08.375257+00:00",
+  "updated_at": "2026-11-06T23:48:56.142343Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -529,100 +529,177 @@
       "source": "user_request",
       "statement": "Approved semantic pages use the full world search controls and detailed preview cards; holiday and period routes remain unchanged.",
       "acceptance_check": "Compare zimmers and supplied approved vacation route on desktop/mobile; same filters, sort, map/list, card actions, complete reachable inventory and retained intent; holiday/period regression unchanged.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; PUBLIC approved pool full controls, semantic sort/reload; 64 event pages200. PUBLIC-SEMANTIC-PAGES and NAVIGATION-STATE."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:30.084781Z"
     },
     {
       "id": "feedback:20261106:legacy-sitemap-coverage",
       "source": "user_request",
       "statement": "Discover every referenced legacy sitemap and reconcile event and other semantic pages, content and redirects.",
       "acceptance_check": "Inventory each sitemap and entry; classify mapped, missing, duplicate, inactive or intentionally excluded; test direct canonical destination and intentional301 without chains; no invented inventory/content.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; 2654 referenced sitemap URLs; 65 old event links reconciled; 64 new pages; managed1891 direct301 guard passed. LEGACY-INVENTORY."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:30.309258Z"
     },
     {
       "id": "feedback:20261106:event-map-card-layout",
       "source": "user_request",
       "statement": "Event cards beside desktop map follow the established vacation layout while retaining event facts.",
       "acceptance_check": "Check supported desktop widths, resize, scroll, card and marker selection with aligned content and no overflow or loss of event capacity/slot facts.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Actual public desktop map two aligned261.86px cards and no overflow. RESPONSIVE-FAMILY."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:30.551516Z"
     },
     {
       "id": "feedback:20261106:spa-pool-membership",
       "source": "user_request",
       "statement": "Reconcile Tel Aviv spa pool membership with supplier facility identifiers and package eligibility.",
       "acceptance_check": "Compare matching provider IDs, city, active status and pool amenities including reported Kempinski and David examples; distinguish facility from package access; propagate to page, filters, counts and map.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Actual TelAviv pool results include David6 and Kempinski385; venue and package entitlement separated. SPA facility evidence."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:30.798117Z"
     },
     {
       "id": "feedback:20261106:cross-provider-family-parity",
       "source": "user_request",
       "statement": "Audit source-to-public transformations for all connected vacation, event, spa and hourly families.",
       "acceptance_check": "Reconcile source IDs and statuses through adapter, snapshots, catalog, API and UI; cover characteristics, media, units, coordinates, quotes and contact actions; sample tests plus full inventory reconciliation.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Official provider full ID sets compared to public all4 worlds; only intentional vacation389 QA fixture excluded. PROVIDER-ID-PARITY."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:31.053043Z"
     },
     {
       "id": "feedback:20261106:vacation-2417-status",
       "source": "user_request",
       "statement": "Investigate vacation2417 active/public status without inferring inactive from legacy absence.",
       "acceptance_check": "Inspect explicit supplier visibility/status and legacy destination; if inactive exclude every public discovery surface and apply appropriate direct-page behavior, preserving internal record.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Official provider2417 active:true, correctly retained publicly. PROVIDER-ID-PARITY."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:31.300972Z"
     },
     {
       "id": "feedback:20261106:place-new-tab",
       "source": "user_request",
       "statement": "Every place detail navigation opens a new browser tab.",
       "acceptance_check": "Test cards, image/title/CTA, sliders, list and map previews across worlds desktop/mobile; preserve dates, party, unit and offer; search tabs keep their own behavior.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Actual public596 new tab while search retained; shared context regression passed. NAVIGATION-STATE."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:31.592245Z"
     },
     {
       "id": "feedback:20261106:slider-recovery",
       "source": "user_request",
       "statement": "Eliminate sliders stuck until manual retry.",
       "acceptance_check": "Reproduce initial/mid-tab/transient failure, bounded automatic recovery and explicit exhausted retry; maintain correctly scoped verified result without contradictory errors or false availability; hard refresh/back/mobile included.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Actual desktop/mobile populated; bounded recovery tests; 67 GET plus3 correct production POST readiness checks passed. SLIDERS-LIVE."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:31.871751Z"
     },
     {
       "id": "feedback:20261106:gallery-lookahead",
       "source": "user_request",
       "statement": "Improve preview gallery sequence with bounded upcoming-image preloading.",
       "acceptance_check": "Next-two lookahead and decode readiness, rapid prev/next races, mobile bandwidth behavior, limited concurrency and no eager full-gallery download or first-paint regression.",
-      "status": "pending",
-      "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Bounded next2 preload with mobile rapid1-to4 observed correct finalphoto; regression passed. MEDIA."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:32.198111Z"
     },
     {
       "id": "feedback:20261106:vacation-2188-media",
       "source": "user_request",
       "statement": "Repair provider/media delivery and unit gallery identity for vacation2188 and affected gallery family.",
       "acceptance_check": "Reconcile exact source and unit photo IDs with legacy/API, test original/CDN delivery and encoding, thumbnails/fullsize and sequence; no unrelated unit/business substitution.",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\release_evidence\\v812-feedback-20261107.json; Exact2 supplier originals restored; public200 hashmatch and7 correct unitphotos on desktop/mobile. MEDIA."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T22:42:32.450281Z"
+    },
+    {
+      "id": "access:v812-provider-inspection-discovery",
+      "source": "access_obstacle",
+      "statement": "Existing authenticated Site MCP connection exposes old status/pull tool schemas after v812 adds readonly provider inspector",
+      "acceptance_check": "Inspect connector, existing browser admin session, project API configuration and official tool-refresh flow; verify readonly authoritative provider evidence without credentials output or expanded access",
+      "status": "passed",
+      "evidence": [
+        "root-v812-provider-access-recovery.json; existing owner conversation01a1a0f3 observed four successful official inspections and exact active2417 after native Refresh tools; root-v812-public-provider-facts.json confirms published membership on exact build4a143"
+      ],
+      "reason": null,
+      "access_recovery": {
+        "observed_error": "The existing authenticated Site plugin exposed only the pre-v812 status/pull schemas; the new readonly inspector was not callable.",
+        "category": "capability",
+        "diagnosis": "Connected app tool metadata required its native Refresh tools operation. No provider authentication or role failure occurred.",
+        "authorization_boundary": "Existing Site, existing connected owner account and administrator allowlist; readonly public supplier facts. No credential extraction, new account, install, permission grant or publication.",
+        "routes": [
+          {
+            "kind": "connector",
+            "status": "checked",
+            "evidence": "Native Sites in the current local tool context returned project_not_found. Existing owner conversation successfully read v812 and authenticated catalog status; its cached namespace still contained only two tools.",
+            "result": "failed"
+          },
+          {
+            "kind": "authorized_session",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Existing IAB app-management page /settings/plugins-settings/plugin_asdk_app_sites_e8f08a02ddac8191a99e11fb8d46ff24 showed the connected Adir account and Refresh tools. One refresh completed; the existing owner chat then called the new inspector successfully for all four worlds."
+          },
+          {
+            "kind": "project_cli_api",
+            "status": "unavailable",
+            "evidence": "Relevant project worktree env/config key-name inventory contained no supplier API credentials. The public Site alias MCP endpoint required authenticated dispatch; no identity headers were forged or secrets extracted."
+          },
+          {
+            "kind": "official_connection",
+            "status": "checked",
+            "result": "succeeded",
+            "evidence": "Sites1.1.4 site-mcp-server.md identified the existing generated Site plugin. The native connected-app Refresh tools control restored its current schema without reconnecting or changing grants."
+          }
+        ],
+        "outcome": "recovered",
+        "verified_result": "Four official provider inspections succeeded once each. Vacation2417 was found with siteName כפר הים and active:true. Raw inventories: vacations1798/546active, events239/127active, rooms57/53active, spa158 with no active flag supplied. Root separately verified public2417 membership on build4a143b60-a060-b170-30e9-b7c2e64dc2b9.",
+        "ready_work_remaining": true,
+        "minimum_human_action": null,
+        "resume_when": null
+      },
+      "updated_at": "2026-11-06T22:24:34.284473Z"
+    },
+    {
+      "id": "feedback:20261107:holiday-slider-cold-recovery",
+      "source": "user_correction",
+      "statement": "Public v812 holiday rail ends in error after loading; reproduce cold/expired-cache path and fix underlying readiness delivery rather than hide error.",
+      "acceptance_check": "Default Sigd and holiday switching recover automatically from an absent or expired snapshot within a bounded lifecycle; prove actual public desktop/mobile and slow-provider regression without stale cross-selection offers.",
       "status": "pending",
       "evidence": [],
-      "reason": "Current turn requests explanation and proposed work per item; implementation and publication not claimed. Preserve existing unified plan and deferred document3 ordering.",
-      "updated_at": "2026-11-06T17:39:08.375257+00:00"
+      "reason": null
     }
   ],
   "verification_status": "in_progress",

@@ -19,6 +19,7 @@ import { isHomeDealOnlineEligible } from "../lib/vacation-online-first.ts";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { orderDiscoveryItems } from "../lib/discovery-slider-order.ts";
 import { useDocumentSeed } from "./use-document-seed.ts";
+import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
 
 const copy = {
   he: { heading: "הדילים שמתאימים לכם", audience: "מי יוצא לחופשה?", family: "משפחה", couple: "זוג", group: "קבוצה גדולה", all: "כל החג", opening: "תחילת החג", middle: "אמצע החג", ending: "סוף החג", period: "מתי יוצאים?", guests: "אורחים", nights: "לילות", loading: "בודקים זמינות ומחיר להרכב שלכם", empty: "לא נמצאו דילים זמינים לבחירה הזאת", emptyHelp: "נסו חלק אחר בחג או שנו את התאריכים וההרכב בחיפוש.", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", search: "שינוי תאריכים והרכב", reset: "חזרה לכל החג", count: "מקומות זמינים", basis: "המחירים מחושבים לפי", window: "השהייה עשויה להתחיל בכל תאריך בטווח הזה. התאריכים המדויקים מופיעים בכל דיל." },
@@ -40,6 +41,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const [result, setResult] = useState<Result>({ key: "", status: "loading", deals: [] });
   const generation = useRef(0);
   const automaticRetries = useRef(new Map<string, number>());
+  const recoveryStartedAt = useRef(new Map<string, number>());
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
   const earliest = clock ? firstDealDate(clock.now) : holiday.from;
   const currentHoliday = holiday.from < earliest ? { ...holiday, from: earliest, nights: Math.min(2, Math.max(1, Math.round((Date.parse(`${holiday.till}T00:00:00Z`) - Date.parse(`${earliest}T00:00:00Z`)) / 86_400_000))) } : holiday;
@@ -69,13 +71,17 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   useEffect(() => {
     if (!clock) return;
     const controller = new AbortController();
+    const startedAt = recoveryStartedAt.current.get(key) ?? Date.now();
+    recoveryStartedAt.current.set(key, startedAt);
+    const remainingBudget = () => Math.max(0, DISCOVERY_RECOVERY_BUDGET_MS - (Date.now() - startedAt));
     const request = ++generation.current;
     setResult((current) => ({ key, status: "loading", deals: current.key === key ? current.deals : [] }));
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    if (!remainingBudget()) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1", clock: clock.key });
-    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true,
+    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()),
       shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
@@ -85,14 +91,16 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         if (controller.signal.aborted || request !== generation.current) return;
         if (data.availabilityStatus === "refreshing" && data.deals.length === 0) {
           const attempts = automaticRetries.current.get(key) || 0;
-          if (attempts >= 3) setResult((current) => ({ ...current, key, status: current.key === key && current.deals.length ? "ready" : "error" }));
+          const delay = discoveryRecoveryDelay(attempts, remainingBudget());
+          if (delay === null) setResult((current) => ({ ...current, key, status: current.key === key && current.deals.length ? "ready" : "error" }));
           else {
             automaticRetries.current.set(key, attempts + 1);
-            retryTimer = setTimeout(() => setRetry((value) => value + 1), 1_500);
+            retryTimer = setTimeout(() => setRetry((value) => value + 1), delay);
           }
           return;
         }
         automaticRetries.current.delete(key);
+        recoveryStartedAt.current.delete(key);
         setResult({ key, status: "ready", deals: data.deals, stale: data.cache?.status === "stale" });
       })
       .catch(() => {
@@ -135,7 +143,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       {normalizedSelection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
       <div id="holiday-deal-results" className={`holiday-deals__surface${state === "loading" && result.deals.length ? " is-refreshing" : ""}`} role="tabpanel" tabIndex={0} aria-labelledby={`holiday-tab-${selection.audience}`} aria-busy={state === "loading"}>
         {state === "loading" && !result.deals.length ? <div className="holiday-deals__loading" role="status"><span className="holiday-deals__spinner" aria-hidden="true" /><strong>{text.loading}</strong><small>{guests} {text.guests} · {formatDate(window.from)} / {formatDate(window.till)}</small></div> : null}
-        {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => { if (holiday.id <= 0) { globalThis.location.reload(); return; } automaticRetries.current.delete(key); setRetry((value) => value + 1); }}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
+        {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => { if (holiday.id <= 0) { globalThis.location.reload(); return; } automaticRetries.current.delete(key); recoveryStartedAt.current.delete(key); setRetry((value) => value + 1); }}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}
         {(state === "ready" ? deals : result.deals).length ? <><p className="holiday-deals__count" role="status">{(state === "ready" ? deals : result.deals).length} {text.count}</p><div className="holiday-deals__grid" inert={state === "loading" || undefined} aria-hidden={state === "loading" || undefined}>{(state === "ready" ? deals : result.deals).map((deal) => {
           const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);
