@@ -1,7 +1,8 @@
 import type { Browser, BrowserContext, Page } from '@cloudflare/playwright';
+import engineDefinition from '../engine-definition.json' with {type:'json'};
 
 export type World = 'vacations' | 'events' | 'hourly' | 'spa' | 'activities';
-export type BrowserJob = { jobId: string; sourceVersion: string; buildId: string; world: World; device: 'desktop' | 'mobile'; scenario: 'world-shell' | 'map-open-close' | 'gallery-next' | 'responsive-shell' };
+export type BrowserJob = { jobId: string; sourceVersion: string; buildId: string; engineVersion:string;world: World; device: 'desktop' | 'mobile'; scenario: 'world-shell' | 'map-open-close' | 'gallery-next' | 'responsive-shell' };
 export type BrowserEnvironment = {
   PUBLIC_ORIGIN: string; EXPECTED_SOURCE_VERSION: string; EXPECTED_BUILD_ID: string;
   MAX_RUN_MS?: string; MAX_REQUESTS?: string; MAX_EVIDENCE_BYTES?: string;
@@ -17,6 +18,7 @@ export function validJob(value: unknown): value is BrowserJob {
   return typeof job.jobId==='string' && /^[A-Za-z0-9_-]{8,120}$/.test(job.jobId)
     && typeof job.sourceVersion==='string' && /^[a-f0-9]{40}$/.test(job.sourceVersion)
     && typeof job.buildId==='string' && /^[a-f0-9-]{8,64}$/.test(job.buildId)
+    && typeof job.engineVersion==='string' && /^[a-f0-9]{64}$/.test(job.engineVersion)
     && typeof job.world==='string' && Object.hasOwn(worldPaths,job.world)
     && (job.device==='desktop' || job.device==='mobile')
     && ['world-shell','map-open-close','gallery-next','responsive-shell'].includes(String(job.scenario));
@@ -40,6 +42,7 @@ async function close(resource: {close():Promise<unknown>} | undefined) { if(reso
 
 export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, factory: BrowserFactory, signal?: AbortSignal) {
   if(!validJob(job))throw new CheckFailure('invalid_job');
+  if(job.engineVersion!==engineDefinition.sha256)throw new CheckFailure('engine_definition_mismatch');
   const origin=new URL(env.PUBLIC_ORIGIN).origin;
   if(!origins.has(origin) || env.PUBLIC_ORIGIN!==origin)throw new CheckFailure('target_not_allowlisted');
   if(job.sourceVersion!==env.EXPECTED_SOURCE_VERSION || job.buildId!==env.EXPECTED_BUILD_ID)throw new CheckFailure('source_definition_mismatch');
@@ -76,6 +79,13 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     if(!response || response.status()!==200 || new URL(response.url()).origin!==origin || new URL(response.url()).pathname!==new URL(origin+path).pathname)throw new CheckFailure('unexpected_document_response');
     if(await step(() => (response.headerValue('x-vii-cache-build')))!==job.buildId)throw new CheckFailure('observed_build_mismatch');
     await step(() => (page!.locator('main').waitFor({state:'visible'})));steps++;
+    if(job.scenario!=='gallery-next') {
+      const heading=page.locator('main h1').first();
+      await step(()=>heading.waitFor({state:'visible'}));
+      const text=await step(()=>heading.textContent());
+      const expected:Record<World,RegExp>={vacations:/נופש|צימרים|וילות/,events:/אירוע/,spa:/ספא/,hourly:/שעה|שעות/,activities:/אטרקצי|פעילו/};
+      if(!text||!expected[job.world].test(text))throw new CheckFailure('world_heading_mismatch');steps++;
+    }
     if(job.scenario==='map-open-close') {
       await step(() => (page!.locator('button.map-button[data-map-interactive="true"][aria-pressed="false"]').first().click()));steps++;
       const canvas=page.locator('.listing-map-shell[data-map-ready="true"] > .listing-map.leaflet-container');
@@ -115,5 +125,5 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       } catch { evidenceKey=undefined; }
     }
   } finally { finished=true;await Promise.all([close(page),close(context),close(browser)]); }
-  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey};
+  return {jobId:job.jobId,sourceVersion:job.sourceVersion,buildId:job.buildId,engineVersion:engineDefinition.sha256,world:job.world,device:job.device,scenario:job.scenario,status,reason,steps,requestCount,durationMs:Date.now()-started,evidenceKey};
 }

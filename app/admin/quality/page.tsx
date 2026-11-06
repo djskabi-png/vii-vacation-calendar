@@ -5,12 +5,13 @@ import { AlertTriangle, CheckCircle2, Clock3, Eye, Play, RefreshCw, ShieldCheck,
 import styles from "./quality.module.css";
 import { readQualityJobIntent, persistQualityJobIntent, clearQualityJobIntent, type QualityJobIntent } from "../../lib/quality-job-intent";
 import SchedulerAttention, { type SchedulerAttentionRow } from "./scheduler-attention.tsx";
+import BrowserProfileControl, {type BrowserProfileOptions} from "./browser-profile-control.tsx";
 
 type Run = { id: string; triggerKind: string; releaseId: string | null; status: string; startedAt: string; finishedAt: string | null; passedCount: number; failedCount: number; degradedCount: number; blockedCount: number; durationMs: number | null; totalChecks: number; currentCheckId: string | null };
 type Incident = { id: string; checkId: string; family: string; world: string; route: string; viewport: string; severity: string; status: string; firstSeenAt: string; lastSeenAt: string; recoveredAt: string | null; occurrences: number; lastObserved: string };
 type Check = { checkId: string; family: string; world: string; route: string; viewport: string; severity: string; cadenceMinutes: number; expected: string; active: number };
-type Dashboard = { generatedAt: string; notificationProvider: { email: string; queued?: number; uncertain?: number }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }>; scheduler?: {attention: SchedulerAttentionRow[]} };
-type BackgroundJob = { runId: string; status: "queued" | "running" | "completed" | "blocked" | "cancelled"; nextIndex: number; totalChecks: number; passedCount: number; attentionCount: number; reason: string | null; receipts: Array<{ checkId: string; status: string; observed: string }> };
+type Dashboard = { generatedAt: string; notificationProvider: { email: string; queued?: number; uncertain?: number }; checks: Check[]; runs: Run[]; incidents: Incident[]; deliveries: Array<{ incidentId: string; status: string; reason: string | null; createdAt: string }>; scheduler?: {attention: SchedulerAttentionRow[]}; browser?:BrowserProfileOptions };
+type BackgroundJob = { runId: string; executionKind?:'browser'|'http';status: "queued" | "running" | "completed" | "blocked" | "cancelled"; nextIndex: number; totalChecks: number; passedCount: number; attentionCount: number; reason: string | null; receipts: Array<{ checkId: string; status: string; observed: string }> };
 type ScopeMetadata = { metadata: Record<string, { boxIds: string[]; engine: string }>; boxes: string[]; scopes: Record<string, Record<RunLevel, { supported: boolean; checkIds: string[] }>> };
 const scopeLabels: Record<string, string> = { "global-shell": "מעטפת האתר", "multilingual-shell": "שפות", search: "חיפוש", vacations: "נופש", events: "אירועים", spa: "ספא", hourly: "לפי שעה", activities: "אטרקציות", trails: "מסלולים", providers: "ספקים", maps: "מפות", "catalog-source": "נתוני המקור", "home-sliders": "סליידרים", "quality-control": "בקרת איכות", content: "תוכן ומידע", legal: "מדיניות ותקנון", seo: "עמודי קידום" };
 
@@ -65,6 +66,7 @@ export default function QualityPage() {
   const [jobPollingPaused, setJobPollingPaused] = useState(false);
   const [scopeMetadata, setScopeMetadata] = useState<ScopeMetadata | null>(null);
   const [scopeBox, setScopeBox] = useState("");
+  const [restoredBrowserProfileId,setRestoredBrowserProfileId]=useState<string|undefined>();
   const jobKey = useRef<QualityJobIntent | null>(null);
   const jobRunning = job?.status === "queued" || job?.status === "running";
   const legacyActiveRunId = data?.runs.find(run => run.status === "running")?.id ?? null;
@@ -122,6 +124,7 @@ export default function QualityPage() {
       const pending=readQualityJobIntent(sessionStorage);
       if(pending) {
         jobKey.current=pending;setLevel(pending.level);setScopeBox(pending.scope?.changedBoxes[0] || "");
+        setRestoredBrowserProfileId(pending.browserProfileId);
         void fetch(`/api/admin/quality?intentKey=${encodeURIComponent(pending.key)}`,{cache:"no-store",signal:AbortSignal.any([controller.signal,AbortSignal.timeout(8_000)])})
           .then(async response=>{
             if(controller.signal.aborted)return;
@@ -183,18 +186,20 @@ export default function QualityPage() {
   const selectedChecks = data ? checksForLevel(data.checks, level).filter(check => !scopeBox || scopePlan?.checkIds.includes(check.checkId)) : [];
   const processed = activeRun ? activeRun.passedCount + activeRun.failedCount + activeRun.degradedCount + activeRun.blockedCount : 0;
   const activeCheck = activeRun?.currentCheckId ? data?.checks.find((check) => check.checkId === activeRun.currentCheckId) : null;
-  const runNow = async () => {
+  const runNow = async (browserProfileId?:string) => {
     if (running || activeRun || jobRunning) return;
-    if (scopeBox && !scopePlan?.supported && !jobKey.current) { setError("יש לבחור רמת בדיקה שכוללת את כל הבדיקות הנדרשות לתחום הזה."); return; }
+    if (!browserProfileId && scopeBox && !scopePlan?.supported && !jobKey.current) { setError("יש לבחור רמת בדיקה שכוללת את כל הבדיקות הנדרשות לתחום הזה."); return; }
     setRunning(true); setError("");
     try {
       try {
-        jobKey.current ??= readQualityJobIntent(sessionStorage) ?? { key: crypto.randomUUID(), level, ...(scopeBox ? { scope: { changedBoxes: [scopeBox] } } : {}) };
+        jobKey.current ??= readQualityJobIntent(sessionStorage) ?? { key: crypto.randomUUID(), level, ...(browserProfileId?{browserProfileId}:scopeBox ? { scope: { changedBoxes: [scopeBox] } } : {}) };
         persistQualityJobIntent(sessionStorage,jobKey.current);
+        setRestoredBrowserProfileId(jobKey.current.browserProfileId);
       } catch { throw new Error("לא ניתן לשמור את מזהה הבדיקה בדפדפן. לא נשלחה בקשת הפעלה חדשה."); }
       const scope = jobKey.current.scope;
-      const response = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "enqueue", level: jobKey.current.level, idempotencyKey: jobKey.current.key, ...(scope ? { scope } : {}) }), signal: AbortSignal.timeout(10_000) });
-      if (response.status === 400) { clearQualityJobIntent(sessionStorage);jobKey.current = null; throw new Error("תחום הבדיקה או הרמה אינם נתמכים. בחרו תחום ורמה מחדש."); }
+      const request=jobKey.current.browserProfileId?{action:'enqueue-browser',profileId:jobKey.current.browserProfileId,idempotencyKey:jobKey.current.key}:{ action: "enqueue", level: jobKey.current.level, idempotencyKey: jobKey.current.key, ...(scope ? { scope } : {}) };
+      const response = await fetch("/api/admin/quality", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal: AbortSignal.timeout(10_000) });
+      if (response.status === 400 && !jobKey.current.browserProfileId) { clearQualityJobIntent(sessionStorage);jobKey.current = null; throw new Error("תחום הבדיקה או הרמה אינם נתמכים. בחרו תחום ורמה מחדש."); }
       if (!response.ok) throw new Error("לא ניתן לאמת את תחילת הבדיקה. ניסיון נוסף יבדוק את אותה בקשה.");
       const payload = await response.json() as { job: BackgroundJob };
       setJob(payload.job);
@@ -218,6 +223,7 @@ export default function QualityPage() {
     <header className={styles.header}><div><p>V Quality Control</p><h1>איכות ויציבות</h1><span>QQQAAA בודקת את האתר ומערכת הניהול בלי ליצור הזמנות, פניות, חוות דעת או תשלומים.</span></div><div className={styles.actions}><button type="button" onClick={() => void load()} disabled={loading || running} aria-label="רענון"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button><button type="button" className={styles.run} onClick={() => void runNow()} disabled={running || Boolean(activeRun) || jobRunning} aria-busy={running || Boolean(activeRun) || jobRunning}>{running || activeRun || jobRunning ? <RefreshCw size={18} className={styles.spin} /> : <Play size={18} />} {running || activeRun || jobRunning ? "QQQAAA רצה עכשיו..." : "הפעלת QQQAAA"}</button></div></header>
     {job ? <section className={styles.section} aria-label="בדיקות ברקע">
       <h2>{jobRunning ? "הבדיקה מתקדמת ברקע" : job.status === "completed" ? "ריצת הבדיקות הסתיימה" : job.status === "cancelled" ? "הבדיקה בוטלה" : "הבדיקה נעצרה לפני השלמה"}</h2>
+      <p>{job.executionKind==='browser'?'בדיקת דפדפן':'בדיקות שרת ונתונים'}</p>
       <p role="status">{job.nextIndex} מתוך {job.totalChecks} בדיקות הושלמו. {job.passedCount} עברו, {job.attentionCount} דורשות בדיקה.</p>
       {jobPollingPaused ? <button type="button" onClick={() => setJobPollGeneration(value => value + 1)}>בדיקת התקדמות מחדש</button> : null}
       {job.reason ? <p>הריצה אינה מאושרת כהצלחה. אפשר לעיין בתוצאות שנשמרו ולהתחיל בדיקה חדשה.</p> : null}
@@ -233,6 +239,7 @@ export default function QualityPage() {
     {loading && !data ? <div className={styles.loading} role="status"><RefreshCw className={styles.spin} />טוענים את מצב האיכות...</div> : null}
     {data ? <>
       {data.scheduler?<SchedulerAttention rows={data.scheduler.attention} labels={Object.fromEntries(data.checks.map(check=>[check.checkId,`${familyLabel[check.family]||check.family} · ${worldLabel[check.world]||check.world}`]))} refresh={load}/>:null}
+      {data.browser?<BrowserProfileControl key={restoredBrowserProfileId||'browser-default'} initialProfileId={restoredBrowserProfileId} options={data.browser} disabled={running||Boolean(activeRun)||jobRunning} onRun={profileId=>void runNow(profileId)}/>:null}
       <section className={styles.section} aria-label="בחירת תחום בדיקה">
         <label>עולם או רכיב
           <select value={scopeBox} onChange={(event) => {

@@ -208,7 +208,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -220,7 +222,9 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -288,8 +292,11 @@
       "id": "Q05",
       "title": "ארבעת ממדי השליטה",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
+      ]
     },
     {
       "id": "Q06",
@@ -305,7 +312,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -333,7 +342,9 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -342,7 +353,9 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -354,7 +367,9 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -364,7 +379,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_03.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -373,7 +390,9 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_03.md"
+        "PHASE_03.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -389,7 +408,9 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_03.md"
+        "PHASE_03.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -438,7 +459,9 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -460,7 +483,9 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_04.md"
+        "PHASE_04.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -470,7 +495,9 @@
       "status": "in_progress",
       "evidence": [
         "PHASE_01_VERIFICATION.md",
-        "PHASE_02.md"
+        "PHASE_02.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -482,7 +509,9 @@
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -493,7 +522,9 @@
       "evidence": [
         "PHASE_03.md",
         "PHASE_04.md",
-        "PHASE_05.md"
+        "PHASE_05.md",
+        "PHASE_05_VERIFICATION.md",
+        "PHASE_06.md"
       ]
     },
     {
@@ -653,6 +684,6 @@
   ],
   "deferredBacklogUntouched": true,
   "publicationPerformed": false,
-  "nextStep": "Freeze phase5 source, integrated build/suite and compiled verification; complete remaining core contracts, activation, performance and public evidence before deferred document3",
-  "updatedAt": "2026-11-06T01:21:54.281Z"
+  "nextStep": "Freeze and qualify phase6 browser family; actual private Cloud execution, migration/restore and remaining core/public acceptance stay pending",
+  "updatedAt": "2026-11-06T01:58:42.175Z"
 }

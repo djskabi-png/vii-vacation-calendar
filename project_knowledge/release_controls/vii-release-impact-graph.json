@@ -213,7 +213,8 @@
       "dependsOn": [
         "runtime-http",
         "quality-auth",
-        "quality-runtime"
+        "quality-runtime",
+        "quality-controller"
       ],
       "requiredChecks": [],
       "buildUnits": [
@@ -295,7 +296,8 @@
     "edge-delivery": {
       "dependsOn": [
         "edge-cache",
-        "runtime-http"
+        "runtime-http",
+        "quality-controller"
       ],
       "requiredChecks": [
         "global.home.semantic"
@@ -399,14 +401,16 @@
         "quality-browser"
       ],
       "requiredLocalTests": [
-        "services/vii-quality-browser/test/engine.test.mjs"
+        "services/vii-quality-browser/test/engine.test.mjs",
+        "services/vii-quality-browser/test/definition.test.mjs"
       ]
     },
     "quality-controller": {
       "dependsOn": [
         "runtime-http",
         "quality-auth",
-        "quality-runtime"
+        "quality-runtime",
+        "quality-browser"
       ],
       "requiredChecks": [],
       "buildUnits": [
@@ -418,7 +422,12 @@
         "services/vii-quality-control/test/scheduler.test.mjs",
         "services/vii-quality-control/test/scheduled-handler.test.mjs",
         "services/vii-quality-control/test/scheduler-recovery.test.mjs",
-        "services/vii-quality-control/test/queue-consumer.test.mjs"
+        "services/vii-quality-control/test/queue-consumer.test.mjs",
+        "services/vii-quality-control/test/browser-profiles.test.mjs",
+        "services/vii-quality-control/test/browser-executor.test.mjs",
+        "services/vii-quality-control/test/browser-job-platform.test.mjs",
+        "services/vii-quality-control/test/controller-browser.test.mjs",
+        "tests/quality-browser-workerd.test.mjs"
       ]
     },
     "runtime-http": {

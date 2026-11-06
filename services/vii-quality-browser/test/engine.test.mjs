@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runBrowserJob} from '../src/engine.ts';
+import definition from '../engine-definition.json' with {type:'json'};
 
 const sourceVersion='a'.repeat(40),buildId='12345678-1234-1234-1234-123456789abc';
 const env={PUBLIC_ORIGIN:'https://vii.spaplus.co',EXPECTED_SOURCE_VERSION:sourceVersion,EXPECTED_BUILD_ID:buildId};
-const job={jobId:'job-12345678',sourceVersion,buildId,scenario:'world-shell',world:'vacations',device:'desktop'};
+const job={jobId:'job-12345678',sourceVersion,buildId,engineVersion:definition.sha256,scenario:'world-shell',world:'vacations',device:'desktop'};
 function browserFixture(options={}) {
   const state={pageClosed:0,contextClosed:0,browserClosed:0,contextsCreated:0,map:false,image:0,launches:0,requests:[],events:[],puts:[]};let intercept;
   const request=async(method='GET',url=env.PUBLIC_ORIGIN+'/search',resourceType='document')=>{
@@ -17,6 +18,7 @@ function browserFixture(options={}) {
     async click(){if(options.stallAction)return new Promise(()=>{});if(selector.includes('map-button')){if(options.missingButton)throw Error('missing');state.map=true;}if(selector==='חזרה לרשימה'&&!options.closeBroken)state.map=false;if(selector==='התמונה הבאה'&&!options.frozenGallery)state.image++;},
     async getAttribute(name){if(name==='data-map-rendered-markers')return options.emptyMarkers?'0':'12';if(name==='src')return 'image-'+state.image;return null;},
     async evaluate(){return Boolean(options.overflow);},
+    async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':'נופש ברחבי הארץ';},
   });
   const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),
     async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async()=>options.wrongBuild?'wrong':buildId};},
@@ -36,6 +38,13 @@ test('each world uses its own actual route and verifies the observed build',asyn
     assert.equal(result.status,'passed');assert.equal(new URL(f.state.url).pathname,path);assertClosed(f.state);
     assert.deepEqual(f.state.events.slice(0,3),['route','new-page','goto']);
   }
+});
+
+test('a valid build and visible main cannot disguise an error screen as a healthy world',async()=>{
+ for(const heading of ['', 'העמוד לא נטען במלואו', 'בתי ספא בישראל']){
+  const f=browserFixture({heading});const result=await runBrowserJob(job,env,f.factory);
+  assert.equal(result.status,'failed');assert.equal(result.reason,'world_heading_mismatch');assertClosed(f.state);
+ }
 });
 test('map requires actionable controls, markers and an observed return to the list',async()=>{
   const good=browserFixture();assert.equal((await runBrowserJob({...job,scenario:'map-open-close'},env,good.factory)).status,'passed');assertClosed(good.state);

@@ -24,7 +24,7 @@ test('scope options preserve full dependency coverage or explicitly reject the l
 });
 
 function actualRunNow(dependencies) {
-  dependencies={readQualityJobIntent,persistQualityJobIntent,clearQualityJobIntent,...dependencies};
+  dependencies={readQualityJobIntent,persistQualityJobIntent,clearQualityJobIntent,setRestoredBrowserProfileId(){},...dependencies};
   const source=readFileSync(new URL('../app/admin/quality/page.tsx',import.meta.url),'utf8');
   const ast=ts.createSourceFile('quality.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
   let initializer;
@@ -65,4 +65,15 @@ test('actual UI does not send a new request when its durable intent cannot be re
     fetch:async()=>{calls++;throw Error('must not send')},setJob(){},load:async()=>{},
   })();
   assert.equal(calls,0);assert.ok(errors.some(value=>value.includes('לא נשלחה בקשת הפעלה חדשה')));
+});
+
+test('a browser intent survives remount, a changed selector and an unverified authority response',async()=>{
+ const stored=new Map(),bodies=[];let calls=0;
+ const dependencies={running:false,activeRun:null,jobRunning:false,scopePlan:{supported:true},crypto,AbortSignal,scopeBox:'maps',level:'full',setRunning(){},setError(){},setJob(){},load:async()=>{},sessionStorage:{getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,value),removeItem:key=>stored.delete(key)},fetch:async(_url,input)=>{bodies.push(JSON.parse(input.body));calls++;if(calls===1)throw Error('uncertain');return calls===2?Response.json({error:'old_authority'},{status:400}):Response.json({job:{runId:'accepted-browser-job',status:'queued'}},{status:202});}};
+ await actualRunNow({...dependencies,jobKey:{current:null}})('vacations-mobile-gallery-next');
+ const first=readQualityJobIntent(dependencies.sessionStorage);assert.equal(first.browserProfileId,'vacations-mobile-gallery-next');assert.equal(first.scope,undefined);
+ await actualRunNow({...dependencies,level:'regular',scopeBox:'spa',jobKey:{current:null}})('spa-desktop-world-shell');
+ assert.deepEqual(readQualityJobIntent(dependencies.sessionStorage),first);
+ await actualRunNow({...dependencies,jobKey:{current:null}})();
+ assert.deepEqual(bodies[0],{action:'enqueue-browser',profileId:first.browserProfileId,idempotencyKey:first.key});assert.deepEqual(bodies[1],bodies[0]);assert.deepEqual(bodies[2],bodies[0]);assert.equal(readQualityJobIntent(dependencies.sessionStorage),null);
 });

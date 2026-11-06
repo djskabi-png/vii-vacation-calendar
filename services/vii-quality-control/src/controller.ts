@@ -3,9 +3,12 @@ import { readQualityDashboard, readQualityRunStatus, readQualityScopeOptions, pe
 import { ensureQualityJobSchema, readQualityJob, readQualityJobByIntent, requestQualityJobCancel, type QualityJob } from "../../../app/lib/quality-job-store.ts";
 import { ensureDispatchSchema, reserveDispatch, dispatchWithTransport, recoverExpiredDispatches } from "./dispatch-outbox.ts";
 import { readSchedulerAttention, reconcileSchedulerAdmission, scheduledDispatchAdmission, markScheduledAdmissionUnknown } from "./scheduler-recovery.ts";
+import { browserProfiles } from "./browser-profiles.ts";
+import { createBrowserQualityJob, consumeBrowserQualityJob, type BrowserJobEnvironment } from "./browser-job-platform.ts";
+import { executeBrowserProfile } from "./browser-executor.ts";
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
-export type ControllerEnvironment = { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
+export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
 export type ControllerPlatform = {
   create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }): Promise<{ job: QualityJob; duplicate: boolean }>;
   consume(db: D1Database, runId: string): Promise<unknown>;
@@ -13,9 +16,20 @@ export type ControllerPlatform = {
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers });
 export function jobView(job: QualityJob) {
+  const configuration=job.checks[0]?.configuration;
   return { runId: job.runId, status: job.status, nextIndex: job.nextIndex, totalChecks: job.checks.length, sourceVersion: job.sourceVersion, reason: job.reason,
+    executionKind:configuration?.executionKind==='browser'?'browser':'http',
+    ...(configuration?.executionKind==='browser'?{profileId:configuration.profileId,buildId:configuration.buildId}:{}),
     passedCount: job.receipts.filter(r => r.status === "passed").length, attentionCount: job.receipts.filter(r => r.status !== "passed").length,
     receipts: ["queued", "running"].includes(job.status) ? [] : job.receipts };
+}
+function browserReady(env: ControllerEnvironment): env is ControllerEnvironment & BrowserJobEnvironment {
+  return env.EXECUTION_ENABLED==='true' && env.BROWSER_ENABLED==='true' && typeof env.QUALITY_BROWSER?.fetch==='function'
+    && env.PUBLIC_ORIGIN==='https://vii.spaplus.co' && /^[a-f0-9]{40}$/.test(env.EXPECTED_SOURCE_VERSION || '')
+    && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(env.EXPECTED_BUILD_ID || '');
+}
+function browserOptions(env: ControllerEnvironment) {
+  return {enabled:browserReady(env),profiles:browserProfiles};
 }
 function scopeValue(raw: unknown) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("invalid_scope");
@@ -62,6 +76,7 @@ export function createController(platform: ControllerPlatform) {
     try {
       const db = env.QUALITY_DB;
       if (request.method === "GET") {
+        if(url.searchParams.get('engine')==='browser')return json(browserOptions(env));
         if (url.searchParams.get("scope") === "metadata") return json(readQualityScopeOptions());
         if (url.searchParams.has("intentKey")) {
           const key = url.searchParams.get("intentKey") || "";
@@ -82,9 +97,16 @@ export function createController(platform: ControllerPlatform) {
           return json(await readQualityRunStatus(db, { runId: id, activeOnly: !id }));
         }
         const [dashboard,scheduler]=await Promise.all([readQualityDashboard(db),readSchedulerAttention(db)]);
-        return json({...dashboard,scheduler});
+        return json({...dashboard,scheduler,browser:browserOptions(env)});
       }
       if (!body) return json({ error: "invalid_request" }, 400);
+      if(body.action==='enqueue-browser') {
+        if(!browserReady(env))return json({error:'browser_runner_not_activated'},503);
+        if(typeof body.profileId!=='string' || typeof body.idempotencyKey!=='string')return json({error:'browser_job_definition_invalid'},400);
+        const queued=await createBrowserQualityJob(db,{actor,idempotencyKey:body.idempotencyKey,profileId:body.profileId,sourceVersion:env.EXPECTED_SOURCE_VERSION,buildId:env.EXPECTED_BUILD_ID,origin:env.PUBLIC_ORIGIN});
+        await dispatch(env,queued.job);
+        return json({job:jobView(await readQualityJob(db,queued.job.runId) ?? queued.job),duplicate:queued.duplicate},202);
+      }
       if(body.action==='scheduler-reconcile' && typeof body.checkId==='string' && Number.isSafeInteger(body.bucket) && (body.mode==='inspect'||body.mode==='allow-next'))return json({reconciliation:await reconcileSchedulerAdmission(db,{actor,checkId:body.checkId,bucket:Number(body.bucket),mode:body.mode})});
       if (body.action === "enqueue") {
         // A disabled or incompletely provisioned controller cannot accept new
@@ -120,7 +142,7 @@ export function createController(platform: ControllerPlatform) {
       const code = error instanceof Error ? error.message : "";
       if (code === "quality_job_idempotency_conflict" || code === "dispatch_immutable_conflict") return json({ error: code }, 409);
       if(code==='scheduler_job_still_active')return json({error:code},409);
-      if (["invalid_scope", "invalid_quality_schedule", "invalid_scheduler_reconciliation", "scheduler_admission_not_found", "quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(code)) return json({ error: code }, 400);
+      if (["invalid_scope", "invalid_quality_schedule", "invalid_quality_job", "browser_job_definition_invalid", "browser_profile_unsupported", "invalid_scheduler_reconciliation", "scheduler_admission_not_found", "quality_scope_unmapped", "quality_scope_level_incomplete", "quality_scope_empty"].includes(code)) return json({ error: code }, 400);
       return json({ error: "quality_unavailable" }, 503);
     }
   }
@@ -134,7 +156,9 @@ export function createController(platform: ControllerPlatform) {
     if (!job || job.sourceVersion !== value.sourceVersion || job.nextIndex !== value.expectedIndex || !["queued", "running"].includes(job.status)) return { status: "obsolete" };
     // The durable runner owns the execution lease and commit fence. Duplicate
     // Queue deliveries cannot execute an already committed check again.
-    const result = await platform.consume(env.QUALITY_DB, job.runId);
+    const isBrowser=job.checks[0]?.configuration.executionKind==='browser';
+    if(isBrowser&&!browserReady(env))throw new Error('browser_execution_disabled');
+    const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,env as ControllerEnvironment & BrowserJobEnvironment,executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId);
     const saved = await readQualityJob(env.QUALITY_DB, job.runId);
     if (saved && saved.nextIndex > value.expectedIndex) await dispatch(env, saved, value.priority);
     return result;

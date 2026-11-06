@@ -3,7 +3,9 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const deployRoots = ["app/", "worker/", "services/", "build/", "infrastructure/", "scripts/", "public/", "types/"];
+// This is the managed Site's cache namespace. Independently deployed services
+// are deliberately excluded; their artifacts have separate release digests.
+const deployRoots = ["app/", "worker/", "build/", "infrastructure/", "scripts/", "public/", "types/"];
 const rootInputs = /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.[^/]+|wrangler\.[^/]+|tsconfig[^/]*\.json|postcss\.config\.[^/]+|next\.config\.[^/]+|drizzle\.config\.[^/]+|instrumentation(?:-client)?\.[^/]+|proxy\.[^/]+|\.openai\/hosting\.json)$/;
 const textExtensions = /\.(?:css|cjs|html|js|json|mjs|md|mts|ps1|sql|svg|toml|ts|tsx|txt|yaml|yml)$/i;
 const included = path => (rootInputs.test(path) || path.startsWith("shared/") || deployRoots.some(root => path.startsWith(root))) &&
@@ -14,7 +16,7 @@ function canonicalBytes(path, bytes) {
   return Buffer.from(bytes.toString("utf8").replace(/\r\n?/g, "\n"), "utf8");
 }
 
-/** Build identity is the content identity of the deployable source inputs. */
+/** Managed Site source-input identity, separate from an exact artifact digest. */
 export function releaseBuildIdentity({ cwd = process.cwd(), files } = {}) {
   const root = resolve(cwd);
   const paths = (files ?? execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" })

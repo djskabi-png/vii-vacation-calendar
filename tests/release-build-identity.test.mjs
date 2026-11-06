@@ -18,6 +18,8 @@ test("documentation and tests do not affect deployable identity, but source and 
   const baseline = releaseBuildIdentity({ files: source });
   assert.equal(baseline, releaseBuildIdentity({ files: [...source, "tests/ignored.test.mjs"] }));
   assert.equal(baseline, releaseBuildIdentity({ files: [...source, "docs/ignored.md"] }));
+  assert.equal(baseline, releaseBuildIdentity({ files: [...source, "services/vii-quality-control/src/controller.ts"] }));
+  assert.equal(baseline, releaseBuildIdentity({ files: [...source, "services/vii-edge-delivery/src/index.ts"] }));
   assert.notEqual(baseline, releaseBuildIdentity({ files: ["app/page.tsx"] }));
 });
 

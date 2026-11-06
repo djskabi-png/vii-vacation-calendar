@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sha256": "ed1211a35af9b22204f607fa5f8abed25063a05e34b8145b2ae1d31dd056d168",
+  "files": [
+    "services/vii-quality-browser/build-definition.mjs",
+    "services/vii-quality-browser/src/engine.ts",
+    "services/vii-quality-browser/src/index.ts",
+    "services/vii-quality-browser/src/request-body.ts",
+    "services/vii-quality-browser/package.json",
+    "services/vii-quality-browser/pnpm-lock.yaml",
+    "services/vii-quality-control/src/browser-profiles.ts",
+    "services/vii-quality-control/src/browser-executor.ts"
+  ]
+}
