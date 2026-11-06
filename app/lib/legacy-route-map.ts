@@ -22,7 +22,7 @@ const reviewedLegacyCanonicalRedirects: Record<string, string> = {
   "/dream_eilat_villa": "/business?id=vacation-2709",
   "/gesher_laahava": "/business?id=vacation-2728",
   "/oshia_resort": "/business?id=vacation-2112",
-  "/satai_sky_bar": "/business?id=vacation-867",
+  "/satai_sky_bar": "/events/place/event-867",
   "/tzimar_beshadot_shel_hamushev": "/business?id=vacation-2197",
   "/vila_bereshit": "/business?id=vacation-2730",
   "/villa_la_familiya": "/business?id=vacation-1197",
