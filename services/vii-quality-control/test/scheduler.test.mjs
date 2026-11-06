@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fixture } from './fixture.mjs';
-import { admitScheduledChecks } from '../src/scheduler.ts';
+import { admitScheduledChecks,scheduledCheckSelection,schedulerWindowOpen } from '../src/scheduler.ts';
 import { qualityRegistry } from '../../../app/lib/quality-platform.ts';
 import { ensureQualityJobSchema, enqueueQualityJob } from '../../../app/lib/quality-job-store.ts';
 const options=(now,create)=>({now,generation:'test-generation',enabled:true,createScheduledJob:create});
@@ -23,3 +23,13 @@ test('persisted cadence overrides use elapsed time rather than incompatible buck
 });
 
 test('one failed admission cannot abort another due check in the same tick',async()=>{const f=fixture();let calls=0;try{const out=await admitScheduledChecks(f.db,options(600000,async a=>{calls++;if(calls===1)throw Error('one creation failed');return `job-${a.checkId}`}));assert.equal(out.length,2);assert.deepEqual(out.map(x=>x.status),['unknown','linked']);assert.equal(calls,2);}finally{f.sqlite.close();}});
+
+test('explicit canary selection cannot silently broaden to unrelated registry checks',async()=>{
+ const f=fixture();try{const ids=scheduledCheckSelection('["global.home.semantic"]');assert.ok(Object.isFrozen(ids));const created=[];const first=await admitScheduledChecks(f.db,{...options(600000,async a=>{created.push(a.checkId);return 'canary-run-id'}),checkIds:ids});assert.equal(first.length,1);assert.deepEqual(created,['global.home.semantic']);assert.deepEqual(await admitScheduledChecks(f.db,{...options(660000,async()=>{throw Error('cadence not due')}),checkIds:ids}),[]);}finally{f.sqlite.close();}
+ for(const raw of ['["unknown.check"]','["global.home.semantic","global.home.semantic"]','{}','not-json'])assert.throws(()=>scheduledCheckSelection(raw),/invalid_scheduler_selection/);
+ const empty=fixture();try{assert.deepEqual(await admitScheduledChecks(empty.db,{...options(600000,async()=>{throw Error('not allowed')}),checkIds:[]}),[]);assert.equal(empty.sqlite.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table'").get().n,0);}finally{empty.sqlite.close();}
+});
+
+test('optional canary window is finite and cannot silently become a permanent schedule',()=>{
+ const now=Date.now();assert.equal(schedulerWindowOpen(undefined,now),true);assert.equal(schedulerWindowOpen(new Date(now+120000).toISOString(),now),true);assert.equal(schedulerWindowOpen(new Date(now).toISOString(),now),false);assert.throws(()=>schedulerWindowOpen('not-a-date',now),/invalid_scheduler_window/);assert.throws(()=>schedulerWindowOpen(new Date(now+3600000).toISOString(),now),/invalid_scheduler_window/);
+});

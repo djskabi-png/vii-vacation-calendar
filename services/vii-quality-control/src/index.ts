@@ -3,12 +3,13 @@ import { createManualQualityJob, createScheduledQualityJob, consumeQualityJob, q
 import { verifyQualityAttestation } from "../../../app/lib/quality-attestation.ts";
 import { readJsonBody, RequestBodyError } from "../../../shared/request-body.ts";
 import { handleQueueDelivery, type QueueDelivery } from "./queue-consumer.ts";
-import { admitScheduledChecks, schedulerJobIntentKey } from "./scheduler.ts";
+import { admitScheduledChecks, schedulerJobIntentKey,scheduledCheckSelection,schedulerWindowOpen } from "./scheduler.ts";
 import { readQualityJob } from "../../../app/lib/quality-job-store.ts";
 import { ensureControlAuxiliarySchema } from "./control-schema.ts";
+import {verifyHttpResponseBuild} from './http-generation.ts';
 
-type Env = ControllerEnvironment & { PUBLIC_ORIGIN: string; EXPECTED_BUILD_ID: string; AUTHORITY_ENABLED?: string; SCHEDULE_ENABLED?: string };
-const controller = createController({ create: createManualQualityJob, consume: consumeQualityJob });
+type Env = ControllerEnvironment & { PUBLIC_ORIGIN: string; EXPECTED_BUILD_ID: string; AUTHORITY_ENABLED?: string; SCHEDULE_ENABLED?: string;SCHEDULE_CHECK_IDS?:string;SCHEDULE_UNTIL?:string };
+const controller = createController({ create: createManualQualityJob, consume: (db,runId)=>consumeQualityJob(db,runId,{fetcher:async(input,init)=>verifyHttpResponseBuild(await fetch(input,init),qualityBuildIdentity())}) });
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 let cachedKey: { key: JsonWebKey; until: number } | undefined;
 
@@ -60,9 +61,11 @@ export default {
   },
   async scheduled(_event: unknown, env: Env) {
     if (env.AUTHORITY_ENABLED !== "true" || env.EXECUTION_ENABLED !== "true") return;
+    if(!schedulerWindowOpen(env.SCHEDULE_UNTIL))return;
+    const checkIds=env.SCHEDULE_ENABLED==='true'?scheduledCheckSelection(env.SCHEDULE_CHECK_IDS):undefined;
     await ensureControlAuxiliarySchema(env.QUALITY_DB);
     await controller.recover(env);
-    const admissions=await admitScheduledChecks(env.QUALITY_DB, { enabled: env.SCHEDULE_ENABLED === 'true', now: Date.now(), generation: qualityBuildIdentity(), createScheduledJob: async (admission) => {
+    const admissions=await admitScheduledChecks(env.QUALITY_DB, { enabled: env.SCHEDULE_ENABLED === 'true',checkIds, now: Date.now(), generation: qualityBuildIdentity(), createScheduledJob: async (admission) => {
       const queued = await createScheduledQualityJob(env.QUALITY_DB, { actor: 'cloudflare-scheduler', idempotencyKey: schedulerJobIntentKey(admission.checkId,admission.bucket), origin: env.PUBLIC_ORIGIN, checkId: admission.checkId });
       return queued.job.runId;
     } });

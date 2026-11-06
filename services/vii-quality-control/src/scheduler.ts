@@ -7,6 +7,21 @@ export type SchedulerDb = D1Database;
 export type ScheduledAdmission = { checkId: string; bucket: number; priority: "monitor"; generation: string; status?: "linked" | "unknown"; runId?: string };
 type Existing = { checkId: string; status: string };
 
+export function schedulerWindowOpen(raw:string|undefined,now=Date.now()){
+ if(raw===undefined||raw==='')return true;
+ const until=Date.parse(raw);
+ if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(raw)||!Number.isFinite(until)||until-now>10*60_000)throw new Error('invalid_scheduler_window');
+ return until>now;
+}
+
+export function scheduledCheckSelection(raw:string|undefined):readonly string[]|undefined{
+ if(raw===undefined||raw==='')return undefined;
+ if(raw.length>4096)throw new Error('invalid_scheduler_selection');
+ let values;try{values=JSON.parse(raw);}catch{throw new Error('invalid_scheduler_selection');}
+ if(!Array.isArray(values)||values.length>qualityRegistry.length||values.some(value=>typeof value!=='string'||!qualityRegistry.some(check=>check.checkId===value))||new Set(values).size!==values.length)throw new Error('invalid_scheduler_selection');
+ return Object.freeze([...values]);
+}
+
 export function schedulerJobIntentKey(checkId: string, bucket: number) {
   // Registry IDs are dot-separated and cannot contain underscores. Replacing
   // dots is therefore injective and keeps the durable job key's safe alphabet.
@@ -27,9 +42,11 @@ export async function ensureSchedulerSchema(db: SchedulerDb) {
 
 function cadence(check: QualityCheck, overrides: ReadonlyMap<string, number>) { return Math.max(1, overrides.get(check.checkId) || check.cadenceMinutes) * 60_000; }
 
-export async function admitScheduledChecks(db: SchedulerDb, input: { now: number; generation: string; enabled: boolean; maxAdmissions?: number; overrides?: ReadonlyMap<string, number>; existing?: readonly Existing[]; createScheduledJob: (admission: ScheduledAdmission, check: QualityCheck) => Promise<string> }) {
+export async function admitScheduledChecks(db: SchedulerDb, input: { now: number; generation: string; enabled: boolean; checkIds?:readonly string[];maxAdmissions?: number; overrides?: ReadonlyMap<string, number>; existing?: readonly Existing[]; createScheduledJob: (admission: ScheduledAdmission, check: QualityCheck) => Promise<string> }) {
   if (!input.enabled) return [] as ScheduledAdmission[];
   if (!Number.isSafeInteger(input.now) || input.now < 0 || !input.generation || input.generation.length > 160) throw new Error("invalid_scheduler_generation");
+  const selection=input.checkIds===undefined?undefined:new Set(scheduledCheckSelection(JSON.stringify(input.checkIds)));
+  if(selection?.size===0)return [];
   await ensureSchedulerSchema(db);
   await ensureQualitySchema(db);
   await ensureQualityJobSchema(db);
@@ -47,7 +64,7 @@ export async function admitScheduledChecks(db: SchedulerDb, input: { now: number
   const stored = await db.prepare(`SELECT check_id AS checkId,MAX(created_at) AS lastAt,MAX(CASE WHEN status='unknown' THEN 1 ELSE 0 END) AS unknown FROM quality_scheduler_admissions GROUP BY check_id`).all<{ checkId: string; lastAt: number; unknown: number }>();
   const last = new Map(stored.results.map(row => [row.checkId, row]));
   const existing = new Map([...activeRows.results, ...(input.existing || [])].map(row => [row.checkId, row.status]));
-  const candidates = qualityRegistry.filter(check => check.cadenceMinutes > 0).map(check => ({check,lastAt:last.get(check.checkId)?.lastAt ?? -Infinity})).sort((a,b) => a.lastAt-b.lastAt || a.check.checkId.localeCompare(b.check.checkId)).map(x=>x.check);
+  const candidates = qualityRegistry.filter(check => check.cadenceMinutes > 0&&(!selection||selection.has(check.checkId))).map(check => ({check,lastAt:last.get(check.checkId)?.lastAt ?? -Infinity})).sort((a,b) => a.lastAt-b.lastAt || a.check.checkId.localeCompare(b.check.checkId)).map(x=>x.check);
   const minute = Math.floor(input.now / 60_000);
   const slots = await db.prepare(`SELECT slot FROM quality_scheduler_slots WHERE minute=?`).bind(minute).all<{ slot: number }>();
   const usedSlots = new Set(slots.results.map(row => row.slot));

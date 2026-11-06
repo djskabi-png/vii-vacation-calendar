@@ -8,12 +8,14 @@ import { createBrowserQualityJob, consumeBrowserQualityJob, type BrowserJobEnvir
 import { executeBrowserProfile } from "./browser-executor.ts";
 import { evidenceKey } from "../../vii-quality-browser/src/evidence.ts";
 import { readPrivateJpeg } from "../../../shared/private-jpeg.ts";
+import {verifyHttpTargetBuild,type GenerationResult} from './http-generation.ts';
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
 export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
 export type ControllerPlatform = {
   create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }): Promise<{ job: QualityJob; duplicate: boolean }>;
   consume(db: D1Database, runId: string): Promise<unknown>;
+  verifyTarget?(input:{origin:string;buildId:string}):Promise<GenerationResult>;
 };
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers });
@@ -192,6 +194,14 @@ export function createController(platform: ControllerPlatform) {
     // Queue deliveries cannot execute an already committed check again.
     const isBrowser=job.checks[0]?.configuration.executionKind==='browser';
     if(isBrowser&&!browserReady(env))throw new Error('browser_execution_disabled');
+    if(!isBrowser){
+      const generation=await(platform.verifyTarget??verifyHttpTargetBuild)({origin:env.PUBLIC_ORIGIN??'',buildId:env.EXPECTED_BUILD_ID??''});
+      if(generation.status!=='passed'){
+        await env.QUALITY_DB.prepare("UPDATE quality_jobs SET status='blocked',reason=?,updated_at=? WHERE run_id=? AND source_version=? AND status='queued' AND next_index=? AND active_index IS NULL AND cancel_requested_at IS NULL").bind(generation.reason,new Date().toISOString(),job.runId,job.sourceVersion,value.expectedIndex).run();
+        const saved=await readQualityJob(env.QUALITY_DB,job.runId);if(saved?.status==='blocked')await persistQualityJobProgress(env.QUALITY_DB,saved);
+        return{status:saved?.status==='running'?'not_claimed':saved?.status==='blocked'?'blocked':'obsolete',reason:saved?.reason??generation.reason};
+      }
+    }
     const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,env as ControllerEnvironment & BrowserJobEnvironment,executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId);
     const saved = await readQualityJob(env.QUALITY_DB, job.runId);
     if (saved && saved.nextIndex > value.expectedIndex) await dispatch(env, saved, value.priority);

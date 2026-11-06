@@ -431,7 +431,9 @@
         "services/vii-quality-control/test/browser-job-platform.test.mjs",
         "services/vii-quality-control/test/controller-browser.test.mjs",
         "tests/quality-browser-workerd.test.mjs",
-        "services/vii-quality-control/test/evidence-access.test.mjs"
+        "services/vii-quality-control/test/evidence-access.test.mjs",
+        "services/vii-quality-control/test/http-generation.test.mjs",
+        "tests/quality-cron-workerd.test.mjs"
       ]
     },
     "runtime-http": {
