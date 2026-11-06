@@ -21,6 +21,12 @@ function withCanonicalSpaImage(site: SpaPlusSite): SpaPlusSite {
   return { ...site, image, gallery };
 }
 
+type SpaFacilityEvidence = {
+  labels?: string[];
+  providerFacilityIds?: number[];
+  optionalFeatures?: { label: string; kind?: string; packageId?: string; sourceQuote?: string }[];
+};
+
 /** Narrative, hours and package terms are reviewed together; prices and media remain independent. */
 export function spaEditorialSource(site: SpaPlusSite) {
   return JSON.stringify({ id: site.id, title: text(site.title), titleEN: text(site.titleEN),
@@ -38,10 +44,10 @@ export async function spaEditorialSourceHash(site: SpaPlusSite) {
 
 export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite> {
   const canonicalSite = withCanonicalSpaImage(site);
-  const evidence = (officialFacilityEvidence.entries as Record<string, { labels?: string[]; providerAccessoryIds?: number[]; optionalFeatures?: { label: string }[] }>)[String(site.id)];
+  const evidence = (officialFacilityEvidence.entries as Record<string, SpaFacilityEvidence>)[String(site.id)];
   const evidenceLabels = evidence?.labels || [];
   const optionalLabels = evidence?.optionalFeatures?.map((feature) => feature.label) || [];
-  const evidenceIds = evidence?.providerAccessoryIds || [];
+  const evidenceIds = evidence?.providerFacilityIds || [];
   const withFacilities = evidence
     ? { ...canonicalSite,
       facilityIds: [...new Set([...(canonicalSite.facilityIds || []), ...evidenceIds])].sort((a, b) => a - b),
