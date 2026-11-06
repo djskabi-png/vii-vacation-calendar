@@ -130,7 +130,9 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": ["tests/event-last-minute-props.test.mjs"]
+      "requiredLocalTests": [
+        "tests/event-last-minute-props.test.mjs"
+      ]
     },
     "spa": {
       "dependsOn": [
@@ -217,12 +219,22 @@
         "api.home.presentation",
         "world.last-minute.semantic",
         "world.events.last-minute.semantic",
-        "world.spas.today.semantic"
+        "world.spas.today.semantic",
+        "discovery.vacation.tomorrow.ready",
+        "discovery.vacation.weekend.ready",
+        "discovery.vacation.friday-weekend.ready",
+        "discovery.vacation.thursday.ready",
+        "discovery.vacation.friday.ready",
+        "discovery.events.lastminute.ready",
+        "discovery.events.thursday.ready",
+        "discovery.events.friday.ready"
       ],
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/quality-readiness.test.mjs"
+      ]
     },
     "quality-control": {
       "dependsOn": [
@@ -466,22 +478,58 @@
       ]
     },
     "media-gallery": {
-      "dependsOn": ["catalog-source", "global-shell"],
-      "requiredChecks": ["place.vacation.semantic", "place.event.semantic", "place.hourly.semantic", "place.spa.semantic"],
-      "buildUnits": ["managed-site"],
-      "requiredLocalTests": ["tests/gallery-first-topic-default.test.mjs", "tests/property-detail-mobile-gallery-controls.test.mjs", "tests/legacy-gallery-media-independence.test.mjs"]
+      "dependsOn": [
+        "catalog-source",
+        "global-shell"
+      ],
+      "requiredChecks": [
+        "place.vacation.semantic",
+        "place.event.semantic",
+        "place.hourly.semantic",
+        "place.spa.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/gallery-first-topic-default.test.mjs",
+        "tests/property-detail-mobile-gallery-controls.test.mjs",
+        "tests/legacy-gallery-media-independence.test.mjs"
+      ]
     },
     "experience-contract": {
       "dependsOn": [],
       "requiredChecks": [],
-      "buildUnits": ["managed-site", "edge-delivery", "quality-controller"],
-      "requiredLocalTests": ["services/vii-quality-control/test/experience-contract.test.mjs", "services/vii-quality-control/test/experience-store.test.mjs", "services/vii-quality-control/test/experience-summary.test.mjs", "services/vii-edge-delivery/test/experience-gateway.test.mjs", "tests/experience-buffer.test.mjs", "tests/experience-runtime.test.mjs", "tests/experience-ingestion-workerd.test.mjs"]
+      "buildUnits": [
+        "managed-site",
+        "edge-delivery",
+        "quality-controller"
+      ],
+      "requiredLocalTests": [
+        "services/vii-quality-control/test/experience-contract.test.mjs",
+        "services/vii-quality-control/test/experience-store.test.mjs",
+        "services/vii-quality-control/test/experience-summary.test.mjs",
+        "services/vii-edge-delivery/test/experience-gateway.test.mjs",
+        "tests/experience-buffer.test.mjs",
+        "tests/experience-runtime.test.mjs",
+        "tests/experience-ingestion-workerd.test.mjs"
+      ]
     },
     "experience-client": {
-      "dependsOn": ["global-shell", "experience-contract"],
-      "requiredChecks": ["global.home.semantic"],
-      "buildUnits": ["managed-site"],
-      "requiredLocalTests": ["tests/experience-buffer.test.mjs", "tests/experience-runtime.test.mjs"]
+      "dependsOn": [
+        "global-shell",
+        "experience-contract"
+      ],
+      "requiredChecks": [
+        "global.home.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/experience-buffer.test.mjs",
+        "tests/experience-runtime.test.mjs"
+      ]
     },
     "runtime-http": {
       "dependsOn": [],
@@ -513,7 +561,9 @@
       ]
     },
     "quality-runtime": {
-      "dependsOn": [],
+      "dependsOn": [
+        "home-sliders"
+      ],
       "requiredChecks": [],
       "buildUnits": [
         "managed-site",
@@ -527,7 +577,8 @@
         "tests/quality-check-scope.test.mjs",
         "tests/quality-platform.test.mjs",
         "tests/quality-scoped-api-integration.test.mjs",
-        "tests/quality-scope-admission.test.mjs"
+        "tests/quality-scope-admission.test.mjs",
+        "tests/quality-readiness.test.mjs"
       ]
     },
     "request-lifecycle": {
@@ -678,7 +729,9 @@
         "app/lib/home-deal-curation.ts",
         "app/lib/warm-vacation-discovery-cache.ts",
         "app/lib/request-stage-timing.ts",
-        "app/lib/request-catalog-reader.ts"
+        "app/lib/request-catalog-reader.ts",
+        "app/lib/home-deal-dates.ts",
+        "app/lib/vii-home-deals.ts"
       ]
     },
     {
@@ -826,23 +879,34 @@
         "app/lib/quality-job-runner.ts",
         "app/lib/quality-job-store.ts",
         "app/lib/quality-platform.ts",
-        "app/lib/quality-check-scope.ts"
+        "app/lib/quality-check-scope.ts",
+        "app/lib/quality-readiness.ts"
       ]
     },
     {
       "id": "media-gallery",
       "ownerBox": "media-gallery",
-      "match": ["app/components/gallery-experience.tsx"]
+      "match": [
+        "app/components/gallery-experience.tsx"
+      ]
     },
     {
       "id": "experience-contract",
       "ownerBox": "experience-contract",
-      "match": ["shared/experience-metrics.ts"]
+      "match": [
+        "shared/experience-metrics.ts"
+      ]
     },
     {
       "id": "experience-client",
       "ownerBox": "experience-client",
-      "match": ["app/components/experience-collector.tsx", "app/lib/experience-buffer.ts", "app/lib/experience-route-context.ts", "app/lib/experience-runtime.ts", "app/lib/experience-signals.ts"]
+      "match": [
+        "app/components/experience-collector.tsx",
+        "app/lib/experience-buffer.ts",
+        "app/lib/experience-route-context.ts",
+        "app/lib/experience-runtime.ts",
+        "app/lib/experience-signals.ts"
+      ]
     },
     {
       "id": "request-lifecycle",

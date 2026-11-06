@@ -8,7 +8,8 @@ const graph = loadImpactGraph();
 test('production graph is valid and expands actual generated registry checks', () => {
   assert.deepEqual(validateImpactGraph(graph), []);
   const ids = registeredCheckIds();
-  assert.equal(ids.size, 61);
+  assert.equal(ids.size, 69);
+  for(const id of ['discovery.vacation.tomorrow.ready','discovery.vacation.friday-weekend.ready','discovery.events.lastminute.ready','discovery.events.friday.ready'])assert.ok(ids.has(id));
   assert.ok(ids.has('locale.ru.place.semantic'));
   assert.ok(ids.has('seo.sitemap.search-pages'));
 });

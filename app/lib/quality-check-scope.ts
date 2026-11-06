@@ -1,4 +1,5 @@
 import type { QualityCheck } from "./quality-platform.ts";
+import { discoveryReadinessDefinitions } from "./quality-readiness.ts";
 
 export type QualityCheckScopeMetadata = {
   definitionVersion: string;
@@ -85,6 +86,7 @@ for (const section of ["core", "holidays", "vacations", "events", "spas", "hourl
   metadataEntries.push([`seo.sitemap.${section}`, scope("seo", "V15", "medium")]);
 }
 
+for(const entry of discoveryReadinessDefinitions)metadataEntries.push([entry.checkId,{...scope('home-sliders','V16','full',[entry.world==='events'?'world.events.semantic':'world.vacations.semantic']),definitionVersion:'discovery-readiness-v1'}]);
 export const qualityScopeMetadata: Readonly<Record<string, QualityCheckScopeMetadata>> = Object.fromEntries(metadataEntries);
 
 const EMPTY_METADATA: QualityCheckScopeMetadata = {

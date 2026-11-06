@@ -1,18 +1,10 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 import { supplierContactNumber } from "./supplier-contact.ts";
-import { eligibleDealDate, firstDealDate } from "./deal-clock.ts";
+import { homeDealDates, homeDealPeriods, type HomeDealPeriod } from "./home-deal-dates.ts";
+export { homeDealDates, homeDealPeriods, type HomeDealPeriod } from "./home-deal-dates.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
-export const homeDealPeriods = [
-  { id: "tomorrow", label: "ברגע האחרון", weekday: null, nights: 1 },
-  { id: "weekend", label: "חמישי עד שבת", weekday: 4, nights: 2 },
-  { id: "friday-weekend", label: "שישי עד ראשון", weekday: 5, nights: 2 },
-  { id: "thursday", label: "לילה בחמישי", weekday: 4, nights: 1 },
-  { id: "friday", label: "לילה בשישי", weekday: 5, nights: 1 },
-] as const;
-
-export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
 export type HomeDeal = {
   siteID: number; name: string; image: string; images?: string[]; city: string; area: string; score: number | null; reviewCount: number;
   from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
@@ -32,12 +24,6 @@ export type HomeDealCatalogPlace = {
 };
 type ResolveHomeDealCatalog = (ids: number[]) => Promise<ReadonlyMap<number, HomeDealCatalogPlace>>;
 
-function israelToday(now: Date) {
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
-  const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-  return new Date(Date.UTC(value("year"), value("month") - 1, value("day")));
-}
-
 function addDays(date: Date, count: number) {
   const result = new Date(date);
   result.setUTCDate(result.getUTCDate() + count);
@@ -51,20 +37,6 @@ function checkoutDate(from: unknown, nights: number) {
   const arrival = new Date(`${from}T00:00:00Z`);
   if (Number.isNaN(arrival.valueOf()) || dateString(arrival) !== from) return null;
   return dateString(addDays(arrival, nights));
-}
-
-export function homeDealDates(periodId: HomeDealPeriod, now = new Date()) {
-  const period = homeDealPeriods.find((item) => item.id === periodId);
-  if (!period) throw new Error("invalid_period");
-  if (period.weekday === null) {
-    const arrival = new Date(`${firstDealDate(now)}T00:00:00Z`);
-    return { from: dateString(arrival), till: dateString(addDays(arrival, period.nights)), nights: period.nights };
-  }
-  const today = israelToday(now);
-  let offset = (period.weekday - today.getUTCDay() + 7) % 7;
-  if (offset === 0 && !eligibleDealDate(dateString(today), now)) offset = 7;
-  const arrival = addDays(today, offset);
-  return { from: dateString(arrival), till: dateString(addDays(arrival, period.nights)), nights: period.nights };
 }
 
 function mediaUrl(value: unknown) {

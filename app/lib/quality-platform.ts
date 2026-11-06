@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { initializeSchemaOnce } from "./schema-initializer.ts";
 import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope, type QualityScopeSelection } from "./quality-check-scope.ts";
 import type { QualityJob } from "./quality-job-store.ts";
+import { DISCOVERY_READINESS_VERSION, discoveryReadinessDefinitions, discoveryReadinessProbe } from "./quality-readiness.ts";
 
 export type QualitySeverity = "critical" | "high" | "medium" | "low";
 export type QualityStatus = "passed" | "failed" | "degraded" | "blocked";
@@ -23,6 +24,7 @@ export type QualityCheck = {
   requiredAll?: readonly string[];
   requiredAny?: readonly string[];
   forbidden?: readonly string[];
+  semanticContract?: typeof DISCOVERY_READINESS_VERSION;
 };
 
 export type QualityNotificationEnvironment = {
@@ -116,6 +118,7 @@ export const qualityRegistry: readonly QualityCheck[] = [
     severity: "high", cadenceMinutes: 360, timeoutMs: 45_000, expected: `${section} sitemap returns a populated URL set`,
     releaseBlocking: true, contentKind: "xml", minBytes: 200, requiredAll: ["<urlset", "<loc>"],
   })),
+  ...discoveryReadinessDefinitions.map(({checkId,world,route})=>json({checkId,world,route,family:'discovery-readiness',severity:'critical',cadenceMinutes:30,timeoutMs:10_000,expected:'Current exposed preset has a verified accepted snapshot, including a genuinely empty supplier result',releaseBlocking:true,semanticContract:DISCOVERY_READINESS_VERSION})),
 ] as const;
 
 export function qualityHeartbeatWindow(now = new Date()) {
@@ -213,12 +216,15 @@ async function checksDue(db: D1Database, now: Date, trigger: "scheduled" | "manu
 
 export async function executeQualityCheck(check: QualityCheck, origin: string, fetcher: typeof fetch, signal?: AbortSignal) {
   const started = Date.now();
+  const probe=discoveryReadinessProbe(check.checkId,new Date(started));
   const url = new URL(check.route, origin).toString();
+  if((Boolean(probe)!==Boolean(check.semanticContract))||probe&&(check.semanticContract!==DISCOVERY_READINESS_VERSION||check.route!==probe.route))return {status:'blocked' as const,statusCode:null,durationMs:0,observed:'discovery_readiness_contract_mismatch',url};
   try {
     const response = await fetcher(url, {
-      method: "GET",
+      method: probe?.method??"GET",
+      ...(probe&&'body' in probe?{body:probe.body}:{}),
       redirect: "follow",
-      headers: { "user-agent": "VII-Quality-Monitor/2.0", accept: check.contentKind === "image" ? "image/avif,image/webp,image/png,image/jpeg" : check.contentKind === "json" ? "application/json" : check.contentKind === "xml" ? "application/xml,text/xml" : "text/html" },
+      headers: { "user-agent": "VII-Quality-Monitor/2.0", ...(probe?.method==='POST'?{'Content-Type':'application/json'}:{}), accept: check.contentKind === "image" ? "image/avif,image/webp,image/png,image/jpeg" : check.contentKind === "json" ? "application/json" : check.contentKind === "xml" ? "application/xml,text/xml" : "text/html" },
       signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(check.timeoutMs)]) : AbortSignal.timeout(check.timeoutMs),
     });
     const type = response.headers.get("content-type") || "";
@@ -231,12 +237,14 @@ export async function executeQualityCheck(check: QualityCheck, origin: string, f
     const missingAll = (check.requiredAll || []).filter((token) => !body.includes(token));
     const hasAny = !check.requiredAny?.length || check.requiredAny.some((token) => body.includes(token));
     const forbidden = (check.forbidden || []).filter((token) => body.includes(token));
+    const readiness=probe?(()=>{try{return probe.validate(JSON.parse(body),Date.now());}catch{return {ok:false,reason:'invalid_snapshot_json'};}})():{ok:true};
     const passed = response.status >= 200 && response.status < 400 && expectedType && bytes.byteLength >= (check.minBytes || 256)
-      && missingAll.length === 0 && hasAny && forbidden.length === 0;
+      && missingAll.length === 0 && hasAny && forbidden.length === 0 && readiness.ok;
     const assertions = [
       missingAll.length ? `missing:${missingAll.join("|")}` : null,
       !hasAny ? `missing-any:${check.requiredAny?.join("|")}` : null,
       forbidden.length ? `forbidden:${forbidden.join("|")}` : null,
+      !readiness.ok&&'reason' in readiness?`snapshot:${readiness.reason}`:null,
     ].filter(Boolean).join("; ");
     return { status: passed ? "passed" as const : "failed" as const, statusCode: response.status,
       durationMs: Date.now() - started, observed: `${response.status} ${type || "unknown"}; ${bytes.byteLength} bytes${assertions ? `; ${assertions}` : ""}`, url };

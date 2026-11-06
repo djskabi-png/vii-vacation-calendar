@@ -10,16 +10,21 @@ export function loadImpactGraph(root = process.cwd()) {
 // Expand the trusted production initializer, including generated locale and
 // sitemap checks. A matching string elsewhere in the file is not a check.
 export function registeredCheckIds(root = process.cwd()) {
-  const source = readFileSync(resolve(root, 'app/lib/quality-platform.ts'), 'utf8');
-  const ast = ts.createSourceFile('registry.ts', source, ts.ScriptTarget.Latest, true);
-  let initializer;
-  const visit = node => {
-    if (ts.isVariableDeclaration(node) && node.name.getText(ast) === 'qualityRegistry') initializer = node.initializer.getText(ast);
-    ts.forEachChild(node, visit);
+  const trustedInitializer=(path,name)=>{
+    const source=readFileSync(resolve(root,path),'utf8');
+    const ast=ts.createSourceFile(path,source,ts.ScriptTarget.Latest,true);
+    let initializer;
+    const visit=node=>{if(ts.isVariableDeclaration(node)&&node.name.getText(ast)===name)initializer=node.initializer?.getText(ast);ts.forEachChild(node,visit);};
+    visit(ast);if(!initializer)throw new Error('quality_registry_dependency_missing:'+name);
+    return initializer;
   };
-  visit(ast);
-  if (!initializer) throw new Error('quality_registry_missing');
-  const code = ts.transpileModule(`const html = input => input; const json = input => input; return (${initializer});`, {
+  const initializer=trustedInitializer('app/lib/quality-platform.ts','qualityRegistry');
+  // Evaluate only these reviewed constant initializers, never module bodies or
+  // supplier loaders. The CLI and runtime expand the same canonical definitions.
+  const dependencies=`const homeDealPeriods=${trustedInitializer('app/lib/home-deal-dates.ts','homeDealPeriods')};
+    const DISCOVERY_READINESS_VERSION=${trustedInitializer('app/lib/quality-readiness.ts','DISCOVERY_READINESS_VERSION')};
+    const discoveryReadinessDefinitions=${trustedInitializer('app/lib/quality-readiness.ts','discoveryReadinessDefinitions')};`;
+  const code = ts.transpileModule(`${dependencies} const html = input => input; const json = input => input; return (${initializer});`, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
   }).outputText;
   return new Set(new Function(code)().map(check => check.checkId));

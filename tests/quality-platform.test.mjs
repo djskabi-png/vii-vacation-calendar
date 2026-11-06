@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, readQualityRunStatus, runQualityChecks, shouldStartQualityHeartbeat, updateQualitySchedule } from "../app/lib/quality-platform.ts";
+import { homeDealDates } from '../app/lib/home-deal-dates.ts';
 
 test("small run polling performs one fresh SELECT after shared schema initialization", async () => {
   const {sqlite,db}=fixture();let statements=0;
@@ -69,7 +70,9 @@ function fixture() {
   return { sqlite, db };
 }
 
-const success = async (url) => {
+const success = async (url, options) => {
+  if(url.includes('/api/vii/home-deals?')){const period=new URL(url).searchParams.get('period');return Response.json({period,dates:homeDealDates(period),availabilityStatus:'verified',cache:{checkedAt:new Date().toISOString()},deals:[]});}
+  if(url.endsWith('/api/vii/live-search')){const request=JSON.parse(options.body);return Response.json({world:'events',discoveryVersion:3,scope:{date:request.from,guests:20},cache:{checkedAt:new Date().toISOString()},results:[],places:[]});}
   if (url.includes("/api/vii/business-amenities")) return Response.json({ source: "biz-shared-amenities", groups: [{ title: "מתחם חיצוני", items: ["בריכה"] }, { title: "מתחם פנימי", items: ["מזגן"] }] });
   if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, review: null, authenticated: false, reviews: [], items: [], slider: [], section: [], popular: [], cities: [], types: [], capabilities: {}, coordinatesReady: true, interactiveMap: true });
   if (url.endsWith("/sitemap.xml")) return new Response("<?xml version=\"1.0\"?><sitemapindex><sitemap><loc>https://example.test/sitemaps/core/1.xml</loc></sitemap><sitemap><loc>https://example.test/sitemaps/vacations/1.xml</loc></sitemap>" + "x".repeat(500) + "</sitemapindex>", { status: 200, headers: { "content-type": "application/xml" } });
