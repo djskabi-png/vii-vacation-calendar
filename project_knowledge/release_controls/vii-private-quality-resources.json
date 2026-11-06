@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "accountId": "45b2f6dcf2cfe44204d2c470cbe682d9",
+  "scope": "Private quality resources only; not the managed Site business database",
+  "units": {
+    "quality-controller": {
+      "worker": "vii-quality-control",
+      "bindings": [
+        {"name": "QUALITY_DB", "type": "d1", "id": "9c96d3dd-e8d1-400f-9b17-2df4509b1095"},
+        {"name": "QUALITY_BROWSER", "type": "service", "service": "vii-quality-browser"},
+        {"name": "RELEASE_QUEUE", "type": "queue", "queue_name": "vii-quality-release"},
+        {"name": "MONITOR_QUEUE", "type": "queue", "queue_name": "vii-quality-monitor"}
+      ]
+    },
+    "quality-browser": {
+      "worker": "vii-quality-browser",
+      "bindings": [
+        {"name": "BROWSER", "type": "browser"},
+        {"name": "EVIDENCE", "type": "r2_bucket", "bucket_name": "vii-quality-evidence"}
+      ]
+    }
+  }
+}

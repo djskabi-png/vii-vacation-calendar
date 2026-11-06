@@ -339,7 +339,8 @@
         "tests/release-impact-graph.test.mjs",
         "tests/release-candidate-manifest.test.mjs",
         "tests/release-artifact-audit.test.mjs",
-        "tests/release-unit-inputs.test.mjs"
+        "tests/release-unit-inputs.test.mjs",
+        "tests/release-unit-candidate.test.mjs"
       ]
     },
     "multilingual-shell": {
