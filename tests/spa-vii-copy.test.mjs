@@ -65,6 +65,18 @@ test("changed supplier facts refresh while supplier prose can never overwrite VI
   await validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"],opening:["09:00-10:00"]}}]);
 });
 
+test("official SpaPlus facility evidence survives editorial projection for the two Tel Aviv pools", async () => {
+  for (const id of [6, 385]) {
+    const site = catalog.sites.find((entry) => entry.id === id);
+    const projected = await projectSpaViiSite(site);
+    assert.ok(projected.facilityIds?.length, String(id));
+    assert.ok(projected.facilityIds.includes(id === 6 ? 21 : 2818), String(id));
+    for (const label of (id === 6 ? ["בריכה", "חדר כושר", "בריכה חיצונית"] : ["ג'קוזי פרטי"])) {
+      assert.ok(projected.features.includes(label), `${id}: ${label}`);
+    }
+  }
+});
+
 test("already-projected runtime Spa entries remain renderable after package updates", async () => {
   const site=structuredClone(catalog.sites.find(x=>x.id===6));
   const projected=await projectSpaViiSite(site);

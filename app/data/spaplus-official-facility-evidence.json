@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "source": "official-spaplus-place-pages",
+  "checkedAt": "2026-11-06T20:25:35.6877597Z",
+  "entries": {
+    "6": {
+      "sourceUrl": "https://www.spaplus.co.il/the_spa",
+      "htmlSha256": "f786a6ce11677bf2c6cbfac4ff871517f9da290b653e8df2f3c171e150deac96",
+      "providerAccessoryIds": [21,22,20,244,67,168,66,780,245,69,165,172,1593,1473,58,938],
+      "labels": ["בריכה","חדר כושר","בריכה חיצונית","ארוחת בוקר","סאונה יבשה","סאונה רטובה"]
+    },
+    "385": {
+      "sourceUrl": "https://www.spaplus.co.il/OKOA_Spa",
+      "htmlSha256": "487d93edf4bcb0f1d7a97e4709f5ac7c325ea7611f06fa7a3bbc755c036da05f",
+      "providerAccessoryIds": [2818,77,2834,2820,2737],
+      "labels": ["ג'קוזי פרטי","ארוחת בוקר","סאונה יבשה","סאונה רטובה"]
+    }
+  }
+}

@@ -4,6 +4,7 @@ import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SpaEditorialReviewError, catalogDiagnosticLimit,
   type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import { isBannedPublicMedia } from "./public-media-policy.ts";
+import officialFacilityEvidence from "../data/spaplus-official-facility-evidence.json" with { type: "json" };
 
 function text(value: unknown) {
   return String(value ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
@@ -37,13 +38,21 @@ export async function spaEditorialSourceHash(site: SpaPlusSite) {
 
 export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite> {
   const canonicalSite = withCanonicalSpaImage(site);
+  const evidence = (officialFacilityEvidence.entries as Record<string, { labels?: string[]; providerAccessoryIds?: number[] }>)[String(site.id)];
+  const evidenceLabels = evidence?.labels || [];
+  const evidenceIds = evidence?.providerAccessoryIds || [];
+  const withFacilities = evidence
+    ? { ...canonicalSite,
+      facilityIds: [...new Set([...(canonicalSite.facilityIds || []), ...evidenceIds])].sort((a, b) => a - b),
+      features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels])] }
+    : canonicalSite;
   let copy;
   try { copy = spaViiCopy(site.id); } catch {
     const place = text(site.city) || "ישראל";
     const title = text(site.title);
     if (!title) throw new SpaEditorialReviewError({ total: 1, truncated: false,
       rejected: [{ supplierId: site.id, fields: ["title"], reason: "missing_title" }] });
-    return { ...canonicalSite,
+    return { ...withFacilities,
       shortDescription: `${title}, מתחם ספא ב${place}.`,
       about: ["לפני ההזמנה, בדקו מה כלול בחבילה, למי היא מתאימה ומהם תנאי הביטול."] };
   }
@@ -52,7 +61,7 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
   // refresh without turning a harmless upstream edit into a catalog-wide
   // editorial rejection. The source hash remains audit evidence for the
   // original review, not a publication lock on all future supplier facts.
-  return { ...canonicalSite, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
+  return { ...withFacilities, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
 }
 
 export async function validateSpaEditorialCandidate(entries: SupplierCatalogEntry[]) {
