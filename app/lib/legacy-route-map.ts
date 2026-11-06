@@ -16,6 +16,7 @@ const reviewedLegacyCanonicalRedirects: Record<string, string> = {
   "/sunset_events": "/events/place/event-2524",
   "/ahuzat_romema": "/business?id=vacation-2740",
   "/villa_narkis_eilat": "/business?id=vacation-2736",
+  "/makom_shel_barko": "/business?id=vacation-2732",
 };
 
 export function normalizedLegacySource(input: URL | string) {

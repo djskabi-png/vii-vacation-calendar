@@ -29,6 +29,7 @@ test("reviewed legacy search and event sources have exact canonical destinations
   assert.equal(legacyPlaceDestination("/Sunset_Events"), "/events/place/event-2524");
   assert.equal(legacyPlaceDestination("/ahuzat_romema"), "/business?id=vacation-2740");
   assert.equal(legacyPlaceDestination("/villa_narkis_eilat"), "/business?id=vacation-2736");
+  assert.equal(legacyPlaceDestination("/Makom_Shel_Barko"), "/business?id=vacation-2732");
 });
 
 test("legacy gone sources are not shadowed by a path-level redirect", async () => {
