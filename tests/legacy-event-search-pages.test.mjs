@@ -17,6 +17,7 @@ test("all captured legacy event search pages have unique approved canonical path
     dated.searchParams.set("guests", "8");
     const datedResult = legacyDisposition(dated);
     assert.equal(datedResult?.status, 301, `${page.legacySourcePath} dated`);
+    assert.equal(new URL(datedResult.target, "https://vii.spaplus.co").pathname, page.canonicalPath, `${page.legacySourcePath} retains approved intent`);
     assert.equal(datedResult?.target.includes("from=2026-12-10"), true, `${page.legacySourcePath} preserves dates`);
     assert.equal(datedResult?.target.includes("guests=8"), true, `${page.legacySourcePath} preserves party`);
     assert.ok(page.filters && Object.keys(page.filters).length >= 0);

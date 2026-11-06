@@ -681,7 +681,8 @@
         "app/lib/legacy-route-map.ts",
         "app/lib/managed-search-params.ts",
         "app/lib/new-tab-policy.ts",
-        "app/lib/search-opportunities.ts"
+        "app/lib/search-opportunities.ts",
+        "app/lib/event-search-features.ts"
       ]
     },
     {
