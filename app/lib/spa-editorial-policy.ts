@@ -38,13 +38,14 @@ export async function spaEditorialSourceHash(site: SpaPlusSite) {
 
 export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite> {
   const canonicalSite = withCanonicalSpaImage(site);
-  const evidence = (officialFacilityEvidence.entries as Record<string, { labels?: string[]; providerAccessoryIds?: number[] }>)[String(site.id)];
+  const evidence = (officialFacilityEvidence.entries as Record<string, { labels?: string[]; providerAccessoryIds?: number[]; optionalFeatures?: { label: string }[] }>)[String(site.id)];
   const evidenceLabels = evidence?.labels || [];
+  const optionalLabels = evidence?.optionalFeatures?.map((feature) => feature.label) || [];
   const evidenceIds = evidence?.providerAccessoryIds || [];
   const withFacilities = evidence
     ? { ...canonicalSite,
       facilityIds: [...new Set([...(canonicalSite.facilityIds || []), ...evidenceIds])].sort((a, b) => a - b),
-      features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels])] }
+      features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels, ...optionalLabels])] }
     : canonicalSite;
   let copy;
   try { copy = spaViiCopy(site.id); } catch {

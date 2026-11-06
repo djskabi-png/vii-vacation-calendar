@@ -20,6 +20,15 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(looksLikeUninventoriedLegacyPath("/assets/app.js"), false);
 });
 
+test("reviewed legacy search and event sources have exact canonical destinations", () => {
+  assert.equal(legacyPlaceDestination("/s/even_menahem/15220"), "/search/vacations/even-menahem-15220-private-covered-heated-pool");
+  assert.equal(legacyPlaceDestination("/s/israel/178087"), "/search/vacations/israel-178087-valentines-day");
+  assert.equal(legacyPlaceDestination("/Guesthouse_Events"), "/events/place/event-812");
+  assert.equal(legacyPlaceDestination("/Sol-_Events_And_Parties"), "/events/place/event-871");
+  assert.equal(legacyPlaceDestination("/Willig_Bar_Events"), "/events/place/event-930");
+  assert.equal(legacyPlaceDestination("/Sunset_Events"), "/events/place/event-2524");
+});
+
 test("legacy gone sources are not shadowed by a path-level redirect", async () => {
   const inventory = JSON.parse(await readFile(new URL("../app/data/legacy-redirect-inventory.json", import.meta.url), "utf8"));
   for (const source of inventory.gone) {

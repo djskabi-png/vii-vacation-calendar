@@ -8,6 +8,7 @@ import legacySearchPublications from "../data/legacy-search-page-publications.js
 import { curatedVacationSearchPages } from "../data/curated-vacation-search-pages.ts";
 import { holidayWorldPath } from "./holiday-world.ts";
 import { completeLegacySearchFilters, completeLegacySearchSourcePath } from "./legacy-search-intent.ts";
+import { legacyMissingSearchPages } from "../data/legacy-missing-search-pages.ts";
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -89,7 +90,7 @@ export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "ti
   return true;
 }
 
-const staticSearchPages = ([...legacySearchPublications.pages, ...curatedVacationSearchPages] as LegacySearchPageRecord[])
+const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages] as LegacySearchPageRecord[])
   .map(hydrateLegacyPage)
   .filter(publicSearchOpportunityAllowed);
 

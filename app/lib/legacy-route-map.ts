@@ -7,6 +7,15 @@ const redirects = inventory.redirects as Record<string, string>;
 const gone = new Set(inventory.gone as string[]);
 const legacyPriceKeys = new Set(["price", "minPrice", "maxPrice"]);
 
+const reviewedLegacyCanonicalRedirects: Record<string, string> = {
+  "/s/even_menahem/15220": "/search/vacations/even-menahem-15220-private-covered-heated-pool",
+  "/s/israel/178087": "/search/vacations/israel-178087-valentines-day",
+  "/guesthouse_events": "/events/place/event-812",
+  "/sol-_events_and_parties": "/events/place/event-871",
+  "/willig_bar_events": "/events/place/event-930",
+  "/sunset_events": "/events/place/event-2524",
+};
+
 export function normalizedLegacySource(input: URL | string) {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const pathname = (url.pathname.replace(/\/+$/, "") || "/").toLowerCase();
@@ -20,7 +29,7 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const exact = normalizedLegacySource(url);
   const path = normalizedLegacySource(url.pathname);
-  let target = redirects[exact] || redirects[path];
+  let target = redirects[exact] || redirects[path] || reviewedLegacyCanonicalRedirects[path];
   // Legacy search pages were published without booking state. A dated legacy
   // URL must still resolve to the same approved semantic page while retaining
   // the visitor's dates and party for the new search experience.

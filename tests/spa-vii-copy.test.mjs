@@ -70,10 +70,12 @@ test("official SpaPlus facility evidence survives editorial projection for the t
     const site = catalog.sites.find((entry) => entry.id === id);
     const projected = await projectSpaViiSite(site);
     assert.ok(projected.facilityIds?.length, String(id));
-    assert.ok(projected.facilityIds.includes(id === 6 ? 21 : 2818), String(id));
-    for (const label of (id === 6 ? ["בריכה", "חדר כושר", "בריכה חיצונית"] : ["ג'קוזי פרטי"])) {
+    assert.ok(projected.facilityIds.includes(id === 6 ? 115 : 214), String(id));
+    for (const label of (id === 6 ? ["בריכה", "חדר כושר", "בריכה חיצונית"] : ["ג'קוזי פרטי", "בריכה"])) {
       assert.ok(projected.features.includes(label), `${id}: ${label}`);
     }
+    if (id === 6) assert.ok(!projected.features.includes("ג'קוזי פרטי"));
+    if (id === 385) assert.ok(!projected.features.includes("בריכה חיצונית"));
   }
 });
 

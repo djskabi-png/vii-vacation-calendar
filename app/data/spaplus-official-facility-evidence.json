@@ -5,15 +5,16 @@
   "entries": {
     "6": {
       "sourceUrl": "https://www.spaplus.co.il/the_spa",
-      "htmlSha256": "f786a6ce11677bf2c6cbfac4ff871517f9da290b653e8df2f3c171e150deac96",
-      "providerAccessoryIds": [21,22,20,244,67,168,66,780,245,69,165,172,1593,1473,58,938],
+      "htmlSha256": "d3173bebfe4d3bc050625aadffbc5b245bdac5f801890cde20a129ef7649a8e6",
+      "providerAccessoryIds": [115,180,172,165,176,177],
       "labels": ["בריכה","חדר כושר","בריכה חיצונית","ארוחת בוקר","סאונה יבשה","סאונה רטובה"]
     },
     "385": {
       "sourceUrl": "https://www.spaplus.co.il/OKOA_Spa",
-      "htmlSha256": "487d93edf4bcb0f1d7a97e4709f5ac7c325ea7611f06fa7a3bbc755c036da05f",
-      "providerAccessoryIds": [2818,77,2834,2820,2737],
-      "labels": ["ג'קוזי פרטי","ארוחת בוקר","סאונה יבשה","סאונה רטובה"]
+      "htmlSha256": "40250c84069b25839637883f9ce5ee5f4a9b5e07aafc5953332f9f3ffb1c55d4",
+      "providerAccessoryIds": [214,165,176,177],
+      "labels": ["ג'קוזי פרטי","ארוחת בוקר","סאונה יבשה","סאונה רטובה"],
+      "optionalFeatures": [{"label":"בריכה","kind":"optional-paid","packageId":"510654","sourceQuote":"ניתן להוסיף דרך נציגה ארוחת בוקר ב230 ש\"ח לאדם וכניסה לבריכה ב200 ש\"ח לאדם בהתאם לזמינות"}]
     }
   }
 }
