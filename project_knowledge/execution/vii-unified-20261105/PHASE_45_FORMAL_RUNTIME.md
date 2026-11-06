@@ -67,6 +67,14 @@ counters also prevent late context-close callbacks producing a contradictory
 passing receipt. Optional standard browser navigation timings preserve missing
 stages as null and do not perform a reload or an additional network request.
 
+Before publishing those diagnostics, root found a separate compiled-artifact
+defect: Wrangler inserted an outer `__name` helper inside the function serialized
+to the browser. The actual phase47 bundle reproduced `__name is not defined`.
+That artifact was not deployed. The repair uses a literal read-only browser
+script, and an actual keep-names compilation/isolation regression now covers
+the mechanism. The final packaged callback must also pass the equivalent exact
+bundle readback before activation. Source tests alone do not satisfy this gate.
+
 Current delivery timings must be distinguished from cached upstream timing
 headers. A real RSC HIT carried older `Server-Timing` Edge values as well as the
 current lookup value. Do not attribute stored timings to the current request.

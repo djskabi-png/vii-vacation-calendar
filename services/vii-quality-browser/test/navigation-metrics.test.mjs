@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import{readFileSync,realpathSync}from'node:fs';
+import{createRequire}from'node:module';
 import { readNavigationMetrics } from '../src/navigation-metrics.ts';
 
-function page(performance) { return { evaluate: callback => { const old=globalThis.performance;globalThis.performance=performance;try{return Promise.resolve(callback())}finally{globalThis.performance=old}} }; }
+function page(performance) { return { evaluate: script => Promise.resolve(structuredClone(vm.runInNewContext(typeof script==='string'?script:'('+script.toString()+')()',{performance}))) }; }
 const navigation={startTime:100,responseStart:145.4,responseEnd:800.2,domInteractive:420.7,domContentLoadedEventEnd:500.8};
 
 test('executes the read-only browser callback and returns relative integer timings',async()=>{
@@ -22,4 +25,14 @@ test('negative and non-finite provider timing values are rejected',async()=>{
   assert.equal(result,undefined);
   const nonfinite=await readNavigationMetrics(page({getEntriesByType:type=>type==='navigation'?[{...navigation,responseEnd:Number.NaN}]:[]}));
   assert.equal(nonfinite,undefined);
+});
+test('actual keep-names compiled helper executes in a browser scope without outer build helpers',async()=>{
+ const require=createRequire(realpathSync(new URL('../../../node_modules/wrangler/package.json',import.meta.url)));
+ const esbuild=require('esbuild');
+ const source=readFileSync(new URL('../src/navigation-metrics.ts',import.meta.url),'utf8');
+ const compiled=await esbuild.transform(source,{loader:'ts',format:'cjs',platform:'neutral',keepNames:true});
+ assert.match(compiled.code,/__name/);
+ const module={exports:{}};vm.runInNewContext(compiled.code,{module,exports:module.exports,Object,Promise});
+ const result=await module.exports.readNavigationMetrics(page({getEntriesByType:type=>type==='navigation'?[navigation]:[{name:'first-contentful-paint',startTime:250.6}]}));
+ assert.equal(result.ttfbMs,45);assert.equal(result.fcpMs,151);
 });
