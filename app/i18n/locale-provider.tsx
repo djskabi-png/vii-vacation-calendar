@@ -2,19 +2,57 @@
 
 import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
-import legacyVacationUiTranslations from "../data/legacy-vacation-ui-translations.json";
-import bookingHubTranslations from "../data/booking-hub-translations.json";
-import hourlyUiTranslations from "../data/hourly-ui-translations.json";
-import providerJoinTranslations from "../data/provider-join-translations.json";
-import spaUiTranslations from "../data/spa-ui-translations.json";
-import catalogAdminTranslations from "../data/catalog-admin-translations.json";
-import emailPolishTranslations from "../data/email-polish-translations.json";
-import worldDepthTranslations from "../data/world-depth-translations.json";
-import visitorUiTranslations from "../data/visitor-ui-translations.json";
-import publicReviewTranslations from "../data/public-review-translations.json";
 import { lookupPublicCopy } from "./public-copy";
 
-const publicReviewByLanguage = Object.fromEntries((["en", "fr", "ru"] as const).map((language) => [language, Object.fromEntries(Object.entries(publicReviewTranslations).map(([source, translations]) => [source, translations[language]]))])) as Record<"en" | "fr" | "ru", Record<string, string>>;
+type AuxiliaryDictionary = Record<string, Record<string, string> | string>;
+const auxiliaryDictionaries: Record<string, AuxiliaryDictionary> = {};
+const publicReviewByLanguage = { en: {}, fr: {}, ru: {} } as Record<"en" | "fr" | "ru", Record<string, string>>;
+const auxiliaryRequests: Partial<Record<GeneratedLanguage, Promise<void>>> = {};
+let legacyVacationUiTranslations: AuxiliaryDictionary = {};
+let bookingHubTranslations: AuxiliaryDictionary = {};
+let hourlyUiTranslations: AuxiliaryDictionary = {};
+let providerJoinTranslations: AuxiliaryDictionary = {};
+let spaUiTranslations: AuxiliaryDictionary = {};
+let catalogAdminTranslations: AuxiliaryDictionary = {};
+let emailPolishTranslations: AuxiliaryDictionary = {};
+let worldDepthTranslations: AuxiliaryDictionary = {};
+let visitorUiTranslations: AuxiliaryDictionary = {};
+
+function loadAuxiliaryTranslations(language: GeneratedLanguage) {
+  const existing = auxiliaryRequests[language];
+  if (existing) return existing;
+  const request = Promise.all([
+    import("../data/legacy-vacation-ui-translations.json"),
+    import("../data/booking-hub-translations.json"),
+    import("../data/hourly-ui-translations.json"),
+    import("../data/provider-join-translations.json"),
+    import("../data/spa-ui-translations.json"),
+    import("../data/catalog-admin-translations.json"),
+    import("../data/email-polish-translations.json"),
+    import("../data/world-depth-translations.json"),
+    import("../data/visitor-ui-translations.json"),
+    import("../data/public-review-translations.json"),
+  ]).then(([legacy, booking, hourly, provider, spa, catalog, email, depth, visitor, review]) => {
+    legacyVacationUiTranslations = legacy.default as AuxiliaryDictionary;
+    bookingHubTranslations = booking.default as AuxiliaryDictionary;
+    hourlyUiTranslations = hourly.default as AuxiliaryDictionary;
+    providerJoinTranslations = provider.default as AuxiliaryDictionary;
+    spaUiTranslations = spa.default as AuxiliaryDictionary;
+    catalogAdminTranslations = catalog.default as AuxiliaryDictionary;
+    emailPolishTranslations = email.default as AuxiliaryDictionary;
+    worldDepthTranslations = depth.default as AuxiliaryDictionary;
+    visitorUiTranslations = visitor.default as AuxiliaryDictionary;
+    for (const target of ["en", "fr", "ru"] as const) {
+      publicReviewByLanguage[target] = Object.fromEntries(
+        Object.entries(review.default as Record<string, Partial<Record<GeneratedLanguage, string>>>)
+          .flatMap(([source, translations]) => translations[target] === undefined ? [] : [[source, translations[target]]]),
+      );
+    }
+    auxiliaryDictionaries[language] = { loaded: "true" };
+  });
+  auxiliaryRequests[language] = request;
+  return request;
+}
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -57,6 +95,8 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "טוענים את לוח התאריכים…": "Loading the date calendar…",
+    "לא הצלחנו לפתוח את לוח התאריכים.": "We could not open the date calendar.",
     "מדריכי נופש, ספא ואירועים בישראל": "Vacation, spa and event guides in Israel",
     "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "The property rules do not allow this party or these dates. Return to the property page and change your selection.",
     "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "This property cannot complete the booking online right now. You can contact it directly.",
@@ -187,6 +227,8 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "טוענים את לוח התאריכים…": "Загрузка календаря дат…",
+    "לא הצלחנו לפתוח את לוח התאריכים.": "Не удалось открыть календарь дат.",
     "מדריכי נופש, ספא ואירועים בישראל": "Гиды по отдыху, спа и мероприятиям в Израиле",
     "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "Правила объекта не позволяют выбрать этот состав гостей или эти даты. Вернитесь на страницу объекта и измените выбор.",
     "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "Сейчас этот объект не позволяет завершить бронирование на сайте. Можно связаться с ним напрямую.",
@@ -327,6 +369,8 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "טוענים את לוח התאריכים…": "Chargement du calendrier des dates…",
+    "לא הצלחנו לפתוח את לוח התאריכים.": "Impossible d’ouvrir le calendrier des dates.",
     "מדריכי נופש, ספא ואירועים בישראל": "Guides de vacances, spa et événements en Israël",
     "מי מגיע": "Participants",
     "רעיונות שממשיכים את החופשה": "Des idées pour prolonger les vacances",
@@ -1543,9 +1587,9 @@ export function LocaleProvider({ children, initialLanguage = "he" }: { children:
   }, [language]);
 
   useEffect(() => {
-    if (language === "he" || loadedTranslations[language]) return;
+    if (language === "he" || (loadedTranslations[language] && auxiliaryDictionaries[language])) return;
     let active = true;
-    void loadTranslations(language).then(() => {
+    void Promise.all([loadTranslations(language), loadAuxiliaryTranslations(language)]).then(() => {
       if (active) setTranslationVersion((version) => version + 1);
     }).catch(() => {
       revealLocalizedDocument();
@@ -1554,7 +1598,7 @@ export function LocaleProvider({ children, initialLanguage = "he" }: { children:
   }, [language]);
 
   useEffect(() => {
-    const translationReady = language === "he" || Boolean(loadedTranslations[language]);
+    const translationReady = language === "he" || (Boolean(loadedTranslations[language]) && Boolean(auxiliaryDictionaries[language]));
     observer.current?.disconnect();
     if (!translationReady) return;
     if (language === "he") return;
