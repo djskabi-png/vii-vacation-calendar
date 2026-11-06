@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -84,7 +85,7 @@ test("all current business WhatsApp entry points use the shared tracked flow", a
 test("the lead modal is keyboard and mobile safe", async () => {
   const [component, css] = await Promise.all([
     read("app/components/whatsapp-lead-button.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(component, /role="dialog"/);
@@ -117,7 +118,7 @@ test("the tracked lead event is available to analytics without bypassing consent
 test("the shared lead modal is clean and progressively discloses optional details", async () => {
   const [component, css] = await Promise.all([
     read("app/components/whatsapp-lead-button.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(component, /function WhatsAppIcon\(\)/);
@@ -224,7 +225,7 @@ test("catalog refresh preserves only the explicit supplier WhatsApp field", asyn
 test("event detail keeps calling separate from supplier WhatsApp", async () => {
   const [source, css] = await Promise.all([
     read("app/events/place/client-page.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(source, /const ownerPhone = place\.contact\?\.phone/);
   assert.match(source, /<DirectPhoneLink phone=\{ownerPhone\}/);

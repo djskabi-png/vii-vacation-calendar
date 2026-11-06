@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -21,7 +22,7 @@ test('shared stamp is noninteractive, localized and has no network requests', ()
   assert.doesNotMatch(card,/undatedSearch[^;\n]*onlineCapability[^;\n]*\|\| canShowOnlineBookingBadge/);
   const detail = readFileSync(new URL('../app/business/client-page.tsx',import.meta.url),'utf8');
   assert.match(detail,/bookingSupported: vacationOnlineReady/);
-  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+  const css=readEffectiveWorldCss();
   assert.match(css,/\.stay-card__media > \.stay-card__booking-stamp \{[^}]*right: 14px; left: auto;/);
   assert.match(css,/\.stay-card__media > \.stay-card__booking-stamp \{[^}]*z-index: 6;/);
 });

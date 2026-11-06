@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
@@ -7,7 +8,7 @@ const [calendar, business, data, concierge, css] = await Promise.all([
   readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
   readFile(new URL("../app/components/smart-concierge.tsx", import.meta.url), "utf8"),
-  readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  readEffectiveWorldCss(),
 ]);
 
 test("availability starts from the current day in Israel instead of a frozen demo date", () => {

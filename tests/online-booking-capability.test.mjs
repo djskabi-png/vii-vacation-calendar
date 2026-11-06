@@ -59,7 +59,7 @@ test("capability carries no probe availability, prices, dates or personal fields
   const payload = { sites: [{ siteID: 1, available: false, onlineBooking: true, minTotal: 900, cheapest: { from: "other" }, phone: "private" }] };
   let input; const calls = [];
   const value = await fetchCapabilityProbe("test-token", undefined, now, async (url, init) => {
-    calls.push(url); assert.equal(init.redirect, "error");
+    calls.push(url); assert.equal(init.redirect, "manual");
     if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 1, active: true, has_availability: true }] });
     assert.equal(url, "https://bizonline.co.il/api/ai/vii/vacations/search");
     input = JSON.parse(init.body); return Response.json(payload);

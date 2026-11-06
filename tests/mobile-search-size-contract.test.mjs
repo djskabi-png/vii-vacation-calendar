@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 const component = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 const results = readFileSync(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8");
 const rates = readFileSync(new URL("../app/data/hourly-details.ts", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("hourly search includes location and maximum price in its address", () => {
   assert.match(component, /searchParams\.get\("maxPrice"\)/);

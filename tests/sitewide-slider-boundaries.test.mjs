@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -13,7 +14,7 @@ const sources = Object.fromEntries(await Promise.all([
   "property-gallery",
   "gallery-experience",
 ].map(async (name) => [name, await readFile(new URL(`../app/components/${name}.tsx`, import.meta.url), "utf8")])));
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("every arrow-bearing content rail uses the shared geometry boundary model", () => {
   for (const name of ["home-slider-controls", "event-rail", "search-after-results", "sleeping-arrangements"]) {

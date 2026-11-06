@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 
 const component = readFileSync(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("spa result actions sit in a clean toolbar immediately above the results", () => {
   const filterStrip = component.indexOf('className="spa-results__filter-strip"');

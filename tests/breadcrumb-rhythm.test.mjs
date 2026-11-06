@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -34,14 +35,14 @@ test("result pages keep search, breadcrumbs, then filters and results", () => {
 });
 
 test("world breadcrumb bands use the shared compact spacing token", () => {
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   assert.match(css, /\.world-breadcrumbs \{[^}]*padding-block: 12px;[^}]*background: #fff;/);
   assert.match(css, /\.world-page > \.world-breadcrumbs \+ \.section \{ padding-top: 20px; \}/);
   assert.match(css, /@media \(max-width: 560px\)[\s\S]*?\.world-breadcrumbs \{ padding-block: 8px; \}/);
 });
 
 test("desktop map controls use the shared branded pill instead of the legacy grey button", () => {
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   assert.match(css, /\.map-button \{[^}]*min-height: 46px;[^}]*border-radius: 999px;[^}]*background: linear-gradient\(135deg,#087d89,#075f69\);[^}]*color: #fff;/);
   assert.match(css, /\.map-button:focus-visible \{[^}]*outline: 3px solid/);
 });

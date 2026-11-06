@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 test("mobile guest picker closes independently and keeps search available", async () => {
   const [source, styles] = await Promise.all([
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(source, /const closeGuestPicker = useCallback\(\(\) => \{\s*setGuestOpen\(false\);\s*setMobileStep\("overview"\);\s*if \(window\.matchMedia\("\(max-width: 820px\)"\)\.matches\) setMobileExpanded\(true\);\s*\}, \[\]\);/);

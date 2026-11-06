@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -48,7 +49,7 @@ test("homepage uses scheduled dated snapshots without unsupported static offers"
 test("both live deal rails show branded, accessible loading placeholders", async () => {
   const [deals, css] = await Promise.all([
     readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(deals, /displayState === "loading"[\s\S]*home-live-deals__loading/);
   assert.match(deals, /role="status" aria-label=\{text\.loading\}/);

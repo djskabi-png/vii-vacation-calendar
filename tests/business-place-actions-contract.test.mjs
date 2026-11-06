@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 const page = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("the place favorite is a compact overlay on the gallery image", () => {
   assert.match(page, /className="shell property-gallery-wrap"/);

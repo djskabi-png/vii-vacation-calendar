@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
@@ -70,7 +71,7 @@ test("topic metadata is localized before hydration with the verified request loc
 });
 
 test("mobile world entry removes the whole visual row without hiding desktop or business photos", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = await readEffectiveWorldCss();
   const rule = css.slice(css.indexOf("/* Mobile world entry prioritizes"));
   assert.match(rule, /@media \(max-width:720px\)/);
   for (const prefix of ["spa-discovery-hero", "events-hero", "discovery-world-hero"]) {

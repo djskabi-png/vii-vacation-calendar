@@ -1,0 +1,51 @@
+name = "vii-quality-control"
+account_id = "45b2f6dcf2cfe44204d2c470cbe682d9"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[[d1_databases]]
+binding = "QUALITY_DB"
+database_name = "vii-quality-control"
+database_id = "9c96d3dd-e8d1-400f-9b17-2df4509b1095"
+
+[[queues.producers]]
+binding = "RELEASE_QUEUE"
+queue = "vii-quality-release"
+
+[[queues.producers]]
+binding = "MONITOR_QUEUE"
+queue = "vii-quality-monitor"
+
+[[queues.consumers]]
+queue = "vii-quality-release"
+max_batch_size = 1
+max_batch_timeout = 1
+max_retries = 2
+max_concurrency = 1
+dead_letter_queue = "vii-quality-deadletter"
+
+[[queues.consumers]]
+queue = "vii-quality-monitor"
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 2
+max_concurrency = 1
+dead_letter_queue = "vii-quality-deadletter"
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+PUBLIC_ORIGIN = "https://vii.spaplus.co"
+AUTHORITY_ENABLED = "false"
+EXECUTION_ENABLED = "false"
+SCHEDULE_ENABLED = "false"
+EXPECTED_BUILD_ID = "UNACTIVATED_QUALITY_CONTROLLER"
+
+# Replaced from the exact app artifact during candidate preparation. This
+# placeholder deliberately blocks executing jobs against an unidentified build.
+[define]
+__VII_CACHE_BUILD_ID__ = '"UNACTIVATED_QUALITY_CONTROLLER"'

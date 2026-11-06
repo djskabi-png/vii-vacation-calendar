@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 const audit = fs.readFileSync(new URL("../scripts/audit-map-experience.cjs", import.meta.url), "utf8");
 
 test("desktop split maps keep an in-map return control after the toolbar scrolls away", () => {

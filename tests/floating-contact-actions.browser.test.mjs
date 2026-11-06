@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 
-const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const globals = readEffectiveWorldCss();
 const proofDir = process.env.VII_VISUAL_PROOF_DIR;
 const browserExecutables = [
   process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,

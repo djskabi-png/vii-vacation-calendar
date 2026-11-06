@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -11,7 +12,7 @@ test("world navigation stays available throughout every public search flow", asy
     read("app/calendar-demo.tsx"),
     read("app/components/event-date-picker.tsx"),
     read("app/components/spa-date-picker.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(searchBox, /showWorlds = true/);

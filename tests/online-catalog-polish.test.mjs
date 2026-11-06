@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -74,7 +75,7 @@ test("map cards send only their primary image and room cards own stable media ge
   const [map, detail, css] = await Promise.all([
     readMapImplementation(),
     read("app/business/client-page.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(map, /images=\{\[selected\.image\]\}/);
   assert.doesNotMatch(map, /images: listing\.images\?\.slice/);
@@ -90,7 +91,7 @@ test("card galleries advance past broken supplier images and withdraw media afte
     read("app/components/preview-card-gallery.tsx"),
     read("app/components/use-preview-gallery.tsx"),
     read("app/lib/preview-image-loader.ts"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(gallery, /onOriginalFailure=\{\(\) => \{[\s\S]*const failed = new Set\(brokenImages\)\.add\(currentImage\)[\s\S]*setImageIndex\(nextIndex\)/);
   assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction,[\s\S]*?previewImageLoader\.load\(previewLoadSource\(src\)\)\)/);

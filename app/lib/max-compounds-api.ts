@@ -62,7 +62,7 @@ export function createMaxCompoundsClient(options: { apiKey: string; fetchImpl?: 
         },
         body: payload ? JSON.stringify(payload) : undefined,
         cache: "no-store",
-        redirect: "error",
+        redirect: "manual",
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
     } catch {

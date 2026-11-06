@@ -3,26 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MapPinned, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
+import { ArrowLeft, ListChecks, LoaderCircle, LogOut, Search, Sparkles, X } from "lucide-react";
+import { adminCommands as commands } from "./admin-navigation.ts";
 import styles from "./admin.module.css";
 import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
 
-const commands = [
-  { href: "/admin", title: "תמונת מצב", hint: "מדדים, בריאות המערכת וסדר היום", icon: Gauge },
-  { href: "/admin/growth", title: "מרכז קידום", hint: "SEO, מפות אתר, מדידה ותוכן", icon: Sparkles },
-  { href: "/admin/content-studio", title: "סטודיו תוכן", hint: "כל העולמות, מגזין, תפריטים ופוטר", icon: LibraryBig },
-  { href: "/admin/search-pages", title: "עמודי חיפוש", hint: "עריכה, תזמון ופרסום", icon: FileSearch },
-  { href: "/admin/content-queue", title: "תור אישורים", hint: "עמודים שנוצרו מביקוש אמיתי", icon: ListChecks },
-  { href: "/admin/search-analytics", title: "מודיעין חיפושים", hint: "ביקוש, אזורים ואפס תוצאות", icon: Search },
-  { href: "/admin/business-performance", title: "ביצועי עסקים", hint: "חשיפות, כניסות ופעולות", icon: BarChart3 },
-  { href: "/admin/discovery-promotions", title: "קידום מקומות", hint: "טיוטות וקידום מבוקר", icon: TrendingUp },
-  { href: "/admin/redirects", title: "כתובות והפניות", hint: "301, 410 ובקרת כתובות", icon: Route },
-  { href: "/admin/catalog-sync", title: "קטלוגים וספקים", hint: "משיכות, אבחון ושמירת דור תקין", icon: CalendarSync },
-  { href: "/admin/geography", title: "ערים ואזורים", hint: "נתוני API, שמות, כתובות, מפה ונראות באתר", icon: MapPinned },
-  { href: "/admin/operations", title: "הזמנות וחוות דעת", hint: "פעולות, סטטוסים ואסמכתאות", icon: Star },
-  { href: "/admin/whatsapp-leads", title: "פניות וואטסאפ", hint: "פניות שנשמרו במערכת", icon: MessageCircle },
-  { href: "/admin/users", title: "משתמשים והרשאות", hint: "גישה, תחומי עבודה וביטול הרשאות", icon: ListChecks },
-];
+
 
 function currentTitle(pathname: string) {
   return commands.find((item) => item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href))?.title || "מערכת הניהול";

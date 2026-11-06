@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,7 +9,7 @@ const seed = readFileSync(new URL("../app/components/search-depth-seed.tsx", imp
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const vacationLayout = readFileSync(new URL("../app/search/layout.tsx", import.meta.url), "utf8");
 const eventLayout = readFileSync(new URL("../app/events/search/layout.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("search depth separates regions, cities, place types, smart searches and additional regions", () => {
   for (const key of ["suitableRegions", "citiesInArea", "placeTypes", "smartSearches", "additionalRegions"]) {

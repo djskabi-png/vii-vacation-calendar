@@ -1,0 +1,1777 @@
+/* VII_FRAGMENT_BEGIN VACATIONS_001 */
+.vacation-geography-nav { display: grid; gap: 10px; margin-block: 18px; direction: rtl; }
+/* VII_FRAGMENT_END VACATIONS_001 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_002 */
+.vacation-geography-nav details { border: 1px solid rgba(8,92,105,.16); border-radius: 14px; background: rgba(255,255,255,.76); }
+/* VII_FRAGMENT_END VACATIONS_002 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_003 */
+.vacation-geography-nav summary { cursor: pointer; padding: 12px 14px; color: var(--ink); font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_003 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_004 */
+.vacation-geography-nav__links { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 12px; }
+/* VII_FRAGMENT_END VACATIONS_004 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_005 */
+.vacation-geography-nav__links a { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 6px 11px; border: 1px solid rgba(8,92,105,.16); border-radius: 999px; color: var(--ink); background: #fff; text-decoration: none; }
+/* VII_FRAGMENT_END VACATIONS_005 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_006 */
+.vacation-geography-nav__links a:hover,.vacation-geography-nav__links a:focus-visible { border-color: #087f8e; background: #effafa; }
+/* VII_FRAGMENT_END VACATIONS_006 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_007 */
+.vacation-geography-nav__links small { color: #557178; font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_007 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_008 */
+.vacation-party-picker { width: min(390px, calc(100vw - 28px)); padding: 0; overflow: hidden; direction: rtl; font-family: var(--font-sans); }
+/* VII_FRAGMENT_END VACATIONS_008 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_009 */
+.vacation-party-picker > header { min-height: 70px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
+/* VII_FRAGMENT_END VACATIONS_009 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_010 */
+.vacation-party-picker > header > div { display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_010 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_011 */
+.vacation-party-picker > header strong { font-size: 1.08rem; }
+/* VII_FRAGMENT_END VACATIONS_011 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_012 */
+.vacation-party-picker > header small { color: var(--ink-soft); }
+/* VII_FRAGMENT_END VACATIONS_012 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_013 */
+.vacation-party-picker > header button { width: 40px; height: 40px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 50%; background: var(--mist); color: var(--ink); font: 500 1.45rem/1 var(--font-sans); cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_013 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_014 */
+.vacation-party-picker__rows { padding-inline: 16px; }
+/* VII_FRAGMENT_END VACATIONS_014 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_015 */
+.vacation-party-row { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
+/* VII_FRAGMENT_END VACATIONS_015 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_016 */
+.vacation-party-row:last-child { border-bottom: 0; }
+/* VII_FRAGMENT_END VACATIONS_016 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_017 */
+.vacation-party-row > span { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_017 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_018 */
+.vacation-party-row > span strong { font-size: .95rem; }
+/* VII_FRAGMENT_END VACATIONS_018 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_019 */
+.vacation-party-row > span small { color: var(--ink-soft); font-size: .78rem; }
+/* VII_FRAGMENT_END VACATIONS_019 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_020 */
+.vacation-party-counter { display: grid; grid-template-columns: 38px 28px 38px; align-items: center; justify-items: center; direction: ltr; }
+/* VII_FRAGMENT_END VACATIONS_020 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_021 */
+.vacation-party-counter button { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: white; color: var(--teal-dark); font: 600 1.2rem/1 var(--font-sans); cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_021 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_022 */
+.vacation-party-counter button:disabled { color: #aebfc3; background: var(--mist); cursor: not-allowed; }
+/* VII_FRAGMENT_END VACATIONS_022 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_023 */
+.vacation-party-counter b { color: var(--ink); font-size: .95rem; }
+/* VII_FRAGMENT_END VACATIONS_023 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_024 */
+.vacation-party-picker .popover-done { width: calc(100% - 32px); min-height: 46px; margin: 8px 16px 16px; }
+/* VII_FRAGMENT_END VACATIONS_024 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_025 */
+.vacation-filter-sections { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 4px 0 16px; }
+/* VII_FRAGMENT_END VACATIONS_025 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_026 */
+.vacation-filter-sections button { min-height: 46px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; font: 750 .86rem/1.35 var(--font-sans); cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_026 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_027 */
+.vacation-filter-sections button:hover { border-color: #78bdc5; color: var(--teal-dark); }
+/* VII_FRAGMENT_END VACATIONS_027 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_028 */
+.vacation-filter-sections button.active { border-color: var(--teal); color: var(--teal-dark); background: #eef9f8; box-shadow: inset 0 0 0 1px rgba(8,126,139,.08); }
+/* VII_FRAGMENT_END VACATIONS_028 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_029 */
+.vacation-filter-sections button:focus-visible { outline: 3px solid rgba(9,145,157,.2); outline-offset: 2px; }
+/* VII_FRAGMENT_END VACATIONS_029 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_030 */
+.filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 14px; }
+/* VII_FRAGMENT_END VACATIONS_030 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_031 */
+.filter-panel .vacation-type-options legend { grid-column: 1 / -1; }
+/* VII_FRAGMENT_END VACATIONS_031 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_032 */
+.filter-panel .vacation-type-options label { min-height: 40px; padding: 7px 9px; border: 1px solid transparent; border-radius: 10px; cursor: pointer; transition: background .16s ease,border-color .16s ease,color .16s ease; }
+/* VII_FRAGMENT_END VACATIONS_032 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_033 */
+.filter-panel .vacation-type-options label:has(input:checked) { border-color: rgba(8,126,139,.34); background: #eef9f8; color: var(--teal-dark); font-weight: 750; }
+/* VII_FRAGMENT_END VACATIONS_033 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_034 */
+.filter-panel .vacation-type-options label:has(input:focus-visible) { outline: 3px solid rgba(9,145,157,.2); outline-offset: 2px; }
+/* VII_FRAGMENT_END VACATIONS_034 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_035 */
+.vacation-more-filters { display: grid; }
+/* VII_FRAGMENT_END VACATIONS_035 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_036 */
+.filter-panel .vacation-price-filter { padding-top: 8px; }
+/* VII_FRAGMENT_END VACATIONS_036 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_037 */
+.vacation-price-filter > p { margin: -2px 0 4px; color: var(--ink-soft); font-size: .78rem; line-height: 1.5; }
+/* VII_FRAGMENT_END VACATIONS_037 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_038 */
+.vacation-price-filter__summary { min-height: 50px; margin: 4px 0 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid #c5e0e3; border-radius: 14px; background: #eff9fa; color: var(--teal-dark); font: 800 .9rem/1.2 var(--font-sans); }
+/* VII_FRAGMENT_END VACATIONS_038 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_039 */
+.vacation-price-filter__summary span { white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_039 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_040 */
+.vacation-price-filter__summary i { color: var(--ink-soft); font-size: .72rem; font-style: normal; font-weight: 600; }
+/* VII_FRAGMENT_END VACATIONS_040 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_041 */
+.vacation-price-filter__inputs { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: end; gap: 9px; margin-top: 2px; }
+/* VII_FRAGMENT_END VACATIONS_041 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_042 */
+.filter-panel .vacation-price-filter__inputs > label { min-width: 0; display: grid; align-items: stretch; gap: 5px; color: var(--ink-soft); font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_042 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_043 */
+.vacation-price-filter__inputs > span { align-self: end; padding-bottom: 13px; color: var(--ink-soft); font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_043 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_044 */
+.vacation-price-input { min-height: 48px; display: flex; align-items: center; gap: 5px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; transition: border-color .16s ease, box-shadow .16s ease; }
+/* VII_FRAGMENT_END VACATIONS_044 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_045 */
+.vacation-price-input:focus-within { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(9,145,157,.14); }
+/* VII_FRAGMENT_END VACATIONS_045 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_046 */
+.vacation-price-input input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: 750 .92rem/1 var(--font-sans); direction: ltr; text-align: left; font-variant-numeric: tabular-nums; }
+/* VII_FRAGMENT_END VACATIONS_046 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_047 */
+.vacation-price-input b { color: var(--teal-dark); font-size: .88rem; }
+/* VII_FRAGMENT_END VACATIONS_047 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_048 */
+.vacation-price-input input::-webkit-outer-spin-button, .vacation-price-input input::-webkit-inner-spin-button { margin: 0; appearance: none; }
+/* VII_FRAGMENT_END VACATIONS_048 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_049 */
+.vacation-extra-groups { display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_049 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_050 */
+.filter-panel .vacation-extra-groups fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 12px; }
+/* VII_FRAGMENT_END VACATIONS_050 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_051 */
+.filter-panel .vacation-extra-groups legend { grid-column: 1 / -1; }
+/* VII_FRAGMENT_END VACATIONS_051 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_052 */
+.filter-panel .vacation-extra-groups label { min-height: 40px; padding: 6px 8px; border-radius: 9px; font-size: .82rem; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_052 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_053 */
+.filter-panel .vacation-extra-groups label:has(input:checked) { background: #eef9f8; color: var(--teal-dark); font-weight: 700; }
+/* VII_FRAGMENT_END VACATIONS_053 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_054 */
+.filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
+/* VII_FRAGMENT_END VACATIONS_054 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_055 */
+.filter-panel .vacation-extra-groups fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); }
+/* VII_FRAGMENT_END VACATIONS_055 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_056 */
+.vacation-price-filter__summary { min-height: 48px; }
+/* VII_FRAGMENT_END VACATIONS_056 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_057 */
+.vacation-party-picker { width: auto; }
+/* VII_FRAGMENT_END VACATIONS_057 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_058 */
+.vacation-booking-hub { scroll-margin-top: 100px; margin-top: 42px; padding: clamp(24px,3vw,38px); border: 1px solid #b9dce1; border-radius: 30px; background: linear-gradient(145deg,#f8fdfd 0%,#edf8f9 48%,#f7fbfa 100%); box-shadow: 0 22px 55px rgba(3,70,82,.1); }
+/* VII_FRAGMENT_END VACATIONS_058 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_059 */
+.vacation-booking-hub__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
+/* VII_FRAGMENT_END VACATIONS_059 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_060 */
+.vacation-booking-hub__heading h2 { max-width: 760px; margin: 6px 0 8px; font-size: clamp(1.75rem,3vw,2.6rem); line-height: 1.15; }
+/* VII_FRAGMENT_END VACATIONS_060 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_061 */
+.vacation-booking-hub__heading p { max-width: 720px; margin: 0; color: var(--ink-soft); line-height: 1.7; }
+/* VII_FRAGMENT_END VACATIONS_061 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_062 */
+.vacation-booking-hub__inventory { flex: 0 0 auto; padding: 10px 15px; border: 1px solid #b6dce1; border-radius: 999px; background: rgba(255,255,255,.9); color: var(--teal-dark); font-size: .8rem; font-weight: 850; box-shadow: 0 8px 20px rgba(3,70,82,.06); }
+/* VII_FRAGMENT_END VACATIONS_062 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_063 */
+.vacation-booking-hub__controls { display: grid; grid-template-columns: 1.15fr .7fr 1.15fr; gap: 12px; margin: 28px 0 22px; }
+/* VII_FRAGMENT_END VACATIONS_063 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_064 */
+.vacation-booking-hub__date,.vacation-booking-hub__guests,.vacation-booking-hub__status { min-width: 0; min-height: 98px; border: 1px solid #c9dfe2; border-radius: 19px; background: rgba(255,255,255,.94); }
+/* VII_FRAGMENT_END VACATIONS_064 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_065 */
+.vacation-booking-hub__date { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 13px; padding: 17px; color: var(--ink); text-align: right; cursor: pointer; transition: border-color .2s ease,box-shadow .2s ease,translate .2s ease; }
+/* VII_FRAGMENT_END VACATIONS_065 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_066 */
+.vacation-booking-hub__date:hover { border-color: var(--teal); box-shadow: 0 9px 24px rgba(3,70,82,.08); translate: 0 -1px; }
+/* VII_FRAGMENT_END VACATIONS_066 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_067 */
+.vacation-booking-hub__date svg { width: 24px; height: 24px; color: var(--teal-dark); }
+/* VII_FRAGMENT_END VACATIONS_067 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_068 */
+.vacation-booking-hub__date > span { min-width: 0; display: grid; gap: 4px; }
+/* VII_FRAGMENT_END VACATIONS_068 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_069 */
+.vacation-booking-hub__date small,.vacation-booking-hub__guests small,.vacation-booking-hub__status small { color: var(--ink-soft); font-size: .75rem; line-height: 1.5; }
+/* VII_FRAGMENT_END VACATIONS_069 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_070 */
+.vacation-booking-hub__date strong { overflow: hidden; font-size: .98rem; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_070 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_071 */
+.vacation-booking-hub__date b { color: var(--teal-dark); font-size: .75rem; }
+/* VII_FRAGMENT_END VACATIONS_071 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_072 */
+.vacation-booking-hub__guests { display: grid; grid-template-columns: minmax(0,1fr) 70px; align-content: center; gap: 4px 12px; padding: 14px 17px; font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_072 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_073 */
+.vacation-booking-hub__guests input { width: 70px; min-height: 46px; grid-row: 1 / 3; grid-column: 2; padding: 8px; border: 1px solid #bdd7db; border-radius: 12px; background: white; color: var(--ink); font: 800 1rem/1 var(--font-sans); text-align: center; }
+/* VII_FRAGMENT_END VACATIONS_073 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_074 */
+.vacation-booking-hub__status { display: flex; align-items: center; gap: 13px; padding: 16px 18px; }
+/* VII_FRAGMENT_END VACATIONS_074 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_075 */
+.vacation-booking-hub__status > span { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: #dff2f3; color: var(--teal-dark); font-size: 1rem; font-weight: 900; }
+/* VII_FRAGMENT_END VACATIONS_075 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_076 */
+.vacation-booking-hub__status > div { min-width: 0; display: grid; gap: 4px; }
+/* VII_FRAGMENT_END VACATIONS_076 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_077 */
+.vacation-booking-hub__status strong { font-size: .92rem; line-height: 1.35; }
+/* VII_FRAGMENT_END VACATIONS_077 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_078 */
+.vacation-booking-hub__status--available { border-color: #a7d8c5; background: #f6fcf8; }
+/* VII_FRAGMENT_END VACATIONS_078 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_079 */
+.vacation-booking-hub__status--available > span { background: #d9f3e5; color: #116b4b; }
+/* VII_FRAGMENT_END VACATIONS_079 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_080 */
+.vacation-booking-hub__status--unavailable,.vacation-booking-hub__status--too-many-guests { border-color: #e7c6c0; background: #fff9f7; }
+/* VII_FRAGMENT_END VACATIONS_080 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_081 */
+.vacation-booking-hub__status--unavailable > span,.vacation-booking-hub__status--too-many-guests > span { background: #f9e4df; color: #9e3f31; }
+/* VII_FRAGMENT_END VACATIONS_081 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_082 */
+.vacation-booking-hub__results { display: grid; gap: 15px; }
+/* VII_FRAGMENT_END VACATIONS_082 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_083 */
+.vacation-booking-unit { min-width: 0; display: grid; grid-template-columns: minmax(230px,31%) minmax(0,1fr); overflow: hidden; border: 1px solid rgba(16,105,119,.18); border-radius: 23px; background: white; box-shadow: 0 12px 32px rgba(3,70,82,.075); }
+/* VII_FRAGMENT_END VACATIONS_083 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_084 */
+.vacation-booking-unit--unavailable { border-color: #dccdca; }
+/* VII_FRAGMENT_END VACATIONS_084 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_085 */
+.vacation-booking-unit__image { position: relative; min-height: 292px; overflow: hidden; background: #dcecef; }
+/* VII_FRAGMENT_END VACATIONS_085 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_086 */
+.vacation-booking-unit__image img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
+/* VII_FRAGMENT_END VACATIONS_086 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_087 */
+.vacation-booking-unit:hover .vacation-booking-unit__image img { transform: scale(1.025); }
+/* VII_FRAGMENT_END VACATIONS_087 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_088 */
+.vacation-booking-unit--unavailable .vacation-booking-unit__image img { filter: saturate(.65); opacity: .78; }
+/* VII_FRAGMENT_END VACATIONS_088 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_089 */
+.vacation-booking-unit__image > span { position: absolute; top: 14px; inset-inline-start: 14px; padding: 7px 11px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--teal-dark); font-size: .73rem; font-weight: 850; box-shadow: 0 6px 18px rgba(3,45,54,.16); }
+/* VII_FRAGMENT_END VACATIONS_089 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_090 */
+.vacation-booking-unit__body { min-width: 0; display: grid; align-content: start; gap: 12px; padding: 22px 24px; }
+/* VII_FRAGMENT_END VACATIONS_090 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_091 */
+.vacation-booking-unit__title { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+/* VII_FRAGMENT_END VACATIONS_091 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_092 */
+.vacation-booking-unit__title > div > span { color: var(--teal); font-size: .72rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_092 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_093 */
+.vacation-booking-unit__title h3 { margin: 3px 0 0; font-size: 1.35rem; line-height: 1.25; }
+/* VII_FRAGMENT_END VACATIONS_093 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_094 */
+.vacation-booking-unit__title > b { flex: 0 0 auto; padding: 7px 10px; border-radius: 10px; background: #eaf7f8; color: var(--teal-dark); font-size: .8rem; }
+/* VII_FRAGMENT_END VACATIONS_094 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_095 */
+.vacation-booking-unit__match { margin: 0; color: #315c64; font-size: .83rem; font-weight: 750; }
+/* VII_FRAGMENT_END VACATIONS_095 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_096 */
+.vacation-booking-unit__facts,.vacation-booking-unit__features { display: flex; flex-wrap: wrap; gap: 7px; }
+/* VII_FRAGMENT_END VACATIONS_096 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_097 */
+.vacation-booking-unit__facts span { padding: 6px 9px; border-radius: 9px; background: #f0f7f8; color: var(--ink-soft); font-size: .75rem; font-weight: 750; }
+/* VII_FRAGMENT_END VACATIONS_097 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_098 */
+.vacation-booking-unit__features span { color: var(--ink-soft); font-size: .76rem; }
+/* VII_FRAGMENT_END VACATIONS_098 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_099 */
+.vacation-booking-unit__features span:not(:last-child)::after { content: "\00B7"; margin-inline-start: 7px; color: #91adb2; }
+/* VII_FRAGMENT_END VACATIONS_099 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_100 */
+.vacation-booking-unit__footer { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 20px; margin-top: 2px; padding-top: 15px; border-top: 1px solid #e0ecee; }
+/* VII_FRAGMENT_END VACATIONS_100 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_101 */
+.vacation-booking-unit__availability { min-width: 0; display: grid; gap: 4px; }
+/* VII_FRAGMENT_END VACATIONS_101 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_102 */
+.vacation-booking-unit__availability strong { color: var(--teal-dark); font-size: .83rem; }
+/* VII_FRAGMENT_END VACATIONS_102 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_103 */
+.vacation-booking-unit--unavailable .vacation-booking-unit__availability strong { color: #91493d; }
+/* VII_FRAGMENT_END VACATIONS_103 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_104 */
+.vacation-booking-unit__availability span { color: var(--ink-soft); font-size: .76rem; }
+/* VII_FRAGMENT_END VACATIONS_104 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_105 */
+.vacation-booking-unit__availability b { color: var(--ink); font-size: 1.08rem; }
+/* VII_FRAGMENT_END VACATIONS_105 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_106 */
+.vacation-booking-unit__availability em { color: #8a5b08; font-size: .7rem; font-style: normal; font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_106 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_107 */
+.vacation-booking-unit__actions { min-width: 190px; display: grid; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_107 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_108 */
+.vacation-booking-unit__actions .button { width: 100%; min-height: 46px; margin: 0; padding-inline: 17px; }
+/* VII_FRAGMENT_END VACATIONS_108 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_109 */
+.vacation-booking-unit__actions .button:disabled { cursor: not-allowed; opacity: .55; box-shadow: none; }
+/* VII_FRAGMENT_END VACATIONS_109 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_110 */
+.vacation-booking-unit__actions p { max-width: 26ch; margin: 0; color: var(--ink-soft); font-size: .76rem; line-height: 1.5; }
+/* VII_FRAGMENT_END VACATIONS_110 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_111 */
+.vacation-booking-unit__whatsapp { background: linear-gradient(135deg,var(--teal-dark),#0d7f7d); }
+/* VII_FRAGMENT_END VACATIONS_111 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_112 */
+.vacation-booking-hub button:focus-visible,.vacation-booking-hub a:focus-visible,.vacation-booking-hub input:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
+/* VII_FRAGMENT_END VACATIONS_112 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_113 */
+.vacation-booking-hub__controls { grid-template-columns: 1fr 1fr; }
+/* VII_FRAGMENT_END VACATIONS_113 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_114 */
+.vacation-booking-hub__status { grid-column: 1 / -1; min-height: 84px; }
+/* VII_FRAGMENT_END VACATIONS_114 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_115 */
+.vacation-booking-unit { grid-template-columns: minmax(210px,35%) minmax(0,1fr); }
+/* VII_FRAGMENT_END VACATIONS_115 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_116 */
+.vacation-booking-unit__footer { grid-template-columns: 1fr; align-items: stretch; }
+/* VII_FRAGMENT_END VACATIONS_116 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_117 */
+.vacation-booking-unit__actions { min-width: 0; grid-template-columns: repeat(2,minmax(0,1fr)); }
+/* VII_FRAGMENT_END VACATIONS_117 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_118 */
+.vacation-booking-unit__actions > :only-child { grid-column: 1 / -1; }
+/* VII_FRAGMENT_END VACATIONS_118 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_119 */
+.vacation-booking-hub { width: calc(100% - 24px); margin-top: 24px; padding: 20px 14px; border-radius: 23px; }
+/* VII_FRAGMENT_END VACATIONS_119 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_120 */
+.vacation-booking-hub__heading { align-items: flex-start; flex-direction: column; gap: 13px; }
+/* VII_FRAGMENT_END VACATIONS_120 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_121 */
+.vacation-booking-hub__heading h2 { font-size: 1.65rem; }
+/* VII_FRAGMENT_END VACATIONS_121 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_122 */
+.vacation-booking-hub__inventory { padding: 8px 11px; }
+/* VII_FRAGMENT_END VACATIONS_122 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_123 */
+.vacation-booking-hub__controls { grid-template-columns: 1fr; margin: 22px 0 16px; }
+/* VII_FRAGMENT_END VACATIONS_123 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_124 */
+.vacation-booking-hub__date,.vacation-booking-hub__guests,.vacation-booking-hub__status { min-height: 88px; border-radius: 16px; }
+/* VII_FRAGMENT_END VACATIONS_124 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_125 */
+.vacation-booking-hub__status { grid-column: auto; align-items: flex-start; }
+/* VII_FRAGMENT_END VACATIONS_125 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_126 */
+.vacation-booking-unit { grid-template-columns: 1fr; border-radius: 19px; }
+/* VII_FRAGMENT_END VACATIONS_126 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_127 */
+.vacation-booking-unit__image { min-height: 0; aspect-ratio: 16 / 10; }
+/* VII_FRAGMENT_END VACATIONS_127 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_128 */
+.vacation-booking-unit__body { gap: 11px; padding: 18px 16px; }
+/* VII_FRAGMENT_END VACATIONS_128 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_129 */
+.vacation-booking-unit__title { display: grid; gap: 9px; }
+/* VII_FRAGMENT_END VACATIONS_129 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_130 */
+.vacation-booking-unit__title > b { width: max-content; }
+/* VII_FRAGMENT_END VACATIONS_130 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_131 */
+.vacation-booking-unit__footer { gap: 14px; scroll-margin-bottom: calc(110px + env(safe-area-inset-bottom)); }
+/* VII_FRAGMENT_END VACATIONS_131 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_132 */
+.vacation-booking-unit__actions { grid-template-columns: 1fr; }
+/* VII_FRAGMENT_END VACATIONS_132 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_133 */
+.vacation-booking-unit__actions > :only-child { grid-column: auto; }
+/* VII_FRAGMENT_END VACATIONS_133 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_134 */
+.vacation-booking-unit__actions .button { min-height: 50px; }
+/* VII_FRAGMENT_END VACATIONS_134 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_135 */
+.vacation-booking-hub { margin-top: 28px; padding: 14px; border-radius: 24px; }
+/* VII_FRAGMENT_END VACATIONS_135 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_136 */
+.vacation-booking-hub__summary { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: stretch; gap: 12px; }
+/* VII_FRAGMENT_END VACATIONS_136 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_137 */
+.vacation-booking-hub__summary-toggle { min-width: 0; min-height: 76px; display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: center; gap: 12px; padding: 12px 15px; border: 1px solid #b9dce1; border-radius: 18px; background: #fff; color: var(--ink); text-align: start; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_137 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_138 */
+.vacation-booking-hub__summary-toggle > svg { width: 25px; height: 25px; color: var(--teal); }
+/* VII_FRAGMENT_END VACATIONS_138 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_139 */
+.vacation-booking-hub__summary-copy { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_139 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_140 */
+.vacation-booking-hub__summary-copy small,.vacation-booking-hub__summary-copy em { overflow: hidden; color: var(--ink-soft); font-size: .73rem; font-style: normal; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_140 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_141 */
+.vacation-booking-hub__summary-copy strong { overflow: hidden; font-size: 1rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_141 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_142 */
+.vacation-booking-hub__summary-price { display: grid; justify-items: end; gap: 1px; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_142 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_143 */
+.vacation-booking-hub__summary-price b { color: var(--teal-dark); font-size: 1.05rem; }
+/* VII_FRAGMENT_END VACATIONS_143 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_144 */
+.vacation-booking-hub__summary-price small { color: var(--ink-soft); font-size: .68rem; }
+/* VII_FRAGMENT_END VACATIONS_144 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_145 */
+.vacation-booking-hub__chevron { color: var(--teal-dark); font-size: 1.25rem; transition: transform .2s ease; }
+/* VII_FRAGMENT_END VACATIONS_145 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_146 */
+.vacation-booking-hub__summary-toggle[aria-expanded="true"] .vacation-booking-hub__chevron { transform: rotate(180deg); }
+/* VII_FRAGMENT_END VACATIONS_146 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_147 */
+.vacation-booking-hub__primary-actions { display: grid; grid-template-columns: auto auto; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_147 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_148 */
+.vacation-booking-hub__primary-actions .button { min-width: 142px; min-height: 52px; margin: 0; align-self: stretch; }
+/* VII_FRAGMENT_END VACATIONS_148 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_149 */
+.vacation-booking-hub__details { display: grid; gap: 14px; padding-top: 14px; }
+/* VII_FRAGMENT_END VACATIONS_149 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_150 */
+.vacation-booking-hub__details[hidden] { display: none; }
+/* VII_FRAGMENT_END VACATIONS_150 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_151 */
+.vacation-booking-hub__details .vacation-booking-hub__controls { grid-template-columns: 1fr .75fr 1fr; margin: 0; }
+/* VII_FRAGMENT_END VACATIONS_151 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_152 */
+.vacation-booking-hub__price-breakdown { min-height: 88px; display: grid; align-content: center; gap: 4px; padding: 14px 17px; border: 1px solid #c9dfe2; border-radius: 16px; background: #fff; }
+/* VII_FRAGMENT_END VACATIONS_152 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_153 */
+.vacation-booking-hub__price-breakdown span,.vacation-booking-hub__price-breakdown small { color: var(--ink-soft); font-size: .75rem; }
+/* VII_FRAGMENT_END VACATIONS_153 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_154 */
+.vacation-booking-hub__price-breakdown strong { color: var(--ink); font-size: .98rem; }
+/* VII_FRAGMENT_END VACATIONS_154 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_155 */
+.vacation-booking-hub__price-breakdown em { color: #8a5b08; font-size: .7rem; font-style: normal; font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_155 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_156 */
+.vacation-booking-hub__alternatives { display: grid; gap: 9px; padding: 13px; border: 1px solid #e7c6c0; border-radius: 16px; background: #fff9f7; }
+/* VII_FRAGMENT_END VACATIONS_156 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_157 */
+.vacation-booking-hub__alternatives > div { display: flex; flex-wrap: wrap; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_157 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_158 */
+.vacation-booking-hub__alternatives button { min-height: 46px; display: grid; gap: 2px; padding: 8px 12px; border: 1px solid #d7c1bc; border-radius: 12px; background: #fff; color: var(--ink); font: inherit; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_158 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_159 */
+.vacation-booking-hub__alternatives button span { font-size: .76rem; }
+/* VII_FRAGMENT_END VACATIONS_159 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_160 */
+.vacation-booking-hub__alternatives button b { font-size: .78rem; }
+/* VII_FRAGMENT_END VACATIONS_160 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_161 */
+.vacation-booking-hub__units { border-top: 1px solid #d5e7e9; padding-top: 12px; }
+/* VII_FRAGMENT_END VACATIONS_161 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_162 */
+.vacation-booking-hub__units > summary { width: max-content; min-height: 44px; display: flex; align-items: center; gap: 8px; color: var(--teal-dark); font-size: .82rem; font-weight: 850; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_162 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_163 */
+.vacation-booking-hub__units[open] > summary { margin-bottom: 12px; }
+/* VII_FRAGMENT_END VACATIONS_163 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_164 */
+.vacation-booking-hub__units .vacation-booking-unit { grid-template-columns: 160px minmax(0,1fr); }
+/* VII_FRAGMENT_END VACATIONS_164 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_165 */
+.vacation-booking-hub__units .vacation-booking-unit__image { min-height: 155px; }
+/* VII_FRAGMENT_END VACATIONS_165 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_166 */
+.vacation-booking-hub__units .vacation-booking-unit__body { padding: 17px; }
+/* VII_FRAGMENT_END VACATIONS_166 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_167 */
+.vacation-booking-hub { width: calc(100% - 24px); margin-top: 18px; padding: 10px; border-radius: 20px; }
+/* VII_FRAGMENT_END VACATIONS_167 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_168 */
+.vacation-booking-hub__summary { grid-template-columns: 1fr; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_168 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_169 */
+.vacation-booking-hub__summary-toggle { min-height: 72px; grid-template-columns: auto minmax(0,1fr) auto; gap: 9px; padding: 11px 12px; border-radius: 15px; }
+/* VII_FRAGMENT_END VACATIONS_169 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_170 */
+.vacation-booking-hub__summary-toggle > svg { width: 22px; height: 22px; }
+/* VII_FRAGMENT_END VACATIONS_170 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_171 */
+.vacation-booking-hub__summary-copy em { display: none; }
+/* VII_FRAGMENT_END VACATIONS_171 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_172 */
+.vacation-booking-hub__summary-copy strong { font-size: .93rem; }
+/* VII_FRAGMENT_END VACATIONS_172 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_173 */
+.vacation-booking-hub__summary-price { grid-column: 2; justify-items: start; }
+/* VII_FRAGMENT_END VACATIONS_173 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_174 */
+.vacation-booking-hub__chevron { grid-column: 3; grid-row: 1 / 3; }
+/* VII_FRAGMENT_END VACATIONS_174 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_175 */
+.vacation-booking-hub__primary-actions { grid-template-columns: minmax(0,2fr) minmax(86px,1fr); }
+/* VII_FRAGMENT_END VACATIONS_175 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_176 */
+.vacation-booking-hub__primary-actions .button { min-width: 0; min-height: 48px; padding-inline: 13px; }
+/* VII_FRAGMENT_END VACATIONS_176 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_177 */
+.vacation-booking-hub__primary-actions .button.subtle { width: auto; color: var(--teal-dark); font-size: .75rem; white-space: normal; }
+/* VII_FRAGMENT_END VACATIONS_177 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_178 */
+.vacation-booking-hub__details .vacation-booking-hub__controls { grid-template-columns: 1fr; }
+/* VII_FRAGMENT_END VACATIONS_178 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_179 */
+.vacation-booking-hub__date,.vacation-booking-hub__guests,.vacation-booking-hub__price-breakdown { min-height: 74px; }
+/* VII_FRAGMENT_END VACATIONS_179 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_180 */
+.vacation-booking-hub__status { min-height: 72px; padding: 12px; }
+/* VII_FRAGMENT_END VACATIONS_180 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_181 */
+.vacation-booking-hub__alternatives > div { display: grid; grid-template-columns: 1fr; }
+/* VII_FRAGMENT_END VACATIONS_181 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_182 */
+.vacation-booking-hub__units .vacation-booking-unit { grid-template-columns: 105px minmax(0,1fr); }
+/* VII_FRAGMENT_END VACATIONS_182 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_183 */
+.vacation-booking-hub__units .vacation-booking-unit__image { min-height: 128px; aspect-ratio: auto; }
+/* VII_FRAGMENT_END VACATIONS_183 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_184 */
+.vacation-booking-hub__units .vacation-booking-unit__body { padding: 13px; }
+/* VII_FRAGMENT_END VACATIONS_184 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_185 */
+.vacation-booking-hub__units .vacation-booking-unit__features { display: none; }
+/* VII_FRAGMENT_END VACATIONS_185 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_186 */
+.vacation-booking-hub__units .vacation-booking-unit__title h3 { font-size: 1rem; }
+/* VII_FRAGMENT_END VACATIONS_186 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_187 */
+.vacation-route-loading { min-height: 72vh; display: grid; place-content: center; justify-items: center; padding: 110px 24px 64px; text-align: center; background: radial-gradient(circle at 50% 28%,rgba(15,163,166,.12),transparent 32rem),#f8fbfb; }
+/* VII_FRAGMENT_END VACATIONS_187 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_188 */
+.vacation-route-loading__mark { position: relative; width: 72px; height: 38px; margin-bottom: 18px; }
+/* VII_FRAGMENT_END VACATIONS_188 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_189 */
+.vacation-route-loading__mark span { position: absolute; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); animation: vacation-route-pulse 1s ease-in-out infinite; }
+/* VII_FRAGMENT_END VACATIONS_189 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_190 */
+.vacation-route-loading__mark span:nth-child(1) { inset-inline-start: 4px; animation-delay: -.2s; }
+/* VII_FRAGMENT_END VACATIONS_190 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_191 */
+.vacation-route-loading__mark span:nth-child(2) { inset-inline-start: 31px; }
+/* VII_FRAGMENT_END VACATIONS_191 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_192 */
+.vacation-route-loading__mark span:nth-child(3) { inset-inline-end: 4px; animation-delay: .2s; }
+/* VII_FRAGMENT_END VACATIONS_192 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_193 */
+.vacation-route-loading__mark::before { content: ""; position: absolute; inset: 18px 9px auto; height: 1px; background: rgba(6,105,119,.32); }
+/* VII_FRAGMENT_END VACATIONS_193 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_194 */
+.vacation-route-loading h2 { margin: 0; color: var(--ink); font-size: clamp(1.55rem,4vw,2.35rem); }
+/* VII_FRAGMENT_END VACATIONS_194 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_195 */
+.vacation-route-loading p { margin: 8px 0 24px; color: var(--ink-soft); }
+/* VII_FRAGMENT_END VACATIONS_195 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_196 */
+.vacation-route-loading__cards { display: grid; width: min(680px,84vw); grid-template-columns: repeat(3,1fr); gap: 12px; }
+/* VII_FRAGMENT_END VACATIONS_196 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_197 */
+.vacation-route-loading__cards span { height: 92px; border: 1px solid rgba(6,105,119,.1); border-radius: 18px; background: linear-gradient(105deg,#e9f1f1 20%,#f8fbfb 38%,#e9f1f1 56%); background-size: 220% 100%; animation: vacation-route-shimmer 1.2s ease-in-out infinite; }
+/* VII_FRAGMENT_END VACATIONS_197 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_198 */
+.vacation-booking-hub__launcher { min-height: 82px; border-radius: 18px !important; background: linear-gradient(145deg,#fff,#f7fcfc); }
+/* VII_FRAGMENT_END VACATIONS_198 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_199 */
+.vacation-booking-hub__launcher-meta small { padding: 4px 8px; border-radius: 999px; background: #eaf7f8; color: var(--teal-dark); font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_199 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_200 */
+.vacation-booking-dialog__selection { gap: 9px; }
+/* VII_FRAGMENT_END VACATIONS_200 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_201 */
+.vacation-booking-dialog__guests { border: 1px solid #bddde1; background: #f5fbfc; }
+/* VII_FRAGMENT_END VACATIONS_201 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_202 */
+.vacation-booking-dialog__guests button { width: 42px; height: 42px; border-radius: 13px; font-size: 1.25rem; }
+/* VII_FRAGMENT_END VACATIONS_202 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_203 */
+.vacation-booking-hub {
+  scroll-margin-top: 100px;
+  margin-top: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: Rubik, Heebo, Assistant, Arial, sans-serif;
+}
+/* VII_FRAGMENT_END VACATIONS_203 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_204 */
+.vacation-booking-hub__launcher {
+  width: 100%;
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 15px;
+  border: 1px solid #c6dfe2;
+  border-radius: 22px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(4, 64, 75, .08);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease, translate .2s ease;
+}
+/* VII_FRAGMENT_END VACATIONS_204 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_205 */
+.vacation-booking-hub__launcher--empty { min-height: 68px; grid-template-columns: auto minmax(0, 1fr); }
+/* VII_FRAGMENT_END VACATIONS_205 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_206 */
+.vacation-booking-hub__phone-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px 24px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid #b8dcce;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #f8fdfb, #edf8f4);
+  box-shadow: 0 14px 36px rgba(12, 92, 70, .09);
+}
+/* VII_FRAGMENT_END VACATIONS_206 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_207 */
+.vacation-booking-hub__phone-copy { min-width: 0; }
+/* VII_FRAGMENT_END VACATIONS_207 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_208 */
+.vacation-booking-hub__phone-copy > span { color: #147252; font-size: .78rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_208 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_209 */
+.vacation-booking-hub__phone-copy h2 { margin: 5px 0 7px; color: var(--ink); font-size: clamp(1.35rem, 2.4vw, 2rem); line-height: 1.25; }
+/* VII_FRAGMENT_END VACATIONS_209 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_210 */
+.vacation-booking-hub__phone-copy p { margin: 0; color: var(--ink-soft); line-height: 1.6; }
+/* VII_FRAGMENT_END VACATIONS_210 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_211 */
+.vacation-booking-hub__phone-actions { display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 10px; }
+/* VII_FRAGMENT_END VACATIONS_211 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_212 */
+.vacation-booking-hub__phone-actions .button { min-height: 52px; margin: 0; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_212 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_213 */
+.vacation-booking-hub__phone-card > small { grid-column: 1 / -1; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
+/* VII_FRAGMENT_END VACATIONS_213 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_214 */
+.vacation-booking-hub__phone-card { grid-template-columns: 1fr; gap: 16px; padding: 18px 15px; border-radius: 20px; }
+/* VII_FRAGMENT_END VACATIONS_214 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_215 */
+.vacation-booking-hub__phone-actions { grid-template-columns: 1fr 1fr; }
+/* VII_FRAGMENT_END VACATIONS_215 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_216 */
+.vacation-booking-hub__phone-actions .button { min-width: 0; padding-inline: 10px; font-size: .8rem; white-space: normal; }
+/* VII_FRAGMENT_END VACATIONS_216 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_217 */
+.property-content > .vacation-booking-hub { width: 100%; margin: 2px 0 18px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+/* VII_FRAGMENT_END VACATIONS_217 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_218 */
+.property-content > .vacation-booking-hub .vacation-booking-hub__launcher-row { gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_218 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_219 */
+.property-content > .vacation-booking-hub .vacation-booking-hub__launcher { border-radius: 16px; box-shadow: 0 8px 22px rgba(0,88,101,.08); }
+/* VII_FRAGMENT_END VACATIONS_219 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_220 */
+.vacation-booking-hub__launcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }
+/* VII_FRAGMENT_END VACATIONS_220 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_221 */
+.vacation-booking-hub__quick-book { min-width: 146px; min-height: 86px; text-decoration: none; }
+/* VII_FRAGMENT_END VACATIONS_221 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_222 */
+.vacation-booking-hub__launcher:hover {
+  border-color: #86c7ce;
+  box-shadow: 0 16px 38px rgba(4, 64, 75, .12);
+  translate: 0 -1px;
+}
+/* VII_FRAGMENT_END VACATIONS_222 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_223 */
+.vacation-booking-hub__launcher-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--teal-dark);
+  background: #eaf7f8;
+}
+/* VII_FRAGMENT_END VACATIONS_223 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_224 */
+.vacation-booking-hub__launcher-icon svg { width: 24px; height: 24px; }
+/* VII_FRAGMENT_END VACATIONS_224 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_225 */
+.vacation-booking-hub__launcher-copy,
+.vacation-booking-hub__launcher-meta { min-width: 0; display: grid; gap: 3px; }
+/* VII_FRAGMENT_END VACATIONS_225 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_226 */
+.vacation-booking-hub__launcher-copy small,
+.vacation-booking-hub__launcher-meta small { color: var(--ink-soft); font-size: .74rem; line-height: 1.35; }
+/* VII_FRAGMENT_END VACATIONS_226 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_227 */
+.vacation-booking-hub__launcher-copy strong { overflow: hidden; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_227 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_228 */
+.vacation-booking-hub__launcher-meta { min-width: 150px; padding-inline: 18px; border-inline-start: 1px solid #e0ecee; }
+/* VII_FRAGMENT_END VACATIONS_228 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_229 */
+.vacation-booking-hub__launcher-meta b { overflow: hidden; color: var(--teal-dark); font-size: .83rem; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_229 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_230 */
+.vacation-booking-hub__launcher-action {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--teal-dark);
+  font-size: .82rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+/* VII_FRAGMENT_END VACATIONS_230 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_231 */
+.vacation-booking-hub__launcher-action-short { display: none; }
+/* VII_FRAGMENT_END VACATIONS_231 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_232 */
+.vacation-booking-dialog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1450;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 30, 37, .64);
+  backdrop-filter: blur(8px);
+  animation: vacation-booking-layer-in .18s ease-out both;
+}
+/* VII_FRAGMENT_END VACATIONS_232 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_233 */
+.vacation-booking-dialog {
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border: 1px solid rgba(255, 255, 255, .78);
+  border-radius: 28px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 34px 100px rgba(0, 31, 39, .36);
+  font-family: Rubik, Heebo, Assistant, Arial, sans-serif;
+  animation: vacation-booking-dialog-in .22s cubic-bezier(.22, .9, .3, 1) both;
+}
+/* VII_FRAGMENT_END VACATIONS_233 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_234 */
+.vacation-booking-dialog:focus { outline: none; }
+/* VII_FRAGMENT_END VACATIONS_234 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_235 */
+.vacation-booking-dialog__header {
+  min-height: 92px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 24px 17px;
+  border-bottom: 1px solid #e4edef;
+}
+/* VII_FRAGMENT_END VACATIONS_235 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_236 */
+.vacation-booking-dialog__header > div { min-width: 0; }
+/* VII_FRAGMENT_END VACATIONS_236 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_237 */
+.vacation-booking-dialog__header small { color: var(--teal); font-size: .73rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_237 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_238 */
+.vacation-booking-dialog__header h2 { margin: 3px 0 2px; font-size: clamp(1.35rem, 3vw, 1.75rem); line-height: 1.2; }
+/* VII_FRAGMENT_END VACATIONS_238 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_239 */
+.vacation-booking-dialog__header p { margin: 0; color: var(--ink-soft); font-size: .78rem; }
+/* VII_FRAGMENT_END VACATIONS_239 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_240 */
+.vacation-booking-dialog__close {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #d8e6e8;
+  border-radius: 50%;
+  color: var(--ink);
+  background: #f7fbfb;
+  font: 400 1.65rem/1 Rubik, Heebo, Arial, sans-serif;
+  cursor: pointer;
+}
+/* VII_FRAGMENT_END VACATIONS_240 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_241 */
+.vacation-booking-dialog__body {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px 24px;
+  overscroll-behavior: contain;
+  scrollbar-color: #9abec3 transparent;
+  scrollbar-width: thin;
+}
+/* VII_FRAGMENT_END VACATIONS_241 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_242 */
+.vacation-booking-dialog__selection { display: grid; grid-template-columns: 1.2fr .8fr; gap: 10px; }
+/* VII_FRAGMENT_END VACATIONS_242 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_243 */
+.vacation-booking-dialog__date,
+.vacation-booking-dialog__guests {
+  min-width: 0;
+  min-height: 72px;
+  border: 1px solid #d3e3e5;
+  border-radius: 16px;
+  background: #fff;
+}
+/* VII_FRAGMENT_END VACATIONS_243 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_244 */
+.vacation-booking-dialog__date {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+/* VII_FRAGMENT_END VACATIONS_244 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_245 */
+.vacation-booking-dialog__date svg { width: 22px; height: 22px; color: var(--teal-dark); }
+/* VII_FRAGMENT_END VACATIONS_245 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_246 */
+.vacation-booking-dialog__date > span { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_246 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_247 */
+.vacation-booking-dialog__date small,
+.vacation-booking-dialog__guests small { color: var(--ink-soft); font-size: .7rem; }
+/* VII_FRAGMENT_END VACATIONS_247 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_248 */
+.vacation-booking-dialog__date strong { overflow: hidden; font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_248 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_249 */
+.vacation-booking-dialog__date b { color: var(--teal-dark); font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_249 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_250 */
+.vacation-booking-dialog__guests { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 13px; }
+/* VII_FRAGMENT_END VACATIONS_250 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_251 */
+.vacation-booking-dialog__guests > span { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_251 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_252 */
+.vacation-booking-dialog__guests strong { font-size: .88rem; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_252 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_253 */
+.vacation-booking-dialog__guests > div { display: flex; gap: 6px; direction: ltr; }
+/* VII_FRAGMENT_END VACATIONS_253 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_254 */
+.vacation-booking-dialog__guests button {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #c8dde0;
+  border-radius: 12px;
+  color: var(--teal-dark);
+  background: #f7fbfb;
+  font: 800 1.15rem/1 Rubik, Heebo, Arial, sans-serif;
+  cursor: pointer;
+}
+/* VII_FRAGMENT_END VACATIONS_254 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_255 */
+.vacation-booking-dialog__guests button:disabled { opacity: .38; cursor: default; }
+/* VII_FRAGMENT_END VACATIONS_255 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_256 */
+.vacation-booking-dialog__status {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  border: 1px solid #cfe0e2;
+  border-radius: 15px;
+  background: #f7fbfb;
+}
+/* VII_FRAGMENT_END VACATIONS_256 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_257 */
+.vacation-booking-dialog__status > span { width: 10px; height: 10px; border-radius: 50%; background: #d29a32; box-shadow: 0 0 0 5px #fff2d9; }
+/* VII_FRAGMENT_END VACATIONS_257 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_258 */
+.vacation-booking-dialog__status > div { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_258 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_259 */
+.vacation-booking-dialog__status strong { font-size: .86rem; }
+/* VII_FRAGMENT_END VACATIONS_259 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_260 */
+.vacation-booking-dialog__status small { overflow: hidden; color: var(--ink-soft); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_260 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_261 */
+.vacation-booking-dialog__status > b { color: var(--teal-dark); font-size: .95rem; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_261 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_262 */
+.vacation-booking-dialog__status--available { border-color: #b8dece; background: #f5fbf7; }
+/* VII_FRAGMENT_END VACATIONS_262 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_263 */
+.vacation-booking-dialog__status--available > span { background: #198359; box-shadow: 0 0 0 5px #dff2e8; }
+/* VII_FRAGMENT_END VACATIONS_263 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_264 */
+.vacation-booking-dialog__status--unavailable { border-color: #ebcec8; background: #fff8f6; }
+/* VII_FRAGMENT_END VACATIONS_264 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_265 */
+.vacation-booking-dialog__status--unavailable > span { background: #b65749; box-shadow: 0 0 0 5px #f8e2de; }
+/* VII_FRAGMENT_END VACATIONS_265 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_266 */
+.vacation-booking-dialog__status--loading > span {
+  border: 2px solid #b7d9de;
+  border-top-color: var(--teal-dark);
+  background: transparent;
+  box-shadow: none;
+  animation: vacation-booking-spin .7s linear infinite;
+}
+/* VII_FRAGMENT_END VACATIONS_266 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_267 */
+.vacation-booking-dialog__recommendation { display: grid; gap: 10px; padding: 14px 15px; border: 1px solid #bcdfe2; border-radius: 16px; background: linear-gradient(135deg, #f2fbfb, #fff); }
+/* VII_FRAGMENT_END VACATIONS_267 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_268 */
+.vacation-booking-dialog__recommendation-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+/* VII_FRAGMENT_END VACATIONS_268 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_269 */
+.vacation-booking-dialog__recommendation-heading > div { min-width: 0; }
+/* VII_FRAGMENT_END VACATIONS_269 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_270 */
+.vacation-booking-dialog__recommendation-heading small { color: var(--teal); font-size: .7rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_270 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_271 */
+.vacation-booking-dialog__recommendation-heading h3 { margin: 3px 0 0; color: var(--ink); font-size: 1rem; line-height: 1.35; }
+/* VII_FRAGMENT_END VACATIONS_271 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_272 */
+.vacation-booking-dialog__recommendation-heading > span { flex: 0 0 auto; padding: 6px 8px; border-radius: 999px; color: var(--teal-dark); background: #e4f5f6; font-size: .66rem; font-weight: 800; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_272 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_273 */
+.vacation-booking-dialog__recommendation ul { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+/* VII_FRAGMENT_END VACATIONS_273 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_274 */
+.vacation-booking-dialog__recommendation li { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 9px; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1px #dcebed; }
+/* VII_FRAGMENT_END VACATIONS_274 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_275 */
+.vacation-booking-dialog__recommendation li span { color: var(--ink); font-size: .76rem; font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_275 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_276 */
+.vacation-booking-dialog__recommendation li small { color: var(--ink-soft); font-size: .66rem; }
+/* VII_FRAGMENT_END VACATIONS_276 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_277 */
+.vacation-booking-dialog__recommendation-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* VII_FRAGMENT_END VACATIONS_277 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_278 */
+.vacation-booking-dialog__recommendation-footer p { margin: 0; color: var(--ink-soft); font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_278 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_279 */
+.vacation-booking-dialog__recommendation-footer strong { color: var(--teal-dark); font-size: .9rem; }
+/* VII_FRAGMENT_END VACATIONS_279 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_280 */
+.vacation-booking-dialog__alternatives { display: grid; gap: 7px; }
+/* VII_FRAGMENT_END VACATIONS_280 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_281 */
+.vacation-booking-dialog__alternatives > strong { font-size: .8rem; }
+/* VII_FRAGMENT_END VACATIONS_281 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_282 */
+.vacation-booking-dialog__alternatives > div { display: flex; flex-wrap: wrap; gap: 7px; }
+/* VII_FRAGMENT_END VACATIONS_282 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_283 */
+.vacation-booking-dialog__alternatives button {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 11px;
+  border: 1px solid #dec8c2;
+  border-radius: 12px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+/* VII_FRAGMENT_END VACATIONS_283 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_284 */
+.vacation-booking-dialog__alternatives button span,
+.vacation-booking-dialog__alternatives button b { font-size: .73rem; }
+/* VII_FRAGMENT_END VACATIONS_284 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_285 */
+.vacation-booking-dialog__units { display: grid; gap: 10px; transition: opacity .18s ease; }
+/* VII_FRAGMENT_END VACATIONS_285 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_286 */
+.vacation-booking-dialog__units.is-updating { opacity: .46; }
+/* VII_FRAGMENT_END VACATIONS_286 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_287 */
+.vacation-booking-dialog__units-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 2px 2px 0; }
+/* VII_FRAGMENT_END VACATIONS_287 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_288 */
+.vacation-booking-dialog__units-heading small { color: var(--teal); font-size: .7rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_288 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_289 */
+.vacation-booking-dialog__units-heading h3 { margin: 2px 0 0; font-size: 1.05rem; }
+/* VII_FRAGMENT_END VACATIONS_289 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_290 */
+.vacation-booking-dialog__units-heading > span { color: var(--ink-soft); font-size: .7rem; }
+/* VII_FRAGMENT_END VACATIONS_290 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_291 */
+.vacation-booking-dialog__unit-list { display: grid; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_291 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_292 */
+.vacation-booking-dialog__unit {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 13px;
+  padding: 10px;
+  border: 1px solid #dce9eb;
+  border-radius: 15px;
+  background: #fff;
+}
+/* VII_FRAGMENT_END VACATIONS_292 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_293 */
+.vacation-booking-dialog__unit.is-available { border-color: #9edcc8; box-shadow: 0 8px 22px rgba(12, 126, 111, .07); }
+/* VII_FRAGMENT_END VACATIONS_293 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_294 */
+.vacation-booking-dialog__unit.is-unavailable { background: #fbfcfc; }
+/* VII_FRAGMENT_END VACATIONS_294 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_295 */
+.vacation-booking-dialog__unit-image { width: 112px; height: 100%; min-height: 112px; border-radius: 11px; object-fit: cover; }
+/* VII_FRAGMENT_END VACATIONS_295 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_296 */
+.vacation-booking-dialog__unit-content { min-width: 0; display: grid; align-content: center; gap: 6px; }
+/* VII_FRAGMENT_END VACATIONS_296 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_297 */
+.vacation-booking-dialog__unit-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; }
+/* VII_FRAGMENT_END VACATIONS_297 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_298 */
+.vacation-booking-dialog__unit-mark { width: 11px; height: 11px; border: 2px solid #78b8c0; border-radius: 50%; background: #eaf7f8; }
+/* VII_FRAGMENT_END VACATIONS_298 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_299 */
+.vacation-booking-dialog__unit h4 { margin: 0 0 2px; font-size: .88rem; }
+/* VII_FRAGMENT_END VACATIONS_299 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_300 */
+.vacation-booking-dialog__unit p { margin: 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.45; }
+/* VII_FRAGMENT_END VACATIONS_300 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_301 */
+.vacation-booking-dialog__unit-main > b { padding: 6px 8px; border-radius: 9px; color: var(--teal-dark); background: #edf8f9; font-size: .68rem; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_301 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_302 */
+.vacation-booking-dialog__unit details { margin-top: 7px; padding-inline-start: 22px; }
+/* VII_FRAGMENT_END VACATIONS_302 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_303 */
+.vacation-booking-dialog__unit summary { width: max-content; min-height: 34px; display: flex; align-items: center; color: var(--teal-dark); font-size: .72rem; font-weight: 800; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_303 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_304 */
+.vacation-booking-dialog__unit details p { max-width: 64ch; padding-bottom: 3px; }
+/* VII_FRAGMENT_END VACATIONS_304 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_305 */
+.vacation-booking-dialog__unit-availability { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 7px; border-top: 1px solid #edf2f3; }
+/* VII_FRAGMENT_END VACATIONS_305 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_306 */
+.vacation-booking-dialog__unit-availability > div { min-width: 0; display: grid; gap: 2px; }
+/* VII_FRAGMENT_END VACATIONS_306 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_307 */
+.vacation-booking-dialog__unit-availability strong { color: var(--teal-dark); font-size: .76rem; }
+/* VII_FRAGMENT_END VACATIONS_307 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_308 */
+.vacation-booking-dialog__unit.is-unavailable .vacation-booking-dialog__unit-availability strong { color: #6b7476; }
+/* VII_FRAGMENT_END VACATIONS_308 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_309 */
+.vacation-booking-dialog__unit-availability small { color: var(--ink-soft); font-size: .68rem; }
+/* VII_FRAGMENT_END VACATIONS_309 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_310 */
+.vacation-booking-dialog__unit-action.button { min-height: 42px; margin: 0; padding: 0 14px; border-radius: 11px; font-size: .72rem; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_310 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_311 */
+.vacation-booking-dialog__unit-action--dates { justify-self: start; }
+/* VII_FRAGMENT_END VACATIONS_311 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_312 */
+.vacation-booking-dialog__unit-guidance { color: var(--teal-dark); font-size: .78rem; font-weight: 850; }
+/* VII_FRAGMENT_END VACATIONS_312 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_313 */
+.vacation-booking-dialog__loading-note {
+  min-width: 168px;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  color: var(--teal-dark);
+  background: #f3f9f9;
+  font-size: .78rem;
+  font-weight: 850;
+}
+/* VII_FRAGMENT_END VACATIONS_313 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_314 */
+.vacation-booking-dialog__footer {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 24px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e1ecee;
+  background: #fff;
+  box-shadow: 0 -10px 28px rgba(5, 54, 64, .05);
+}
+/* VII_FRAGMENT_END VACATIONS_314 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_315 */
+.vacation-booking-dialog__footer-copy { min-width: 0; display: grid; gap: 1px; }
+/* VII_FRAGMENT_END VACATIONS_315 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_316 */
+.vacation-booking-dialog__footer-copy strong { font-size: .92rem; }
+/* VII_FRAGMENT_END VACATIONS_316 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_317 */
+.vacation-booking-dialog__footer-copy small { color: var(--ink-soft); font-size: .7rem; }
+/* VII_FRAGMENT_END VACATIONS_317 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_318 */
+.vacation-booking-dialog__footer-copy em { color: #8a5b08; font-size: .67rem; font-style: normal; font-weight: 800; }
+/* VII_FRAGMENT_END VACATIONS_318 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_319 */
+.vacation-booking-dialog__footer-actions { display: flex; align-items: center; gap: 12px; }
+/* VII_FRAGMENT_END VACATIONS_319 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_320 */
+.vacation-booking-dialog__footer-actions .button,
+.vacation-booking-dialog__footer-actions .vacation-booking-dialog__whatsapp { min-width: 168px; min-height: 50px; margin: 0; }
+/* VII_FRAGMENT_END VACATIONS_320 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_321 */
+.vacation-booking-dialog__footer-actions .button.primary { background: var(--teal-dark); }
+/* VII_FRAGMENT_END VACATIONS_321 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_322 */
+.vacation-booking-dialog__change-date { min-height: 44px; padding: 0 4px; border: 0; color: var(--teal-dark); background: transparent; font: 800 .76rem/1 Rubik, Heebo, Arial, sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+/* VII_FRAGMENT_END VACATIONS_322 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_323 */
+.vacation-booking-hub button:focus-visible,
+.vacation-booking-hub a:focus-visible,
+.vacation-booking-dialog button:focus-visible,
+.vacation-booking-dialog a:focus-visible,
+.vacation-booking-dialog summary:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
+/* VII_FRAGMENT_END VACATIONS_323 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_324 */
+body:has(.vacation-booking-dialog-layer) .smart-concierge,
+body:has(.vacation-booking-dialog-layer) .whatsapp-float,
+body:has(.vacation-booking-dialog-layer) .accessibility-trigger,
+body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
+/* VII_FRAGMENT_END VACATIONS_324 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_325 */
+.vacation-booking-hub { width: calc(100% - 24px); margin-top: 18px; }
+/* VII_FRAGMENT_END VACATIONS_325 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_326 */
+.vacation-booking-hub__launcher-row { grid-template-columns: 1fr; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_326 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_327 */
+.vacation-booking-hub__quick-book { min-height: 48px; width: 100%; }
+/* VII_FRAGMENT_END VACATIONS_327 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_328 */
+.vacation-booking-hub__launcher { min-height: 76px; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; padding: 10px 11px; border-radius: 18px; }
+/* VII_FRAGMENT_END VACATIONS_328 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_329 */
+.vacation-booking-hub__launcher--empty { min-height: 64px; grid-template-columns: auto minmax(0,1fr); }
+/* VII_FRAGMENT_END VACATIONS_329 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_330 */
+.vacation-booking-hub__launcher--empty .vacation-booking-hub__launcher-icon { grid-row: 1; }
+/* VII_FRAGMENT_END VACATIONS_330 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_331 */
+.vacation-booking-hub__launcher--empty .vacation-booking-hub__launcher-copy { grid-row: 1; align-self: center; }
+/* VII_FRAGMENT_END VACATIONS_331 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_332 */
+.vacation-booking-hub__launcher-icon { width: 44px; height: 44px; border-radius: 13px; }
+/* VII_FRAGMENT_END VACATIONS_332 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_333 */
+.vacation-booking-hub__launcher-icon { grid-column: 1; grid-row: 1 / 3; }
+/* VII_FRAGMENT_END VACATIONS_333 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_334 */
+.vacation-booking-hub__launcher-copy { grid-column: 2; grid-row: 1; align-self: end; }
+/* VII_FRAGMENT_END VACATIONS_334 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_335 */
+.vacation-booking-hub__launcher-copy small { font-size: .68rem; }
+/* VII_FRAGMENT_END VACATIONS_335 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_336 */
+.vacation-booking-hub__launcher-copy strong { font-size: .9rem; }
+/* VII_FRAGMENT_END VACATIONS_336 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_337 */
+.vacation-booking-hub__launcher-meta { grid-column: 2; grid-row: 2; align-self: start; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; border: 0; }
+/* VII_FRAGMENT_END VACATIONS_337 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_338 */
+.vacation-booking-hub__launcher-meta b { max-width: 150px; font-size: .7rem; }
+/* VII_FRAGMENT_END VACATIONS_338 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_339 */
+.vacation-booking-hub__launcher-action { grid-column: 3; grid-row: 1 / 3; min-width: 62px; min-height: 42px; padding: 0 10px; border-radius: 12px; font-size: .72rem; }
+/* VII_FRAGMENT_END VACATIONS_339 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_340 */
+.vacation-booking-dialog-layer { place-items: end center; padding: 0; }
+/* VII_FRAGMENT_END VACATIONS_340 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_341 */
+.vacation-booking-dialog { width: 100%; height: auto; max-height: 92dvh; border-width: 1px 0 0; border-radius: 24px 24px 0 0; }
+/* VII_FRAGMENT_END VACATIONS_341 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_342 */
+.vacation-booking-dialog__body { max-height: calc(92dvh - 172px); }
+/* VII_FRAGMENT_END VACATIONS_342 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_343 */
+.vacation-booking-dialog__header { min-height: 80px; align-items: center; padding: 15px 16px 13px; }
+/* VII_FRAGMENT_END VACATIONS_343 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_344 */
+.vacation-booking-dialog__header h2 { font-size: 1.25rem; }
+/* VII_FRAGMENT_END VACATIONS_344 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_345 */
+.vacation-booking-dialog__header p { display: none; }
+/* VII_FRAGMENT_END VACATIONS_345 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_346 */
+.vacation-booking-dialog__close { width: 40px; height: 40px; }
+/* VII_FRAGMENT_END VACATIONS_346 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_347 */
+.vacation-booking-dialog__body { gap: 11px; padding: 13px 14px 15px; }
+/* VII_FRAGMENT_END VACATIONS_347 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_348 */
+.vacation-booking-dialog__selection { grid-template-columns: 1fr; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_348 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_349 */
+.vacation-booking-dialog__date,
+  .vacation-booking-dialog__guests { min-height: 64px; border-radius: 14px; }
+/* VII_FRAGMENT_END VACATIONS_349 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_350 */
+.vacation-booking-dialog__status { min-height: 58px; padding: 10px 12px; }
+/* VII_FRAGMENT_END VACATIONS_350 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_351 */
+.vacation-booking-dialog__status small { display: none; }
+/* VII_FRAGMENT_END VACATIONS_351 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_352 */
+.vacation-booking-dialog__recommendation { gap: 9px; padding: 12px; }
+/* VII_FRAGMENT_END VACATIONS_352 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_353 */
+.vacation-booking-dialog__recommendation-heading { display: grid; gap: 7px; }
+/* VII_FRAGMENT_END VACATIONS_353 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_354 */
+.vacation-booking-dialog__recommendation-heading > span { justify-self: start; }
+/* VII_FRAGMENT_END VACATIONS_354 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_355 */
+.vacation-booking-dialog__recommendation ul { display: grid; grid-template-columns: 1fr; }
+/* VII_FRAGMENT_END VACATIONS_355 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_356 */
+.vacation-booking-dialog__recommendation li { justify-content: space-between; }
+/* VII_FRAGMENT_END VACATIONS_356 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_357 */
+.vacation-booking-dialog__units-heading { align-items: flex-start; }
+/* VII_FRAGMENT_END VACATIONS_357 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_358 */
+.vacation-booking-dialog__units-heading > span { display: none; }
+/* VII_FRAGMENT_END VACATIONS_358 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_359 */
+.vacation-booking-dialog__unit { grid-template-columns: 88px minmax(0, 1fr); gap: 10px; padding: 9px; border-radius: 14px; }
+/* VII_FRAGMENT_END VACATIONS_359 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_360 */
+.vacation-booking-dialog__unit-image { width: 88px; min-height: 112px; border-radius: 10px; }
+/* VII_FRAGMENT_END VACATIONS_360 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_361 */
+.vacation-booking-dialog__unit-main { gap: 9px; }
+/* VII_FRAGMENT_END VACATIONS_361 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_362 */
+.vacation-booking-dialog__unit-main > b { display: none; }
+/* VII_FRAGMENT_END VACATIONS_362 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_363 */
+.vacation-booking-dialog__unit-availability { align-items: stretch; flex-direction: column; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_363 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_364 */
+.vacation-booking-dialog__unit-action.button { width: 100%; min-height: 44px; white-space: normal; }
+/* VII_FRAGMENT_END VACATIONS_364 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_365 */
+.vacation-booking-dialog__unit details { padding-inline-start: 0; }
+/* VII_FRAGMENT_END VACATIONS_365 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_366 */
+.vacation-booking-dialog__footer { min-height: 92px; align-items: stretch; flex-direction: column; gap: 9px; padding: 11px 14px max(13px, env(safe-area-inset-bottom)); }
+/* VII_FRAGMENT_END VACATIONS_366 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_367 */
+.vacation-booking-dialog__footer-copy { grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 3px 8px; }
+/* VII_FRAGMENT_END VACATIONS_367 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_368 */
+.vacation-booking-dialog__footer-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* VII_FRAGMENT_END VACATIONS_368 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_369 */
+.vacation-booking-dialog__footer-copy em { grid-column: 1 / -1; }
+/* VII_FRAGMENT_END VACATIONS_369 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_370 */
+.vacation-booking-dialog__footer-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+/* VII_FRAGMENT_END VACATIONS_370 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_371 */
+.vacation-booking-dialog__unit-guidance { align-self: center; padding-block: 8px; }
+/* VII_FRAGMENT_END VACATIONS_371 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_372 */
+.vacation-booking-dialog__loading-note { width: 100%; min-width: 0; min-height: 48px; }
+/* VII_FRAGMENT_END VACATIONS_372 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_373 */
+.vacation-booking-dialog__footer-actions .button,
+  .vacation-booking-dialog__footer-actions .vacation-booking-dialog__whatsapp { width: 100%; min-width: 0; min-height: 48px; }
+/* VII_FRAGMENT_END VACATIONS_373 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_374 */
+.vacation-booking-dialog__change-date { min-width: 78px; }
+/* VII_FRAGMENT_END VACATIONS_374 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_375 */
+.vacation-booking-dialog { height: 100dvh; max-height: 100dvh; border-radius: 18px 18px 0 0; }
+/* VII_FRAGMENT_END VACATIONS_375 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_376 */
+.vacation-booking-dialog__header { min-height: 68px; padding-block: 11px; }
+/* VII_FRAGMENT_END VACATIONS_376 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_377 */
+.vacation-booking-dialog__body { padding-block: 10px; }
+/* VII_FRAGMENT_END VACATIONS_377 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_378 */
+.vacation-online-filter { margin:16px 0; padding:0 0 16px; border:0; border-bottom:1px solid var(--line); min-width:0; }
+/* VII_FRAGMENT_END VACATIONS_378 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_379 */
+.vacation-online-filter legend { font-weight:700; margin-bottom:6px; }
+/* VII_FRAGMENT_END VACATIONS_379 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_380 */
+.vacation-online-filter label { display:flex; align-items:center; gap:10px; min-height:44px; font-weight:700; cursor:pointer; }
+/* VII_FRAGMENT_END VACATIONS_380 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_381 */
+.vacation-online-filter input { width:20px; height:20px; flex:0 0 20px; accent-color:var(--teal); }
+/* VII_FRAGMENT_END VACATIONS_381 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_382 */
+.vacation-online-filter p { margin:4px 0 0; color:var(--muted); font-size:.85rem; line-height:1.65; }
+/* VII_FRAGMENT_END VACATIONS_382 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_383 */
+.vacation-booking-hub__inquiry-copy { display: grid; gap: 8px; max-width: 760px; }
+/* VII_FRAGMENT_END VACATIONS_383 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_384 */
+.vacation-booking-hub__inquiry-copy h2,
+.vacation-booking-hub__inquiry-copy p { margin: 0; }
+/* VII_FRAGMENT_END VACATIONS_384 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_385 */
+.vacation-booking-hub__inquiry-copy p { color: var(--muted); line-height: 1.7; }
+/* VII_FRAGMENT_END VACATIONS_385 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_386 */
+.vacation-booking-hub__inquiry-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+/* VII_FRAGMENT_END VACATIONS_386 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_387 */
+.vacation-booking-hub__inquiry-actions .button,
+.vacation-booking-hub__inquiry-actions .vacation-booking-hub__inquiry-whatsapp { min-height: 48px; justify-content: center; }
+/* VII_FRAGMENT_END VACATIONS_387 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_388 */
+.vacation-booking-hub--inquiry-only { background: linear-gradient(135deg,#f7fbfa,#fff); border-color: #cfe5df; }
+/* VII_FRAGMENT_END VACATIONS_388 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_389 */
+.vacation-booking-hub__inquiry-actions { display: grid; }
+/* VII_FRAGMENT_END VACATIONS_389 */
+
+/* VII_FRAGMENT_BEGIN VACATIONS_390 */
+.vacation-booking-hub__inquiry-actions .button,
+  .vacation-booking-hub__inquiry-actions .vacation-booking-hub__inquiry-whatsapp { width: 100%; }
+/* VII_FRAGMENT_END VACATIONS_390 */

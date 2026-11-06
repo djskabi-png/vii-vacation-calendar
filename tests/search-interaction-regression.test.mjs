@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const mapSource = readMapImplementation();
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("the results map supports natural zoom without jumping on marker selection", () => {
   assert.match(mapSource, /scrollWheelZoom:\s*interactive/);

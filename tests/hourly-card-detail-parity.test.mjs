@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -7,7 +8,7 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 
 test("hourly cards use one stretched place link and keep contacts separate", async () => {
   const card = await read("app/components/discovery-card.tsx");
-  const styles = await read("app/globals.css");
+  const styles = await readEffectiveWorldCss();
   assert.doesNotMatch(card, /className="discovery-card__details"/);
   assert.match(card, /className="discovery-card__stretched-link"/);
   assert.match(card, /target\.closest\("a,button,input,select,textarea,\[role='button'\]"\)/);
@@ -34,7 +35,7 @@ test("hourly detail breadcrumbs include distinct area and city landings in UI an
 
 test("hourly detail groups rooms, verified rates and amenities into polished sections", async () => {
   const client = await read("app/discover/place/client-page.tsx");
-  const styles = await read("app/globals.css");
+  const styles = await readEffectiveWorldCss();
   for (const marker of ["hourly-overview", "hourly-room-grid", "hourly-room-card", "hourly-contact-card", "hourly-feature-grid"]) {
     assert.match(client, new RegExp(marker));
     assert.match(styles, new RegExp(`\\.${marker}`));

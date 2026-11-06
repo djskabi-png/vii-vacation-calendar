@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -6,7 +7,7 @@ const [events, booking, business, styles, notFound] = await Promise.all([
   readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/booking/page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
-  readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  readEffectiveWorldCss(),
   readFile(new URL("../app/not-found.tsx", import.meta.url), "utf8"),
 ]);
 

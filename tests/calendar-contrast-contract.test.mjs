@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("selected calendar dates keep their strong background on hover", () => {
   assert.match(css, /\.demo-day:hover:not\(:disabled\):not\(\.range-start\):not\(\.range-end\)/);

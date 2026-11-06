@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -41,7 +42,7 @@ test("guest reviews accept anonymous submissions into D1 and R2 with pending mod
 });
 
 test("the shared header keeps one worlds trigger, restores accessibility and adds one conditional search shortcut", async () => {
-  const [header, styles] = await Promise.all([read("app/site-header.tsx"), read("app/globals.css")]);
+  const [header, styles] = await Promise.all([read("app/site-header.tsx"), readEffectiveWorldCss()]);
   assert.match(header, /!hasInPageSearch \? <button[^>]+className="icon-button header-search"/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);

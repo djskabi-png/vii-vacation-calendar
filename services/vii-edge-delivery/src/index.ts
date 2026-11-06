@@ -1,7 +1,8 @@
 import { warmPublicDocuments } from "./public-warm.ts";
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
-type DeliveryEnv={ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
+import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
+type DeliveryEnv=QualityGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae";
@@ -124,6 +125,10 @@ function keyFor(request: Request, url: URL, build: string) {
 }
 
 async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext, refresh = false): Promise<Response> {
+  if (env.QUALITY_CONTROL_ENABLED === "true") {
+    const quality = await qualityGateway(request, env);
+    if (quality) return quality;
+  }
   const url = new URL(request.url);
   const discovery=publicDiscoveryCachePolicy(request);
   if (!eligible(request, url)) {

@@ -527,7 +527,7 @@ export async function runQualityChecks(db: D1Database, options: {
 export async function persistQualityJobProgress(db: D1Database, job: QualityJob, notificationEnv: QualityNotificationEnvironment = {}, fetcher: typeof fetch = fetch) {
   await ensureQualitySchema(db);
   const level = job.checks[0]?.configuration.level;
-  const triggerKind = level === "regular" ? "manual_regular" : level === "medium" ? "manual_medium" : "manual_full";
+  const triggerKind = job.checks[0]?.configuration.trigger === "scheduled" ? "scheduled" : level === "regular" ? "manual_regular" : level === "medium" ? "manual_medium" : "manual_full";
   await db.prepare(`INSERT OR IGNORE INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor,total_checks,current_check_id)
     VALUES (?,?,?,?,'running',?,?,?,?)`).bind(job.runId, `job:${job.runId}`, triggerKind, job.sourceVersion, job.createdAt, job.actor, job.checks.length, job.checks[job.nextIndex]?.checkId ?? null).run();
   const current = await db.prepare("SELECT status FROM quality_runs WHERE id=?").bind(job.runId).first<{ status: string }>();

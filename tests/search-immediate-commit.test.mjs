@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const source = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("desktop committed search choices navigate immediately with explicit fresh values", () => {
   assert.match(source, /type ImmediateSearchOverrides = \{/);

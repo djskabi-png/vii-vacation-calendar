@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 test("join page exposes one visible and structured FAQ source above the footer", async () => {
   const [page, styles] = await Promise.all([
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(page, /const joinFaqs = \[/);

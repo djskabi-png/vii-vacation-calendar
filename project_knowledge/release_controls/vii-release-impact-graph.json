@@ -15,7 +15,12 @@
       "source": "services/vii-public-images/wrangler.toml"
     },
     "quality-browser": {
-      "source": "services/vii-quality-browser/wrangler.toml.example",
+      "source": "services/vii-quality-browser/wrangler.toml",
+      "provisioningRequired": true,
+      "publicRoute": false
+    },
+    "quality-controller": {
+      "source": "services/vii-quality-control/wrangler.toml",
       "provisioningRequired": true,
       "publicRoute": false
     }
@@ -50,7 +55,9 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/supplier-worker-transport.test.mjs"
+      ]
     },
     "global-shell": {
       "dependsOn": [],
@@ -201,7 +208,11 @@
       "requiredLocalTests": []
     },
     "quality-control": {
-      "dependsOn": [],
+      "dependsOn": [
+        "runtime-http",
+        "quality-auth",
+        "quality-runtime"
+      ],
       "requiredChecks": [],
       "buildUnits": [
         "managed-site"
@@ -277,7 +288,8 @@
     },
     "edge-delivery": {
       "dependsOn": [
-        "edge-cache"
+        "edge-cache",
+        "runtime-http"
       ],
       "requiredChecks": [
         "global.home.semantic"
@@ -305,7 +317,8 @@
       ],
       "requiredLocalTests": [
         "tests/deployment-artifact-budget.test.mjs",
-        "tests/release-baseline-integrity.test.mjs"
+        "tests/release-baseline-integrity.test.mjs",
+        "tests/world-style-composition.test.mjs"
       ]
     },
     "verification": {
@@ -369,13 +382,76 @@
       "requiredLocalTests": []
     },
     "quality-browser": {
-      "dependsOn": [],
+      "dependsOn": [
+        "runtime-http"
+      ],
       "requiredChecks": [],
       "buildUnits": [
         "quality-browser"
       ],
       "requiredLocalTests": [
         "services/vii-quality-browser/test/engine.test.mjs"
+      ]
+    },
+    "quality-controller": {
+      "dependsOn": [
+        "runtime-http",
+        "quality-auth",
+        "quality-runtime"
+      ],
+      "requiredChecks": [],
+      "buildUnits": [
+        "quality-controller"
+      ],
+      "requiredLocalTests": [
+        "services/vii-quality-control/test/controller.test.mjs",
+        "services/vii-quality-control/test/dispatch-outbox.test.mjs"
+      ]
+    },
+    "runtime-http": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site",
+        "edge-delivery",
+        "quality-browser",
+        "quality-controller"
+      ],
+      "requiredLocalTests": [
+        "services/vii-quality-browser/test/request-body.test.mjs"
+      ]
+    },
+    "quality-auth": {
+      "dependsOn": [
+        "runtime-http"
+      ],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site",
+        "quality-controller"
+      ],
+      "requiredLocalTests": [
+        "tests/quality-attestation.test.mjs",
+        "tests/quality-attestation-workerd.test.mjs",
+        "tests/quality-gateway.test.mjs"
+      ]
+    },
+    "quality-runtime": {
+      "dependsOn": [],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site",
+        "quality-controller"
+      ],
+      "requiredLocalTests": [
+        "tests/quality-job-api.test.mjs",
+        "tests/quality-job-platform.test.mjs",
+        "tests/quality-job-runner.test.mjs",
+        "tests/quality-job-projection.test.mjs",
+        "tests/quality-check-scope.test.mjs",
+        "tests/quality-platform.test.mjs",
+        "tests/quality-scoped-api-integration.test.mjs",
+        "tests/quality-scope-admission.test.mjs"
       ]
     }
   },
@@ -399,7 +475,11 @@
         "app/data/",
         "app/lib/public-catalog-read.ts",
         "app/lib/supplier-detail-contract.ts",
-        "app/lib/schema-initializer.ts"
+        "app/lib/schema-initializer.ts",
+        "app/lib/max-compounds-api.ts",
+        "app/lib/sergey-vii-api.ts",
+        "app/lib/online-booking-capability.ts",
+        "app/lib/supplier-starting-price.ts"
       ]
     },
     {
@@ -428,14 +508,16 @@
       "match": [
         "app/vacations/",
         "app/business/",
-        "app/components/property-card.tsx"
+        "app/components/property-card.tsx",
+        "app/worlds/vacations/"
       ]
     },
     {
       "id": "events",
       "ownerBox": "events",
       "match": [
-        "app/events/"
+        "app/events/",
+        "app/worlds/events/"
       ]
     },
     {
@@ -450,7 +532,8 @@
       "id": "hourly",
       "ownerBox": "hourly",
       "match": [
-        "app/hourly/"
+        "app/hourly/",
+        "app/worlds/hourly/"
       ]
     },
     {
@@ -493,11 +576,6 @@
       "match": [
         "app/admin/quality/",
         "app/api/admin/quality/",
-        "app/lib/quality-check-scope.ts",
-        "app/lib/quality-job-platform.ts",
-        "app/lib/quality-job-runner.ts",
-        "app/lib/quality-job-store.ts",
-        "app/lib/quality-platform.ts",
         "app/lib/quality-job-intent.ts"
       ]
     },
@@ -554,7 +632,9 @@
       "match": [
         "vite.config.ts",
         "package.json",
-        "pnpm-lock.yaml"
+        "pnpm-lock.yaml",
+        "build/world-style-slots.mjs",
+        "app/worlds/style-slots.json"
       ]
     },
     {
@@ -596,6 +676,40 @@
       "ownerBox": "quality-browser",
       "match": [
         "services/vii-quality-browser/"
+      ]
+    },
+    {
+      "id": "quality-controller",
+      "ownerBox": "quality-controller",
+      "match": [
+        "services/vii-quality-control/"
+      ]
+    },
+    {
+      "id": "runtime-http",
+      "ownerBox": "runtime-http",
+      "match": [
+        "shared/request-body.ts"
+      ]
+    },
+    {
+      "id": "quality-auth",
+      "ownerBox": "quality-auth",
+      "match": [
+        "app/lib/quality-attestation.ts",
+        "app/api/admin/quality-attestation/",
+        "app/.well-known/vii-quality-jwks.json/"
+      ]
+    },
+    {
+      "id": "quality-runtime",
+      "ownerBox": "quality-runtime",
+      "match": [
+        "app/lib/quality-job-platform.ts",
+        "app/lib/quality-job-runner.ts",
+        "app/lib/quality-job-store.ts",
+        "app/lib/quality-platform.ts",
+        "app/lib/quality-check-scope.ts"
       ]
     }
   ]

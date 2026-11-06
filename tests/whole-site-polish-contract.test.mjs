@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -20,7 +21,7 @@ test("large result families use one restrained progressive-results pattern", asy
 });
 
 test("mobile controls keep modern visuals without undersized hit targets", async () => {
-  const css = await read("app/globals.css");
+  const css = await readEffectiveWorldCss();
   assert.match(css, /\.stay-card__gallery-arrow \{[^}]*width: 44px;[^}]*height: 44px;/);
   assert.match(css, /@media \(hover: none\), \(max-width: 820px\) \{[\s\S]*?\.stay-card__gallery-arrow \{ width: 44px; height: 44px;/);
   assert.match(css, /\.stay-card__gallery-dots button,[\s\S]*?width: 44px;[\s\S]*?height: 44px;/);

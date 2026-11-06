@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const page = await readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8");
 const component = await readFile(new URL("../app/components/event-region-carousel.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const translations = JSON.parse(await readFile(new URL("../app/data/event-region-carousel-translations.json", import.meta.url), "utf8"));
 
 test("event regions use matching public inventory for truthful imagery and counts", () => {

@@ -90,7 +90,7 @@ export async function fetchCapabilityProbe(token: string, previous?: OnlineCapab
   if (!token) throw new Error("capabilities_unavailable");
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/json" };
   const listing = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations", {
-    headers, redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
+    headers, redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(20_000),
   });
   if (!listing.ok) throw new Error("capabilities_unavailable");
   const candidateIds = capabilityCandidateIds(await listing.json().catch(() => null));
@@ -105,7 +105,7 @@ export async function fetchCapabilityProbe(token: string, previous?: OnlineCapab
     try {
       const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/search", {
         method: "POST", headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ ...capabilityProbe(now), siteIDs }), redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
+        body: JSON.stringify({ ...capabilityProbe(now), siteIDs }), redirect: "manual", cache: "no-store", signal: AbortSignal.timeout(20_000),
       });
       if (!response.ok) continue;
       const payload = await response.json().catch(() => null);

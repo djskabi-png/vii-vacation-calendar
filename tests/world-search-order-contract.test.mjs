@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -46,7 +47,7 @@ test("trails and attractions expose a working search entry before breadcrumbs an
 
 test("special world search opens in place before offering an explicit local-filter jump", async () => {
   const source = await readFile(new URL("../app/components/special-world-search.tsx", import.meta.url), "utf8");
-  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const styles = await readEffectiveWorldCss();
   assert.doesNotMatch(source, /^"use client";/);
   assert.match(source, /<details className="special-search-disclosure">/);
   const summary = await readFile(new URL("../app/components/special-search-summary.tsx", import.meta.url), "utf8");

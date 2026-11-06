@@ -1,3 +1,4 @@
+import { composeWorldStyles } from "../build/world-style-slots.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -13,7 +14,7 @@ assert.equal(spa.trimEnd(), baseline.slice(baseline.indexOf("/* Spa audience and
 const commentIndex = current.indexOf("/* Spa audience and date */");
 assert.ok(current.indexOf(marker) > commentIndex);
 
-const compiled = current.replace(marker, spa);
+const compiled = composeWorldStyles(current);
 assert.equal(compiled.replace(spa, "__SPA_BLOCK__").includes("__SPA_BLOCK__"), true);
 
 const { chromium } = await import("playwright");

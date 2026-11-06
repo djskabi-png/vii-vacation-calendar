@@ -2,35 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { BarChart3, BrainCircuit, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
+import { Building2, ExternalLink, Sparkles } from "lucide-react";
+import { adminNavigationGroups as groups } from "./admin-navigation.ts";
 import styles from "./admin.module.css";
 import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
 
-const groups = [
-  { label: "מרכז שליטה", links: [
-    { href: "/admin", label: "תמונת מצב", icon: Gauge },
-    { href: "/admin/growth", label: "מרכז קידום", icon: Sparkles },
-    { href: "/admin/search-pages", label: "מרכז עמודי חיפוש", icon: FileSearch },
-    { href: "/admin/business-performance", label: "ביצועי עסקים", icon: BarChart3 },
-    { href: "/admin/professor", label: "שאל את פרופסור", icon: BrainCircuit },
-    { href: "/admin/quality", label: "איכות ויציבות", icon: ShieldCheck },
-  ] },
-  { label: "תוכן וגילוי", links: [
-    { href: "/admin/content-studio", label: "סטודיו תוכן", icon: LibraryBig },
-    { href: "/admin/worlds", label: "הפעלת עולמות", icon: Sparkles },
-    { href: "/admin/search-analytics", label: "מודיעין חיפושים", icon: Search },
-    { href: "/admin/content-queue", label: "תור אישורים", icon: ListChecks },
-    { href: "/admin/discovery-promotions", label: "קידום מקומות", icon: TrendingUp },
-    { href: "/admin/redirects", label: "כתובות והפניות", icon: Route },
-  ] },
-  { label: "תפעול", links: [
-    { href: "/admin/catalog-sync", label: "קטלוגים וספקים", icon: CalendarSync },
-    { href: "/admin/geography", label: "ערים ואזורים", icon: MapPinned },
-    { href: "/admin/operations", label: "הזמנות וחוות דעת", icon: Star },
-    { href: "/admin/whatsapp-leads", label: "פניות וואטסאפ", icon: MessageCircle },
-    { href: "/admin/users", label: "משתמשים והרשאות", icon: Building2 },
-  ] },
-];
+
 
 export default function AdminNav({ access }: { access: AdminAccess }) {
   const pathname = usePathname();

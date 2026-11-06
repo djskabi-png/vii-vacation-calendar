@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -51,7 +52,7 @@ test("event search catalog endpoint returns populated canonical facets", async (
 
 test("event filters remain operable in the mobile sheet", async () => {
   const page = await readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(page, /className=\{`event-filter-toggle/);
   assert.match(page, /aria-controls="event-result-filters"/);
   assert.match(page, /id="event-result-filters"/);

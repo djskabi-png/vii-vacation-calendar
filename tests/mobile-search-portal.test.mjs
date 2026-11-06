@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 const source = await readFile(new URL("../app/components/search-box.tsx",import.meta.url),"utf8");
-const css = await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
+const css = await readEffectiveWorldCss();
 const home = await readFile(new URL("../app/page.tsx",import.meta.url),"utf8");
 test("expanded shared search escapes hero clipping while inline desktop and calendars remain separate",()=>{
   assert.match(source,/import \{ createPortal \} from "react-dom"/);

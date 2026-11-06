@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
 const calendar = fs.readFileSync(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8");
-const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("business calendar uses a bounded two-month desktop window and restores the stay summary", () => {
   assert.match(calendar, /<div className="month-nav calendar-month-nav"/);

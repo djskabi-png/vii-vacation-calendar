@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -54,6 +55,6 @@ test("desktop supports both layouts while mobile is always a clean card grid", (
 });
 
 test("mobile page shells keep an app-like protected edge around headings and cards", () => {
-  const globalStyles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  const globalStyles = readEffectiveWorldCss();
   assert.match(globalStyles, /@media \(max-width: 560px\) \{[\s\S]*?\.shell \{ width: calc\(100% - 32px\); \}/);
 });

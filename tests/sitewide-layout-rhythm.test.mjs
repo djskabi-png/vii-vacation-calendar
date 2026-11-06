@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const css=read('app/globals.css'),home=read('app/home-mobile.css'),source=read('app/components/home-showcase.tsx');
+const css=readEffectiveWorldCss(),home=read('app/home-mobile.css'),source=read('app/components/home-showcase.tsx');
 test('review cards protect common header, quote, author/date and CTA rows',()=>{
  assert.match(css,/\.home-rating-card \{[^}]*display: grid;[^}]*grid-template-rows: 112px minmax\(4\.8em,1fr\) auto auto/);
  assert.doesNotMatch(css,/\.home-tour-card > div,\.home-rating-card > div/);

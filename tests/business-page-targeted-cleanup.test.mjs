@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const bookingHub = readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("owner's public business phone is visible immediately through shared direct dialing", () => {
   assert.doesNotMatch(business, /phoneRevealed|setPhoneRevealed|הצגת מספר/);

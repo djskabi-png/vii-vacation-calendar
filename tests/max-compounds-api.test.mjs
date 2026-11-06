@@ -15,7 +15,7 @@ test("read requests stay authenticated, uncached and on Max's documented host", 
   assert.equal(calls[0].url, "https://bizonline.co.il/api/partner/v1/compounds/sites/12?lang=he");
   assert.equal(calls[0].init.headers["X-API-Key"], "test-secret");
   assert.equal(calls[0].init.cache, "no-store");
-  assert.equal(calls[0].init.redirect, "error");
+  assert.equal(calls[0].init.redirect, "manual");
 });
 
 test("search and quote use the documented POST envelope", async () => {

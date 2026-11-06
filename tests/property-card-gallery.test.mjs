@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const card = await readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const home = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const horizontalRail = await readFile(new URL("../app/components/horizontal-chip-rail.tsx", import.meta.url), "utf8");

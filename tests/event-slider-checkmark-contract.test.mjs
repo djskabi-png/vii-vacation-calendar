@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 const [landing, detail, css, eventRail] = await Promise.all([
   readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
-  readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  readEffectiveWorldCss(),
   readFile(new URL("../app/components/event-rail.tsx", import.meta.url), "utf8"),
 ]);
 

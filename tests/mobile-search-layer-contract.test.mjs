@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("the expanded mobile search owns the top stacking layer", () => {
   assert.match(css, /\.home-hero:has\(\.search-box-shell\.mobile-expanded\),[\s\S]*?\.sticky-property-search:has\(\.search-box-shell\.mobile-expanded\) \{ position: relative; z-index: 1600; \}/);

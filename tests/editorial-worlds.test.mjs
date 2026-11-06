@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
@@ -85,7 +86,7 @@ test("editorial visibility has exact enter and exit boundaries", async () => {
 });
 test("editorial floating-control policy keeps map discovery available and cleans up", async () => {
   const component=await fs.readFile(new URL("../app/components/world-editorial-links.tsx",import.meta.url),"utf8");
-  const css=await fs.readFile(new URL("../app/globals.css",import.meta.url),"utf8");
+  const css=await readEffectiveWorldCss();
   assert.match(component,/observer\.observe\(element\)/);
   assert.match(component,/observer\.disconnect\(\)/);
   assert.match(component,/removeEventListener\("resize", update\)/);

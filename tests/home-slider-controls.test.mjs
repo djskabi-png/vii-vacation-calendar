@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -7,7 +8,7 @@ const sharedControls = readFileSync(new URL("../app/components/slider-rail-contr
 const showcase = readFileSync(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
 const discovery = readFileSync(new URL("../app/components/home-discovery-sections.tsx", import.meta.url), "utf8");
 const deals = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("homepage rails share one direction-safe scroll boundary control", () => {
   assert.match(controls, /<SliderRailControls/);

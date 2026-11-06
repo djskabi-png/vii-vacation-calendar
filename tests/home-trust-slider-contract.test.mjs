@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const source = readFileSync(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("homepage keeps the requested discovery sliders before the next world", () => {
   assert.match(source, /יעדים מומלצים לנופש/);

@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -5,7 +6,7 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Google account access is shared and backed by real server OAuth routes", async () => {
-  const [access, layout, header, account, styles] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx"), read("app/globals.css")]);
+  const [access, layout, header, account, styles] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx"), readEffectiveWorldCss()]);
   assert.match(access, /\/api\/auth\/google/);
   assert.match(access, /src="\/vii-logo\.png"/);
   assert.doesNotMatch(access, /account-avatar[^>]*>VII</);

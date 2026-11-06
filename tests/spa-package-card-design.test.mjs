@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -21,7 +22,7 @@ test("spa package cards keep supplier facts and expose a clear booking hierarchy
 });
 
 test("spa package cards remain readable at desktop and mobile widths", async () => {
-  const css = await read("app/globals.css");
+  const css = await readEffectiveWorldCss();
   const previewCss = await read("app/preview-card-consistency.css");
   assert.match(css, /\.spa-packages-grid \{[^}]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css, /\.spa-package-card \{[^}]*overflow: hidden/);

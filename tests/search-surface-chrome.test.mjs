@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
 
 test("shared search layout hosts never paint a second square frame or shadow", () => {

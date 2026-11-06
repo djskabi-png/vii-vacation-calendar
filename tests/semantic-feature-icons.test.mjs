@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -9,7 +10,7 @@ const [resolver, vacation, events, discover, sleeping, verifiedSleeping, css] = 
   readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/components/sleeping-arrangements.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/components/verified-sleeping-details.tsx", import.meta.url), "utf8"),
-  readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  readEffectiveWorldCss(),
 ]);
 
 test("feature icon resolver always renders a vector icon and protects the Hebrew sea token boundary", () => {

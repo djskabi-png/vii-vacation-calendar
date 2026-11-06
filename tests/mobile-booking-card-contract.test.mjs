@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const vacationHub = readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 

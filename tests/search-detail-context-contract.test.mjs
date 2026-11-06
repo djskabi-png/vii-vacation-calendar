@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -8,7 +9,7 @@ const card = readFileSync(new URL("../app/components/property-card.tsx", import.
 const map = readMapImplementation();
 const businessPage = readFileSync(new URL("../app/business/page.tsx", import.meta.url), "utf8");
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("search result links preserve the selected stay context", () => {
   for (const key of ["source", "from", "till", "guests", "rooms"]) {

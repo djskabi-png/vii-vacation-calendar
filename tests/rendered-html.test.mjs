@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import assert from "node:assert/strict";
@@ -103,7 +104,7 @@ for (const [pathname, expected] of [
 test("homepage hero keeps one focused message and compact local spacing", async () => {
   const [page, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(page, /<h1>\{translate\("כל מה שעושים בחופש, במקום אחד"\)\}<\/h1>/);
   assert.match(page, /<p>\{translate\("נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\."\)\}<\/p>/);
@@ -309,7 +310,7 @@ test("search submissions navigate to the selected result set without a document 
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(source, /router\.push\(target\)/);
   assert.doesNotMatch(source, /window\.location\.assign\(target\)/);
@@ -367,7 +368,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
     readFile(new URL("../app/attractions/attractions-explorer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(mapSource, /scrollWheelZoom: interactive/);
   assert.match(mapSource, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
@@ -408,7 +409,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
 test("map markers use the rich synchronized place card instead of legacy text tooltips", async () => {
   const [source, styles] = await Promise.all([
     readMapImplementation(),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.doesNotMatch(source, /bindTooltip/);
   assert.doesNotMatch(styles, /\.vii-map-tooltip/);
@@ -538,7 +539,7 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
 test("gift card mobile flow keeps the preview first and collapses long form sections", async () => {
   const pageSource = await readFile(new URL("../app/gift-card/page.tsx", import.meta.url), "utf8");
   const builderSource = await readFile(new URL("../app/gift-card/gift-card-builder.tsx", import.meta.url), "utf8");
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.ok(pageSource.indexOf('id="gift-builder"') < pageSource.indexOf('className="section shell gift-worlds"'));
   assert.match(builderSource, /activeFormSection/);
   assert.match(builderSource, /gift-form-panel__body/);
@@ -619,7 +620,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/article/client-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(calendar, /mode === "home"/);
   assert.match(calendar, /mode === "business"/);
@@ -730,7 +731,7 @@ test("keeps every date dialog above the site header with a reachable close actio
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/event-date-picker.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/spa-date-picker.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   for (const calendar of [vacationCalendar, eventCalendar, spaCalendar]) {
@@ -790,7 +791,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 31);
   assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 31);
@@ -848,7 +849,7 @@ test("includes the accessibility system and honest place disclosures", async () 
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(widget, /vii-accessibility-settings/);
@@ -897,7 +898,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     Promise.resolve(readWorldDataSource()),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
     readFile(new URL("../app/favicon.ico", import.meta.url)),
   ]);
   const dictionaries = JSON.parse(translations);
@@ -980,7 +981,7 @@ test("ships the immersive media, review and concierge experiences", async () => 
     readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(gallery, /המקום והמתקנים/);
   assert.match(gallery, /title=\{current\.label\}/);
@@ -1171,7 +1172,7 @@ test("attraction result cards use only approved photographic cover media", async
   const [response, worldData, styles] = await Promise.all([
     render("/attractions"),
     Promise.resolve(readWorldDataSource()),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   const html = await response.text();
   const approved = [
@@ -1219,7 +1220,7 @@ test("activities hub separates trails from paid attractions and every main trail
 
 test("world selection stays in the header and no longer competes with floating actions", async () => {
   const [css, worldSwitcher] = await Promise.all([
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(css, /\.world-dock__backdrop/);
@@ -1394,7 +1395,7 @@ test("provider pages demonstrate tracked WhatsApp and full-site booking modes", 
     readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/whatsapp-lead-button.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/provider-details.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   const [whatsappHtml, fullHtml] = await Promise.all([whatsappResponse.text(), fullResponse.text()]);
 
@@ -1435,7 +1436,7 @@ test("all public sorting and filtering controls use the branded modern selector"
 
   const [component, styles] = await Promise.all([
     readFile(new URL("../app/components/modern-select.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(component, /aria-haspopup="listbox"/);
   assert.match(component, /role="option"/);
@@ -1446,7 +1447,7 @@ test("all public sorting and filtering controls use the branded modern selector"
 
 test("mobile result filtering and sorting keep a compact entry and visible sort control", async () => {
   const [styles, vacationSearch, eventSearch] = await Promise.all([
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
   ]);
@@ -1487,7 +1488,7 @@ test("favorites span every world and bookings continue into the personal account
 });
 
 test("favorites empty-state navigation uses encoding-safe symbols", async () => {
-  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const styles = await readEffectiveWorldCss();
   const favoritesPage = await readFile(new URL("../app/favorites/page.tsx", import.meta.url), "utf8");
   assert.match(styles, /\.favorites-empty__link-arrow\s*\{/);
   assert.doesNotMatch(styles, /\.favorites-empty__links a::after/);
@@ -1499,7 +1500,7 @@ test("favorites empty-state navigation uses encoding-safe symbols", async () => 
 });
 
 test("favorites saved-count summary stays compact on mobile", async () => {
-  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const styles = await readEffectiveWorldCss();
   assert.match(styles, /\.favorites-hero aside strong\s*\{[^}]*width:\s*42px;[^}]*height:\s*42px;/s);
   assert.match(styles, /@media \(max-width:\s*640px\)[\s\S]*?\.favorites-hero aside\s*\{[^}]*width:\s*100%;[^}]*min-height:\s*70px;/);
   assert.match(styles, /@media \(max-width:\s*640px\)[\s\S]*?\.favorites-hero aside strong\s*\{[^}]*width:\s*38px;[^}]*height:\s*38px;/);
@@ -1618,14 +1619,14 @@ test("verified accommodation taxonomy renders a canonical landing and is include
 });
 
 test("discovery rating and favorite controls use opposite logical corners", async () => {
-  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const styles = await readEffectiveWorldCss();
   assert.match(styles, /\.rating-badge \{ inset-inline-start: 14px;/);
   assert.match(styles, /\.discovery-card > \.universal-favorite[^\n]+inset-inline-end: 14px;/);
   assert.doesNotMatch(styles, /\.rating-badge \{ left: 14px;/);
 });
 
 test("mobile filters reserve their actions by hiding the floating concierge", async () => {
-  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const styles = await readEffectiveWorldCss();
   assert.match(styles, /body:has\(\.filter-panel\.open\) \.smart-concierge \{ display: none; \}/);
 });
 

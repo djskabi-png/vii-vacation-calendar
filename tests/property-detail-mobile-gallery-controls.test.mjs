@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -9,7 +10,7 @@ const galleryExperience = await readFile(new URL("../app/components/gallery-expe
 const gallerySelection = await readFile(new URL("../app/components/gallery-selection.ts", import.meta.url), "utf8");
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const events = await readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("place pages share mobile gallery arrows, position dots and touch navigation", () => {
   assert.match(business, /<PropertyGallery images=\{placeGalleryImages\}/);

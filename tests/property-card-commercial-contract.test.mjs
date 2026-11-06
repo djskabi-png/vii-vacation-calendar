@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const card = await readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
 const data = await readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const analytics = await readFile(new URL("../app/lib/analytics.ts", import.meta.url), "utf8");
 
 function propertyBlock(slug) {

@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -22,7 +23,7 @@ test("desktop map opening reveals the map and closing returns to the original po
   assert.match(hook, /prefers-reduced-motion: reduce/);
   assert.match(hook, /setTimeout\(\(\) => scrollDesktopMapIntoView\("auto"\), 620\)/);
   assert.match(hook, /window\.scrollTo\(0, scrollPosition\.current\)/);
-  assert.match(read("app/globals.css"), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
+  assert.match(readEffectiveWorldCss(), /\.map-results-experience \{[^}]*scroll-margin-top: 92px/);
 });
 
 test("coincident clusters expand immediately while distinct locations retain street zoom", () => {
@@ -75,7 +76,7 @@ test("a newly expanded place accepts the first keyboard action or new tap", () =
 test("keyboard focus cannot scroll the map's clipping frame", () => {
   // overflow:hidden permits programmatic focus scrolling. That moved the
   // actual map canvas 91px upward while its full-screen frame stayed at y=0.
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   assert.match(css, /\.listing-map-shell \{[^}]*overflow: hidden; overflow: clip;/);
 });
 
@@ -108,5 +109,5 @@ test("regional map copy is localized and topic filters survive its place-card li
     "Both map-card navigation targets must localize React props, not only mutated DOM attributes");
   assert.match(map, /\$\{listing\.guests\} \$\{units\.guests\}/,
     "Leaflet event icons need native localized labels before DOM translation");
-  assert.doesNotMatch(read("app/globals.css"), /\.map-selection-card__body a \{ min-height: 42px/);
+  assert.doesNotMatch(readEffectiveWorldCss(), /\.map-selection-card__body a \{ min-height: 42px/);
 });

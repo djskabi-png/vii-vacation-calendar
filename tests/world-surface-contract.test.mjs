@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const shell = fs.readFileSync(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
-const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 const contract = fs.readFileSync(new URL("../app/lib/world-surface-contract.ts", import.meta.url), "utf8");
 
 test("page shell emits an explicit world surface boundary", () => {

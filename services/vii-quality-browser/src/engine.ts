@@ -109,8 +109,8 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
       try {
         const screenshot=await bounded(page.screenshot({type:'jpeg',quality:55,fullPage:false,timeout:1_000,mask:[page.locator('input,textarea,[data-private],a[href^="tel:"],a[href*="wa.me"]')]}),1_500);
         if(screenshot.byteLength<=maxEvidence) {
-          evidenceKey=`qqqaaa/${job.sourceVersion}/${job.jobId}/${job.device}-${job.scenario}.jpg`;
-          await bounded(env.EVIDENCE.put(evidenceKey,screenshot,{httpMetadata:{contentType:'image/jpeg'},customMetadata:{expiresAt:new Date(started+7*24*60*60*1000).toISOString()}}),1_500);
+          evidenceKey=`qqqaaa/failures/${job.sourceVersion}/${job.jobId}/${job.device}-${job.scenario}.jpg`;
+          await bounded(env.EVIDENCE.put(evidenceKey,screenshot,{httpMetadata:{contentType:'image/jpeg'},customMetadata:{expiresAt:new Date(started+30*24*60*60*1000).toISOString()}}),1_500);
         }
       } catch { evidenceKey=undefined; }
     }

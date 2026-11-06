@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -8,7 +9,7 @@ const bookingHub = await readFile(new URL("../app/components/vacation-booking-hu
 const newTabPolicy = await readFile(new URL("../app/lib/new-tab-policy.ts", import.meta.url), "utf8");
 const newTabNavigation = await readFile(new URL("../app/components/new-tab-navigation.tsx", import.meta.url), "utf8");
 const loading = await readFile(new URL("../app/loading.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("a changed stay cannot retain a second deal-status owner", () => {
   assert.doesNotMatch(business, /HomeDealDetailStatus|confirm-home-deal/);

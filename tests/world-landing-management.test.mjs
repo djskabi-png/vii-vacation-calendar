@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -38,7 +39,7 @@ test("the world family is wired to shared public rendering and independent versi
     readFile(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/attractions/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/trails/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(inventory, /managedWorldLandingTypes\.map/);
   assert.match(inventory, /key === "landing".*type === "hourly"/s);

@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import ts from "typescript";
 
 const helperSource = await readFile(new URL("../app/lib/vacation-inventory.ts", import.meta.url), "utf8");
 const searchSource = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const compiled = ts.transpileModule(helperSource, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
 const moduleShim = { exports: {} };
 new Function("exports", "module", compiled)(moduleShim.exports, moduleShim);

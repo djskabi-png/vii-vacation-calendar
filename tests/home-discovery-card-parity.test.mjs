@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const discovery = readFileSync(new URL("../app/components/home-discovery-sections.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("all homepage vacation discovery rails use the search discovery card contract", () => {
   assert.match(discovery, /className="home-managed-discovery__track search-depth__rail"/);

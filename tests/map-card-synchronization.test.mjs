@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -40,7 +41,7 @@ test("every commercial map world connects cards and markers", () => {
 });
 
 test("active map association is visually unmistakable and motion-safe", () => {
-  const styles = read("app/globals.css");
+  const styles = readEffectiveWorldCss();
 
   assert.match(styles, /\.vii-map-marker-wrap:not\(\.is-cluster\)\.is-card-active \.vii-map-marker \{/);
   assert.match(styles, /transform: translateY\(-8px\) scale\(1\.12\)/);

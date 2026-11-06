@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -43,7 +44,7 @@ test("Hilat Hanof has four detailed unit galleries and full-detail controls", as
 test("mobile gallery is a topic tour that opens a focused full-image viewer", async () => {
   const [gallery, css] = await Promise.all([
     read("app/components/gallery-experience.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(gallery, /story-gallery__mobile-tour/);
   assert.match(gallery, /mobileGroups\.map/);

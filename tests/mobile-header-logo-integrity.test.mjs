@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("the mobile header reserves a complete uncropped logo slot beside all utility actions", () => {
   assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.site-header:has\(\.world-dock\) \.site-header__inner \{[\s\S]*?width: calc\(100% - 8px\);[\s\S]*?grid-template-columns: 54px minmax\(0,1fr\);[\s\S]*?gap: 2px;/);

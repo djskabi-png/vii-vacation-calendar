@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const homeShowcaseSource = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-const globalStyles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const globalStyles = await readEffectiveWorldCss();
 const mobileStyles = await readFile(new URL("../app/mobile-stability.css", import.meta.url), "utf8");
 const pageShellSource = await readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
 const viewportGuardSource = await readFile(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");

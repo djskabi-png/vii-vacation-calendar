@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 const previewCss = readFileSync(new URL("../app/preview-card-consistency.css", import.meta.url), "utf8");
 const runner = readFileSync(new URL("../scripts/run-qqqaaa.cjs", import.meta.url), "utf8");
 const audit = readFileSync(new URL("../scripts/audit-header-spacing.cjs", import.meta.url), "utf8");

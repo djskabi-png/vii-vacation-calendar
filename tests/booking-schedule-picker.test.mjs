@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const picker = await readFile(new URL("../app/components/booking-schedule-picker.tsx", import.meta.url), "utf8");
 const booking = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("booking uses branded date and time controls instead of browser-native pickers", () => {
   assert.match(booking, /<BookingSchedulePicker/);

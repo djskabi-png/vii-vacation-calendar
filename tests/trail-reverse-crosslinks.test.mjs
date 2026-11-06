@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -26,7 +27,7 @@ test("trail crosslinks use eligible inventory and regional recommendation policy
 
 test("trail crosslinks use one compact responsive grid instead of four heavy rails", async () => {
   const component = await read("app/components/trail-nearby-worlds.tsx");
-  const styles = await read("app/globals.css");
+  const styles = await readEffectiveWorldCss();
   assert.doesNotMatch(component, /HomeMobileRail|data-horizontal-rail/);
   assert.match(styles, /\.trail-nearby-worlds__grid \{[^}]*grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/s);
   assert.match(styles, /@media \(max-width: 820px\)[\s\S]*?\.trail-nearby-worlds__grid \{ grid-template-columns: 1fr; \}/);

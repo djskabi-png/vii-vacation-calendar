@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import { requestStageTiming } from "../app/lib/request-stage-timing.ts";
 import assert from 'node:assert/strict';
@@ -110,11 +111,11 @@ test('all four visitor locales disclose geography only, without technical explan
   assert.match(read('home-live-deals'),/eligibleDeals = clock/);
 });
 test('regional rails span the whole results grid on desktop rather than one property cell',()=>{
-  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+  const css=readEffectiveWorldCss();
   assert.match(css,/\.regional-availability \{ min-width: 0; grid-column: 1 \/ -1; \}/);
 });
 test('event result-list geometry never leaks into nested rail articles and clips price/actions',()=>{
-  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+  const css=readEffectiveWorldCss();
   assert.doesNotMatch(css,/\.event-list article/);
   assert.match(css,/\.event-list > article \{ display: grid; grid-template-columns: 280px 1fr;/);
 });

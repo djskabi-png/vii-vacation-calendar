@@ -16,7 +16,10 @@ test("administration shell exposes command search, growth center and mobile-safe
   assert.match(layout, /<AdminCommandBar access=\{access\} \/>/);
   assert.match(layout, /adminRouteAllowed\(access, pathname\)/);
   assert.match(layout, /<AdminAccessProvider access=\{access\}>/);
-  assert.match(navigation, /\/admin\/growth/);
+  const registry = await read("app/admin/admin-navigation.ts");
+  assert.match(navigation, /adminNavigationGroups as groups/);
+  assert.match(commandBar, /adminCommands as commands/);
+  for (const route of ["/admin/growth", "/admin/quality", "/admin/worlds", "/admin/professor"]) assert.ok(registry.includes(route));
   assert.match(commandBar, /Ctrl K/);
   assert.match(commandBar, /חיפוש כלי, דוח או פעולה/);
   assert.match(commandBar, /\/api\/auth\/admin\/logout/);

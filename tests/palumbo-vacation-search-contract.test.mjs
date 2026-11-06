@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -17,7 +18,7 @@ test("vacation search keeps accommodation type and price range visible", () => {
 test("map split synchronizes the active result card with its marker", () => {
   const search = read("app/search/page.tsx");
   const map = readMapImplementation();
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   assert.match(search, /onActiveChange=\{\(active\) => setActiveMapPropertyId\(active \? property\.slug : null\)\}/);
   assert.match(search, /activePlaceId=\{activeMapPropertyId\}/);
   assert.match(map, /classList\.toggle\("is-card-active", active\)/);
@@ -28,7 +29,7 @@ test("map split synchronizes the active result card with its marker", () => {
 
 test("vacation result cards use the full surface and the approved compact content", () => {
   const card = read("app/components/property-card.tsx");
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   assert.match(card, /className="stay-card__surface-link"/);
   assert.doesNotMatch(card, /: <Link className="stay-card__details-link" href=\{propertyHref\}>/);
   assert.match(card, /const cardHighlights = .*slice\(0, 3\)/);

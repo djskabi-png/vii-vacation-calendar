@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -6,7 +7,7 @@ import test from "node:test";
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("vacation photo arrows outrank card interaction positioning and image links", () => {
-  const css = read("app/globals.css");
+  const css = readEffectiveWorldCss();
   // A class-only rule loses to `.stay-card button`, even if it appears later.
   const arrow = css.match(/\.stay-card \.stay-card__gallery-arrow \{([^}]+)\}/)?.[1];
   assert.ok(arrow, "two-class specificity is required to preserve absolute positioning");
@@ -71,7 +72,7 @@ test("gallery interactions remain localized, bounded and separate from rail navi
   assert.doesNotMatch(gallery, /fetch\(/);
   assert.doesNotMatch(gallery, /<img key=/, "keep the existing image element during next-photo loading");
   assert.doesNotMatch(read("app/components/property-card.tsx"), /<img key=/);
-  assert.match(read("app/globals.css"), /\.home-event-feature \.preview-card-gallery__arrow \{ top: 100px;/);
+  assert.match(readEffectiveWorldCss(), /\.home-event-feature \.preview-card-gallery__arrow \{ top: 100px;/);
 });
 
 test("equivalent parent renders cannot recreate the map during marker hover or selection", () => {

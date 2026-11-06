@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -9,7 +10,7 @@ import {
 } from "../app/lib/vacation-price-sort.ts";
 
 const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 
 test("known displayed prices are monotonic and unknown prices stay last in both directions", () => {
   const inventory = [

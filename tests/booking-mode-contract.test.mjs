@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -10,7 +11,7 @@ const businessPage = await readFile(new URL("../app/business/page.tsx", import.m
 const homeDeals = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
 const stayQuoteHook = await readFile(new URL("../app/components/use-vii-stay-quote.ts", import.meta.url), "utf8");
 const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("vacation online booking requires dates and a positive connected price", () => {
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);

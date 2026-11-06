@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -10,7 +11,7 @@ test("sharing uses one branded accessible dialog instead of the operating system
     read("app/business/client-page.tsx"),
     read("app/events/place/client-page.tsx"),
     read("app/guides/article/client-page.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.doesNotMatch(`${business}\n${events}\n${article}`, /navigator\.share/);
@@ -38,7 +39,7 @@ test("sharing uses one branded accessible dialog instead of the operating system
 });
 
 test("shared share trigger is icon-only but retains a localized accessible name", async () => {
-  const [dialog, css] = await Promise.all([read("app/components/share-dialog.tsx"), read("app/globals.css")]);
+  const [dialog, css] = await Promise.all([read("app/components/share-dialog.tsx"), readEffectiveWorldCss()]);
   const trigger = dialog.match(/<button ref=\{triggerRef\}[\s\S]*?<\/button>/)?.[0];
   assert.ok(trigger);
   assert.match(trigger, /aria-label=\{labels\.trigger\}/);
@@ -54,7 +55,7 @@ test("shared share trigger is icon-only but retains a localized accessible name"
 test("sharing previews the actual entity cover, without the failing optimizer, and recovers from missing media", async () => {
   const [dialog, business, events, article, css] = await Promise.all([
     read("app/components/share-dialog.tsx"), read("app/business/client-page.tsx"),
-    read("app/events/place/client-page.tsx"), read("app/guides/article/client-page.tsx"), read("app/globals.css"),
+    read("app/events/place/client-page.tsx"), read("app/guides/article/client-page.tsx"), readEffectiveWorldCss(),
   ]);
   assert.match(business, /<ShareButton title=\{property\.name\} image=\{property\.image\}/);
   assert.match(events, /<ShareButton title=\{place\.name\} kind="event" image=\{place\.image\}/);

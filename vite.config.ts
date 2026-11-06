@@ -5,30 +5,7 @@ import { sites } from "./build/sites-vite-plugin";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-
-const SPA_CSS_SLOT = "/* VII_SPA_AUDIENCE_DATE_CSS_SLOT */";
-const spaCssSlotPlugin = () => ({
-  name: "vii-spa-css-slot",
-  enforce: "pre" as const,
-  buildStart(this: { error: (message: string) => never; addWatchFile: (file: string) => void }) {
-    const globalsPath = path.resolve("app/globals.css");
-    const spaPath = path.resolve("app/worlds/spa/styles/spa-audience-date.css");
-    if (!fs.existsSync(spaPath)) this.error(`Missing SPA CSS source: ${spaPath}`);
-    const globals = fs.readFileSync(globalsPath, "utf8");
-    if (globals.split(SPA_CSS_SLOT).length - 1 !== 1) this.error("SPA CSS slot must occur exactly once in app/globals.css");
-    this.addWatchFile(globalsPath);
-    this.addWatchFile(spaPath);
-  },
-  transform(code: string, id: string) {
-    if (path.resolve(id.split("?")[0]) !== path.resolve("app/globals.css")) return null;
-    const spaPath = path.resolve("app/worlds/spa/styles/spa-audience-date.css");
-    if (!fs.existsSync(spaPath)) throw new Error(`Missing SPA CSS source: ${spaPath}`);
-    if (code.split(SPA_CSS_SLOT).length - 1 !== 1) throw new Error("SPA CSS slot must occur exactly once in app/globals.css");
-    const spaCss = fs.readFileSync(spaPath, "utf8");
-    if (!spaCss.trim()) throw new Error("SPA CSS source is empty");
-    return { code: code.replace(SPA_CSS_SLOT, spaCss), map: null };
-  },
-});
+import { worldStyleSlotsPlugin } from "./build/world-style-slots.mjs";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -94,7 +71,7 @@ export default defineConfig(async () => {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
     },
     plugins: [
-      spaCssSlotPlugin(),
+      worldStyleSlotsPlugin(),
       vinext(),
       sites(),
       cloudflare({

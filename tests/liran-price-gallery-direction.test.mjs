@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
@@ -10,7 +11,7 @@ test('supplier currency labels preserve copy but isolate shekel before the amoun
  const source=readFileSync(new URL('../app/components/discovery-card.tsx',import.meta.url),'utf8');assert.match(source,/<bdi dir="ltr" key=\{index\}>\{part\.text\}<\/bdi>/);
 });
 test('gallery chevrons cannot mirror twice in RTL desktop or mobile',()=>{
- const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+ const css=readEffectiveWorldCss();
  assert.match(css,/\.story-gallery__tap-icon \{ direction:ltr; unicode-bidi:isolate;/);
  assert.doesNotMatch(css,/\[dir="rtl"\] \.story-gallery__tap-icon\s*\{[^}]*scaleX/);
 });

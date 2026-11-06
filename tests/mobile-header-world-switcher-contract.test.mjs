@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const header = readFileSync(new URL("../app/site-header.tsx", import.meta.url), "utf8");
 const shell = readFileSync(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 const switcher = readFileSync(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8");
 
 test("the world switcher belongs to the header action row beside the menu", () => {

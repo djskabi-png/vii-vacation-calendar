@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -14,4 +15,4 @@ test('partial feeds and malformed local history cannot break search',()=>{assert
 test('all four worlds load the complete shared geography and cap combined suggestions',()=>{const source=readFileSync(new URL('../app/components/search-box.tsx',import.meta.url),'utf8');assert.match(source,/useManagedGeography\(\)/);assert.match(source,/const shouldLoadPlaceInventory = hasLocationQuery;/);assert.match(source,/DESTINATION_PAGE_SIZE - visibleDestinations.length/);assert.doesNotMatch(source,/locationGroups\.map/);assert.match(source,/destinationChildren\(destinations, browseKey/);assert.match(source,/setBrowseKey\(browseParent \? browseParent.parentKey : undefined\)/);});
 test('progressive controls are fully localized',()=>{for(const lang of ['he','en','fr','ru']){const copy=destinationPickerCopy[lang];for(const [key,value] of Object.entries(copy))assert.ok(typeof value==='function'?value('X').includes('X'):value.trim().length,key);}});
 
-test('mobile location field spans the form grid, including its nested hourly picker',()=>{const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');assert.match(css,/\.search-box-shell\.mobile-expanded \.search-step--location:has\(\.location-list--progressive\)\s*\{\s*grid-column: 1 \/ -1; min-width: 0;/);assert.match(css,/\.search-box-shell\.mobile-expanded \.location-list--progressive\s*\{\s*width: 100%; min-width: 0;/);});
+test('mobile location field spans the form grid, including its nested hourly picker',()=>{const css=readEffectiveWorldCss();assert.match(css,/\.search-box-shell\.mobile-expanded \.search-step--location:has\(\.location-list--progressive\)\s*\{\s*grid-column: 1 \/ -1; min-width: 0;/);assert.match(css,/\.search-box-shell\.mobile-expanded \.location-list--progressive\s*\{\s*width: 100%; min-width: 0;/);});

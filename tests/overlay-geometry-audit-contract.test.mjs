@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const audit = await readFile(new URL("../scripts/audit-overlay-geometry.cjs", import.meta.url), "utf8");
 const qqqaaa = await readFile(new URL("../scripts/run-qqqaaa.cjs", import.meta.url), "utf8");
 

@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,7 +9,7 @@ const adapters = readFileSync(new URL("../app/lib/map/map-place.ts", import.meta
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const events = readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
 const price = readFileSync(new URL("../app/lib/map-price.ts", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 const analytics = readFileSync(new URL("../app/lib/analytics.ts", import.meta.url), "utf8");
 const qa = readFileSync(new URL("../scripts/audit-map-experience.cjs", import.meta.url), "utf8");
 

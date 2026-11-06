@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -28,7 +29,7 @@ test('mobile-only rails preserve all world, magazine and trail items with shared
  assert.match(css,/\.home-page :is\(\.home-mobile-rail,\.home-events-world__layout\) \{ scroll-padding-inline:0; \}/);
 });
 test('missing image occupies existing media region instead of adding another225px row',()=>{
- const css=read('app/globals.css');assert.match(css,/\.discovery-card__missing-image \{ position: absolute; inset: 0;[^}]*min-height: 0;/);
+ const css=readEffectiveWorldCss();assert.match(css,/\.discovery-card__missing-image \{ position: absolute; inset: 0;[^}]*min-height: 0;/);
  assert.doesNotMatch(css,/\.discovery-card__missing-image \{[^}]*min-height: 225px/);
 });
 test('homepage trust prose does not explain supplier mechanics and trail gate keeps truthful nonvisual media context',()=>{

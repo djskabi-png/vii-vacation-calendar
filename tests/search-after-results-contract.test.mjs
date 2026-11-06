@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,7 +9,7 @@ const worldLanding = readFileSync(new URL("../app/components/world-landing.tsx",
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const events = readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
 const attractions = readFileSync(new URL("../app/attractions/page.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("every main search world receives the shared below-results content", () => {
   for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities"]) {

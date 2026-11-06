@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
-const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = await readEffectiveWorldCss();
 
 test("desktop destination dialog keeps its title above the world navigation and gives content enough height", () => {
   const dialog = searchBox.slice(searchBox.indexOf('role="dialog"'), searchBox.indexOf('<div className="location-list__body">'));

@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const client = readFileSync(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("booking always exposes same-tab exits to the business and site", () => {
   assert.match(client, /const bookingReturnNavigation = <nav className="booking-return-nav"/);

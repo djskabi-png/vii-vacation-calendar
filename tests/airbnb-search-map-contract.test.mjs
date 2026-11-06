@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -37,7 +38,7 @@ test("opening and closing a map clears stale viewport-only results", () => {
 
 test("map selection is keyboard-safe, localized, and responsive", () => {
   const map = readMapImplementation();
-  const styles = read("app/globals.css");
+  const styles = readEffectiveWorldCss();
   assert.match(map, /event\.key === "Escape"/);
   assert.match(map, /marker\?\.getElement\(\)\?\.focus\(\{ preventScroll: true \}\)/);
   assert.match(map, /Interactive places map/);
@@ -52,7 +53,7 @@ test("desktop vacation map uses the shared bounded rail and reuses the main dest
   const search = read("app/search/page.tsx");
   const searchBox = read("app/components/search-box.tsx");
   const map = readMapImplementation();
-  const styles = read("app/globals.css");
+  const styles = readEffectiveWorldCss();
   assert.match(search, /<MapSplitResultList items=\{displayedResults\}/);
   assert.match(search, /activeId=\{activeMapPropertyId\}/);
   assert.match(search, /className="map-location-control"/);

@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const search = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 const calendar = readFileSync(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("destination editor uses the shared rounded dialog structure", () => {
   assert.match(search, /className="search-popover location-list location-list--progressive" role="dialog" aria-modal="true"/);

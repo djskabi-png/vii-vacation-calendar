@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const component = readMapImplementation() + readFileSync(new URL("../app/lib/map/map-place.ts", import.meta.url), "utf8");
-const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = readEffectiveWorldCss();
 const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 
 test("desktop map uses the full canvas without a narrow result rail", () => {

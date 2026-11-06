@@ -44,6 +44,28 @@ authenticated actor/key after a reload. A blocked storage write sends no new
 request. The updated quality family passed59tests and full TypeScript passed.
 The corrected compiled UI still requires its own recheck after the new build.
 
+### Frozen 81f03b74 follow-up
+
+The exact frozen source was built in 26.97 seconds. Full TypeScript passed.
+The full suite finished in 53.9 seconds: 2,352 tests, 2,351 passed, zero failed,
+one existing skip. The independent private-engine suite passed all 15 tests and
+its real SDK bundle passed a Wrangler dry run. Receipts are under
+`.qa-output/phase3-repair-*-operation.json` and matching logs.
+
+The rebuilt local interface admitted one maps job with 33 checks. It completed
+33/33 and retained that same run after reload and navigation away/back. There
+were 32 passes and one fixture-only upstream API failure. The run was correctly
+shown as needing attention. Eleven accepted POSTs were one enqueue and ten
+resumes, not eleven jobs. There were zero automatic administration RSC requests
+before deliberate navigation, compared with twelve in the prior compiled visit.
+Growth navigation and return to quality both worked. Command search did not
+contain quality; that distinct shared-registry defect moved to phase four.
+
+The isolated fixture was signed out and closed. Its eight owned processes were
+stopped and resource verification returned no remaining owned processes. The
+exact compiled fixture entry was removed. None of these results is public
+release evidence.
+
 ## Administration workload observation
 
 The compiled quality-page visit automatically requested12other administration

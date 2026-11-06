@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readWorldDataSource } from "./helpers/world-data-source.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -7,7 +8,7 @@ const gallery = fs.readFileSync(new URL("../app/components/preview-card-gallery.
 const discovery = fs.readFileSync(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8");
 const eventCard = fs.readFileSync(new URL("../app/components/event-result-card.tsx", import.meta.url), "utf8");
 const worldData = readWorldDataSource();
-const css = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("shared preview gallery isolates image navigation from the card link", () => {
   assert.match(gallery, /event\.preventDefault\(\);\s*event\.stopPropagation\(\)/s);

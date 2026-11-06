@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -23,14 +24,14 @@ test('shared renderer connects spread pins to each original coordinate and never
  assert.match(source,/explicitlyExpanded && spreadMapCluster/);
 });
 test('compact map viewport and scroll-lock use the same tablet and landscape breakpoint',()=>{
- const source=readFileSync(new URL('../app/components/map-view-state.ts',import.meta.url),'utf8'),css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+ const source=readFileSync(new URL('../app/components/map-view-state.ts',import.meta.url),'utf8'),css=readEffectiveWorldCss();
  assert.doesNotMatch(source,/max-width: 820px|min-width: 821px/);
  assert.match(source,/max-width: 1100px/);assert.match(source,/min-width: 1101px/);
  assert.match(css,/@media \(max-width: 1100px\) \{\s*\.airbnb-map-split__map \.map-results-experience/);
 });
 
 test('desktop split fits its available width and event filters remain reachable without a third squeezed column',()=>{
- const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+ const css=readEffectiveWorldCss();
  assert.match(css,/\.airbnb-map-split \{[^}]*grid-template-columns: minmax\(0, \.92fr\) minmax\(0, 1\.08fr\)/);
  assert.match(css,/\.event-results-layout:has\(\.event-list--map-open\) \{ display: block;/);
  assert.match(css,/\.event-list--map-open \.event-filter-toggle \{ display: inline-flex;/);

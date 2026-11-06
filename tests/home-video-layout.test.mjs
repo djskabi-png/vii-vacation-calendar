@@ -1,8 +1,9 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {eligibleHomeTourProperties,homeTourVideos} from '../app/lib/home-video-selection.ts';
-const globals=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+const globals=readEffectiveWorldCss();
 const compact=readFileSync(new URL('../app/slider-card-compact.css',import.meta.url),'utf8');
 const home=readFileSync(new URL('../app/home-mobile.css',import.meta.url),'utf8');
 const page=readFileSync(new URL('../app/page.tsx',import.meta.url),'utf8');

@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { readMapImplementation } from "./helpers/map-implementation-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -31,7 +32,7 @@ test("every map result family uses the shared bounded rail", () => {
 });
 
 test("the desktop result rail scrolls independently and mobile keeps the map full screen", () => {
-  const styles = read("app/globals.css");
+  const styles = readEffectiveWorldCss();
   assert.match(styles, /\.airbnb-map-split__results \{[^}]*max-height: calc\(100vh - 24px\)[^}]*overflow-y: auto[^}]*overscroll-behavior: contain/);
   assert.match(styles, /@media \(max-width: 1100px\)[\s\S]*\.airbnb-map-split__results \{ display: none; max-height: none; overflow: visible/);
 });

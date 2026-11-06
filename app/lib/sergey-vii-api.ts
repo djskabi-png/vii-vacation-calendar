@@ -70,7 +70,7 @@ async function getSupplier(path: string, fetchImpl: typeof fetch, apiKey: string
     response = await fetchImpl(`${API_ROOT}${path}`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
       cache: "no-store",
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch {

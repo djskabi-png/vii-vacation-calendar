@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const search = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 const taxonomy = readFileSync(new URL("../app/data/search-taxonomy.ts", import.meta.url), "utf8");
-const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = readEffectiveWorldCss();
 
 test("vacation destination picker preserves the complete legacy discovery set", () => {
   for (const heading of ["אזורים ראשיים מומלצים", "אזורים מומלצים", "יישובים מומלצים"]) {

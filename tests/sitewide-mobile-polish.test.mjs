@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const css = fs.readFileSync(new URL("../app/mobile-polish.css", import.meta.url), "utf8");
-const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const globals = readEffectiveWorldCss();
 const floating = fs.readFileSync(new URL("../app/components/floating-contact-actions.tsx", import.meta.url), "utf8");
 const guard = fs.readFileSync(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
 

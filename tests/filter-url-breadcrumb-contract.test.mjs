@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -18,7 +19,7 @@ test("all rendered breadcrumbs use the shared accessible component", () => {
   files.forEach((file) => assert.doesNotMatch(read(file), /<nav[^>]+breadcrumbs/));
 
   const trail = read("app/components/breadcrumb-trail.tsx");
-  const styles = read("app/globals.css");
+  const styles = readEffectiveWorldCss();
   assert.match(trail, /aria-label="פירורי לחם"/);
   assert.match(trail, /<ol className="breadcrumbs__list">/);
   assert.match(trail, /<li className="breadcrumbs__item"/);

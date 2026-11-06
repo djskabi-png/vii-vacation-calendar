@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -11,10 +12,10 @@ test('popular searches has one centered heading and preserves all managed quick 
  assert.match(source,/HomeSliderControls railId=\{`\$\{id\}-track`\}/);
  assert.match(source,/className="home-visual-searches__track"[^>]*data-horizontal-rail/);
  assert.match(source,/home-city-rail/);assert.match(source,/home-type-rail/);
- assert.match(read('app/globals.css'),/\.home-visual-searches__head\s*\{[^}]*justify-content:\s*center/);
+ assert.match(readEffectiveWorldCss(),/\.home-visual-searches__head\s*\{[^}]*justify-content:\s*center/);
 });
 test('popular searches stay in one horizontally scrollable row on desktop and mobile',()=>{
- const globalCss=read('app/globals.css');
+ const globalCss=readEffectiveWorldCss();
  const mobileCss=read('app/home-mobile.css');
  assert.match(globalCss,/\.home-visual-searches__track\s*\{[^}]*grid-auto-flow:\s*column;[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*inline mandatory/s);
  assert.match(globalCss,/\.home-visual-searches__track\s*>\s*a\s*\{[^}]*scroll-snap-align:\s*start/);

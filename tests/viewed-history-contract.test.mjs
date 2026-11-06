@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -65,7 +66,7 @@ test("view tracking is committed before fast navigation and composite titles loc
 test("the library supports two modes, world filters and pagination", async () => {
   const [page, css] = await Promise.all([
     read("app/favorites/page.tsx"),
-    read("app/globals.css"),
+    readEffectiveWorldCss(),
   ]);
   assert.match(page, /PAGE_SIZE\s*=\s*8/);
   assert.match(css, /\.favorite-card > \.universal-favorite \{ top: 10px; inset-inline-start: 10px; inset-inline-end: auto; width: 44px/);

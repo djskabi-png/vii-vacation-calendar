@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -7,7 +8,7 @@ const switcher = await readFile(new URL("../app/components/world-switcher.tsx", 
 const pageShell = await readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
 const accountPage = await readFile(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 const joinPage = await readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 const polishCss = await readFile(new URL("../app/site-polish.css", import.meta.url), "utf8");
 
 test("footer links stay unadorned without disabling the accessibility underline option", () => {

@@ -88,7 +88,7 @@ export async function fetchStartingPriceCatalog(world: StartingPriceWorld, token
   if (!token) throw new Error("starting_prices_unavailable");
   const response = await fetchImpl(`https://bizonline.co.il/api/ai/vii/${world}`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-    cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000),
+    cache: "no-store", redirect: "manual", signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok || !response.body) throw new Error("starting_prices_unavailable");
   const reader = response.body.getReader();

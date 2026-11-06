@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const data = await readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8");
 const page = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("property data contract supports five CMS-selected highlights and grouped amenities", () => {
   const listingType = data.slice(data.indexOf("export type Listing ="), data.indexOf("export type BusinessWorld"));

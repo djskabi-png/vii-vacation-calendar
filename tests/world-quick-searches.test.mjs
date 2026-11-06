@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -7,7 +8,7 @@ const eventComponent = await readFile(new URL("../app/components/event-quick-sea
 const eventPresentation = await readFile(new URL("../app/lib/event-landing-presentation.ts", import.meta.url), "utf8");
 const landing = await readFile(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8");
 const events = await readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("events, spa and hourly pages expose world-specific quick searches", () => {
   assert.match(eventPresentation, /searchHref\(\{ eventType: "יום הולדת" \}\)/);

@@ -67,7 +67,7 @@ test('actual route never leaks upstream SQL, credentials, contacts or mismatched
 test('one server list read uses only existing bearer auth and does not forward redirects/query',async()=>{
   let calls=0;
   const prices=await fetchStartingPriceCatalog('events','test-key',async(url,options)=>{
-    calls++;assert.equal(url,'https://bizonline.co.il/api/ai/vii/events');assert.equal(options.headers.Authorization,'Bearer test-key');assert.equal(options.redirect,'error');assert.equal(options.cache,'no-store');
+    calls++;assert.equal(url,'https://bizonline.co.il/api/ai/vii/events');assert.equal(options.headers.Authorization,'Bearer test-key');assert.equal(options.redirect,'manual');assert.equal(options.cache,'no-store');
     return Response.json({places:[{siteID:2,active:true,startPriceWinter:1000,contact:{owner:'private'}}]});
   });
   assert.equal(calls,1);assert.deepEqual(prices,{'event-2':{startPriceWinter:1000}});

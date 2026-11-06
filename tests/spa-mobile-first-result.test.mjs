@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -5,7 +6,7 @@ import test from "node:test";
 test("spa mobile uses the premium hero and keeps the functional filter rail compact", async () => {
   const [landing, css] = await Promise.all([
     readFile(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readEffectiveWorldCss(),
   ]);
 
   assert.match(landing, /searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches/);
@@ -23,7 +24,7 @@ test("spa mobile uses the premium hero and keeps the functional filter rail comp
 });
 
 test("the shared discovery hero grid is not overridden by obsolete attractions or trails rules", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = await readEffectiveWorldCss();
   assert.match(css, /\.attractions-page > \.attractions-hero:not\(\.discovery-world-hero\) > \.shell \{ display: block;/);
   assert.doesNotMatch(css, /\.attractions-page > \.attractions-hero > \.shell \{ display: block;/);
   assert.match(css, /\.discovery-world-hero__layout \{ display:grid;/);

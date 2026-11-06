@@ -1,10 +1,11 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const route = await readFile(new URL("../app/components/accommodation-landing-route.tsx", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const css = await readEffectiveWorldCss();
 
 test("accommodation landing passes page-specific guide and FAQ content to the visible page", () => {
   assert.match(route, /guideTitle/);

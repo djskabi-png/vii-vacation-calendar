@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
@@ -5,7 +6,7 @@ import test from 'node:test';
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 const calendar=read('app/calendar-demo.tsx');
 const search=read('app/components/search-box.tsx');
-const css=read('app/globals.css');
+const css=readEffectiveWorldCss();
 
 test('without-date is an enabled localized search-only action on mobile and desktop',()=>{
   assert.match(calendar,/mode === "home" && onSkip && <button[^>]*className="mobile-date-skip calendar-without-dates"[^>]*onClick=\{continueWithoutDates\}[^>]*>\{translate\("ללא תאריך"\)\}/);

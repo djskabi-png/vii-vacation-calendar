@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -18,7 +19,7 @@ test("property feature icons use one normalized icon library", async () => {
 });
 
 test("shared square icon frames center the SVG box explicitly", async () => {
-  const styles = await read("app/globals.css");
+  const styles = await readEffectiveWorldCss();
   assert.match(styles, /\.property-highlight-icon \{[^}]*display: grid;[^}]*place-items: center;[^}]*line-height: 0;/s);
   assert.match(styles, /\.property-highlight-icon svg \{[^}]*display: block;[^}]*margin: auto;[^}]*transform-origin: center;/s);
   assert.match(styles, /\.property-feature-groups \.feature-list \.property-highlight-icon \{[^}]*display: grid;[^}]*place-items: center;[^}]*padding: 0;[^}]*line-height: 0;/s);

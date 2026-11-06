@@ -1,9 +1,10 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const source = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const styles = await readEffectiveWorldCss();
 
 test("vacation results introduce the result set before filters and sorting", () => {
   const heading = source.indexOf('<section className="results-heading">');

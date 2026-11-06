@@ -1,3 +1,4 @@
+import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -35,6 +36,6 @@ test('readiness changes the React shell without overwriting Leaflet-owned canvas
   const loadingCanvas = loading.props.children[0], readyCanvas = ready.props.children[0];
   assert.equal(loadingCanvas.props.className, readyCanvas.props.className);
   assert.equal(readyCanvas.props.className, 'listing-map');
-  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+  const css = readEffectiveWorldCss();
   assert.match(css, /\.listing-map-shell\[data-map-ready="true"\]\s*>\s*\.listing-map\s*\{\s*opacity:\s*1/);
 });
