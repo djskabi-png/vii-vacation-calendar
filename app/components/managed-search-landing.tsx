@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PageShell } from "./page-shell";
 import { BreadcrumbTrail } from "./breadcrumb-trail";
 import { StructuredData } from "./structured-data";
+import { SearchExperience } from "../search/page";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import type { EventPlace, Property } from "../data/site-data";
 import { hourlyPlacesFromCatalog, spaPlacesFromSites, type DiscoveryItem } from "../data/world-data";
@@ -56,6 +57,24 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
   const results = resolved.items;
   const worldLabel = page.world === "events" ? "אירועים" : page.world === "vacation" ? "נופש" : page.world === "spa" ? "ספא" : "חדרים לפי שעה";
   const variant = page.world === "vacation" ? "vacation" : page.world === "events" ? "events" : page.world === "hourly" ? "hourly" : "spa";
+  if (page.world === "vacation") {
+    return <>
+      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1, path: page.canonicalPath }])} />
+      <SearchExperience landing={{
+        path: page.canonicalPath,
+        title: page.h1,
+        description: page.metaDescription,
+        breadcrumb: page.h1,
+        type: typeof page.filters.type === "string" ? page.filters.type : "",
+        area: page.location,
+        listingSlugs: results.map((result) => result.id),
+        guideTitle: page.h1,
+        guideParagraphs: page.body.split(/\n{2,}/).filter(Boolean),
+        faqs: page.faq,
+        relatedLinks: [],
+      }} />
+    </>;
+  }
   return <PageShell variant={variant}><main id="main-content" className={styles.page} dir="rtl">
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1, path: page.canonicalPath }])} />
     <StructuredData data={collectionSchema(page.h1, page.metaDescription, page.canonicalPath, results.map((result) => ({ name: result.name, path: result.href, image: result.image })))} />
