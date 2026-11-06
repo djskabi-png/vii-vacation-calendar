@@ -48,7 +48,7 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
   const get=await loadRoute(name,dependencies);
   const responsePromise=get(new Request(`https://example.test/?${name==='home-deals'?'period=tomorrow':'id=123&from=2099-12-05&till=2099-12-06'}`));
   await new Promise(resolve=>setImmediate(resolve));
-  assert.deepEqual(calls,name==='home-deals'?['names','ids']:['names','ids','token']);
+  assert.deepEqual([...calls].sort(),name==='home-deals'?['ids','names']:['ids','names','token']);
   releaseNames([{supplierId:1,name:'Verified name'}]);
   const response=await responsePromise;
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),name==='home-deals'?'no-store':'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
@@ -65,8 +65,10 @@ for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps i
     assert.match(source,/readCachedDiscovery/);
     assert.doesNotMatch(source,/supplierToken|getHomeDeals/);
   } else {
-    assert.match(source,/const \[names, publicSiteIds, token\] = await Promise\.all\(\[/);
-    assert.match(source,/publishedSupplierIds\("vacations"\), supplierToken\(\)/);
+    assert.match(source,/const \[db, index, token\] = await Promise\.all\(\[/);
+    assert.match(source,/publicDiscoveryCatalogIndex\("vacations", db\)/);
+    assert.match(source,/const resolveCatalog = async \(ids: number\[\]\) => discoveryVacationCatalog\(await publicCatalogSummaries/);
+    assert.doesNotMatch(source,/publishedSupplierIds\(/);
     assert.match(source,/publicSiteIds, publicNames: new Map/);
   }
   assert.match(source,/Cache-Control.*no-store/);
