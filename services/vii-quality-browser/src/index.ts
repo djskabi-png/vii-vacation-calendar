@@ -1,4 +1,4 @@
-import { launch } from '@cloudflare/playwright';
+import { launch, limits } from '@cloudflare/playwright';
 import { runBrowserJob, validJob, type BrowserEnvironment } from './engine.ts';
 import { readJsonBody, RequestBodyError } from './request-body.ts';
 import { readEvidence } from './evidence.ts';
@@ -20,6 +20,26 @@ export default { async fetch(request:Request,env:Env) {
       if(!result)return Response.json({error:'evidence_not_found'},{status:404,headers});
       return new Response(result.body,{status:200,headers:{'Cache-Control':'private, no-store','Content-Type':'image/jpeg','Content-Length':String(result.body.byteLength),'X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow'}});
     } catch(error) { const code=error instanceof Error ? error.message : ''; const status=code==='evidence_too_large'?413:code==='evidence_read_timeout'?408:403; return Response.json({error:status===413?'evidence_too_large':status===408?'evidence_read_timeout':'evidence_forbidden'},{status,headers}); }
+  }
+  if(request.method==='GET' && new URL(request.url).pathname==='/limits') {
+    if(request.headers.has('cookie')||request.headers.has('authorization'))return Response.json({error:'limits_forbidden'},{status:403,headers});
+    if(!env.BROWSER)return Response.json({error:'browser_binding_unavailable'},{status:503,headers});
+    let timer: ReturnType<typeof setTimeout>|undefined;
+    try {
+      const pending=limits(env.BROWSER);
+      const result=await Promise.race([
+        pending,
+        new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('limits_timeout')),2000)})
+      ]);
+      const numeric=(value:unknown)=>Number.isFinite(value)&&typeof value==='number'&&value>=0?value:null;
+      const activeSessions=(result as any)?.activeSessions;
+      const values={activeSessions:Array.isArray(activeSessions)?activeSessions.length:null,maxConcurrentSessions:numeric((result as any)?.maxConcurrentSessions),allowedBrowserAcquisitions:numeric((result as any)?.allowedBrowserAcquisitions),timeUntilNextAllowedBrowserAcquisition:numeric((result as any)?.timeUntilNextAllowedBrowserAcquisition)};
+      if(values.maxConcurrentSessions===null||values.allowedBrowserAcquisitions===null||values.timeUntilNextAllowedBrowserAcquisition===null||!Array.isArray(activeSessions))throw new Error('limits_invalid_payload');
+      return Response.json(values,{headers});
+    } catch(error) {
+      const code=error instanceof Error&&error.message==='limits_timeout'?'limits_timeout':error instanceof Error&&error.message==='limits_invalid_payload'?'limits_invalid_payload':'limits_unavailable';
+      return Response.json({error:code},{status:code==='limits_timeout'?504:503,headers});
+    } finally { if(timer)clearTimeout(timer); }
   }
   if(request.method!=='POST')return Response.json({error:'method_not_allowed'},{status:405,headers});
   if(!/^application\/json(?:;|$)/i.test(request.headers.get('content-type') || ''))return Response.json({error:'json_required'},{status:415,headers});

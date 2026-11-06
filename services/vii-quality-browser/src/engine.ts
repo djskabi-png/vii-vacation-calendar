@@ -136,7 +136,7 @@ export async function runBrowserJob(job: BrowserJob, env: BrowserEnvironment, fa
     if(blockedWrites)throw new CheckFailure('write_request_attempted');
     status='passed';
   } catch(error) {
-    reason=error instanceof CheckFailure?error.message:'browser_step_failed';
+    reason=requestCount>maxRequests?'request_budget_exceeded':error instanceof CheckFailure?error.message:'browser_step_failed';
     status=reason==='cancelled' || reason==='deadline_exceeded' || reason==='observed_build_mismatch'?'blocked':'failed';
     if(page && env.EVIDENCE && !signal?.aborted) {
       try {

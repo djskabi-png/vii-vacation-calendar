@@ -8,6 +8,16 @@ const request=()=>new Request('https://vii.spaplus.co/api/admin/quality',{method
 const body={action:'enqueue-browser',idempotencyKey:'browser-controller-1234',profileId:'spa-mobile-world-shell',sourceVersion:'forged-source',origin:'https://untrusted.invalid'};
 function enabled(f,changes={}){return {...f.env,BROWSER_ENABLED:'true',EXPECTED_SOURCE_VERSION:source,EXPECTED_BROWSER_SOURCE_VERSION:source,EXPECTED_BUILD_ID:build,PUBLIC_ORIGIN:'https://vii.spaplus.co',QUALITY_BROWSER:{async fetch(url,input){const job=JSON.parse(input.body);assert.equal(url,'https://vii-quality-browser.internal/run');assert.equal(input.headers.Cookie,undefined);assert.equal(input.headers.Authorization,undefined);return Response.json({...job,status:'passed',requestCount:4,steps:3,durationMs:12,...changes});}}};}
 
+test('controller preserves an over-budget failure and actual request count in the durable receipt',async()=>{
+ const f=fixture();try{
+  const env=enabled(f,{status:'failed',reason:'request_budget_exceeded',requestCount:181,failureStep:'map-ready'});
+  const admitted=await(await f.controller.handle(request(),env,'trusted-admin',body)).json();
+  await f.controller.consume(env,f.messages[0]);
+  const saved=await readQualityJob(f.db,admitted.job.runId);
+  assert.equal(saved.status,'completed');assert.equal(saved.receipts.length,1);assert.equal(saved.receipts[0].status,'failed');assert.equal(saved.receipts[0].observed,'request_budget_exceeded; request_count=181');assert.equal(saved.receipts[0].failureStep,'map-ready');
+ }finally{f.sqlite.close();}
+});
+
 test('private controller admits one browser job, dispatches it and uses only the browser executor',async()=>{
  const f=fixture();let calls=0;try{
   const env=enabled(f,{status:'failed',reason:'write_request_attempted',failureStep:'world-heading',attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'<redacted>'}]});const original=env.QUALITY_BROWSER.fetch;env.QUALITY_BROWSER.fetch=async(...args)=>{calls++;return original(...args);};

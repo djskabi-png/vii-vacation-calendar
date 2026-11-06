@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T12:01:06.537195Z",
+  "updated_at": "2026-11-06T13:53:06.578Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -353,22 +353,28 @@
       "source": "approved_plan",
       "statement": "Bind release acceptance to all current vacation and event discovery snapshots, not only page shell HTTP status",
       "acceptance_check": "Server-owned immutable checks reject refreshing, missing proof, stale or mismatched snapshots, accept genuinely verified empty offers, and run against matching exact candidate before publication",
-      "status": "blocked",
+      "status": "pending",
       "evidence": [
         "project_knowledge/execution/vii-unified-20261105/PHASE_27_VERIFICATION.md",
-        "project_knowledge/execution/vii-unified-20261105/PREPARED_ARTIFACTS_PHASE27.json"
+        "project_knowledge/execution/vii-unified-20261105/PREPARED_ARTIFACTS_PHASE27.json",
+        ".qa-output/phase39-discovery-semantic-readback.json"
       ],
-      "reason": "Local readiness-v2 and original receipt-expiry implementation qualified. Actual matching-generation cloud/supplier/public acceptance depends on the unresolved owner publication context; this requirement is not passed.",
-      "updated_at": "2026-11-06T10:53:08.983218Z"
+      "reason": "Fresh public semantic smoke passed; immutable formal current-release evidence remains outstanding. Original failed receipts were not rewritten.",
+      "updated_at": "2026-11-06T13:53:29.827Z"
     },
     {
       "id": "feedback:reuse-existing-owner-publication-chat",
       "source": "user_correction",
-      "statement": "Use the already open verified VII publication conversation, preserve the proven release route in project memory, and complete plans1+2 before document3",
-      "acceptance_check": "Inspect exact existing conversation and reconcile stale operation without duplicate deployment; continue the existing authorized publication workflow when safe and persist verified route/status without secrets",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "statement": "Reuse the existing owning publication conversation; do not require a new chat or repeat authorization",
+      "acceptance_check": "Observe exact source saves/deployments in the recovered existing owner context",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/VII_PUBLICATION_ROUTING.md",
+        ".qa-output/phase37-owner-save-operation.json",
+        ".qa-output/phase39-publication-operation.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T13:53:06.578Z"
     },
     {
       "id": "access:admin-session-route",
@@ -414,6 +420,59 @@
         "observed_error": "Existing in-app browser admin login returned admin_forbidden for its selected Google account"
       },
       "updated_at": "2026-11-06T12:01:06.537179Z"
+    },
+    {
+      "id": "release:v811-observed",
+      "source": "user_request",
+      "statement": "Publish the qualified cumulative repair without overwriting original runtime/data bindings",
+      "acceptance_check": "Exact Site generation and compatible private units observed at their natural destinations",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/execution/vii-unified-20261105/PHASE_39_PUBLIC_REPAIR_VERIFICATION.md",
+        ".qa-output/phase39-public-build-readback.json",
+        ".qa-output/phase39-public-repair-probes.json",
+        ".qa-output/phase39-enabled-config-readback.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T13:53:06.578Z"
+    },
+    {
+      "id": "performance:first-open",
+      "source": "user_request",
+      "statement": "Improve first-open latency as well as cached navigation",
+      "acceptance_check": "Actual cold/first-open and field evidence meet the approved experience goals",
+      "status": "pending",
+      "evidence": [
+        ".qa-output/phase39-public-build-readback.json",
+        ".qa-output/phase39-public-cache-sample.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T13:53:06.578Z"
+    },
+    {
+      "id": "quality:budget-diagnostic-contract",
+      "source": "user_request",
+      "statement": "Keep actual over-budget browser failures and safe quota diagnostics independently deployable",
+      "acceptance_check": "Executable181-request failure survives parsing and durable storage; private limits reads actual SDK shape without launching a browser",
+      "status": "pending",
+      "evidence": [
+        ".qa-output/phase40-budget-contract-reproduction.mjs",
+        ".qa-output/phase40-private-suites.log"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T13:53:06.578Z"
+    },
+    {
+      "id": "quality:public-discovery-semantic-smoke",
+      "source": "user_request",
+      "statement": "Verify current public discovery preset responses with the actual production validators",
+      "acceptance_check": "All eight production semantic/date/guest/offer/freshness validators pass at one frozen clock",
+      "status": "passed",
+      "evidence": [
+        ".qa-output/phase39-discovery-semantic-readback.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-06T13:53:29.828Z"
     }
   ],
   "verification_status": "in_progress",

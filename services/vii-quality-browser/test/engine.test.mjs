@@ -21,7 +21,7 @@ function browserFixture(options={}) {
     async textContent(){if(options.heading!==undefined)return options.heading;const path=new URL(state.url).pathname;return path.startsWith('/events')?'מקומות לאירועים':path.startsWith('/spas')?'בתי ספא בישראל':path.startsWith('/hourly')?'חדרים לפי שעה':path.startsWith('/attractions')?'אטרקציות בישראל':path.startsWith('/providers')?'ספקים לאירוח ולאירועים':path.startsWith('/trails')?'מסלולי טיול בישראל למטייל העצמאי':path==='/'?'כל מה שעושים בחופש, במקום אחד':'נופש ברחבי הארץ';},
   });
   const page={setDefaultTimeout(){},setDefaultNavigationTimeout(){},locator,getByRole:(_role,value)=>locator(value.name),
-    async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
+    async goto(url){state.events.push('goto');state.url=url;assert.ok(intercept,'interception precedes navigation');await request('GET',url);if(options.extraRequest)await request(...options.extraRequest);if(options.burstRequests)for(let i=0;i<options.burstRequests;i++)await request('GET',url,'fetch');if(options.navigationFailure)throw Error('secret raw upstream text');return{status:()=>200,url:()=>url,headerValue:async(name)=>options.generationHeaders?options.generationHeaders[name]??null:options.wrongBuild?'wrong':buildId};},
     async waitForFunction(){if(options.frozenGallery)throw Error('image unchanged');},
     async screenshot(){return new Uint8Array(options.screenshotBytes || 12);},async close(){state.pageClosed++;},
   };
@@ -69,6 +69,13 @@ test('uncached app identity is accepted while a conflicting cached identity stay
   assert.equal((await runBrowserJob(job,env,uncached.factory)).status,'passed');
   const conflict=browserFixture({generationHeaders:{'x-vii-app-build':buildId,'x-vii-cache-build':'wrong'}});
   assert.equal((await runBrowserJob(job,env,conflict.factory)).reason,'observed_build_mismatch');
+});
+
+test('budget enforcement preserves the actual count even when an aborted request breaks a later step',async()=>{
+ const fixture=browserFixture({burstRequests:180,missingMain:true});
+ const result=await runBrowserJob(job,env,fixture.factory);
+ assert.equal(result.requestCount,181);assert.equal(result.reason,'request_budget_exceeded');assert.equal(result.status,'failed');
+ assert.equal(fixture.state.requests.at(-1).disposition,'aborted');assert.equal(fixture.state.requests.filter(x=>x.disposition==='continued').length,180);assertClosed(fixture.state);
 });
 
 test('wrong observed build, overflow and attempted writes cannot produce green evidence',async()=>{

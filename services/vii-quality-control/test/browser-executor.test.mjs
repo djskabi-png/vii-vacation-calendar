@@ -31,3 +31,10 @@ test('failure diagnostics cross the private transport with bounded sanitized fie
  const privatePath={...payload,attemptedWrites:[{method:'POST',origin:'https://vii.spaplus.co',path:'/customer/private-address'}]};
  await assert.rejects(api.executeBrowserProfile({...good,browser:{fetch:async()=>response(privatePath)}}),/result_invalid/);
 });
+
+test('an actual over-budget failed result stays a verified failure with its real count',async()=>{
+ const payload={jobId:good.jobId,sourceVersion:good.sourceSha,buildId:good.buildId,world:'vacations',device:'mobile',scenario:'gallery-next',status:'failed',reason:'request_budget_exceeded',requestCount:181,steps:2,durationMs:12,failureStep:'map-ready'};
+ const read=value=>api.executeBrowserProfile({...good,browser:{fetch:async()=>response(value)}});
+ const actual=await read(payload);assert.equal(actual.status,'failed');assert.equal(actual.requestCount,181);assert.equal(actual.reason,'request_budget_exceeded');
+ for(const bad of [{status:'passed',reason:undefined},{status:'blocked'},{reason:'browser_step_failed'},{requestCount:1_000_001},{requestCount:181.5}])await assert.rejects(read({...payload,...bad}),/result_invalid/);
+});
