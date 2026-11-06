@@ -105,8 +105,10 @@
       "id": "V10",
       "title": "נתונים קנוניים ודורות פרסום",
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\VII_FINAL_EXECUTION_PLAN_20261105.md",
-      "status": "pending",
-      "evidence": []
+      "status": "in_progress",
+      "evidence": [
+        "PHASE_18.md"
+      ]
     },
     {
       "id": "V11",
@@ -141,7 +143,8 @@
         "PHASE_04.md",
         "PHASE_05.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -182,7 +185,8 @@
       "evidence": [
         "PHASE_01_VERIFICATION.md",
         "PHASE_02.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -223,7 +227,8 @@
         "PHASE_10_VERIFICATION.md",
         "PHASE_11.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -242,7 +247,8 @@
         "PHASE_12.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_14.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -374,7 +380,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -432,7 +439,8 @@
         "PHASE_04.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_13_VERIFICATION.md"
+        "PHASE_13_VERIFICATION.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -480,7 +488,8 @@
       "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\plans\\QQQAAA.md",
       "status": "in_progress",
       "evidence": [
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -526,7 +535,8 @@
         "PHASE_05.md",
         "PHASE_05_VERIFICATION.md",
         "PHASE_06.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -586,7 +596,8 @@
         "PHASE_06.md",
         "PHASE_10_VERIFICATION.md",
         "PHASE_13_VERIFICATION.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {
@@ -605,7 +616,8 @@
         "PHASE_12.md",
         "PHASE_13_VERIFICATION.md",
         "PHASE_14.md",
-        "PHASE_16.md"
+        "PHASE_16.md",
+        "PHASE_18.md"
       ]
     },
     {

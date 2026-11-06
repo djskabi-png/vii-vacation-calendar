@@ -1,7 +1,7 @@
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { liveSupplierSearch, validDate, type LiveSearchWorld } from "../../../lib/vii-live-search";
 import { supplierToken } from "../../../lib/vii-supplier-token";
-import { publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
+import { publicCatalogSelectedSummaries, publicCatalogSummaries, publicEventResultSummaries } from "../../../lib/public-catalog-read.ts";
 import type { EventDealPlace } from "../../../lib/event-deal-labels";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
@@ -89,11 +89,11 @@ export async function POST(request: Request) {
       const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID) }) : null;
       const offers = selected?.offers ?? liveOffers;
       const ids = offers.map(offer => offer.siteID);
-      // The selected-summary reader is intentionally bounded for editorial
-      // previews. Larger event result sets need one complete catalog read,
-      // rather than silently dropping every venue after the twentieth.
-      const places = ids.length > 20
+      // Keep every result. The bounded result reader fetches matching current
+      // summaries only; oversized sets retain the complete-generation path.
+      const places = ids.length > 100
         ? (await publicCatalogSummaries<EventDealPlace>("events")).filter(place => ids.includes(Number(/^event-(\d+)$/.exec(place.slug)?.[1])))
+        : ids.length > 20 ? await publicEventResultSummaries<EventDealPlace>(ids)
         : await publicCatalogSelectedSummaries<EventDealPlace>("events", ids);
       const placeById = new Map(places.flatMap((place) => {
         const match = /^event-(\d+)$/.exec(place.slug);

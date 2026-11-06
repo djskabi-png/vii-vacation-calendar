@@ -4,7 +4,7 @@ import { acceptedSergeySummaries, acceptedSergeyDetail } from "./accepted-bundle
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, readSupplierCatalogSelectedSummariesPinned, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { publicCatalogDatabase } from "./runtime-database.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
@@ -119,6 +119,31 @@ export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWo
     if (selectedCatalogCache.get(cacheKey)?.items === items) selectedCatalogCache.delete(cacheKey);
     throw error;
   }
+}
+
+/** Event result joins need current publication and editorial state. Keep this
+ * separate from the small, cached gallery/preview reader. Oversized result
+ * sets retain the caller's complete-generation fallback, never truncation. */
+export async function publicEventResultSummaries<T>(supplierIds: readonly number[]): Promise<T[]> {
+  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0);
+  if (ids.length > 100) throw new Error("event_result_projection_limit");
+  if (!ids.length) return [];
+  const selectedIds = new Set(ids);
+  const fallback = () => bundled("events").filter(value => selectedIds.has(Number((value as { supplierId?: unknown }).supplierId)));
+  let entries: unknown[];
+  let overlays: Promise<{ key: string; content: EditorialContent }[]> = Promise.resolve([]);
+  try {
+    const { database: db } = await publicCatalogDatabase();
+    overlays = readPublishedItems(db, "event").catch(() => []);
+    const state = await readSupplierCatalogState(db, "events");
+    entries = state?.activeRunId
+      ? await readSupplierCatalogSelectedSummariesPinned(db, "events", state.activeRunId, ids)
+      : fallback();
+  } catch {
+    console.warn("public_event_results_fallback");
+    entries = fallback();
+  }
+  return withEditorialOverlays("events", await publicSummaries("events", entries), await overlays) as T[];
 }
 
 function contentTypeForWorld(world: SupplierCatalogWorld): ContentType {

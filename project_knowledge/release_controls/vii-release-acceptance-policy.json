@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "policyId": "vii-unit-release-acceptance-v1",
+  "siteProjectId": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "unitAuditDefinitions": {
+    "managed-site": "site-archive-v1",
+    "edge-delivery": "worker-package-v1",
+    "image-delivery": "worker-package-v1",
+    "quality-controller": "worker-package-v1",
+    "quality-browser": "worker-package-v1"
+  },
+  "browserFamilies": ["vacations", "events", "spa", "hourly", "activities", "trails", "providers", "global-shell", "search", "home-sliders", "admin", "quality-control", "maps", "media-gallery", "experience-client"],
+  "browserFixtureAllowedFamilies": ["quality-control"],
+  "interfaces": [
+    {"id":"edge-site-documents","units":["edge-delivery","managed-site"],"definitionVersion":"public-html-rsc-v1"},
+    {"id":"site-image-delivery","units":["managed-site","image-delivery"],"definitionVersion":"public-media-v1"},
+    {"id":"edge-quality-authority","units":["edge-delivery","quality-controller","managed-site"],"definitionVersion":"quality-attestation-v1"},
+    {"id":"quality-browser-contract","units":["quality-controller","quality-browser"],"definitionVersion":"private-browser-v1"},
+    {"id":"experience-ingestion","units":["managed-site","edge-delivery","quality-controller"],"definitionVersion":"experience-v1"}
+  ]
+}

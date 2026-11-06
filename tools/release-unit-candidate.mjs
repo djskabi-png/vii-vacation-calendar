@@ -30,6 +30,22 @@ function validateProvisioning(proof,contract,unit,now){
  if(proof.bindings.some(x=>x.type==='secret_text'||x.type==='send_email'))throw Error('provisioning_unexpected_provider');
 }
 
+/** Audits one immutable artifact against the actual committed unit contract.
+ * Also used for unchanged consumers retained solely for compatibility QA. */
+export async function auditFrozenUnitArtifact(entry,{root=process.cwd(),source,now=Date.now()}={}){
+ root=resolve(root);
+ const graph=blob(root,source,GRAPH),unit=entry?.unit;
+ if(!graph.buildUnits?.[unit])throw Error('unknown_build_unit');
+ const receipt=read(root,entry.buildReceiptPath);
+ const proof=await validateReusableArtifact({root,source,unit,receipt,artifactPath:entry.artifact?.path,now});
+ if(entry.artifact?.sha256!==proof.artifactSha256||!Number.isSafeInteger(entry.artifact?.bytes)||statSync(resolve(root,entry.artifact.path)).size!==entry.artifact.bytes)throw Error('artifact_identity_mismatch');
+ const audit=read(root,entry.auditReceiptPath);
+ const checks=unit==='managed-site'?['artifact.fixture-exclusion','artifact.import-integrity']:['artifact.unit-import-integrity','artifact.runtime-isolation','artifact.tested-payload-parity'];
+ if(audit.schemaVersion!==1||audit.status!=='passed'||audit.engine!=='artifact-audit'||audit.unit!==unit||audit.source!==receipt.source||audit.tree!==receipt.tree||audit.artifactSha256!==proof.artifactSha256||audit.artifactBytes!==entry.artifact.bytes||!fresh(audit.observedAt,now,86400000)||checks.some(id=>!audit.executedCheckIds?.includes(id))||audit.failedCount!==0)throw Error('artifact_audit_invalid');
+ if(graph.buildUnits[unit]?.provisioningRequired)validateProvisioning(read(root,entry.provisioningReceiptPath),blob(root,source,CONTRACT),unit,now);
+ return{...proof,artifactTree:receipt.tree,artifactBytes:entry.artifact.bytes,reused:receipt.source!==source};
+}
+
 /** Unit/artifact/provisioning preflight only. The global release gate still
  * requires runtime families, rollback and exact public acceptance separately.
  * No caller-supplied clean state, ancestry callback or input globs are trusted.
@@ -57,14 +73,7 @@ export async function auditUnitCandidate(manifest,{root=process.cwd(),now=Date.n
   for(const entry of entries){
    const unit=entry.unit;
    try{
-    const receipt=read(root,entry.buildReceiptPath);
-    const proof=await validateReusableArtifact({root,source,unit,receipt,artifactPath:entry.artifact?.path,now});
-    if(entry.artifact?.sha256!==proof.artifactSha256||!Number.isSafeInteger(entry.artifact?.bytes)||statSync(resolve(root,entry.artifact.path)).size!==entry.artifact.bytes)throw Error('artifact_identity_mismatch');
-    const audit=read(root,entry.auditReceiptPath);
-    const checks=unit==='managed-site'?['artifact.fixture-exclusion','artifact.import-integrity']:['artifact.unit-import-integrity','artifact.private-bindings'];
-    if(audit.schemaVersion!==1||audit.status!=='passed'||audit.engine!=='artifact-audit'||audit.unit!==unit||audit.source!==receipt.source||audit.tree!==receipt.tree||audit.artifactSha256!==proof.artifactSha256||audit.artifactBytes!==entry.artifact.bytes||!fresh(audit.observedAt,now,86400000)||checks.some(id=>!audit.executedCheckIds?.includes(id))||audit.failedCount!==0)throw Error('artifact_audit_invalid');
-    if(graph.buildUnits[unit]?.provisioningRequired)validateProvisioning(read(root,entry.provisioningReceiptPath),contract,unit,now);
-    units.push({...proof,artifactBytes:entry.artifact.bytes,reused:receipt.source!==source});
+    units.push(await auditFrozenUnitArtifact(entry,{root,source,now}));
    }catch(error){fail(unit+':'+error.message);}
   }
  }catch(error){fail(error.message);}

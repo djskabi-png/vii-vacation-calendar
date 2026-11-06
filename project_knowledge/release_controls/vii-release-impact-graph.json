@@ -56,7 +56,9 @@
         "managed-site"
       ],
       "requiredLocalTests": [
-        "tests/supplier-worker-transport.test.mjs"
+        "tests/supplier-worker-transport.test.mjs",
+        "tests/event-result-projection.test.mjs",
+        "tests/event-discovery-route-completeness.test.mjs"
       ]
     },
     "global-shell": {
@@ -356,7 +358,9 @@
         "tests/release-candidate-manifest.test.mjs",
         "tests/release-artifact-audit.test.mjs",
         "tests/release-unit-inputs.test.mjs",
-        "tests/release-unit-candidate.test.mjs"
+        "tests/release-unit-candidate.test.mjs",
+        "tests/release-candidate-v2.test.mjs",
+        "tests/worker-release-package.test.mjs"
       ]
     },
     "multilingual-shell": {
@@ -550,6 +554,7 @@
         "app/api/catalog/",
         "app/data/",
         "app/lib/public-catalog-read.ts",
+        "app/lib/supplier-catalog-store.ts",
         "app/lib/supplier-detail-contract.ts",
         "app/lib/schema-initializer.ts",
         "app/lib/max-compounds-api.ts",

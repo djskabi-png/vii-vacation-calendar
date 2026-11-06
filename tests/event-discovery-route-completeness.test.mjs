@@ -20,6 +20,7 @@ function actualHandler(extra) {
     supplierToken:async()=>"fixture", publishedSupplierIds:async()=>new Set(places.map(p=>p.supplierId)),
     runtimeCatalogDatabase:async()=>null, publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(p=>ids.slice(0,20).includes(p.supplierId)),
+    publicEventResultSummaries:async(ids)=>places.filter(p=>ids.includes(p.supplierId)),
     ...extra };
   const text = readFileSync(new URL("../app/api/vii/live-search/route.ts",import.meta.url),"utf8");
   const code=stripTypeScriptTypes(text.replace(/^import .*;\r?$/gm,""),{mode:"strip"}).replace("export async function POST","async function POST");
@@ -30,7 +31,8 @@ const request = slot => new Request("https://example.test/api/vii/live-search",{
 test("actual endpoint retains35 unpriced venues despite the preview-reader cap and projects only selected slot",async()=>{
   let providerCalls=0;
   const snapshot=await loadEventDiscovery({date,guests:20,token:"fixture",publishedIds:new Set(places.map(p=>p.supplierId)),fetchImpl:async()=>{providerCalls++;return Response.json({sites:raw});}});
-  const post=actualHandler({readCachedDiscovery:async({key,validate})=>{
+  let selectedReads=0,fullReads=0;
+  const post=actualHandler({publicCatalogSummaries:async()=>{fullReads++;throw Error('unrelated_full_world_read');},publicEventResultSummaries:async(ids)=>{selectedReads++;assert.equal(ids.length,35);return places.filter(p=>ids.includes(p.supplierId));},readCachedDiscovery:async({key,validate})=>{
     assert.deepEqual(key,eventDiscoveryKey(date,20));assert.equal(validate(snapshot),true);
     return {value:snapshot,cache:{status:"fresh",checkedAt:new Date().toISOString()}};
   }, cachedDiscovery:async()=>{throw new Error("fresh_must_not_recover");}});
@@ -41,6 +43,7 @@ test("actual endpoint retains35 unpriced venues despite the preview-reader cap a
   assert.equal(Object.hasOwn(body,"eventSlots"),false,"internal snapshot is not redundantly exposed");
   const evening=await (await post(request("evening"))).json();assert.equal(evening.results.length,0);
   assert.equal(providerCalls,1,"both slot projections use the same acquired bulk snapshot");
+  assert.equal(fullReads,0);assert.equal(selectedReads,1,"empty slot adds no result projection");
 });
 
 test("stale snapshot invokes one coordinated refresh path, while a cold failure is never retried by the route",async()=>{

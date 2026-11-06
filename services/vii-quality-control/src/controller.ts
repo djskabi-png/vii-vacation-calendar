@@ -13,8 +13,8 @@ import {verifyHttpTargetBuild,type GenerationResult} from './http-generation.ts'
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
 export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
 export type ControllerPlatform = {
-  create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }): Promise<{ job: QualityJob; duplicate: boolean }>;
-  consume(db: D1Database, runId: string): Promise<unknown>;
+  create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }, generation?: { targetBuildId?: string }): Promise<{ job: QualityJob; duplicate: boolean }>;
+  consume(db: D1Database, runId: string, generation?: { targetBuildId?: string }): Promise<unknown>;
   verifyTarget?(input:{origin:string;buildId:string}):Promise<GenerationResult>;
 };
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
@@ -151,7 +151,7 @@ export function createController(platform: ControllerPlatform) {
         if (typeof body.idempotencyKey !== "string" || !/^[A-Za-z0-9:_-]{8,120}$/.test(body.idempotencyKey)) return json({ error: "invalid_idempotency_key" }, 400);
         if (body.level !== "full" && body.level !== "medium" && body.level !== "regular") return json({ error: "invalid_level" }, 400);
         const scope = Object.hasOwn(body, "scope") ? scopeValue(body.scope) : undefined;
-        const queued = await platform.create(db, { actor, idempotencyKey: body.idempotencyKey, origin: url.origin, level: body.level, ...(scope ? { scope } : {}) });
+        const queued = await platform.create(db, { actor, idempotencyKey: body.idempotencyKey, origin: url.origin, level: body.level, ...(scope ? { scope } : {}) }, { targetBuildId: env.EXPECTED_BUILD_ID });
         await dispatch(env, queued.job);
         const saved = await readQualityJob(db, queued.job.runId);
         return json({ job: jobView(saved ?? queued.job), duplicate: queued.duplicate }, 202);
@@ -202,7 +202,7 @@ export function createController(platform: ControllerPlatform) {
         return{status:saved?.status==='running'?'not_claimed':saved?.status==='blocked'?'blocked':'obsolete',reason:saved?.reason??generation.reason};
       }
     }
-    const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,env as ControllerEnvironment & BrowserJobEnvironment,executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId);
+    const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,env as ControllerEnvironment & BrowserJobEnvironment,executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId, { targetBuildId: env.EXPECTED_BUILD_ID });
     const saved = await readQualityJob(env.QUALITY_DB, job.runId);
     if (saved && saved.nextIndex > value.expectedIndex) await dispatch(env, saved, value.priority);
     return result;

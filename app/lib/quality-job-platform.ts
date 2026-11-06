@@ -10,6 +10,17 @@ export function qualityBuildIdentity() {
   return __VII_CACHE_BUILD_ID__;
 }
 
+/** Private controllers select the application generation from their trusted
+ * runtime environment. A caller's JSON body never supplies this value. */
+export function qualityTargetBuild(buildId: unknown): string {
+  if (typeof buildId !== 'string' || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(buildId)) throw new Error('quality_target_build_invalid');
+  return buildId;
+}
+type JobGeneration = { targetBuildId?: string };
+function selectedBuild(options: JobGeneration) {
+  return Object.hasOwn(options, 'targetBuildId') ? qualityTargetBuild(options.targetBuildId) : qualityBuildIdentity();
+}
+
 function snapshot(check: QualityCheck, origin: string, level: QualityRunLevel, context?: { trigger?: "scheduled"; requestScope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }): QualityJobCheck {
   return { checkId: check.checkId, definitionVersion: "http-contract-v2", timeoutMs: check.timeoutMs, configuration: { check: structuredClone(check), scope: { ...structuredClone(qualityScopeMetadata[check.checkId]), costBudgetMs: check.timeoutMs }, origin, level, ...(context?.trigger ? { trigger: context.trigger } : {}), ...(context?.requestScope ? { requestScope: structuredClone(context.requestScope) } : {}) } };
 }
@@ -17,26 +28,29 @@ function snapshot(check: QualityCheck, origin: string, level: QualityRunLevel, c
 export async function createManualQualityJob(db: D1Database, input: {
   actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel;
   scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean };
-}) {
+}, options: JobGeneration = {}) {
+  const targetBuildId = selectedBuild(options);
   const scope = input.scope ? { changedBoxes: [...input.scope.changedBoxes], ...(input.scope.consumers !== undefined ? { consumers: [...input.scope.consumers] } : {}), ...(input.scope.unknownOwner !== undefined ? { unknownOwner: input.scope.unknownOwner } : {}) } : undefined;
   const checks = selectManualQualityChecks(input.level, scope).map(check => snapshot(check, input.origin, input.level, scope ? { requestScope: scope } : undefined));
   const queued = await enqueueQualityJob(db, { actor: input.actor, idempotencyKey: input.idempotencyKey,
-    payload: { level: input.level, scope: scope ?? null }, sourceVersion: qualityBuildIdentity(),
+    payload: { level: input.level, scope: scope ?? null }, sourceVersion: targetBuildId,
     definitionVersion: await payloadHash(checks), checks });
   await persistQualityJobProgress(db, queued.job);
   return queued;
 }
 
-export async function createScheduledQualityJob(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; checkId: string }) {
+export async function createScheduledQualityJob(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; checkId: string }, options: JobGeneration = {}) {
+  const targetBuildId = selectedBuild(options);
   const check = selectManualQualityChecks("full").find(check => check.checkId === input.checkId);
   if (!check) throw new Error("quality_schedule_definition_missing");
   const checks = [snapshot(check, input.origin, "regular", { trigger: "scheduled" })];
-  const queued = await enqueueQualityJob(db, { actor: input.actor, idempotencyKey: input.idempotencyKey, payload: { trigger: "scheduled", checkId: input.checkId }, sourceVersion: qualityBuildIdentity(), definitionVersion: await payloadHash(checks), checks });
+  const queued = await enqueueQualityJob(db, { actor: input.actor, idempotencyKey: input.idempotencyKey, payload: { trigger: "scheduled", checkId: input.checkId }, sourceVersion: targetBuildId, definitionVersion: await payloadHash(checks), checks });
   await persistQualityJobProgress(db, queued.job);
   return queued;
 }
 
-export async function consumeQualityJob(db: D1Database, runId: string, options: { fetcher?: typeof fetch; budgetMs?: number; notificationEnv?: QualityNotificationEnvironment } = {}) {
+export async function consumeQualityJob(db: D1Database, runId: string, options: JobGeneration & { fetcher?: typeof fetch; budgetMs?: number; notificationEnv?: QualityNotificationEnvironment } = {}) {
+  const targetBuildId = selectedBuild(options);
   const job = await readQualityJob(db, runId);
   if (!job) return null;
   const current = selectManualQualityChecks("full");
@@ -46,7 +60,7 @@ export async function consumeQualityJob(db: D1Database, runId: string, options: 
     return check && (level === "full" || level === "medium" || level === "regular") ? snapshot(check, String(saved.configuration.origin), level, { ...(saved.configuration.trigger === "scheduled" ? { trigger: "scheduled" as const } : {}), ...(saved.configuration.requestScope ? { requestScope: saved.configuration.requestScope as { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } } : {}) }) : null;
   });
   const definitionVersion = definitions.every(Boolean) ? await payloadHash(definitions) : "unmapped-current-definition";
-  const outcome = await runQualityJobSlice(db, { runId, leaseToken: crypto.randomUUID(), sourceVersion: qualityBuildIdentity(), definitionVersion,
+  const outcome = await runQualityJobSlice(db, { runId, leaseToken: crypto.randomUUID(), sourceVersion: targetBuildId, definitionVersion,
     budgetMs: options.budgetMs ?? 20_000, checkTimeoutMs: 14_000,
     execute: async (entry, signal) => {
       const check = entry.configuration.check as QualityCheck;

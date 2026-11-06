@@ -361,6 +361,19 @@ export async function readSupplierCatalogSelectedSummaries(db: D1Database, world
   return retry.results.map(row => JSON.parse(row.summaryJson));
 }
 
+export async function readSupplierCatalogSelectedSummariesPinned(db: D1Database, world: SupplierCatalogWorld, activeRunId: string, supplierIds: readonly number[]) {
+  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0);
+  if (!validWorld(world) || !ids.length) return [];
+  if (ids.length > 100 || typeof activeRunId !== "string" || !activeRunId.length || activeRunId.length > 180) throw new Error("catalog_selected_projection_invalid");
+  const rows: Array<{ summaryJson: string | null }> = [];
+  for (let offset = 0; offset < ids.length; offset += 98) {
+    const chunk = ids.slice(offset, offset + 98);
+    const result = await db.prepare(`SELECT summary_json AS summaryJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ? AND supplier_id IN (${chunk.map(() => "?").join(",")})`).bind(activeRunId, world, ...chunk).all<{ summaryJson: string | null }>();
+    rows.push(...result.results);
+  }
+  return rows.flatMap(row => row.summaryJson ? [JSON.parse(row.summaryJson)] : []);
+}
+
 export async function readSupplierCatalogDashboard(db: D1Database) {
   // The production database bridge serializes statements on one request. Keep
   // these operator-safety reads sequential so a healthy catalog state is not

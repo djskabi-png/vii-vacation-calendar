@@ -56,7 +56,6 @@ BROWSER_ENABLED = "false"
 EXPECTED_SOURCE_VERSION = "UNACTIVATED_QUALITY_CONTROLLER"
 EXPECTED_BUILD_ID = "UNACTIVATED_QUALITY_CONTROLLER"
 
-# Replaced from the exact app artifact during candidate preparation. This
-# placeholder deliberately blocks executing jobs against an unidentified build.
-[define]
-__VII_CACHE_BUILD_ID__ = '"UNACTIVATED_QUALITY_CONTROLLER"'
+# The application generation is trusted runtime configuration, not a bundled
+# constant. Updating a Site version need not rebuild unchanged controller code.
+# Invalid/unactivated EXPECTED_BUILD_ID values reject admission and execution.
