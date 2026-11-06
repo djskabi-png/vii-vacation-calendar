@@ -98,7 +98,10 @@
         "tests/legacy-search-canonical-intent.test.mjs",
         "tests/geographic-search-family.test.mjs",
         "tests/world-location-seo-contract.test.mjs",
-        "tests/liran-geography-actual.test.mjs"
+        "tests/liran-geography-actual.test.mjs",
+        "tests/mobile-search-portal.test.mjs",
+        "tests/mobile-search-cancel-contract.test.mjs",
+        "tests/mobile-search-next-action-contract.test.mjs"
       ]
     },
     "vacations": {
@@ -405,7 +408,8 @@
         "managed-site"
       ],
       "requiredLocalTests": [
-        "tests/localization-completeness.test.mjs"
+        "tests/localization-completeness.test.mjs",
+        "tests/locale-auxiliary-loading-actual.test.mjs"
       ]
     },
     "content": {
@@ -663,7 +667,8 @@
         "app/data/supplier-legacy-links.generated.json",
         "app/data/vacation-landings.ts",
         "app/data/world-search-landings.ts",
-        "app/components/vacation-landing-route.tsx"
+        "app/components/vacation-landing-route.tsx",
+        "app/components/search-box.tsx"
       ]
     },
     {

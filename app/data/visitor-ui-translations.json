@@ -469,5 +469,7 @@
   "אירועי חברה בצפון": {"en":"Corporate events in northern Israel","fr":"Événements d’entreprise dans le nord d’Israël","ru":"Корпоративные мероприятия на севере Израиля"},
   "אירועי חברה בדרום": {"en":"Corporate events in southern Israel","fr":"Événements d’entreprise dans le sud d’Israël","ru":"Корпоративные мероприятия на юге Израиля"},
   "ספא לקבוצות": {"en":"Spa for groups","fr":"Spa pour groupes","ru":"Спа для групп"},
-  "שפים לאירוע חברה": {"en":"Chefs for corporate events","fr":"Chefs pour événements d’entreprise","ru":"Шеф-повара для корпоративных мероприятий"}
+  "שפים לאירוע חברה": {"en":"Chefs for corporate events","fr":"Chefs pour événements d’entreprise","ru":"Шеф-повара для корпоративных мероприятий"},
+  "טוענים את לוח התאריכים…": {"en":"Loading dates…","fr":"Chargement du calendrier…","ru":"Загрузка календаря…"},
+  "לא הצלחנו לפתוח את לוח התאריכים.": {"en":"We couldn't open the calendar.","fr":"Le calendrier n’a pas pu être ouvert.","ru":"Не удалось открыть календарь."}
 }

@@ -10,6 +10,7 @@ import "./slider-card-compact.css";
 import "./direct-phone-link.css";
 import "./pwa.css";
 import { LocaleProvider } from "./i18n/locale-provider";
+import { getAuxiliarySeed } from "./i18n/server-auxiliary-seed";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
 import { headers } from "next/headers";
@@ -163,12 +164,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     if (normalizedPathname !== fallback) redirect(fallback);
   }
   const direction = locale === "he" ? "rtl" : "ltr";
+  const initialAuxiliarySeed = locale === "he" ? undefined : getAuxiliarySeed(locale);
   const localeBootstrap = `(function(){var d=document.documentElement;try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';d.lang=l;d.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;if(l==='he')d.removeAttribute('data-locale-pending');try{localStorage.setItem('vii-site-language',l);}catch(_){}}catch(e){d.removeAttribute('data-locale-pending');}})();`;
   const apiHydrationGate = `(function(){try{var original=window.fetch;var release;var opened=false;var ready=new Promise(function(resolve){release=resolve});var finish=function(){if(opened)return;opened=true;if(window.fetch===gate)window.fetch=original;release()};var open=function(){var fallback=setTimeout(finish,100);requestAnimationFrame(function(){requestAnimationFrame(function(){clearTimeout(fallback);finish()})})};var gate=function(input,init){try{var raw=typeof input==='string'?input:input&&input.url;var target=new URL(raw,location.href);if(target.origin===location.origin&&target.pathname.indexOf('/api/')===0)return ready.then(function(){var signal=init&&init.signal||input&&input.signal;if(signal&&signal.aborted)throw signal.reason||new DOMException('Aborted','AbortError');return original.call(window,input,init)});}catch(_){}return original.call(window,input,init)};window.fetch=gate;if(document.readyState!=='loading')open();else document.addEventListener('DOMContentLoaded',open,{once:true})}catch(_){}})();`;
   const worldTree = <WorldAvailabilityProvider initial={worldAvailability}>{children}</WorldAvailabilityProvider>;
   return <html lang={locale} dir={direction} data-locale-pending={locale === "he" ? undefined : ""} suppressHydrationWarning><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link rel="preconnect" href="https://www.vii.co.il" /><link rel="preload" href="/vii-logo.png" as="image" type="image/png" fetchPriority="high" />{isAdmin ? <><link rel="preload" href="/fonts/heebo/heebo-hebrew-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><link rel="preload" href="/fonts/heebo/heebo-latin-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><style id="vii-admin-font-critical" dangerouslySetInnerHTML={{ __html: adminFontCriticalCss }} /></> : null}<script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /><script dangerouslySetInnerHTML={{ __html: apiHydrationGate }} /></head><body data-vii-surface={isAdmin ? "admin" : "public"}>
     <GoogleTagManager enabled={!isAdmin} />
     {isAdmin ? null : <><StructuredData data={organizationSchema()} /><StructuredData data={websiteSchema()} /></>}
-    <LocaleProvider initialLanguage={locale}>{isAdmin ? worldTree : <AccountAccessProvider><NavigationProgress /><ExperienceCollector />{worldTree}</AccountAccessProvider>}</LocaleProvider>
+    <LocaleProvider initialLanguage={locale} initialAuxiliarySeed={initialAuxiliarySeed}>{isAdmin ? worldTree : <AccountAccessProvider><NavigationProgress /><ExperienceCollector />{worldTree}</AccountAccessProvider>}</LocaleProvider>
   </body></html>;
 }

@@ -1,0 +1,37 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{resolve}from'node:path';import vm from'node:vm';import ts from'typescript';
+const root=resolve(import.meta.dirname,'..');const source=readFileSync(resolve(root,'app/i18n/locale-provider.tsx'),'utf8');const ast=ts.createSourceFile('locale-provider.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+const dictionaries={legacyVacationUiTranslations:'legacy-vacation-ui-translations',bookingHubTranslations:'booking-hub-translations',hourlyUiTranslations:'hourly-ui-translations',providerJoinTranslations:'provider-join-translations',spaUiTranslations:'spa-ui-translations',catalogAdminTranslations:'catalog-admin-translations',emailPolishTranslations:'email-polish-translations',worldDepthTranslations:'world-depth-translations',visitorUiTranslations:'visitor-ui-translations'};
+const names=new Set([...Object.keys(dictionaries),'auxiliaryDictionaries','publicReviewByLanguage','auxiliaryRequests']);
+const declarations=ast.statements.filter(node=>ts.isVariableStatement(node)&&node.declarationList.declarations.some(d=>names.has(d.name.getText(ast))));const loader=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='loadAuxiliaryTranslations');assert.ok(loader);assert.equal(declarations.length,names.size);
+const seeder=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='seedAuxiliaryTranslations');assert.ok(seeder);
+const program=declarations.map(node=>node.getText(ast)).join('\n')+'\n'+loader.getText(ast)+'\n'+seeder.getText(ast)+'\nglobalThis.api={load:loadAuxiliaryTranslations,seed:seedAuxiliaryTranslations,snapshot:()=>({'+[...names].join(',')+'})};';const compiled=ts.transpileModule(program,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText;
+const plain=value=>JSON.parse(JSON.stringify(value));
+function fixture(failName){let failure=failName;const requested=[];const sandbox={require(specifier){requested.push(specifier);assert.match(specifier,/^\.\.\/data\/[a-z-]+\.json$/);if(specifier.includes(failure??'never-match-sentinel'))throw Error('controlled auxiliary read failure');return JSON.parse(readFileSync(resolve(root,'app/i18n',specifier),'utf8'));}};vm.createContext(sandbox);vm.runInContext(compiled,sandbox);return {api:sandbox.api,requested,recover(){failure=undefined;}};}
+test('actual auxiliary loader keeps all data out of initialization and preserves every source entry',async()=>{
+ const f=fixture();assert.deepEqual(f.requested,[]);assert.deepEqual(plain(f.api.snapshot().auxiliaryDictionaries),{});
+ const request=f.api.load('en');assert.equal(f.api.load('en'),request);await request;assert.equal(f.requested.length,10);
+ for(const language of ['en','fr','ru']){await f.api.load(language);const actual=plain(f.api.snapshot());for(const[name,file]of Object.entries(dictionaries))assert.deepEqual(actual[name],JSON.parse(readFileSync(resolve(root,`app/data/${file}.json`),'utf8')),name);const review=JSON.parse(readFileSync(resolve(root,'app/data/public-review-translations.json'),'utf8'));const expected=Object.fromEntries(Object.entries(review).flatMap(([key,value])=>value[language]===undefined?[]:[[key,value[language]]]));assert.deepEqual(actual.publicReviewByLanguage[language],expected);assert.equal(actual.auxiliaryDictionaries[language].loaded,'true');}
+});
+test('a rejected auxiliary chunk never marks its language ready or publishes partial dictionaries',async()=>{
+ const f=fixture('spa-ui-translations');await assert.rejects(f.api.load('fr'),/controlled auxiliary read failure/);const actual=plain(f.api.snapshot());assert.equal(actual.auxiliaryDictionaries.fr,undefined);for(const name of Object.keys(dictionaries))assert.deepEqual(actual[name],{},name);assert.equal(f.api.snapshot().auxiliaryRequests.fr,undefined);f.recover();await f.api.load('fr');assert.equal(f.api.snapshot().auxiliaryDictionaries.fr.loaded,'true');
+});
+
+const serverSource=readFileSync(resolve(root,'app/i18n/server-auxiliary-seed.ts'),'utf8');
+const serverCode=ts.transpileModule(serverSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,esModuleInterop:true}}).outputText;
+function actualServerSeed(language){const sandbox={exports:{},require(path){return JSON.parse(readFileSync(resolve(root,'app/i18n',path),'utf8'));}};vm.createContext(sandbox);vm.runInContext(serverCode,sandbox);return plain(sandbox.exports.getAuxiliarySeed(language));}
+test('actual selected-language server seeds preserve all keys across sequential SSR locales without loading client chunks',async()=>{
+ const f=fixture();
+ for(const language of ['fr','en','ru','fr']){
+  const seed=actualServerSeed(language);assert.equal(Object.keys(seed).length,10);
+  for(const dictionary of Object.values(seed))for(const value of Object.values(dictionary))assert.equal(typeof value,'string');
+  f.api.seed(language,seed);await f.api.load(language);assert.deepEqual(f.requested,[]);
+ }
+ const actual=plain(f.api.snapshot());
+ for(const language of ['en','fr','ru']){
+  for(const[name,file]of Object.entries(dictionaries)){
+   const expected=JSON.parse(readFileSync(resolve(root,`app/data/${file}.json`),'utf8'));
+   for(const[key,values]of Object.entries(expected))assert.equal(actual[name][key]?.[language],values[language],`${name}:${language}:${key}`);
+  }
+  assert.deepEqual(actual.publicReviewByLanguage[language],actualServerSeed(language).publicReviewTranslations);
+ }
+});

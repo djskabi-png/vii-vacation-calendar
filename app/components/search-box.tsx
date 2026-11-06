@@ -1,13 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
-import { CalendarDemo } from "../calendar-demo";
-import { EventDatePicker } from "./event-date-picker";
-import { SpaDatePicker } from "./spa-date-picker";
+// Date pickers are interaction-only. Keep the initial search shell small and
+// load the relevant picker when the user opens dates, without changing its API.
+const DatePickerCloseContext = createContext<() => void>(() => undefined);
+const DatePickerLoading = ({ error, retry }: { error?: Error | null; retry?: () => void }) => {
+  const { language } = useSiteLanguage();
+  const close = useContext(DatePickerCloseContext);
+  const copy = {
+    he: { loading: "טוענים את לוח התאריכים…", error: "לא הצלחנו לפתוח את לוח התאריכים.", retry: "ניסיון חוזר", close: "סגירה" },
+    en: { loading: "Loading dates…", error: "We couldn't open the calendar.", retry: "Try again", close: "Close" },
+    ru: { loading: "Загрузка календаря…", error: "Не удалось открыть календарь.", retry: "Повторить", close: "Закрыть" },
+    fr: { loading: "Chargement du calendrier…", error: "Le calendrier n’a pas pu être ouvert.", retry: "Réessayer", close: "Fermer" },
+  }[language];
+  return <div className="search-popover" role={error ? "alert" : "status"} aria-live="polite"><span>{error ? copy.error : copy.loading}</span>{error && retry ? <button type="button" onClick={retry}>{copy.retry}</button> : null}<button type="button" onClick={close}>{copy.close}</button></div>;
+};
+const CalendarDemo = dynamic(() => import("../calendar-demo").then((module) => module.CalendarDemo), { ssr: false, loading: DatePickerLoading });
+const EventDatePicker = dynamic(() => import("./event-date-picker").then((module) => module.EventDatePicker), { ssr: false, loading: DatePickerLoading });
+const SpaDatePicker = dynamic(() => import("./spa-date-picker").then((module) => module.SpaDatePicker), { ssr: false, loading: DatePickerLoading });
 import { type WorldId } from "../data/world-data";
 import { isWholeCountrySelection, searchLocationOptions, vacationLocationGroups, type SearchMode } from "../data/search-taxonomy";
 import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./site-icons";
@@ -218,6 +233,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   spaDateRef.current = spaDate;
   vacationPartyRef.current = vacationParty;
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [datePickerMounted, setDatePickerMounted] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
   const [browseKey, setBrowseKey] = useState<string | null | undefined>(undefined);
@@ -258,6 +274,10 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const [isSearching, setIsSearching] = useState(false);
   const isSearchingRef = useRef(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
+
+  useEffect(() => {
+    if (calendarOpen) setDatePickerMounted(true);
+  }, [calendarOpen]);
   const searchSurfaceRef = useRef<HTMLDivElement>(null);
   const handledEditSearchRef = useRef(false);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
@@ -761,7 +781,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} location={locationValue} />}
       {showWorlds && shouldCollapse && (guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
       {mobileExpanded && typeof document !== "undefined" ? createPortal(searchSurface, document.body) : searchSurface}
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, to: null }; eventDateRangeRef.current = selection; setDates("בחרו תאריכים"); setEventDateRange(selection); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.from, to: result.to }; eventDateRangeRef.current = selection; setDates(result.summary); setEventDateRange(selection); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { date: null, withoutDate: true }; spaDateRef.current = selection; setDates("בלי תאריך כרגע"); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { date: result.date, withoutDate: result.withoutDate }; spaDateRef.current = selection; setDates(result.summary); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, till: null }; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = null; setDates("בחרו תאריכים"); setVacationDateRange(selection); setVacationFlexibleSearch(null); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: null }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.checkIn, till: result.checkOut }; const flexibleSelection = result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = flexibleSelection; setDates(result.summary); setVacationDateRange(selection); setVacationFlexibleSearch(flexibleSelection); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: flexibleSelection }); else { setMobileStep("guests"); setGuestOpen(true); } }} />}
+      <DatePickerCloseContext.Provider value={() => setCalendarOpen(false)}><div hidden={!calendarOpen} data-date-picker-container>{datePickerMounted && (mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, to: null }; eventDateRangeRef.current = selection; setDates("בחרו תאריכים"); setEventDateRange(selection); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.from, to: result.to }; eventDateRangeRef.current = selection; setDates(result.summary); setEventDateRange(selection); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ eventDateRange: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { date: null, withoutDate: true }; spaDateRef.current = selection; setDates("בלי תאריך כרגע"); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { date: result.date, withoutDate: result.withoutDate }; spaDateRef.current = selection; setDates(result.summary); setSpaDate(selection); if (isDesktopSearchViewport()) search({ spaDate: selection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : !isHourly ? <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { const selection = { from: null, till: null }; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = null; setDates("בחרו תאריכים"); setVacationDateRange(selection); setVacationFlexibleSearch(null); setCalendarOpen(false); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: null }); else { setMobileStep("guests"); setGuestOpen(true); } }} onConfirm={(result) => { const selection = { from: result.checkIn, till: result.checkOut }; const flexibleSelection = result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null; vacationDateRangeRef.current = selection; vacationFlexibleSearchRef.current = flexibleSelection; setDates(result.summary); setVacationDateRange(selection); setVacationFlexibleSearch(flexibleSelection); if (isDesktopSearchViewport()) search({ vacationDateRange: selection, vacationFlexibleSearch: flexibleSelection }); else { setMobileStep("guests"); setGuestOpen(true); } }} /> : null)}</div></DatePickerCloseContext.Provider>
     </>
   );
 }
