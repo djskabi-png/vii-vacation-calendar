@@ -11,7 +11,7 @@ import { readPrivateJpeg } from "../../../shared/private-jpeg.ts";
 import {verifyHttpTargetBuild,type GenerationResult} from './http-generation.ts';
 
 export type QueueMessage = { version: 1; runId: string; expectedIndex: number; sourceVersion: string; priority: "release" | "monitor" };
-export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string };
+export type ControllerEnvironment = Partial<BrowserJobEnvironment> & { QUALITY_DB: D1Database; RELEASE_QUEUE: { send(message: QueueMessage): Promise<void> }; MONITOR_QUEUE: { send(message: QueueMessage): Promise<void> }; EXECUTION_ENABLED?: string; EXPECTED_BROWSER_SOURCE_VERSION?: string };
 export type ControllerPlatform = {
   create(db: D1Database, input: { actor: string; idempotencyKey: string; origin: string; level: QualityRunLevel; scope?: { changedBoxes: string[]; consumers?: string[]; unknownOwner?: boolean } }, generation?: { targetBuildId?: string }): Promise<{ job: QualityJob; duplicate: boolean }>;
   consume(db: D1Database, runId: string, generation?: { targetBuildId?: string }): Promise<unknown>;
@@ -27,10 +27,19 @@ export function jobView(job: QualityJob) {
     passedCount: job.receipts.filter(r => r.status === "passed").length, attentionCount: job.receipts.filter(r => r.status !== "passed").length,
     receipts: ["queued", "running"].includes(job.status) ? [] : job.receipts };
 }
-function browserReady(env: ControllerEnvironment): env is ControllerEnvironment & BrowserJobEnvironment {
+function browserReady(env: ControllerEnvironment): env is ControllerEnvironment & BrowserJobEnvironment & { EXPECTED_BROWSER_SOURCE_VERSION: string } {
   return env.EXECUTION_ENABLED==='true' && env.BROWSER_ENABLED==='true' && typeof env.QUALITY_BROWSER?.fetch==='function'
     && env.PUBLIC_ORIGIN==='https://vii.spaplus.co' && /^[a-f0-9]{40}$/.test(env.EXPECTED_SOURCE_VERSION || '')
+    && /^[a-f0-9]{40}$/.test(env.EXPECTED_BROWSER_SOURCE_VERSION || '')
     && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(env.EXPECTED_BUILD_ID || '');
+}
+function browserExecutionEnvironment(env: ControllerEnvironment): BrowserJobEnvironment {
+  if (!browserReady(env)) throw new Error('browser_execution_disabled');
+  // The runner's immutable source is independent of this controller's source.
+  // A controller-only release must not relabel an unchanged browser artifact.
+  return { QUALITY_BROWSER: env.QUALITY_BROWSER, BROWSER_ENABLED: env.BROWSER_ENABLED,
+    EXPECTED_SOURCE_VERSION: env.EXPECTED_BROWSER_SOURCE_VERSION,
+    EXPECTED_BUILD_ID: env.EXPECTED_BUILD_ID, PUBLIC_ORIGIN: env.PUBLIC_ORIGIN };
 }
 function browserOptions(env: ControllerEnvironment) {
   return {enabled:browserReady(env),profiles:browserProfiles};
@@ -139,7 +148,8 @@ export function createController(platform: ControllerPlatform) {
       if(body.action==='enqueue-browser') {
         if(!browserReady(env))return json({error:'browser_runner_not_activated'},503);
         if(typeof body.profileId!=='string' || typeof body.idempotencyKey!=='string')return json({error:'browser_job_definition_invalid'},400);
-        const queued=await createBrowserQualityJob(db,{actor,idempotencyKey:body.idempotencyKey,profileId:body.profileId,sourceVersion:env.EXPECTED_SOURCE_VERSION,buildId:env.EXPECTED_BUILD_ID,origin:env.PUBLIC_ORIGIN});
+        const browser = browserExecutionEnvironment(env);
+        const queued=await createBrowserQualityJob(db,{actor,idempotencyKey:body.idempotencyKey,profileId:body.profileId,sourceVersion:browser.EXPECTED_SOURCE_VERSION,buildId:browser.EXPECTED_BUILD_ID,origin:browser.PUBLIC_ORIGIN});
         await dispatch(env,queued.job);
         return json({job:jobView(await readQualityJob(db,queued.job.runId) ?? queued.job),duplicate:queued.duplicate},202);
       }
@@ -202,7 +212,7 @@ export function createController(platform: ControllerPlatform) {
         return{status:saved?.status==='running'?'not_claimed':saved?.status==='blocked'?'blocked':'obsolete',reason:saved?.reason??generation.reason};
       }
     }
-    const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,env as ControllerEnvironment & BrowserJobEnvironment,executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId, { targetBuildId: env.EXPECTED_BUILD_ID });
+    const result = isBrowser ? await consumeBrowserQualityJob(env.QUALITY_DB,job.runId,browserExecutionEnvironment(env),executeBrowserProfile) : await platform.consume(env.QUALITY_DB, job.runId, { targetBuildId: env.EXPECTED_BUILD_ID });
     const saved = await readQualityJob(env.QUALITY_DB, job.runId);
     if (saved && saved.nextIndex > value.expectedIndex) await dispatch(env, saved, value.priority);
     return result;
