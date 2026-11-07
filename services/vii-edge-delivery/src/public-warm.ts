@@ -1,8 +1,16 @@
 export const publicWarmRoutes = Object.freeze(["/", "/events", "/spas", "/hourly", "/search", "/providers", "/trails", "/attractions"]);
-export const publicWarmRequests: ReadonlyArray<{path:string;headers:Record<string,string>}> = Object.freeze(publicWarmRoutes.flatMap<{path:string;headers:Record<string,string>}>(path=>[
-  {path,headers:{Accept:'text/html'} as Record<string,string>},
-  {path:`${path==='/'?'/.rsc':`${path}.rsc`}?_rsc`,headers:{Accept:'text/x-component',RSC:'1'} as Record<string,string>},
-]));
+const browserRscHashes:Record<string,string>={"/":"KsQaSH2L7Z4e6Q5N","/events":"zkS6omdGqgfCMlsE","/spas":"SUw32WOW_LzIbw0P","/hourly":"5gqXZVlY2FBD7V01","/search":"hEdSYtBncL1HUmIT","/providers":"fVB6U_iOKdUZnnY3","/trails":"inFMqFrRJT8v6E5h","/attractions":"okZjvgKglkbPfXLp","/business":"iH5GzKL3Zr4VGpJv"};
+// Hashes are the Vinext createRscRequestUrl SHA-256/96-bit digest of the
+// exact navigation headers: 0,0,0,0,<interception-context>,0,0.
+const publicWarmRscPairs=[
+  ...publicWarmRoutes.filter(path=>path!=='/').map(path=>({target:path,context:'/'})),
+  ...publicWarmRoutes.filter(path=>path!=='/').map(context=>({target:'/',context})),
+  {target:'/',context:'/business'},
+];
+export const publicWarmRequests: ReadonlyArray<{path:string;headers:Record<string,string>}> = Object.freeze([
+  ...publicWarmRoutes.map(path=>({path,headers:{Accept:'text/html'} as Record<string,string>})),
+  ...publicWarmRscPairs.map(({target,context})=>({path:`${target==='/'?'/.rsc':`${target}.rsc`}?_rsc=${browserRscHashes[context]}`,headers:{Accept:'text/x-component',RSC:'1','X-Vinext-Interception-Context':context} as Record<string,string>})),
+]);
 type Context = { waitUntil(promise: Promise<unknown>): unknown };
 
 /** Fixed anonymous HTML and ordinary navigation reads only. The caller supplies the SAME cache
