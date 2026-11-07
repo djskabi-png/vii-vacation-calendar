@@ -61,7 +61,8 @@
       "requiredLocalTests": [
         "tests/supplier-worker-transport.test.mjs",
         "tests/event-result-projection.test.mjs",
-        "tests/event-discovery-route-completeness.test.mjs"
+        "tests/event-discovery-route-completeness.test.mjs",
+        "tests/published-catalog-client-cache.test.mjs"
       ]
     },
     "global-shell": {
@@ -275,7 +276,8 @@
         "tests/discovery-source-expiry-actual.test.mjs",
         "tests/navigation-intent-warmup-actual.test.mjs",
         "tests/section-activation-actual.test.mjs",
-        "tests/slider-settle-layout-actual.test.mjs"
+        "tests/slider-settle-layout-actual.test.mjs",
+        "tests/published-catalog-client-cache.test.mjs"
       ]
     },
     "quality-control": {
@@ -380,7 +382,9 @@
       ],
       "requiredLocalTests": [
         "services/vii-edge-delivery/test/retained-assets.test.mjs",
-        "tests/retained-assets-workerd.test.mjs"
+        "tests/retained-assets-workerd.test.mjs",
+        "tests/holiday-warm-workerd.test.mjs",
+        "services/vii-edge-delivery/test/holiday-warm.test.mjs"
       ]
     },
     "image-delivery": {
@@ -670,7 +674,9 @@
         "app/lib/supplier-starting-price.ts",
         "app/lib/catalog-status-mcp.ts",
         "app/mcp/route.ts",
-        "app/lib/provider-catalog-inspection.ts"
+        "app/lib/provider-catalog-inspection.ts",
+        "app/lib/use-published-catalog.ts",
+        "app/lib/published-catalog-client-cache.ts"
       ]
     },
     {
