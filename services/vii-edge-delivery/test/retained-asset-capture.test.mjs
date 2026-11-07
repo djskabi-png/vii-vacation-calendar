@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { captureRetainedAssets, verifyRetainedPredecessor } from '../scripts/capture-retained-assets.mjs';
+import { captureRetainedAssets, verifyRetainedPredecessor, inspectExistingRetainedAsset } from '../scripts/capture-retained-assets.mjs';
 import { encodeRetainedAsset, retainedAssetKey } from '../src/retained-assets.ts';
 const source = 'a'.repeat(40), buildId = '11111111-2222-3333-4444-555555555555';
 test('publication handoff rejects missing, pending, wrong-predecessor and uncertain retention receipts',()=>{
@@ -50,4 +50,34 @@ test('changed source bytes fail before any remote read or write',async()=>{
   writeFileSync(join(f.folder,f.rows[0].file),'changed');
   await assert.rejects(captureRetainedAssets(f.plan,f.folder,{async read(){reads++;return null;}},{state:'reserved_before_preflight'},()=>{}),/source_asset_digest_mismatch/);assert.equal(reads,0);
  } finally {f.cleanup();}
+});
+
+test('same path and bytes reuse a valid predecessor even when its build metadata is old', async () => {
+ const f=fixture(),now=Date.now(),oldBuild='22222222-3333-4444-5555-666666666666';
+ try {
+  const encoded=await encodeRetainedAsset({path:f.rows[0].path,source,buildId:oldBuild,createdAt:now-1000,retainUntil:now+86400000},f.rows[0].body,now);
+  const decision=await inspectExistingRetainedAsset(encoded,f.rows[0],now,3600000);
+  assert.equal(decision.status,'reuse'); assert.equal(decision.buildId,oldBuild); assert.ok(decision.remainingMs>3600000);
+ } finally { f.cleanup(); }
+});
+
+test('same path with different bytes is rejected before any write', async () => {
+ const f=fixture(),now=Date.now();
+ try {
+  const other=Buffer.from('different bytes');
+  const encoded=await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now-1000,retainUntil:now+86400000},other,now);
+  const decision=await inspectExistingRetainedAsset(encoded,f.rows[0],now,0);
+  assert.equal(decision.status,'conflict'); assert.equal(decision.reason,'existing_asset_body_digest_mismatch');
+ } finally { f.cleanup(); }
+});
+
+test('expired predecessor is rejected, while a short valid retention requests one extension write', async () => {
+ const f=fixture(),now=Date.now();
+ try {
+  const expired=await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now-86400000,retainUntil:now-1},f.rows[0].body,now-2);
+  assert.equal((await inspectExistingRetainedAsset(expired,f.rows[0],now,0)).status,'conflict');
+  const short=await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now-1000,retainUntil:now+1000},f.rows[0].body,now);
+  const decision=await inspectExistingRetainedAsset(short,f.rows[0],now,5000);
+  assert.equal(decision.status,'extend'); assert.equal(decision.remainingMs,1000);
+ } finally { f.cleanup(); }
 });

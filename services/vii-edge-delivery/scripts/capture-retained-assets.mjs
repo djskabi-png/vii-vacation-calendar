@@ -5,11 +5,40 @@ import { pathToFileURL } from 'node:url';
 import { encodeRetainedAsset, retainedAssetKey, readRetainedAsset } from '../src/retained-assets.ts';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
+/**
+ * Compare an already stored envelope without trusting its build metadata.
+ * A content-addressed asset may legitimately have been retained by an older
+ * qualified release.  Path, envelope integrity, body digest and expiry still
+ * have to pass before it can be reused.
+ */
+export async function inspectExistingRetainedAsset(encoded, row, now = Date.now(), requiredRetentionMs = 0) {
+  if (!encoded) return { status: 'missing' };
+  const response = await readRetainedAsset(new Request('https://vii.spaplus.co' + row.path), {
+    async get() { return { size: encoded.length, body: new Blob([encoded]).stream() }; },
+  }, { now });
+  if (!response) return { status: 'conflict', reason: 'invalid_or_expired_existing_asset' };
+  const body = Buffer.from(await response.arrayBuffer());
+  if (hash(body) !== row.sha256) return { status: 'conflict', reason: 'existing_asset_body_digest_mismatch' };
+  if (encoded.length < 5) return { status: 'conflict', reason: 'invalid_existing_envelope' };
+  const metadataLength = new DataView(encoded.buffer, encoded.byteOffset, encoded.byteLength).getUint32(0);
+  if (metadataLength < 1 || metadataLength > 4096 || 4 + metadataLength > encoded.length) return { status: 'conflict', reason: 'invalid_existing_envelope' };
+  let metadata;
+  try { metadata = JSON.parse(Buffer.from(encoded.subarray(4, 4 + metadataLength)).toString('utf8')); } catch { return { status: 'conflict', reason: 'invalid_existing_metadata' }; }
+  if (metadata.path !== row.path || metadata.bytes !== body.length || metadata.sha256 !== row.sha256 || !Number.isSafeInteger(metadata.retainUntil) || metadata.retainUntil <= now) {
+    return { status: 'conflict', reason: 'existing_asset_identity_or_expiry_mismatch' };
+  }
+  const remainingMs = metadata.retainUntil - now;
+  if (remainingMs <= requiredRetentionMs) return { status: 'extend', remainingMs, source: metadata.source, buildId: metadata.buildId, retainUntil: metadata.retainUntil };
+  return { status: 'reuse', remainingMs, source: metadata.source, buildId: metadata.buildId, retainUntil: metadata.retainUntil };
+}
+
 /** Preflight the COMPLETE inventory before any write. Each write is reserved
  * durably, never retried, and read back byte-for-byte before acknowledgement. */
 export async function captureRetainedAssets(plan, folder, transport, receipt, save, now = Date.now()) {
   if (receipt.state !== 'reserved_before_preflight') throw Error('existing_operation_requires_reconciliation');
   if (plan.schemaVersion !== 1 || !Array.isArray(plan.assets) || plan.assets.length > 2048) throw Error('invalid_asset_plan');
+  const requiredRetentionMs = plan.requiredRetentionMs ?? 7 * 86400000;
+  if (!Number.isSafeInteger(requiredRetentionMs) || requiredRetentionMs < 86400000 || requiredRetentionMs > 7 * 86400000) throw Error('invalid_retention_window');
   const paths = new Set();
   const prepared = [];
   for (const row of plan.assets) {
@@ -22,14 +51,14 @@ export async function captureRetainedAssets(plan, folder, transport, receipt, sa
     const encoded = await encodeRetainedAsset(identity, body, now);
     const existing = await transport.read(key);
     if (existing !== null) {
-      const response = await readRetainedAsset(new Request('https://vii.spaplus.co' + row.path), {
-        async get() { return { size: existing.length, body: new Blob([existing]).stream() }; },
-      }, { now });
-      if (!response || response.headers.get('X-VII-Asset-Build') !== plan.buildId || hash(Buffer.from(await response.arrayBuffer())) !== row.sha256) throw Error('existing_asset_conflict:' + row.path);
-      prepared.push({ row, key, skip: true });
-    } else prepared.push({ row, key, encoded, skip: false });
+      const decision = await inspectExistingRetainedAsset(existing, row, now, requiredRetentionMs);
+      if (decision.status === 'conflict') throw Error('existing_asset_conflict:' + row.path + ':' + decision.reason);
+      prepared.push({ row, key, encoded: decision.status === 'extend' ? encoded : undefined, skip: decision.status === 'reuse', existing: decision });
+    } else prepared.push({ row, key, encoded, skip: false, existing: { status: 'missing' } });
   }
-  Object.assign(receipt, { state: 'complete_inventory_preflight_passed', count: prepared.length, writes: [], checkedAt: new Date(now).toISOString() }); save(receipt);
+  Object.assign(receipt, { state: 'complete_inventory_preflight_passed', count: prepared.length, writes: [],
+    reused: prepared.filter(item => item.skip).map(item => ({ path: item.row.path, key: item.key, source: item.existing.source, buildId: item.existing.buildId, retainUntil: new Date(item.existing.retainUntil).toISOString(), remainingMs: item.existing.remainingMs })),
+    checkedAt: new Date(now).toISOString() }); save(receipt);
   for (const item of prepared) {
     if (item.skip) continue;
     const op = { path: item.row.path, key: item.key, payloadSha256: hash(item.encoded), state: 'reserved_before_single_put' };
