@@ -700,7 +700,8 @@
         "app/lib/section-activation.ts",
         "app/home-performance.css",
         "app/app-experience.css",
-        "app/components/cookie-consent.tsx"
+        "app/components/cookie-consent.tsx",
+        "app/components/slider-rail-controls.tsx"
       ]
     },
     {
