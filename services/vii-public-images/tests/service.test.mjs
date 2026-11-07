@@ -9,8 +9,20 @@ function fixture(options={}) {
   const sources=[],native=[],writes=[];
   const sourceFetch=async(url,init)=>{sources.push({url,init});return new Response('source',{headers:{'Content-Type':'image/jpeg','Set-Cookie':'must-not-copy'}});};
   const IMAGES={input(stream){return {transform(transform){return {async output(output){native.push({transform,output});return {response:()=>new Response('transformed',{headers:{'Content-Type':output.format}})};}};}};}};
-  return {sources,native,writes,IMAGES,ctx:{waitUntil:p=>writes.push(p)},handler:createImageHandler({sourceFetch,sourceMs:200,transformMs:200,storedSource:()=>true,...options})};
+  return {sources,native,writes,IMAGES,ctx:{waitUntil:p=>writes.push(p)},handler:createImageHandler({sourceFetch,sourceMs:200,transformMs:200,firstResponseMs:0,storedSource:()=>true,...options})};
 }
+
+test('available capacity returns the native transform on the first response and writes the cache',async()=>{
+ const store=new Map(),edge={match:async key=>store.get(key.url)?.clone(),put:async(key,value)=>{store.set(key.url,value);}};
+ const f=fixture({edge:()=>edge,firstResponseMs:350});const response=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);
+ assert.equal(response.status,200);assert.equal(response.headers.get('X-VII-Image-Engine'),'cloudflare-images');await Promise.all(f.writes);assert.equal(store.size,1);
+});
+
+test('slow first transform keeps bounded original fallback and completes the cache asynchronously',async()=>{
+ let release;const store=new Map(),edge={match:async key=>store.get(key.url)?.clone(),put:async(key,value)=>{store.set(key.url,value);}};
+ const f=fixture({edge:()=>edge,firstResponseMs:10,sourceFetch:()=>new Promise(resolve=>{release=()=>resolve(new Response('source',{headers:{'Content-Type':'image/jpeg'}}));})});
+ const response=await f.handler.fetch(new Request(href()),{IMAGES:f.IMAGES},f.ctx);assert.equal(response.status,302);release();await Promise.all(f.writes);assert.equal(store.size,1);
+});
 
 test('new unlisted supplier photos have a working same-file cold fallback and warm native output',async()=>{
  const store=new Map(),edge={match:async key=>store.get(key.url)?.clone(),put:async(key,value)=>{store.set(key.url,value);}};

@@ -23,12 +23,18 @@ function boundedBody(body: ReadableStream<Uint8Array>) {
   } }));
 }
 async function bounded<T>(operation: Promise<T>, ms: number) {
+  if (ms <= 0) {
+    // A non-positive budget is an explicit test/guard override: do not let a
+    // synchronously-resolved transform win the race by a microtask.
+    await Promise.resolve();
+    throw new Error("timeout");
+  }
   let timer: ReturnType<typeof setTimeout> | undefined;
   try { return await Promise.race([operation, new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), ms); })]); }
   finally { if (timer) clearTimeout(timer); }
 }
 /** No cookies, credentials or arbitrary origin URLs are forwarded. */
-export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?: () => EdgeCache | undefined; sourceMs?: number; transformMs?: number; cacheMs?: number; cacheWriteMs?: number; now?: () => number; maxAdmissions?: number; storedSource?:(path:string)=>boolean } = {}) {
+export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?: () => EdgeCache | undefined; sourceMs?: number; transformMs?: number; firstResponseMs?: number; cacheMs?: number; cacheWriteMs?: number; now?: () => number; maxAdmissions?: number; storedSource?:(path:string)=>boolean } = {}) {
   // Per-isolate overload containment, not an account-wide billing ceiling.
   const active = new Set<string>();
   const recent = new Map<string, number>();
@@ -94,8 +100,16 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
     };
     if (ctx) {
       if (!edge) { active.delete(key.url); return originalFallback("cache-unavailable"); }
-      ctx.waitUntil(transform().then(async result => {
-        if (result.headers.get("X-VII-Image-Engine") === "cloudflare-images") await bounded(edge.put(key, result), options.cacheWriteMs ?? 1500);
+      const work = transform();
+      const early = await bounded(work, options.firstResponseMs ?? 350).catch(() => undefined);
+      if (early) {
+        if (early.headers.get("X-VII-Image-Engine") === "cloudflare-images") {
+          ctx.waitUntil(bounded(edge.put(key, early.clone()), options.cacheWriteMs ?? 1500).catch(() => undefined));
+        }
+        return early;
+      }
+      ctx.waitUntil(work.then(async result => {
+        if (result.headers.get("X-VII-Image-Engine") === "cloudflare-images") await bounded(edge.put(key, result.clone()), options.cacheWriteMs ?? 1500);
       }).catch(() => undefined));
       return originalFallback("warming");
     }
