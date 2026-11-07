@@ -4,6 +4,7 @@ import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type Pu
 import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
 import {readRetainedAsset,retainedAssetRequest} from './retained-assets.ts';
 import { experienceGateway, type ExperienceGatewayEnvironment } from './experience-gateway.ts';
+import { deliverPublicRubikFont } from './font-delivery.ts';
 type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -170,7 +171,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
     const upstream = new Request(new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)), request);
-    const response=await fetch(new Request(upstream, { redirect: "manual" }));
+    const response=deliverPublicRubikFont(request, await fetch(new Request(upstream, { redirect: "manual" })));
     if((response.status===404||response.status===410)&&retainedAssetRequest(request)){
       const retained=await readRetainedAsset(request,env.PUBLIC_CACHE);
       if(retained){void response.body?.cancel().catch(()=>undefined);return retained;}
