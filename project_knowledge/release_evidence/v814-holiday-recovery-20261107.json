@@ -1,0 +1,192 @@
+{
+  "verdict": "ready",
+  "release": "v814 source c4be5e6f20cc9e12076b23ed6d31fc4c30a2ba4e build 2db55e54-88ac-33da-5c9b-adaccd2e634c",
+  "target": "PUBLIC https://vii.spaplus.co originalenvironment32",
+  "baseline": "v813, source5f8bca6b8b7c830b9bca46bf3649a27c688b3ccb, knownexpiredcachedofferlimitation",
+  "requested_outcome": "Repair repeated holiday loading, errors and rapid tab failures on the homepage and holiday audience pages, including existing browser sessions.",
+  "authorization_boundary": "Existing explicit VII repair and public publication authorization. No outbound messages, bookings, payments, schema, permissions, secrets, schedules or DNS changes.",
+  "changed_components": [
+    "Boundedsemanticreadiness",
+    "Lazyholidaygallerymetadataenrichment",
+    "Source-awareclientcacheadmissionandexpired200GETrecovery",
+    "Openholidayofferexpiryandfreshfallback",
+    "HolidayHTTPno-store",
+    "Mandatorycold/source-expiryregressionchecks"
+  ],
+  "affected_family": [
+    {
+      "id": "HOME",
+      "surface": "Vacationnearandall6holidayhomepagechoices"
+    },
+    {
+      "id": "HOLIDAY",
+      "surface": "Holidaycouple/family/groupandperiodpages"
+    },
+    {
+      "id": "CACHE",
+      "surface": "Shareddiscoveryclientcache,failure,retry,expiryandcancellation"
+    },
+    {
+      "id": "RELEASE",
+      "surface": "ExactmanagedSiteartifact,existing3auxWorkerconfigalignment,DB/UPLOADS,managedredirectandrollback"
+    }
+  ],
+  "characteristics": {
+    "stateful": true,
+    "responsive": true
+  },
+  "checks": [
+    {
+      "id": "EXACT-QUALIFICATION",
+      "family_ids": [
+        "RELEASE"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "Frozen C4 passed the source guard with 28 protected ancestors and 22 families, TypeScript, and 2,535 tests: 2,534 passed, zero failed and one existing skip. The actual archive audit compared 1,273 compiled files and 1,294 archive files, with all 318 server modules resolved. See root-v814-c4be-suite.log and root-v814-artifact-audit.json."
+    },
+    {
+      "id": "EXPIRED-CACHE-BEFORE-AFTER",
+      "family_ids": [
+        "CACHE",
+        "HOME"
+      ],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "The actual v813 module returned a cached offer at source age 61 minutes after accepting it at 59 minutes. The repaired module evicts it and reloads. Tests execute the actual cache and holiday effect: one GET recovery for expired HTTP200, bounded repeated expiry, POST once, pending values never stored, source expiry and cleanup. See tests/discovery-source-expiry-actual.test.mjs."
+    },
+    {
+      "id": "COLD-READINESS",
+      "family_ids": [
+        "CACHE",
+        "HOME",
+        "HOLIDAY"
+      ],
+      "state": "recovery",
+      "status": "passed",
+      "evidence": "The actual old v812 effect fails a valid snapshot ready after 20 seconds. The repaired effect settles within 32 seconds and six GET reads, without an unbounded loop. The original public cold request for holiday114/party6 returned refreshing, then 32 verified offers. See root-holiday-cold-probe.json and holiday-cold-recovery-actual.test.mjs."
+    },
+    {
+      "id": "SAME-FAILED-SESSION",
+      "family_ids": [
+        "HOME",
+        "CACHE"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "IAB56 retained the actual v813 Hanukkah error. Reloading v814 WITHOUT clearing browser data produced 20 Hanukkah cards in 1,105ms. All six holiday tabs returned 15 to 20 cards with matching dates and no errors. See root-v814-public-browser-observations.json."
+    },
+    {
+      "id": "RAPID-CHOICE",
+      "family_ids": [
+        "HOME",
+        "HOLIDAY"
+      ],
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "The actual rapid Ramadan, Valentines, Eid sequence ended on the selected Eid tab with March10-12 offers. Mobile party and period changes retained the correct guests and dates."
+    },
+    {
+      "id": "MOBILE-RELOAD",
+      "family_ids": [
+        "HOLIDAY",
+        "CACHE"
+      ],
+      "state": "reload",
+      "status": "passed",
+      "evidence": "The actual mobile browser had inner width390px. Family6/middle returned32 offers for December6-8; group20/middle and ending each returned11 offers. Reload retained the selection and settled without manual retry."
+    },
+    {
+      "id": "VISIBLE-MOBILE",
+      "family_ids": [
+        "HOME",
+        "HOLIDAY"
+      ],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "Desktop and actual390px mobile UI were visually inspected. Client width376 equalled scroll width376. The modern Rubik/Heebo/Assistant font stack remained, and the console error list was empty. Temporary viewport overrides were reset and owned test tabs closed."
+    },
+    {
+      "id": "SHARED-CONSUMERS",
+      "family_ids": [
+        "HOME",
+        "CACHE"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "Public near-vacation20, holiday20 and event36 cards plus Spa package offers were populated without terminal errors. Response validation is explicitly enabled only for vacation and holiday offers. Booking separation and POST retry guards passed."
+    },
+    {
+      "id": "PUBLIC-HTTP-POLICY",
+      "family_ids": [
+        "CACHE",
+        "RELEASE"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "The actual public holiday API returned200 on build2db55e54, 56 verified offers and Cache-Control:no-store. Old HTTP200 payloads are validated; an expired payload permits one GET reload. See root-v814-public-cache-policy.json."
+    },
+    {
+      "id": "RUNTIME-PRESERVATION",
+      "family_ids": [
+        "RELEASE"
+      ],
+      "state": "permission",
+      "status": "passed",
+      "evidence": "The three existing auxiliary Worker module packages were retained. Only expected app source/build variables changed. Module, runtime, binding, access and route readbacks passed after activation. All21 unrelated routes, SCHEDULE_ENABLED=false and the original DB/UPLOADS in PUBLIC env32 were preserved. The managed1891 alias still resolves directly301 to its active200 target on v814. See phase814-activate-*-operation.json and root-v814-managed-alias-guard.log."
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Retainedexactv813Siteversionappgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d9652b60fe3c819199712c86177f9b4a plusrecordedpriorauxWorkerconfigversions.",
+    "verification": "Ownerreconciledoriginaldeploymentand saved/deployedv814once;phase814activationhelpersverifiedpriorversionexists. Rollbackhasdocumentedoldercachelimitation, notapprovalthatv813isfreeofthisbug."
+  },
+  "remaining_blockers": [],
+  "source": "c4be5e6f20cc9e12076b23ed6d31fc4c30a2ba4e",
+  "tree": "833720eab5890da19fd01568c25245e76094bdec",
+  "managedCommit": "b257804824d4694f0e4d8574a4826ea006b28ef6",
+  "build": "2db55e54-88ac-33da-5c9b-adaccd2e634c",
+  "deployment": {
+    "operation": "vii-holiday-expiry-v814-20261107",
+    "attempt": 1,
+    "state": "succeeded_observed_owner_terminal_public_generation",
+    "source": "c4be5e6f20cc9e12076b23ed6d31fc4c30a2ba4e",
+    "tree": "833720eab5890da19fd01568c25245e76094bdec",
+    "managedCommit": "b257804824d4694f0e4d8574a4826ea006b28ef6",
+    "build": "2db55e54-88ac-33da-5c9b-adaccd2e634c",
+    "archiveSha256": "fbd05c77c85eac1f010ff7f502b3fc5374e140862457f29cd43c07a6bb2eebe9",
+    "archiveBytes": 109694626,
+    "tests": {
+      "total": 2535,
+      "passed": 2534,
+      "failed": 0,
+      "cancelled": 0,
+      "existingSkipped": 1,
+      "durationMs": 138814.7053
+    },
+    "environment": 32,
+    "audience": "PUBLIC",
+    "rollbackVersion": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d9652b60fe3c819199712c86177f9b4a",
+    "rollbackDeployment": "appgdep_6aee6bbe4174819189ccb7b97da3d073",
+    "startedAt": "2026-11-07T00:29:44.244809+00:00",
+    "evidence": [
+      ".qa-output/root-v814-c4be-suite.log",
+      ".qa-output/root-v814-final-tsc.log",
+      ".qa-output/root-v814-c4be-source-guard.json",
+      ".qa-output/root-v814-artifact-audit.json"
+    ],
+    "preparedArchiveTransport": "OriginalUIstayedWorkingwithoutshowingreceivedmessage; oneauthorizedreloadrevealedserverpersistedpreparedresponseC4exactarchive. No duplicatedsend/operation.",
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_75ab037f44c8819192867942a1416f69",
+    "deploymentId": "appgdep_6aee715d45fc81918a817d202f34ff49",
+    "observedAt": "2026-11-07T00:33:19.434971+00:00"
+  },
+  "wholeProjectLaunchApproved": false,
+  "scope_limits": [
+    "Scopedholiday/discoveryrepair,notcompletionofunifiedV+QQQAAAprogram.",
+    "Timingobservationsarenotfieldp75orfastest-sitecertification;firstuncachedproviderrequestsmaystilltakeseconds.",
+    "Originalfailedfixture/harnessreportsretained;finalC4fullsuitehaszerofailures."
+  ],
+  "publicBrowserEvidence": ".qa-output/root-v814-public-browser-observations.json",
+  "runtimePreservationProof": ".qa-output/root-v814-runtime-preservation.json",
+  "resourceCleanupProof": ".qa-output/root-holiday-resource-final.json"
+}

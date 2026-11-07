@@ -5,7 +5,7 @@
   "task_type": "staged implementation",
   "goal": "Implement approved V and QQQAAA plans as one VII project; defer document3 corrective backlog",
   "created_at": "2026-11-05T21:05:54.154497Z",
-  "updated_at": "2026-11-06T23:48:56.142343Z",
+  "updated_at": "2026-11-07T00:40:26.808445Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -188,7 +188,7 @@
         "human_action_required": false,
         "resume_condition": "Continue local implementation and candidate verification. Use verified existing Site identity at release; deployment actions and exact version still require their own validation.",
         "next_action": "Build frozen local candidate; publication not yet attempted",
-        "verified_at": "2026-11-05T21:40:31.279468+00:00",
+        "verified_at": "2026-11-05T23:40:31.279468+02:00",
         "verified_result": "Authenticated official Sites UI opened exact VII project settings, existing public domain and Connected original database with quality/catalog tables; no settings or data changed."
       },
       "updated_at": "2026-11-05T21:41:04.168262Z"
@@ -346,7 +346,7 @@
         "Phase22 local source/TypeScript,93controller tests and15interface tests passed. Actual workerd source attestation,private D1 registration and authenticated subject read passed. Full runtime suite positive case uses controlled SQLite CAS receipts, not cloud execution. Publication remains false. See PHASE_22.md."
       ],
       "reason": "Actual deployed matching-generation execution and provider-authorized release readback remain required",
-      "updated_at": "2026-11-06T08:35:26.753290+00:00"
+      "updated_at": "2026-11-06T10:35:26.75329+02:00"
     },
     {
       "id": "quality:discovery-snapshot-readiness",
@@ -512,7 +512,7 @@
       "status": "pending",
       "evidence": [],
       "reason": null,
-      "updated_at": "2026-11-06T17:09:46.537845+00:00"
+      "updated_at": "2026-11-06T19:09:46.537845+02:00"
     },
     {
       "id": "performance:origin-miss-latency",
@@ -522,7 +522,7 @@
       "status": "pending",
       "evidence": [],
       "reason": null,
-      "updated_at": "2026-11-06T17:09:46.537845+00:00"
+      "updated_at": "2026-11-06T19:09:46.537845+02:00"
     },
     {
       "id": "feedback:20261106:approved-results-parity",
@@ -697,9 +697,62 @@
       "source": "user_correction",
       "statement": "Public v812 holiday rail ends in error after loading; reproduce cold/expired-cache path and fix underlying readiness delivery rather than hide error.",
       "acceptance_check": "Default Sigd and holiday switching recover automatically from an absent or expired snapshot within a bounded lifecycle; prove actual public desktop/mobile and slow-provider regression without stale cross-selection offers.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "C:/Users/Adir/Documents/vii.co.il/.release-v790-candidate/project_knowledge/release_evidence/v814-holiday-recovery-20261107.json; actual old effect rejects20s snapshot, repaired max32s/6GET, exact v814 all6 publictabs and mobile period changes verified."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-07T00:40:26.604635Z"
+    },
+    {
+      "id": "feedback:20261107:holiday-source-expiry",
+      "source": "user_correction",
+      "statement": "Holiday failures also occur after source offer expiry while the client or HTTP cache still returns200; fix the existing-session path and open-page expiry.",
+      "acceptance_check": "Actual old/new59m-to61m cache behavior, one bounded GET reload, no POST retry, and same failed public browser session recovers without clearing data; all six holiday tabs and mobile party/period/reload work on exact deployed build.",
+      "status": "passed",
+      "evidence": [
+        "C:/Users/Adir/Documents/vii.co.il/.release-v790-candidate/project_knowledge/release_evidence/v814-holiday-recovery-20261107.json; same IAB56 failedHanukkah session recovered20cards1105ms without clearingstorage; actual old/new cache and holiday source-expiry effect regressions passed; public API no-store and all3runtime configurations verified."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-07T00:40:26.808422Z"
+    },
+    {
+      "id": "feedback:20261107:event-filter-identity",
+      "source": "user_correction",
+      "statement": "Keep route region/type selected and return matching event venues; audit shared worlds. LOCAL SAVE ONLY, NO PUBLICATION.",
+      "acceptance_check": "Exact south/north loft reproduction, singular/plural matching, retained options through catalog refresh/reload/back/reset, other-world regressions, typecheck and local browser evidence.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/event-filter-local-20261107.json",
+        ".qa-output/event-filter-regressions.log:57 passed0failed; actual desktop/mobile and reload/back/reset; no publication."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-07T02:55:44.589811+02:00"
+    },
+    {
+      "id": "feedback:20261107:hourly-map-result-layout",
+      "source": "user_correction",
+      "statement": "Hourly grid/list beside map must retain complete cards and match vacation view semantics. Local repair/save only, no publication.",
+      "acceptance_check": "Reproduce list two-column overflow; verify one row per list card and responsive complete tiles in hourly and shared spa map, desktop/narrow desktop/mobile. Preserve previous event fixes.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/hourly-map-layout-local-20261107.json",
+        "35 tests passed; actual1280/1120 desktop and390 mobile; grid/list with/without map; spa shared list. No publication."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-07T03:05:51.315908+02:00"
+    },
+    {
+      "id": "feedback:20261107:place-open-blank-latency",
+      "source": "user_correction",
+      "statement": "Opening business detail pages across worlds takes too long and shows blank screen. Diagnose critical path, repair and save without publication.",
+      "acceptance_check": "Measure public document timing and stream visibility; compare actual server dependencies and local slow-path tests across vacation/events/spa/hourly; retain all place facts/media/related content and source authority. No publishing.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/place-open-latency-20261107.json",
+        "Local causal repair verified; production improvement not measured and publication not authorized."
+      ],
+      "reason": "Local repair/save scope completed, no deployment."
     }
   ],
   "verification_status": "in_progress",
