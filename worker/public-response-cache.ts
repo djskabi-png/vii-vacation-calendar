@@ -1,6 +1,7 @@
 // Only anonymous discovery responses enter this cache. Transactional reads,
 // sessions, actions and unknown cookies always take the authoritative path.
 import { publicDocumentClock, publicDocumentExpiry } from "../shared/public-document-clock.ts";
+import { publicBusinessContext } from "../shared/public-business-context.ts";
 import { claimPublicCacheCapture, claimPublicCacheWrite, readBoundedCacheBody } from "./public-cache-work.ts";
 export type PublicCachePolicy = {
   key: string;
@@ -136,12 +137,12 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
     if (navigation) {
       if (!(request.headers.get("Accept") || "").includes("text/x-component")) return null;
       kind = "navigation";
-      query = normalizedPublicQuery(url, new Set([...publicDocumentQueryKeys, "_rsc"]));
+      query = normalizedPublicQuery(url, new Set([...publicDocumentQueryKeys, "_rsc", ...(publicBusinessContext(url) ? ["roomID", "price"] : [])]));
     } else {
       if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return null;
       if (!(request.headers.get("Accept") || "").includes("text/html")) return null;
       kind = "document";
-      query = normalizedPublicQuery(url, publicDocumentQueryKeys);
+      query = normalizedPublicQuery(url, publicBusinessContext(url) ? new Set([...publicDocumentQueryKeys, "roomID", "price"]) : publicDocumentQueryKeys);
     }
     home = path === "/" || /^\/(?:en|ru|fr)\/?$/.test(path);
   }

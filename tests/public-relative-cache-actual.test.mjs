@@ -92,3 +92,37 @@ test('render finishing after its captured cutoff is not admitted with a restarte
   assert.equal(result.headers.get('X-VII-Page-Cache'), null);
   await ctx.settle();
 });
+
+test('real card-to-business contexts cache exact unit/price variants without admitting malformed or private reads', async t => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse('2026-11-07T13:00:00Z') });
+  const h = harness();
+  const query = 'id=vacation-296&from=2026-11-13&till=2026-11-15&guests=2&roomID=1487&source=search&period=friday-weekend&price=725';
+  try {
+    for (const rsc of [false, true]) {
+      const path = '/business' + (rsc ? '.rsc?_rsc=context&' : '?') + query;
+      const req = request(path, rsc); const ctx = context();
+      const policy = await publicCachePolicy(req, new URL(req.url), build);
+      assert.equal(policy.ttlSeconds, 180);
+      await (await edge.fetch(req, env, ctx)).arrayBuffer(); await ctx.settle();
+      const calls = h.calls(); const hit = await edge.fetch(req, env, ctx);
+      assert.equal(hit.headers.get('X-VII-Edge-Delivery'), 'HIT'); assert.equal(h.calls(), calls);
+      for (const variant of [path.replace('roomID=1487', 'roomID=1488'), path.replace('price=725', 'price=726'), path.replace('guests=2', 'guests=3')]) {
+        const changed = request(variant, rsc);
+        assert.notEqual((await publicCachePolicy(changed, new URL(changed.url), build)).key, policy.key);
+        const miss = await edge.fetch(changed, env, ctx); await miss.arrayBuffer(); await ctx.settle();
+        assert.equal(miss.headers.get('X-VII-Edge-Delivery'), 'MISS');
+      }
+    }
+    for (const bad of [query.replace('&guests=2',''), query.replace('roomID=1487','roomID=-1'), query+'&roomID=999', query.replace('price=725','price=1000001'), query.replace('price=725','price=NaN'), query.replace('price=725','price=0'), query.replace('2026-11-13','2026-02-31')]) {
+      const req = request('/business?' + bad), ctx = context();
+      assert.equal(await publicCachePolicy(req, new URL(req.url), build), null);
+      const result = await edge.fetch(req, env, ctx); await result.arrayBuffer(); await ctx.settle();
+      assert.equal(result.headers.get('X-VII-Edge-Delivery'), null);
+    }
+    for (const Cookie of ['unknown=x', 'vii_customer_session=x; unrelated=y']) {
+      const req = new Request(base+'/business?'+query, {headers:{Accept:'text/html',Cookie}});
+      const result = await edge.fetch(req, env, context());
+      assert.equal(result.headers.get('X-VII-Edge-Delivery'), null);
+    }
+  } finally { h.restore(); }
+});

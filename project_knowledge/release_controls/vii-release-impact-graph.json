@@ -872,6 +872,7 @@
         "worker/public-response-cache.ts",
         "worker/public-cache-work.ts",
         "shared/public-document-clock.ts",
+        "shared/public-business-context.ts",
         "worker/index.ts"
       ]
     },

@@ -5,7 +5,7 @@ import { dealClockKey } from "../app/lib/deal-clock.ts";
 export function publicDocumentClock(pathname: string, now = new Date()) {
   const path = (pathname.endsWith(".rsc") ? pathname.slice(0, -4) || "/" : pathname)
     .replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
-  return path === "/" || /^\/(?:last-minute|weekend|holidays|events|spas)(?:\/|$)/.test(path)
+  return path === "/" || /^\/(?:business|last-minute|weekend|holidays|events|spas)(?:\/|$)/.test(path)
     ? dealClockKey(now) : null;
 }
 

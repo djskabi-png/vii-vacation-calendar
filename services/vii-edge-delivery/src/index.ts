@@ -6,6 +6,7 @@ import {readRetainedAsset,retainedAssetRequest} from './retained-assets.ts';
 import { experienceGateway, type ExperienceGatewayEnvironment } from './experience-gateway.ts';
 import { deliverPublicRubikFont } from './font-delivery.ts';
 import { publicDocumentClock, publicDocumentExpiry } from '../../../shared/public-document-clock.ts';
+import { publicBusinessContext } from '../../../shared/public-business-context.ts';
 type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -90,7 +91,8 @@ function eligible(request: Request, url: URL) {
   const path = (rsc ? url.pathname.slice(0, -4) || "/" : url.pathname).replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
   if (!/^\/(?:$|last-minute(?:\/|$)|weekend(?:\/|$)|search(?:\/|$)|events(?:\/|$)|spas(?:\/|$)|hourly(?:\/|$)|vacations(?:\/|$)|villas(?:\/|$)|zimmers(?:\/|$)|suites(?:\/|$)|luxury-suites(?:\/|$)|suite-complexes(?:\/|$)|vacation-apartments(?:\/|$)|hospitality-complexes(?:\/|$)|business(?:\/|$)|discover\/place(?:\/|$)|holidays(?:\/|$)|providers(?:\/|$)|attractions(?:\/|$)|activities(?:\/|$)|trails(?:\/|$)|destinations(?:\/|$)|corporate(?:\/|$)|guides(?:\/|$)|questions(?:\/|$)|gift-card(?:\/|$)|contact(?:\/|$)|accessibility(?:\/|$)|legal(?:\/|$))/.test(path)) return false;
   if (rsc ? !(request.headers.get("Accept") || "").includes("text/x-component") : !(request.headers.get("Accept") || "").includes("text/html")) return false;
-  const seen = new Set(); for (const key of url.searchParams.keys()) { if (allowedUtm.has(key)) continue; if (!allowedQuery.has(key) || seen.has(key)) return false; seen.add(key); }
+  const businessContext = publicBusinessContext(url);
+  const seen = new Set(); for (const key of url.searchParams.keys()) { if (allowedUtm.has(key)) continue; if ((!allowedQuery.has(key) && !(businessContext && (key === 'roomID' || key === 'price'))) || seen.has(key)) return false; seen.add(key); }
   if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return rsc;
   return !rsc;
 }
