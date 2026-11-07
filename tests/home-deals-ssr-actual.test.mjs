@@ -14,7 +14,11 @@ import assert from 'node:assert/strict';
 const compiled=ts.transpileModule(fs.readFileSync('app/components/home-live-deals.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
 function fixture(clock=null) {
  const module={exports:{}};
+ const hookModule={exports:{}};
+ const hookJs=ts.transpileModule(fs.readFileSync('app/components/use-paced-rail-render.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ vm.runInNewContext(hookJs,{module:hookModule,exports:hookModule.exports,require:n=>n==='react'?React:{schedulePacedRailRender:()=>{throw Error('SSR must not schedule');}}});
  const mocks={
+ './use-paced-rail-render':hookModule.exports,
  'react':React,'react/jsx-runtime':jsx,'next/link':{default:({children,href})=>React.createElement('a',{href},children)},
  './use-section-activation':{useSectionActivation:()=>true},
  '../lib/vii-home-deals':{homeDealDates,homeDealPeriods},
@@ -57,4 +61,10 @@ test('streaming fallback preserves rail geometry without interactive controls or
 test('mounted clock cannot resurrect an expired seed even while its date snapshot stays stable',()=>{
  const original=Date.now;Date.now=()=>now.getTime()+60*60_000;
  try {assert.doesNotMatch(fixture({key:dealClockKey(now),now})({initialData:seed}),/data-test-card/);} finally {Date.now=original;}
+});
+
+test('homepage SSR mounts only the useful first row while retaining all twenty offers for paced activation',()=>{
+ const complete={...seed,deals:Array.from({length:20},(_,i)=>({...seed.deals[0],siteID:i+1,name:'Retained card '+i}))};
+ const html=fixture()({initialData:complete,deferUntilNearViewport:true});assert.equal((html.match(/data-test-card=/g)||[]).length,4);assert.equal(complete.deals.length,20);
+ const standalone=fixture()({initialData:complete,layout:'grid'});assert.equal((standalone.match(/data-test-card=/g)||[]).length,20);
 });

@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element, react-hooks/set-state-in-effect */
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePacedRailRender } from "./use-paced-rail-render";
 import { useSectionActivation } from "./use-section-activation";
 import { homeDealDates, homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import type { HomeHoliday } from "../lib/vii-home-holidays";
@@ -267,11 +268,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
-  const eligibleDeals = data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [];
+  const eligibleDeals = useMemo(() => data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [data?.deals, clock?.key]);
   // The API already applies publication, online-booking and editorial order.
   // Keep that exact commercial order at the final browser boundary. A
   // document seed here made identical API responses render differently.
-  const displayedDeals = canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID);
+  const displayedDeals = useMemo(() => canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID), [eligibleDeals]);
+  const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
@@ -282,6 +284,20 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     ru: `${displayedDealCount} доступных вариантов`,
     fr: `${displayedDealCount} séjours disponibles`,
   } as const)[language];
+
+  // Stable element identities let React retain already-mounted cards while
+  // the paced window grows; each batch mounts only its new cards.
+  const dealCards = useMemo(() => displayedDeals.map((deal) => {
+            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
+            return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
+              <PropertyCard
+                property={dealProperty(deal)}
+                selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
+                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
+                detailHref={href}
+              />
+            </div>;
+          }), [displayedDeals, mode, currentHoliday?.id, period]);
 
   return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
@@ -316,17 +332,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         }}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {data?.deals.length ? <div id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
-          {displayedDeals.map((deal) => {
-            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
-            return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
-              <PropertyCard
-                property={dealProperty(deal)}
-                selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
-                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
-                detailHref={href}
-              />
-            </div>;
-          })}
+          {dealCards.slice(0, renderedCount)}
         </div> : null}
       </div>
     </div>

@@ -29,7 +29,8 @@ test("permanent last-minute page uses verified tomorrow offers without a holiday
   assert.match(component, /!fixedPeriod && result\.display/);
   assert.match(component, /home-live-deals__track--grid/);
   assert.match(component, /displayedDeals\.map/);
-  assert.doesNotMatch(component, /displayedDeals\.slice/);
+  assert.match(component, /deferUntilNearViewport && layout === "rail"/);
+  assert.match(await read("app/components/use-paced-rail-render.ts"), /!enabled \? total/);
 });
 
 test("last-minute page includes SEO, breadcrumbs, FAQ and responsive media", async () => {

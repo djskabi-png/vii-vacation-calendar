@@ -811,6 +811,8 @@
         "app/api/vii/home-deals/",
         "app/components/home-live-deals.tsx",
         "app/components/home-live-sections-seeded.tsx",
+        "app/components/use-paced-rail-render.ts",
+        "app/lib/paced-rail-render.ts",
         "app/lib/home-deals-seed.ts",
         "app/lib/home-deals-snapshot.ts",
         "app/lib/discovery-offer-cache.ts",
