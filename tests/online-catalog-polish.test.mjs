@@ -116,8 +116,12 @@ test("business and event detail pages render accepted platform snapshots without
     assert.doesNotMatch(source, /liveSupplierPlaceDetail/);
   }
   assert.match(business, /Promise\.all\(\[/);
-  assert.match(eventQuery, /relatedPlaces = nearbyRecommendations/);
-  assert.match(eventPath, /relatedPlaces = nearbyRecommendations/);
+  assert.match(eventQuery, /const relatedContent = <Suspense fallback=\{null\}>[\s\S]*EventRelatedContent/);
+  assert.match(eventQuery, /async function EventRelatedContent[\s\S]*loadPlaces\(\)/);
+  assert.match(eventPath, /const relatedContent = <Suspense fallback=\{null\}>[\s\S]*EventRelatedSlotAsync/);
+  assert.match(eventPath, /async function EventRelatedSlotAsync[\s\S]*loadPlaces\(\)/);
+  assert.doesNotMatch(eventQuery, /relatedPlaces = nearbyRecommendations/);
+  assert.doesNotMatch(eventPath, /relatedPlaces = nearbyRecommendations/);
   assert.doesNotMatch(businessClient, /import \{[^}]*\bproperties\b[^}]*\} from "\.\.\/data\/site-data"/);
   assert.doesNotMatch(businessClient, /import \{[^}]*\bdiscoveryItems\b[^}]*\} from "\.\.\/data\/world-data"/);
   assert.doesNotMatch(eventClient, /import \{[^}]*\beventPlaces\b[^}]*\} from "\.\.\/\.\.\/data\/site-data"/);
