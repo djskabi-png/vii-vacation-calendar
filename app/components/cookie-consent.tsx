@@ -55,7 +55,9 @@ const copy: Record<SiteLanguage, {
 export function CookieConsent() {
   const { language } = useSiteLanguage();
   const labels = copy[language];
-  const [visible, setVisible] = useState(false);
+  // Render the first-visit notice in SSR HTML. A tiny head bootstrap hides it
+  // before paint for returning visitors, avoiding a post-hydration layout shift.
+  const [visible, setVisible] = useState(true);
   const [settings, setSettings] = useState(false);
   const [analytics, setAnalytics] = useState(false);
 

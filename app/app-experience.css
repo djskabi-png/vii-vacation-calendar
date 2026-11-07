@@ -152,6 +152,10 @@ select:focus {
   overflow: visible;
 }
 
+/* Returning visitors are hidden before React hydration by the consent bootstrap.
+ * Settings remain visible when explicitly reopened. */
+[data-vii-cookie-choice="saved"] .cookie-card--notice { display: none; }
+
 [data-horizontal-rail],
 .provider-detail-nav,
 .spa-detail-nav,
