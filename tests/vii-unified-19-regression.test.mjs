@@ -69,7 +69,8 @@ test("supplier gallery names and membership remain authoritative and shareable",
 
 test("catalog state read failures reach the immutable accepted fallback", async () => {
   const source = await read("app/lib/public-catalog-read.ts");
-  assert.match(source, /try\s*\{\s*state = await readSupplierCatalogState\(db, world\)/);
+  assert.match(source, /const bootstrap = await readCatalogBootstrap\(db, world\)/);
+  assert.match(source, /if \(bootstrap\.stateError\) throw bootstrap\.stateError/);
   assert.match(source, /public_catalog_state_fallback:\$\{world\}/);
   assert.match(source, /return withEditorialOverlays\(world, await publicSummaries\(world, bundled\(world\)\), await overlays\)/);
 });
