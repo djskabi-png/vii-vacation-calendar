@@ -1,6 +1,7 @@
 "use client";
 import { ExpandableDescription } from "../../components/expandable-description";
 import { localizedPlaceBreadcrumbs } from "../../lib/localized-place-breadcrumbs";
+import type { SearchDepthInventoryPlace } from "../../lib/search-depth-model";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 
 /* eslint-disable @next/next/no-img-element */
@@ -325,8 +326,8 @@ function ActivityContent({ itemId, details }: { itemId: string; details: Activit
   </>;
 }
 
-export default function DiscoveryPlacePage({ initialId, initialItem, relatedItems, initialSpaDetails, initialHourlyDetails }:
-  { initialId: string; initialItem?: DiscoveryItem; relatedItems?: DiscoveryItem[];
+export default function DiscoveryPlacePage({ initialId, initialItem, relatedItems, searchInventory, initialSpaDetails, initialHourlyDetails }:
+  { initialId: string; initialItem?: DiscoveryItem; relatedItems?: DiscoveryItem[]; searchInventory?: SearchDepthInventoryPlace[];
     initialSpaDetails?: SpaDetails; initialHourlyDetails?: HourlyDetails }) {
   const { language, translate } = useSiteLanguage();
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
@@ -425,7 +426,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       {item.world === "hourly" ? <FloatingContactActions world="hourly" placeId={item.id} placeName={item.name} phone={item.phone} whatsapp={item.whatsapp} serviceName="חדרים לפי שעה" /> : null}
       {item.world === "providers" ? <FloatingContactActions world="providers" placeId={item.id} placeName={item.name} phone={providerDetails?.phone || item.phone} whatsapp={providerDetails?.bookingMode === "whatsapp" ? providerDetails.phone : item.whatsapp} serviceName={providerDetails?.services[0]?.title || "שירות"} /> : null}
       {(item.world === "spa" || item.world === "activities") && onlineHref ? <FloatingContactActions world={item.world} placeId={item.id} placeName={item.name} onlineHref={onlineHref} onlineLabel={onlineLabel} /> : null}
-      {(item.world === "spa" || item.world === "hourly" || item.world === "providers" || item.world === "activities") ? <SearchAfterResults world={item.world} discoveryOnly location={item.world === "providers" ? providerDepthLocation(item.serviceAreas) : item.world === "activities" ? activityRegion(item) || undefined : item.location} inventory={[item, ...(relatedItems || []).filter(entry => entry.world === item.world)].map(entry => ({ location: entry.location, area: item.world === "activities" ? activityRegion(entry) || "" : entry.area, type: item.world === "activities" ? activityType(entry) || undefined : undefined, serviceAreas: entry.serviceAreas }))} /> : null}
+      {(item.world === "spa" || item.world === "hourly" || item.world === "providers" || item.world === "activities") ? <SearchAfterResults world={item.world} discoveryOnly location={item.world === "providers" ? providerDepthLocation(item.serviceAreas) : item.world === "activities" ? activityRegion(item) || undefined : item.location} inventory={searchInventory || [item, ...(relatedItems || []).filter(entry => entry.world === item.world)].map(entry => ({ location: entry.location, area: item.world === "activities" ? activityRegion(entry) || "" : entry.area, type: item.world === "activities" ? activityType(entry) || undefined : undefined, serviceAreas: entry.serviceAreas }))} /> : null}
     </main>
     <GalleryExperience key={`${item.id}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={{ ...gallerySubject, name: localizedItemName }} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
   </PageShell>;

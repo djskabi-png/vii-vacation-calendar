@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { cache } from "react";
+import { cache, Suspense } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import BusinessPage from "./client-page";
+import BusinessPage, { BusinessComplementarySections } from "./client-page";
 import { getListingOfferings, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
 import { bundledPublicCatalogSummaries, publicCatalogDetail, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
@@ -71,6 +71,20 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
+async function BusinessComplementaryContent({ property }: { property: Property }) {
+  const fallbackAttractions = discoveryItems.filter((item) => item.world === "activities");
+  const [trailInventory, spaSites, attractions] = await Promise.all([
+    managedTrails(trails).catch(() => trails),
+    bundledPublicCatalogSummaries<SpaPlusSite>("spa").catch(() => [] as SpaPlusSite[]),
+    managedDiscoveryItems(fallbackAttractions, "attractions").catch(() => fallbackAttractions),
+  ]);
+  const complementaryInventory = nearbyRecommendations([...spaPlacesFromSites(spaSites), ...attractions], property, { key: (item) => `${item.world}:${item.id}`, limit: 6 }).items;
+  const localTrails = nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng });
+  const providers = discoveryItems.filter((item) => item.world === "providers" && item.image);
+  const providerInventory = [...providers.filter((item) => item.id === "masu-home-wellness"), ...providers.filter((item) => item.id !== "masu-home-wellness")].slice(0, 6);
+  return <BusinessComplementarySections property={{ name: property.name, area: property.area, location: property.location, lat: property.lat, lng: property.lng }} trailInventory={localTrails} complementaryInventory={complementaryInventory} providerInventory={providerInventory} />;
+}
+
 export default async function Page({ searchParams }: Props) {
   const params = normalizedParams(await searchParams);
   const mappedSlug = supplierLegacySlug(params.id, "vacations");
@@ -88,17 +102,10 @@ export default async function Page({ searchParams }: Props) {
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
   const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
-  const fallbackAttractions = discoveryItems.filter((item) => item.world === "activities");
-  const [property, properties, acceptedDetail, trailInventory, spaSites, attractions] = await Promise.all([
+  const [property, properties, acceptedDetail] = await Promise.all([
     resolveProperty(params.id),
     loadProperties(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
-    managedTrails(trails).catch(() => trails),
-    bundledPublicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
-      console.warn("nearby_spa_catalog_unavailable");
-      return [] as SpaPlusSite[];
-    }),
-    managedDiscoveryItems(fallbackAttractions, "attractions").catch(() => fallbackAttractions),
   ]);
   if (!property) notFound();
   // Public pages render from the accepted platform snapshot. Supplier refreshes
@@ -108,12 +115,7 @@ export default async function Page({ searchParams }: Props) {
   const supplierDetail = acceptedDetail
     ? { ...acceptedDetail, policy: { ...acceptedDetail.policy, ...(agreementDetail?.policy.cancellationTerms ? { cancellationTerms: agreementDetail.policy.cancellationTerms } : {}) } }
     : agreementDetail;
-  const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
-  const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
-  const nearbyComplementaryInventory = nearbyRecommendations(complementaryInventory, property, { key: (item) => `${item.world}:${item.id}`, limit: 6 }).items;
-  const nearbyTrailInventory = nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng });
-  const nearbyProviderInventory = [...providerInventory.filter((item) => item.image && item.id === "masu-home-wellness"), ...providerInventory.filter((item) => item.image && item.id !== "masu-home-wellness")].slice(0, 6);
   // The accepted detail already owns the full galleries, room data and features.
   // Avoid serializing the same large media arrays twice into the business-page RSC payload.
   const initialProperty = supplierDetail ? { ...property, images: property.images.slice(0, 1), galleryGroups: undefined, roomOptions: undefined, featureGroups: undefined } : property;
@@ -157,6 +159,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(resolvedPropertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={initialProperty} relatedProperties={relatedProperties} trailInventory={nearbyTrailInventory} complementaryInventory={nearbyComplementaryInventory} providerInventory={nearbyProviderInventory} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={initialProperty} relatedProperties={relatedProperties} complementaryContent={<Suspense fallback={<section className="section property-complements" aria-busy="true" />}><BusinessComplementaryContent property={property} /></Suspense>} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { cache } from "react";
+import { cache, Suspense } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
+import { EventRelatedSlot } from "./related-slot";
 import { eventPlaceHref, type EventPlace } from "../../data/site-data";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
@@ -57,14 +58,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function Page({ searchParams }: Props) {
   const id = (await searchParams).id;
   const supplierId = /^event-(\d+)$/.exec(id || "")?.[1];
-  const [place, places, acceptedDetail] = await Promise.all([
+  const [place, acceptedDetail] = await Promise.all([
     resolvePlace(id),
-    loadPlaces(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null,
   ]);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   const supplierDetail = acceptedDetail || undefined;
-  const relatedPlaces = nearbyRecommendations(places, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items;
+  const relatedContent = <Suspense fallback={null}><EventRelatedContent place={place} /></Suspense>;
   const { language, translate } = await serverPublicCopy();
   const localized = localizedEventPlace(place, language, translate);
   return <>
@@ -75,6 +75,10 @@ export default async function Page({ searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: localized.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={relatedPlaces} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedContent={relatedContent} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
   </>;
+}
+
+async function EventRelatedContent({ place }: { place: EventPlace }) {
+  return <EventRelatedSlot place={place} places={await loadPlaces()} />;
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { placeRecommendationPayload } from "../../../lib/place-recommendation-payload";
 import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import DiscoveryPlacePage from "../client-page";
@@ -103,7 +104,7 @@ export default async function Page({ params }: Props) {
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}
     {itemFaq(item, spaSite, hourlyPlace).length ? <StructuredData data={faqSchema(itemFaq(item, spaSite, hourlyPlace))} /> : null}
     <StructuredData data={breadcrumbSchema(itemBreadcrumbs)} />
-    <DiscoveryPlacePage initialId={item.id} initialItem={item} relatedItems={items}
+    <DiscoveryPlacePage initialId={item.id} initialItem={item} {...placeRecommendationPayload(item, items)}
       initialSpaDetails={spaSite ? getSpaDetails(item.id, spaSite) : undefined}
       initialHourlyDetails={hourlyPlace ? getHourlyDetails(item, hourlyPlace) : undefined} />
   </>;

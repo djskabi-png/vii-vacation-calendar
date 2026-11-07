@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
@@ -129,7 +129,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   return `/booking?${params.toString()}`;
 }
 
-export default function BusinessPage({ initialProperty, relatedProperties, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialProperty, relatedProperties, complementaryContent, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; complementaryContent?: ReactNode; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -378,15 +378,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const desktopFeatureColumns = balanceFeatureGroups(localizedFeatureGroups);
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const placeGalleryImages = property.images;
-  const complementSelection = useMemo(() => nearbyRecommendations(complementaryInventory.filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` }), [complementaryInventory, property]);
-  const complements = complementSelection.items;
-  const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng }), [trailInventory, property.area, property.location, property.lat, property.lng]);
-  const nearbyCopy = nearbyRecommendationCopy[language];
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
-  const matchingProviders = useMemo(() => {
-    const providers = providerInventory.filter((item) => item.world === "providers" && item.image);
-    return [...providers.filter((item) => item.id === "masu-home-wellness"), ...providers.filter((item) => item.id !== "masu-home-wellness")].slice(0, 6);
-  }, [providerInventory]);
   const unitCopy = {
     he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", inquiry: "זמינות ומחיר באישור המקום", error: "לא הצלחנו לבדוק כרגע", combination: "פנויה כחלק מהשילוב המומלץ", tooSmall: "אינה מספיקה לבדה להרכב", quick: "הזמנה מהירה של", otherDate: "בדיקת תאריך אחר", enquire: "פנייה לבירור זמינות", retry: "בדיקה חוזרת", check: "בדיקת זמינות", dates: "בדיקת תאריכים ל", perNight: "ללילה", total: "לכל השהייה" },
     en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", inquiry: "Availability and price confirmed by the property", error: "We could not check right now", combination: "Available in the recommended combination", tooSmall: "Cannot host the whole party alone", quick: "Quick book", otherDate: "Check another date", enquire: "Enquire about availability", retry: "Try again", check: "Check availability for", dates: "Check dates for", perNight: "per night", total: "for the entire stay" },
@@ -624,20 +616,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         {activeWorld === "vacation" ? null : !onlineBooking && phoneHref ? <aside className="booking-card booking-card--phone"><span className="eyebrow">הזמנה בטלפון</span><h2>מדברים ישירות עם המקום</h2><p>הצוות בודק את התאריך, ההרכב והמחיר בשיחה אחת.</p><a className="button primary wide" href={phoneHref}>חיוג להזמנה</a><small>ההזמנה סופית רק לאחר אישור המקום.</small></aside> : activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">הזמנת אירוע</span><h2>בוחרים תאריך והרכב</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <ModernSelect label="סוג האירוע" defaultValue={activeOffering.eventTypes[0]} options={activeOffering.eventTypes.map((eventType) => ({ value: eventType, label: eventType }))} /> : null}<div className="booking-facts"><span>ההזמנה נבדקת לפי סוג האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה אונליין</Link>{phoneBooking && phoneHref ? <a className="button secondary wide" href={phoneHref}>או חיוג למקום</a> : null}</div><small>הזמינות, המחיר וכללי המקום לאירוע מאושרים לפני חיוב.</small></aside> : <aside id="booking-summary" className={`booking-card ${vacationRequest ? "booking-card--request" : "booking-card--instant"}`}><span className="eyebrow">{vacationRequest ? "בדיקת זמינות במתחם" : "הזמנה אונליין"}</span><h2>{vacationRequest ? hasSelectedDates ? "בודקים את החופשה שבחרתם" : "מתי תרצו להתארח?" : property.scenario === "single" ? "סיכום השהייה" : "תאריכים והרכב"}</h2><p className="booking-card__lead">{vacationRequest ? hasSelectedDates ? "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת." : "בחרו תאריכים וכמות אורחים. לאחר הבחירה תוכלו לשלוח למקום בקשת זמינות מסודרת." : "בחרו תאריכים לבדיקת מחיר וזמינות."}</p><div className="booking-card__selection"><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{displayDates}</strong></span></button></div><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} value={guests} onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה</Link></div></aside>}
         </div>
 
-        <section className="section property-complements">
-          <div className="shell">
-            <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">{translate("ספקים שמגיעים אליכם")}</h2></div><Link href="/providers">{translate("לכל הספקים")}</Link></div><HomeMobileRail shufflePlaces id="vacation-detail-providers" label={translate("ספקים שמגיעים אליכם")} className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail></section>
-            <div className="property-complements__intro">
-              <div className="section-head">
-                <div><h2>{`${translate("מה יש בסביבה של")} ${localizedPropertyName}?`}</h2></div>
-                <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
-              </div>
-              <p className="property-complements__note">{complementSelection.expanded ? `${nearbyCopy.expanded} ` : ""}{complementSelection.regionalOnly ? nearbyCopy.regional : nearbyCopy.places}</p>
-            </div>
-            {complements.length ? <HomeMobileRail shufflePlaces id="vacation-detail-nearby" label={translate("מקומות נוספים בסביבה")} className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</HomeMobileRail> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
-            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><h2>{translate("מסלולים באזור")}</h2><p>{nearbyCopy.trails}</p></div><Link href="/trails">{translate("לכל המסלולים")}</Link></div><HomeMobileRail shufflePlaces id="vacation-detail-trails" label={translate("מסלולים באזור")} className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail></div> : null}
-          </div>
-        </section>
+        {complementaryContent ?? <BusinessComplementarySections property={property} trailInventory={trailInventory} complementaryInventory={complementaryInventory} providerInventory={providerInventory} />}
 
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><HomeMobileRail shufflePlaces id="vacation-detail-similar" label="מקומות נוספים שיכולים להתאים" className="card-grid">{relatedProperties.filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</HomeMobileRail></div></section>
 
@@ -665,4 +644,34 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
       {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section>)}</div></section></div>}
     </PageShell>
   );
+}
+
+
+/** Independently streamed below-fold content never suspends the selected place. */
+export function BusinessComplementarySections({ property, trailInventory = [], complementaryInventory = [], providerInventory = [] }: {
+  property: Pick<Property, "name" | "area" | "location" | "lat" | "lng">;
+  trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[];
+}) {
+  const { language, translate } = useSiteLanguage();
+  const localizedPropertyName = localizedBusinessText(property.name, language, translate, latinBusinessAlias(property.name) || { he: "מקום אירוח מאומת", en: "Verified stay", ru: "Проверенное размещение", fr: "Hébergement vérifié" }[language]);
+  const complementSelection = nearbyRecommendations(complementaryInventory.filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` });
+  const complements = complementSelection.items;
+  const localTrails = nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng });
+  const nearbyCopy = nearbyRecommendationCopy[language];
+  const providers = providerInventory.filter((item) => item.world === "providers" && item.image);
+  const matchingProviders = [...providers.filter((item) => item.id === "masu-home-wellness"), ...providers.filter((item) => item.id !== "masu-home-wellness")].slice(0, 6);
+  return (<section className="section property-complements">
+          <div className="shell">
+            <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">{translate("ספקים שמגיעים אליכם")}</h2></div><Link href="/providers">{translate("לכל הספקים")}</Link></div><HomeMobileRail shufflePlaces id="vacation-detail-providers" label={translate("ספקים שמגיעים אליכם")} className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail></section>
+            <div className="property-complements__intro">
+              <div className="section-head">
+                <div><h2>{`${translate("מה יש בסביבה של")} ${localizedPropertyName}?`}</h2></div>
+                <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
+              </div>
+              <p className="property-complements__note">{complementSelection.expanded ? `${nearbyCopy.expanded} ` : ""}{complementSelection.regionalOnly ? nearbyCopy.regional : nearbyCopy.places}</p>
+            </div>
+            {complements.length ? <HomeMobileRail shufflePlaces id="vacation-detail-nearby" label={translate("מקומות נוספים בסביבה")} className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</HomeMobileRail> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
+            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><h2>{translate("מסלולים באזור")}</h2><p>{nearbyCopy.trails}</p></div><Link href="/trails">{translate("לכל המסלולים")}</Link></div><HomeMobileRail shufflePlaces id="vacation-detail-trails" label={translate("מסלולים באזור")} className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail></div> : null}
+          </div>
+        </section>);
 }

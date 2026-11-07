@@ -7,3 +7,29 @@
 
 /fonts/heebo/heebo-latin-v28.woff2
   Content-Type: font/woff2
+
+# Version-pinned public Rubik faces.
+
+/fonts/rubik/rubik-arabic-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/rubik/rubik-cyrillic-ext-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/rubik/rubik-cyrillic-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/rubik/rubik-hebrew-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/rubik/rubik-latin-ext-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/rubik/rubik-latin-v31.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable

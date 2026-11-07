@@ -79,7 +79,8 @@
       ],
       "requiredLocalTests": [
         "tests/world-availability-contract.test.mjs",
-        "tests/world-availability-request-dedupe.test.mjs"
+        "tests/world-availability-request-dedupe.test.mjs",
+        "tests/public-font-delivery.test.mjs"
       ]
     },
     "search": {
@@ -123,7 +124,10 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/place-open-critical-path-actual.test.mjs",
+        "tests/public-font-delivery.test.mjs"
+      ]
     },
     "events": {
       "dependsOn": [
@@ -142,7 +146,9 @@
       ],
       "requiredLocalTests": [
         "tests/event-last-minute-props.test.mjs",
-        "tests/event-filter-identity-actual.test.mjs"
+        "tests/event-filter-identity-actual.test.mjs",
+        "tests/place-open-critical-path-actual.test.mjs",
+        "tests/public-font-delivery.test.mjs"
       ]
     },
     "spa": {
@@ -163,7 +169,9 @@
       "requiredLocalTests": [
         "tests/preview-card-consistency-contract.test.mjs",
         "tests/map-split-performance-family.test.mjs",
-        "tests/mobile-stability-contract.test.mjs"
+        "tests/mobile-stability-contract.test.mjs",
+        "tests/place-open-critical-path-actual.test.mjs",
+        "tests/public-font-delivery.test.mjs"
       ]
     },
     "hourly": {
@@ -185,7 +193,9 @@
         "tests/event-filter-identity-actual.test.mjs",
         "tests/preview-card-consistency-contract.test.mjs",
         "tests/map-split-performance-family.test.mjs",
-        "tests/mobile-stability-contract.test.mjs"
+        "tests/mobile-stability-contract.test.mjs",
+        "tests/place-open-critical-path-actual.test.mjs",
+        "tests/public-font-delivery.test.mjs"
       ]
     },
     "activities": {
@@ -670,7 +680,10 @@
         "app/components/masu-experience.tsx",
         "app/components/new-tab-navigation.tsx",
         "app/components/world-landing.tsx",
-        "app/favorites/"
+        "app/favorites/",
+        "app/public-fonts.css",
+        "public/fonts/rubik/",
+        "public/_headers"
       ]
     },
     {
@@ -701,7 +714,9 @@
         "app/lib/event-search-features.ts",
         "app/components/modern-select.tsx",
         "app/lib/event-search-taxonomy.ts",
-        "app/results-view.css"
+        "app/results-view.css",
+        "app/lib/place-recommendation-payload.ts",
+        "app/discover/place/"
       ]
     },
     {

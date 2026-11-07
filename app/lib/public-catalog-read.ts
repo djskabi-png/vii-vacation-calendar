@@ -186,30 +186,36 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
 }
 
 export async function publicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
-  const bundledDetail = await acceptedSergeyDetail<T>(world, supplierId);
+  let bundledPromise: Promise<T | null> | undefined;
+  const loadBundle = () => bundledPromise ??= acceptedSergeyDetail<T>(world, supplierId);
   try {
-    // Public place pages must use the same resilient, read-only source as
-    // /api/catalog. When Aurora is unavailable this selector serves the same
-    // accepted D1 replica instead of replacing current unit data with the
-    // older immutable bundle.
-    const source = await publicCatalogDatabase();
-    const db = source.database;
-    // Read the selected business through the same accepted-entry path used by
-    // /api/catalog. That route is the public source of truth for room-owned
-    // galleries. A separate LEFT JOIN detail projection could fail while the
-    // accepted entry remained readable, silently replacing unit images with
-    // the older bundled fallback on the business page.
+    const { database: db } = await publicCatalogDatabase();
     const entry = await readSupplierCatalogEntry(db, world, supplierId);
-    if (entry) return projectSergeyPublicCatalogValue(mergeBundledDetail(entry.detail, bundledDetail)) as T | null;
-    // Preserve the important distinction between a world that has never had
-    // an accepted generation (bundle is allowed) and an accepted removal
-    // (bundle must not resurrect the supplier).
+    if (entry) {
+      // A fully verified accepted refresh already owns every presentation field.
+      // Do not parse the entire immutable multi-business gallery bundle first.
+      if (hasCompleteAcceptedDetail(entry.detail)) return projectSergeyPublicCatalogValue(entry.detail) as T | null;
+      const bundledDetail = await loadBundle();
+      return projectSergeyPublicCatalogValue(mergeBundledDetail(entry.detail, bundledDetail)) as T | null;
+    }
     const state = await readSupplierCatalogState(db, world);
-    return state?.activeRunId ? null : projectSergeyPublicCatalogValue(bundledDetail);
+    if (state?.activeRunId) return null;
   } catch {
     console.warn(`public_catalog_detail_fallback:${world}`);
-    return projectSergeyPublicCatalogValue(bundledDetail);
   }
+  const bundledDetail = await loadBundle();
+  return projectSergeyPublicCatalogValue(bundledDetail);
+}
+
+/** Same contract used by mergeBundledDetail, including intentional empty arrays. */
+export function hasCompleteAcceptedDetail(value: unknown, now = Date.now()): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const stamp = (value as Record<string, unknown>)._viiCatalog;
+  if (!stamp || typeof stamp !== "object" || Array.isArray(stamp)) return false;
+  const refresh = stamp as Record<string, unknown>;
+  const checked = typeof refresh.checkedAt === "string" ? Date.parse(refresh.checkedAt) : NaN;
+  const attempted = typeof refresh.attemptedAt === "string" ? Date.parse(refresh.attemptedAt) : NaN;
+  return Number.isFinite(checked) && checked > 0 && checked <= now && Number.isFinite(attempted) && attempted >= checked && attempted <= now;
 }
 
 function nonEmptyArray(value: unknown): unknown[] | undefined {
@@ -291,15 +297,10 @@ export function mergeBundledDetail(acceptedValue: unknown, bundledValue: unknown
   if (!bundledValue || typeof bundledValue !== "object" || Array.isArray(bundledValue)) return acceptedValue;
   const accepted = acceptedValue as Record<string, unknown>;
   const bundled = bundledValue as Record<string, unknown>;
-  const refresh=accepted._viiCatalog&&typeof accepted._viiCatalog==='object'&&!Array.isArray(accepted._viiCatalog)
-    ?accepted._viiCatalog as Record<string,unknown>:{};
-  const checked=typeof refresh.checkedAt==='string'?Date.parse(refresh.checkedAt):NaN;
-  const attempted=typeof refresh.attemptedAt==='string'?Date.parse(refresh.attemptedAt):NaN;
-  // These private stamps are written only after the full supplier detail
-  // contract was proved. An explicit empty collection is then authoritative.
-  // A later failed refresh retains the same verified snapshot and stamp.
-  const now=Date.now();
-  if(Number.isFinite(checked)&&checked>0&&checked<=now&&Number.isFinite(attempted)&&attempted>=checked&&attempted<=now)return acceptedValue;
+  if (hasCompleteAcceptedDetail(acceptedValue)) return acceptedValue;
+  const refresh = accepted._viiCatalog && typeof accepted._viiCatalog === "object" && !Array.isArray(accepted._viiCatalog) ? accepted._viiCatalog as Record<string, unknown> : {};
+  const attempted = typeof refresh.attemptedAt === "string" ? Date.parse(refresh.attemptedAt) : NaN;
+  const now = Date.now();
   const mediaChecked=typeof refresh.mediaCheckedAt==='string'?Date.parse(refresh.mediaCheckedAt):NaN;
   const authoritativeMedia=Number.isFinite(mediaChecked)&&mediaChecked>0&&mediaChecked<=now&&Number.isFinite(attempted)&&attempted>=mediaChecked&&attempted<=now;
   const acceptedRooms = Array.isArray(accepted.rooms) ? accepted.rooms as Record<string, unknown>[] : [];

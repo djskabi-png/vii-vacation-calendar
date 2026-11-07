@@ -1,0 +1,49 @@
+{
+  "family": "Rubik",
+  "version": 31,
+  "license": "SIL Open Font License 1.1",
+  "sources": [
+    {
+      "subset": "arabic",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nErXyi0A.woff2",
+      "path": "public/fonts/rubik/rubik-arabic-v31.woff2",
+      "bytes": 32468,
+      "sha256": "f5052e4870bf211fc22df5b85e791a292a77b9baef8cef1dc5a8e62a783ea1e0"
+    },
+    {
+      "subset": "cyrillic-ext",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nMrXyi0A.woff2",
+      "path": "public/fonts/rubik/rubik-cyrillic-ext-v31.woff2",
+      "bytes": 12388,
+      "sha256": "35e30483bb79be6fd8de0fec4e038fda9e637fc7337f6ff61418c7d08077878b"
+    },
+    {
+      "subset": "cyrillic",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nFrXyi0A.woff2",
+      "path": "public/fonts/rubik/rubik-cyrillic-v31.woff2",
+      "bytes": 15112,
+      "sha256": "bdb2b33ab916e9e7b42edb61f8aea5f5dd83ad773d6ee4e9b55665daf8954ce8"
+    },
+    {
+      "subset": "hebrew",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nDrXyi0A.woff2",
+      "path": "public/fonts/rubik/rubik-hebrew-v31.woff2",
+      "bytes": 9348,
+      "sha256": "197b6dbe5c6bec7276c59b02d70a16ee6acd44322fc2f8d0226c07f8d57976c2"
+    },
+    {
+      "subset": "latin-ext",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nPrXyi0A.woff2",
+      "path": "public/fonts/rubik/rubik-latin-ext-v31.woff2",
+      "bytes": 19400,
+      "sha256": "09472f217ad1ebb61a7669cf532f9f2f80685e07652ee862fde9a79665aef479"
+    },
+    {
+      "subset": "latin",
+      "url": "https://fonts.gstatic.com/s/rubik/v31/iJWKBXyIfDnIV7nBrXw.woff2",
+      "path": "public/fonts/rubik/rubik-latin-v31.woff2",
+      "bytes": 35348,
+      "sha256": "691cd1d9b4c0cdf31a1dcf04259c86f92c85e69f6622abab7964d81e36890691"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "status": "fixed",
+  "scope": "Local causal repairs verified; public release and public after-measurements not performed",
+  "symptom": "Business detail pages across worlds leave the visitor waiting for several seconds before useful content is visible.",
+  "expected_behavior": "Selected place content must not wait for unrelated recommendation inventories or external blocking font CSS.",
+  "environment": "Public v814 baseline, then local production build on Windows; local data uses accepted bundled fallback without production D1 bindings.",
+  "reproduction": {
+    "steps": ["Fetch vacation-164, event-2, hourly-475 and spa-6 documents twice with bounded GET requests", "Execute actual page functions with deferred secondary dependencies", "Inspect the compiled candidate on desktop and at 390px viewport"],
+    "evidence": ".qa-output/place-latency-public-before.json: first-wave response headers 1.9-3.8 seconds; warm requests 23-29ms. tests/place-open-critical-path-actual.test.mjs reproduces the avoidable dependency waits."
+  },
+  "observations": [
+    {"observation": "Vacation and event primary rendering awaited secondary inventories; verified runtime detail eagerly loaded the all-business detail bundle.", "evidence": "Actual-page causal tests exercise primary completion with secondary promises still deferred, and verified detail with a never-resolving bundle."},
+    {"observation": "Shared stylesheet imported Google Fonts CSS before other rules, creating an external render-blocking dependency.", "evidence": "Original app/globals.css first import; replacement local Rubik subsets pass pinned binary, glyph coverage and HTTP checks."},
+    {"observation": "Local vinext start has a Windows nested static-file cache path mismatch independent of the application change.", "evidence": "StaticFileCache lookup slash=false, Windows-backslash=true; existing Heebo also404. Existing built-candidate preview serves all six exact Rubik files200 with font/woff2 and byte parity. No node_modules modification."}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "Secondary server dependencies block selected-place rendering", "prediction": "Primary page cannot complete while unrelated recommendation reads are pending", "discriminating_test": "Run actual page functions with deferred recommendation reads and actual detail reader with never-resolving all-detail bundle", "result": "Repairs allow primary completion before secondary reads and avoid bundle import for fully verified selected detail", "status": "supported"},
+    {"id": "H2", "mechanism": "Hebrew document transformation buffers all streamed content", "prediction": "Public Hebrew responses would use buffered transformation or hide existing HTML", "discriminating_test": "Inspect public transform headers and browser document/body visibility", "result": "Public Hebrew response reports native-stream; document and body remain visible. Not supported as the common cause in this sample", "status": "rejected"},
+    {"id": "H3", "mechanism": "External font stylesheet can block first paint after HTML arrives", "prediction": "Global CSS contains a leading external stylesheet dependency", "discriminating_test": "Inspect original CSS dependency and replace only font delivery while freezing other world cascade slots", "result": "Confirmed external @import removed; same Rubik family and weight range locally served with six verified subsets. Exact share of public latency was not isolated", "status": "supported"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Stream vacation/event complementary content behind Suspense; preserve complete accepted runtime detail without eager all-detail bundle; send six recommendation cards plus all lightweight facets to discovery pages; self-host Rubik and preload locale subsets.",
+    "evidence": "82 regression tests pass, five actual causal tests pass, TypeScript and production build exit0. Full selected media remains unchanged; recommendation IDs and complete facet coverage are asserted. All six compiled font assets return200 with exact bytes in built-candidate preview."
+  },
+  "affected_family": ["Vacation business detail", "Canonical and query event detail", "Spa discovery detail", "Hourly discovery detail", "Shared public typography; admin Heebo retained"],
+  "regression_checks": [
+    {"check": "Selected source authority and partial detail merge", "status": "passed", "evidence": "Actual tests retain partial/future-proof bundle merge and prevent resurrection of removed accepted entities"},
+    {"check": "Cross-world behavior and recommendation retention", "status": "passed", "evidence": "82 passed, zero failed; actual helper retains exact six rendered IDs and all161 facet records in fixture"},
+    {"check": "Build, typing and source integrity", "status": "passed", "evidence": "Final production build exit0, TypeScript exit0, source-integrity guard28 protected ancestors22 capabilities passed; publicationApproved=false"},
+    {"check": "Natural local destination and fonts", "status": "passed", "evidence": "Desktop vacation title/gallery visible;390px event Star Loft title, contacts and gallery visible, scrollWidth375 <= viewport390. Earlier local vacation/spa/hourly/event content checks retained. Six font HTTP200 byte matches"}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact production improvement requires an authorized release and matching cold/warm production measurements", "Cold origin/edge variance remains in the public baseline; these repairs are not proof that all performance issues are closed", "Built-candidate preview buffers responses and proxies read-only API/media; causal streaming proof comes from actual page tests and native-stream preview, not preview wall time"],
+  "authorization_boundary": "Local diagnose, repair, test and save only. No deployment, production mutation or publication.",
+  "rollback": "Revert the scoped place-open commits and restore the external font import only if necessary; no schema or business-data migration occurred. Preserve earlier event-filter and hourly-map commits."
+}

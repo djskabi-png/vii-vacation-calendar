@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
+@import "./public-fonts.css";
 
 :root {
   --font-sans: Rubik, Heebo, Assistant, Arial, sans-serif;
