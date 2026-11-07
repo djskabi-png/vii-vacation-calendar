@@ -23,7 +23,7 @@ test('one intended destination warms either HTML or Flight and deduplicates repe
   warm.dispose();
 });
 
-test('document burst is bounded to two active and six queued, disposal cancels without starting queued work', async () => {
+test('document speculation is limited to one active request and does not queue a burst', async () => {
   const calls = [];
   const warm = createNavigationIntentWarmup({ prefetch: () => assert.fail('new-tab intent cannot also prefetch Flight'), document: (href, signal) => new Promise(resolve => {
     calls.push({ href, signal, resolve });
@@ -31,17 +31,17 @@ test('document burst is bounded to two active and six queued, disposal cancels w
   }) });
   for (let i=0;i<30;i++) warm.warm(`/business?id=${i}`, true);
   await tick();
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 1);
   calls[0].resolve();
   await tick();
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 1);
   warm.dispose();
   await tick();
   assert.ok(calls.slice(1).every(call => call.signal.aborted));
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 1);
 });
 
-test('deadline aborts a hung speculation and permits queued work, without retrying the hung destination', async () => {
+test('deadline aborts a hung speculation without starting another destination', async () => {
   const calls = [];
   let firstAborted;
   const aborted = new Promise(resolve => { firstAborted = resolve; });
@@ -53,7 +53,7 @@ test('deadline aborts a hung speculation and permits queued work, without retryi
   warm.warm('/one', true); warm.warm('/two', true); warm.warm('/three', true);
   await aborted;
   await tick();
-  assert.ok(calls.includes('/three'));
+  assert.deepEqual(calls, ['/one']);
   assert.equal(calls.filter(x => x === '/one').length, 1);
   warm.dispose();
 });
@@ -85,10 +85,10 @@ test('actual component anchor handler excludes private/API links and chooses one
   let initializer;
   const visit = node => { if (ts.isVariableDeclaration(node) && node.name.getText(ast)==='warmAnchor') initializer=node.initializer.getText(ast); ts.forEachChild(node,visit); };
   visit(ast); assert.ok(initializer);
-  const fnJS=ts.transpileModule(`const handle=${initializer}; return handle;`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+  const fnJS=ts.transpileModule(`const dwell=new Map(); const handle=${initializer}; return handle;`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
   const calls=[];
   class FakeElement { constructor(anchor){this.anchor=anchor;} closest(){return this.anchor;} }
-  const handle=new Function('Element','localizedPath','languageFromPathname','window','stripLanguagePrefix','isBusinessDepthRoute','warmup', fnJS)(FakeElement,href=>href,()=> 'he',{location:{origin:'https://vii.spaplus.co',pathname:'/'}},x=>x,x=>x.startsWith('/business'),{warm:(...args)=>calls.push(args)});
+  const handle=new Function('Element','localizedPath','languageFromPathname','window','stripLanguagePrefix','isBusinessDepthRoute','warmup','Node', fnJS)(FakeElement,href=>href,()=> 'he',{location:{origin:'https://vii.spaplus.co',pathname:'/'},setTimeout:fn=>{fn();return 1},clearTimeout:()=>{}},x=>x,x=>x.startsWith('/business'),{warm:(...args)=>calls.push(args),cancel:()=>{}},class Node {});
   const anchor=(href,target='')=>new FakeElement({getAttribute:()=>href,hasAttribute:()=>false,target});
   handle(anchor('/business?id=2')); handle(anchor('/events')); handle(anchor('/guides','_blank'));
   handle(anchor('/api/catalog')); handle(anchor('/admin')); handle(anchor('/booking?id=2')); handle(anchor('//external.example'));

@@ -11,7 +11,7 @@ export function createNavigationIntentWarmup(options: {
   const now = options.now ?? Date.now;
   let disposed = false;
   const pump = () => {
-    while (!disposed && active.size < 2 && queued.length) {
+    while (!disposed && active.size < 1 && queued.length) {
       const href = queued.shift()!;
       const controller = new AbortController();
       active.add(controller);
@@ -28,12 +28,17 @@ export function createNavigationIntentWarmup(options: {
       if (disposed) return;
       const previous = seen.get(href);
       if (previous !== undefined && now() - previous < 60_000) return;
-      if (documentOnly && queued.length >= 6) return;
+      if (documentOnly && (queued.length || active.size)) return;
       seen.delete(href);
       seen.set(href, now());
       while (seen.size > 32) seen.delete(seen.keys().next().value!);
       if (documentOnly) { queued.push(href); pump(); }
       else options.prefetch(href);
+    },
+    cancel(href: string) {
+      const index = queued.indexOf(href);
+      if (index >= 0) queued.splice(index, 1);
+      for (const controller of active) controller.abort();
     },
     dispose() {
       disposed = true;

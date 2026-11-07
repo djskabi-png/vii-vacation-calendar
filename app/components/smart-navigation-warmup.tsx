@@ -31,6 +31,7 @@ export function SmartNavigationWarmup() {
       prefetch: (destination) => router.prefetch(destination),
       document: warmNavigationDocument,
     });
+    const dwell = new Map<string, number>();
     const warmAnchor = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return;
       const anchor = target.closest<HTMLAnchorElement>("a[href]");
@@ -43,19 +44,46 @@ export function SmartNavigationWarmup() {
       // Detail routes that intentionally open in a new tab cannot reuse the
       // current tab's App Router cache. Warm only the document for those
       // destinations, rather than rendering both HTML and Flight on one hover.
-      warmup.warm(destination, anchor.target === "_blank" || isBusinessDepthRoute(basePath));
+      if (dwell.has(destination)) return;
+      dwell.set(destination, window.setTimeout(() => {
+        dwell.delete(destination);
+        warmup.warm(destination, anchor.target === "_blank" || isBusinessDepthRoute(basePath));
+      }, 160));
+    };
+    const cancelAnchor = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor) return;
+      if (event.relatedTarget instanceof Node && anchor.contains(event.relatedTarget)) return;
+      const href = anchor.getAttribute("href");
+      if (!href || !href.startsWith("/") || href.startsWith("//")) return;
+      const destination = localizedPath(href, languageFromPathname(window.location.pathname));
+      const timer = dwell.get(destination);
+      if (timer !== undefined) { window.clearTimeout(timer); dwell.delete(destination); }
     };
     const onPointerOver = (event: PointerEvent) => warmAnchor(event.target);
     const onFocusIn = (event: FocusEvent) => warmAnchor(event.target);
-    const onTouchStart = (event: TouchEvent) => warmAnchor(event.target);
+    const onTouchStart = () => { /* A tap must never start a competing document fetch. */ };
+    const onPointerOut = (event: PointerEvent) => cancelAnchor(event.target);
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+      const link = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
+      if (link?.href) warmup.cancel(localizedPath(link.getAttribute("href") || link.href, languageFromPathname(window.location.pathname)));
+    };
     document.addEventListener("pointerover", onPointerOver, { passive: true, capture: true });
+    document.addEventListener("pointerout", onPointerOut, { passive: true, capture: true });
     document.addEventListener("focusin", onFocusIn, true);
     document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
+    document.addEventListener("click", onClick, true);
     return () => {
       warmup.dispose();
+      dwell.forEach(timer => window.clearTimeout(timer));
+      dwell.clear();
       document.removeEventListener("pointerover", onPointerOver, true);
+      document.removeEventListener("pointerout", onPointerOut, true);
       document.removeEventListener("focusin", onFocusIn, true);
       document.removeEventListener("touchstart", onTouchStart, true);
+      document.removeEventListener("click", onClick, true);
     };
   }, [router]);
 
