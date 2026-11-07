@@ -12,7 +12,7 @@ test('scheduled public documents warm the same HTML variants used by real browse
   const oldFetch=globalThis.fetch,oldCaches=globalThis.caches,entries=new Map(),requests=[],tasks=[];
   const ctx={waitUntil(p){tasks.push(p);}},env={EXPECTED_BUILD:'warm-build',ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site'};
   globalThis.caches={default:{async match(key){return entries.get(key.url)?.clone();},async put(key,response){entries.set(key.url,response.clone());}}};
-  globalThis.fetch=async request=>{requests.push(request);return new Response('document '+new URL(request.url).pathname,{headers:{'Content-Type':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':'warm-build','X-VII-Cache-Until':String(Date.now()+300_000)}});};
+  globalThis.fetch=async request=>{if(new URL(request.url).pathname==='/api/vii/home-holidays')return Response.json({holidays:[]},{headers:{'X-VII-App-Build':'warm-build'}});requests.push(request);return new Response('document '+new URL(request.url).pathname,{headers:{'Content-Type':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':'warm-build','X-VII-Cache-Until':String(Date.now()+300_000)}});};
   try{
     await worker.scheduled({scheduledTime:Date.now()},env,ctx);await Promise.allSettled(tasks);
     assert.deepEqual(requests.map(r=>new URL(r.url).pathname+new URL(r.url).search),publicWarmRequests.map(r=>r.path));

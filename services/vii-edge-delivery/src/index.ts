@@ -1,4 +1,5 @@
 import { warmPublicDocuments } from "./public-warm.ts";
+import { warmHolidaySnapshots } from './holiday-warm.ts';
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
@@ -275,6 +276,10 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
 export default { fetch: serve, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
+  const holidayWork = warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
+    .then(report => console.log('VII holiday snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report }))
+    .catch(() => console.warn('VII holiday snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD }));
+  ctx.waitUntil(holidayWork);
   const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx);
   ctx.waitUntil(work);
   const report = await work;
