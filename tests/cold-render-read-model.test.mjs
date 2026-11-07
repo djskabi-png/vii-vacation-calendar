@@ -64,5 +64,5 @@ test('cold path starts published overlays in parallel and does not reload the ac
   const shell = page.split('export default async function HomePage()')[1];
   assert.match(shell,/await serverPublicCopy\(\)/);
   assert.doesNotMatch(shell,/await (?:publicCatalog|homeRatedPlaces|homeShowcaseProperties)/);
-  assert.match(page,/<HomeLiveSections \/>\s*<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase readCatalog=\{readCatalog\} \/><\/Suspense>/);
+  assert.match(page,/<Suspense fallback=\{<HomeLiveSections pendingSeed \/>\}><HomeLiveSectionsSeeded \/><\/Suspense>\s*<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase readCatalog=\{readCatalog\} \/><\/Suspense>/);
 });

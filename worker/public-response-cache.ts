@@ -1,5 +1,6 @@
 // Only anonymous discovery responses enter this cache. Transactional reads,
 // sessions, actions and unknown cookies always take the authoritative path.
+import { dealClockKey } from "../app/lib/deal-clock.ts";
 import { claimPublicCacheCapture, claimPublicCacheWrite, readBoundedCacheBody } from "./public-cache-work.ts";
 export type PublicCachePolicy = {
   key: string;
@@ -109,7 +110,7 @@ async function digest(value: string) {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function publicCachePolicy(request: Request, url: URL, build: string): Promise<PublicCachePolicy | null> {
+export async function publicCachePolicy(request: Request, url: URL, build: string, now = new Date()): Promise<PublicCachePolicy | null> {
   if (request.method !== "GET" || request.headers.has("Authorization") || hasPrivateCookies(request)) return null;
   if (request.headers.has("Next-Action") || request.headers.has("X-Server-Action")) return null;
   // Explicit refresh must always revalidate. Normal navigation has an empty
@@ -146,7 +147,7 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
   if (query === null || query.length > 600) return null;
   const variants = routingHeaders.map((name) => [name, request.headers.get(name)]);
   if (JSON.stringify(variants).length > 8192) return null;
-  const identity = await digest(JSON.stringify([url.origin, url.pathname, query, variants]));
+  const identity = await digest(JSON.stringify([url.origin, url.pathname, query, variants, ...(home ? [dealClockKey(now)] : [])]));
   const key = `runtime-cache/public/${publicCacheVersion}/${build}/${url.hostname}/${kind}/${identity}`;
   return { key, edgeUrl: `${url.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build };
 }

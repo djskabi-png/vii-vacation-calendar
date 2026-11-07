@@ -1,3 +1,4 @@
+import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import { requestStageTiming } from "../app/lib/request-stage-timing.ts";
@@ -42,6 +43,7 @@ function handler(path,method,dependencies){
   };
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
+ Object.assign(dependencies,homeDealsPreparation(dependencies));
   return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));
 }
 test('expansion counts live offers not catalog, preserves region and picks nearest over cheapest',()=>{
@@ -108,7 +110,7 @@ test('all four visitor locales disclose geography only, without technical explan
   assert.match(read('spa-package-deals'),/expandedRegions\?\.\[date\]\?\.\[audience\]/);
   assert.match(read('event-last-minute'),/!search.expandedRegion && !matchesSearchLocation/);
   assert.match(read('home-live-deals'),/canonicalVerifiedSliderItems/);
-  assert.match(read('home-live-deals'),/eligibleDeals = clock/);
+  assert.match(read('home-live-deals'),/const eligibleDeals =/);
 });
 test('regional rails span the whole results grid on desktop rather than one property cell',()=>{
   const css=readEffectiveWorldCss();

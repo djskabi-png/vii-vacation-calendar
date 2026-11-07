@@ -23,8 +23,11 @@ import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
 import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
 import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
+import { acceptedHomeDealsSeed } from "../lib/home-deals-seed.ts";
+import { dealClockKey } from "../lib/deal-clock.ts";
 
-type ResponseData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; locale?: string; guests?: number; clockKey?: string; renderedAt?: string; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 
@@ -88,16 +91,18 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   };
 }
 
-export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean }) {
+export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false, initialData, pendingSeed = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean; initialData?: HomeDealsInitialData | null; pendingSeed?: boolean }) {
   const clock = useDealClock();
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
-  const active = useSectionActivation(`${sectionId}-title`, deferUntilNearViewport);
+  const activated = useSectionActivation(`${sectionId}-title`, deferUntilNearViewport);
+  const active = !pendingSeed && activated;
   const { language, translate } = useSiteLanguage();
-  const [chosenPeriod, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
+  const [chosenPeriod, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? initialData?.display?.defaultPeriod ?? "tomorrow");
   const period = fixedPeriod ?? chosenPeriod;
-  const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
+  const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => initialData?.display?.periods ?? homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
+  const [seedEnabled, setSeedEnabled] = useState(true);
   const [dealRetry, setDealRetry] = useState(0);
   const [holidayListRetry, setHolidayListRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
@@ -109,11 +114,18 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const lastGoodData = useRef(new Map<string, ResponseData>());
   const automaticRetries = useRef(new Map<string, number>());
   const recoveryStartedAt = useRef(new Map<string, number>());
-  const displaySettingsApplied = useRef(false);
+  const displaySettingsApplied = useRef(Boolean(initialData?.display));
   const text = copy[language];
   const title = sectionTitle || (scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title);
   const selectionKey = `${language}:${clock?.key || "loading"}:` + (mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`);
-  const data = scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value) ? scopedData.value : null;
+  // A serialized render time keeps the server and first hydration identical.
+  // Once the shared clock mounts, its current Israel-day/cutoff wins.
+  const seedTime = clock?.now ?? new Date(initialData?.renderedAt || "");
+  const seedDates = Number.isFinite(seedTime.getTime()) ? homeDealDates(period, seedTime) : null;
+  const initialSeedUsable = seedEnabled && mode === "near" && seedDates !== null && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, ...seedDates, clockKey: dealClockKey(seedTime), now: clock ? Date.now() : seedTime.getTime() });
+  const data = scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value)
+    ? scopedData.value
+    : scopedData === null && initialSeedUsable ? initialData : null;
   function setData(value: ResponseData | null) { setScopedData(value ? { key: selectionKey, value } : null); }
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
@@ -154,11 +166,24 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     recoveryStartedAt.current.set(selectionKey, startedAt);
     const remainingBudget = () => Math.max(0, selectionRecoveryBudgetMs - (Date.now() - startedAt));
     const acceptedCandidate = lastGoodData.current.get(selectionKey);
-    const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : undefined;
+    const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : initialSeedUsable ? initialData ?? undefined : undefined;
     if (!accepted) lastGoodData.current.delete(selectionKey);
     setData(accepted ?? null);
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
+    const seededDates = mode === "near" ? homeDealDates(period, clock.now) : null;
+    const canUseSeed = Boolean(seedEnabled && dealRetry === 0 && mode === "near" && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, from: seededDates?.from || "", till: seededDates?.till || "", nights: seededDates?.nights, clockKey: clock.key }) && initialData?.cache?.status === "fresh" && Date.now() - (homeOfferCheckedAt(initialData) ?? 0) < 5 * 60_000);
+    if (canUseSeed) {
+      lastGoodData.current.set(selectionKey, initialData as ResponseData);
+      setData(initialData as ResponseData);
+      setState("ready");
+      // Fresh seeds replace only the first fetch, never future revalidation.
+      const revalidate = setTimeout(() => {
+        recoveryStartedAt.current.delete(selectionKey);
+        setDealRetry(value => value + 1);
+      }, Math.max(1, 5 * 60_000 - (Date.now() - (homeOfferCheckedAt(initialData) ?? 0))));
+      return () => { controller.abort(); clearTimeout(revalidate); };
+    }
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
@@ -230,6 +255,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     // response from the initial tab. Without this boundary, the first API
     // completion could silently reset the selected tab to the CMS default.
     displaySettingsApplied.current = true;
+    setSeedEnabled(false);
     if (value !== period) setState("loading");
     setPeriod(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
@@ -241,12 +267,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
-  const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
+  const eligibleDeals = data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [];
   // The API already applies publication, online-booking and editorial order.
   // Keep that exact commercial order at the final browser boundary. A
   // document seed here made identical API responses render differently.
   const displayedDeals = canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID);
-  const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : state;
+  const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;
@@ -257,7 +283,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     fr: `${displayedDealCount} séjours disponibles`,
   } as const)[language];
 
-  return <section className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
+  return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
       <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{displayState === "ready" ? resultCountLabel : text.loading}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></>}</div></div>
       {!fixedPeriod ? <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>

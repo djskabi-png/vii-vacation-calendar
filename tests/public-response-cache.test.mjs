@@ -164,3 +164,14 @@ test("cross-region R2 hits slower than150ms remain usable instead of forcing ful
   }),200))}});
   assert.equal(response.headers.get('X-VII-Cache-Layer'),'r2');assert.equal(await response.text(),'valid regional hit');
 });
+
+
+test("homepage SSR offer documents cannot cross the Israel 14:00 cutoff", async () => {
+  const request = new Request(origin + "/", { headers: { Accept: "text/html" } });
+  const before = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T11:59:59Z"));
+  const after = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T12:00:00Z"));
+  assert.notEqual(before.key, after.key);
+  assert.equal(before.ttlSeconds, 300);
+  const sameDay = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T12:01:00Z"));
+  assert.equal(after.key, sameDay.key);
+});

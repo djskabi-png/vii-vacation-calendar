@@ -701,7 +701,8 @@
         "app/home-performance.css",
         "app/app-experience.css",
         "app/components/cookie-consent.tsx",
-        "app/components/slider-rail-controls.tsx"
+        "app/components/slider-rail-controls.tsx",
+        "app/components/responsive-viewport-guard.tsx"
       ]
     },
     {
@@ -808,6 +809,9 @@
       "match": [
         "app/api/vii/home-deals/",
         "app/components/home-live-deals.tsx",
+        "app/components/home-live-sections-seeded.tsx",
+        "app/lib/home-deals-seed.ts",
+        "app/lib/home-deals-snapshot.ts",
         "app/lib/discovery-offer-cache.ts",
         "app/lib/discovery-public-index.ts",
         "app/lib/home-deal-curation.ts",

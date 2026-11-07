@@ -716,7 +716,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
-  assert.match(homeShowcase, /<HomeLiveDeals deferUntilNearViewport \/>/);
+  assert.match(homeShowcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /<SpaPackageDeals deferUntilNearViewport \/>/);
@@ -1584,7 +1584,7 @@ test("vacation results heading stays concise without a redundant status eyebrow"
 
 test("homepage keeps factual vacation discovery before spa without unsupported offers", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const recommended = source.indexOf("<HomeLiveDeals deferUntilNearViewport />");
+  const recommended = source.indexOf("<HomeLiveDeals deferUntilNearViewport initialData={initialData} pendingSeed={pendingSeed} />");
   const discovery = source.indexOf('className="section home-vacation-discovery"');
   const spa = source.indexOf('<SpaPackageDeals deferUntilNearViewport />');
   assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
@@ -1602,7 +1602,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   ]);
 
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
-  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport \/>/);
+  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
   assert.match(liveDeals, /const selectedDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
   assert.match(liveDeals, /const searchDates = clock && selectedDates && eligibleDealDate\(selectedDates.from, clock.now\) \? selectedDates : undefined/);
   assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: String\(guests\), \.\.\.\(regionLabel \? \{ location: regionLabel \} : \{\}\) \}\)/);

@@ -1,3 +1,4 @@
+import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import {requestStageTiming} from '../app/lib/request-stage-timing.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -24,6 +25,7 @@ async function loadRoute(name, dependencies) {
   };
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(/^export /gm,'');
+ Object.assign(dependencies,homeDealsPreparation(dependencies));
   return new Function(...Object.keys(dependencies),`${compiled}; return GET;`)(...Object.values(dependencies));
 }
 

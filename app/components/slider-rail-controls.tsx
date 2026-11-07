@@ -19,12 +19,14 @@ export function boundedSliderIndex(current: number, direction: -1 | 1, length: n
 
 export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scope > *", disabled = false }: SliderRailTarget) {
   const [state, setState] = useState<SliderRailState>({ previous: false, next: true });
+  const boundaryFrame = useRef<number | null>(null);
+  const observing = useRef(false);
   const resolveRail = useCallback(() => railRef?.current || (railId ? document.getElementById(railId) : null), [railId, railRef]);
 
-  const update = useCallback(() => {
+  const measure = useCallback(() => {
     const rail = resolveRail();
-    const items = rail?.querySelectorAll<HTMLElement>(itemSelector);
-    if (disabled || !rail || !items?.length) {
+    const item = rail?.querySelector<HTMLElement>(itemSelector);
+    if (disabled || !rail || !item) {
       setState((current) => current.previous || current.next ? { previous: false, next: false } : current);
       return;
     }
@@ -36,15 +38,27 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
     setState((current) => current.previous === nextState.previous && current.next === nextState.next ? current : nextState);
   }, [disabled, itemSelector, resolveRail]);
 
+  // Resize, mutation and scroll notifications can arrive together while cards
+  // stream in. Read geometry once per frame, rather than flushing layout for
+  // each notification. The item observers remain responsible for size changes.
+  const update = useCallback(() => {
+    if (!observing.current || boundaryFrame.current !== null) return;
+    boundaryFrame.current = window.requestAnimationFrame(() => {
+      boundaryFrame.current = null;
+      if (observing.current) measure();
+    });
+  }, [measure]);
+
   useLayoutEffect(() => {
     const rail = resolveRail();
     if (!rail) return;
+    observing.current = true;
 
     // Streaming sections can appear after the browser has already restored a
     // stale logical scroll position. Normalize the new rail before observers
     // publish button boundaries, so RTL controls never flash as if the user
     // were already at the opposite end.
-    rail.scrollLeft = 0;
+    if (rail.scrollLeft !== 0) rail.scrollLeft = 0;
     update();
     const resizeObserver = new ResizeObserver(update);
     const observeItems = () => rail.querySelectorAll<HTMLElement>(itemSelector).forEach((item) => resizeObserver.observe(item));
@@ -52,7 +66,6 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
       observeItems();
       update();
     });
-    const frame = window.requestAnimationFrame(update);
     resizeObserver.observe(rail);
     observeItems();
     mutationObserver.observe(rail, { childList: true, subtree: false });
@@ -60,7 +73,9 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
     window.addEventListener("resize", update);
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      observing.current = false;
+      if (boundaryFrame.current !== null) window.cancelAnimationFrame(boundaryFrame.current);
+      boundaryFrame.current = null;
       rail.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       resizeObserver.disconnect();

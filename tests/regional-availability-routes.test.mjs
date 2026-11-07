@@ -1,3 +1,4 @@
+import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import { requestStageTiming } from "../app/lib/request-stage-timing.ts";
 import assert from 'node:assert/strict';
@@ -32,6 +33,7 @@ function handler(path, method, dependencies) {
   };
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
+ Object.assign(dependencies,homeDealsPreparation(dependencies));
   return new Function(...Object.keys(dependencies),`${compiled}; return ${method};`)(...Object.values(dependencies));
 }
 const request=(path,body)=>new Request(`https://example.test/${path}`,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);

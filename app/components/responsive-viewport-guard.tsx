@@ -12,7 +12,7 @@ function resetHorizontalViewport() {
 
 function resetHorizontalCollections() {
   document.querySelectorAll<HTMLElement>("[data-horizontal-rail]").forEach((rail) => {
-    rail.scrollLeft = 0;
+    if (rail.scrollLeft !== 0) rail.scrollLeft = 0;
   });
 }
 

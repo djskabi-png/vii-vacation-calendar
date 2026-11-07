@@ -22,7 +22,7 @@ async function simulate(text,readyAt=20_000,{networkError=false,active=true}={})
  const clearTimeout=id=>timers.delete(id);
  const clock={key:'2026-11-07:today',now:new Date('2026-11-07T00:00:00Z')};
  const DateFake=class extends Date{static now(){return now}};
- const deps={active,clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
+ const deps={initialSeedUsable:false,initialData:undefined,seedEnabled:false,dealRetry:0,acceptedHomeDealsSeed:()=>false,active,clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
   recoveryStartedAt:{current:new Map()},automaticRetries:{current:new Map()},lastGoodData:{current:new Map()},
   selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
   Date:DateFake,setTimeout,clearTimeout,AbortController,URLSearchParams,HOME_OFFER_MAX_AGE_MS:3_600_000,

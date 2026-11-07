@@ -27,8 +27,8 @@ test("homepage uses scheduled dated snapshots without unsupported static offers"
     readFile(new URL("../app/lib/warm-vacation-discovery-cache.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/lib/vii-supplier-token.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport \/>/);
-  assert.match(showcase, /<HomeLiveDeals mode="holidays" deferUntilNearViewport \/>/);
+  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
+  assert.match(showcase, /<HomeLiveDeals mode="holidays" deferUntilNearViewport pendingSeed=\{pendingSeed\} \/>/);
   assert.match(showcase, /destinationImages.filter/);
   assert.match(showcase, /usedDestinationImages/);
   assert.match(deals, /`\/api\/vii\/home-deals\?\$\{new URLSearchParams\(\{ period, locale: language, proof: "verified-offers-v1", clock: clock\.key/);

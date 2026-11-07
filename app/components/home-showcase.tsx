@@ -14,7 +14,7 @@ import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { HomeLiveDeals } from "./home-live-deals";
+import { HomeLiveDeals, type HomeDealsInitialData } from "./home-live-deals";
 import { EventLastMinute } from "./event-last-minute";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
@@ -32,9 +32,9 @@ import { localizedPath } from "../i18n/locale-routing";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
-export function HomeLiveSections() {
+export function HomeLiveSections({ initialData, pendingSeed = false }: { initialData?: HomeDealsInitialData | null; pendingSeed?: boolean } = {}) {
   const { enabled } = useWorldAvailability();
-  return enabled("vacation") ? <><HomeLiveDeals deferUntilNearViewport /><HomeLiveDeals mode="holidays" deferUntilNearViewport /></> : null;
+  return enabled("vacation") ? <><HomeLiveDeals deferUntilNearViewport initialData={initialData} pendingSeed={pendingSeed} /><HomeLiveDeals mode="holidays" deferUntilNearViewport pendingSeed={pendingSeed} /></> : null;
 }
 
 export function HomeCatalogLoading() {

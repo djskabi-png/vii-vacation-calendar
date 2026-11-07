@@ -1,3 +1,4 @@
+import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import {requestStageTiming} from '../app/lib/request-stage-timing.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -19,6 +20,7 @@ function route(path,method,deps){
  };
  const text=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
  const js=stripTypeScriptTypes(text.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
+ Object.assign(deps,homeDealsPreparation(deps));
  return new Function(...Object.keys(deps),`${js};return ${method};`)(...Object.values(deps));
 }
 test('actual vacation route only reads scheduled snapshots, re-filters withdrawn IDs and preserves party/date keys',async()=>{

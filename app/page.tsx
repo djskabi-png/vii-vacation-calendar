@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
 import { HomeShowcase, HomeTrails, HomeLiveSections, HomeCatalogLoading, HomeRatingsSection, type HomeRatedPlace } from "./components/home-showcase";
+import { HomeLiveSectionsSeeded } from "./components/home-live-sections-seeded";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
@@ -116,7 +117,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <HomeLiveSections />
+        <Suspense fallback={<HomeLiveSections pendingSeed />}><HomeLiveSectionsSeeded /></Suspense>
         <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase readCatalog={readCatalog} /></Suspense>
         <Suspense fallback={null}><HomeRatings readCatalog={readCatalog} /></Suspense>
 

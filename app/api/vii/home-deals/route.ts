@@ -15,6 +15,7 @@ import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-
 import { refreshVacationDiscoveryPeriod, validVacationDiscoverySnapshot } from "../../../lib/warm-vacation-discovery-cache.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
+import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals-snapshot.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 // API responses stay uncached at the edge. The VII edge worker deliberately
@@ -24,12 +25,7 @@ const publicDiscovery = { "Cache-Control": "no-store" };
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
-async function applyCuration(deals: CachedHomeDeals["deals"], period: HomeDealPeriod) {
-  try {
-    const db = await runtimeDatabase();
-    return db ? await curateHomeDeals(db, deals, period) : deals;
-  } catch { return deals; }
-}
+const applyCuration = applyHomeDealsCuration;
 
 async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
   try {
@@ -113,10 +109,8 @@ export async function GET(request: Request) {
       getRequestExecutionContext()?.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
     }
     const result = { ...cached.value, period: selectedPeriod, dates };
-    const ordered = prioritizeOnlineFirst(selectedSnapshot.deals, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
-    const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
-    const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
-    return respond({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    const selectedDeals = selectHomeDeals(selectedSnapshot.deals, { places: names, publishedIds: publicSiteIds }, dates, guests, now, region?.label, selectedPeriod);
+    return respond({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selectedDeals.expanded, regionalOrder: selectedDeals.deals.map(deal => deal.siteID) } : {}), deals: selectedDeals.deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return respond({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }
