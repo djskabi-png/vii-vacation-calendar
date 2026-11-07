@@ -83,7 +83,8 @@
         "tests/public-font-delivery.test.mjs",
         "tests/navigation-intent-warmup-actual.test.mjs",
         "tests/section-activation-actual.test.mjs",
-        "tests/holiday-cold-recovery-actual.test.mjs"
+        "tests/holiday-cold-recovery-actual.test.mjs",
+        "tests/cookie-consent-cls.test.mjs"
       ]
     },
     "search": {
@@ -694,7 +695,9 @@
         "app/components/world-switcher.tsx",
         "app/components/use-section-activation.ts",
         "app/lib/section-activation.ts",
-        "app/home-performance.css"
+        "app/home-performance.css",
+        "app/app-experience.css",
+        "app/components/cookie-consent.tsx"
       ]
     },
     {
