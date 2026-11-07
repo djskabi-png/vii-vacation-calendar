@@ -33,6 +33,18 @@ test('critical projection retains original cascade order, nested media, fonts an
   assert.ok(result.includes('.unobserved-b{display:none}'));
 });
 
+test('critical styles also retain streamed loading surfaces before the complete world stylesheet arrives', () => {
+  for (const world of ['all', 'vacations', 'events', 'spa', 'hourly']) {
+    assert.ok(virtual.criticalStyles[world].includes('.global-route-loading{'), world);
+    assert.ok(virtual.criticalStyles[world].includes('.global-route-loading__cards'), world);
+  }
+  for (const world of ['all', 'vacations']) {
+    assert.ok(virtual.criticalStyles[world].includes('.vacation-route-loading{'), world);
+    assert.ok(virtual.criticalStyles[world].includes('.vacation-route-loading h2{'), world);
+    assert.ok(virtual.criticalStyles[world].includes('.vacation-route-loading__cards'), world);
+  }
+});
+
 test('real initial HTML orders critical before full resources and supplies a no-JavaScript fallback', () => {
   const markup = html('/vacations/kinneret', false);
   const document = new JSDOM(markup).window.document;

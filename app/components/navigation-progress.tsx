@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import "./navigation-progress.css";
 import { NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from "../lib/navigation-recovery";
 import { useSiteLanguage } from "../i18n/locale-provider";
 

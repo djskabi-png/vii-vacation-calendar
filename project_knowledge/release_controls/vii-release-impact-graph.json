@@ -90,7 +90,8 @@
         "tests/cookie-consent-cls.test.mjs",
         "tests/slider-settle-layout-actual.test.mjs",
         "tests/cross-release-client-reference-actual.test.mjs",
-        "tests/public-critical-css.actual.test.mjs"
+        "tests/public-critical-css.actual.test.mjs",
+        "tests/navigation-first-paint.actual.test.mjs"
       ]
     },
     "search": {
@@ -730,7 +731,10 @@
         "app/components/public-style-resources.tsx",
         "app/components/whatsapp-lead-button.tsx",
         "app/lib/public-critical-style-policy.ts",
-        "app/components/home-discovery-sections.tsx"
+        "app/components/home-discovery-sections.tsx",
+        "app/components/navigation-progress.tsx",
+        "app/components/navigation-progress.css",
+        "app/components/navigation-progress-style.ts"
       ]
     },
     {
