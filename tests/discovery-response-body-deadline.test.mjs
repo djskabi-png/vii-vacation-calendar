@@ -31,6 +31,11 @@ test('a shared deadline limits the changed-cache retry and a retry never leaks t
  try{
   globalThis.fetch=async(_url,init)=>{calls++;options.push(init);return {ok:true,json:()=>new Promise(()=>{})};};
   await assert.rejects(discoveryJson('/api/qa-total-deadline','bounded',{timeoutMs:35,totalTimeoutMs:50,retries:1}),error=>error.name==='TimeoutError');
-  assert.equal(calls,2);assert.equal(options[0].cache,'default');assert.equal(options[1].cache,'reload');assert.ok(options.every(x=>!('totalTimeoutMs' in x)));assert.ok(Date.now()-start<150);
+  // Under concurrent suite load the first timer may wake after the shared
+  // deadline. Starting a second request then would violate the budget.
+  assert.ok(calls===1||calls===2);assert.equal(options[0].cache,'default');
+  if(calls===2)assert.equal(options[1].cache,'reload');
+  else assert.ok(Date.now()-start>=50,'retry can only be omitted after the shared budget expires');
+  assert.ok(options.every(x=>!('totalTimeoutMs' in x)));assert.ok(Date.now()-start<150);
  }finally{globalThis.fetch=original;}
 });
