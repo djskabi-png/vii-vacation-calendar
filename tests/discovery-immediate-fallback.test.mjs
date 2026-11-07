@@ -51,8 +51,8 @@ test("holiday-list retries and selected-deal retries cannot cancel each other", 
   const home = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   assert.match(home, /const \[dealRetry, setDealRetry\] = useState\(0\)/);
   assert.match(home, /const \[holidayListRetry, setHolidayListRetry\] = useState\(0\)/);
-  assert.match(home, /\[language, mode, holidayListRetry, clock\?\.key\]/);
-  assert.match(home, /\[period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry,/);
+  assert.match(home, /\[active, language, mode, holidayListRetry, clock\?\.key\]/);
+  assert.match(home, /\[active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry,/);
   assert.doesNotMatch(home, /\[language, mode, dealRetry, clock\?\.key\]/);
 });
 

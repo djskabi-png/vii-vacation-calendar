@@ -26,7 +26,7 @@ test("every homepage content rail uses the shared controls", () => {
   assert.equal((showcase.match(/<HomeSliderControls/g) || []).length, 5);
   const mobileRail = readFileSync(new URL("../app/components/home-mobile-rail.tsx", import.meta.url), "utf8");
   assert.match(mobileRail, /<HomeSliderControls/);
-  assert.match(showcase, /<SpaPackageDeals \/>/);
+  assert.match(showcase, /<SpaPackageDeals deferUntilNearViewport \/>/);
   const spa = readFileSync(new URL("../app/components/spa-package-deals.tsx", import.meta.url), "utf8");
   const rail = readFileSync(new URL("../app/components/event-rail.tsx", import.meta.url), "utf8");
   assert.match(spa, /<EventRail/);

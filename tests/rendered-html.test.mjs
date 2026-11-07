@@ -716,10 +716,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
-  assert.match(homeShowcase, /<HomeLiveDeals \/>/);
+  assert.match(homeShowcase, /<HomeLiveDeals deferUntilNearViewport \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
-  assert.match(homeShowcase, /<SpaPackageDeals \/>/);
+  assert.match(homeShowcase, /<SpaPackageDeals deferUntilNearViewport \/>/);
   assert.match(homeShowcase, /orderDiscoveryRail\(hourlyPlaces/);
   assert.match(homeShowcase, /compare: \(a, b\) => Number\(!\(a.image && a.priceLabel\)\) - Number\(!\(b.image && b.priceLabel\)\)/);
   assert.match(homeShowcase, /featuredHourly\.map/);
@@ -808,7 +808,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
   assert.match(home, /מסלולים ליד החופשה/);
-  assert.match(home, /<SpaPackageDeals \/>/);
+  assert.match(home, /<SpaPackageDeals deferUntilNearViewport \/>/);
   assert.match(home, /חדרים לכמה שעות/);
   assert.ok(homepage.indexOf("<HomeTrails />") > homepage.indexOf("רעיונות שממשיכים את החופשה"));
   assert.match(business, /nearbyTrails/);
@@ -1584,9 +1584,9 @@ test("vacation results heading stays concise without a redundant status eyebrow"
 
 test("homepage keeps factual vacation discovery before spa without unsupported offers", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const recommended = source.indexOf("<HomeLiveDeals />");
+  const recommended = source.indexOf("<HomeLiveDeals deferUntilNearViewport />");
   const discovery = source.indexOf('className="section home-vacation-discovery"');
-  const spa = source.indexOf('<SpaPackageDeals />');
+  const spa = source.indexOf('<SpaPackageDeals deferUntilNearViewport />');
   assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
   assert.match(source, /יעדים מומלצים לנופש/);
   assert.match(source, /\/vacations\/north\?guests=2/);
@@ -1602,7 +1602,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   ]);
 
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
-  assert.match(showcase, /<HomeLiveDeals \/>/);
+  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport \/>/);
   assert.match(liveDeals, /const selectedDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
   assert.match(liveDeals, /const searchDates = clock && selectedDates && eligibleDealDate\(selectedDates.from, clock.now\) \? selectedDates : undefined/);
   assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: String\(guests\), \.\.\.\(regionLabel \? \{ location: regionLabel \} : \{\}\) \}\)/);

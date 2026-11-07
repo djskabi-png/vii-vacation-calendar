@@ -79,6 +79,18 @@ test('document read is streamed and bounded, never materialized as a full ArrayB
   assert.equal(reads, 3); assert.equal(cancelled, 1);
 });
 
+test('actual touch listener starts no work and click listener cancels a competing speculative destination',async()=>{
+ const source=await readFile(new URL('../app/components/smart-navigation-warmup.tsx',import.meta.url),'utf8');
+ const ast=ts.createSourceFile('component.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),handlers={};
+ const visit=node=>{if(ts.isVariableDeclaration(node)&&['onTouchStart','onClick'].includes(node.name.getText(ast)))handlers[node.name.getText(ast)]=node.initializer.getText(ast);ts.forEachChild(node,visit);};visit(ast);
+ const calls=[];const deps={warmup:{cancel:href=>calls.push(href)},window:{location:{pathname:'/events'}},localizedPath:href=>href,languageFromPathname:()=> 'he'};
+ const load=text=>new Function(...Object.keys(deps),ts.transpileModule(`return (${text});`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText)(...Object.values(deps));
+ load(handlers.onTouchStart)({});assert.deepEqual(calls,[]);
+ const target={closest:()=>({href:'https://vii.spaplus.co/business?id=vacation-164',getAttribute:()=>'/business?id=vacation-164'})};
+ load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,['/business?id=vacation-164']);
+ load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,1);
+});
+
 test('actual component anchor handler excludes private/API links and chooses one destination mode', async () => {
   const component = await readFile(new URL('../app/components/smart-navigation-warmup.tsx', import.meta.url), 'utf8');
   const ast = ts.createSourceFile('component.tsx', component, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
