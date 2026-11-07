@@ -6,6 +6,7 @@ type DiscoveryRequestInit = RequestInit & {
   freshMs?: number;
   staleMs?: number;
   persist?: boolean;
+  staleWhileRevalidate?: boolean;
   shouldCache?: (value: unknown) => boolean;
   validateResponse?: (value: unknown) => boolean;
 };
@@ -126,6 +127,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     freshMs = defaultFreshMs,
     staleMs = defaultStaleMs,
     persist = false,
+    staleWhileRevalidate = true,
     shouldCache = () => true,
     validateResponse = () => true,
     ...requestInit
@@ -188,7 +190,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
   };
   if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
   if (previous?.freshUntil && previous.freshUntil > Date.now()) return release(clone<T>(previous.value));
-  if (previous?.staleUntil && previous.staleUntil > Date.now()) {
+  if (staleWhileRevalidate && previous?.staleUntil && previous.staleUntil > Date.now()) {
     void load().catch(() => {});
     return release(clone<T>(previous.value));
   }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { usePublishedCatalogSeed } from "./published-catalog-seed";
 import { discoveryJson } from "./discovery-client-cache.ts";
+import { fetchPublishedSearchCatalog } from "./published-catalog-client-cache.ts";
 
 export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value: unknown) => T, view?: "cards") {
   const seedState = usePublishedCatalogSeed(world);
@@ -28,11 +29,13 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
         const body = view === "cards"
           ? await discoveryJson<{ entries?: Array<{ summary: unknown }> }>(url, world, { signal: controller.signal,
             timeoutMs: 10_000, retries: 0, persist: false, shouldCache: () => false })
-          : await (async () => {
-            const response = await fetch(url, { signal: controller.signal });
-            if (!response.ok) throw new Error("catalog_unavailable");
-            return response.json() as Promise<{ entries?: Array<{ summary: unknown }> }>;
-          })();
+          : world === "vacations" || world === "events"
+            ? await fetchPublishedSearchCatalog(world, controller.signal)
+            : await (async () => {
+              const response = await fetch(url, { signal: controller.signal });
+              if (!response.ok) throw new Error("catalog_unavailable");
+              return response.json() as Promise<{ entries?: Array<{ summary: unknown }> }>;
+            })();
         if (!Array.isArray(body.entries)) throw new Error("catalog_unavailable");
         setItems(body.entries.map((entry) => map(entry.summary)));
         hasAcceptedContent.current = true;
