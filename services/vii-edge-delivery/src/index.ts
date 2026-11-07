@@ -278,7 +278,7 @@ export default { fetch: serve, async scheduled(_controller: EdgeScheduledControl
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
   const holidayWork = warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
     .then(report => console.log('VII holiday snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report }))
-    .catch(() => console.warn('VII holiday snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD }));
+    .catch(error => console.warn('VII holiday snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }));
   ctx.waitUntil(holidayWork);
   const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx);
   ctx.waitUntil(work);

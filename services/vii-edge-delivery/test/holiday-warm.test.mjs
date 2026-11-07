@@ -12,7 +12,7 @@ test('six visible holidays use at most two anonymous read-only requests concurre
  const fetcher=async request=>{requests.push(request);const url=new URL(request.url);if(url.pathname.endsWith('home-holidays'))return json({holidays:Array.from({length:6},(_,i)=>({id:i+1,...(i===0?{exactStay:true,from:'2026-12-04',till:'2026-12-06'}:{})}))});active++;max=Math.max(max,active);await new Promise(resolve=>setTimeout(resolve,2));active--;return json(verified(Number(url.searchParams.get('id'))));};
  const report=await warmHolidaySnapshots({origin,build,fetcher});
  assert.equal(report.verified,6);assert.equal(report.failed,0);assert.equal(max,2);assert.equal(requests.length,7);
- for(const request of requests){assert.equal(request.method,'GET');assert.equal(request.redirect,'error');assert.equal(request.headers.get('Accept'),'application/json');assert.equal(request.headers.has('Cookie'),false);assert.equal(request.headers.has('Authorization'),false);assert.equal(new URL(request.url).origin,origin);}
+ for(const request of requests){assert.equal(request.method,'GET');assert.equal(request.redirect,'manual');assert.equal(request.headers.get('Accept'),'application/json');assert.equal(request.headers.has('Cookie'),false);assert.equal(request.headers.has('Authorization'),false);assert.equal(new URL(request.url).origin,origin);}
  const exact=new URL(requests[1].url);assert.equal(exact.searchParams.get('from'),'2026-12-04');assert.equal(exact.searchParams.get('till'),'2026-12-06');assert.equal(exact.searchParams.get('guests'),'2');assert.equal(exact.searchParams.get('part'),'all');assert.equal(new URL(requests[2].url).searchParams.has('from'),false);
 });
 

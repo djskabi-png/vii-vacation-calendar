@@ -17,7 +17,9 @@ export async function warmHolidaySnapshots({ origin, build, fetcher = fetch, now
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), Math.min(8_000, remaining));
     try {
-      const response = await fetcher(new Request(origin + path, { headers: { Accept: 'application/json' }, redirect: 'error', signal: controller.signal }));
+      // Workers rejects redirect:"error" during Request construction. Manual
+      // mode plus strict200 admission also prevents following any redirect.
+      const response = await fetcher(new Request(origin + path, { headers: { Accept: 'application/json' }, redirect: 'manual', signal: controller.signal }));
       if (response.status !== 200 || response.headers.get('X-VII-App-Build') !== build || !response.headers.get('Content-Type')?.includes('application/json')) throw new Error('holiday_warm_response');
       return await readJsonBody<Record<string, unknown>>(new Request('https://warm.invalid', { method: 'POST', body: response.body, duplex: 'half' } as RequestInit), { maxBytes: 1024 * 1024, deadlineMs: Math.max(1, Math.min(4_000, deadline - now())), signal: controller.signal });
     } finally { clearTimeout(timer); }
