@@ -1,0 +1,231 @@
+{
+  "verdict": "not_ready",
+  "release": "a7fdd3e6a796249c3b0a5cc2515fce19afd72d01 / c2619762-93a6-87c5-08a0-b3ec7e44d82c / v819",
+  "target": "PUBLIC env32 https://vii.spaplus.co/",
+  "baseline": "v815 home72/TBT821ms/4.51MB and v816 business46/LCP6889ms/CLS0.22638",
+  "requested_outcome": "Fast real logo/world/search/business loading while retaining content and behavior. Scoped repairs published; full speed target remains not verified.",
+  "changed_components": [
+    "app/components/slider-rail-controls.tsx",
+    "app/components/viewport-resilient-image.tsx",
+    "app/business/client-page.tsx",
+    "app/business/property-performance.css",
+    "home rail viewportactivation",
+    "bounded navigation speculation and exactRSC edgecache",
+    "consentnotice firstpaint and fast nativeimagefirstresponse"
+  ],
+  "affected_family": [
+    {
+      "id": "navigation",
+      "surface": "Public logo, world links, bounded intent prefetch and exactbrowserRSC edgecache"
+    },
+    {
+      "id": "rails",
+      "surface": "Home fourworld availability rails and sharedstreamedslidercontrols"
+    },
+    {
+      "id": "media",
+      "surface": "Businessroom viewportimages, nativeimagefirstresponse and deferredlocationmap"
+    },
+    {
+      "id": "privacy",
+      "surface": "Firstvisit andreturninguser consentnotice with savedchoice beforepaint"
+    },
+    {
+      "id": "preservation",
+      "surface": "Catalog, filters, galleryidentity, sourceancestors, fonts, cacheprivacy and booking revalidation exclusions"
+    }
+  ],
+  "characteristics": {
+    "stateful": true,
+    "responsive": true
+  },
+  "checks": [
+    {
+      "id": "public-build",
+      "family_ids": [
+        "navigation",
+        "rails",
+        "media",
+        "privacy",
+        "preservation"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "Exactpublicc261 build observed; v819-publication-receipt.json terminalSitesSucceeded; v819-public-http.json8detail200,6woff2byteexact; auxcomplete3writes."
+    },
+    {
+      "id": "functional-cohort",
+      "family_ids": [
+        "navigation",
+        "rails",
+        "media",
+        "privacy",
+        "preservation"
+      ],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "v819-public-ui.json8observedpublicscenarios on desktop1280/mobile390, customer/supplier/privacyoperations: logo618/1123ms,8roomnosrcplaceholders,3activate,unitgallery6photos,1map12tiles,holiday20cards,hourly53/list12,spa6mobile nooverflow."
+    },
+    {
+      "id": "saved-state",
+      "family_ids": [
+        "privacy",
+        "preservation",
+        "rails"
+      ],
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "Publicreloadretainedessentialchoice andnorth+loftfilters7results; earlyexternalarrowoffset-218retainedafter3secsettle."
+    },
+    {
+      "id": "failure-guards",
+      "family_ids": [
+        "navigation",
+        "rails",
+        "media",
+        "privacy",
+        "preservation"
+      ],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "Finalfullsuite2565total2564pass0fail1existingSkip130598.638ms; image15guardtests coverdeadline/failure/admission; edge61testsprivate/auth/transactionalexclusions; fallback/noIO/cleanup andexternalarrow/streamedreplacementtests."
+    },
+    {
+      "id": "full-speed-goal",
+      "family_ids": [
+        "navigation",
+        "rails",
+        "media"
+      ],
+      "state": "success",
+      "status": "failed",
+      "evidence": "Sameharness finalpublichome68 vsbaseline72, simulatedLCP5128ms; business62 vs46 butLCP5726ms/TBT479ms. Bytes/CPU/CLS improved but overallfastgoalnotverified; do not claimcomplete."
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Redeploy retainedv818 versionappgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_25bbeffd1994819182049600e977b2a2 PUBLICenv32; matching auxiliaryvars fromv819-aux-operation baselineversions; nativeimage433022f4 preserved.",
+    "verification": "Ownerreconciledv818terminalSucceededbeforeonesave/onedeployv819; exactcurrentbuildandroute/bindingreadbacks verified."
+  },
+  "authorization_boundary": "Userauthorizedperformancefixandexistingpublicdeployment. No newpaidresources/access/DNS/schema/businessdata/messages/bookings.",
+  "remaining_blockers": [
+    "Final home score68 versus baseline72 because simulatedLCP5.13s; do not cherry-pick intermediate85/81.",
+    "BusinessfinalLCP5.73s andTBT479ms remain too high; score62 versusbaseline46.",
+    "Cold originheaders1.1-1.56s versus warm18-27ms; further coldpath andcriticalrender budget work required."
+  ],
+  "publication": {
+    "source": "a7fdd3e6a796249c3b0a5cc2515fce19afd72d01",
+    "managed": "49857ae6e3830ccfb91d39890a9ab8a3fba59321",
+    "tree": "5e2b0b54b14d199b89a99ec1f3e5edf3b2c207a5",
+    "build": "c2619762-93a6-87c5-08a0-b3ec7e44d82c",
+    "version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_dc43cf4751b08191a011f408126013f4",
+    "deployment": "appgdep_6aeea0b8dd7481919d775f1e83c87e6c",
+    "status": "succeeded",
+    "environment": "PUBLIC revision32 originalDB/UPLOADS",
+    "url": "https://vii.spaplus.co/",
+    "archive_sha256": "1d1633f524ea182862a396b0419227c0fc8cc5b0a084f70e7d93b7c0f3bd0be6",
+    "archive_bytes": 109830515,
+    "provider_evidence": "Observed terminal owner conversation response and public build readback",
+    "aux_evidence": "v819-aux-operation.json complete3writes; nativeimage unchanged433022f4"
+  },
+  "performance": {
+    "method": "Official Lighthouse CLI defaultmobile sameharness sequential no builds/tests/preview running. Singlelab samples; not fieldmetrics. PageSpeed API sharedquota429, CLI fallback.",
+    "reports": {
+      "v816-home-mobile-before": {
+        "score": 72,
+        "FCP_ms": 1950.0245,
+        "LCP_ms": 1950.0245,
+        "TBT_ms": 821.3889999999994,
+        "speed_index_ms": 6525.244309195091,
+        "CLS": 0,
+        "requests": 177,
+        "transfer_bytes": 4510781
+      },
+      "v819-home-mobile-final": {
+        "score": 68,
+        "FCP_ms": 1943.3410000000001,
+        "LCP_ms": 5127.880999999999,
+        "TBT_ms": 366.49999999999955,
+        "speed_index_ms": 4603.630589314011,
+        "CLS": 0,
+        "requests": 137,
+        "transfer_bytes": 1332058
+      },
+      "v816-business-mobile": {
+        "score": 46,
+        "FCP_ms": 1864.709,
+        "LCP_ms": 6889.709,
+        "TBT_ms": 577.4999999999998,
+        "speed_index_ms": 4621.328341105359,
+        "CLS": 0.2263826173580701,
+        "requests": 149,
+        "transfer_bytes": 1638830
+      },
+      "v819-business-mobile-final": {
+        "score": 62,
+        "FCP_ms": 2063.524,
+        "LCP_ms": 5725.523999999999,
+        "TBT_ms": 479,
+        "speed_index_ms": 4541.693818051452,
+        "CLS": 0,
+        "requests": 135,
+        "transfer_bytes": 966442
+      }
+    },
+    "verdict": "partial_improvement_full_speed_goal_not_verified",
+    "remaining": [
+      "Final home score68 versus baseline72 because simulatedLCP5.13s; do not cherry-pick intermediate85/81.",
+      "BusinessfinalLCP5.73s andTBT479ms remain too high; score62 versusbaseline46.",
+      "Cold originheaders1.1-1.56s versus warm18-27ms; further coldpath andcriticalrender budget work required."
+    ]
+  },
+  "independent_assessment": {
+    "source": "a7",
+    "build": "c2619762-93a6-87c5-08a0-b3ec7e44d82c",
+    "scope": "post-public-performance-assessment",
+    "verdict": "scoped_improvement_delivered_full_fastest_outcome_not_verified",
+    "evidence": {
+      "home": {
+        "score": 68,
+        "tbtMs": 366,
+        "speedIndexMs": 4604,
+        "bytes": 1332000,
+        "cls": 0,
+        "simulatedLcpMs": 5128,
+        "observedLcpCandidateMs": 2090
+      },
+      "business": {
+        "score": 62,
+        "lcpMs": 5726,
+        "tbtMs": 479,
+        "cls": 0,
+        "bytes": 966000
+      },
+      "comparison": {
+        "homeBaselineScore": 72,
+        "homeBaselineTbtMs": 821,
+        "homeBaselineBytes": 4510000,
+        "businessBaselineScore": 46,
+        "businessBaselineLcpMs": 6889
+      }
+    },
+    "confirmed": [
+      "The published scoped changes materially reduced bytes and TBT, and removed the observed CLS regression.",
+      "Public detail routes, fonts, mobile controls, galleries, maps and warm navigations were observed working on the published build."
+    ],
+    "remaining_risk": [
+      "Home lab score remains below the prior score despite better TBT and bytes.",
+      "The home simulated LCP trace remains about 5.1 seconds while the observed candidate was about 2.1 seconds, so the measurement discrepancy and remaining render path require a separate measured investigation.",
+      "Business LCP remains about 5.7 seconds. This review does not prove a whole-site fastest outcome."
+    ],
+    "limitations": [
+      "No new tests, builds, browser actions, deployment or speculative fix were performed in this assessment."
+    ]
+  },
+  "evidence_location": "Localrawreports .qa-output/v819-* retained; summarytracked project_knowledge/release_evidence/v819-real-loading-20261107.json",
+  "next_work": [
+    "TracecoldoriginrenderandcriticalCSSdelivery using exactcurrentversion before anyfurtherchange.",
+    "Reducecriticalrenderworkwithrouteisolated CSS/componentbudgets; verifyallaffectedworldsbeforepublication.",
+    "Acceptonlysameharness/publiccohortimprovements, withoutcherrypicking intermediateLabscore."
+  ]
+}
