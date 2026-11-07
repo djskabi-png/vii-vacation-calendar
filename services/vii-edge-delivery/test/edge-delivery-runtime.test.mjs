@@ -180,3 +180,40 @@ test('one public network failure recovers but an explicit cancellation never ret
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;if(calls===1)throw new TypeError('transient transport');return new Response('ok',{headers:headers()});};
  try{assert.equal((await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx)).status,200);assert.equal(calls,2);calls=0;globalThis.fetch=async()=>{calls++;throw new DOMException('cancelled','AbortError');};await assert.rejects(worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx));assert.equal(calls,1);}finally{globalThis.fetch=old;h.restore();}
 });
+
+test('analytics-only visitors reuse the anonymous public shell without forwarding tracking or viewer identity', async()=>{
+ const h=harness({headers:headers()}),seen=[];const originFetch=globalThis.fetch;
+ globalThis.fetch=async request=>{seen.push({url:request.url,cookie:request.headers.get('Cookie')});return originFetch(request)};
+ const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
+ try{
+  const first=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:'_ga=one; _ga_G123ABC=two; _gid=three; _gat_UA-123-1=four; _gcl_au=five; vii_customer_session=signed; __cf_bm=infra'}}),env,h.ctx);
+  assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(seen[0].cookie,'__cf_bm=infra');
+  await new Promise(resolve=>setTimeout(resolve,0));
+  for(const cookie of ['_ga=other','_ga_G123ABC=another','_gid=other','_gat=one','_gat_UA-123-1=other','_gcl_au=other']){
+   const result=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:cookie}}),env,h.ctx);
+   assert.equal(result.headers.get('X-VII-Edge-Delivery'),'HIT',cookie);
+  }
+  assert.equal(h.stats().originCalls,1);
+ }finally{h.restore();}
+});
+
+test('analytics classification does not admit unknown cookies or forward private/API/action requests anonymously',async()=>{
+ const h=harness({headers:headers()}),seen=[];const originFetch=globalThis.fetch;
+ globalThis.fetch=async request=>{seen.push({url:request.url,cookie:request.headers.get('Cookie')});return originFetch(request)};
+ const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
+ try{
+  for(const cookie of ['unknown=private; _ga=one','session=private; _ga=one','_gall=private','_ga_=private','_gcl_auth=private','malformed']){
+   const result=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:cookie}}),env,h.ctx);assert.equal(result.headers.get('X-VII-Edge-Delivery'),null,cookie);
+  }
+  const cookie='vii_admin_session=signed; _ga=one';
+  for(const [path,extra] of [['/admin',{}],['/api/auth/session',{}],['/booking',{}],['/search',{'Next-Action':'action'}],['/account',{}]]){
+   const result=await worker.fetch(new Request('https://vii.spaplus.co'+path,{headers:{Accept:'text/html',Cookie:cookie,...extra}}),env,h.ctx);assert.equal(result.headers.get('X-VII-Edge-Delivery'),null,path);assert.equal(seen.at(-1).cookie,cookie,path);
+  }
+  assert.equal(h.stats().writes.length,0);
+ }finally{h.restore();}
+});
+
+test('an origin analytics Set-Cookie header still blocks shared response admission',async()=>{
+ const responseHeaders=headers();responseHeaders.set('Set-Cookie','_ga=from-server; Path=/');const h=harness({headers:responseHeaders});
+ try{const response=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:'_ga=existing'}}),{ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'},h.ctx);assert.equal(response.headers.get('X-VII-Edge-Cache-Skip'),'set_cookie');assert.equal(h.stats().writes.length,0);}finally{h.restore();}
+});

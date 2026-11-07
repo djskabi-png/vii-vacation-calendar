@@ -19,6 +19,13 @@ const variantHeaders = ["Accept", "RSC", "Next-Router-State-Tree", "Next-Router-
 const maxBytes = 2 * 1024 * 1024;
 const publicShellSessionCookies = new Set(["vii_customer_session", "vii_admin_session", "vii_session"]);
 const infrastructureCookies = new Set(["__cf_bm", "cf_clearance", "__cflb", "_cfuvid"]);
+// These client-only analytics identifiers never personalize the public shell.
+// Keep them separate from infrastructure cookies: they must not be forwarded
+// to the shared origin or make a Set-Cookie response eligible for caching.
+function anonymousAnalyticsCookie(name: string) {
+  return /^_ga(?:_[A-Za-z0-9]+)?$/.test(name) || name === "_gid"
+    || /^_gat(?:_[A-Za-z0-9_-]+)?$/.test(name) || name === "_gcl_au";
+}
 function infrastructureSetCookieOnly(value: string | null) {
   if (!value) return true;
   const names = [...value.matchAll(/(?:^|,\s*)([^=;,\s]+)=/g)].map((match) => match[1]);
@@ -44,7 +51,8 @@ function privateRequest(request: Request) {
   return cookie.split(";").some(part => {
     if (!part.trim()) return false;
     const separator = part.indexOf("=");
-    return separator < 1 || !infrastructureCookies.has(part.slice(0, separator).trim()) && !publicShellSessionCookies.has(part.slice(0, separator).trim());
+    const name = part.slice(0, separator).trim();
+    return separator < 1 || !infrastructureCookies.has(name) && !publicShellSessionCookies.has(name) && !anonymousAnalyticsCookie(name);
   });
 }
 
