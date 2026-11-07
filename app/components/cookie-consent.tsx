@@ -7,6 +7,13 @@ const STORAGE_KEY = "vii-cookie-choice";
 const CHOICE_EVENT = "vii-cookie-choice-changed";
 const OPEN_EVENT = "vii-open-cookie-settings";
 const SETTINGS_HASH = "#privacy-settings";
+type CookieChoice = "all" | "essential";
+function readCookieChoice(): CookieChoice | null {
+  try { const value = window.localStorage.getItem(STORAGE_KEY); return value === "all" || value === "essential" ? value : null; } catch { return null; }
+}
+function writeCookieChoice(value: CookieChoice) {
+  try { window.localStorage.setItem(STORAGE_KEY, value); } catch { /* Consent UI remains usable when storage is blocked. */ }
+}
 
 const copy: Record<SiteLanguage, {
   aria: string;
@@ -63,7 +70,7 @@ export function CookieConsent() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const choice = localStorage.getItem(STORAGE_KEY);
+      const choice = readCookieChoice();
       setAnalytics(choice === "all");
       if (window.location.hash === SETTINGS_HASH) {
         setSettings(true);
@@ -74,7 +81,7 @@ export function CookieConsent() {
     }, 0);
 
     const openSettings = () => {
-      setAnalytics(localStorage.getItem(STORAGE_KEY) === "all");
+      setAnalytics(readCookieChoice() === "all");
       setSettings(true);
       setVisible(true);
     };
@@ -94,7 +101,7 @@ export function CookieConsent() {
   }, []);
 
   function choose(value: "all" | "essential") {
-    localStorage.setItem(STORAGE_KEY, value);
+    writeCookieChoice(value);
     window.dispatchEvent(new CustomEvent(CHOICE_EVENT, { detail: value }));
     setAnalytics(value === "all");
     setVisible(false);
@@ -105,7 +112,7 @@ export function CookieConsent() {
 
   function closeSettings() {
     setSettings(false);
-    if (localStorage.getItem(STORAGE_KEY)) setVisible(false);
+    if (readCookieChoice()) setVisible(false);
     if (window.location.hash === SETTINGS_HASH) {
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     }
