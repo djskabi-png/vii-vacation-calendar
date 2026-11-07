@@ -71,6 +71,14 @@ test('same path with different bytes is rejected before any write', async () => 
  } finally { f.cleanup(); }
 });
 
+test('an exactly qualified frozen retention window is reused during reconciled continuation', async () => {
+ const f=fixture(),now=Date.now(),window=7*86400000;
+ try {
+  const encoded=await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now,retainUntil:now+window},f.rows[0].body,now);
+  assert.equal((await inspectExistingRetainedAsset(encoded,f.rows[0],now,window)).status,'reuse');
+ } finally { f.cleanup(); }
+});
+
 test('expired predecessor is rejected, while a short valid retention requests one extension write', async () => {
  const f=fixture(),now=Date.now();
  try {

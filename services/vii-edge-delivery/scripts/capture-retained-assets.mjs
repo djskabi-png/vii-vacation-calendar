@@ -28,7 +28,7 @@ export async function inspectExistingRetainedAsset(encoded, row, now = Date.now(
     return { status: 'conflict', reason: 'existing_asset_identity_or_expiry_mismatch' };
   }
   const remainingMs = metadata.retainUntil - now;
-  if (remainingMs <= requiredRetentionMs) return { status: 'extend', remainingMs, source: metadata.source, buildId: metadata.buildId, retainUntil: metadata.retainUntil };
+  if (remainingMs < requiredRetentionMs) return { status: 'extend', remainingMs, source: metadata.source, buildId: metadata.buildId, retainUntil: metadata.retainUntil };
   return { status: 'reuse', remainingMs, source: metadata.source, buildId: metadata.buildId, retainUntil: metadata.retainUntil };
 }
 
