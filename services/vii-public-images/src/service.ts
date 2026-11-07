@@ -109,7 +109,9 @@ export function createImageHandler(options: { sourceFetch?: typeof fetch; edge?:
         return early;
       }
       ctx.waitUntil(work.then(async result => {
-        if (result.headers.get("X-VII-Image-Engine") === "cloudflare-images") await bounded(edge.put(key, result.clone()), options.cacheWriteMs ?? 1500);
+        // After the foreground deadline no client consumes this body. Store the
+        // original stream rather than retaining an unread tee branch.
+        if (result.headers.get("X-VII-Image-Engine") === "cloudflare-images") await bounded(edge.put(key, result), options.cacheWriteMs ?? 1500);
       }).catch(() => undefined));
       return originalFallback("warming");
     }
