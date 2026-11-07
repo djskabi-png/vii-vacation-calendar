@@ -85,7 +85,8 @@
         "tests/section-activation-actual.test.mjs",
         "tests/holiday-cold-recovery-actual.test.mjs",
         "tests/cookie-consent-cls.test.mjs",
-        "tests/slider-settle-layout-actual.test.mjs"
+        "tests/slider-settle-layout-actual.test.mjs",
+        "tests/cross-release-client-reference-actual.test.mjs"
       ]
     },
     "search": {
@@ -703,16 +704,16 @@
         "app/components/cookie-consent.tsx",
         "app/components/slider-rail-controls.tsx",
         "app/components/responsive-viewport-guard.tsx",
-        "app/components/global-action-feedback.tsx"
-        ,"app/components/guest-review-studio.tsx"
-        ,"app/components/modern-date-input.tsx"
-        ,"app/components/modern-date-input.css"
-        ,"app/components/modern-date-time-input.tsx"
-        ,"app/lib/modern-date-model.ts"
-        ,"app/lib/public-style-resources.ts"
-        ,"app/lib/public-style-world.ts"
-        ,"app/components/public-style-resources.tsx"
-        ,"app/components/whatsapp-lead-button.tsx"
+        "app/components/global-action-feedback.tsx",
+        "app/components/guest-review-studio.tsx",
+        "app/components/modern-date-input.tsx",
+        "app/components/modern-date-input.css",
+        "app/components/modern-date-time-input.tsx",
+        "app/lib/modern-date-model.ts",
+        "app/lib/public-style-resources.ts",
+        "app/lib/public-style-world.ts",
+        "app/components/public-style-resources.tsx",
+        "app/components/whatsapp-lead-button.tsx"
       ]
     },
     {
@@ -838,8 +839,8 @@
         "app/lib/discovery-recovery-policy.ts",
         "app/api/vii/home-holiday-deals/route.ts",
         "app/components/holiday-live-deals.tsx",
-        "app/lib/home-offer-freshness.ts"
-        ,"app/lib/warm-holiday-discovery-cache.ts"
+        "app/lib/home-offer-freshness.ts",
+        "app/lib/warm-holiday-discovery-cache.ts"
       ]
     },
     {
@@ -873,8 +874,8 @@
       "match": [
         "app/sitemap.xml/",
         "app/sitemaps/",
-        "app/lib/search-page-content.ts"
-        ,"app/lib/sitemap-inventory.ts"
+        "app/lib/search-page-content.ts",
+        "app/lib/sitemap-inventory.ts"
       ]
     },
     {
@@ -913,9 +914,9 @@
         "pnpm-lock.yaml",
         "build/world-style-slots.mjs",
         "build/generate-vacation-intent-index.mjs",
-        "app/worlds/style-slots.json"
-        ,"build/public-style-bundles.mjs"
-        ,"types/public-style-bundles.d.ts"
+        "app/worlds/style-slots.json",
+        "build/public-style-bundles.mjs",
+        "types/public-style-bundles.d.ts"
       ]
     },
     {

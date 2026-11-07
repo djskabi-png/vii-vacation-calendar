@@ -1,0 +1,24 @@
+{
+  "release": "v823",
+  "verdict": "rejected_and_rolled_back",
+  "source": "a337a2d046cc5c28c70ba16f25c836460528287f",
+  "build": "8f535293-c206-ad49-bb82-b4c8e51dc04e",
+  "deployment": "appgdep_6aef5b521a0881918d3a4326bd144dd7",
+  "version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_ada6bff405e48191b00766270ec64ffd",
+  "prepublicationEvidence": "2620fulltests pass1existing skip,427impacttests,16retentiontests andnew-client UI checks. These failed tocover old-client/new-server Flight generation skew.",
+  "observedFailure": "Actual retainedv822 browser ->SPA failed client reference not found5770acf2d3cf. Generatedmanifest resolvesID to newly introduced public-style-resources clientcomponent.",
+  "rollback": {
+    "status": "succeeded",
+    "version": 822,
+    "deployment": "appgdep_6aef5cb3b6c881918a618290ae502dfa",
+    "environmentRevision": 32,
+    "audience": "PUBLIC",
+    "source": "3cbf52f87795502de6b1cb3338532ddc104be3eb",
+    "build": "42914855-3237-0753-afbb-72b5319ff709",
+    "auxiliaryIdentityRestore": "complete3expectedidentity-only writes; nativecodeandimageworker unchanged"
+  },
+  "rootRepair": "CSS resource choice moved toserver-only component using authoritative destination path; native Reactlinkresources instead ofnewrootclientreference.",
+  "prevention": "Actual six-route Flight compatibility tests againstqualifiedv822clientmanifest, demonstratedfailonrejectedv823 then6/6pass; actualv822HTML/assets boot ->newserverFlight browserrehearsal4worlds noerrors,desktop/mobile verified.",
+  "evidenceDirectory": ".qa-output/v824-compat",
+  "limitation": "Coldperformance targets andfieldRUM are not certified by this rollback or scope."
+}

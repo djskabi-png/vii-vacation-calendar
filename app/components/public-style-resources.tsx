@@ -1,13 +1,11 @@
-"use client";
-
-import { usePathname } from 'next/navigation';
 import bundles from 'virtual:vii-public-style-bundles';
 import { publicStyleWorld } from '../lib/public-style-world';
 
 export function PublicStyleResources({ initialPath }: { initialPath: string }) {
-  const pathname = usePathname() || initialPath;
-  const href = bundles[publicStyleWorld(pathname)];
-  // React owns insertion, de-duplication and the stylesheet readiness boundary.
-  // A new resource key is required: React stylesheet props are immutable.
+  const href = bundles[publicStyleWorld(initialPath)];
+  // The Worker supplies the destination path on HTML and Flight requests.
+  // Keep this a Server Component: an already open predecessor client must
+  // receive a native link resource, never a new unknown client-module ID.
+  // React owns insertion, de-duplication and stylesheet readiness on navigation.
   return <link key={href} rel="stylesheet" href={href} precedence="vii-public" />;
 }

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "release": "v823",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v791-complete-20261104",
+  "source_commit": "a337a2d046cc5c28c70ba16f25c836460528287f",
+  "tree": "e480ac3f37f34c7bdd15251cfb1699c5ba78509b",
+  "build_identity": "8f535293-c206-ad49-bb82-b4c8e51dc04e",
+  "candidate_manifest": ".qa-output/v823-final-loading/candidate-manifest.json",
+  "artifact_sha256": "a970484a2d3d8607f47fe4c350d1162fdd36c9f59ade1188dfc3944a6d55f055",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_6a14ff0a65f881918b284eb0f8c8dc46",
+  "rollback_deployment_id": "appgdep_6aef353c34788191b1dfe7c46b763dc3",
+  "environment_revision": 32,
+  "focused_tests": 427,
+  "full_tests": 2621,
+  "full_tests_passed": 2620,
+  "full_tests_skipped": 1,
+  "publication_chat": "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v823 לאחר v822. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nתיקוני חימום ומפתח מטמון לחגים, עמודי שילובים באירועים, קובצי עיצוב נפרדים לפי עולם, לוחות תאריכים אחידים ומניעת קריאות קטלוג כפולות בתוך בקשה. בדיקות המועמד עברו, אין כאן טענת השלמת יעדי המהירות או מוכנות מלאה להשקה.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v791-complete-20261104, source commit מדויק a337a2d046cc5c28c70ba16f25c836460528287f, tree מדויק e480ac3f37f34c7bdd15251cfb1699c5ba78509b, deployable build identity 8f535293-c206-ad49-bb82-b4c8e51dc04e, artifact SHA-256 a970484a2d3d8607f47fe4c350d1162fdd36c9f59ade1188dfc3944a6d55f055. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 427 בדיקות ממוקדות עברו ו-2620 עברו מתוך 2621, עם 1 בדיקות שסומנו skip. השתמש רק בחבילה המקומית המדויקת שנבדקה. הורד את חלקי הקובץ המצורפים, אמת כל חלק, חבר לפי הסדר ואמת את ה-SHA-256 והגודל של החבילה השלמה לפני שמירה. אין לבנות מחדש או לשנות קוד. לפני deployment חובה לאמת שהארטיפקט תואם בדיוק ל-SHA-256 הזה.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v822 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_6a14ff0a65f881918b284eb0f8c8dc46, Deployment ID appgdep_6aef353c34788191b1dfe7c46b763dc3. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 32. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "prepared_not_published",
+  "prepared_at": "2026-11-07T17:07:13.6716040Z"
+}

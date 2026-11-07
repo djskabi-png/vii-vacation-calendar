@@ -4,6 +4,7 @@
 import http from "node:http";
 import fs from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import worker from "../dist/server/index.js";
 import { catalogResponse } from "../app/api/catalog/route.ts";
 
@@ -13,6 +14,11 @@ const publicOrigin = "https://vii.spaplus.co";
 // a new candidate with the old production catalog. Still read-only, no D1.
 const localCatalog = process.argv.includes("--local-catalog");
 const clientRoot = resolve("dist/client");
+// Explicit compatibility rehearsal: bootstrap the exact qualified predecessor
+// document, but resolve subsequent Flight navigation with the candidate Worker.
+const predecessorArgument = process.argv.find(value => value.startsWith('--predecessor-dist='))?.slice('--predecessor-dist='.length);
+const predecessorRoot = predecessorArgument ? resolve(predecessorArgument) : null;
+const predecessor = predecessorRoot ? (await import(pathToFileURL(resolve(predecessorRoot, 'server/index.js')).href)).default : null;
 const mime = { ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml", ".json": "application/json" };
 const assets = {
   async fetch(request) {
@@ -20,7 +26,16 @@ const assets = {
     const path = resolve(clientRoot, `.${pathname}`);
     if (!path.startsWith(clientRoot + sep)) return new Response("Not found", { status: 404 });
     try { return new Response(await fs.readFile(path), { headers: { "Content-Type": mime[extname(path)] || "application/octet-stream" } }); }
-    catch { return new Response("Not found", { status: 404 }); }
+    catch {
+      if (predecessorRoot) {
+        const previousRoot = resolve(predecessorRoot, 'client');
+        const previous = resolve(previousRoot, `.${pathname}`);
+        if (previous.startsWith(previousRoot + sep)) {
+          try { return new Response(await fs.readFile(previous), { headers: { "Content-Type": mime[extname(previous)] || "application/octet-stream" } }); } catch { /* current and predecessor both lack the asset */ }
+        }
+      }
+      return new Response("Not found", { status: 404 });
+    }
   },
 };
 const context = { waitUntil(promise) { promise.catch(() => undefined); }, passThroughOnException() {} };
@@ -45,7 +60,9 @@ const server = http.createServer(async (request, response) => {
     } else if (result.status === 404 && incoming.pathname !== "/api/vii/homepage-presentation" && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
       result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: quoteRead ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(quoteRead ? { "Content-Type": "application/json" } : {}) }, ...(quoteRead ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
     } else if (result.status === 404) {
-      result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);
+      const flight = incoming.pathname.endsWith('.rsc') || request.headers.rsc === '1' || String(request.headers.accept || '').includes('text/x-component');
+      const renderer = predecessor && !flight && String(request.headers.accept || '').includes('text/html') ? predecessor : worker;
+      result = await renderer.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);
     }
     const headers = Object.fromEntries(result.headers);
     // Keep canonical redirects within the candidate preview. Otherwise a
