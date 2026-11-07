@@ -119,3 +119,14 @@ surface. Native connector PROJECT_NOT_FOUND does not prove this owner route is
 unavailable. Inspect existing authorized context and current operations first.
 This records a verified route, not a permanent session or a new release.
 Adir reconfirmed: complete and accept the unified documents1+2, then document3.
+
+
+## Public predecessor asset retention gate, 7 November 2026
+
+The verified public application is v822, source `3cbf52f87795502de6b1cb3338532ddc104be3eb`, build `42914855-3237-0753-afbb-72b5319ff709`, PUBLIC environment32, deployment `appgdep_6aef353c34788191b1dfe7c46b763dc3`. Native delivery is independently deployed as `178fe30c-b11f-4af3-abdf-562a00b9b6b4`. Original DB/UPLOADS, routes and cron were retained. Evidence: `.release-v790-candidate/project_knowledge/release_evidence/v822-performance-20261107.json` and the execution checkpoint `RESUME_LOADING_PERFORMANCE.md` in that checkout. This is a scoped delivery record, not completion of the unified V+QQQAAA program or all24 speed-plan chapters. Cold misses, actual CSS network separation and field performance evidence remain open.
+
+An actual retained v821 browser tab failed to import an old public chunk after v822 replaced the assets. This was repaired by capturing95 missing fingerprinted public assets from the qualified v821 archive into the existing private R2 cache. Every object and all95 public fallback responses were byte-verified, and an old tab then navigated without import failures.
+
+Before EVERY future managed Site replacement, prepare the FULL prior public client inventory from the exact qualified rollback archive, compare it with the candidate, retain missing hashed assets, preflight all existing objects before any write, reserve each single PUT and verify its bytes. Use the independent delivery scripts `services/vii-edge-delivery/scripts/prepare-retained-assets.py` and `capture-retained-assets.mjs`. The publication handoff now requires a complete retention receipt bound to the rollback source and archive digest. Never substitute current/similar code for an old filename. Exclude server code, source maps, HTML/RSC/API data and private files. A changed/uncertain object stops the operation for reconciliation, not an automatic retry. Post-deploy verification must exercise a tab opened before deployment.
+
+Operational delivery scripts and native Worker releases are separate from the managed application build. Updating those tools does not require rebuilding the Site when its source-input identity is unchanged. Do not overwrite a fixed native Worker with an older managed source snapshot. Preserve the original environment and the managed1891 redirect override.

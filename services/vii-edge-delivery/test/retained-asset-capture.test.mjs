@@ -4,9 +4,14 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { captureRetainedAssets } from '../scripts/capture-retained-assets.mjs';
+import { captureRetainedAssets, verifyRetainedPredecessor } from '../scripts/capture-retained-assets.mjs';
 import { encodeRetainedAsset, retainedAssetKey } from '../src/retained-assets.ts';
 const source = 'a'.repeat(40), buildId = '11111111-2222-3333-4444-555555555555';
+test('publication handoff rejects missing, pending, wrong-predecessor and uncertain retention receipts',()=>{
+ const sha='b'.repeat(64),receipt={state:'complete',source,archiveSha256:sha,count:2,writes:[{key:'one',state:'verified'}]};
+ assert.equal(verifyRetainedPredecessor(receipt,source,sha),true);
+ for(const bad of [{...receipt,state:'writing'},{...receipt,source:'c'.repeat(40)},{...receipt,archiveSha256:'d'.repeat(64)},{...receipt,writes:[{key:'one',state:'reconciliation_required'}]}])assert.throws(()=>verifyRetainedPredecessor(bad,source,sha),/not_verified/);
+});
 function fixture() {
   const folder = mkdtempSync(join(tmpdir(), 'vii-retention-test-'));
   const rows = ['first-Abcd1234.js', 'second-Efgh5678.js'].map((file, i) => {

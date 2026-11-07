@@ -6,6 +6,7 @@ param(
   [Parameter(Mandatory = $true)][ValidateRange(1, 99999)][int]$FullTests,
   [Parameter(Mandatory = $false)][ValidateRange(0, 99999)][int]$FullTestsSkipped = 0,
   [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$CandidateManifestPath,
+  [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$RetainedAssetsReceiptPath,
   [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$RollbackVersionId,
   [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$RollbackDeploymentId,
   [Parameter(Mandatory = $true)][ValidateRange(1, 9999)][int]$EnvironmentRevision
@@ -45,6 +46,9 @@ if ($LASTEXITCODE -ne 0 -or $manifestResult.status -ne "passed" -or $manifestRes
   throw "Candidate manifest is not publication-approved: $($manifestResult.failures -join ', ')"
 }
 $manifest = Get-Content -LiteralPath $manifestAbsolute -Raw | ConvertFrom-Json
+$retainedReceiptAbsolute = (Resolve-Path -LiteralPath $RetainedAssetsReceiptPath -ErrorAction Stop).Path
+& node.exe --experimental-strip-types (Join-Path $project "services\vii-edge-delivery\scripts\capture-retained-assets.mjs") --verify-receipt $retainedReceiptAbsolute $manifest.rollback.source $manifest.rollback.artifactSha256
+if ($LASTEXITCODE -ne 0) { throw "The qualified predecessor public assets have not been retained. Publication handoff is blocked." }
 if ($manifest.candidate.source -ne $commit -or $manifest.candidate.tree -ne $tree -or [int]$manifest.candidate.environmentRevision -ne $EnvironmentRevision -or $manifest.candidate.buildIdentity -ne $buildIdentity) {
   throw "Candidate manifest identity does not match the frozen source, environment or build identity."
 }

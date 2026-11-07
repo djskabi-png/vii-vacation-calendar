@@ -9,7 +9,7 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
  * durably, never retried, and read back byte-for-byte before acknowledgement. */
 export async function captureRetainedAssets(plan, folder, transport, receipt, save, now = Date.now()) {
   if (receipt.state !== 'reserved_before_preflight') throw Error('existing_operation_requires_reconciliation');
-  if (plan.schemaVersion !== 1 || !Array.isArray(plan.assets) || !plan.assets.length || plan.assets.length > 2048) throw Error('invalid_asset_plan');
+  if (plan.schemaVersion !== 1 || !Array.isArray(plan.assets) || plan.assets.length > 2048) throw Error('invalid_asset_plan');
   const paths = new Set();
   const prepared = [];
   for (const row of plan.assets) {
@@ -45,12 +45,25 @@ export async function captureRetainedAssets(plan, folder, transport, receipt, sa
   return receipt;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+export function verifyRetainedPredecessor(receipt, source, archiveSha256) {
+  if (receipt.state !== 'complete' || receipt.source !== source || receipt.archiveSha256 !== archiveSha256
+    || !Number.isInteger(receipt.count) || receipt.count < 0 || receipt.count > 2048
+    || !Array.isArray(receipt.writes) || receipt.writes.length > receipt.count
+    || receipt.writes.some(row => row.state !== 'verified')
+    || new Set(receipt.writes.map(row => row.key)).size !== receipt.writes.length) throw Error('retained_predecessor_not_verified');
+  return true;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href && process.argv[2] === '--verify-receipt') {
+  const [file, source, archiveSha256] = process.argv.slice(3);
+  verifyRetainedPredecessor(JSON.parse(readFileSync(file)), source, archiveSha256);
+  console.log('RETAINED_PREDECESSOR_VERIFIED');
+} else if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const [planFile, receiptFile, flag] = process.argv.slice(2);
   if (!planFile || !receiptFile || flag !== '--apply') throw Error('explicit_plan_receipt_apply_required');
   if (existsSync(receiptFile)) throw Error('existing_operation_requires_reconciliation');
   const planBytes = readFileSync(planFile), plan = JSON.parse(planBytes);
-  const receipt = { operation: 'retain-qualified-predecessor-assets', attempt: 1, state: 'reserved_before_preflight', planSha256: hash(planBytes), source: plan.source, buildId: plan.buildId };
+  const receipt = { operation: 'retain-qualified-predecessor-assets', attempt: 1, state: 'reserved_before_preflight', planSha256: hash(planBytes), archiveSha256: plan.archiveSha256, source: plan.source, buildId: plan.buildId };
   const save = value => writeFileSync(receiptFile, JSON.stringify(value, null, 2)); save(receipt);
   let token = /^oauth_token\s*=\s*"([^"]+)"/m.exec(readFileSync('C:/Users/Adir/AppData/Roaming/xdg.config/.wrangler/config/default.toml', 'utf8'))?.[1];
   if (!token) throw Error('official_wrangler_oauth_unavailable');

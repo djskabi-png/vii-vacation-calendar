@@ -1,0 +1,219 @@
+{
+  "verdict": "not_ready",
+  "release": "v822 / 3cbf52f87795502de6b1cb3338532ddc104be3eb / 42914855-3237-0753-afbb-72b5319ff709",
+  "target": "PUBLIC env32 https://vii.spaplus.co/",
+  "baseline": "v819 verifiedpredecessor and rejectedv820 preserved; v821 currentbeforethiscachepatch",
+  "requested_outcome": "Complete approvedloading/navigationplan and launch-quality wholeplatform; scoped repairs below are published, full24chaptercompletion is not claimed",
+  "changed_components": [
+    "Home4cardSSR snapshot andpaced20cardhydration, sharedRAFcontrols, navigationfeedback(v821)",
+    "Clocked publicdocument cache forrelativeperiods, accommodationaliases andstrictcanonicalbusinesscontext(v822)",
+    "Independentnativeedge GA-cookiecacheeligibility, cutoffkey/expiry, globalR2 periodroutes andboundedwarm",
+    "Verifiedpredecessorassetcaptureandmandatorypublicationhandoffgate"
+  ],
+  "affected_family": [
+    {
+      "id": "public-delivery",
+      "surface": "publicHTMLandFlight,world/period/search/business routes"
+    },
+    {
+      "id": "data-context",
+      "surface": "date,party,unit,price,Israelcutoffandmidnight"
+    },
+    {
+      "id": "responsive-ui",
+      "surface": "fourworlds,filters,booking,desktop/mobile"
+    },
+    {
+      "id": "release-lifecycle",
+      "surface": "oldbrowserimports,rollback,bindingsandartifactidentity"
+    },
+    {
+      "id": "privacy",
+      "surface": "private/API/actions/cookies,consentedRUM"
+    }
+  ],
+  "characteristics": {
+    "stateful": true,
+    "responsive": true
+  },
+  "checks": [
+    {
+      "id": "public-build-and-cache",
+      "family_ids": [
+        "public-delivery",
+        "data-context"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "20HTTP200responses across10distinctvariants(8HTML+2Flight);allnewbuild;second10HIT105-153ms. Rawpublic-http.json."
+    },
+    {
+      "id": "ui-cohort",
+      "family_ids": [
+        "responsive-ui",
+        "data-context",
+        "release-lifecycle"
+      ],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "Eightrepresentative visitor,supplier,risk,operator scenarios savedpublic-ui.json. Actualmobile390verified, booking1450contextpreserved."
+    },
+    {
+      "id": "filter-reload",
+      "family_ids": [
+        "data-context",
+        "responsive-ui"
+      ],
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "South+lofts10results,selectedcontrols+URLsurvivedreload."
+    },
+    {
+      "id": "failure-and-clock-boundaries",
+      "family_ids": [
+        "public-delivery",
+        "data-context",
+        "privacy"
+      ],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "Actualorigin/native/globalR2HTML+Flight rollover andlate-renderexpiry/privateboundary tests;81familytests passed;full2597total2596pass0fail1existing skip."
+    },
+    {
+      "id": "old-client-recovery",
+      "family_ids": [
+        "release-lifecycle",
+        "responsive-ui"
+      ],
+      "state": "recovery",
+      "status": "passed",
+      "evidence": "Observedoldchunkimportfailure, then95missingpublicassets capturedfromqualifiedv821archive and95/95public200SHA/MIMEverified;oldtab4->SPA/hourly noimporterrors.11retentiontests andhandoffreceiptguardpassed."
+    },
+    {
+      "id": "private-boundary",
+      "family_ids": [
+        "privacy"
+      ],
+      "state": "permission",
+      "status": "passed",
+      "evidence": "Unknowncookiepublicprobe hasnocacheadmission;API/auth/actionguardsretained;RUMpolicyenabled5percentopt-in,aggregatetablesexist,nobatches,no synthetic events."
+    },
+    {
+      "id": "full-speed-program",
+      "family_ids": [
+        "public-delivery",
+        "responsive-ui"
+      ],
+      "state": "success",
+      "status": "pending",
+      "evidence": "ColdMISSheaders remain559-4021ms; CSSnetworksplitnotimplemented;RUMcontainsnofieldcohort. BusinessGooglelab90mobile/92desktop,LCP1.8/1.0sec,TBT50,CLS0 are scopedlabresults."
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Deployexistingv821versionappgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_5d05732f2c48819190879a96b7d129f3 tooriginalenv32,alignappbuildvarsbacktoc548;retaincurrentnativecodeandoldassets",
+    "verification": "OwningSiteconfirmedqualifiedv821archive87bde111... andprioractivedeploymentappgdep_6aef2c35ac208191b3b879c1d2f035d5. Actualplatformrollbackwasexercisedearlierafterv820regression;v822rollbacknottriggered."
+  },
+  "authorization_boundary": "Userapprovedcompletionandpublication;no order/lead/payment/sendwasperformedbythesechecks",
+  "remaining_blockers": [
+    "Wholeprogramnotverified: occasionalcoldoriginlatencyupto4sec",
+    "ActualrouteCSSnetworksplitnotimplementedoraccepted",
+    "No fieldp75/INP sample yet;opt-in5percentRUMconfiguredandverifiedbutempty",
+    "BusinessGoogleautomatedcontrastfinding97requiresseparateUIreview;no legalaccessibilityclaim"
+  ],
+  "scoped_release_status": "published_and_functionally_verified",
+  "publication": {
+    "state": "succeeded",
+    "attempts": 1,
+    "reservedAt": "2026-11-07T14:22:54.935928+00:00",
+    "submittedAt": "2026-11-07T14:24:14.187218+00:00",
+    "version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_6a14ff0a65f881918b284eb0f8c8dc46",
+    "deployment": "appgdep_6aef353c34788191b1dfe7c46b763dc3",
+    "managed": "fbae615523da2fb02a3cee8f269a16fdec7a2380",
+    "environmentRevision": 32,
+    "observedAt": "2026-11-07T14:29:52.326043+00:00"
+  },
+  "native": {
+    "at": "2026-11-07T14:31:16.626Z",
+    "version": [
+      {
+        "version_id": "178fe30c-b11f-4af3-abdf-562a00b9b6b4",
+        "percentage": 100
+      }
+    ],
+    "checks": {
+      "bindings": true,
+      "routes": true,
+      "cron": true,
+      "subdomain": true,
+      "compatibility": true,
+      "usage": true,
+      "placement": true
+    }
+  },
+  "metrics": {
+    "target": "https://vii.spaplus.co/business?id=vacation-164",
+    "report": "https://pagespeed.web.dev/analysis/https-vii-spaplus-co-business/89wu9k4z8x",
+    "capturedAt": "2026-11-07T16:49:00+02:00",
+    "build": "42914855-3237-0753-afbb-72b5319ff709",
+    "mobile": {
+      "performance": 90,
+      "fcpMsApprox": 1800,
+      "lcpMsApprox": 1800,
+      "tbtMs": 50,
+      "cls": 0,
+      "speedIndexMsApprox": 9100
+    },
+    "desktop": {
+      "performance": 92,
+      "fcpMsApprox": 400,
+      "lcpMsApprox": 1000,
+      "tbtMs": 50,
+      "cls": 0,
+      "speedIndexMsApprox": 2800
+    },
+    "automatedAccessibility": 97,
+    "accessibilityFinding": "contrast, not a legal-compliance assessment",
+    "seo": 69,
+    "seoReason": "Prelaunch hostname remains blockedfromindexing, unchanged",
+    "limits": "External lab samples, no fieldp75 claim; full-page visualcompletion speedindex remains slowerthan LCP."
+  },
+  "rum": {
+    "at": "2026-11-07T14:31:23.908Z",
+    "policyStatus": 200,
+    "policy": {
+      "enabled": true,
+      "buildId": "42914855-3237-0753-afbb-72b5319ff709",
+      "serverTime": 1794061883872,
+      "sampleRateBps": 500
+    },
+    "controllerEnabled": "true",
+    "sampleRateBps": "500",
+    "tables": [
+      "quality_experience_batches",
+      "quality_experience_bins"
+    ],
+    "batches": [],
+    "readOnly": true,
+    "noSyntheticEvents": true
+  },
+  "raw_evidence": ".qa-output/v822-cache-coverage/",
+  "surface_classification": {
+    "privacy_cookies": "Existingconsent retained;unknowncookiecachebypassobserved;opt-inmetrics5percent",
+    "refund_terms_forms": "No legalcopy orsubmissionauthoritychanged;actualbookingstep1contextobserved",
+    "image_rights": "No newmedia;CSS/mediafilesunchanged;retentiononlyqualifiedpublicJSassets",
+    "alt_text_buttons": "No labelchanges;actualcontrolsobserveddesktop/mobile",
+    "third_party_embeds": "Existingdeferredmapsandconsent unchanged;no newprovider",
+    "not_found": "Onlyqualifiedhashedasset404/410fallback;95exactpublicbytesverified",
+    "shipping_delivery": "Shippingnotapplicable;bookingconfirmationauthorityunchanged"
+  },
+  "operational_verification": {
+    "nativeFamilyTests": 70,
+    "failed": 0,
+    "retentionTestsSubset": 11,
+    "appBuildIdentityAfterOperationalChanges": "42914855-3237-0753-afbb-72b5319ff709",
+    "handoffPowerShellParse": "passed",
+    "retainedPredecessorReceiptValidator": "passed",
+    "fullProgramContract": "not_verified: goal pending, documentedcold/CSS/fieldgaps"
+  }
+}

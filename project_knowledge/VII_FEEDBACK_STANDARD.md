@@ -86,3 +86,8 @@ A complete API is not proof of a complete page. The full SPA response in v797 wa
 - Preserve exact matches and every active amenity/date/price/capacity predicate. Supplemental place-search results are nearest-first within35km of the established origin, consistent with the existing local nearby radius. Fewer results or an empty state are valid.
 - A managed city origin returning no nearby candidates must not be retried from a different coarse regional center. Missing candidate coordinates cannot establish proximity; managed city-center enrichment remains supported.
 - Apply this to shared search expansion and SSR landings; generic recommendations on business pages retain their separate existing behavior. Save this correction only; do not publish in this task.
+
+
+## Cross-release browser continuity, 7 November 2026
+
+A freshly reloaded page is not sufficient release evidence. Keep at least one prior-version browser tab open through deployment and exercise logo/world/search/business navigation afterwards. Exact old hashed public chunks must remain available for their qualified retention period. Capture and verify the complete predecessor asset inventory before replacement, then verify fallback bytes and the existing tab after deployment. Origin404/410 fallback may use only the exact original bytes, never a new module under an old name. Record this separately from HTTP warm-cache speed and from whole-platform readiness.
