@@ -1,0 +1,389 @@
+{
+  "verdict": "ready",
+  "release": "v815, source8136a0d3510ef30b5611ffbabd9c74c58f3f017e",
+  "target": "PUBLIC https://vii.spaplus.co environment32",
+  "baseline": "Publicv814 sourcec4be5e6f20cc9e12076b23ed6d31fc4c30a2ba4e",
+  "requested_outcome": "One cumulative Site release containing all saved past-hour event filter, hourly map and cross-world place-opening repairs",
+  "changed_components": [
+    "Event filter identity e2bba246",
+    "Hourly map layouts7d90117c",
+    "Event streaming/localization916f9847/2fa70cb8",
+    "Place critical path/local fonts5b55205a",
+    "Event type translationsce2c0d4b",
+    "Independent edge font transport helperc99cd95f"
+  ],
+  "affected_family": [
+    {
+      "id": "events",
+      "surface": "Event search region/type and retained reload/mobile state"
+    },
+    {
+      "id": "hourly-map",
+      "surface": "Hourly desktop map grid/list and responsive layout"
+    },
+    {
+      "id": "places",
+      "surface": "Vacation/event/spa/hourly detail and secondary content"
+    },
+    {
+      "id": "fonts",
+      "surface": "Six local Rubik assets and exact live edge header transport"
+    }
+  ],
+  "characteristics": {
+    "stateful": true,
+    "responsive": true
+  },
+  "checks": [
+    {
+      "id": "public-release",
+      "family_ids": [
+        "events",
+        "hourly-map",
+        "places",
+        "fonts"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "Owning Cloud operation terminal succeeded v815 PUBLIC/env32; exact artifactSHA1d60a77f and buildb13087a0-1911-56dd-9f8f-2a47858e16d7 independently read on all4public detail routes"
+    },
+    {
+      "id": "full-regression",
+      "family_ids": [
+        "events",
+        "hourly-map",
+        "places",
+        "fonts"
+      ],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "Final frozen source fullcompiledsuite2548total2547passed0failed1existing skip135747.845ms; TypeScript and build exit0; sourceguard28protectedancestors22families clean passed; selected partial/removed detail, failed secondary inventory, gallery and booking/cancellation regressions retained"
+    },
+    {
+      "id": "event-state",
+      "family_ids": [
+        "events"
+      ],
+      "state": "reload",
+      "status": "passed",
+      "evidence": "Public /events/search/south retained region. Choosing Lofts settled /events/search/south?type=לופטים, reload retained both labels and6results. Legacy /events/search/north?type=לופט normalized to Lofts and7results"
+    },
+    {
+      "id": "mobile-event-state",
+      "family_ids": [
+        "events"
+      ],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "390px public North/Lofts drawer showed both selected values and7results; closing/reset1280px restored body static, scrollWidth1265 and no horizontal overflow"
+    },
+    {
+      "id": "hourly-layout",
+      "family_ids": [
+        "hourly-map"
+      ],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "Public /hourly map53places; desktop1280px cards and list mode visually inspected. List rows516x344px with separate media/text, controls and content intact; source-specific mobile checks and prior390px regression retained"
+    },
+    {
+      "id": "detail-content",
+      "family_ids": [
+        "places"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "Public vacation164 title/gallery51images retained and reload visible; event2 Star Loft title/contacts/gallery retained; hourly475 Titanic50photos; spa6 David Intercontinental18photos and packages at390px withRubik, scrollWidth375<=390"
+    },
+    {
+      "id": "fonts-live",
+      "family_ids": [
+        "fonts"
+      ],
+      "state": "success",
+      "status": "passed",
+      "evidence": "All6font paths HTTP200 font/woff2 public,max-age31536000,immutable with pinned byte hashes. Browser Hebrew glyphs visually inspected desktop/mobile. No external Google CSS dependency"
+    },
+    {
+      "id": "edge-boundary",
+      "family_ids": [
+        "fonts"
+      ],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "Actual font-policy2tests cover exactsixpaths/host/GET/HEAD plus unrelated/error preservation. New wrapper retains original live index.js byteexact, default scheduled and named exports; original binding set/routes/access/schedules unchanged"
+    },
+    {
+      "id": "preserved-source",
+      "family_ids": [
+        "events",
+        "hourly-map",
+        "places",
+        "fonts"
+      ],
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "All ten commits sincev814 included in frozen Site ancestry; prior holiday expiry fixes retained. Source-input build identity unchanged after isolated services-only font transport commit"
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Sitev814 versionappgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_75ab037f44c8819192867942a1416f69 deploymentappgdep_6aee715d45fc81918a817d202f34ff49; edge rollbackversion2f6f0195-d6b1-4173-ab86-8229183cb2c6; restore prior expected-generation vars together if revertingSite",
+    "verification": "OwningCloud confirmed terminal v814 rollback before publication; original edge code and active rollback version read before wrapper activation"
+  },
+  "authorization_boundary": "User explicitly authorized one cumulative publication. One Site save/deploy only. Separate existing edge component font-header repair preserves original modules. No business DB/schema/binding names/access/secrets/schedules/DNS changes or transactions.",
+  "remaining_blockers": [],
+  "limitations": [
+    "Scoped release acceptance, not whole-site launch certification or a promise against every future defect",
+    "Cold origin headers remain1.9-3.3seconds in final4route sample; warm edge headers24-46ms. These are response-start measurements, not full visual loading times."
+  ],
+  "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_989e8011bf788191bff9537375c15b00",
+  "deploymentId": "appgdep_6aee83c413348191baaa5d973f9e39b5",
+  "managedCommit": "1e41bc3affc55e185cad51b6b1dd41f67b5c2a26",
+  "sourceTree": "3c89b01182e7deb2866a739e0c8a81262ee95c86",
+  "publicHttp": {
+    "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+    "observedAt": "2026-11-07T02:00:40.376Z",
+    "rows": [
+      {
+        "round": 1,
+        "path": "/discover/place/hourly-475",
+        "status": 200,
+        "headersMs": 1936.5916,
+        "totalMs": 1945.8215,
+        "bytes": 159929,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "MISS",
+        "timing": "vii-cache;dur=0, vii-edge-lookup;dur=132, vii-edge-origin;dur=122",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 1,
+        "path": "/events/place/event-2",
+        "status": 200,
+        "headersMs": 1934.6985,
+        "totalMs": 1948.6439,
+        "bytes": 205373,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "MISS",
+        "timing": "vii-cache;dur=0, vii-edge-lookup;dur=135, vii-edge-origin;dur=116",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 1,
+        "path": "/business?id=vacation-164",
+        "status": 200,
+        "headersMs": 2373.7036999999996,
+        "totalMs": 2389.1569,
+        "bytes": 395929,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "MISS",
+        "timing": "vii-cache;dur=385, vii-edge-lookup;dur=142, vii-edge-origin;dur=521",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 1,
+        "path": "/discover/place/spa-6",
+        "status": 200,
+        "headersMs": 3278.1836,
+        "totalMs": 3282.0729,
+        "bytes": 170662,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "MISS",
+        "timing": "vii-app-load;dur=0, vii-app-render;dur=467, vii-edge-lookup;dur=144, vii-edge-origin;dur=1451",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 2,
+        "path": "/discover/place/spa-6",
+        "status": 200,
+        "headersMs": 23.674200000000383,
+        "totalMs": 30.10250000000042,
+        "bytes": 170662,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "HIT",
+        "timing": "vii-app-load;dur=0, vii-app-render;dur=467, vii-edge-lookup;dur=4",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 2,
+        "path": "/events/place/event-2",
+        "status": 200,
+        "headersMs": 26.864399999999932,
+        "totalMs": 31.9061999999999,
+        "bytes": 205373,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "HIT",
+        "timing": "vii-cache;dur=0, vii-edge-lookup;dur=9",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 2,
+        "path": "/business?id=vacation-164",
+        "status": 200,
+        "headersMs": 29.526900000000296,
+        "totalMs": 34.37010000000009,
+        "bytes": 395929,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "HIT",
+        "timing": "vii-cache;dur=385, vii-edge-lookup;dur=7",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      },
+      {
+        "round": 2,
+        "path": "/discover/place/hourly-475",
+        "status": 200,
+        "headersMs": 45.709100000000035,
+        "totalMs": 47.9083999999998,
+        "bytes": 159929,
+        "build": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "cacheBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+        "edge": "HIT",
+        "timing": "vii-cache;dur=0, vii-edge-lookup;dur=4",
+        "hasLocalFont": true,
+        "hasHeading": true,
+        "externalGoogleFont": false
+      }
+    ],
+    "fonts": [
+      {
+        "path": "/fonts/rubik/rubik-arabic-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 32468,
+        "matches": true
+      },
+      {
+        "path": "/fonts/rubik/rubik-cyrillic-ext-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 12388,
+        "matches": true
+      },
+      {
+        "path": "/fonts/rubik/rubik-cyrillic-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 15112,
+        "matches": true
+      },
+      {
+        "path": "/fonts/rubik/rubik-hebrew-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 9348,
+        "matches": true
+      },
+      {
+        "path": "/fonts/rubik/rubik-latin-ext-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 19400,
+        "matches": true
+      },
+      {
+        "path": "/fonts/rubik/rubik-latin-v31.woff2",
+        "status": 200,
+        "type": "font/woff2",
+        "cache": "public, max-age=31536000, immutable",
+        "bytes": 35348,
+        "matches": true
+      }
+    ],
+    "status": "passed"
+  },
+  "edge": {
+    "version": "3597e7d1-8c7e-40b9-8647-e2df81d3335d",
+    "deployment": "57575efc-9996-4a71-a087-84210f7b8f9f",
+    "rollback": "2f6f0195-d6b1-4173-ab86-8229183cb2c6",
+    "originalModules": [
+      {
+        "name": "index.js",
+        "bytes": 51039,
+        "sha256": "ddbbe9da5aeb69f2d42454bd1d5dde6efe36502eb842fbad076730de1149f3d4"
+      }
+    ],
+    "originalModulesPreserved": true,
+    "routesAccessSchedulesPreserved": true
+  },
+  "auxiliaryExpectedGeneration": {
+    "state": "complete",
+    "writes": 3
+  },
+  "independent": {
+    "review": "v815-final-independent",
+    "sourceHead": "665fa5667219300e1b075ea7c0929b9a4d556aaf",
+    "siteBuild": "b13087a0-1911-56dd-9f8f-2a47858e16d7",
+    "scope": "scoped final delivery verification for Site v815 and the exact live Edge font wrapper",
+    "checks": {
+      "publicSite": {
+        "status": "passed",
+        "evidence": ".qa-output/v815-public-http.json: 8/8 detail requests returned 200, build/cache identity matched, headings and local fonts present, no external Google font, 6/6 Rubik files returned byte-exact with font/woff2 and immutable cache headers"
+      },
+      "edgeFontWrapper": {
+        "status": "passed",
+        "evidence": ".qa-output/v815-edge-font-operation-attempt2.json: exact live module wrapper active_verified as version 3597e7d1-8c7e-40b9-8647-e2df81d3335d; original index module byte-exact; bindings, routes, access, schedules preserved; rollback version retained"
+      },
+      "causalRetry": {
+        "status": "passed",
+        "evidence": "one explicit HTTP 400 attempt with zero writes was reconciled; one changed retry using application/javascript+module succeeded"
+      },
+      "archive": {
+        "status": "passed",
+        "evidence": ".qa-output/v815-artifact-audit.json: 1281 compiled files, 1302 archive files, 243 RSC references"
+      },
+      "focusedRegression": {
+        "status": "passed",
+        "evidence": "23/23 independent focused tests passed, including event identity, hourly/map, deferred detail, holiday expiry/recovery, fonts, locale and recommendation boundaries"
+      },
+      "fullSuite": {
+        "status": "pending-root-evidence",
+        "evidence": "reported by root as 2547 passed, 0 failed, 1 existing skip; independent review does not replace the root's final suite receipt"
+      }
+    },
+    "blockers": [],
+    "verdict": "scoped-release-passed-pending-global-signoff",
+    "publicationApproved": false,
+    "remainingScope": [
+      "Root must attach and validate the final full-suite receipt and any sourceguard/package gates.",
+      "Cold-origin detail requests remain approximately 1.9 to 3.3 seconds in the recorded sample; this review does not claim world-leading speed or that the latency problem is solved."
+    ],
+    "notes": "This report verifies the requested v815 Site delivery and the narrowly scoped live Edge font-header repair. It is not whole-project launch approval."
+  },
+  "publicSurface": {
+    "privacyCookiesTermsRefundsConsent": "Existing surfaces retained, no form submissions or legal-copy changes",
+    "mediaRights": "Existing verified supplier media retained; no generated/stock substitutions",
+    "accessibility": "Existing controls and native tests retained; no legal compliance certification made",
+    "labelsAltText": "No new unlabeled public actions or replacement media; prior behavior regressions passed",
+    "thirdPartyEmbeds": "Existing map/media providers retained",
+    "notFound": "Existing unknown-route behavior unchanged",
+    "shippingDelivery": "Not applicable to this scoped website performance/filter release"
+  },
+  "observedAt": "2026-11-07T02:03:24.200Z"
+}
