@@ -769,7 +769,8 @@
         "app/lib/discovery-client-cache.ts",
         "app/lib/discovery-recovery-policy.ts",
         "app/api/vii/home-holiday-deals/route.ts",
-        "app/components/holiday-live-deals.tsx"
+        "app/components/holiday-live-deals.tsx",
+        "app/lib/home-offer-freshness.ts"
       ]
     },
     {
