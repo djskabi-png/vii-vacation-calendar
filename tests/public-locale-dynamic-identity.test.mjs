@@ -33,5 +33,5 @@ test("slider boundaries are calculated from actual scroll progress in both direc
   assert.match(controls, /useState<SliderRailState>\(\{ previous: false, next: true \}\)/);
   assert.match(controls, /settleFrame = window\.requestAnimationFrame\(normalize\)/);
   assert.match(controls, /settleInterval = window\.setInterval\(normalize, 100\)/);
-  assert.match(controls, /if \(userInteracted\) return/);
+  assert.match(controls, /if \(userInteracted \|\| controlInteracted\.current\) return/);
 });
