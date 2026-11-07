@@ -1,4 +1,4 @@
-import {publicWarmRoutes} from './public-warm.ts';
+import {publicWarmRoutes,browserRscHashes} from './public-warm.ts';
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 
 export type PublicCacheBucket={
@@ -8,7 +8,8 @@ export type PublicCacheBucket={
 const MAX_BODY=2*1024*1024,MAX_META=16*1024;
 const encoder=new TextEncoder(),decoder=new TextDecoder();
 const paths=new Set<string>(publicWarmRoutes);
-const rscContexts=new Set(['/','/events','/spas','/hourly','/search','/providers','/trails','/attractions','/business']);
+const rscContexts=new Set(Object.keys(browserRscHashes));
+const routing=['Next-Router-State-Tree','Next-Router-Prefetch','Next-Router-Segment-Prefetch','Next-Url'];
 
 // Canonical public documents keep their complete path/locale/build identity.
 // Transactional search parameters and router-state variants remain excluded.
@@ -20,9 +21,9 @@ export function globalPublicVariant(request:Request,build:string){
  const base=path.replace(/^\/(?:en|fr|ru)(?=\/|$)/,'')||'/';
  const canonical=paths.has(base)||/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|events|spas|hourly|holidays|destinations|providers|trails|attractions|activities|guides|questions|corporate|gift-card|contact|accessibility|legal|discover\/place)(?:\/[a-z0-9-]+)*$/.test(base);
  if(url.hostname!=='vii.spaplus.co'||!canonical&&base!=='/business')return false;
- if(request.headers.has('X-Vinext-Mounted-Slots')||request.headers.has('X-Vinext-Rsc-Render-Mode'))return false;
+ if(routing.some(name=>request.headers.has(name))||request.headers.has('X-Vinext-Mounted-Slots')||request.headers.has('X-Vinext-Rsc-Render-Mode'))return false;
  const params=new URLSearchParams(url.search);
- if(rsc){if(request.headers.get('Accept')!=='text/x-component'||request.headers.get('RSC')!=='1'||params.getAll('_rsc').length!==1||!params.get('_rsc'))return false;const context=request.headers.get('X-Vinext-Interception-Context');if(context!==null&&!rscContexts.has(context))return false;params.delete('_rsc');}
+ if(rsc){const context=request.headers.get('X-Vinext-Interception-Context');if(request.headers.get('Accept')!=='text/x-component'||request.headers.get('RSC')!=='1'||!context||!rscContexts.has(context)||params.getAll('_rsc').length!==1||params.get('_rsc')!==browserRscHashes[context])return false;params.delete('_rsc');}
  else if(request.headers.has('RSC')||!(request.headers.get('Accept')||'').includes('text/html'))return false;
  return base==='/business'?[...params].length===1&&/^(?:vacation|event)-[1-9]\d{0,8}$/.test(params.get('id')||''):params.size===0;
 }

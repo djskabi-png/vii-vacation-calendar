@@ -1,5 +1,5 @@
 export const publicWarmRoutes = Object.freeze(["/", "/events", "/spas", "/hourly", "/search", "/providers", "/trails", "/attractions"]);
-const browserRscHashes:Record<string,string>={"/":"KsQaSH2L7Z4e6Q5N","/events":"zkS6omdGqgfCMlsE","/spas":"SUw32WOW_LzIbw0P","/hourly":"5gqXZVlY2FBD7V01","/search":"hEdSYtBncL1HUmIT","/providers":"fVB6U_iOKdUZnnY3","/trails":"inFMqFrRJT8v6E5h","/attractions":"okZjvgKglkbPfXLp","/business":"iH5GzKL3Zr4VGpJv"};
+export const browserRscHashes:Readonly<Record<string,string>>={"/":"KsQaSH2L7Z4e6Q5N","/events":"zkS6omdGqgfCMlsE","/spas":"SUw32WOW_LzIbw0P","/hourly":"5gqXZVlY2FBD7V01","/search":"hEdSYtBncL1HUmIT","/providers":"fVB6U_iOKdUZnnY3","/trails":"inFMqFrRJT8v6E5h","/attractions":"okZjvgKglkbPfXLp","/business":"iH5GzKL3Zr4VGpJv"};
 // Hashes are the Vinext createRscRequestUrl SHA-256/96-bit digest of the
 // exact navigation headers: 0,0,0,0,<interception-context>,0,0.
 const publicWarmRscPairs=[
