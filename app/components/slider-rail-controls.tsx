@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
@@ -91,6 +91,7 @@ export function SliderRailControls({
   className,
 }: SliderRailTarget & { label: string; className: string }) {
   const { language } = useSiteLanguage();
+  const controlInteracted = useRef(false);
   const state = useSliderRailBoundaries({ railId, railRef, itemSelector, disabled });
   useLayoutEffect(() => {
     const resolveRail = () => railRef?.current || (railId ? document.getElementById(railId) : null);
@@ -98,10 +99,11 @@ export function SliderRailControls({
     let settleFrame = 0;
     let settleTimer = 0;
     let settleInterval = 0;
+    controlInteracted.current = false;
     let userInteracted = false;
     let normalizedRail: HTMLElement | null = null;
     const normalize = () => {
-      if (userInteracted) return;
+      if (userInteracted || controlInteracted.current) return;
       const rail = resolveRail();
       if (!rail) return;
       // Polling still detects a streamed replacement or restored RTL offset,
@@ -156,7 +158,7 @@ export function SliderRailControls({
     data-slider-controls
     style={{ direction: language === "he" ? "rtl" : "ltr" }}
   >
-    <button type="button" onClick={() => state.move(-1)} aria-label={`${previous}, ${label}`} title={previous} disabled={disabled || !state.previous}><PreviousIcon aria-hidden="true" /></button>
-    <button type="button" onClick={() => state.move(1)} aria-label={`${next}, ${label}`} title={next} disabled={disabled || !state.next}><NextIcon aria-hidden="true" /></button>
+    <button type="button" onClick={() => { controlInteracted.current = true; state.move(-1); }} aria-label={`${previous}, ${label}`} title={previous} disabled={disabled || !state.previous}><PreviousIcon aria-hidden="true" /></button>
+    <button type="button" onClick={() => { controlInteracted.current = true; state.move(1); }} aria-label={`${next}, ${label}`} title={next} disabled={disabled || !state.next}><NextIcon aria-hidden="true" /></button>
   </div>;
 }
