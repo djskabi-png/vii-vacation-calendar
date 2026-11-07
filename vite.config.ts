@@ -5,6 +5,7 @@ import { sites } from "./build/sites-vite-plugin";
 import fs from "node:fs";
 import path from "node:path";
 import { worldStyleSlotsPlugin } from "./build/world-style-slots.mjs";
+import { publicStyleBundlesPlugin } from "./build/public-style-bundles.mjs";
 import { releaseBuildIdentity } from "./scripts/release-build-identity.mjs";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
@@ -74,6 +75,7 @@ export default defineConfig(async () => {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
     },
     plugins: [
+      publicStyleBundlesPlugin(),
       worldStyleSlotsPlugin(),
       vinext(),
       sites(),

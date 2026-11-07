@@ -74,9 +74,16 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     const [{ publicCatalogSummaries }, { worldLocationInventory }] = await Promise.all([
       import("./public-catalog-read.ts"), import("./world-location-pages.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
+    const [{ eventTypeSlugs, eventCombinationHref }, { matchesEventVenueType }, { matchesSearchLocation }, { canonicalLegacyEventSearchPath }] = await Promise.all([
+      import('../data/world-search-landings.ts'), import('./event-search-taxonomy.ts'), import('../data/search-taxonomy.ts'), import('./legacy-event-intent-index.ts'),
+    ]);
+    const eventCombinationPaths = [{ label: 'כל הארץ' }, ...(await worldLocationInventory("events"))].flatMap(({ label }) => Object.keys(eventTypeSlugs)
+      .filter(type => eventPlaces.some(place => (label === 'כל הארץ' || matchesSearchLocation(place, label)) && matchesEventVenueType(place, type)))
+      .map(type => ({ path: canonicalLegacyEventSearchPath({ location: label, type }) || eventCombinationHref(label, type) })));
     return unique(expand([
       { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/thursday" }, { path: "/events/friday" }, { path: "/events/search" },
       ...(await worldLocationInventory("events")).map(({ path }) => ({ path })),
+      ...eventCombinationPaths,
       ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => ({ path: `/events/place/${place.slug}`, images: [place.image, ...place.images] })),
     ]));
   }

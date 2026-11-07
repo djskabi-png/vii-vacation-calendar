@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ModernDateInput } from "../../components/modern-date-input";
 
 type Lead = {
   submissionId: string;
@@ -67,8 +68,8 @@ export default function WhatsAppLeadsPage() {
       <button type="button" onClick={() => void refresh()} disabled={loading}>רענון</button>
     </header>
     <form onSubmit={(event) => { event.preventDefault(); void refresh(); }} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "end", margin: "22px 0", padding: 16, border: "1px solid #dce8e9", borderRadius: 16, background: "#fff" }}>
-      <label>מתאריך<input type="date" value={from} max={till} onChange={(event) => setFrom(event.target.value)} /></label>
-      <label>עד תאריך<input type="date" value={till} min={from || undefined} max={today} onChange={(event) => setTill(event.target.value)} /></label>
+      <ModernDateInput label={<>מתאריך</>} value={from} max={till} onChange={(event) => setFrom(event.target.value)}  />
+      <ModernDateInput label={<>עד תאריך</>} value={till} min={from || undefined} max={today} onChange={(event) => setTill(event.target.value)}  />
       <label>עולם<select value={world} onChange={(event) => setWorld(event.target.value)}><option value="">כל העולמות</option><option value="vacation">נופש</option><option value="events">אירועים</option><option value="hourly">חדרים לפי שעה</option><option value="spa">ספא</option><option value="providers">ספקים</option></select></label>
       <label>חיפוש<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="עסק, שם, טלפון או אסמכתה" /></label>
       <button type="submit" disabled={loading}>הצגת דוח</button>

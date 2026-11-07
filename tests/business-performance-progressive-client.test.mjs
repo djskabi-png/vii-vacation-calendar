@@ -26,7 +26,7 @@ function harness(overrides={},fetcher){
   };
   const jsx=(type,props)=>({type,props:props||{}});
   const dependencies={react,'react/jsx-runtime':{jsx,jsxs:jsx,Fragment:'fragment'},'lucide-react':new Proxy({},{get:(_,name)=>`icon-${name}`}),
-    '../../lib/business-report-scopes':{businessReportScopes,canonicalBusinessReportScope},'../../lib/business-performance-view':{businessPerformanceView,reportPage},'./business-performance.module.css':{default:new Proxy({},{get:(_,name)=>String(name)})}};
+    '../../lib/business-report-scopes':{businessReportScopes,canonicalBusinessReportScope},'../../lib/business-performance-view':{businessPerformanceView,reportPage},'../../components/modern-date-input':{ModernDateInput:({onChange,...props})=>jsx('input',{...props,onChange})},'./business-performance.module.css':{default:new Proxy({},{get:(_,name)=>String(name)})}};
   const window={location:{hash:`#${overrides.activeView||'overview'}`},localStorage:{getItem:()=>null,setItem:()=>{}},addEventListener:()=>{},removeEventListener:()=>{},setTimeout:fn=>{timers.set(++clock,fn);return clock},clearTimeout:id=>timers.delete(id),requestAnimationFrame:fn=>fn()};
   const fetch=async(url,init)=>{requests.push({url,signal:init?.signal});return fetcher?fetcher(url,init):Response.json({rows:inventory,runHistory:[],bizSnapshots:{}})};
   const document={getElementById:()=>null,createElement:()=>({click:()=>{}})};

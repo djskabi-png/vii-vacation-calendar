@@ -17,7 +17,7 @@ $FullTestsPassed = $FullTests - $FullTestsSkipped
 if ($FullTestsPassed -lt 0) { throw "FullTestsSkipped cannot exceed FullTests." }
 $project = (Resolve-Path -LiteralPath "$PSScriptRoot\..").Path
 $projectId = "appgprj_6a71ccdca27481918bf04dd329d3eb21"
-$publicationChat = "https://chatgpt.com/g/g-p-6ab2e9ea51548191856f299d727d8611-vii/c/6ad6ad51-1850-83ed-9b72-689fddf553fb"
+$publicationChat = "https://chatgpt.com/local/01a1a0f3-5d82-7105-8b10-1eb59897e045"
 $outputDirectory = Join-Path $project "project_knowledge\release_handoffs"
 $outputPath = Join-Path $outputDirectory "v$VersionNumber.json"
 
@@ -74,7 +74,7 @@ $prompt = @"
 
 $Summary
 
-מקור רשמי: repo djskabi-png/vii-vacation-calendar, branch $Branch, source commit מדויק $commit, tree מדויק $tree, deployable build identity $buildIdentity, artifact SHA-256 $artifactDigest. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, $FocusedTests בדיקות ממוקדות עברו ו-$FullTestsPassed עברו מתוך $FullTests, עם $FullTestsSkipped בדיקות שסומנו skip. המשך במסלול remote build fallback המוכח, בלי לערוך קוד. לפני deployment חובה לאמת שהארטיפקט המרוחק תואם בדיוק ל-SHA-256 הזה.
+מקור רשמי: repo djskabi-png/vii-vacation-calendar, branch $Branch, source commit מדויק $commit, tree מדויק $tree, deployable build identity $buildIdentity, artifact SHA-256 $artifactDigest. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, $FocusedTests בדיקות ממוקדות עברו ו-$FullTestsPassed עברו מתוך $FullTests, עם $FullTestsSkipped בדיקות שסומנו skip. השתמש רק בחבילה המקומית המדויקת שנבדקה. הורד את חלקי הקובץ המצורפים, אמת כל חלק, חבר לפי הסדר ואמת את ה-SHA-256 והגודל של החבילה השלמה לפני שמירה. אין לבנות מחדש או לשנות קוד. לפני deployment חובה לאמת שהארטיפקט תואם בדיוק ל-SHA-256 הזה.
 
 לפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v$previousVersion הפעילה וה-rollback היא Version ID $RollbackVersionId, Deployment ID $RollbackDeploymentId. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.
 

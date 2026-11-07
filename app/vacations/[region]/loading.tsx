@@ -1,6 +1,7 @@
 "use client";
 
 import { useSiteLanguage } from "../../i18n/locale-provider";
+import { SiteHeader } from '../../site-header';
 
 const copy = {
   he: { title: "מכינים לכם את המקומות באזור", text: "עוד רגע אפשר להתחיל להשוות." },
@@ -12,12 +13,12 @@ const copy = {
 export default function VacationRegionLoading() {
   const { language } = useSiteLanguage();
   const text = copy[language];
-  return <main id="main-content" className="vacation-route-loading" aria-busy="true" aria-live="polite">
+  return <><SiteHeader variant="vacation" /><main id="main-content" className="vacation-route-loading" aria-busy="true" aria-live="polite">
     <div className="vacation-route-loading__mark" aria-hidden="true"><span /><span /><span /></div>
     <h2>{text.title}</h2>
     <p>{text.text}</p>
     <div className="vacation-route-loading__cards" aria-hidden="true">
       <span /><span /><span />
     </div>
-  </main>;
+  </main></>;
 }

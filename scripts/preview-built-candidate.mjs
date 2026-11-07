@@ -48,6 +48,13 @@ const server = http.createServer(async (request, response) => {
       result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);
     }
     const headers = Object.fromEntries(result.headers);
+    // Keep canonical redirects within the candidate preview. Otherwise a
+    // relative route resolved by the Worker against its public origin silently
+    // escapes to the predecessor and invalidates browser release evidence.
+    if (headers.location) {
+      const destination = new URL(headers.location, publicOrigin);
+      if (destination.origin === publicOrigin) headers.location = `${destination.pathname}${destination.search}${destination.hash}`;
+    }
     for (const name of ["content-encoding", "content-length", "transfer-encoding"]) delete headers[name];
     const body = result.body ? Buffer.from(await result.arrayBuffer()) : null;
     response.writeHead(result.status, { ...headers, "X-VII-Local-QA": "built candidate; read-only public API fallback" });

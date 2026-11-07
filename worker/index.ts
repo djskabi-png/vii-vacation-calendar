@@ -89,8 +89,8 @@ const worker = {
     const { runSupplierCatalogScheduleTick } = await import("../app/lib/supplier-catalog-retry-runner.ts");
     const { cachedOnlineCapabilities } = await import("../app/lib/online-booking-capability-cache.ts");
     const { bundledMapSnapshotCandidates } = await import("../app/lib/map-snapshot-catalog.ts");
-    const [{ warmVacationDiscoveryCache }, { warmEventDiscoveryCache }, { isWeeklyMapSnapshotWindow, reconcileMapSnapshots }] = await Promise.all([
-      import("../app/lib/warm-vacation-discovery-cache.ts"), import("../app/lib/warm-event-discovery-cache.ts"), import("../app/lib/map-snapshot-store.ts"),
+    const [{ warmVacationDiscoveryCache }, { warmEventDiscoveryCache }, { warmHolidayDiscoveryCache }, { isWeeklyMapSnapshotWindow, reconcileMapSnapshots }] = await Promise.all([
+      import("../app/lib/warm-vacation-discovery-cache.ts"), import("../app/lib/warm-event-discovery-cache.ts"), import("../app/lib/warm-holiday-discovery-cache.ts"), import("../app/lib/map-snapshot-store.ts"),
     ]);
     const database = cloudflareDatabaseForEnv(env);
     if (!database) throw new Error("scheduled_database_unavailable");
@@ -128,6 +128,12 @@ const worker = {
         if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
       }));
     }
+    // All visible holiday rails need an accepted snapshot before a visitor
+    // opens a distant tab. Run with the existing10-minute tick, independently
+    // of the near-date half-hour batch. The loader shares the request lease.
+    ctx.waitUntil(warmHolidayDiscoveryCache(database, scheduledAt).catch(() => {
+      console.error('VII holiday discovery refresh unavailable');
+    }));
     if (isWeeklyMapSnapshotWindow(scheduledAt)) {
       ctx.waitUntil(reconcileMapSnapshots({
         db: database,

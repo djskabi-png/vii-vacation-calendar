@@ -20,7 +20,7 @@ const removed=[348,389,846,1887,2261,2493,2576];
 async function wrappers(){
  const source=stripTypeScriptTypes((await readFile(new URL('../app/lib/public-catalog-read.ts',import.meta.url),'utf8')).replace(/^import .*;\r?$/gm,''));
  const fail=async()=>{throw Error('fixture_database_outage');};
- return new Function('sergeyDetails','acceptedSergeyDetail','acceptedSergeySummaries','publicCatalogDatabase','runtimeCatalogDatabase','readSupplierCatalogEntry','readSupplierCatalogState','projectSergeyPublicCatalogValue','readSupplierCatalogReviewPreviews',source.replace(/export /g,'')+';return {publicCatalogDetail,publicCatalogDetails,publicCatalogReviewDetails,publicCatalogReviewPreviews};')(details,acceptedSergeyDetail,acceptedSergeySummaries,fail,async()=>null,fail,fail,v=>v,fail);
+ return new Function('sergeyDetails','acceptedSergeyDetail','acceptedSergeySummaries','publicCatalogDatabase','runtimeCatalogDatabase','readSupplierCatalogEntry','readSupplierCatalogState','projectSergeyPublicCatalogValue','readSupplierCatalogReviewPreviews','readOnceInServerRequest',source.replace(/export /g,'')+';return {publicCatalogDetail,publicCatalogDetails,publicCatalogReviewDetails,publicCatalogReviewPreviews};')(details,acceptedSergeyDetail,acceptedSergeySummaries,fail,async()=>null,fail,fail,v=>v,fail,async (_key, load) => await load());
 }
 test('all public detail/review fallback paths exclude7suppliers already removed from accepted build',async()=>{
  const f=await wrappers();

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { holidayDiscoveryFixture } from './helpers/holiday-discovery-fixture.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
@@ -62,6 +63,7 @@ test('a cached holiday response never reads full-world galleries or calls the su
   cachedDiscovery:async()=>({value:{holiday,dates,deals:[{siteID:12,priceGuests:2,from:dates.from}]},cache:{status:'fresh',checkedAt:new Date().toISOString()}}),
   publicCatalogSummaries:()=>{throw Error('Full catalog must remain lazy')},getHomeHolidayDeals:()=>{throw Error('Supplier must remain lazy')},runtimeDatabase:async()=>null,prioritizeOnlineFirst:value=>value,isHomeDealOnlineEligible:()=>true,compareVacationPriority:()=>0,eligibleDealDate:()=>true,
   setTimeout:()=>0,getRequestExecutionContext:()=>null};
+ deps.cachedHolidayDiscovery=holidayDiscoveryFixture(deps.cachedDiscovery);
  const exports={};new Function(...Object.keys(deps),'exports',js)(...Object.values(deps),exports);
  const response=await exports.GET(new Request('https://example.test/?id=114'));assert.equal(response.status,200);const body=await response.json();assert.equal(body.availabilityStatus,'verified');assert.deepEqual(body.deals.map(x=>x.siteID),[12]);assert.ok(response.headers.has('Server-Timing'));
 });

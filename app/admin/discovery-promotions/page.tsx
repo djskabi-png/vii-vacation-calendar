@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminCanEdit } from "../admin-access-context.tsx";
+import { ModernDateInput } from "../../components/modern-date-input";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Archive, Pencil, RotateCcw, Search, Save } from "lucide-react";
@@ -146,12 +147,12 @@ export default function DiscoveryPromotionsPage() {
             {Object.entries(kinds).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select></label>
           <label>משקל מוצע <strong>{form.weight} מתוך 5</strong><input type="range" min="1" max="5" step="1"
             value={form.weight} onChange={(event) => change("weight", Number(event.target.value))} disabled={busy} /></label>
-          <div className={styles.fieldRow}><label>מתאריך<input type="date" required value={form.startsOn}
-            onChange={(event) => change("startsOn", event.target.value)} disabled={busy} /></label>
-            <label>עד תאריך<input type="date" required min={form.startsOn} value={form.endsOn}
-              onChange={(event) => change("endsOn", event.target.value)} disabled={busy} /></label></div>
-          <div className={styles.fieldRow}><label>סיום פרסום ידוע<input type="date" value={form.contractEndsOn}
-            required={form.kind === "ending_contract"} onChange={(event) => change("contractEndsOn", event.target.value)} disabled={busy} /></label>
+          <div className={styles.fieldRow}><ModernDateInput label={<>מתאריך</>} required value={form.startsOn}
+            onChange={(event) => change("startsOn", event.target.value)} disabled={busy}  />
+            <ModernDateInput label={<>עד תאריך</>} required min={form.startsOn} value={form.endsOn}
+              onChange={(event) => change("endsOn", event.target.value)} disabled={busy}  /></div>
+          <div className={styles.fieldRow}><ModernDateInput label={<>סיום פרסום ידוע</>} value={form.contractEndsOn}
+            required={form.kind === "ending_contract"} onChange={(event) => change("contractEndsOn", event.target.value)} disabled={busy}  />
             <label>מקור התאריך<input maxLength={200} value={form.contractSource} required={!!form.contractEndsOn}
               onChange={(event) => change("contractSource", event.target.value)} disabled={busy} placeholder="למשל: מערכת חוזים" /></label></div>
           <label>הערה פנימית<textarea rows={3} maxLength={500} value={form.note}

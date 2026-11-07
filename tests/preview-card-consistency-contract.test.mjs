@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import { publicStyleFiles, publicStyleBundleSources } from '../build/public-style-bundles.mjs';
 const read=p=>readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
 const card=read('app/components/event-result-card.tsx');
 const css=read('app/preview-card-consistency.css');
@@ -17,7 +18,9 @@ test('shared preview typography cannot inherit section heading scales',()=>{
  for(const selector of ['.event-result-card__title','.stay-card__title h3','.discovery-card__body h3','.trail-card__body h3'])assert.ok(css.includes(selector));
  assert.match(css,/--preview-title-size: 1\.125rem/);
  assert.match(css,/-webkit-line-clamp: 2/);
- assert.match(read('app/layout.tsx'),/preview-card-consistency\.css/);
+ assert.match(read('app/layout.tsx'),/<PublicStyleResources initialPath=\{pathname\}/);
+ assert.ok(publicStyleFiles.includes('preview-card-consistency.css'));
+ for (const source of Object.values(publicStyleBundleSources())) assert.ok(source.includes(css));
 });
 test('cards stretch but mixed heading and toolbar rows are not forced to card heights',()=>{
  assert.match(views,/\.event-list\.results-view--grid \{[^}]*align-items: stretch/);

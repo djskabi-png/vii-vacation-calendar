@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { publicStyleFiles } from '../build/public-style-bundles.mjs';
 
 const root = new URL("../", import.meta.url);
 
 test("the application experience layer is loaded after responsive stability styles", async () => {
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
-  const stabilityIndex = layout.indexOf('import "./mobile-stability.css"');
-  const applicationIndex = layout.indexOf('import "./app-experience.css"');
+  assert.match(layout, /<PublicStyleResources initialPath=\{pathname\}/);
+  const stabilityIndex = publicStyleFiles.indexOf('mobile-stability.css');
+  const applicationIndex = publicStyleFiles.indexOf('app-experience.css');
   assert.ok(stabilityIndex >= 0);
   assert.ok(applicationIndex > stabilityIndex);
   assert.match(layout, /viewportFit:\s*"cover"/);

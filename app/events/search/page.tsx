@@ -22,7 +22,7 @@ import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMapViewState } from "../../components/map-view-state";
-import { eventSearchHref, mergeSearchHref } from "../../data/world-search-landings";
+import { eventSearchHref, eventCombinationHref, mergeSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../../components/search-after-results";
@@ -102,7 +102,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
     const requestedArea = updates.location === undefined ? area : updates.location || "הכל";
     params.delete("location");
-    const path = eventSearchHref(requestedArea);
+    const requestedType = normalizeEventVenueType(params.get('type'));
+    const path = requestedType !== 'הכל' ? eventCombinationHref(requestedArea, requestedType) : eventSearchHref(requestedArea);
+    if (requestedType !== 'הכל') params.delete('type');
     router.push(localizedPath(mergeSearchHref(path, params), language));
   }
 

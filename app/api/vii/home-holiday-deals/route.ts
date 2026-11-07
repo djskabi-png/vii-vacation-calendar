@@ -4,7 +4,7 @@ import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { holidayParts, type HolidayPart } from "../../../lib/holiday-deal-selection.ts";
-import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { cachedHolidayDiscovery, HOLIDAY_DISCOVERY_POLICY } from "../../../lib/warm-holiday-discovery-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
 import { getDiscoveryHolidays } from "../../../lib/discovery-holidays.ts";
@@ -19,7 +19,6 @@ import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 
 const headers = { "Cache-Control": "no-store" };
 const publicDiscovery = { "Cache-Control": "no-store" };
-export const HOLIDAY_DISCOVERY_POLICY = { freshMs: 5 * 60_000, staleMs: 60 * 60_000 } as const;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {
@@ -59,7 +58,7 @@ export async function GET(request: Request) {
     // Cache hits only require publication identities. Gallery/room enrichment
     // belongs to the lease-owned refresh, never to every visitor's cache read.
     const resolveCatalog = async (ids: number[]) => discoveryVacationCatalog(await publicCatalogSummaries<DiscoveryVacationPlace>("vacations"))(ids);
-    const refresh = cachedDiscovery({ key: ["vacation-holiday", id, holiday.from, holiday.till, firstDealDate(now), guests, part, params.get("from"), params.get("till")], db, policy: HOLIDAY_DISCOVERY_POLICY,
+    const refresh = cachedHolidayDiscovery({ id, from: holiday.from, till: holiday.till, requestedFrom: params.get("from") ?? undefined, requestedTill: params.get("till") ?? undefined, guests, part: part as HolidayPart, now, db,
       load: () => getHomeHolidayDeals({ id, token, holidays, now, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog, from: params.get("from") ?? undefined, till: params.get("till") ?? undefined, guests, part: part as HolidayPart }),
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     }).catch(() => null);

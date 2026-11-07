@@ -3,13 +3,15 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { spaLandings, spaLandingHref } from "../data/spa-landings.ts";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
-import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings.ts";
+import { eventSearchHref, eventCombinationHref, eventTypeSlugs, hourlySearchHref } from "../data/world-search-landings.ts";
+import { canonicalLegacyEventSearchPath } from './legacy-event-intent-index.ts';
 
 export type SearchPageDefinition = { path: string; world: "spa" | "events" | "hourly"; title: string; description: string };
 export type SearchPageStatus = "draft" | "published" | "scheduled";
 export type SearchPageContent = { path: string; title: string; description: string; status: SearchPageStatus; scheduledAt: string | null; version: number; updatedAt: string; updatedBy: string };
 
 const allSearchPageDefinitions: SearchPageDefinition[] = [
+  ...['כל הארץ', ...searchLocationOptions('events').filter(location => !['כל הארץ', 'הכל'].includes(location))].flatMap(location => Object.keys(eventTypeSlugs).filter(type => !canonicalLegacyEventSearchPath({ location, type })).map(type => ({ path: eventCombinationHref(location, type), world: 'events' as const, title: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}`, description: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}, עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.` }))),
   { path: "/spas", world: "spa", title: "בתי ספא בישראל", description: "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם." },
   ...spaLandings.map((landing) => ({ path: spaLandingHref(landing), world: "spa" as const, title: landing.title, description: landing.description })),
   ...searchLocationOptions("events").filter((location) => !["כל הארץ", "הכל"].includes(location)).map((location) => ({ path: eventSearchHref(location), world: "events" as const, title: `מקומות לאירועים ב${location}`, description: `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.` })),

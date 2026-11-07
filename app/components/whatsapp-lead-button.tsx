@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ModernDateInput } from "../components/modern-date-input";
 import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
@@ -296,8 +297,8 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
             <details className="whatsapp-lead-dialog__optional">
               <summary>{dialogLabels.optional}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg></summary>
               <div className="whatsapp-lead-dialog__optional-fields">
-            <label>{labels.date}<input name="requested_date" type="date" defaultValue={initialDate} /></label>
-            {initialTill ? <label>{labels.checkout}<input name="requested_till" type="date" min={initialDate || undefined} defaultValue={initialTill} /></label> : null}
+            <ModernDateInput label={<>{labels.date}</>} name="requested_date" defaultValue={initialDate}  />
+            {initialTill ? <ModernDateInput label={<>{labels.checkout}</>} name="requested_till" min={initialDate || undefined} defaultValue={initialTill}  /> : null}
             <label>{labels.guests}<input name="guests" type="number" inputMode="numeric" min="1" defaultValue={initialGuests} placeholder={labels.guestsHint} /></label>
               </div>
             </details>

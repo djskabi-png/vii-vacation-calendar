@@ -12,6 +12,7 @@ import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
+import { readOnceInServerRequest } from './server-request-reads.ts';
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise<unknown[]> }>();
@@ -35,6 +36,10 @@ export async function bundledPublicCatalogSummaries<T>(world: SupplierCatalogWor
 }
 
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
+  return readOnceInServerRequest(`public-catalog-summaries:${world}`, () => loadPublicCatalogSummaries<T>(world));
+}
+
+async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   const db = await runtimeCatalogDatabase();
   if (!db) return await publicSummaries(world, bundled(world)) as T[];
   // Editorial content is independent of supplier generation. Start both reads
@@ -186,6 +191,10 @@ async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]):
 }
 
 export async function publicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
+  return readOnceInServerRequest(`public-catalog-detail:${world}:${supplierId}`, () => loadPublicCatalogDetail<T>(world, supplierId));
+}
+
+async function loadPublicCatalogDetail<T>(world: "vacations" | "events", supplierId: number): Promise<T | null> {
   let bundledPromise: Promise<T | null> | undefined;
   const loadBundle = () => bundledPromise ??= acceptedSergeyDetail<T>(world, supplierId);
   try {

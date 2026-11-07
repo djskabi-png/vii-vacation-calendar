@@ -3,6 +3,8 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { availableHolidayParts, holidayAudiences, holidayParts, holidaySelection, holidayDealWindow, holidayDealSearchHref } from "../app/lib/holiday-deal-selection.ts";
 import { getHomeHolidayDeals } from "../app/lib/vii-home-holidays.ts";
+import { HOLIDAY_DISCOVERY_POLICY } from '../app/lib/warm-holiday-discovery-cache.ts';
+import { VACATION_DISCOVERY_POLICY } from '../app/lib/warm-vacation-discovery-cache.ts';
 
 const holiday = { id: 140, name: "חנוכה", from: "2026-12-04", till: "2026-12-12", nights: 2, windowSearch: true };
 const list = { holidays: [{ holidayID: 140, shown: 1, holidayName: "חנוכה", dateStart: holiday.from, dateEnd: holiday.till }] };
@@ -29,8 +31,9 @@ test("holiday audience selection has exactly the requested three parties and saf
 
 test("holiday discovery cache uses the same bounded one-hour stale policy as vacation discovery", () => {
   const route = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
-  assert.match(route, /HOLIDAY_DISCOVERY_POLICY = \{ freshMs: 5 \* 60_000, staleMs: 60 \* 60_000 \}/);
-  assert.match(route, /cachedDiscovery\(\{[\s\S]*policy: HOLIDAY_DISCOVERY_POLICY/);
+  assert.deepEqual(HOLIDAY_DISCOVERY_POLICY, { freshMs: 5 * 60_000, staleMs: 60 * 60_000 });
+  assert.deepEqual(HOLIDAY_DISCOVERY_POLICY, VACATION_DISCOVERY_POLICY);
+  assert.match(route, /cachedHolidayDiscovery\(\{/);
 });
 
 test("every holiday entry defaults to two guests without replacing explicit audience or period intent", () => {

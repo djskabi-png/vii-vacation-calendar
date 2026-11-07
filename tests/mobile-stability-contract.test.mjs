@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { publicStyleFiles } from '../build/public-style-bundles.mjs';
 
 const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/mobile-stability.css", import.meta.url), "utf8");
@@ -10,9 +11,10 @@ const showcase = await readFile(new URL("../app/components/home-showcase.tsx", i
 const mapViewState = await readFile(new URL("../app/components/map-view-state.ts", import.meta.url), "utf8");
 
 test("the shared mobile stability layer loads after the base and result styles", () => {
-  const globalIndex = layout.indexOf('import "./globals.css"');
-  const resultsIndex = layout.indexOf('import "./results-view.css"');
-  const mobileIndex = layout.indexOf('import "./mobile-stability.css"');
+  assert.match(layout, /<PublicStyleResources initialPath=\{pathname\}/);
+  const globalIndex = publicStyleFiles.indexOf('globals.css');
+  const resultsIndex = publicStyleFiles.indexOf('results-view.css');
+  const mobileIndex = publicStyleFiles.indexOf('mobile-stability.css');
   assert.ok(globalIndex >= 0 && resultsIndex > globalIndex && mobileIndex > resultsIndex);
 });
 

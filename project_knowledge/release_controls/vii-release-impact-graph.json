@@ -704,6 +704,15 @@
         "app/components/slider-rail-controls.tsx",
         "app/components/responsive-viewport-guard.tsx",
         "app/components/global-action-feedback.tsx"
+        ,"app/components/guest-review-studio.tsx"
+        ,"app/components/modern-date-input.tsx"
+        ,"app/components/modern-date-input.css"
+        ,"app/components/modern-date-time-input.tsx"
+        ,"app/lib/modern-date-model.ts"
+        ,"app/lib/public-style-resources.ts"
+        ,"app/lib/public-style-world.ts"
+        ,"app/components/public-style-resources.tsx"
+        ,"app/components/whatsapp-lead-button.tsx"
       ]
     },
     {
@@ -734,6 +743,7 @@
         "app/lib/event-search-features.ts",
         "app/components/modern-select.tsx",
         "app/lib/event-search-taxonomy.ts",
+        "app/lib/legacy-event-intent-index.ts",
         "app/results-view.css",
         "app/lib/place-recommendation-payload.ts",
         "app/discover/place/"
@@ -829,6 +839,7 @@
         "app/api/vii/home-holiday-deals/route.ts",
         "app/components/holiday-live-deals.tsx",
         "app/lib/home-offer-freshness.ts"
+        ,"app/lib/warm-holiday-discovery-cache.ts"
       ]
     },
     {
@@ -863,6 +874,7 @@
         "app/sitemap.xml/",
         "app/sitemaps/",
         "app/lib/search-page-content.ts"
+        ,"app/lib/sitemap-inventory.ts"
       ]
     },
     {
@@ -902,6 +914,8 @@
         "build/world-style-slots.mjs",
         "build/generate-vacation-intent-index.mjs",
         "app/worlds/style-slots.json"
+        ,"build/public-style-bundles.mjs"
+        ,"types/public-style-bundles.d.ts"
       ]
     },
     {

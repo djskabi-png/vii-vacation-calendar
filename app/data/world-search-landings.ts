@@ -2,6 +2,7 @@ import type { SearchMode } from "./search-taxonomy";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
 import { worldLocationSlug } from "../lib/world-location-path.ts";
+import { normalizeEventVenueType } from '../lib/event-search-taxonomy.ts';
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",
@@ -61,6 +62,13 @@ export function mergeSearchHref(href: string, updates: URLSearchParams) {
 
 export function eventSearchHref(location?: string) {
   return locationHref("/events/search", "/events/search", location);
+}
+
+export const eventTypeSlugs: Record<string, string> = { "לופטים": "lofts", "וילות": "villas", "מתחמי אירועים": "event-complexes", "מתחמי אירוח": "hospitality-complexes", "מתחמי קיץ": "summer-complexes", "חדרי קריוקי": "karaoke-rooms" };
+export function eventCombinationHref(location: string, type: string) {
+  const base = !location || ['הכל', 'כל הארץ'].includes(location) ? '/events/search/israel' : eventSearchHref(location);
+  const slug = eventTypeSlugs[normalizeEventVenueType(type)];
+  return slug ? `${base}/${slug}` : mergeSearchHref(base, new URLSearchParams({ type }));
 }
 
 export function eventBreadcrumbForLocation(area: string, location?: string) {
