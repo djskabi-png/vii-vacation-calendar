@@ -84,7 +84,8 @@
         "tests/navigation-intent-warmup-actual.test.mjs",
         "tests/section-activation-actual.test.mjs",
         "tests/holiday-cold-recovery-actual.test.mjs",
-        "tests/cookie-consent-cls.test.mjs"
+        "tests/cookie-consent-cls.test.mjs",
+        "tests/slider-settle-layout-actual.test.mjs"
       ]
     },
     "search": {
@@ -272,7 +273,8 @@
         "tests/holiday-cold-recovery-actual.test.mjs",
         "tests/discovery-source-expiry-actual.test.mjs",
         "tests/navigation-intent-warmup-actual.test.mjs",
-        "tests/section-activation-actual.test.mjs"
+        "tests/section-activation-actual.test.mjs",
+        "tests/slider-settle-layout-actual.test.mjs"
       ]
     },
     "quality-control": {

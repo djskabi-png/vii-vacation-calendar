@@ -99,11 +99,17 @@ export function SliderRailControls({
     let settleTimer = 0;
     let settleInterval = 0;
     let userInteracted = false;
+    let normalizedRail: HTMLElement | null = null;
     const normalize = () => {
       if (userInteracted) return;
       const rail = resolveRail();
       if (!rail) return;
-      rail.scrollLeft = 0;
+      // Polling still detects a streamed replacement or restored RTL offset,
+      // but an unchanged rail must not repeatedly write scroll position and
+      // force another full boundary/layout measurement every 100ms.
+      if (rail === normalizedRail && rail.scrollLeft === 0) return;
+      normalizedRail = rail;
+      if (rail.scrollLeft !== 0) rail.scrollLeft = 0;
       state.update();
     };
     const preserveUserPosition = (event: Event) => {
