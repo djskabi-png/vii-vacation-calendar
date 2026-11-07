@@ -130,7 +130,8 @@
       ],
       "requiredLocalTests": [
         "tests/place-open-critical-path-actual.test.mjs",
-        "tests/public-font-delivery.test.mjs"
+        "tests/public-font-delivery.test.mjs",
+        "tests/viewport-resilient-image-actual.test.mjs"
       ]
     },
     "events": {
@@ -741,7 +742,8 @@
         "app/business/",
         "app/components/property-card.tsx",
         "app/lib/public-vacation-search.ts",
-        "app/worlds/vacations/"
+        "app/worlds/vacations/",
+        "app/components/viewport-resilient-image.tsx"
       ]
     },
     {

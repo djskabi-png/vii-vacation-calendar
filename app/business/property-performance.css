@@ -1,0 +1,2 @@
+/* Match the existing single-place map footprint while its code is deferred. */
+.property-page .location-card .map-deferred-loading { min-height: 300px; }
