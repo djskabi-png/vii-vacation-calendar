@@ -4,7 +4,7 @@ import { localizedPlaceBreadcrumbs } from "../../lib/localized-place-breadcrumbs
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { DeferredListingMap } from "../../components/deferred-listing-map";
 import { PageShell } from "../../components/page-shell";
@@ -49,7 +49,7 @@ function completeFeatureGroups(groups: { title: string; items: string[] }[] | un
     : visibleGroups;
 }
 
-export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, providerInventory, supplierDetail }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces: EventPlace[]; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail }) {
+export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, relatedContent, providerInventory, supplierDetail }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces?: EventPlace[]; relatedContent?: ReactNode; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail }) {
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
@@ -195,9 +195,9 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><HomeMobileRail shufflePlaces id="event-detail-nearby" label={translate("מקומות נוספים לאירוע")} className="event-more-grid">{nearbyRecommendations(relatedPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" contact={{ placeId: item.slug, phone: item.contact?.phone, whatsapp: item.contact?.whatsapp, serviceName: item.type }} key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</HomeMobileRail></div></section>
+        {relatedContent || <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><HomeMobileRail shufflePlaces id="event-detail-nearby" label={translate("מקומות נוספים לאירוע")} className="event-more-grid">{nearbyRecommendations(relatedPlaces || [], place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" contact={{ placeId: item.slug, phone: item.contact?.phone, whatsapp: item.contact?.whatsapp, serviceName: item.type }} key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</HomeMobileRail></div></section>}
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
-        <SearchAfterResults world="events" discoveryOnly location={place.location} inventory={[place, ...(relatedPlaces || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type, eventTypes: entry.eventTypes }))} />
+        {!relatedContent ? <SearchAfterResults world="events" discoveryOnly location={place.location} inventory={[place, ...(relatedPlaces || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type, eventTypes: entry.eventTypes }))} /> : null}
       </main>
 
       <GalleryExperience key={`${place.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />

@@ -13,9 +13,10 @@ import type { SupplierPlaceDetail } from "../../../data/supplier-place-detail";
 import { validDate } from "../../../lib/vii-live-search";
 import { eventBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { providerProfiles } from "../../../data/world-data";
-import { nearbyRecommendations } from "../../../lib/nearby-recommendations";
 import { serverLocalePath, serverPublicCopy } from "../../../i18n/server-public-copy";
 import { localizedEventPlace } from "../../../i18n/localized-event-place";
+import { Suspense } from "react";
+import { EventRelatedSlot } from "../related-slot";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
@@ -56,9 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params, searchParams }: Props) {
   const id = (await params).id;
   const supplierId = /^event-(\d+)$/.exec(id)?.[1];
-  const [place, places, acceptedDetail] = await Promise.all([
+  const [place, acceptedDetail] = await Promise.all([
     resolvePlace(id),
-    loadPlaces(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null,
   ]);
   const selection = await searchParams;
@@ -67,9 +67,9 @@ export default async function Page({ params, searchParams }: Props) {
   // Preserve the existing canonical business redirect for undated visits.
   // Dated event visits must recheck the event supplier, not a vacation quote.
   if (place.sourcePropertySlug && !datedEvent) redirect(eventPlaceHref(place));
-  const relatedPlaces = nearbyRecommendations(places, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items;
   const { language, translate } = await serverPublicCopy();
   const localized = localizedEventPlace(place, language, translate);
+  const relatedContent = <Suspense fallback={null}><EventRelatedSlotAsync place={place} /></Suspense>;
   return <>
     <ViewedItemBootstrap id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים${place.capacityScope === "unit" ? " ביחידה הגדולה" : ""}`} />
     <StructuredData data={eventVenueSchema(localized)} />
@@ -79,7 +79,12 @@ export default async function Page({ params, searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: localized.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={relatedPlaces} providerInventory={providerProfiles}
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedContent={relatedContent} providerInventory={providerProfiles}
       supplierDetail={acceptedDetail || undefined} />
   </>;
+}
+
+async function EventRelatedSlotAsync({ place }: { place: EventPlace }) {
+  const places = await loadPlaces();
+  return <EventRelatedSlot place={place} places={places} />;
 }
