@@ -5,7 +5,7 @@ const pending = new Map<string, Promise<CatalogEntry>>();
 
 function valid(value: unknown): value is CatalogEntry {
   return Boolean(value && typeof value === 'object' && Array.isArray((value as CatalogEntry).entries)
-    && (value as CatalogEntry).entries.every(entry => entry && typeof entry === 'object' && entry.summary && typeof entry.summary === 'object'));
+    && (value as CatalogEntry).entries.every(entry => entry && typeof entry === 'object' && entry.summary && typeof entry.summary === 'object' && !Array.isArray(entry.summary)));
 }
 
 /** Only the two public search projections share reads. Gallery card requests,
