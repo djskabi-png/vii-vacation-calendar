@@ -75,6 +75,14 @@
 .airbnb-map-split__results.result-cards.results-view--grid .stay-card { display: flex; flex-direction: column; }
 .airbnb-map-split__results.result-cards.results-view--list { grid-template-columns: minmax(0, 1fr); }
 .airbnb-map-split__results.result-cards.results-view--list .stay-card { grid-template-columns: minmax(190px, 38%) minmax(0, 1fr); }
+/* Shared spa/hourly map lists have the same full-row geometry as vacation.
+   A fixed 290px image cannot consume a narrow results pane. */
+@media (min-width: 1101px) {
+  .world-map-split .airbnb-map-split__results.discovery-grid.results-view--grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .world-map-split .airbnb-map-split__results.discovery-grid.results-view--list { grid-template-columns: minmax(0, 1fr); }
+  .world-map-split .airbnb-map-split__results.discovery-grid.results-view--list .discovery-card { grid-template-columns: minmax(150px, 38%) minmax(0, 1fr); }
+}
+
 .event-list.event-list--map-open { grid-template-columns: minmax(500px, .92fr) minmax(480px, 1.08fr); }
 .event-list.event-list--map-open > article { grid-column: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); padding: 10px; }
 .event-list.event-list--map-open > article > .event-card-gallery { padding: 15px 10px; }

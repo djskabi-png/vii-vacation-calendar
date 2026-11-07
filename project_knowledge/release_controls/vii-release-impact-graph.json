@@ -102,7 +102,10 @@
         "tests/mobile-search-portal.test.mjs",
         "tests/mobile-search-cancel-contract.test.mjs",
         "tests/mobile-search-next-action-contract.test.mjs",
-        "tests/event-filter-identity-actual.test.mjs"
+        "tests/event-filter-identity-actual.test.mjs",
+        "tests/preview-card-consistency-contract.test.mjs",
+        "tests/map-split-performance-family.test.mjs",
+        "tests/mobile-stability-contract.test.mjs"
       ]
     },
     "vacations": {
@@ -157,7 +160,11 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/preview-card-consistency-contract.test.mjs",
+        "tests/map-split-performance-family.test.mjs",
+        "tests/mobile-stability-contract.test.mjs"
+      ]
     },
     "hourly": {
       "dependsOn": [
@@ -175,7 +182,10 @@
         "managed-site"
       ],
       "requiredLocalTests": [
-        "tests/event-filter-identity-actual.test.mjs"
+        "tests/event-filter-identity-actual.test.mjs",
+        "tests/preview-card-consistency-contract.test.mjs",
+        "tests/map-split-performance-family.test.mjs",
+        "tests/mobile-stability-contract.test.mjs"
       ]
     },
     "activities": {
@@ -690,7 +700,8 @@
         "app/lib/search-opportunities.ts",
         "app/lib/event-search-features.ts",
         "app/components/modern-select.tsx",
-        "app/lib/event-search-taxonomy.ts"
+        "app/lib/event-search-taxonomy.ts",
+        "app/results-view.css"
       ]
     },
     {

@@ -1,0 +1,73 @@
+{
+  "status": "LOCAL_FIX_VERIFIED_NOT_PUBLISHED",
+  "observed_at": "2026-11-07T01:05:51.315908+00:00",
+  "baseline": "e2bba246127de7b3b801c2539bf600ed930e15d0",
+  "authorization": "Local fix and save only; no public deployment.",
+  "publication_performed": false,
+  "cause": "Shared world-map rule forces two discovery columns independent of list/grid selection. Each list card reserves290px image, overflowing a roughly250px card and clipping its body.",
+  "repair": "Scoped desktop rules in results-view.css: list one full row, image38% with150px minimum; grid auto-fit minimum260px so complete tiles fit available pane. Frozen globals cascade preserved.",
+  "files_sha256": {
+    "app/results-view.css": "4f727621f2e1cbfc72349bcfec660de1f932b4101525780507c0d8439713209d",
+    "project_knowledge/release_controls/vii-release-impact-graph.json": "7d2e7cebfe93177ffe8ca4182caf2f9c44ddf6827e0178b2eaae5b27ef626b59"
+  },
+  "browser_evidence": [
+    {
+      "route": "/hourly?view=list",
+      "viewport": 1280,
+      "map": true,
+      "pane_client": 520,
+      "pane_scroll": 520,
+      "card_width": 515.516,
+      "image_width": 195.125,
+      "body_width": 318.391,
+      "observed": "Complete horizontal list cards. Text title and contact links remain in card."
+    },
+    {
+      "route": "/hourly",
+      "viewport": 1280,
+      "map": true,
+      "pane_client": 520,
+      "pane_scroll": 520,
+      "card_width": 515.516,
+      "body_width": 513.516,
+      "observed": "Complete vertical grid tiles. Grid/list toggles and URL updates verified in both directions, with and without map."
+    },
+    {
+      "route": "/hourly?view=list",
+      "viewport": 1120,
+      "map": true,
+      "pane_client": 463,
+      "pane_scroll": 463,
+      "card_width": 458.938,
+      "body_width": 283.313,
+      "observed": "Single row list, no horizontal overflow."
+    },
+    {
+      "route": "/hourly",
+      "viewport": 390,
+      "map": true,
+      "page_scroll": 390,
+      "observed": "Map-only responsive surface; list hidden. Return-to-list gives grid card356px, body354px and no page overflow."
+    },
+    {
+      "route": "/spas?view=list",
+      "viewport": 1280,
+      "map": true,
+      "pane_client": 520,
+      "pane_scroll": 520,
+      "body_width": 318.391,
+      "observed": "Shared spa list geometry verified without clipping."
+    }
+  ],
+  "checks": {
+    "regression_tests": "35 passed,0 failed; .qa-output/hourly-layout-regressions.log including frozen world-style composition, map contracts, card consistency, mobile stability and hourly controls.",
+    "source_guard": "passed28 protected ancestors/22 capabilities; .qa-output/hourly-layout-source-guard.json",
+    "diff_check": "git diff --check passed"
+  },
+  "regression_prevention": "Results-view stylesheet now mapped to search ownership; existing card/map/mobile checks required for search/hourly/spa in impact graph.",
+  "limitations": [
+    "Local preview used bundled catalog due isolated local D1. This is a visual layout repair, not a provider completeness or performance certification.",
+    "No new production monitoring or deployment activated. Public v814 unchanged."
+  ],
+  "rollback": "Revert scoped local commit; prior event filter commit remains preserved."
+}
