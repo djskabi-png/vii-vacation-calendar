@@ -1,7 +1,7 @@
 // Only templates whose initial viewport has an observed desktop/mobile capture.
 // Other routes and all Flight responses retain the established stylesheet path.
 export function hasQualifiedCriticalTemplate(pathname: string) {
-  return pathname === '/' || /^\/vacations\/(?:north|kinneret|western-galilee|haifa-carmel|center|tel-aviv|tel-aviv-area|jerusalem|dead-sea|south-negev|eilat)$/.test(pathname);
+  return ['/', '/events', '/spas', '/hourly'].includes(pathname) || /^\/vacations\/(?:north|kinneret|western-galilee|haifa-carmel|center|tel-aviv|tel-aviv-area|jerusalem|dead-sea|south-negev|eilat)$/.test(pathname);
 }
 
 // Load listeners are captured at document level before hydration. No inline

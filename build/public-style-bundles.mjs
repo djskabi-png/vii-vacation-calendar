@@ -42,7 +42,7 @@ export function publicStyleBundlesPlugin() {
     generated = await Promise.all(Object.entries(publicStyleBundleSources()).map(async ([world, source]) => {
       const { code } = await esbuild.transform(source, { loader: 'css', minify: true, legalComments: 'none', target: 'es2022' });
       const hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 16);
-      return { world, source: code, critical: world === 'all' || world === 'vacations' ? criticalCssProjection(code) : '', fileName: `assets/vii-public-${world}-${hash}.css` };
+      return { world, source: code, critical: criticalCssProjection(code), fileName: `assets/vii-public-${world}-${hash}.css` };
     }));
     return generated;
   }

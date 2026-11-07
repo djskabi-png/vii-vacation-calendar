@@ -1,30 +1,51 @@
 {
-  "status": "implementation_qualification_in_progress",
-  "publicVersion": "v825",
-  "publicSource": "3228b01d75bb0e0aa8111bc8fe7f26156b423e68",
-  "publicBuild": "a274c3a1-90d7-84ae-25a4-8dff4327147c",
-  "candidate": "v826 not published",
-  "changes": [
-    "complete regional and accommodation matching metadata,18mounted initial cards unchanged",
-    "accepted catalog transition retains urgent input and current contents",
-    "defer only previously non-SSR ancillary results content",
-    "captured critical CSS on home and approved vacation regional initial HTML; full CSS unchanged; Flight and uncaptured templates use existing native stylesheet",
-    "no visible background catalog loading row when results already exist"
-  ],
-  "evidence": [
-    ".qa-output/v826-responsive-refresh/",
-    "v826-corrected-accommodation-fixture.log 8pass",
-    "v826-failed-checks-recovery.log 20pass1ownership failure, lastmissingpath now mapped; isolated recovery pending"
-  ],
-  "limitations": [
-    "Public v825 PSI52 mobile LCP5535ms TBT735ms remains open",
-    "Do not claim allworld critical CSS, zero-regressions guarantee, full program completion or publication",
-    "Prototype compiled before staging new files is not a source-frozen release; final staged-source build must reverify build identity"
-  ],
-  "rollback": {
-    "version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e79aa8530cc8819193297209265fbb62",
-    "deployment": "appgdep_6aef7d6d4b288191a0c208080b16d135",
-    "archiveSha256": "8b273139c3eaa8c1035fd80ea5cf929518940e9285d9b5457bce1bd0732b4eda"
+  "status": "published_verified_scoped_performance_followup_open",
+  "publicVersion": "v826",
+  "source": "9eae6975e57567bfa3d4a2c973e9c5e79c25219f",
+  "tree": "14bfa42ba913e68f92303cc750e5ce77475e92e3",
+  "buildIdentity": "31064a1d-36ea-b8b9-52c4-1d8713a0bbe2",
+  "managedCommit": "bc6ede7fbdc349ee2f313a9037c3abecc914b7ef",
+  "deployment": "appgdep_6aef9a11ffc481919949b2e43bfbabbd",
+  "environmentRevision": 32,
+  "origin": "https://vii.spaplus.co",
+  "artifactSha256": "f37a5383766533b8aaec576f055a65d7edd841bf72316ecd9eca65de8e441799",
+  "checks": {
+    "full": {
+      "pass": 2650,
+      "fail": 0,
+      "cancelled": 0,
+      "preexistingSkip": 1
+    },
+    "focused": 29,
+    "nativeRuntime": 88,
+    "http": 53,
+    "browserReceipts": 24,
+    "publicHttp": 24,
+    "retainedAssetBytes": 512
   },
-  "observedAt": "2026-11-07T20:59:59.231Z"
+  "preserved": [
+    "original DB/UPLOADS",
+    "PUBLIC audience/env32",
+    "managed1891 override",
+    "native service code etags and routes",
+    "full styles and complete matching metadata"
+  ],
+  "publicPerformance": {
+    "url": "https://pagespeed.web.dev/analysis/https-vii-spaplus-co-vacations-kinneret/svwea0o5ek?form_factor=mobile",
+    "mobileScore": 80,
+    "fcpMs": 1230,
+    "lcpMs": 1230,
+    "tbtMs": 412,
+    "cls": 0,
+    "speedIndexMs": 12988,
+    "interpretation": "Lab simulated paint scores improved but actual filmstrip and SpeedIndex remain late. Not launch100% certification."
+  },
+  "followup": [
+    "Cold first-result stream tail measured about2.1s after header, investigate server await versus resource contention",
+    "Split actually eager offscreen SearchAfterResults module; local uncommitted next-candidate edit only",
+    "Regional document warm coverage missing from fixed native warmer; not changed yet"
+  ],
+  "evidenceDirectory": ".qa-output/v826-responsive-refresh/",
+  "publishedGate": ".qa-output/v826-responsive-refresh/published-gate.json",
+  "observedAt": "2026-11-07T22:15:53.719Z"
 }

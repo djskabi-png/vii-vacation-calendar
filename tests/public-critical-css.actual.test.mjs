@@ -54,7 +54,22 @@ test('Flight and uncaptured templates keep native blocking stylesheet delivery w
     assert.ok(!markup.includes('vii-critical:'));
     assert.ok(markup.includes('data-precedence="vii-public"'));
   }
-  for (const pathname of ['/events', '/spas', '/hourly', '/business', '/en']) assert.ok(!html(pathname, false).includes('media="print"'));
+  for (const pathname of ['/events/search/north', '/spas/search/tel-aviv/spa-with-pool', '/business', '/en', '/en/spas']) assert.ok(!html(pathname, false).includes('media="print"'));
+});
+
+test('the three additional world roots have real desktop/mobile captures and bounded first-paint styles', () => {
+  const captures = JSON.parse(readFileSync('app/styles/public-critical-selectors.json', 'utf8')).captures;
+  for (const [pathname, world] of [['/events', 'events'], ['/spas', 'spa'], ['/hourly', 'hourly']]) {
+    const observed = captures.filter(capture => new URL(capture.url).pathname === pathname);
+    assert.ok(observed.some(capture => capture.viewport.width < 600), pathname + ' mobile');
+    assert.ok(observed.some(capture => capture.viewport.width >= 1000), pathname + ' desktop');
+    const markup = html(pathname, false);
+    assert.ok(markup.includes('vii-critical:'));
+    assert.ok(markup.includes('media="print"'));
+    assert.ok(virtual.criticalStyles[world].length > 10_000);
+    assert.ok(virtual.criticalStyles[world].length < 220_000);
+    assert.ok(virtual.criticalStyles[world].includes('Rubik'));
+  }
 });
 
 test('every enabled regional critical template names an actual approved regional route', () => {

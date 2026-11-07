@@ -7,12 +7,13 @@ import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, readSupplierCatalogSelectedSummariesPinned, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { publicCatalogDatabase } from "./runtime-database.ts";
-import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
+import { preparePublishedItemsRead, readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 import { managedVacationPriority } from "./vacation-priority.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
 import { readOnceInServerRequest } from './server-request-reads.ts';
+import type { D1Database } from '../../types/cloudflare-runtime';
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 const selectedCatalogCache = new Map<string, { expiresAt: number; items: Promise<unknown[]> }>();
@@ -42,12 +43,14 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
 async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   const db = await runtimeCatalogDatabase();
   if (!db) return await publicSummaries(world, bundled(world)) as T[];
-  // Editorial content is independent of supplier generation. Start both reads
-  // together, without caching manual edits or binding hundreds of IDs to SQL.
-  const overlays = readPublishedItems(db, contentTypeForWorld(world)).catch(() => []);
-  let state;
+  // The pointer and editorial overlay are independent, bounded reads. Batch
+  // them when the D1 adapter supports it, while retaining the old per-read
+  // fallbacks so an overlay failure never hides the accepted catalog.
+  const bootstrap = await readCatalogBootstrap(db, world);
+  const overlays = bootstrap.overlays;
+  let state = bootstrap.state;
   try {
-    state = await readSupplierCatalogState(db, world);
+    if (bootstrap.stateError) throw bootstrap.stateError;
   } catch {
     // The active-generation pointer is an optimization, not permission to
     // replace a complete accepted world with the global error surface. This
@@ -76,6 +79,34 @@ async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promi
     // the whole world with the generic error surface.
     console.warn(`public_catalog_summaries_fallback:${world}`);
     return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
+  }
+}
+
+export async function readCatalogBootstrap(db: D1Database, world: SupplierCatalogWorld): Promise<{
+  state: Awaited<ReturnType<typeof readSupplierCatalogState>>;
+  overlays: Promise<{ key: string; content: EditorialContent }[]>;
+  stateError?: unknown;
+}> {
+  const type = contentTypeForWorld(world);
+  const now = new Date().toISOString();
+  try {
+    const overlayRead = preparePublishedItemsRead(db, type, "he", now);
+    const stateStatement = db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
+      accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ?`).bind(world);
+    const decodeOverlay = (result: { results: Array<{ entityKey: string; contentJson: string }> }) => overlayRead.decode(result);
+    if (typeof db.batch !== "function") throw new Error("catalog_batch_unavailable");
+    const [stateResult, overlayResult] = await db.batch([stateStatement, overlayRead.statement]);
+    const state = (stateResult.results?.[0] || null) as Awaited<ReturnType<typeof readSupplierCatalogState>>;
+    return { state, overlays: Promise.resolve(decodeOverlay(overlayResult as { results: Array<{ entityKey: string; contentJson: string }> })) };
+  } catch (batchError) {
+    // D1 batch is atomic at the adapter boundary. Re-run each read once so a
+    // transient batch/overlay failure retains the established partial fallback.
+    const overlays = readPublishedItems(db, type).catch(() => []);
+    try {
+      return { state: await readSupplierCatalogState(db, world), overlays };
+    } catch (stateError) {
+      return { state: null, stateError: stateError || batchError, overlays };
+    }
   }
 }
 

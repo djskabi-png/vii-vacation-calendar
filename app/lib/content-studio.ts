@@ -280,13 +280,23 @@ export async function readPublishedContentBatch(db: D1Database, type: ContentTyp
     return editorialLocaleApproved(content, locale) ? [[row.itemId.split(":").slice(1, -1).join(":"), content] as const] : []; }));
 }
 
-export async function readPublishedItems(db: D1Database, type: ContentType, locale: ContentLocale = "he") {
-  const now = new Date().toISOString();
-  const rows = await db.prepare(`SELECT i.entity_key AS entityKey, v.content_json AS contentJson FROM vii_content_items i
+export function preparePublishedItemsRead(db: D1Database, type: ContentType, locale: ContentLocale = "he", now = new Date().toISOString()) {
+  const statement = db.prepare(`SELECT i.entity_key AS entityKey, v.content_json AS contentJson FROM vii_content_items i
     JOIN vii_content_versions v ON v.item_id = i.id AND v.version = CASE
       WHEN i.status = 'scheduled' AND i.scheduled_at <= ? THEN i.version ELSE i.published_version END
     WHERE i.content_type = ? AND i.locale = ? AND i.status <> 'archived' ORDER BY i.entity_key`)
-    .bind(now, type, locale).all<{ entityKey: string; contentJson: string }>();
-  return rows.results.flatMap((row) => { const content = JSON.parse(row.contentJson) as EditorialContent;
-    return editorialLocaleApproved(content, locale) ? [{ key: row.entityKey, content }] : []; });
+    .bind(now, type, locale);
+  return {
+    statement,
+    decode(result: { results: Array<{ entityKey: string; contentJson: string }> }) {
+      return result.results.flatMap((row) => { const content = JSON.parse(row.contentJson) as EditorialContent;
+        return editorialLocaleApproved(content, locale) ? [{ key: row.entityKey, content }] : []; });
+    },
+  };
+}
+
+export async function readPublishedItems(db: D1Database, type: ContentType, locale: ContentLocale = "he") {
+  const read = preparePublishedItemsRead(db, type, locale);
+  const rows = await read.statement.all<{ entityKey: string; contentJson: string }>();
+  return read.decode(rows);
 }

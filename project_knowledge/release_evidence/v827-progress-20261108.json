@@ -1,0 +1,59 @@
+{
+  "version": 2,
+  "state": "implementation_ready_qualification_pending",
+  "at": "2026-11-07T22:41:10.248Z",
+  "publicVersion": "v826",
+  "publicSource": "9eae6975e57567bfa3d4a2c973e9c5e79c25219f",
+  "scope": [
+    "Batch independent public catalog state/editorial reads into one D1 roundtrip; preserve uncached manual publication and bounded independent fallback",
+    "Actually lazy-load offscreen search recommendations",
+    "Build15 small derivatives of original discovery photos; preserve full originals, gallery and unknownCMSimages",
+    "Qualify first-HTML critical CSS for events/spas/hourly roots with desktop/mobile evidence; preserve ordinary Flight and uncaptured routes"
+  ],
+  "evidence": {
+    "prototypePreloads": {
+      "before": 114,
+      "after": 105,
+      "bytesBefore": 1138302,
+      "bytesAfter": 1047280
+    },
+    "thumbnailBytes": {
+      "before": 2101109,
+      "after": 110790,
+      "sourceCount": 15
+    },
+    "newCriticalCaptures": 6,
+    "focusedTestsBeforeFinalFreeze": 27,
+    "additionalCriticalAndSqlTests": 11
+  },
+  "acceptance": [
+    "Frozen exactsource/build/archive and priorv826assetretention before one managed deployment",
+    "Full requiredtests and typecheck/build/startup/import/artifact checks",
+    "Before/after delayed-fullCSS desktop/mobilegeometry on all qualified worldroots, early header/search interaction, no hiddenclosedpopover leak",
+    "Uncached publicfirstresult stream timing and actual mobile PSI/filmstrip, not just simulated FCP/LCP",
+    "Actual publicassetbyte/MIME/dimensions checks, old-client softnavigation, scoped cards/list/map regression"
+  ],
+  "preserved": [
+    "All18initialcards and matchingmetadata, sort/filter logic, bookingrealtimechecks",
+    "CurrentPUBLIC audience andenv32 originalDB/UPLOADS/managed1891",
+    "NativeWorker code/routes/cron unchanged",
+    "Privacy/consent, translations, businessidentity and fullgallerymedia"
+  ],
+  "risks": [
+    "New criticalCSSmustpassactualgeometry and interaction before fullsheetloads",
+    "New assets must be tracked and included in exactarchive",
+    "Do notclaimwholeunifiedprogram100percent or completeallworlddetailCSS from this scope"
+  ],
+  "rejectionsPredicted": [
+    "Fast simulatedLCP while visiblefilmstripislate",
+    "Missingimageasset despitepassinglocalunit",
+    "Slowcolddataread hiddenbehindHTMLheader",
+    "DroppingmanualCMSedits orinactivecatalogsemantics",
+    "Publishingastalesource oroverwritingnativeWorkers"
+  ],
+  "accessRecovery": {
+    "obstacle": "RootSiteslogsconnectorNOT_FOUND for knownproject",
+    "resolvedBy": "ExistingauthorizedowningCloudchatread-onlylogs",
+    "evidence": "Ownerread12errors+12successes; noSQLprofilingcapability; assetfilenamesredacted; no write or deployment"
+  }
+}

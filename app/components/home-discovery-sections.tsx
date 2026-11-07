@@ -13,6 +13,7 @@ import { normalizeHomepageItems } from "../lib/homepage-search-href";
 import { type PopularSearchWorld } from "../lib/world-popular-search-defaults";
 import { requestNearbyOrigin } from "./use-nearby-sort";
 import { useRouter } from "next/navigation";
+import { DiscoveryThumbnail } from "./discovery-thumbnail";
 
 type Presentation = {
   popular: HomeDiscoveryItem[];
@@ -64,7 +65,7 @@ function PopularSearchLink({ item }: { item: HomeDiscoveryItem }) {
         const target = new URL(item.href, window.location.origin); target.searchParams.set("sort", "nearest");
         router.push(localizedPath(`${target.pathname}${target.search}${target.hash}`, language));
       }).catch(() => setError(true)).finally(() => { pending.current = false; setBusy(false); });
-    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <img src={item.image} alt={imageAlt} loading="lazy" decoding="async" />}<span><strong>{label}</strong>{item.note ? <small>{translate(item.note)}</small> : null}</span></Link>
+    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="lazy" decoding="async" />}<span><strong>{label}</strong>{item.note ? <small>{translate(item.note)}</small> : null}</span></Link>
     {error ? <small className="home-popular-search-error" role="status">{translate("לא התקבל מיקום. לחצו שוב כדי לנסות מחדש.")}</small> : null}
   </div>;
 }
@@ -75,7 +76,7 @@ function DiscoveryRail({ id, title, items }: { id: string; title: string; items:
   return <section className="home-managed-discovery" aria-labelledby={`${id}-title`}>
     <div className="home-managed-discovery__head"><div><h3 id={`${id}-title`}>{title}</h3></div><HomeSliderControls railId={`${id}-track`} label={title} itemSelector=":scope > a" /></div>
     <nav id={`${id}-track`} className="home-managed-discovery__track search-depth__rail" data-horizontal-rail aria-label={title}>{items.map((item) => <Link className="search-depth__discovery-card" key={item.id} href={localizedPath(item.href, language)} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}>
-      <span className="search-depth__discovery-icon home-managed-discovery__visual"><img src={item.image} alt={item.imageAlt || item.label} title={item.imageAlt || item.label} loading="lazy" decoding="async" /></span>
+      <span className="search-depth__discovery-icon home-managed-discovery__visual"><DiscoveryThumbnail src={item.image} alt={item.imageAlt || item.label} title={item.imageAlt || item.label} loading="lazy" decoding="async" /></span>
       <strong>{item.label}</strong>
       {item.note ? <small>{item.note}</small> : <small>לצפייה בתוצאות</small>}
       <span className="search-depth__discovery-arrow" aria-hidden="true">←</span>

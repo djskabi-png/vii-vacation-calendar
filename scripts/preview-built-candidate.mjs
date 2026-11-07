@@ -28,8 +28,9 @@ const assets = {
     const pathname = decodeURIComponent(new URL(request.url).pathname);
     const path = resolve(clientRoot, `.${pathname}`);
     if (!path.startsWith(clientRoot + sep)) return new Response("Not found", { status: 404 });
-    if (publicStyleDelay && /^\/assets\/vii-public-[a-z]+-[a-f0-9]+\.css$/.test(pathname)) await new Promise(resolveDelay => setTimeout(resolveDelay, publicStyleDelay));
-    try { return new Response(await fs.readFile(path), { headers: { "Content-Type": mime[extname(path)] || "application/octet-stream" } }); }
+    const delayedStyle = publicStyleDelay && /^\/assets\/vii-public-[a-z]+-[a-f0-9]+\.css$/.test(pathname);
+    if (delayedStyle) await new Promise(resolveDelay => setTimeout(resolveDelay, publicStyleDelay));
+    try { return new Response(await fs.readFile(path), { headers: { "Content-Type": mime[extname(path)] || "application/octet-stream", ...(delayedStyle ? { "Cache-Control": "no-store" } : {}) } }); }
     catch {
       if (predecessorRoot) {
         const previousRoot = resolve(predecessorRoot, 'client');
@@ -52,7 +53,7 @@ const server = http.createServer(async (request, response) => {
     const incoming = new URL(request.url || "/", publicOrigin);
     if (publicStyleDelay && incoming.pathname === '/__qa/critical-style-entry') {
       response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-      response.end('<!doctype html><html><body><a href="/vacations/kinneret">Kinneret delayed stylesheet</a><a href="/">Home delayed stylesheet</a></body></html>');
+      response.end('<!doctype html><html><body><a href="/vacations/kinneret">Kinneret delayed stylesheet</a><a href="/">Home delayed stylesheet</a><a href="/events">Events delayed stylesheet</a><a href="/spas">Spa delayed stylesheet</a><a href="/hourly">Hourly delayed stylesheet</a></body></html>');
       return;
     }
     const quoteRead = request.method === "POST" && quoteReadPaths.has(incoming.pathname);

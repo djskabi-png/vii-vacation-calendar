@@ -7,6 +7,7 @@ import "./search-tablet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HomeQuickSearches } from "../components/home-discovery-sections";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap, preloadListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
@@ -45,7 +46,7 @@ import { useMapViewState } from "../components/map-view-state";
 import { MapSplitResultList } from "../components/map-split-result-list";
 import { useViiFlexibleLiveSearch, useViiLiveSearch } from "../components/use-vii-live-search";
 import { FilterControlIcon } from "../components/filter-control-icon";
-import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
+import type { ContextualSearchSuggestion } from "../components/search-after-results";
 import { DeferredSearchContent } from "../components/deferred-search-content";
 import { usePublishedCatalogSeed } from "../lib/published-catalog-seed";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
@@ -68,6 +69,10 @@ import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
 import type { MapPriceQuote } from "../lib/map-price";
 import { compareVacationDisplayedPrices, orderVacationResultsByDisplayedPrice, vacationCatalogDisplayedPrice, vacationPriceRangeMaximum } from "../lib/vacation-price-sort";
+
+// The viewport boundary must defer the module as well as its React subtree.
+// Default SSR is retained for complete seeds, whose guidance is rendered eagerly.
+const SearchAfterResults = dynamic(() => import("../components/search-after-results").then(module => module.SearchAfterResults));
 
 export type SearchLandingContext = {
   path: string;

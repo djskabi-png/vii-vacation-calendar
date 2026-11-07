@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "settings": {
+    "width": 192,
+    "quality": 86,
+    "version": 1
+  },
+  "entries": {
+    "/media/051ff4fbc8d7d2ac.jpeg": {
+      "src": "/assets/vii-thumbnail-4f8e0a96abe9d7506a48.webp",
+      "width": 192,
+      "height": 108,
+      "sourceSha256": "0fa6368648edc9636f39b4c1986f338e25aaed92af92782dcc6d37ada321ff25",
+      "sha256": "e7f66c43b6f959cf2c9f7b26ed4ddba78eecff3272d90d8100e3186b9c82446f",
+      "sourceBytes": 50853,
+      "bytes": 7630
+    },
+    "/media/231b0e706cc61cc1.jpg": {
+      "src": "/assets/vii-thumbnail-dadd3a91bf5aab967080.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "c5834bdcf2e2faa5c09e608d326a86d7133231c357d0ea1504b17c03099508be",
+      "sha256": "adc8c05e72268d768f40a2350898bcb9fd7812cef6f4664d58a38afb7bc29a1b",
+      "sourceBytes": 261177,
+      "bytes": 5890
+    },
+    "/media/322de460abbda5c6.jpg": {
+      "src": "/assets/vii-thumbnail-3cc02e47a70642bee0f3.webp",
+      "width": 192,
+      "height": 127,
+      "sourceSha256": "98c66c2fecb1bd9c0ee4091a4c3cc478425f660d7ab0d2e202cabe16e1673773",
+      "sha256": "4384fe79e9a3e860e87af137d3b2c971855b997427b73454f0415eaa0907ea96",
+      "sourceBytes": 131901,
+      "bytes": 8220
+    },
+    "/media/88fcef4341b24a45.jpeg": {
+      "src": "/assets/vii-thumbnail-25ed9f1451fe36f8a86c.webp",
+      "width": 192,
+      "height": 125,
+      "sourceSha256": "0c891a188788740a1d445e51bf0330e7a6f5d9722f431a7c12ab431508f9d713",
+      "sha256": "91bd30c333a90a11cc1992c9cf1406c6ac5cd8933833034dec5305c43ba2c4a5",
+      "sourceBytes": 30549,
+      "bytes": 4212
+    },
+    "/media/978e5fd5134b0831.jpeg": {
+      "src": "/assets/vii-thumbnail-afe2a960adc54b933fbb.webp",
+      "width": 192,
+      "height": 127,
+      "sourceSha256": "73ee1e7adfba36899047faf903a079c6524638c336017efbdb90fa438febd3c3",
+      "sha256": "43baa61559709aeb7b5c05d2807bcc8df47f499600eb4dfb062da8d9fdc730e8",
+      "sourceBytes": 119516,
+      "bytes": 7592
+    },
+    "/media/9a403cb4d9d1cbde.jpg": {
+      "src": "/assets/vii-thumbnail-6276e0e349507efb2adb.webp",
+      "width": 192,
+      "height": 127,
+      "sourceSha256": "eaf47a6b11a2d266ec879380ee70ff15a3a4ad3cde4f9863d8ba94a12ee9d31c",
+      "sha256": "4ca876dfa94a4dd602f51e2c302a6748bbd49be71745fc6979bed35f2c3977f3",
+      "sourceBytes": 148622,
+      "bytes": 6136
+    },
+    "/media/bc85b10f1d64d6db.jpeg": {
+      "src": "/assets/vii-thumbnail-7b2ccc1948b2d2172e02.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "3b0a22d98954f25e9af97e1e76b419b682a899437a8df00c0f51ea04eb11bbbd",
+      "sha256": "dd6431eeb13599a116cfe417b7af12d5363d55aeaa291e644d35c37743e98f53",
+      "sourceBytes": 48164,
+      "bytes": 4500
+    },
+    "/media/editorial/attractions-family-day.webp": {
+      "src": "/assets/vii-thumbnail-49f84a48ab343724aceb.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "89b532a2cd1f8d102c12d1c991b88d59a4517e5c08959f4d6e2eab2fc55cc718",
+      "sha256": "28388b1951228441bab1bf4d553d77744738431e6a8c0e09fdeab59e113092d3",
+      "sourceBytes": 185078,
+      "bytes": 11828
+    },
+    "/media/editorial/corporate-team-day.webp": {
+      "src": "/assets/vii-thumbnail-ede53014c1658a4a5ff2.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "d7c7a18db3338be965c7334e085fa959192f1294cca23046933e0a962045184c",
+      "sha256": "4a1c9fd18f3d9ba86c0c134d0351f4d73702ae97fd37d82a4c96e4c502665904",
+      "sourceBytes": 184660,
+      "bytes": 11084
+    },
+    "/media/editorial/hourly-stay-what-to-check.webp": {
+      "src": "/assets/vii-thumbnail-4162cb95af98771416f8.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "7497e5e1ea6b1a84452290241a14f076416eac9efd23b5fdfe3b8cecea7313d5",
+      "sha256": "8c8918a718474dd573f5f9a8c48a6ead3f686f62ca867965c7aac4cf0bbead25",
+      "sourceBytes": 141844,
+      "bytes": 6918
+    },
+    "/media/editorial/north-regions-guide.webp": {
+      "src": "/assets/vii-thumbnail-c42c2e94d262dacf5b55.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "fdefe03d8c84ca4724682fedf372aa037fa1e7c77be16e97163f0bcb382ff430",
+      "sha256": "fbe14096e76fc4966aa7881f3356085c6ae620767acf09a0b94304e38456f333",
+      "sourceBytes": 246958,
+      "bytes": 8574
+    },
+    "/media/editorial/spa-couple-experience.webp": {
+      "src": "/assets/vii-thumbnail-54bab038260178c7a154.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "6b11668a7769de7dd9d6f3862dfe5a2d249c1be73d859ba6c27caf41a00006f2",
+      "sha256": "40d61bc9ffd771fd9b987dcaf4ca6a1eb6b68ab5be7db35076f8793fb2a132f9",
+      "sourceBytes": 171720,
+      "bytes": 7008
+    },
+    "/media/f18d7c0469633ca0.jpeg": {
+      "src": "/assets/vii-thumbnail-b72a65c1afd4f425c42f.webp",
+      "width": 192,
+      "height": 95,
+      "sourceSha256": "bb7d4ecdfae7c6576b5a1daf6d56aaedd5de7c27d7ffcfb747d70f4f65b128ec",
+      "sha256": "9c64d1e6297809fbf16f48f094a8f1f712c4f08b6c398d907cd7cf94f92a6d8b",
+      "sourceBytes": 110990,
+      "bytes": 6760
+    },
+    "/media/hilat-hanof/535f7c268ed1dc4.jpeg": {
+      "src": "/assets/vii-thumbnail-8b82698e852bc41e50c2.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "5802740497c725897f67c2b9b7b02afef9c1e16cae8d9b87061e6bb25f785828",
+      "sha256": "c12aebd72844b71e3fd2ccafb41fc2b49b3cbf080f1d8bd28be49a86c1952377",
+      "sourceBytes": 146573,
+      "bytes": 6868
+    },
+    "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg": {
+      "src": "/assets/vii-thumbnail-c16802e63f3b46e25cc4.webp",
+      "width": 192,
+      "height": 124,
+      "sourceSha256": "1a719f7a0ed6175360380e5d5163fb6834dc554d3c3dfeb8e33015ae84c65241",
+      "sha256": "e31d54ecbb3513281220ec17bdd9a117b3948ebb98d108c6a4bc278903f511b1",
+      "sourceBytes": 122504,
+      "bytes": 7570
+    }
+  }
+}
