@@ -30,7 +30,7 @@ const copy = {
 } as const;
 const icons = { family: Users, couple: Heart, group: UsersRound };
 type Result = { key: string; status: "loading" | "ready" | "error"; deals: HomeDeal[]; stale?: boolean };
-type HolidayDealResponse = { holiday: HomeHoliday; deals: HomeDeal[]; cache?: { status: string }; availabilityStatus?: "verified" | "refreshing" };
+type HolidayDealResponse = { holiday: HomeHoliday; deals: HomeDeal[]; cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing" };
 
 export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeHoliday; initialSelection: HolidaySelection }) {
   const clock = useDealClock();

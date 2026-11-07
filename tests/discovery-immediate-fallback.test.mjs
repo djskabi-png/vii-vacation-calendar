@@ -66,7 +66,7 @@ test("both homepage vacation rails poll explicit refresh state within a shared d
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);
   assert.match(home, /catch\(\(error\) => \{ if \(error\?\.name !== "AbortError"\) recover\(false\); \}\)/);
   assert.match(home, /!refreshPending \|\| delay === null/);
-  assert.match(cache, /cache: attempt \? "reload"/,
+  assert.match(cache, /cache: attempt \|\| candidate && !previous \? "reload"/,
     "the retry must remain a bounded cache-bypassing GET recovery");
   assert.match(publicAudit, /home-live-deals-results", "home-holiday-deals-results"/);
   assert.match(publicAudit, /home-availability-rails/);
