@@ -2,8 +2,18 @@ import type { EventPlace } from "../data/site-data.ts";
 
 type EventSearchSource = Pick<EventPlace, "name" | "description" | "features" | "audiences" | "type" | "eventTypes">;
 type FacetDefinition = { label: string; pattern: RegExp };
+const eventVenueTypeAliases = new Map([
+  ["לופט", "לופטים"], ["וילה", "וילות"], ["מתחם אירוח", "מתחמי אירוח"],
+  ["מתחם אירועים", "מתחמי אירועים"], ["מתחם קיץ", "מתחמי קיץ"], ["חדר קריוקי", "חדרי קריוקי"],
+]);
 export function normalizeEventVenueType(value: string | null) {
-  return value === "לופט" ? "לופטים" : value === "וילה" ? "וילות" : value || "הכל";
+  const label = value?.trim() || "הכל";
+  return eventVenueTypeAliases.get(label) || label;
+}
+
+export function matchesEventVenueType(place: Pick<EventPlace, "type">, selection: string) {
+  const requested = normalizeEventVenueType(selection);
+  return requested === "הכל" || normalizeEventVenueType(place.type) === requested;
 }
 
 const venueTypes: FacetDefinition[] = [

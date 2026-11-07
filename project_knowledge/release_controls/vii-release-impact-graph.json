@@ -101,7 +101,8 @@
         "tests/liran-geography-actual.test.mjs",
         "tests/mobile-search-portal.test.mjs",
         "tests/mobile-search-cancel-contract.test.mjs",
-        "tests/mobile-search-next-action-contract.test.mjs"
+        "tests/mobile-search-next-action-contract.test.mjs",
+        "tests/event-filter-identity-actual.test.mjs"
       ]
     },
     "vacations": {
@@ -137,7 +138,8 @@
         "managed-site"
       ],
       "requiredLocalTests": [
-        "tests/event-last-minute-props.test.mjs"
+        "tests/event-last-minute-props.test.mjs",
+        "tests/event-filter-identity-actual.test.mjs"
       ]
     },
     "spa": {
@@ -172,7 +174,9 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/event-filter-identity-actual.test.mjs"
+      ]
     },
     "activities": {
       "dependsOn": [
@@ -684,7 +688,9 @@
         "app/lib/managed-search-params.ts",
         "app/lib/new-tab-policy.ts",
         "app/lib/search-opportunities.ts",
-        "app/lib/event-search-features.ts"
+        "app/lib/event-search-features.ts",
+        "app/components/modern-select.tsx",
+        "app/lib/event-search-taxonomy.ts"
       ]
     },
     {

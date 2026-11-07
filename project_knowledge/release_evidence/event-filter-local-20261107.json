@@ -1,0 +1,85 @@
+{
+  "status": "LOCAL_FIX_VERIFIED_NOT_PUBLISHED",
+  "observed_at": "2026-11-07T00:55:44.589811+00:00",
+  "baseline": "c4be5e6f20cc9e12076b23ed6d31fc4c30a2ba4e",
+  "authorization": "Local diagnosis, repair, tests and save only. User expressly forbids publication.",
+  "publication_performed": false,
+  "public_version_unchanged": "v814",
+  "source_sha256": {
+    "app/components/modern-select.tsx": "a42f460be769be9597b271a3a03a622e20aeb50c96556d4f94278da2c5799114",
+    "app/components/hourly-results.tsx": "9aa2ca316ead02d0456855856931b97328f8891a99d393debe6c1334a840a659",
+    "app/events/search/page.tsx": "95f04a8b3fbc787ef532987bb891560b9f3a31d635d52b05b65da1b691c4ca0a",
+    "app/lib/event-search-taxonomy.ts": "1fd6a40b61b1cdfed54f05e4b4f7dfb51bc0e62fd130526519e8d297935ffaff",
+    "tests/event-filter-identity-actual.test.mjs": "c29daba3c7244d5c250de5f7b80dbb1eafc96adc1f5055e3efcd14960e4d6534",
+    "tests/event-structured-feature-results.test.mjs": "815c05ce0bf1c896dfb456b2674b5b3e3ca9ee8fd513d3b1a2413a6bba7605cc",
+    "project_knowledge/release_controls/vii-release-impact-graph.json": "8ff65dd0e27d731dbcce769f36dd246808e99951613d169310cdd75ae3661550"
+  },
+  "root_causes": [
+    "Event URL singular loft normalized to plural while runtime supplier type stayed singular; strict comparison rejected all matches.",
+    "ModernSelect silently displayed first option when a legitimate selected route identity was missing from partial facet options.",
+    "Broad event regions were sourced solely from loaded geography/catalog, so could be missing before those sources arrived."
+  ],
+  "changes": [
+    "Normalize event venue type on both sides of the actual predicate and in facet options and change handler; preserve original supplier business facts.",
+    "Opt-in retained selected option with aria-selected and unchanged form value for event human-readable facets and hourly location. Opaque unrelated selects retain prior behavior.",
+    "Use approved event location options as stable base with deduplicated canonical geography aliases.",
+    "Provide translated retained label for hourly location.",
+    "Register actual behavior regression in mandatory search/events/hourly impact gates; classify shared select and taxonomy changes as search impact."
+  ],
+  "public_before": [
+    {
+      "path": "/events/search/north?type=לופט",
+      "observed": "0 matches; type selector showed הכל"
+    },
+    {
+      "path": "/events/search/south",
+      "observed": "12 matches; area selector showed הכל while searchbox said דרום ונגב"
+    }
+  ],
+  "local_browser": [
+    {
+      "path": "/events/search/north?type=לופט",
+      "observed": "7 matching lofts, region צפון and type לופטים selected."
+    },
+    {
+      "path": "UI north->south while type loft active",
+      "observed": "6 matching lofts, route south with type preserved; after navigation searchbox, heading and sidebar agreed."
+    },
+    {
+      "path": "south loft reload/back/list/remove-type",
+      "observed": "Reload/back restored selected south+loft. List view preserved both. Removing type returned12 while retaining south."
+    },
+    {
+      "path": "mobile390 event south+loft",
+      "observed": "Region דרום ונגב, type לופטים with checkmark and6 results; type removal12; reset132 all-country. innerWidth390/client375/scroll375; modern Rubik/Heebo/Assistant stack visually inspected."
+    },
+    {
+      "path": "/hourly/search/north",
+      "observed": "5 matching results, north retained in actual results filter despite partial catalog lacking broad region option."
+    },
+    {
+      "path": "/spas/search/tel-aviv/spa-with-pool",
+      "observed": "City תל אביב and בריכה both active before/after reload; results18 includes disclosed nearby suggestions."
+    },
+    {
+      "path": "/vacations/north?pool=1",
+      "observed": "North and pool active, pool pressed, matching heading; both removal controls still visible after reload."
+    }
+  ],
+  "automated_checks": {
+    "regressions": "57 passed,0 failed; .qa-output/event-filter-regressions.log",
+    "typecheck": "tsc --noEmit exit0; .qa-output/event-filter-tsc.log",
+    "baseline_reproduction": ".qa-output/event-filter-baseline-reproduction.json actual old page predicate rejects singular runtime loft",
+    "source_integrity": "passed28 protected ancestors/22 capability families; .qa-output/event-filter-source-guard.json",
+    "whitespace": "git diff --check exit0"
+  },
+  "limits": [
+    "Browser local runtime used bundled published catalog because isolated local D1 lacks production catalog tables. Counts prove local interaction behavior, not a new supplier completeness audit.",
+    "No production deployment, provider changes, remote schema changes or scheduled monitoring activation.",
+    "Recurring production browser monitoring is not claimed activated; mandatory local regression gate is saved for subsequent release.",
+    "Whole V plus QQQAAA program remains incomplete; this record is scoped only to the reported filter identity defects."
+  ],
+  "rollback": "Scoped local Git commit can be reverted without changing public v814.",
+  "independent_review": "phase2_independent_review verified exact checkout;9/9 identity and structured-feature tests passed, tsc passed, no blocker. Prior wrong-checkout south-alias finding explicitly withdrawn.",
+  "resource_cleanup": ".qa-output/event-filter-resource-final.json verified true, remaining[]"
+}

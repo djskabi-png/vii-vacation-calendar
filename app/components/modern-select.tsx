@@ -17,6 +17,9 @@ type ModernSelectProps = {
   className?: string;
   compact?: boolean;
   disabled?: boolean;
+  /** Human-readable search identities can outlive a partial catalog response. */
+  retainSelectedOption?: boolean;
+  retainedSelectionLabel?: string;
 };
 
 export function ModernSelect({
@@ -29,13 +32,18 @@ export function ModernSelect({
   className = "",
   compact = false,
   disabled = false,
+  retainSelectedOption = false,
+  retainedSelectionLabel,
 }: ModernSelectProps) {
   const generatedId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue ?? options[0]?.value ?? "");
   const selectedValue = value ?? internalValue;
-  const selected = options.find((option) => option.value === selectedValue) ?? options[0];
+  const visibleOptions = retainSelectedOption && selectedValue && !options.some((option) => option.value === selectedValue)
+    ? [{ value: selectedValue, label: retainedSelectionLabel || selectedValue }, ...options]
+    : options;
+  const selected = visibleOptions.find((option) => option.value === selectedValue) ?? visibleOptions[0];
 
   useEffect(() => {
     function closeFromOutside(event: PointerEvent) {
@@ -79,7 +87,7 @@ export function ModernSelect({
       </button>
       {open ? (
         <div className="modern-select__menu" id={`${generatedId}-options`} role="listbox" aria-labelledby={`${generatedId}-label`}>
-          {options.map((option) => (
+          {visibleOptions.map((option) => (
             <button
               type="button"
               role="option"

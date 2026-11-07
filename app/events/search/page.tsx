@@ -30,7 +30,7 @@ import { EventResultCard } from "../../components/event-result-card";
 import { useStartingPrices } from "../../lib/use-starting-prices";
 import { hasSearchDate, supplierStartingPrice } from "../../lib/supplier-starting-price";
 import { ResultsViewToggle, useResultsViewMode } from "../../components/results-view-toggle";
-import { matchesSearchLocation } from "../../data/search-taxonomy";
+import { matchesSearchLocation, searchLocationOptions } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
@@ -41,13 +41,15 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
-import { normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
+import { matchesEventVenueType, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
 import { eventMatchesFeatureSelection, eventFeatureSelectionLabel } from "../../lib/event-search-features.ts";
 import { managedPresentationHref, managedSearchParams } from "../../lib/managed-search-params";
 import type { MapPriceQuote } from "../../lib/map-price";
+
+import { uniqueSearchLocations } from "../../lib/geographic-names";
 
 type EventSortKey = DiscoverySortKey | "capacity";
 const EVENT_SORT_VALUES: EventSortKey[] = ["recommended", "nearest", "popular", "price-asc", "price-desc", "rating-desc", "capacity", "name"];
@@ -106,7 +108,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
 
   function changeFilter(key: "location" | "type" | "eventType" | "features" | "guests" | "noise" | "accessible" | "sort" | "slot", value: string | boolean | number) {
     if (key === "location") setArea(String(value));
-    if (key === "type") setType(String(value));
+    if (key === "type") { value = normalizeEventVenueType(String(value)); setType(value); }
     if (key === "eventType") setEventType(String(value));
     if (key === "features") setFacility(String(value));
     if (key === "guests") setGuests(Number(value));
@@ -134,12 +136,13 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       setSlot(params.get("slot") === "morning" ? "morning" : params.get("slot") === "evening" ? "evening" : undefined);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [initialArea, searchQuery]);
+  }, [initialArea, searchQuery, initialSearchParams]);
 
-  const areas = useMemo(() => ["הכל", ...Array.from(new Set([
+  const areas = useMemo(() => ["הכל", ...uniqueSearchLocations([
+    ...searchLocationOptions("events").filter((value) => value !== "כל הארץ"),
     ...managedGeography.map((node) => node.title),
     ...eventPlaces.flatMap((place) => [place.area, place.location]),
-  ].filter(Boolean)))], [eventPlaces, managedGeography]);
+  ].filter(Boolean))], [eventPlaces, managedGeography]);
   const eventFrom = searchParams.get("from");
   const undatedSearch = !hasSearchDate(searchParams);
   const startingPrices = useStartingPrices("events", undatedSearch);
@@ -203,10 +206,10 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       ? eventOfferHref(place, new URLSearchParams({ from: offer?.from || eventFrom, guests: String(guests), ...(offer?.slot || slot ? { slot: offer?.slot || slot! } : {}) }))
       : eventPlaceHref(place);
   };
-  const types = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.map((place) => place.type), eventVenueTypeOrder)], [eventPlaces]);
+  const types = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.map((place) => normalizeEventVenueType(place.type)), eventVenueTypeOrder)], [eventPlaces]);
   const eventTypes = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.eventTypes), eventOccasionOrder)], [eventPlaces]);
   const facilities = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.features), eventFacilityOrder)], [eventPlaces]);
-  const matchesHardFilters = (place: EventPlace) => (type === "הכל" || place.type === type)
+  const matchesHardFilters = (place: EventPlace) => matchesEventVenueType(place, type)
     && (eventType === "הכל" || place.eventTypes.includes(eventType))
     && eventMatchesFeatureSelection(place, facility)
     && (!guests || place.capacityScope === "unit" || place.guests >= guests)
@@ -312,9 +315,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
         <div className="shell event-results-layout">
           <aside id="event-result-filters" className={`filter-panel ${filtersOpen ? "open" : ""}`} aria-label="סינון תוצאות אירועים">
             <div className="filter-panel__scroll"><div className="filter-head"><h2>סינון</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירת סינון"><CloseIcon /></button></div>
-              <ModernSelect label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />
-              <ModernSelect label="סוג מקום" value={type} onChange={(value) => changeFilter("type", value)} options={types.map((item) => ({ value: item, label: item }))} />
-              <ModernSelect label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
+              <ModernSelect retainSelectedOption label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />
+              <ModernSelect retainSelectedOption label="סוג מקום" value={type} onChange={(value) => changeFilter("type", value)} options={types.map((item) => ({ value: item, label: item }))} />
+              <ModernSelect retainSelectedOption label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
               <ModernSelect label="מתקנים ושירותים" value={facility} onChange={(value) => changeFilter("features", value)} options={[...facilities.map((item) => ({ value: item, label: item })), ...(facility !== "הכל" && !facilities.includes(facility) ? [{ value: facility, label: eventFeatureSelectionLabel(facility) }] : [])]} />
               <ModernSelect label={slotCopy.label} value={slot || "both"} onChange={(value) => changeFilter("slot", value === "both" ? "" : value)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} />
               {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
+import {matchesEventVenueType} from '../app/lib/event-search-taxonomy.ts';
 import pages from '../app/data/legacy-event-search-pages.json' with {type:'json'};
 import {eventMatchesFeatureSelection,eventFeatureSelectionLabel,eventFeatureTokens} from '../app/lib/event-search-features.ts';
 
@@ -9,7 +10,7 @@ function actualHardFilter(filters){
  const source=readFileSync(new URL('../app/events/search/page.tsx',import.meta.url),'utf8');
  const expression=source.slice(source.indexOf('  const matchesHardFilters ='),source.indexOf('  const filtered = useMemo'));
  const js=ts.transpileModule(expression+'\nexport default matchesHardFilters;', {compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
- const exports={};new Function('exports','type','eventType','facility','guests','noNoiseLimit','accessibleOnly','eventMatchesFeatureSelection','matchesVacationSearchFilter',js)(exports,filters.type||'הכל',filters.eventType||'הכל',filters.features||'הכל',0,false,false,eventMatchesFeatureSelection,()=>true);
+ const exports={};new Function('matchesEventVenueType','exports','type','eventType','facility','guests','noNoiseLimit','accessibleOnly','eventMatchesFeatureSelection','matchesVacationSearchFilter',js)(matchesEventVenueType,exports,filters.type||'הכל',filters.eventType||'הכל',filters.features||'הכל',0,false,false,eventMatchesFeatureSelection,()=>true);
  return exports.default;
 }
 
