@@ -125,7 +125,8 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     })
     .slice(0, 10)
     .map((candidate) => ({ label: candidate.title, href: candidate.path }));
-  const initialListings = landing.listings.slice(0, 60);
+  // Keep complete matching metadata; the result component still mounts only18 cards.
+  const initialListings = publicVacationSearchProperties(landing.listings);
 
   return <>
     <StructuredData data={collectionSchema(

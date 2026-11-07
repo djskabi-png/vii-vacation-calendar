@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { worldStyleSources, composeWorldStyles } from './world-style-slots.mjs';
+import { criticalCssProjection } from './public-critical-css.mjs';
 
 export const publicStyleFiles = ['globals.css', 'results-view.css', 'mobile-stability.css', 'app-experience.css', 'site-polish.css', 'mobile-polish.css', 'preview-card-consistency.css', 'slider-card-compact.css', 'direct-phone-link.css', 'pwa.css'];
 const worlds = ['vacations', 'events', 'hourly', 'spa'];
@@ -41,7 +42,7 @@ export function publicStyleBundlesPlugin() {
     generated = await Promise.all(Object.entries(publicStyleBundleSources()).map(async ([world, source]) => {
       const { code } = await esbuild.transform(source, { loader: 'css', minify: true, legalComments: 'none', target: 'es2022' });
       const hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 16);
-      return { world, source: code, fileName: `assets/vii-public-${world}-${hash}.css` };
+      return { world, source: code, critical: world === 'all' || world === 'vacations' ? criticalCssProjection(code) : '', fileName: `assets/vii-public-${world}-${hash}.css` };
     }));
     return generated;
   }
@@ -52,7 +53,7 @@ export function publicStyleBundlesPlugin() {
     async load(id) {
       if (id !== '\0' + virtualId) return null;
       const values = await bundles();
-      return `export default ${JSON.stringify(Object.fromEntries(values.map(v => [v.world, '/' + v.fileName])))};`;
+      return `export default ${JSON.stringify(Object.fromEntries(values.map(v => [v.world, '/' + v.fileName])))};export const criticalStyles=${JSON.stringify(Object.fromEntries(values.map(v => [v.world, v.critical])))};`;
     },
     async buildStart() {
       if (this.environment?.name !== 'client') return;

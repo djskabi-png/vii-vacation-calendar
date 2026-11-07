@@ -1,0 +1,30 @@
+{
+  "status": "implementation_qualification_in_progress",
+  "publicVersion": "v825",
+  "publicSource": "3228b01d75bb0e0aa8111bc8fe7f26156b423e68",
+  "publicBuild": "a274c3a1-90d7-84ae-25a4-8dff4327147c",
+  "candidate": "v826 not published",
+  "changes": [
+    "complete regional and accommodation matching metadata,18mounted initial cards unchanged",
+    "accepted catalog transition retains urgent input and current contents",
+    "defer only previously non-SSR ancillary results content",
+    "captured critical CSS on home and approved vacation regional initial HTML; full CSS unchanged; Flight and uncaptured templates use existing native stylesheet",
+    "no visible background catalog loading row when results already exist"
+  ],
+  "evidence": [
+    ".qa-output/v826-responsive-refresh/",
+    "v826-corrected-accommodation-fixture.log 8pass",
+    "v826-failed-checks-recovery.log 20pass1ownership failure, lastmissingpath now mapped; isolated recovery pending"
+  ],
+  "limitations": [
+    "Public v825 PSI52 mobile LCP5535ms TBT735ms remains open",
+    "Do not claim allworld critical CSS, zero-regressions guarantee, full program completion or publication",
+    "Prototype compiled before staging new files is not a source-frozen release; final staged-source build must reverify build identity"
+  ],
+  "rollback": {
+    "version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e79aa8530cc8819193297209265fbb62",
+    "deployment": "appgdep_6aef7d6d4b288191a0c208080b16d135",
+    "archiveSha256": "8b273139c3eaa8c1035fd80ea5cf929518940e9285d9b5457bce1bd0732b4eda"
+  },
+  "observedAt": "2026-11-07T20:59:59.231Z"
+}

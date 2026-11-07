@@ -46,6 +46,8 @@ import { MapSplitResultList } from "../components/map-split-result-list";
 import { useViiFlexibleLiveSearch, useViiLiveSearch } from "../components/use-vii-live-search";
 import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
+import { DeferredSearchContent } from "../components/deferred-search-content";
+import { usePublishedCatalogSeed } from "../lib/published-catalog-seed";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
 import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
@@ -365,6 +367,8 @@ function runtimeProperty(value: unknown): Property {
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
   const { language, translate } = useSiteLanguage();
+  const completeInitialCatalog = usePublishedCatalogSeed("vacations")?.complete === true;
+  const furtherSearchLabel = { he: "מידע ורעיונות נוספים לחופשה", en: "More information and travel ideas", ru: "Дополнительная информация и идеи для отдыха", fr: "Informations et idées de voyage" }[language];
   const startingPrices = useStartingPrices("vacations", true);
   const supplierTypeFilterAvailable = useMemo(() => properties.some((property) => property.type !== "מקום אירוח"), [properties]);
   const VACATION_PRICE_MAX = useMemo(() => vacationPriceRangeMaximum(properties, startingPrices), [properties, startingPrices]);
@@ -1062,7 +1066,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   return (
     <PageShell footerTopic={footerTopicForPropertyType(selectedTypes[0] || "הכל")}>
       <main id="main-content" className="results-page"><NearbySortStatus state={nearby} />
-        {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
+        {catalogLoading && properties.length === 0 ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         {!landing ? <StructuredData data={collectionSchema("מקומות נופש בישראל", "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
         {!landing ? <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }])} /> : null}
@@ -1169,7 +1173,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </>}
           </section>
         </div>
-        {!catalogLoading && !catalogError ? <SearchAfterResults world="vacation" location={area} inventory={properties} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} /> : null}
+        {!catalogLoading && !catalogError ? <DeferredSearchContent label={furtherSearchLabel} deferUntilNearViewport={!completeInitialCatalog}><SearchAfterResults world="vacation" location={area} inventory={properties} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} /></DeferredSearchContent> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={closeFiltersPanel} />}
       </main>
     </PageShell>

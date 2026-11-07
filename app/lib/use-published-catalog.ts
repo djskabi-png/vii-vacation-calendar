@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { usePublishedCatalogSeed } from "./published-catalog-seed";
 import { discoveryJson } from "./discovery-client-cache.ts";
@@ -23,6 +23,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       fetching = true;
       seededAt.current = Date.now();
       if (seed === null) setLoading(true);
+      let committed = false;
       try {
         const searchView = view === "cards" ? "&view=cards" : world === "vacations" || world === "events" ? "&view=search" : "";
         const url = `/api/catalog?world=${world}${searchView}`;
@@ -37,9 +38,16 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
               return response.json() as Promise<{ entries?: Array<{ summary: unknown }> }>;
             })();
         if (!Array.isArray(body.entries)) throw new Error("catalog_unavailable");
-        setItems(body.entries.map((entry) => map(entry.summary)));
-        hasAcceptedContent.current = true;
-        setError(false);
+        const nextItems = body.entries.map((entry) => map(entry.summary));
+        if (controller.signal.aborted) return;
+        startTransition(() => {
+          if (controller.signal.aborted) return;
+          committed = true;
+          setItems(nextItems);
+          hasAcceptedContent.current = true;
+          setError(false);
+          setLoading(false);
+        });
         seededAt.current = Date.now();
       } catch {
         if (controller.signal.aborted) return;
@@ -52,7 +60,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
         setError(!hasAcceptedContent.current);
       } finally {
         fetching = false;
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted && !committed) setLoading(false);
       }
     }
     let idleHandle: number | undefined;

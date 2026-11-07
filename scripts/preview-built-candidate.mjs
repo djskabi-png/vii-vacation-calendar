@@ -13,6 +13,9 @@ const publicOrigin = "https://vii.spaplus.co";
 // Inspect changed catalog projections locally instead of silently hydrating
 // a new candidate with the old production catalog. Still read-only, no D1.
 const localCatalog = process.argv.includes("--local-catalog");
+// QA-only fault injection: prove the first viewport is styled before the full
+// public stylesheet arrives. Never part of the deployed Worker.
+const publicStyleDelay = Math.min(10_000, Math.max(0, Number(process.argv.find(value => value.startsWith('--delay-public-styles='))?.split('=')[1]) || 0));
 const clientRoot = resolve("dist/client");
 // Explicit compatibility rehearsal: bootstrap the exact qualified predecessor
 // document, but resolve subsequent Flight navigation with the candidate Worker.
@@ -25,6 +28,7 @@ const assets = {
     const pathname = decodeURIComponent(new URL(request.url).pathname);
     const path = resolve(clientRoot, `.${pathname}`);
     if (!path.startsWith(clientRoot + sep)) return new Response("Not found", { status: 404 });
+    if (publicStyleDelay && /^\/assets\/vii-public-[a-z]+-[a-f0-9]+\.css$/.test(pathname)) await new Promise(resolveDelay => setTimeout(resolveDelay, publicStyleDelay));
     try { return new Response(await fs.readFile(path), { headers: { "Content-Type": mime[extname(path)] || "application/octet-stream" } }); }
     catch {
       if (predecessorRoot) {
@@ -46,6 +50,11 @@ const quoteReadPaths = new Set(["/api/vii/stay-quote", "/api/vii/stay-unit-quote
 const server = http.createServer(async (request, response) => {
   try {
     const incoming = new URL(request.url || "/", publicOrigin);
+    if (publicStyleDelay && incoming.pathname === '/__qa/critical-style-entry') {
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+      response.end('<!doctype html><html><body><a href="/vacations/kinneret">Kinneret delayed stylesheet</a><a href="/">Home delayed stylesheet</a></body></html>');
+      return;
+    }
     const quoteRead = request.method === "POST" && quoteReadPaths.has(incoming.pathname);
     if (request.method !== "GET" && request.method !== "HEAD" && !quoteRead) { response.writeHead(405); response.end(); return; }
     let quoteBody;

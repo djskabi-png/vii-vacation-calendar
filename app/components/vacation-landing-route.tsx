@@ -22,10 +22,10 @@ export async function vacationLandingMetadata(regionSlug?: string | null): Promi
 }
 
 export async function VacationLandingRoute({ regionSlug, locationOverride }: { regionSlug?: string | null; locationOverride?: string }) {
-  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
   const region = vacationRegionBySlug(regionSlug);
   const location = locationOverride || region?.label;
   if (!location) notFound();
+  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
   const listings = region && !locationOverride
     ? vacationRegionListings(region, publishedProperties)
     : publishedProperties.filter((property) => matchesSearchLocation(property, location));
@@ -33,10 +33,9 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
     key: (property) => property.slug,
     origin: { location, area: location },
   }), (property) => property.slug);
-  // Keep the first document useful and indexable without serializing hundreds
-  // of repeated catalog records into both HTML and Flight. The client refreshes
-  // the complete cached search view immediately after hydration.
-  const initialListings = represented.slice(0, 60);
+  // Complete regional metadata keeps the first count, price sort and filters truthful.
+  // SearchExperience still renders its bounded18-card progressive window.
+  const initialListings = represented;
   const path = locationOverride ? worldLocationPath("vacation", location) : `/vacations/${region!.slug}`;
   const title = `נופש ב${location}`;
   const description = `מקומות נופש פעילים ב${location}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
