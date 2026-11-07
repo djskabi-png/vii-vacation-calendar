@@ -13,6 +13,27 @@ function fixture(){
 }
 const request=(path='/',headers={Accept:'text/html'})=>new Request('https://vii.spaplus.co'+path,{headers});
 
+test('period pages reuse global R2 across regions but never across cutoff or midnight', async t => {
+ t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-07T11:59:59.500Z')});
+ for(const [before,after] of [['2026-11-07T11:59:59.500Z','2026-11-07T12:00:00Z'],['2026-11-07T21:59:59.500Z','2026-11-07T22:00:00Z']]) {
+  for(const path of ['/last-minute','/weekend/friday-to-sunday']) for(const rsc of [false,true]) {
+   t.mock.timers.setTime(Date.parse(before));const f=fixture();
+   const req=()=>request(path+(rsc?'.rsc?_rsc=KsQaSH2L7Z4e6Q5N':''),rsc?{Accept:'text/x-component',RSC:'1','X-Vinext-Interception-Context':'/'}:{Accept:'text/html'});
+   try {
+    const first=await worker.fetch(req(),f.env,f.ctx);await first.arrayBuffer();await f.drain();
+    assert.equal(first.headers.get('X-VII-Cache-Until'),String(Date.parse(after)));
+    assert.equal(f.store.writes,1);const oldKey=[...f.store.data.keys()][0];
+    f.region();const cross=await worker.fetch(req(),f.env,f.ctx);await cross.arrayBuffer();await f.drain();
+    assert.equal(cross.headers.get('X-VII-Edge-Cache-Backend'),'global-r2');assert.equal(f.calls,1);
+    t.mock.timers.setTime(Date.parse(after));f.region();
+    const next=await worker.fetch(req(),f.env,f.ctx);await next.arrayBuffer();await f.drain();
+    assert.equal(next.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(f.calls,2);
+    assert.equal(f.store.writes,2);assert.notEqual([...f.store.data.keys()][1],oldKey);
+   } finally { f.restore(); }
+  }
+ }
+});
+
 test('a fresh anonymous document is reused across empty regional caches with exact headers and build',async()=>{
  const f=fixture();try{
   const first=await worker.fetch(request(),f.env,f.ctx);assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');const body=await first.text();await f.drain();assert.equal(f.store.writes,1);

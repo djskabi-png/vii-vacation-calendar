@@ -19,7 +19,7 @@ export function globalPublicVariant(request:Request,build:string){
  if(url.hostname==='vii.spaplus.co'&&publicDiscoveryCachePolicy(request))return true;
  const path=rsc?url.pathname.slice(0,-4)||'/':url.pathname;
  const base=path.replace(/^\/(?:en|fr|ru)(?=\/|$)/,'')||'/';
- const canonical=paths.has(base)||/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|events|spas|hourly|holidays|destinations|providers|trails|attractions|activities|guides|questions|corporate|gift-card|contact|accessibility|legal|discover\/place)(?:\/[a-z0-9-]+)*$/.test(base);
+ const canonical=paths.has(base)||/^\/(?:last-minute|weekend|vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|events|spas|hourly|holidays|destinations|providers|trails|attractions|activities|guides|questions|corporate|gift-card|contact|accessibility|legal|discover\/place)(?:\/[a-z0-9-]+)*$/.test(base);
  if(url.hostname!=='vii.spaplus.co'||!canonical&&base!=='/business')return false;
  if(routing.some(name=>request.headers.has(name))||request.headers.has('X-Vinext-Mounted-Slots')||request.headers.has('X-Vinext-Rsc-Render-Mode'))return false;
  const params=new URLSearchParams(url.search);

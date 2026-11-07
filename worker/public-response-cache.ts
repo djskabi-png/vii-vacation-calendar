@@ -1,6 +1,6 @@
 // Only anonymous discovery responses enter this cache. Transactional reads,
 // sessions, actions and unknown cookies always take the authoritative path.
-import { dealClockKey } from "../app/lib/deal-clock.ts";
+import { publicDocumentClock, publicDocumentExpiry } from "../shared/public-document-clock.ts";
 import { claimPublicCacheCapture, claimPublicCacheWrite, readBoundedCacheBody } from "./public-cache-work.ts";
 export type PublicCachePolicy = {
   key: string;
@@ -9,6 +9,7 @@ export type PublicCachePolicy = {
   ttlSeconds: number;
   home: boolean;
   build: string;
+  expiresAt?: number;
 };
 
 type StoredResponse = { body: ArrayBuffer; headers: [string, string][]; expiresAt: number };
@@ -99,8 +100,8 @@ function publicDocumentTtl(pathname: string, url: URL) {
   if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
   if (/^\/(?:business|events\/place|discover\/place)(?:\/|$)/.test(path)
     && !url.searchParams.has("from") && !url.searchParams.has("till")) return 900;
-  if (/^\/(?:business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
-  if (/^\/(?:vacations|villas|luxury-suites|suite-complexes|vacation-apartments|discover\/place)(?:\/|$)/.test(path)) return 180;
+  if (/^\/(?:last-minute|weekend|business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
+  if (/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|discover\/place)(?:\/|$)/.test(path)) return 180;
   if (/^\/legal(?:\/|$)/.test(path)) return 900;
   return null;
 }
@@ -147,9 +148,11 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
   if (query === null || query.length > 600) return null;
   const variants = routingHeaders.map((name) => [name, request.headers.get(name)]);
   if (JSON.stringify(variants).length > 8192) return null;
-  const identity = await digest(JSON.stringify([url.origin, url.pathname, query, variants, ...(home ? [dealClockKey(now)] : [])]));
+  const clock = kind === "data" ? null : publicDocumentClock(url.pathname, now);
+  const identity = await digest(JSON.stringify([url.origin, url.pathname, query, variants, ...(clock ? [clock] : [])]));
   const key = `runtime-cache/public/${publicCacheVersion}/${build}/${url.hostname}/${kind}/${identity}`;
-  return { key, edgeUrl: `${url.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build };
+  const expiresAt = kind === "data" ? undefined : publicDocumentExpiry(url.pathname, now.getTime() + ttlSeconds * 1000, now);
+  return { key, edgeUrl: `${url.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build, expiresAt };
 }
 
 function edgeCache(): EdgeCache | undefined {
@@ -254,7 +257,10 @@ export function storePublicCache(response: Response, policy: PublicCachePolicy |
     headers.set("X-VII-Cache-Capture", "busy");
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   }
-  const expiresAt = Date.now() + policy.ttlSeconds * 1000;
+  const expiresAt = Math.min(Date.now() + policy.ttlSeconds * 1000, policy.expiresAt ?? Infinity);
+  // A render begun before a cutoff may finish afterwards. Never admit it
+  // with a new lifetime measured from its late completion.
+  if (expiresAt <= Date.now()) { releaseCapture(); return skip(); }
   const cacheable = cacheHeaders(response, policy, "MISS", "origin", expiresAt);
   const storedHeaders = [...cacheable.headers.entries()];
   cacheable.headers.set("X-VII-Cache-Capture", "queued");

@@ -5,6 +5,7 @@ import { qualityGateway, type QualityGatewayEnvironment } from './quality-gatewa
 import {readRetainedAsset,retainedAssetRequest} from './retained-assets.ts';
 import { experienceGateway, type ExperienceGatewayEnvironment } from './experience-gateway.ts';
 import { deliverPublicRubikFont } from './font-delivery.ts';
+import { publicDocumentClock, publicDocumentExpiry } from '../../../shared/public-document-clock.ts';
 type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -87,7 +88,7 @@ function eligible(request: Request, url: URL) {
   if (privateRequest(request) || url.pathname.startsWith("/api/") || /^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(url.pathname)) return false;
   const rsc = url.pathname.endsWith(".rsc");
   const path = (rsc ? url.pathname.slice(0, -4) || "/" : url.pathname).replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
-  if (!/^\/(?:$|search(?:\/|$)|events(?:\/|$)|spas(?:\/|$)|hourly(?:\/|$)|vacations(?:\/|$)|villas(?:\/|$)|zimmers(?:\/|$)|suites(?:\/|$)|luxury-suites(?:\/|$)|suite-complexes(?:\/|$)|vacation-apartments(?:\/|$)|hospitality-complexes(?:\/|$)|business(?:\/|$)|discover\/place(?:\/|$)|holidays(?:\/|$)|providers(?:\/|$)|attractions(?:\/|$)|activities(?:\/|$)|trails(?:\/|$)|destinations(?:\/|$)|corporate(?:\/|$)|guides(?:\/|$)|questions(?:\/|$)|gift-card(?:\/|$)|contact(?:\/|$)|accessibility(?:\/|$)|legal(?:\/|$))/.test(path)) return false;
+  if (!/^\/(?:$|last-minute(?:\/|$)|weekend(?:\/|$)|search(?:\/|$)|events(?:\/|$)|spas(?:\/|$)|hourly(?:\/|$)|vacations(?:\/|$)|villas(?:\/|$)|zimmers(?:\/|$)|suites(?:\/|$)|luxury-suites(?:\/|$)|suite-complexes(?:\/|$)|vacation-apartments(?:\/|$)|hospitality-complexes(?:\/|$)|business(?:\/|$)|discover\/place(?:\/|$)|holidays(?:\/|$)|providers(?:\/|$)|attractions(?:\/|$)|activities(?:\/|$)|trails(?:\/|$)|destinations(?:\/|$)|corporate(?:\/|$)|guides(?:\/|$)|questions(?:\/|$)|gift-card(?:\/|$)|contact(?:\/|$)|accessibility(?:\/|$)|legal(?:\/|$))/.test(path)) return false;
   if (rsc ? !(request.headers.get("Accept") || "").includes("text/x-component") : !(request.headers.get("Accept") || "").includes("text/html")) return false;
   const seen = new Set(); for (const key of url.searchParams.keys()) { if (allowedUtm.has(key)) continue; if (!allowedQuery.has(key) || seen.has(key)) return false; seen.add(key); }
   if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return rsc;
@@ -125,14 +126,15 @@ async function fetchPublicRead(request: Request, origin: URL) {
   return fetch(new Request(anonymous, { headers, cache: "reload", redirect: "manual" }));
 }
 
-function keyFor(request: Request, url: URL, build: string) {
+function keyFor(request: Request, url: URL, build: string, now = new Date()) {
   const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key)).sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
   const accept = request.headers.get("Accept") || "";
   const htmlTypes = new Set(["text/html", "application/xhtml+xml", "application/xml", "text/xml", "image/avif", "image/webp", "image/apng", "image/svg+xml", "application/signed-exchange", "*/*"]);
   const ordinaryHtml = !url.pathname.endsWith(".rsc") && !request.headers.has("RSC") && !request.headers.has("Next-Router-State-Tree")
     && accept.includes("text/html") && accept.split(",").every(part => htmlTypes.has(part.split(";")[0].trim().toLowerCase()));
+  const clock = publicDocumentClock(url.pathname, now);
   const variants = encodeURIComponent(variantHeaders.map((name) => `${name}:${name === "Accept" && ordinaryHtml ? "text/html" : request.headers.get(name) || ""}`).join("|"));
-  return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}`);
+  return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}${clock ? `&__clock=${encodeURIComponent(clock)}` : ""}`);
 }
 
 function deliveryTiming(headers: Headers, lookupMs: number, originMs?: number) {
@@ -188,7 +190,8 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   }
   const cache = (globalThis.caches as unknown as { default?: Cache } | undefined)?.default;
   const expectedBuild = env.EXPECTED_BUILD || EXPECTED_BUILD;
-  const key = keyFor(request, url, expectedBuild);
+  const clockNow = new Date(Date.now());
+  const key = keyFor(request, url, expectedBuild, clockNow);
   const lookupStarted = performance.now();
   let hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
   if(hit&&(!Number.isFinite(Number(hit.headers.get('X-VII-Cache-Until')))||Number(hit.headers.get('X-VII-Cache-Until'))<=Date.now()))hit=undefined;
@@ -225,7 +228,18 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
   const lookupMs = Math.round(performance.now() - lookupStarted);
   const originStarted = performance.now();
-  const response = await fetchPublicRead(request, origin);
+  let response = await fetchPublicRead(request, origin);
+  const originExpiry = Number(response.headers.get("X-VII-Cache-Until"));
+  if (Number.isFinite(originExpiry) && originExpiry > 0 && publicDocumentClock(url.pathname)) {
+    const capped = publicDocumentExpiry(url.pathname, originExpiry, clockNow);
+    const headers = new Headers(response.headers);
+    headers.set("X-VII-Cache-Until", String(capped));
+    const remaining = Math.max(0, Math.floor((capped - Date.now()) / 1000));
+    // Do not relax private directives while bounding a public lifetime.
+    if (!/(?:private|no-store|no-cache)/i.test(headers.get("Cache-Control") || ""))
+      headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}, s-maxage=${remaining}`);
+    response = new Response(response.body, {status: response.status, statusText: response.statusText, headers});
+  }
   const originMs = Math.round(performance.now() - originStarted);
   const contentType = response.headers.get("Content-Type") || "";
   const expectedType = discovery?'application/json':url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";

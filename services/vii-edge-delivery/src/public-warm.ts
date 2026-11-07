@@ -7,9 +7,14 @@ const publicWarmRscPairs=[
   ...publicWarmRoutes.filter(path=>path!=='/').map(context=>({target:'/',context})),
   {target:'/',context:'/business'},
 ];
+// Existing period pages are small public shells. Warm their HTML and the
+// exact home-to-period Flight variant without inventing reverse-context hashes.
+const periodWarmPaths = ['/last-minute', '/weekend/thursday-to-saturday', '/weekend/friday-to-sunday', '/weekend/thursday-night', '/weekend/friday-night'];
 export const publicWarmRequests: ReadonlyArray<{path:string;headers:Record<string,string>}> = Object.freeze([
   ...publicWarmRoutes.map(path=>({path,headers:{Accept:'text/html'} as Record<string,string>})),
   ...publicWarmRscPairs.map(({target,context})=>({path:`${target==='/'?'/.rsc':`${target}.rsc`}?_rsc=${browserRscHashes[context]}`,headers:{Accept:'text/x-component',RSC:'1','X-Vinext-Interception-Context':context} as Record<string,string>})),
+  ...periodWarmPaths.map(path=>({path,headers:{Accept:'text/html'} as Record<string,string>})),
+  ...periodWarmPaths.map(path=>({path:`${path}.rsc?_rsc=${browserRscHashes['/']}`,headers:{Accept:'text/x-component',RSC:'1','X-Vinext-Interception-Context':'/'} as Record<string,string>})),
 ]);
 type Context = { waitUntil(promise: Promise<unknown>): unknown };
 
