@@ -21,6 +21,7 @@ function retainedClient(now) {
     '../lib/deal-clock':{normalizeDealDate},
     './use-deal-clock':{useDealClock:()=>({now})},
     './use-document-seed':{useDocumentSeed:()=> 'test'},
+    './use-section-activation':{useSectionActivation:()=>true},
     './use-managed-geography':{useManagedGeography:()=>({})},
     '../lib/regional-availability':{regionalAvailabilityRegion:()=>null},
     '../lib/use-starting-prices':{useStartingPrices:()=>({})},

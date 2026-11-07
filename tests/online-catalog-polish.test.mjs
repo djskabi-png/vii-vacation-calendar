@@ -132,7 +132,7 @@ test("new-tab business navigation warms only the bounded document path", async (
   const warmup = await read("app/components/smart-navigation-warmup.tsx");
   const scheduler = await read("app/lib/navigation-intent-warmup.ts");
   assert.match(warmup, /isBusinessDepthRoute\(basePath\)/);
-  assert.match(warmup, /warmup\.warm\(destination, anchor\.target === "_blank"/);
+  assert.match(warmup, /warmup\.warm\(destination, opensNewTab \|\| isBusinessDepthRoute\(basePath\)/);
   assert.match(scheduler, /cache: "force-cache"/);
   assert.match(scheduler, /Accept: "text\/html,application\/xhtml\+xml"/);
 });
