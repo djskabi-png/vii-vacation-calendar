@@ -1,0 +1,9 @@
+/* Keep the full document and accessible content. Let the browser postpone
+   layout/paint for distant home sections until they approach the viewport. */
+@supports (content-visibility: auto) {
+  .home-page > section:not(.home-hero),
+  .home-page > .home-page-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 640px;
+  }
+}

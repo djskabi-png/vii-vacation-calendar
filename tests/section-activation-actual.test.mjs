@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {observeSectionActivation} from '../app/lib/section-activation.ts';
+function fixture(){let callback,disconnects=0;class Observer{constructor(cb,options){callback=cb;assert.equal(options.rootMargin,'400px 0px');}observe(){}disconnect(){disconnects++;}}let element=new EventTarget(),started=0;const cleanup=observeSectionActivation(element,()=>started++,Observer);return {element,cleanup,emit:value=>callback([{isIntersecting:value}]),count:()=>started,disconnects:()=>disconnects};}
+test('offscreen optional work starts once on approach and never duplicates on later scroll/input',()=>{const f=fixture();assert.equal(f.count(),0);f.emit(false);assert.equal(f.count(),0);f.emit(true);f.emit(true);f.element.dispatchEvent(new Event('focusin'));assert.equal(f.count(),1);assert.equal(f.disconnects(),1);});
+test('direct keyboard or pointer interaction activates before observer delivery',()=>{for(const name of ['focusin','pointerdown']){const f=fixture();f.element.dispatchEvent(new Event(name));f.emit(true);assert.equal(f.count(),1);}});
+test('unmounted offscreen sections never start late work',()=>{const f=fixture();f.cleanup();f.emit(true);f.element.dispatchEvent(new Event('focusin'));assert.equal(f.count(),0);});
+test('unsupported observer falls back to complete immediate functionality',()=>{let count=0;observeSectionActivation(new EventTarget(),()=>count++,undefined);assert.equal(count,1);});
+test('only home opts into viewport deferral; standalone period and world pages keep default behavior',()=>{const home=readFileSync('app/components/home-showcase.tsx','utf8');assert.match(home,/<HomeLiveDeals deferUntilNearViewport/);assert.match(home,/<SpaPackageDeals deferUntilNearViewport/);assert.match(home,/sectionId="home-event-deals" deferUntilNearViewport/);for(const file of ['home-live-deals','event-last-minute','spa-package-deals']){const source=readFileSync(`app/components/${file}.tsx`,'utf8');assert.match(source,/deferUntilNearViewport\s*=\s*false/);assert.match(source,/useSectionActivation/);} });

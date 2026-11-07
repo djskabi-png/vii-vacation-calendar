@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSectionActivation } from "./use-section-activation";
 import Link from "next/link";
 import type { EventLastMinutePlace } from "../lib/event-last-minute-props";
 import { eventOfferHref, eventPlaceHref } from "../lib/event-place-href";
@@ -34,7 +35,7 @@ const copy = {
   fr: { title: "Lieux événementiels pour les prochaines dates", all: "Tous les lieux événementiels", tabs: ["Dernière minute", "Jeudi", "Vendredi"], loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être actualisée pour le moment", retry: "Réessayer", empty: "Aucune offre vérifiée pour cette date.", fallbackTitle: "Autres lieux à vérifier", fallbackStatus: "La disponibilité à cette date n’est pas encore vérifiée. Contactez directement le lieu.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", today: "Disponible aujourd’hui", tomorrow: "Disponible demain", thursday: "Disponible jeudi", friday: "Disponible vendredi" },
 };
 
-export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20, fixedPreset, sectionTitle, layout = "rail" }: { places: EventLastMinutePlace[]; sectionId?: string; region?: string; initialGuests?: number; fixedPreset?: EventDealPresetId; sectionTitle?: string; layout?: "rail" | "grid" }) {
+export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20, fixedPreset, sectionTitle, layout = "rail", deferUntilNearViewport = false }: { places: EventLastMinutePlace[]; sectionId?: string; region?: string; initialGuests?: number; fixedPreset?: EventDealPresetId; sectionTitle?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean }) {
   const { language, translate } = useSiteLanguage();
   const clock = useDealClock();
   const documentSeed = useDocumentSeed();
@@ -66,9 +67,10 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   // A client component may survive navigation between preset pages. The route
   // owns its preset immediately, before an effect can reset prior local state.
   const activePreset = fixedPreset || selectedPreset;
-  const date = clock && chosenDate ? (presets.find(preset => preset.id === activePreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
+  const active = useSectionActivation(sectionId,deferUntilNearViewport);
+  const date = clock && active && chosenDate ? (presets.find(preset => preset.id === activePreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, selectedSlot, retry, true, scope?.label);
-  const startingPrices = useStartingPrices("events", true);
+  const startingPrices = useStartingPrices("events", active);
   const availablePlaces = search.places || places;
   const placeBySupplierId = new Map(availablePlaces.flatMap((place) => {
     const match = /^event-(\d+)$/.exec(place.slug);
@@ -145,7 +147,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
         place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));
-        return <PlacePreviewCard className="event-rail-card event-deals__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type, initialDate: offer.from || undefined, initialGuests: guests }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} priority={index < 2}><span className="event-rail-card__body" data-event-site-id={offer.siteID} data-event-date={offer.from} data-event-slot={offer.slot} data-event-priced={offer.total !== null}><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span>{offer.total !== null ? <b><bdi dir="ltr">₪&nbsp;{offer.total.toLocaleString(language === "he" ? "he-IL" : language)}</bdi> <small>{text.price}</small></b> : <small>{({he:"למחיר ולפרטים פונים ישירות למקום",en:"Contact the venue for a price",ru:"Уточните цену у площадки",fr:"Contactez le lieu pour le tarif"} as const)[language]}</small>}</span></PlacePreviewCard>;
+        return <PlacePreviewCard className="event-rail-card event-deals__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type, initialDate: offer.from || undefined, initialGuests: guests }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} priority={index < 2 && !deferUntilNearViewport}><span className="event-rail-card__body" data-event-site-id={offer.siteID} data-event-date={offer.from} data-event-slot={offer.slot} data-event-priced={offer.total !== null}><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span>{offer.total !== null ? <b><bdi dir="ltr">₪&nbsp;{offer.total.toLocaleString(language === "he" ? "he-IL" : language)}</bdi> <small>{text.price}</small></b> : <small>{({he:"למחיר ולפרטים פונים ישירות למקום",en:"Contact the venue for a price",ru:"Уточните цену у площадки",fr:"Contactez le lieu pour le tarif"} as const)[language]}</small>}</span></PlacePreviewCard>;
       })}{visibleAdditionalPlaces.map((place) => {
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const startingPrice = supplierStartingPrice(startingPrices[place.slug] || place);

@@ -80,7 +80,10 @@
       "requiredLocalTests": [
         "tests/world-availability-contract.test.mjs",
         "tests/world-availability-request-dedupe.test.mjs",
-        "tests/public-font-delivery.test.mjs"
+        "tests/public-font-delivery.test.mjs",
+        "tests/navigation-intent-warmup-actual.test.mjs",
+        "tests/section-activation-actual.test.mjs",
+        "tests/holiday-cold-recovery-actual.test.mjs"
       ]
     },
     "search": {
@@ -265,7 +268,9 @@
       "requiredLocalTests": [
         "tests/quality-readiness.test.mjs",
         "tests/holiday-cold-recovery-actual.test.mjs",
-        "tests/discovery-source-expiry-actual.test.mjs"
+        "tests/discovery-source-expiry-actual.test.mjs",
+        "tests/navigation-intent-warmup-actual.test.mjs",
+        "tests/section-activation-actual.test.mjs"
       ]
     },
     "quality-control": {
@@ -683,7 +688,13 @@
         "app/favorites/",
         "app/public-fonts.css",
         "public/fonts/rubik/",
-        "public/_headers"
+        "public/_headers",
+        "app/components/smart-navigation-warmup.tsx",
+        "app/lib/navigation-intent-warmup.ts",
+        "app/components/world-switcher.tsx",
+        "app/components/use-section-activation.ts",
+        "app/lib/section-activation.ts",
+        "app/home-performance.css"
       ]
     },
     {

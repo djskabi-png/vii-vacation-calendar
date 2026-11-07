@@ -192,7 +192,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     <div className="menu-layer" role="dialog" aria-modal="true" aria-label={translate("תפריט האתר")} onMouseDown={(event) => event.target === event.currentTarget && closeMenu()}>
       <nav className="menu-panel" aria-label={translate("ניווט מלא")}>
         <div className="menu-panel__head">
-          <Link href={homeHref} prefetch onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
+          <Link href={homeHref} prefetch={pathname !== "/"} onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
             <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label={translate("סגירת תפריט")}><CloseIcon /></button>
@@ -279,7 +279,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     <>
       <header className="site-header">
         <div className="site-header__inner shell">
-          <Link className="brand" href={homeHref} prefetch aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
+          <Link className="brand" href={homeHref} prefetch={pathname !== "/"} aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
             <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
 

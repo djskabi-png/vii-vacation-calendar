@@ -21,6 +21,7 @@ import { rotateDaily } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
+import "./home-performance.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
 import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 import { readWorldAvailability } from "./lib/world-availability";

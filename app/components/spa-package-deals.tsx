@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useSectionActivation } from "./use-section-activation";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EventRail } from "./event-rail";
@@ -25,8 +26,9 @@ import { useDocumentSeed } from "./use-document-seed";
 import { scheduleSpaDealFollowup } from "../lib/spa-followup";
 type DealResponse = { cache?:{status:string}; availabilityStatus?:"verified"|"refreshing"; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
 const audiences:SpaDealAudience[] = ["single","couple","group"];
-export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,fixedDate,fixedWeekday,sectionTitle,layout="rail"}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;fixedDate?:string;fixedWeekday?:SpaWeekdaySlug;sectionTitle?:string;layout?:"rail"|"grid"}) {
+export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,fixedDate,fixedWeekday,sectionTitle,layout="rail",deferUntilNearViewport=false}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;fixedDate?:string;fixedWeekday?:SpaWeekdaySlug;sectionTitle?:string;layout?:"rail"|"grid";deferUntilNearViewport?:boolean}) {
  const {language,translate} = useSiteLanguage();
+ const active = useSectionActivation(`${sectionId}-title`,deferUntilNearViewport);
  const clock = useDealClock();
  const documentSeed = useDocumentSeed();
  const text = spaDealCopy[language];
@@ -62,7 +64,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  },[clock,data,requestedDate,params,pathname,router,sectionId,date,fixedDateOffset,fixedDate,fixedWeekday]);
  useEffect(()=>{
-  if(!clockKey) return;
+  if(!clockKey || !active) return;
   const controller = new AbortController();
   let followupTimer: number | undefined;
    discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fixedDate||fixedWeekday||fixedDateOffset!==undefined?{full:"1",date:requestedDate}:{})})}`,`${clockKey}:${requestedDate || "all"}`,{signal:controller.signal, timeoutMs:4_500, totalTimeoutMs:10_000, retries:1, cache:"no-store",
@@ -75,7 +77,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
     if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
   return ()=>{controller.abort(); if(followupTimer !== undefined) window.clearTimeout(followupTimer);};
- },[attempt,regionLabel,clockKey,requestKey,requestedDate,fixedDate,fixedWeekday,fixedDateOffset]);
+ },[active,attempt,regionLabel,clockKey,requestKey,requestedDate,fixedDate,fixedWeekday,fixedDateOffset]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000){setResult(current=>({...current,status:"loading"}));setAttempt(value=>value+1);}};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
@@ -130,7 +132,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
     const city=localizedBusinessText(offer.city,language,translate,"");
     const mediaKey=`${offer.siteId}:${offer.packageId}:${offer.image}`;
     return <article key={`${offer.siteId}-${offer.packageId}`} className="spa-deal-card" data-price={offer.price} data-site-id={offer.siteId} data-package-id={offer.packageId}>
-     <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title} priority={index<2} onMediaUnavailable={()=>setUnavailableMedia(previous=>new Set(previous).add(mediaKey))}/>
+     <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title} priority={index<2 && !deferUntilNearViewport} onMediaUnavailable={()=>setUnavailableMedia(previous=>new Set(previous).add(mediaKey))}/>
      <Link className="spa-deal-card__body" href={href} target="_blank" rel="noopener noreferrer"><small>{siteName}{city?` · ${city}`:""}</small><h3>{title}</h3><span className="spa-deal-card__meta">{offer.people ? spaDealPeople(offer.people,language) : text.audiences[audience]}{offer.durationMinutes?` · ${offer.durationMinutes} ${text.minutes}`:""}</span><div className="spa-deal-card__bottom"><strong><small>{text.from}</small> <bdi dir="ltr">₪&nbsp;{offer.price.toLocaleString(language==="he"?"he-IL":language)}</bdi></strong><span>{text.details} <span aria-hidden="true">{language==="he"?"←":"→"}</span></span></div></Link>
     </article>;
    })}</EventRail></>:null}

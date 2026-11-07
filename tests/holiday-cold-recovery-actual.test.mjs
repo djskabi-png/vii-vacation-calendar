@@ -10,9 +10,10 @@ const original=execFileSync('git',['show','2376a70cd84d95c65b9c2533a163243e713f6
 
 // Execute the production effect itself with virtual time and response latency.
 // The provider is owned by the server; GETs only observe its pending snapshot.
-async function simulate(text,readyAt=20_000,{networkError=false}={}){
- const start=text.indexOf('  useEffect(() => {\n    if (!clock) return;',text.indexOf('}, [language, mode, holidayListRetry'));
- const end=text.indexOf('\n  }, [period, fixedPeriod',start);
+async function simulate(text,readyAt=20_000,{networkError=false,active=true}={}){
+ const guard=text.indexOf('if (mode === "holidays" && (holidayState');
+ const start=text.lastIndexOf('  useEffect(() => {',guard);
+ const end=text.indexOf('\n  }, [',guard);
  assert.ok(start>0&&end>start);
  const body=text.slice(start+'  useEffect(() => {'.length,end);
  const js=ts.transpileModule(`function effect(){${body}\n}`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
@@ -21,7 +22,7 @@ async function simulate(text,readyAt=20_000,{networkError=false}={}){
  const clearTimeout=id=>timers.delete(id);
  const clock={key:'2026-11-07:today',now:new Date('2026-11-07T00:00:00Z')};
  const DateFake=class extends Date{static now(){return now}};
- const deps={clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
+ const deps={active,clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
   recoveryStartedAt:{current:new Map()},automaticRetries:{current:new Map()},lastGoodData:{current:new Map()},
   selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
   Date:DateFake,setTimeout,clearTimeout,AbortController,URLSearchParams,HOME_OFFER_MAX_AGE_MS:3_600_000,

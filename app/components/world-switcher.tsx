@@ -74,7 +74,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
       <summary ref={triggerRef}><span><strong className="world-label-full">{headerWorldLabel(active, language)}</strong><strong className="world-label-compact">{headerWorldCompactLabel(active, language)}</strong></span><WorldToggleIcon /></summary>
       <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
-        {headerWorldOptions(language).filter((world) => enabled(world.id)).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}
+        {headerWorldOptions(language).filter((world) => enabled(world.id)).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} prefetch={false} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}
       </nav>
     </details>
   );
@@ -135,7 +135,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
         const destination = searchWorldHref(worldId, location || undefined);
         if (!destination) return null;
         const href = localizedPath(destination, language);
-        return <Link key={world.id} href={href} scroll={false} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
+        return <Link key={world.id} href={href} prefetch={false} scroll={false} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
           <span className={`search-world-tabs__icon search-world-tabs__icon--${worldId}`} aria-hidden="true"><SearchWorldIcon world={worldId} /></span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;
@@ -147,7 +147,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
         </summary>
         <div className="search-world-tabs__menu">
           <header className="search-world-tabs__menu-head"><strong>{translate("עולמות נוספים")}</strong><button type="button" aria-label={translate("סגירת בחירת העולמות")} onClick={closeMoreAndRestoreFocus}>×</button></header>
-          {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} href={href} onClick={navigateWithinSearch(href, closeMoreMenu)}>
+          {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} href={href} prefetch={false} onClick={navigateWithinSearch(href, closeMoreMenu)}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
           </Link>; })}

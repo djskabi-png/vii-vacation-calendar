@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSectionActivation } from "./use-section-activation";
 import { homeDealDates, homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import type { Property } from "../data/site-data";
@@ -87,10 +88,12 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   };
 }
 
-export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail" }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid" }) {
+export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean }) {
   const clock = useDealClock();
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
+  const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
+  const active = useSectionActivation(`${sectionId}-title`, deferUntilNearViewport);
   const { language, translate } = useSiteLanguage();
   const [chosenPeriod, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
   const period = fixedPeriod ?? chosenPeriod;
@@ -122,7 +125,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
 
   useEffect(() => {
-    if (!clock) return;
+    if (!clock || !active) return;
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
@@ -140,10 +143,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       })
       .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
     return () => controller.abort();
-  }, [language, mode, holidayListRetry, clock?.key]);
+  }, [active, language, mode, holidayListRetry, clock?.key]);
 
   useEffect(() => {
-    if (!clock) return;
+    if (!clock || !active) return;
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -220,7 +223,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       })
       .catch((error) => { if (error?.name !== "AbortError") recover(false); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
-  }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
+  }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
     // A deliberate visitor choice always wins over a late homepage-settings
@@ -238,7 +241,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
-  const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
   // The API already applies publication, online-booking and editorial order.
   // Keep that exact commercial order at the final browser boundary. A

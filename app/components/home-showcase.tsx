@@ -34,7 +34,7 @@ import { localizedPath } from "../i18n/locale-routing";
 // unrelated four-world catalog or below-the-fold review queries.
 export function HomeLiveSections() {
   const { enabled } = useWorldAvailability();
-  return enabled("vacation") ? <><HomeLiveDeals /><HomeLiveDeals mode="holidays" /></> : null;
+  return enabled("vacation") ? <><HomeLiveDeals deferUntilNearViewport /><HomeLiveDeals mode="holidays" deferUntilNearViewport /></> : null;
 }
 
 export function HomeCatalogLoading() {
@@ -184,11 +184,11 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
       </div>
     </section> : null}
 
-    {enabled("spa") ? <SpaPackageDeals /> : null}
+    {enabled("spa") ? <SpaPackageDeals deferUntilNearViewport /> : null}
 
     {enabled("hourly") ? <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section> : null}
 
-    {enabled("events") ? <><EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
+    {enabled("events") ? <><EventLastMinute places={eventPlaces} sectionId="home-event-deals" deferUntilNearViewport />
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-mobile-rail-controls"><HomeSliderControls railId="home-event-stories" label="מקומות לאירועים" itemSelector=".home-event-feature, .home-event-list__card" /></div>
