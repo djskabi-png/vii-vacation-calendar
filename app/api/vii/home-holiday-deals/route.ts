@@ -18,7 +18,7 @@ import { publicDiscoveryCatalogIndex } from "../../../lib/discovery-public-index
 import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 
 const headers = { "Cache-Control": "no-store" };
-const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
+const publicDiscovery = { "Cache-Control": "no-store" };
 export const HOLIDAY_DISCOVERY_POLICY = { freshMs: 5 * 60_000, staleMs: 60 * 60_000 } as const;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {

@@ -7,6 +7,7 @@ type DiscoveryRequestInit = RequestInit & {
   staleMs?: number;
   persist?: boolean;
   shouldCache?: (value: unknown) => boolean;
+  validateResponse?: (value: unknown) => boolean;
 };
 
 type Entry = { value: unknown; freshUntil: number; staleUntil: number };
@@ -126,10 +127,20 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     staleMs = defaultStaleMs,
     persist = false,
     shouldCache = () => true,
+    validateResponse = () => true,
     ...requestInit
   } = init;
   const key = JSON.stringify([url, scope, requestInit.body ?? null]);
-  const previous = entries.get(key) ?? (persist ? readPersisted(key) : undefined);
+  const candidate = entries.get(key) ?? (persist ? readPersisted(key) : undefined);
+  // A client TTL must never extend the source offer's own expiry. Recheck the
+  // current caller's policy even when an entry was accepted minutes earlier.
+  const previous = candidate && shouldCache(candidate.value) && validateResponse(candidate.value) ? candidate : undefined;
+  if (candidate && !previous) {
+    entries.delete(key);
+    if (persist && typeof sessionStorage !== "undefined") {
+      try { sessionStorage.removeItem(storageKey(key)); } catch { /* Private mode. */ }
+    }
+  }
   if (previous) {
     entries.delete(key);
     entries.set(key, previous);
@@ -149,8 +160,11 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
         // browser HTTP-cache path. POST/live transaction checks never retry.
         const value = await fetchWithDeadline(url, {
           ...requestInit,
-          cache: attempt ? "reload" : requestInit.cache ?? (method === "GET" ? "default" : "no-store"),
+          cache: attempt || candidate && !previous ? "reload" : requestInit.cache ?? (method === "GET" ? "default" : "no-store"),
         }, remaining);
+        // A200 can still be an expired HTTP-cache offer. One cache-bypassing
+        // GET retry is allowed, within the same deadline as transport recovery.
+        if (!validateResponse(value)) throw new Error("discovery_invalid_response");
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
         if (shouldCache(value)) {
           const now = Date.now();

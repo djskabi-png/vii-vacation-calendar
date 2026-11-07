@@ -20,6 +20,7 @@ import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { orderDiscoveryItems } from "../lib/discovery-slider-order.ts";
 import { useDocumentSeed } from "./use-document-seed.ts";
 import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
+import { isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
 
 const copy = {
   he: { heading: "הדילים שמתאימים לכם", audience: "מי יוצא לחופשה?", family: "משפחה", couple: "זוג", group: "קבוצה גדולה", all: "כל החג", opening: "תחילת החג", middle: "אמצע החג", ending: "סוף החג", period: "מתי יוצאים?", guests: "אורחים", nights: "לילות", loading: "בודקים זמינות ומחיר להרכב שלכם", empty: "לא נמצאו דילים זמינים לבחירה הזאת", emptyHelp: "נסו חלק אחר בחג או שנו את התאריכים וההרכב בחיפוש.", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", search: "שינוי תאריכים והרכב", reset: "חזרה לכל החג", count: "מקומות זמינים", basis: "המחירים מחושבים לפי", window: "השהייה עשויה להתחיל בכל תאריך בטווח הזה. התאריכים המדויקים מופיעים בכל דיל." },
@@ -82,7 +83,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     if (!remainingBudget()) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1", clock: clock.key });
     discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()),
-      shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" })
+      shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as HolidayDealResponse | null), validateResponse: validHomeOfferResponse })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
         return data;

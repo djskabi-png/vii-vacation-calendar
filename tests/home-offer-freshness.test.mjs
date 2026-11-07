@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { HOME_OFFER_MAX_AGE_MS, isFreshHomeOffer } from "../app/lib/home-offer-freshness.ts";
+import { HOME_OFFER_MAX_AGE_MS, isFreshHomeOffer, validHomeOfferResponse } from "../app/lib/home-offer-freshness.ts";
 
 const at = "2026-11-05T10:00:00.000Z";
 test("home offer is fresh at 59 minutes and expires at 60", () => {
@@ -31,7 +31,7 @@ function harness({previous,loaded,failed=false,now=Date.parse(at)+59*60_000,star
  const timers=new Map(),requests=[];let timerId=0,data=null,state=null,retries=0;const good=new Map();if(previous)good.set('selection',previous);
  const deps={clock:{key:'day',now:new Date(now)},mode:'near',holidayState:'ready',holidayId:null,holidays:[],fixedPeriod:'tomorrow',period:'tomorrow',language:'he',regionLabel:undefined,guests:2,selectionKey:'selection',lastGoodData:{current:good},automaticRetries:{current:new Map()},automaticRecoveryDelays:[1000],displaySettingsApplied:{current:true},setPeriodTabs(){},setPeriod(){},setData:v=>{data=v;},setState:v=>{state=v;},setDealRetry:fn=>{retries=fn(retries);},isFreshHomeOffer,HOME_OFFER_MAX_AGE_MS,homeOfferCheckedAt,homeDealDates,homeDealPeriods,discoveryJson:()=>failed?Promise.reject(new Error('offline')):Promise.resolve(loaded),setTimeout:(fn,ms)=>{const id=++timerId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id)};
  const originalRequest=deps.discoveryJson;deps.discoveryJson=(url,scope,options)=>{requests.push(options);return originalRequest();};
- deps.recoveryStartedAt={current:new Map(startedAt===undefined?[]:[['selection',startedAt]])};deps.selectionRecoveryBudgetMs=10_000;deps.discoveryRecoveryDelay=discoveryRecoveryDelay;
+ deps.recoveryStartedAt={current:new Map(startedAt===undefined?[]:[['selection',startedAt]])};deps.selectionRecoveryBudgetMs=10_000;deps.discoveryRecoveryDelay=discoveryRecoveryDelay;deps.validHomeOfferResponse=validHomeOfferResponse;
  const cleanup=new Function(...Object.keys(deps),`${compiled};return effect();`)(...Object.values(deps));
  return{timers,cleanup,good,requests,get data(){return data;},get state(){return state;},get retries(){return retries;}};
 }

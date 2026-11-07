@@ -51,7 +51,7 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
   assert.deepEqual([...calls].sort(),name==='home-deals'?['ids','names']:['ids','names','token']);
   releaseNames([{supplierId:1,name:'Verified name'}]);
   const response=await responsePromise;
-  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),name==='home-deals'?'no-store':'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
+  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
   const deals=(await response.json()).deals;assert.equal(deals.length,1);assert.equal(deals[0].priceGuests,2);assert.equal(deals[0].siteID,1);
 });
 for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps independent catalog and publication reads with discovery cache`,async()=>{

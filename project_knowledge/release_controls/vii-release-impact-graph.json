@@ -239,7 +239,9 @@
         "managed-site"
       ],
       "requiredLocalTests": [
-        "tests/quality-readiness.test.mjs"
+        "tests/quality-readiness.test.mjs",
+        "tests/holiday-cold-recovery-actual.test.mjs",
+        "tests/discovery-source-expiry-actual.test.mjs"
       ]
     },
     "quality-control": {

@@ -20,7 +20,7 @@ import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
-import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer } from "../lib/home-offer-freshness.ts";
+import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
 import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
 
 type ResponseData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
@@ -190,7 +190,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     // One changed-cache retry can recover a transient read failure. Both
     // attempts and refreshing polls share the same selection deadline.
     discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
-      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null) })
+      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse })
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
