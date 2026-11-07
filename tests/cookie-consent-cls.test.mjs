@@ -33,3 +33,27 @@ test("saved-choice bootstrap is storage-safe and settings remain reopenable", ()
   assert.match(consent, /function writeCookieChoice\(value: CookieChoice\)/);
   assert.match(consent, /Consent UI remains usable when storage is blocked/);
 });
+
+test("actual consent component is SSR-visible, storage-safe, and reopens settings", async () => {
+  const source = await readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8");
+  const js = (await import("typescript")).default.transpileModule(source, { compilerOptions: { module: 1, jsx: 4, target: 7 } }).outputText;
+  function render(choice, blocked = false) {
+    let state = [true, false], cursor = 0, effect;
+    const listeners = {};
+    const storage = { getItem: () => blocked ? (() => { throw new Error("blocked"); })() : choice, setItem: value => { if (blocked) throw new Error("blocked"); choice = value; } };
+    let scheduled;
+    const window = { localStorage: storage, setTimeout: fn => (scheduled = fn, 1), clearTimeout() {}, location: { hash: "", pathname: "/", search: "" }, history: { replaceState() {} }, addEventListener: (name, fn) => { listeners[name] = fn; }, removeEventListener() {}, dispatchEvent: event => { listeners[event.type]?.(event); } };
+    const react = { useState: initial => { const i = cursor++; return [state[i] ?? initial, value => { state[i] = typeof value === "function" ? value(state[i]) : value; }]; }, useEffect: fn => { effect = fn; } };
+    const jsx = (type, props) => ({ type, props: props || {} });
+    const exports = {};
+    new Function("require", "exports", "window", "localStorage", js)(id => id === "react" ? react : id === "react/jsx-runtime" ? { jsx, jsxs: jsx } : id.includes("locale-provider") ? { useSiteLanguage: () => ({ language: "he" }) } : {}, exports, window, storage);
+    const render = () => { cursor = 0; return exports.CookieConsent(); };
+    const first = render(); effect?.(); const timer = { flush: () => { scheduled?.(); } };
+    return { first, render, timer, listeners, storage, state: () => state };
+  }
+  const fresh = render(null); assert.equal(fresh.first.type, "aside"); fresh.timer.flush(); assert.equal(fresh.render().type, "aside");
+  const savedAll = render("all"); savedAll.timer.flush(); assert.equal(savedAll.render(), null);
+  const savedEssential = render("essential"); savedEssential.timer.flush(); assert.equal(savedEssential.render(), null);
+  assert.doesNotThrow(() => render(null, true).timer.flush());
+  const reopen = render(null); reopen.listeners["vii-open-cookie-settings"]?.(); const settings = reopen.render(); assert.match(settings.props.className, /settings/);
+});
