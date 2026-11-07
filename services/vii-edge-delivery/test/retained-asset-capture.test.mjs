@@ -24,7 +24,7 @@ test('capture preflights every object before a single write, skips only verified
  const f=fixture(),objects=new Map(),events=[],now=Date.now();
  try {
   const key=await retainedAssetKey(f.rows[0].path);
-  objects.set(key,await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now,retainUntil:now+86400000},f.rows[0].body,now));
+  objects.set(key,await encodeRetainedAsset({path:f.rows[0].path,source,buildId,createdAt:now,retainUntil:now+8*86400000},f.rows[0].body,now));
   const receipt={state:'reserved_before_preflight'},snapshots=[];
   await captureRetainedAssets(f.plan,f.folder,{async read(key){events.push('get:'+key);return objects.get(key)||null;},async write(key,bytes){assert.equal(snapshots.at(-1).writes.at(-1).state,'reserved_before_single_put');events.push('put:'+key);objects.set(key,bytes);}},receipt,r=>snapshots.push(structuredClone(r)),now);
   assert.equal(receipt.state,'complete');assert.equal(receipt.writes.length,1);assert.equal(receipt.writes[0].state,'verified');
