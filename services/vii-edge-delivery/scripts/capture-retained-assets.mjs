@@ -1,0 +1,80 @@
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
+import { encodeRetainedAsset, retainedAssetKey, readRetainedAsset } from '../src/retained-assets.ts';
+const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+
+/** Preflight the COMPLETE inventory before any write. Each write is reserved
+ * durably, never retried, and read back byte-for-byte before acknowledgement. */
+export async function captureRetainedAssets(plan, folder, transport, receipt, save, now = Date.now()) {
+  if (receipt.state !== 'reserved_before_preflight') throw Error('existing_operation_requires_reconciliation');
+  if (plan.schemaVersion !== 1 || !Array.isArray(plan.assets) || !plan.assets.length || plan.assets.length > 2048) throw Error('invalid_asset_plan');
+  const paths = new Set();
+  const prepared = [];
+  for (const row of plan.assets) {
+    if (paths.has(row.path) || row.file !== row.path.split('/').pop()) throw Error('duplicate_or_invalid_asset_path');
+    paths.add(row.path);
+    const body = readFileSync(resolve(folder, row.file));
+    if (body.length !== row.bytes || hash(body) !== row.sha256) throw Error('source_asset_digest_mismatch');
+    const key = await retainedAssetKey(row.path);
+    const identity = { path: row.path, source: plan.source, buildId: plan.buildId, createdAt: now, retainUntil: now + 7 * 86400000 };
+    const encoded = await encodeRetainedAsset(identity, body, now);
+    const existing = await transport.read(key);
+    if (existing !== null) {
+      const response = await readRetainedAsset(new Request('https://vii.spaplus.co' + row.path), {
+        async get() { return { size: existing.length, body: new Blob([existing]).stream() }; },
+      }, { now });
+      if (!response || response.headers.get('X-VII-Asset-Build') !== plan.buildId || hash(Buffer.from(await response.arrayBuffer())) !== row.sha256) throw Error('existing_asset_conflict:' + row.path);
+      prepared.push({ row, key, skip: true });
+    } else prepared.push({ row, key, encoded, skip: false });
+  }
+  Object.assign(receipt, { state: 'complete_inventory_preflight_passed', count: prepared.length, writes: [], checkedAt: new Date(now).toISOString() }); save(receipt);
+  for (const item of prepared) {
+    if (item.skip) continue;
+    const op = { path: item.row.path, key: item.key, payloadSha256: hash(item.encoded), state: 'reserved_before_single_put' };
+    receipt.writes.push(op); receipt.state = 'writing'; save(receipt);
+    try {
+      await transport.write(item.key, item.encoded);
+      const bytes = await transport.read(item.key);
+      if (!bytes || hash(bytes) !== op.payloadSha256) throw Error('retained_asset_readback_mismatch');
+      op.state = 'verified'; save(receipt);
+    } catch (error) { op.state = 'reconciliation_required'; receipt.state = 'reconciliation_required'; save(receipt); throw error; }
+  }
+  receipt.state = 'complete'; receipt.finishedAt = new Date().toISOString(); save(receipt);
+  return receipt;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const [planFile, receiptFile, flag] = process.argv.slice(2);
+  if (!planFile || !receiptFile || flag !== '--apply') throw Error('explicit_plan_receipt_apply_required');
+  if (existsSync(receiptFile)) throw Error('existing_operation_requires_reconciliation');
+  const planBytes = readFileSync(planFile), plan = JSON.parse(planBytes);
+  const receipt = { operation: 'retain-qualified-predecessor-assets', attempt: 1, state: 'reserved_before_preflight', planSha256: hash(planBytes), source: plan.source, buildId: plan.buildId };
+  const save = value => writeFileSync(receiptFile, JSON.stringify(value, null, 2)); save(receipt);
+  let token = /^oauth_token\s*=\s*"([^"]+)"/m.exec(readFileSync('C:/Users/Adir/AppData/Roaming/xdg.config/.wrangler/config/default.toml', 'utf8'))?.[1];
+  if (!token) throw Error('official_wrangler_oauth_unavailable');
+  const deadline = Date.now() + 300000;
+  // This is the same official REST route used by installed Wrangler r2 object.
+  const base = 'https://api.cloudflare.com/client/v4/accounts/45b2f6dcf2cfe44204d2c470cbe682d9/r2/buckets/vii-public-document-cache/objects/';
+  const request = async (key, bytes) => {
+    if (Date.now() >= deadline) throw Error('retention_operation_deadline');
+    return fetch(base + key, { method: bytes ? 'PUT' : 'GET', headers: { Authorization: 'Bearer ' + token, ...(bytes ? { 'Content-Type': 'application/octet-stream', 'cf-r2-data-catalog-check': 'true' } : {}) }, body: bytes, signal: AbortSignal.timeout(Math.min(15000, deadline - Date.now())) });
+  };
+  try {
+    await captureRetainedAssets(plan, dirname(resolve(planFile)), {
+      async read(key) {
+        const r = await request(key);
+        if (r.status === 404) { await r.body?.cancel(); return null; }
+        if (!r.ok) { await r.body?.cancel(); throw Error('r2_read_' + r.status); }
+        const reader = r.body.getReader(), parts = []; let size = 0;
+        try { while (true) { const part = await reader.read(); if (part.done) break; size += part.value.length; if (size > 8 * 1024 * 1024 + 4100) { await reader.cancel(); throw Error('r2_object_oversize'); } parts.push(part.value); } }
+        finally { reader.releaseLock(); }
+        return Buffer.concat(parts);
+      },
+      async write(key, bytes) { const r = await request(key, bytes); await r.arrayBuffer(); if (!r.ok) throw Error('r2_write_' + r.status); },
+    }, receipt, save);
+    console.log(JSON.stringify({ state: receipt.state, planned: receipt.count, written: receipt.writes.length }));
+  } catch (error) { if (receipt.state !== 'reconciliation_required') { receipt.state = 'preflight_failed_no_writes'; receipt.reason = error.message; save(receipt); } throw error; }
+  finally { token = undefined; }
+}
