@@ -702,7 +702,8 @@
         "app/app-experience.css",
         "app/components/cookie-consent.tsx",
         "app/components/slider-rail-controls.tsx",
-        "app/components/responsive-viewport-guard.tsx"
+        "app/components/responsive-viewport-guard.tsx",
+        "app/components/global-action-feedback.tsx"
       ]
     },
     {

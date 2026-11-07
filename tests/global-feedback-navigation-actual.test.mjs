@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import vm from 'node:vm';import ts from 'typescript';
+const js=ts.transpileModule(readFileSync('app/components/global-action-feedback.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
+function fixture(){
+ let pathname='/',state=null,id=0;const effects=[],listeners=new Map(),timers=new Map();
+ class Anchor {constructor(href,target=''){this.href=href;this.target=target;this.dataset={globalFeedback:'true',loadingLabel:'Opening'};this.classList={remove(){},add(){}};this.isConnected=true;}closest(){return this;}getAttribute(){return null;}hasAttribute(){return false;}}
+ class Button{}
+ const module={exports:{}};const react={useState:()=>[state,v=>state=v],useEffect:(fn,deps)=>effects.push({fn,deps})};
+ vm.runInNewContext(js,{module,exports:module.exports,URL,HTMLAnchorElement:Anchor,HTMLButtonElement:Button,require:n=>n==='react'?react:n==='react/jsx-runtime'?{jsx:()=>null,jsxs:()=>null}:n==='next/navigation'?{usePathname:()=>pathname,useSearchParams:()=>new URLSearchParams()}:n.includes('locale-provider')?{useSiteLanguage:()=>({language:'he'})}:null,
+ document:{addEventListener:(n,fn)=>listeners.set(n,fn),removeEventListener:n=>listeners.delete(n)},window:{location:{href:'https://example.test/',origin:'https://example.test',pathname:'/',search:''},setTimeout:(fn,ms)=>{timers.set(++id,{fn,ms});return id},clearTimeout:n=>timers.delete(n),requestAnimationFrame:fn=>{fn();return 1},addEventListener(){},removeEventListener(){}}});
+ let cleanups=[];function render(){effects.length=0;module.exports.GlobalActionFeedback();cleanups=effects.map(e=>e.fn());}
+ render();return{get state(){return state},timers,click(href,extra={}){const {target,...eventProps}=extra;listeners.get('click')({target:new Anchor(href,target||''),button:0,...eventProps});},commit(path){assert.ok(effects[0].deps.includes(pathname),'route commits must clean up delayed feedback effect');cleanups.forEach(fn=>fn?.());pathname=path;render();},fire(ms){for(const [n,t]of [...timers])if(t.ms===ms){timers.delete(n);t.fn();}}};
+}
+test('same-page logo and modified/new-tab clicks never schedule a false navigation wait',()=>{for(const extra of [{},{ctrlKey:true},{target:'_blank'}]){const f=fixture();f.click(extra.ctrlKey||extra.target?'https://example.test/search':'https://example.test/',extra);assert.ok(![...f.timers.values()].some(t=>t.ms===320));assert.equal(f.state,null);}});
+test('route commit before delay cancels the pending toast instead of showing it on the completed page',()=>{const f=fixture();f.click('https://example.test/search');assert.ok([...f.timers.values()].some(t=>t.ms===320));f.commit('/search');f.fire(320);f.fire(0);assert.equal(f.state,null);});
+test('a genuinely pending route retains delayed feedback',()=>{const f=fixture();f.click('https://example.test/search');f.fire(320);assert.equal(f.state,'Opening');assert.ok([...f.timers.values()].some(t=>t.ms===9000));});

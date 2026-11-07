@@ -52,6 +52,9 @@ export function GlobalActionFeedback() {
       press(element);
 
       if (element instanceof HTMLAnchorElement && element.dataset.globalFeedback === "true") {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || element.target === "_blank" || element.hasAttribute("download")) return;
+        const next = new URL(element.href, window.location.href);
+        if (next.pathname === window.location.pathname && next.search === window.location.search && next.origin === window.location.origin) { reset(); return; }
         showIfStillWaiting(element.dataset.loadingLabel || "פותחים את התוצאות...", 320);
       } else if (element.dataset.feedbackLabel && element.dataset.feedbackSilent !== "true") {
         show(element.dataset.feedbackLabel);
@@ -82,7 +85,7 @@ export function GlobalActionFeedback() {
       window.removeEventListener("popstate", reset);
       window.removeEventListener(ACTION_FEEDBACK_EVENT, onFeedback);
     };
-  }, [copy]);
+  }, [copy, pathname, searchKey]);
 
   useEffect(() => {
     const resetTimer = window.setTimeout(() => setMessage(null), 0);
