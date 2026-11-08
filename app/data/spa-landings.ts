@@ -15,6 +15,10 @@ export const spaLandings = [
   { id: "hourly-room", slug: "spa-hourly-room", label: "ספא עם חדר לכמה שעות", title: "ספא עם חדר לפי שעה", description: "בתי ספא המציעים חבילה עם חדר פרטי למספר שעות.", terms: ["חדר לפי שעה", "ספא לפי שעה", "אירוח לפי שעה", "סוויטה לפי שעה"] },
   { id: "boutique", slug: "boutique-spa", label: "ספא בוטיק או פרטי", title: "ספא בוטיק וספא פרטי", description: "בתי ספא בוטיק ומתחמים פרטיים לחוויה שקטה, אישית וזוגית.", terms: ["בוטיק", "פרטי", "סוויטה פרטית"] },
   { id: "pool", slug: "spa-with-pool", label: "בריכה", title: "ספא עם בריכה", description: "מתחמי ספא עם בריכה וחבילות טיפול שאפשר להשוות במקום אחד.", terms: ["בריכה", "בריכות"] },
+  { id: "indoor-pool", slug: "spa-with-indoor-pool", label: "בריכה מקורה", title: "ספא עם בריכה מקורה", description: "בתי ספא עם בריכה מקורה וחבילות טיפול לפי אזור.", terms: ["בריכה פנימית", "בריכה מקורה"] },
+  { id: "outdoor-pool", slug: "spa-with-outdoor-pool", label: "בריכה חיצונית", title: "ספא עם בריכה חיצונית", description: "בתי ספא עם בריכה חיצונית וחבילות טיפול לפי אזור.", terms: ["בריכה חיצונית"] },
+  { id: "heated-pool", slug: "spa-with-heated-pool", label: "בריכה מחוממת", title: "ספא עם בריכה מחוממת", description: "בתי ספא עם בריכה מחוממת וחבילות טיפול לפי אזור.", terms: ["בריכה מחוממת"] },
+  { id: "hammam", slug: "spa-with-hammam", label: "חמאם טורקי", title: "ספא עם חמאם טורקי", description: "בתי ספא עם חמאם טורקי וחבילות טיפול לפי אזור.", terms: ["חמאם טורקי"] },
   { id: "jacuzzi", slug: "spa-with-jacuzzi", label: "ג׳קוזי", title: "ספא עם ג׳קוזי", description: "בתי ספא וחבילות פינוק הכוללים ג׳קוזי כחלק מהחוויה.", terms: ["ג׳קוזי", "ג'קוזי"] },
   { id: "sauna", slug: "spa-with-sauna", label: "סאונה", title: "ספא עם סאונה", description: "מתחמי ספא עם סאונה יבשה, רטובה או מתקני חום מאומתים.", terms: ["סאונה", "סאונות"] },
   { id: "gym", slug: "spa-with-gym", label: "חדר כושר", title: "ספא עם חדר כושר", description: "מתחמי ספא המשלבים טיפולים וגישה לחדר כושר.", terms: ["חדר כושר"] },
@@ -34,7 +38,8 @@ export function spaLandingHref(landing: SpaLanding) {
 }
 
 export function spaItemMatches(item: DiscoveryItem, landing: SpaLanding) {
-  if (["pool", "jacuzzi", "sauna", "gym"].includes(landing.id) && Array.isArray(item.spaFacilityTerms)) {
+  if (["indoor-pool", "outdoor-pool", "heated-pool", "hammam"].includes(landing.id) && !Array.isArray(item.spaFacilityTerms)) return false;
+  if (["pool", "indoor-pool", "outdoor-pool", "heated-pool", "hammam", "jacuzzi", "sauna", "gym"].includes(landing.id) && Array.isArray(item.spaFacilityTerms)) {
     return item.spaFacilityTerms.some(label => landing.terms.some(term => label.includes(term)));
   }
   const text = `${item.name} ${item.filterText ?? item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;

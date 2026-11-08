@@ -98,9 +98,9 @@ const localizedAudiences: Record<Exclude<SpaSearchLanguage, "he">, Record<SpaSea
 };
 
 const localizedFeatures: Record<Exclude<SpaSearchLanguage, "he">, Record<string, string>> = {
-  en: { hotel: "hotel spa", lodging: "a spa with lodging", "hourly-room": "a spa room by the hour", boutique: "boutique or private spa", pool: "a pool", jacuzzi: "a Jacuzzi", sauna: "a sauna", gym: "a gym", couples: "a couples package", "day-pass": "a day package", meal: "a meal package" },
-  fr: { hotel: "spa d’hôtel", lodging: "spa avec hébergement", "hourly-room": "chambre de spa à l’heure", boutique: "spa boutique ou privé", pool: "piscine", jacuzzi: "jacuzzi", sauna: "sauna", gym: "salle de sport", couples: "formule en couple", "day-pass": "formule journée", meal: "formule avec repas" },
-  ru: { hotel: "спа-отелем", lodging: "спа с проживанием", "hourly-room": "спа-комнатой на час", boutique: "бутик-спа или частным спа", pool: "бассейном", jacuzzi: "джакузи", sauna: "сауной", gym: "тренажёрным залом", couples: "пакетом для пары", "day-pass": "дневным пакетом", meal: "пакетом с питанием" },
+  en: { hotel: "hotel spa", lodging: "a spa with lodging", "hourly-room": "a spa room by the hour", boutique: "boutique or private spa", pool: "a pool", "indoor-pool": "an indoor pool", "outdoor-pool": "an outdoor pool", "heated-pool": "a heated pool", hammam: "a Turkish hammam", jacuzzi: "a Jacuzzi", sauna: "a sauna", gym: "a gym", couples: "a couples package", "day-pass": "a day package", meal: "a meal package" },
+  fr: { hotel: "spa d’hôtel", lodging: "spa avec hébergement", "hourly-room": "chambre de spa à l’heure", boutique: "spa boutique ou privé", pool: "piscine", "indoor-pool": "piscine intérieure", "outdoor-pool": "piscine extérieure", "heated-pool": "piscine chauffée", hammam: "hammam turc", jacuzzi: "jacuzzi", sauna: "sauna", gym: "salle de sport", couples: "formule en couple", "day-pass": "formule journée", meal: "formule avec repas" },
+  ru: { hotel: "спа-отелем", lodging: "спа с проживанием", "hourly-room": "спа-комнатой на час", boutique: "бутик-спа или частным спа", pool: "бассейном", "indoor-pool": "крытым бассейном", "outdoor-pool": "открытым бассейном", "heated-pool": "бассейном с подогревом", hammam: "турецким хаммамом", jacuzzi: "джакузи", sauna: "сауной", gym: "тренажёрным залом", couples: "пакетом для пары", "day-pass": "дневным пакетом", meal: "пакетом с питанием" },
 };
 
 export function spaSearchTitle(state: SpaSearchState, language: SpaSearchLanguage = "he") {

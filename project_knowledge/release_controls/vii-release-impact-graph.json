@@ -109,7 +109,8 @@
         "tests/navigation-stall-recovery-actual.test.mjs",
         "tests/rendered-html.test.mjs",
         "tests/collapsible-feature-list.actual.test.mjs",
-        "tests/sitewide-mobile-polish.test.mjs"
+        "tests/sitewide-mobile-polish.test.mjs",
+        "tests/guest-review-count-contract.test.mjs"
       ]
     },
     "search": {
@@ -228,7 +229,8 @@
         "tests/spa-search-state.actual.test.mjs",
         "tests/spa-facility-evidence.actual.test.mjs",
         "tests/spa-facility-parser.actual.test.mjs",
-        "tests/spa-liran-repairs.test.mjs"
+        "tests/spa-liran-repairs.test.mjs",
+        "tests/spa-expanded-facilities.actual.test.mjs"
       ]
     },
     "hourly": {

@@ -104,6 +104,7 @@ export function GuestReviewStudio({
   const resolvedSubjectId = useMemo(() => subjectId || placeName, [placeName, subjectId]);
   const isOpen = Boolean(open) || localOpen;
   const isTrail = subjectType === "trail";
+  const hasPublishedReviewContent = supplierReviews.length > 0 || publishedReviews.length > 0;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -208,7 +209,7 @@ export function GuestReviewStudio({
 
     <div className="review-experience__body">
       <aside className="review-experience__score">
-        {publishedRating ? <><strong>{publishedRating}</strong><span aria-label={copy.outOfTen(publishedRating)}>★★★★★</span><small>{illustrative ? copy.illustrativeScore : reviewCount ? copy.published(reviewCount) : copy.sourceScore}</small></> : <><strong>{copy.newLabel}</strong><span>{copy.voice}</span><small>{copy.noApproved}</small></>}
+        {publishedRating ? <><strong>{publishedRating}</strong><span aria-label={copy.outOfTen(publishedRating)}>★★★★★</span><small>{illustrative ? copy.illustrativeScore : hasPublishedReviewContent && reviewCount ? copy.published(reviewCount) : reviewCount ? copy.archiveCount(reviewCount) : copy.sourceScore}</small></> : <><strong>{copy.newLabel}</strong><span>{copy.voice}</span><small>{copy.noApproved}</small></>}
       </aside>
       <div className="review-experience__list">
         {supplierReviews.length ? <div className="review-experience__published-wrap"><SliderRailControls railId={reviewRailId} label={title} itemSelector=":scope > .review-card" className="review-experience__controls" /><div id={reviewRailId} className="review-experience__published" data-horizontal-rail>
