@@ -19,7 +19,7 @@ test("unit, sleeping, taxonomy and identical inventory remain separate and verif
   assert.match(page, /featureGroups/);
   assert.doesNotMatch(page, /features\.filter\(\(item\) => \/בריכ/);
   assert.match(page, /roomSleepingGroups/);
-  assert.match(page, /איפה תשנו ביחידה/);
+  assert.match(page, /<RoomSleepingPreview/);
   assert.match(page, /availableIdenticalUnits/);
   assert.match(page, /\{availableIdenticalUnits\} מתוך \{room\.quantity\}/);
   assert.match(sleeping, /יחידות זהות פנויות/);

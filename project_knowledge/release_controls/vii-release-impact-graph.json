@@ -901,6 +901,7 @@
         "app/components/property-card.tsx",
         "app/lib/public-vacation-search.ts",
         "app/lib/verified-sleeping-rooms.ts",
+        "app/components/room-sleeping-preview.tsx",
         "app/worlds/vacations/",
         "app/components/viewport-resilient-image.tsx",
         "app/components/accommodation-landing-route.tsx"
