@@ -138,16 +138,28 @@ const columns = `event_id AS eventId, campaign_id AS campaignId, version, world,
   starts_on AS startsOn, ends_on AS endsOn, contract_ends_on AS contractEndsOn,
   contract_source AS contractSource, note, status, actor_email AS actorEmail, saved_at AS savedAt`;
 
+type StoredPromotionDraft = Omit<PromotionDraft, "featured" | "turboEligible"> & {
+  featured?: boolean | number; turboEligible?: boolean | number;
+};
+
+// D1/SQLite returns integer columns as numbers. Keep the admin JSON contract
+// boolean, including reloaded drafts and responses to repeated save requests.
+function promotionDraftFromStorage(row: StoredPromotionDraft): PromotionDraft {
+  return { ...row, featured: row.featured === true || row.featured === 1,
+    turboEligible: row.turboEligible === true || row.turboEligible === 1 };
+}
+
 export async function readPromotionDraftDashboard(db: D1Database) {
   const [drafts, activity] = await Promise.all([
     db.prepare(`SELECT ${columns} FROM discovery_promotion_draft_events e
       WHERE version = (SELECT MAX(version) FROM discovery_promotion_draft_events
         WHERE campaign_id = e.campaign_id)
-      ORDER BY saved_at DESC LIMIT 200`).all<PromotionDraft>(),
+      ORDER BY saved_at DESC LIMIT 200`).all<StoredPromotionDraft>(),
     db.prepare(`SELECT ${columns} FROM discovery_promotion_draft_events
-      ORDER BY saved_at DESC LIMIT 40`).all<PromotionDraft>(),
+      ORDER BY saved_at DESC LIMIT 40`).all<StoredPromotionDraft>(),
   ]);
-  return { drafts: drafts.results, activity: activity.results, publicRankingEnabled: true };
+  return { drafts: drafts.results.map(promotionDraftFromStorage),
+    activity: activity.results.map(promotionDraftFromStorage), publicRankingEnabled: true };
 }
 
 export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmail: string) {
@@ -165,7 +177,7 @@ export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmai
       (input.expectedVersion !== null && previousRequest.version !== input.expectedVersion + 1)) {
       throw new PromotionDraftError("request_id_conflict", 409);
     }
-    return previousRequest;
+    return promotionDraftFromStorage(previousRequest);
   }
   const current = input.campaignId ? await db.prepare(`SELECT ${columns} FROM discovery_promotion_draft_events
     WHERE campaign_id = ? ORDER BY version DESC LIMIT 1`).bind(input.campaignId).first<PromotionDraft>() : null;
@@ -188,7 +200,7 @@ export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmai
     version: (current?.version || 0) + 1, world: input.world, supplierId: input.supplierId,
     placeName, kind: input.kind, weight: input.weight, startsOn: input.startsOn, endsOn: input.endsOn,
     contractEndsOn: input.contractEndsOn, contractSource: input.contractSource, note: input.note,
-    ...(input.featured ? { featured: true } : {}), ...(input.turboEligible ? { turboEligible: true } : {}),
+    featured: input.featured, turboEligible: input.turboEligible,
     status: input.status, actorEmail, savedAt: new Date().toISOString(),
   };
   try {

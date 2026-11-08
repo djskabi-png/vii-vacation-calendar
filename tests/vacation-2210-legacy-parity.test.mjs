@@ -28,12 +28,13 @@ test("the place page keeps current supplier groups authoritative and hydrates on
   assert.match(source, /supplierDetail\.featureGroups\?\.length \? supplierDetail\.featureGroups : legacyPlaceFeatureGroups\(base\.slug\) \|\| base\.featureGroups/);
 });
 
-test("descriptive bedroom names stay in where-you-sleep and a fallback property image opens the full gallery", async () => {
+test("descriptive bedroom names stay in where-you-sleep and missing unit media is explicit without borrowing a property image", async () => {
   const source = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
   const mapper = await readFile(new URL("app/lib/verified-sleeping-rooms.ts", root), "utf8");
   const styles = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(mapper, /\^חדר שינה\(\?:\\s\+\\d\+\)\?\(\?:\\s\*\[-–—:\]\\s\*\.\+\)\?\$/);
-  assert.match(source, /room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick=\{\(\) => openGallery\("all", 0\)\}/);
+  assert.match(source, /room-card__image room-card__image--missing room-card__image--unavailable" role="img"/);
+  assert.doesNotMatch(source, /room-card__image room-card__image--missing" type="button"/);
   assert.doesNotMatch(source, /room-card__image room-card__image--missing"><img/);
   assert.match(styles, /\.room-card__image \{[^}]*width: 100%;[^}]*min-width: 0;[^}]*max-width: 100%;[^}]*display: block;/);
   assert.match(styles, /\.room-card__image--missing \{ cursor: pointer; \}/);

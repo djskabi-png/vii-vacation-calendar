@@ -132,7 +132,7 @@ export default function DiscoveryPromotionsPage() {
       <button type="button" className={styles.iconButton} onClick={() => void refresh()} disabled={loading || busy}
         title="רענון מצב" aria-label="רענון מצב"><RotateCcw size={19} /></button>
     </header>
-    <div className={styles.statusBar} role="status"><span className={styles.statusDot} /> מצב ציבורי: ללא קידום יזום
+    <div className={styles.statusBar} role="status"><span className={styles.statusDot} /> קידומים שפורסמו משפיעים על התוצאות בתקופה שנבחרה
       <a href="/admin/catalog-sync">סנכרון קטלוגים</a></div>
     {error ? <p className={styles.error} role="alert">{error} {forbidden ? <a href="/api/auth/google?returnTo=%2Fadmin%2Fdiscovery-promotions">כניסה עם Google</a> : null}</p> : null}
     {notice ? <p className={styles.notice} role="status">{notice}</p> : null}

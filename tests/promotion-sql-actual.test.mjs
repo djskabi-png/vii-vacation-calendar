@@ -32,11 +32,25 @@ test("real migrations and SQL preserve membership through admin versions, clear 
     assert.deepEqual(await readActivePromotionWeights(db,now),[]);
     const repeated=await savePromotionDraft(db,first,"qa@example.invalid");
     assert.equal(repeated.eventId,created.eventId);
+    assert.equal(repeated.featured,true);
+    assert.equal(repeated.turboEligible,true);
+    const loadedDraft = (await readPromotionDraftDashboard(db)).drafts[0];
+    assert.equal(loadedDraft.featured,true);
+    assert.equal(loadedDraft.turboEligible,true);
+    // This is the exact reloaded JSON used by Edit and its next Save. A raw
+    // SQLite integer would fail the browser's strict checkbox boolean check.
+    const edited = JSON.parse(JSON.stringify(loadedDraft));
+    assert.equal(edited.featured === true,true);
+    assert.equal(edited.turboEligible === true,true);
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM discovery_promotion_draft_events").get().n,1);
     await assert.rejects(savePromotionDraft(db,{...first,turboEligible:false},"qa@example.invalid"),{code:"request_id_conflict"});
     const published=await savePromotionDraft(db,draftInput({campaignId:created.campaignId,expectedVersion:1,status:"published"}),"qa@example.invalid");
     assert.deepEqual(await readActivePromotionWeights(db,now),[{world:"vacations",supplierId:101,weight:3,featured:true,turboEligible:true}]);
     const cleared=await savePromotionDraft(db,draftInput({campaignId:created.campaignId,expectedVersion:2,status:"published",featured:false,turboEligible:false}),"qa@example.invalid");
+    const loadedCleared=(await readPromotionDraftDashboard(db)).drafts[0];
+    assert.equal(loadedCleared.featured,false);
+    assert.equal(loadedCleared.turboEligible,false);
+    assert.ok((await readPromotionDraftDashboard(db)).activity.every(row => typeof row.featured === "boolean" && typeof row.turboEligible === "boolean"));
     assert.deepEqual(await readActivePromotionWeights(db,now),[{world:"vacations",supplierId:101,weight:3}]);
     await assert.rejects(savePromotionDraft(db,draftInput({campaignId:created.campaignId,expectedVersion:2}),"qa@example.invalid"),{code:"version_conflict"});
     const second=await savePromotionDraft(db,draftInput({status:"published",weight:1,featured:true,turboEligible:false}),"qa@example.invalid");
