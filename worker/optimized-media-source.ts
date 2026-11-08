@@ -1,18 +1,6 @@
+import { PUBLIC_GALLERY_OBJECT_PREFIX, validGalleryFilename, storedGalleryContentType } from "../app/lib/gallery-media-identity.ts";
 const localGalleryPath = "/api/vii/media/";
-const galleryObjectPrefix = "legacy-gallery/v1/";
 const immutableCache = "public, max-age=31536000, immutable";
-const safeGalleryFilename = /^[A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp)$/i;
-
-function contentTypeFor(filename: string, supplied?: string) {
-  const normalized = supplied?.split(";")[0].trim().toLowerCase() || "";
-  if (normalized.startsWith("image/")) return normalized;
-  if (/\.(?:jpg|jpeg|jfif)$/i.test(filename)) return "image/jpeg";
-  if (/\.png$/i.test(filename)) return "image/png";
-  if (/\.webp$/i.test(filename)) return "image/webp";
-  if (/\.gif$/i.test(filename)) return "image/gif";
-  if (/\.avif$/i.test(filename)) return "image/avif";
-  return "application/octet-stream";
-}
 
 export function localGalleryFilename(path: string) {
   if (!path.startsWith(localGalleryPath) || path.includes("?") || path.includes("#")) return null;
@@ -24,23 +12,25 @@ export function localGalleryFilename(path: string) {
   } catch {
     return null;
   }
-  if (!safeGalleryFilename.test(filename) || filename.includes("..")) return null;
+  if (!validGalleryFilename(filename)) return null;
   return filename;
 }
 
 export async function optimizedMediaSource(path: string, uploads: R2Bucket, assets?: { fetch(request: Request): Promise<Response> }) {
   const filename = localGalleryFilename(path);
   if (!filename) return null;
-  const object = await uploads.get(`${galleryObjectPrefix}${filename}`);
+  const object = await uploads.get(`${PUBLIC_GALLERY_OBJECT_PREFIX}${filename}`);
   if (!object) {
     const { recoverVerifiedGalleryMedia } = await import("../app/lib/verified-media-recovery.ts");
     return await recoverVerifiedGalleryMedia(new Request(new URL(path, "https://vii.spaplus.co")), filename, assets)
       || new Response("Image not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   }
+  const contentType = storedGalleryContentType(object.httpMetadata?.contentType);
+  if (!contentType) return new Response("Image not found", { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "non-image" } });
   return new Response(object.body, {
     status: 200,
     headers: {
-      "Content-Type": contentTypeFor(filename, object.httpMetadata?.contentType),
+      "Content-Type": contentType,
       "Cache-Control": object.httpMetadata?.cacheControl || immutableCache,
       "X-Content-Type-Options": "nosniff",
       "X-VII-Media": "stored",

@@ -31,6 +31,10 @@ const scope = (boxId: string, requirementId: string, depth: QualityCheckScopeMet
 });
 
 const metadataEntries: Array<[string, QualityCheckScopeMetadata]> = [
+  ["api.catalog-media.vacations", scope("catalog-source", "V07", "full", ["api.catalog.vacations"])],
+  ["api.catalog-media.events", scope("catalog-source", "V07", "full", ["api.catalog.events"])],
+  ["api.catalog-media.rooms", scope("catalog-source", "V07", "full", ["api.catalog.hourly"])],
+  ["api.catalog-media.spa", scope("catalog-source", "V07", "full", ["api.catalog.spa"])],
   ["quality.public-verification-keys", scope("quality-auth", "V17", "full")],
   ["global.home.semantic", scope("global-shell", "V14", "full")],
   ["global.home.en.semantic", scope("multilingual-shell", "V05", "medium")],

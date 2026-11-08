@@ -62,6 +62,7 @@ import { FeatureIcon } from "../components/feature-icon";
 import { legacyPlaceFeatureGroups } from "../data/legacy-place-feature-groups";
 import { RoomSleepingPreview } from "../components/room-sleeping-preview";
 import { ViewportResilientImage } from "../components/viewport-resilient-image";
+import { UnitPreviewGallery } from "../components/unit-preview-gallery";
 import { useSectionActivation } from "../components/use-section-activation";
 import "./property-performance.css";
 
@@ -463,6 +464,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
           name={localizedPropertyName}
           sections={sectionLinks}
           onlineHref={activeWorld === "vacation" ? "#booking-summary" : onlineBooking || vacationPhoneFallback ? bookingActionHref : undefined}
+          onOnlineAction={activeWorld === "vacation" ? () => setCalendarOpen(true) : undefined}
           onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : activeWorld === "vacation" ? "בדיקת תאריך והזמנה" : "הזמנה אונליין"}
           phone={phoneBooking ? property.contact?.phone : undefined}
           rating={supplierDetail?.reviewScore ?? property.score}
@@ -503,8 +505,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
                   <span className="eyebrow">פרטי הלינה במקום</span>
                   <h2 id="units-heading-title">{translate(property.scenario === "multi" ? "הסוויטות והיחידות" : "מבנה המקום")}</h2>
                 </div>
-                <span className="units-total">{property.scenario === "multi" ? (roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`) : "המקום כולו עומד לרשותכם"}</span>
+                {property.scenario === "multi" ? <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span> : null}
               </div>
+              {property.scenario === "single" ? <p className="units-total units-total--single">המקום כולו עומד לרשותכם</p> : null}
               <div className="room-card-list">
                 {property.roomOptions.map((room, roomIndex) => {
                   // A place sold as one whole property has one live quote. Its
@@ -568,7 +571,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
-                  {room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><ViewportResilientImage src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(room.image)} /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : property.image && !failedRoomImages.has(property.image) ? <button className="room-card__image room-card__image--missing" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`${translate("פתיחת גלריית")} ${localizedPropertyName}`}><ViewportResilientImage src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(property.image)} /><span>{translate("תמונת המתחם, לא היחידה")}</span></button> : <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={`${translate("אין תמונה זמינה עבור")} ${localizedRoomName}`}><span>{translate("תמונה לא זמינה")}</span></div>}
+                  {room.images?.length ? <UnitPreviewGallery key={`${property.slug}:${room.supplierRoomID || roomIndex}`} images={room.images} roomName={localizedRoomName} propertyName={localizedPropertyName} onOpen={(index) => openGallery("units", unitGalleryStart + index, room.name)} /> : room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><ViewportResilientImage src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(room.image)} /><span>{translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={`${translate("אין תמונה זמינה עבור")} ${localizedRoomName}`}><span>{translate("תמונה לא זמינה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
                     {roomSleepingGroups.length ? <RoomSleepingPreview roomName={localizedRoomName} groups={roomSleepingGroups} /> : room.bedrooms > 0 ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><div className="room-card__sleeping-heading"><strong>איפה תשנו ביחידה?</strong><span>{translate(bedroomLabel(room.bedrooms))}</span></div><div className="room-card__sleeping-list"><div><b>{translate(bedroomLabel(room.bedrooms))}</b><span>סוגי המיטות נמסרים באישור המקום.</span></div></div></section> : null}

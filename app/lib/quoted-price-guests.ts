@@ -19,3 +19,14 @@ export function quotedPriceGuestLabel(language: SiteLanguage, selectedGuests: nu
   return count === 1 ? "Price for 1 guest" : `Price for ${count} guests`;
 }
 
+/** A supplier's base occupancy is distinct from the party requesting a quote. */
+export function priceBasisGuestLabel(language: SiteLanguage, basis: number | undefined, requested: number | undefined, hasQuotedPrice: boolean) {
+  const count = quotedPriceGuestCount(basis, hasQuotedPrice);
+  const party = quotedPriceGuestCount(requested, hasQuotedPrice);
+  if (count === null || party === null || count <= party) return null;
+  if (language === "he") return `המחיר הבסיסי כולל עד ${count} אורחים`;
+  if (language === "ru") return `Базовая цена включает до ${count} гостей`;
+  if (language === "fr") return `Le tarif de base inclut jusqu’à ${count} personnes`;
+  return `Base price includes up to ${count} guests`;
+}
+

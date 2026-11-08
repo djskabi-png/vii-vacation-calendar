@@ -7,8 +7,8 @@ import "./modern-date-input.css";
 
 function monthDays(month: Date) { return new Date(month.getFullYear(), month.getMonth()+1, 0).getDate(); }
 
-export type ModernDateInputProps = InputHTMLAttributes<HTMLInputElement> & { label?: ReactNode; labelClassName?: string };
-export function ModernDateInput({ value, defaultValue, onChange, name, min, max, required, disabled, id, className, label, labelClassName, ...props }: ModernDateInputProps) {
+export type ModernDateInputProps = InputHTMLAttributes<HTMLInputElement> & { label?: ReactNode; labelClassName?: string; openRequest?: number };
+export function ModernDateInput({ value, defaultValue, onChange, name, min, max, required, disabled, id, className, label, labelClassName, openRequest = 0, ...props }: ModernDateInputProps) {
   const { language } = useSiteLanguage();
   const locale = { he: 'he-IL', en: 'en-GB', ru: 'ru-RU', fr: 'fr-FR' }[language];
   const labels = { he: ['בחירת תאריך', 'החודש הקודם', 'החודש הבא', 'ניקוי', 'סגירה', 'בחרו תאריך תקין בטווח המותר'], en: ['Choose a date', 'Previous month', 'Next month', 'Clear', 'Close', 'Enter a valid date in the allowed range'], ru: ['Выбрать дату', 'Предыдущий месяц', 'Следующий месяц', 'Очистить', 'Закрыть', 'Укажите верную дату в допустимом диапазоне'], fr: ['Choisir une date', 'Mois précédent', 'Mois suivant', 'Effacer', 'Fermer', 'Choisissez une date dans la période autorisée'] }[language];
@@ -32,6 +32,7 @@ export function ModernDateInput({ value, defaultValue, onChange, name, min, max,
   useEffect(() => { if (!open) return; const outside = (event: PointerEvent) => { if (!containerRef.current?.contains(event.target as Node)) setOpen(false); }; document.addEventListener('pointerdown', outside); return () => document.removeEventListener('pointerdown', outside); }, [open]);
   const choose = (next: string, event: MouseEvent<HTMLButtonElement>) => { if (calendarDateValidity(next, lower, upper) !== 'valid' || !fieldRef.current) return; fieldRef.current.value = next; if (!controlled) setInner(next); onChange?.({ ...event, type: 'change', target: fieldRef.current, currentTarget: fieldRef.current } as unknown as ChangeEvent<HTMLInputElement>); close(); };
   const show = () => { if (disabled || props.readOnly) return; const date = parse(current) || parse(lower || '') || parse(upper || '') || new Date(); setMonth(new Date(date.getFullYear(), date.getMonth(), 1)); setOpen(true); };
+  useEffect(() => { if (openRequest > 0 && !disabled && !props.readOnly) { show(); fieldRef.current?.focus(); } }, [openRequest]);
   return <div ref={containerRef} className={`modern-date-input ${className || ""} ${labelClassName || ''}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }} onKeyDown={event => { if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); close(); } }}>
     {label ? <label htmlFor={fieldId}>{label}</label> : null}
     <div className="modern-date-input__control"><input {...props} ref={fieldRef} type="text" id={fieldId} className={`modern-date-input__field ${className || ""}`} name={name} value={current} placeholder={props.placeholder || labels[0]} dir="ltr" inputMode="numeric" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required={required} disabled={disabled} aria-controls={popupId} aria-expanded={open} onChange={event => { const next = event.target.value; if (!controlled) setInner(next); onChange?.(event); }} onFocus={event => { props.onFocus?.(event); if (suppressFocusOpen.current) suppressFocusOpen.current = false; else show(); }} />

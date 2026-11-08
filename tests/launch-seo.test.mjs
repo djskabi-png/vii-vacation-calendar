@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFile } from "node:fs/promises";
+import ts from "typescript";
 import { legacyDisposition, legacyInventoryStats, legacyPlaceDestination, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 
 test("known legacy place paths map directly to equivalent new detail pages", () => {
@@ -42,9 +43,17 @@ test("legacy gone sources are not shadowed by a path-level redirect", async () =
   }
 });
 
-test("Cloudflare HTMLRewriter path applies staging noindex to HTML responses", async () => {
+test("actual launch policy keeps preview HTML unindexed while preserving primary and private directives", async () => {
   const workerSource = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
-  assert.match(workerSource, /if \(!primary\) \{\s*const output = await withLaunchSeo\(transformed, url, false\);[\s\S]*?return storePublicCache\(output, cachePolicy, env, ctx\)/);
+  const ast=ts.createSourceFile('worker.ts',workerSource,ts.ScriptTarget.Latest,true);
+  const declaration=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='withLaunchSeo');
+  assert.ok(declaration);
+  const code=ts.transpileModule(declaration.getText(ast),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+  const apply=Function('temporaryOrigin','primaryOrigin',code+';return withLaunchSeo;')('https://vii.spaplus.co','https://www.vii.co.il');
+  for(const [primary,url,existing,expected] of [[false,'https://vii.spaplus.co/',null,'noindex'],[false,'https://vii.spaplus.co/en',null,'noindex'],[true,'https://www.vii.co.il/',null,null],[true,'https://www.vii.co.il/booking','noindex, nofollow','noindex, nofollow']]){
+    const result=await apply(new Response('<h1>Page</h1>',{headers:{'Content-Type':'text/html',...(existing?{'X-Robots-Tag':existing}:{})}}),new URL(url),primary);
+    assert.equal(result.headers.get('x-robots-tag'),expected);assert.equal(await result.text(),'<h1>Page</h1>');
+  }
   assert.match(workerSource, /const canonical = rewriteCanonicalStream\(response, makeLocaleLinks\)/);
   assert.match(workerSource, /const output = primary \? rewriteOriginStream\(canonical, temporaryOrigin, primaryOrigin\) : canonical/);
   assert.match(workerSource, /withLaunchSeo\(output, url, primary\)/);

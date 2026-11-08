@@ -25,7 +25,7 @@ import { OnlineBookingBadge } from "./online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { hasSearchDate, supplierStartingPrice, type SeasonalStartingPrices } from "../lib/supplier-starting-price";
 import { CatalogStartingPrice } from "./catalog-starting-price";
-import { quotedPriceGuestLabel } from "../lib/quoted-price-guests";
+import { quotedPriceGuestLabel, priceBasisGuestLabel } from "../lib/quoted-price-guests";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
@@ -60,6 +60,8 @@ export type ResolvedAvailability = ListingDateQuote & {
   illustrative?: boolean;
   /** Party composition used to calculate the displayed quote. */
   quotedGuests?: number;
+  /** Verified base occupancy of the exact quoted supplier unit, never capacity. */
+  priceBasisGuests?: number;
   units?: Array<{
     index: number;
     availability: "available" | "unavailable";
@@ -338,6 +340,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
   const quotedGuestLabel = quotedPriceGuestLabel(language, resolvedAvailability?.quotedGuests, hasQuotedPrice);
+  const basisGuestLabel = priceBasisGuestLabel(language, resolvedAvailability?.priceBasisGuests, resolvedAvailability?.quotedGuests, hasQuotedPrice);
   const undatedSearch = !selectedStay && !hasSearchDate(searchParams);
   const catalogStartingPrice = !promotional ? supplierStartingPrice(catalogStartingPrices ?? property) : null;
   const startingPrice = undatedSearch && !resolvedAvailability ? catalogStartingPrice : null;
@@ -414,7 +417,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional && (resolvedAvailability || startingPrice || (undatedSearch && property.price)) ? <div className="stay-card__commercial-summary">
-            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{quotedGuestLabel ? <em>{quotedGuestLabel}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
+            {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{basisGuestLabel || quotedGuestLabel ? <em>{basisGuestLabel || quotedGuestLabel}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref} target="_blank" rel="noopener noreferrer">{copy.quickBook}</Link> : null}

@@ -5348,6 +5348,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__identity h3 { margin: 3px 0 0; color: var(--ink); font-size: 1.28rem; }
 .room-card__identity span { color: var(--teal); font-size: .72rem; font-weight: 800; }
 .room-card__image { grid-area: image; position: relative; width: 100%; min-width: 0; max-width: 100%; min-height: 318px; display: block; box-sizing: border-box; overflow: hidden; background: #dceef1; }
+.room-card__image-button { position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; background:transparent; cursor:pointer; }
+.room-card__image-button:focus-visible { outline:3px solid var(--teal); outline-offset:-3px; }
+.units-total.units-total--single { display:block; margin:6px 0 16px; padding:0; border:0; border-radius:0; background:none; color:var(--ink-soft); font-size:.82rem; font-weight:400; }
 .room-card__image--missing { cursor: pointer; }
 .room-card__image--unavailable { display: grid; place-items: center; cursor: default; background: linear-gradient(135deg,#edf6f7,#dceef1); }
 .room-card__image--unavailable > span { position: static; max-width: calc(100% - 40px); text-align: center; }

@@ -82,6 +82,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
     nightlyPrice: Math.round(deal.total / Math.max(1, deal.nights)),
     includedGuests: deal.priceGuests,
     quotedGuests: deal.priceGuests,
+    priceBasisGuests: deal.priceBasisGuests,
     priceMode: "stay_total",
     // An accepted last-known snapshot remains valid discovery evidence while
     // the background refresh retries. Checkout still revalidates live.

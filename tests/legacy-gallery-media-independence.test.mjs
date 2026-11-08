@@ -67,10 +67,18 @@ test("local media normalization is idempotent for accepted catalog snapshots", a
   assert.equal(localGalleryMediaUrl("https://untrusted.example/example.jpg"), null);
 });
 
-test("the bounded migration route is allowlisted, stored in R2 and exposes storage verification", async () => {
+test("media route never serves stored non-image metadata under an image filename", async () => {
+  const { storedGalleryContentType } = await import("../app/lib/gallery-media-identity.ts");
+  assert.equal(storedGalleryContentType("image/jpeg"), "image/jpeg");
+  assert.equal(storedGalleryContentType("image/jpeg; charset=binary"), "image/jpeg");
+  for (const type of ["image/svg+xml", "application/json", "text/html", null]) assert.equal(storedGalleryContentType(type), null);
+});
+
+test("the immutable R2 media route validates safe image identities and exposes storage verification", async () => {
   const route = await read("app/api/vii/media/[filename]/route.ts");
-  assert.match(route, /new Set<string>\(manifest\.files\)/);
-  assert.match(route, /files\.has\(filename\)/);
+  assert.match(route, /const prefix = PUBLIC_GALLERY_OBJECT_PREFIX/);
+  assert.match(route, /validGalleryFilename\(filename\)/);
+  assert.doesNotMatch(route, /files\.has\(filename\)/);
   assert.match(route, /legacyGalleryBucket/);
   assert.match(route, /export async function HEAD/);
   assert.match(route, /X-VII-Media/);

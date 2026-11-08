@@ -71,6 +71,9 @@ function fixture() {
 }
 
 const success = async (url, options) => {
+  if(options?.method==='HEAD')return new Response(null,{headers:{'content-type':'image/jpeg','content-length':'1000'}});
+  if(url.includes('/api/catalog?world=')&&new URL(url).searchParams.has('id'))return Response.json({entry:{supplierId:Number(new URL(url).searchParams.get('id')),detail:{images:['/api/vii/media/general.jpg'],rooms:[{images:['/api/vii/media/unit.jpg']}]}}});
+  if(url.includes('/api/catalog?world='))return Response.json({entries:[{supplierId:1},{supplierId:2},{supplierId:3}],world:new URL(url).searchParams.get('world')});
   if(url.endsWith('/.well-known/vii-quality-jwks.json'))return Response.json({keys:[{kty:'OKP',crv:'Ed25519',x:'synthetic-public-key'}]});
   if(url.includes('/api/vii/home-deals?')){const period=new URL(url).searchParams.get('period');return Response.json({period,dates:homeDealDates(period),availabilityStatus:'verified',cache:{checkedAt:new Date().toISOString()},deals:[]});}
   if(url.endsWith('/api/vii/live-search')){const request=JSON.parse(options.body);return Response.json({world:'events',discoveryVersion:3,scope:{date:request.from,guests:20},cache:{checkedAt:new Date().toISOString()},results:[],places:[]});}

@@ -11,6 +11,7 @@ type DetailStickyDockProps = {
   sections: DetailSectionLink[];
   onlineHref?: string;
   onlineLabel?: string;
+  onOnlineAction?: () => void;
   phone?: string;
   rating?: number;
   reviewCount?: number;
@@ -60,6 +61,7 @@ export function DetailStickyDock({
   sections,
   onlineHref,
   onlineLabel = "הזמנה אונליין",
+  onOnlineAction,
   phone,
   rating,
   reviewCount,
@@ -86,7 +88,7 @@ export function DetailStickyDock({
 
         <div className="detail-sticky-dock__actions">
           {phoneHref ? <DirectPhoneLink className="detail-sticky-dock__phone" phone={phone} placeName={name} /> : null}
-          {onlineHref ? onlineHref.startsWith("#")
+          {onOnlineAction ? <button className="button primary detail-sticky-dock__primary" type="button" onClick={onOnlineAction}>{onlineLabel}</button> : onlineHref ? onlineHref.startsWith("#")
             ? <a className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</a>
             : <Link className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</Link>
           : null}

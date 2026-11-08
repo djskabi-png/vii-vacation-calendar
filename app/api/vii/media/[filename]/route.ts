@@ -1,15 +1,18 @@
-import manifest from "../../../../data/legacy-gallery-media.json" with { type: "json" };
 import { legacyGalleryBucket } from "../../../../lib/legacy-gallery-storage";
+import { PUBLIC_GALLERY_OBJECT_PREFIX, validGalleryFilename, storedGalleryContentType } from "../../../../lib/gallery-media-identity.ts";
 
-const files = new Set<string>(manifest.files);
-const prefix = manifest.objectPrefix;
+const prefix = PUBLIC_GALLERY_OBJECT_PREFIX;
 // This is enabled only for the bounded migration release. The final release
 // flips it off after every allowlisted object is verified in R2.
 const ALLOW_LEGACY_ORIGIN_FETCH = false;
 const immutable = "public, max-age=31536000, immutable";
 
 function validFilename(filename: string) {
-  return /^[A-Za-z0-9._-]+\.(?:avif|gif|jfif|jpe?g|png|webp)$/i.test(filename) && files.has(filename);
+  // The immutable R2 prefix is the authority. Do not gate reads by the
+  // build-time manifest: a newly migrated supplier image can be present in
+  // R2 before the next application bundle is generated. Recovery remains
+  // separately manifest-verified below.
+  return validGalleryFilename(filename);
 }
 
 function legacyContentType(filename: string, header: string | null) {
@@ -21,6 +24,10 @@ function legacyContentType(filename: string, header: string | null) {
   if (/\.gif$/i.test(filename)) return "image/gif";
   if (/\.avif$/i.test(filename)) return "image/avif";
   return "";
+}
+
+export function isStoredImageContentType(contentType: string | null | undefined) {
+  return storedGalleryContentType(contentType) !== null;
 }
 
 function responseHeaders(contentType: string, source: "stored" | "migrated", etag?: string) {
@@ -50,7 +57,9 @@ export async function HEAD(request: Request, context: { params: Promise<{ filena
   try {
     const { object } = await storedObject(filename);
     if (!object) return await recovery(request, filename) || new Response(null, { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "missing" } });
-    return new Response(null, { status: 200, headers: responseHeaders(object.httpMetadata?.contentType || "application/octet-stream", "stored", object.httpEtag) });
+    const contentType = object.httpMetadata?.contentType || "";
+    if (!isStoredImageContentType(contentType)) return new Response(null, { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "non-image" } });
+    return new Response(null, { status: 200, headers: responseHeaders(contentType, "stored", object.httpEtag) });
   } catch {
     return new Response(null, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
@@ -62,7 +71,9 @@ export async function GET(request: Request, context: { params: Promise<{ filenam
   try {
     const { bucket, object } = await storedObject(filename);
     if (object) {
-      return new Response(object.body as ReadableStream, { headers: responseHeaders(object.httpMetadata?.contentType || "application/octet-stream", "stored", object.httpEtag) });
+      const contentType = object.httpMetadata?.contentType || "";
+      if (!isStoredImageContentType(contentType)) return new Response("Not found", { status: 404, headers: { "Cache-Control": "no-store", "X-VII-Media": "non-image" } });
+      return new Response(object.body as ReadableStream, { headers: responseHeaders(contentType, "stored", object.httpEtag) });
     }
     const recovered = await recovery(request, filename);
     if (recovered) return recovered;

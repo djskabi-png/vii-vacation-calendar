@@ -8,7 +8,7 @@ import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 export type HomeDeal = {
   siteID: number; name: string; image: string; images?: string[]; city: string; area: string; score: number | null; reviewCount: number;
   from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
-  bedrooms?: number; maxGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
+  bedrooms?: number; maxGuests?: number; priceBasisGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
 };
 
 export function publicHomeDealAllowed(deal: Pick<HomeDeal, "name" | "phone" | "whatsapp">) {
@@ -19,7 +19,7 @@ export function publicHomeDealAllowed(deal: Pick<HomeDeal, "name" | "phone" | "w
 export type HomeDealCatalogPlace = {
   name: string; images: string[]; city: string; area: string;
   score?: number | null; reviews?: number;
-  rooms?: { roomID: number; roomName?: string; bedrooms?: number; maxGuests?: number }[];
+  rooms?: { roomID: number; roomName?: string; bedrooms?: number; maxGuests?: number; basisGuests?: number }[];
   phone?: string; whatsapp?: string;
 };
 type ResolveHomeDealCatalog = (ids: number[]) => Promise<ReadonlyMap<number, HomeDealCatalogPlace>>;
@@ -156,6 +156,8 @@ export async function getHomeDealsForDates(options: {
     const roomName = typeof selectedRoom.roomName === "string" ? selectedRoom.roomName.trim() : "";
     const bedrooms = Number.isSafeInteger(selectedRoom.bedrooms) && Number(selectedRoom.bedrooms) > 0 ? Number(selectedRoom.bedrooms) : undefined;
     const maxGuests = Number.isSafeInteger(selectedRoom.maxGuests) && Number(selectedRoom.maxGuests) > 0 ? Number(selectedRoom.maxGuests) : undefined;
+    const priceBasisGuests = Number.isSafeInteger(selectedRoom.basisGuests) && Number(selectedRoom.basisGuests) > 0
+      && (!maxGuests || Number(selectedRoom.basisGuests) <= maxGuests) ? Number(selectedRoom.basisGuests) : undefined;
     if (maxGuests && maxGuests < guests) continue;
     const phone = supplierContactNumber(canonical?.phone ?? record(place?.contact).phone);
     const whatsapp = supplierContactNumber(canonical?.whatsapp ?? record(place?.contact).whatsapp);
@@ -166,6 +168,7 @@ export async function getHomeDealsForDates(options: {
     deals.push({ siteID: siteID as number, name, image, images, city: location?.city || "", area: location?.area || "", score, reviewCount,
       from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: guests,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),
+      ...(roomID && priceBasisGuests ? { priceBasisGuests } : {}),
       ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}), onlineBooking: result.onlineBooking === true });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };

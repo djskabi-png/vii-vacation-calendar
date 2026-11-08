@@ -1,7 +1,24 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { quotedPriceGuestCount, quotedPriceGuestLabel } from "../app/lib/quoted-price-guests.ts";
+import { quotedPriceGuestCount, quotedPriceGuestLabel, priceBasisGuestLabel } from "../app/lib/quoted-price-guests.ts";
+import ts from "typescript";
+
+test("a verified eight-guest base price does not masquerade as a two-guest basis", () => {
+  assert.equal(priceBasisGuestLabel("he", 8, 2, true), "המחיר הבסיסי כולל עד 8 אורחים");
+  for (const language of ["en", "ru", "fr"]) assert.ok(priceBasisGuestLabel(language, 8, 2, true).includes("8"));
+  for (const [basis, requested, priced] of [[undefined, 2, true], [8, 10, true], [8, 8, true], [8, 2, false], [0, 2, true]]) assert.equal(priceBasisGuestLabel("he", basis, requested, priced), null);
+});
+
+test("actual shared home/holiday offer adapter preserves both quote party and supplier basis", async () => {
+  const source = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
+  const ast = ts.createSourceFile("home.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const fn = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "dealAvailability");
+  const code = ts.transpileModule(fn.getText(ast).replace("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  const adapt = Function(code + ";return dealAvailability;")();
+  const value = adapt({ from: "2026-11-12", till: "2026-11-13", total: 1500, nights: 1, priceGuests: 2, priceBasisGuests: 8, roomID: 3728 });
+  assert.equal(value.quotedGuests, 2); assert.equal(value.priceBasisGuests, 8); assert.equal(value.totalPrice, 1500);
+});
 
 test("a priced card describes the exact requested party instead of supplier basis occupancy", () => {
   assert.equal(quotedPriceGuestCount(6, true), 6);

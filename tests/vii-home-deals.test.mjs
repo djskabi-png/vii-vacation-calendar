@@ -2,6 +2,17 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { getHomeDeals, homeDealDates } from "../app/lib/vii-home-deals.ts";
 
+test("single-unit supplier price basis stays distinct from requested guests and capacity", async () => {
+  let requested;
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test", guests: 2, publicSiteIds: new Set([2210]),
+    fetchImpl: async (_url, init) => { requested = JSON.parse(init.body); return Response.json({ sites: [{ siteID: 2210, available: true, minTotal: 1500, cheapest: { from: "2026-10-06", till: "2026-10-07", rooms: [{ roomID: 3728 }] } }] }); },
+    resolveCatalog: async () => new Map([[2210, { name: "Jerusalem VIP", images: ["/api/vii/media/verified.jpg"], city: "Jerusalem", area: "Jerusalem", rooms: [{ roomID: 9999, basisGuests: 12 }, { roomID: 3728, roomName: "Villa", maxGuests: 14, basisGuests: 8 }] }]]) });
+  assert.equal(result.deals[0].priceBasisGuests, 8);
+  assert.equal(result.deals[0].priceGuests, 2);
+  assert.equal(result.deals[0].maxGuests, 14);
+  assert.equal(requested.rooms[0].adults, 2);
+});
+
 test("discovery enriches live search from accepted catalog without broken supplier list or location calls", async () => {
   let calls = 0;
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test", publicSiteIds: new Set([11, 12]),

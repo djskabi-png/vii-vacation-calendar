@@ -303,7 +303,8 @@
         "tests/navigation-intent-warmup-actual.test.mjs",
         "tests/section-activation-actual.test.mjs",
         "tests/slider-settle-layout-actual.test.mjs",
-        "tests/published-catalog-client-cache.test.mjs"
+        "tests/published-catalog-client-cache.test.mjs",
+        "tests/vii-home-deals.test.mjs"
       ]
     },
     "quality-control": {
@@ -361,7 +362,9 @@
       "requiredLocalTests": [
         "tests/booking-mode-contract.test.mjs",
         "tests/whatsapp-lead-contract.test.mjs",
-        "tests/booking-lead-identity-actual.test.mjs"
+        "tests/booking-lead-identity-actual.test.mjs",
+        "tests/detail-calendar-action.actual.test.mjs",
+        "tests/quoted-price-guests.test.mjs"
       ]
     },
     "seo": {
@@ -564,7 +567,11 @@
         "place.vacation.semantic",
         "place.event.semantic",
         "place.hourly.semantic",
-        "place.spa.semantic"
+        "place.spa.semantic",
+        "api.catalog-media.vacations",
+        "api.catalog-media.events",
+        "api.catalog-media.rooms",
+        "api.catalog-media.spa"
       ],
       "buildUnits": [
         "managed-site"
@@ -573,7 +580,11 @@
         "tests/gallery-first-topic-default.test.mjs",
         "tests/property-detail-mobile-gallery-controls.test.mjs",
         "tests/legacy-gallery-media-independence.test.mjs",
-        "tests/discovery-thumbnails.actual.test.mjs"
+        "tests/discovery-thumbnails.actual.test.mjs",
+        "tests/public-gallery-identity.actual.test.mjs",
+        "tests/media-route-authority.actual.test.mjs",
+        "tests/verified-media-recovery.test.mjs",
+        "tests/unit-preview-gallery.actual.test.mjs"
       ]
     },
     "experience-contract": {
@@ -660,7 +671,9 @@
         "tests/quality-platform.test.mjs",
         "tests/quality-scoped-api-integration.test.mjs",
         "tests/quality-scope-admission.test.mjs",
-        "tests/quality-readiness.test.mjs"
+        "tests/quality-readiness.test.mjs",
+        "tests/quality-catalog-media.actual.test.mjs",
+        "tests/quality-media-independent.actual.test.mjs"
       ]
     },
     "request-lifecycle": {
@@ -911,7 +924,8 @@
         "app/api/vii/home-holiday-deals/route.ts",
         "app/components/holiday-live-deals.tsx",
         "app/lib/home-offer-freshness.ts",
-        "app/lib/warm-holiday-discovery-cache.ts"
+        "app/lib/warm-holiday-discovery-cache.ts",
+        "app/lib/discovery-vacation-catalog.ts"
       ]
     },
     {
@@ -937,7 +951,9 @@
       "ownerBox": "booking",
       "match": [
         "app/components/vacation-booking-hub.tsx",
-        "app/booking/client-page.tsx"
+        "app/booking/client-page.tsx",
+        "app/components/detail-sticky-dock.tsx",
+        "app/lib/quoted-price-guests.ts"
       ]
     },
     {
@@ -1075,7 +1091,8 @@
         "app/lib/quality-job-store.ts",
         "app/lib/quality-platform.ts",
         "app/lib/quality-check-scope.ts",
-        "app/lib/quality-readiness.ts"
+        "app/lib/quality-readiness.ts",
+        "app/lib/quality-catalog-media.ts"
       ]
     },
     {
@@ -1096,7 +1113,10 @@
         "app/api/vii/media/",
         "worker/public-gallery-media.ts",
         "worker/optimized-media-source.ts",
-        "public/media-recovery/"
+        "public/media-recovery/",
+        "app/components/unit-preview-gallery.tsx",
+        "app/lib/gallery-media-identity.ts",
+        "app/data/verified-media-recovery.json"
       ]
     },
     {

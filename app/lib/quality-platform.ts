@@ -1,3 +1,4 @@
+import { executeCatalogMediaCheck } from "./quality-catalog-media.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { initializeSchemaOnce } from "./schema-initializer.ts";
 import { adaptQualityChecks, qualityScopeMetadata, selectQualityScope, type QualityScopeSelection } from "./quality-check-scope.ts";
@@ -25,6 +26,7 @@ export type QualityCheck = {
   requiredAny?: readonly string[];
   forbidden?: readonly string[];
   semanticContract?: typeof DISCOVERY_READINESS_VERSION;
+  catalogMediaWorld?: "vacations" | "events" | "rooms" | "spa";
 };
 
 export type QualityNotificationEnvironment = {
@@ -120,6 +122,10 @@ export const qualityRegistry: readonly QualityCheck[] = [
   })),
   ...discoveryReadinessDefinitions.map(({checkId,world,route})=>json({checkId,world,route,family:'discovery-readiness',severity:'critical',cadenceMinutes:30,timeoutMs:10_000,expected:'Current exposed preset has a verified accepted snapshot, including a genuinely empty supplier result',releaseBlocking:true,semanticContract:DISCOVERY_READINESS_VERSION})),
   json({ checkId: "quality.public-verification-keys", family: "quality-auth", world: "all", route: "/.well-known/vii-quality-jwks.json", severity: "critical", cadenceMinutes: 5, timeoutMs: 10_000, expected: "The public delegated-auth verification endpoint resolves through the deployed Worker and exposes only the Ed25519 public key", releaseBlocking: true, requiredAll: ['"keys":', '"kty":"OKP"', '"crv":"Ed25519"', '"x":'], forbidden: ['"d":'] }),
+  json({ checkId: "api.catalog-media.vacations", family: "catalog-media", world: "vacations", route: "/api/catalog?world=vacations", severity: "critical", cadenceMinutes: 360, timeoutMs: 15_000, expected: "Rotating vacation catalog detail and media sample remains available", releaseBlocking: true, catalogMediaWorld: "vacations" }),
+  json({ checkId: "api.catalog-media.events", family: "catalog-media", world: "events", route: "/api/catalog?world=events", severity: "critical", cadenceMinutes: 360, timeoutMs: 15_000, expected: "Rotating event catalog detail and media sample remains available", releaseBlocking: true, catalogMediaWorld: "events" }),
+  json({ checkId: "api.catalog-media.rooms", family: "catalog-media", world: "rooms", route: "/api/catalog?world=rooms", severity: "critical", cadenceMinutes: 360, timeoutMs: 15_000, expected: "Rotating hourly catalog detail and media sample remains available", releaseBlocking: true, catalogMediaWorld: "rooms" }),
+  json({ checkId: "api.catalog-media.spa", family: "catalog-media", world: "spa", route: "/api/catalog?world=spa", severity: "critical", cadenceMinutes: 360, timeoutMs: 15_000, expected: "Rotating spa catalog detail and media sample remains available", releaseBlocking: true, catalogMediaWorld: "spa" }),
 ] as const;
 
 export function qualityHeartbeatWindow(now = new Date()) {
@@ -216,6 +222,7 @@ async function checksDue(db: D1Database, now: Date, trigger: "scheduled" | "manu
 }
 
 export async function executeQualityCheck(check: QualityCheck, origin: string, fetcher: typeof fetch, signal?: AbortSignal) {
+  if (check.catalogMediaWorld) return executeCatalogMediaCheck(check, origin, fetcher, signal);
   const started = Date.now();
   const probe=discoveryReadinessProbe(check.checkId,new Date(started));
   const url = new URL(check.route, origin).toString();

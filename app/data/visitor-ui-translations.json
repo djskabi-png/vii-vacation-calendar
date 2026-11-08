@@ -1,4 +1,7 @@
 {
+  "המחיר הבסיסי כולל עד": { "en": "Base price includes up to", "ru": "Базовая цена включает до", "fr": "Le tarif de base inclut jusqu’à" },
+  "אין תמונה זמינה עבור היחידה": { "en": "No unit photo is available", "ru": "Фотографии этого номера недоступны", "fr": "Aucune photo de cet hébergement n’est disponible" },
+  "התמונה לא נטענה": { "en": "The photo could not load", "ru": "Не удалось загрузить фотографию", "fr": "La photo n’a pas pu être chargée" },
   "הצגת הכל": { "en": "Show all", "ru": "Показать всё", "fr": "Tout afficher" },
   "ספרו לנו בקצרה על העסק (לא חובה)": {"en":"Tell us briefly about your business (optional)","fr":"Présentez brièvement votre établissement (facultatif)","ru":"Кратко расскажите о вашем бизнесе (необязательно)"},
   "המפה לא נטענה כרגע": {"en":"The map could not load","fr":"Impossible de charger la carte","ru":"Карта не загрузилась"},
