@@ -98,7 +98,8 @@
         "tests/regional-catalog-preload.actual.test.mjs",
         "tests/regional-flight-read-model.actual.test.mjs",
         "tests/catalog-navigation-fetch.actual.test.mjs",
-        "tests/worker-lazy-entry-actual.test.mjs"
+        "tests/worker-lazy-entry-actual.test.mjs",
+        "tests/regional-streaming-shell.actual.test.mjs"
       ]
     },
     "search": {
@@ -781,7 +782,8 @@
         "app/results-view.css",
         "app/lib/place-recommendation-payload.ts",
         "app/discover/place/",
-        "app/components/deferred-search-content.tsx"
+        "app/components/deferred-search-content.tsx",
+        "app/components/regional-search-loading.tsx"
       ]
     },
     {

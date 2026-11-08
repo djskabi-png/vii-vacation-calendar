@@ -10,7 +10,10 @@ async function administrator(request: Request) {
 }
 
 export async function GET(request: Request) {
-  return new Response(null, { status: await administrator(request) ? 204 : 403, headers: noStore });
+  // This is a capability probe, not the private analytics report. Anonymous
+  // visitors receive an empty negative result without a console network error.
+  // Only204 admits the client's existing administrator-only test capture.
+  return new Response(null, { status: await administrator(request) ? 204 : 200, headers: noStore });
 }
 
 export function searchCaptureMode(value: unknown, isAdministrator: boolean) {

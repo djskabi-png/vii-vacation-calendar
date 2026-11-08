@@ -371,7 +371,7 @@ function runtimeProperty(value: unknown): Property {
   return { ...property, type: inferredType, description: supplierDisplayDescription(property) };
 }
 
-export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
+export function SearchExperience({ landing, embedded = false }: { landing?: SearchLandingContext; embedded?: boolean }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
   const { language, translate } = useSiteLanguage();
   const completeInitialCatalog = usePublishedCatalogSeed("vacations")?.complete === true;
@@ -1071,9 +1071,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     closeFiltersPanel();
   }
 
-  return (
-    <PageShell footerTopic={footerTopicForPropertyType(selectedTypes[0] || "הכל")}>
-      <main id="main-content" className="results-page"><NearbySortStatus state={nearby} />
+  const content = (
+      <main id="main-content" className="results-page" style={embedded ? { minHeight: "calc(100svh - 76px)" } : undefined}><NearbySortStatus state={nearby} />
         {catalogLoading && properties.length === 0 ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         {(!landing || landing.clientCollectionSchema) && ((!catalogLoading && !catalogError) || properties.length > 0) ? <StructuredData data={collectionSchema(landing?.title || "מקומות נופש בישראל", landing?.description || "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", landing?.path || "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
@@ -1184,8 +1183,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         {!catalogLoading && !catalogError ? <DeferredSearchContent label={furtherSearchLabel} deferUntilNearViewport={!completeInitialCatalog}><SearchAfterResults world="vacation" location={area} inventory={properties} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} /></DeferredSearchContent> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={closeFiltersPanel} />}
       </main>
-    </PageShell>
   );
+  return embedded ? content : <PageShell footerTopic={footerTopicForPropertyType(selectedTypes[0] || "הכל")}>{content}</PageShell>;
 }
 
 export default function SearchPage() {

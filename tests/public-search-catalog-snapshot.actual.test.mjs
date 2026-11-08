@@ -3,6 +3,8 @@ import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import { readPublicSearchCatalogSnapshot } from "../app/lib/public-search-catalog-snapshot.ts";
 import { catalogResponse } from "../app/api/catalog/route.ts";
+import { publicEventSearchPlaces } from "../app/lib/public-event-search.ts";
+import { eventMatchesFeatureSelection } from "../app/lib/event-search-features.ts";
 
 function makeDb({ count = 2, malformed = false, ids = [7001, 7002], invalidIds = false } = {}) {
   const sqlite = new DatabaseSync(":memory:");
@@ -33,6 +35,27 @@ function makeDb({ count = 2, malformed = false, ids = [7001, 7002], invalidIds =
 }
 
 const request = () => new Request("https://vii.spaplus.co/api/catalog?world=events&view=search");
+
+test("supplier description-only facilities survive display and editorial shortening without exposing raw marketing", async () => {
+  const { db, sqlite } = makeDb();
+  try {
+    const raw = JSON.parse(sqlite.prepare("SELECT summary_json FROM supplier_catalog_entries WHERE supplier_id=7001").get().summary_json);
+    raw.description = "אירועי חברה ומסיבות עם בר אלכוהול. מחיר שיווקי 1,999 שקלים";
+    sqlite.prepare("UPDATE supplier_catalog_entries SET summary_json=? WHERE supplier_id=7001").run(JSON.stringify(raw));
+    const snapshot = await readPublicSearchCatalogSnapshot(db, "events");
+    const summary = snapshot.entries[0].summary;
+    assert.ok(summary.features.includes("בר אלכוהול"));
+    assert.equal(eventMatchesFeatureSelection(summary, "בר אלכוהול"), true);
+    assert.equal(eventMatchesFeatureSelection(snapshot.entries[1].summary, "בר אלכוהול"), false);
+    assert.ok(summary.eventTypes.includes("אירועי חברה"));
+    assert.deepEqual(publicEventSearchPlaces([summary], 1)[0], summary, "search projection is idempotent");
+    const api = await (await catalogResponse(request(), db)).json();
+    assert.deepEqual(api, JSON.parse(JSON.stringify(snapshot)));
+    assert.equal(summary.description, "");
+    assert.equal(JSON.stringify(api).includes("1,999"), false);
+    assert.equal(Object.hasOwn(summary, "searchDescription"), false);
+  } finally { sqlite.close(); }
+});
 
 test("runtime search snapshot and API share complete editorial projection and source identities", async () => {
   const { db, sqlite } = makeDb();

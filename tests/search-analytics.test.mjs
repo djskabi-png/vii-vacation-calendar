@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { parseSearchDemandEvent, parseSearchEvent, opportunityIdentity, readSearchAnalytics, saveSearchEvent } from "../app/lib/search-analytics.ts";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
-import { POST, searchCaptureMode } from "../app/api/analytics/search/route.ts";
+import { POST, GET as searchCaptureProbe, searchCaptureMode } from "../app/api/analytics/search/route.ts";
+import ts from "typescript";
 import { GET } from "../app/api/admin/search-analytics/route.ts";
 import { opportunityInternalOnly } from "../app/lib/search-opportunities.ts";
 
@@ -68,6 +69,22 @@ test("no-consent search capture is allowed only for an authenticated administrat
   assert.equal(searchCaptureMode({ consentState: "denied_or_unset", adminTestOnly: true }, false), "discard");
   assert.equal(searchCaptureMode({ consentState: "granted", adminTestOnly: false }, false), "public");
   assert.equal(searchCaptureMode({ consentState: "granted", adminTestOnly: false }, true), "internal");
+});
+
+test("anonymous search capability probe is an empty private negative response without granting capture", async () => {
+  const response = await searchCaptureProbe(new Request("https://vii.spaplus.co/api/analytics/search"));
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "");
+  assert.equal(response.headers.get("cache-control"), "private, no-store");
+  const source = fs.readFileSync(new URL("../app/lib/analytics.ts", import.meta.url), "utf8");
+  const ast = ts.createSourceFile("analytics.ts", source, ts.ScriptTarget.Latest, true);
+  const fn = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "searchCapturePrivacy");
+  const code = ts.transpileModule(fn.getText(ast), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+  for (const status of [200, 403, 204]) {
+    const privacy = new Function("window", "fetch", `let adminSearchCaptureCheck=null;${code};return searchCapturePrivacy;`)(
+      { localStorage: { getItem: () => "essential" } }, async () => new Response(null, { status }));
+    assert.deepEqual(await privacy(), status === 204 ? { consentState: "denied_or_unset", adminTestOnly: true } : null);
+  }
 });
 
 test("search intelligence returns recent public and internal rows without mixing their totals", async () => {

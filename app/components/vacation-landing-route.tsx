@@ -10,6 +10,9 @@ import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-l
 import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 import { matchesSearchLocation } from "../data/search-taxonomy.ts";
 import { worldLocationPath } from "../lib/world-location-path.ts";
+import { Suspense } from "react";
+import { PageShell } from "./page-shell";
+import { RegionalSearchLoading } from "./regional-search-loading";
 
 export async function vacationLandingMetadata(regionSlug?: string | null): Promise<Metadata> {
   const region = vacationRegionBySlug(regionSlug);
@@ -48,20 +51,33 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
       <SearchExperience key={path} landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, guideTitle, guideParagraphs, faqs, clientCollectionSchema: true }} />
     </>;
   }
-  const { publicRegionalVacationSearch } = await import("../lib/cached-public-vacation-search.ts");
-  const publishedProperties = await publicRegionalVacationSearch();
-  const listings = region && !locationOverride
-    ? vacationRegionListings(region, publishedProperties)
-    : publishedProperties.filter((property) => matchesSearchLocation(property, location));
-  const initialListings = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, location, [], {
-    key: (property) => property.slug,
-    origin: { location, area: location },
-  }), (property) => property.slug);
-  // Complete regional metadata keeps first-document counts and filters truthful.
+  const streamShell = Boolean(region && !locationOverride && !isFlight);
+  const renderCatalogContent = async () => {
+    const { publicRegionalVacationSearch } = await import("../lib/cached-public-vacation-search.ts");
+    const publishedProperties = await publicRegionalVacationSearch();
+    const listings = region && !locationOverride
+      ? vacationRegionListings(region, publishedProperties)
+      : publishedProperties.filter((property) => matchesSearchLocation(property, location));
+    const initialListings = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, location, [], {
+      key: (property) => property.slug,
+      origin: { location, area: location },
+    }), (property) => property.slug);
+    // Complete regional metadata keeps first-document counts and filters truthful.
+    return <>
+      <StructuredData data={collectionSchema(title, description, path, initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
+      <PublishedCatalogSeed world="vacations" entries={initialListings} complete={false}><SearchExperience embedded={streamShell} landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, listingSlugs: listings.map((property) => property.slug), guideTitle, guideParagraphs, faqs }} /></PublishedCatalogSeed>
+    </>;
+  };
+  if (streamShell) return <PageShell>
+    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
+    <Suspense fallback={<RegionalSearchLoading title={title} />}>
+      {renderCatalogContent()}
+    </Suspense>
+  </PageShell>;
+  const renderedCatalog = await renderCatalogContent();
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
-    <StructuredData data={collectionSchema(title, description, path, initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
-    <PublishedCatalogSeed world="vacations" entries={initialListings} complete={false}><SearchExperience landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, listingSlugs: listings.map((property) => property.slug), guideTitle, guideParagraphs, faqs }} /></PublishedCatalogSeed>
+    {renderedCatalog}
   </>;
 }
 

@@ -13,6 +13,8 @@ import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
 import { readOnceInServerRequest } from './server-request-reads.ts';
+import { eventSearchTaxonomy } from './event-search-taxonomy.ts';
+import type { EventPlace } from '../data/site-data.ts';
 import type { D1Database } from '../../types/cloudflare-runtime';
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
@@ -238,7 +240,23 @@ export function projectPublicCatalogWithEditorial(world: SupplierCatalogWorld, e
 
 /** The canonical SSR projection for public search snapshots. */
 export async function projectPublicSearchCatalogEntries(world: "vacations" | "events", entries: unknown[], published: { key: string; content: EditorialContent }[]) {
-  return projectPublicCatalogWithEditorial(world, await publicSummaries(world, entries), published);
+  const summaries = await publicSummaries(world, entries);
+  // Display descriptions intentionally omit supplier marketing and prices.
+  // Search must derive its existing facilities/occasions before that rewrite.
+  // Retain only semantic labels here, never the raw description in the DTO.
+  const sourceFacets = world === "events" ? new Map(entries.filter(publicCatalogEntryAllowed).map(value => {
+    const place = projectSergeyPublicCatalogValue(value) as EventPlace;
+    return [catalogIdentity(world, place), eventSearchTaxonomy(place)] as const;
+  })) : null;
+  const searchSummaries = sourceFacets ? summaries.map(value => {
+    const place = value as EventPlace;
+    const facets = sourceFacets.get(catalogIdentity(world, place));
+    return facets ? { ...place,
+      features: [...new Set([...place.features, ...facets.features])],
+      eventTypes: [...new Set([...place.eventTypes, ...facets.eventTypes])],
+    } : place;
+  }) : summaries;
+  return projectPublicCatalogWithEditorial(world, searchSummaries, published);
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {

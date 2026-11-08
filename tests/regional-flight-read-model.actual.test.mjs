@@ -28,10 +28,11 @@ const inventory=regions.vacationRegions.flatMap((region,group)=>Array.from({leng
 
 function fixture(headerValues={},gate=null){
   const calls={imports:0,reads:0};
-  const Seed=()=>null, Search=()=>null, Structured=()=>null;
+  const Seed=()=>null, Search=()=>null, Structured=()=>null, PageShell=({children})=>children, Suspense=({children})=>children, Loading=()=>null;
   const req=name=>{
     if(name.includes('public-catalog-navigation'))return catalogHint;
     if(name==='react/jsx-runtime')return nativeRequire(name);
+    if(name==='react')return{Suspense};
     if(name==='next/headers')return{headers:async()=>new Headers(headerValues)};
     if(name==='next/navigation')return{notFound:()=>{throw Error('not_found')}};
     if(name.includes('cached-public-vacation-search')){calls.imports++;return{publicRegionalVacationSearch:async()=>{calls.reads++;if(gate)await gate;return publicVacationSearchProperties(inventory);}};}
@@ -44,17 +45,25 @@ function fixture(headerValues={},gate=null){
     if(name.includes('published-catalog-seed'))return{PublishedCatalogSeed:Seed};
     if(name.includes('search/page'))return{SearchExperience:Search};
     if(name.includes('structured-data'))return{StructuredData:Structured};
+    if(name.includes('page-shell'))return{PageShell};
+    if(name.includes('regional-search-loading'))return{RegionalSearchLoading:Loading};
     if(name.includes('/seo'))return seo;
     throw Error('unexpected_import:'+name);
   };
   const code=ts.transpileModule(readFileSync('app/components/vacation-landing-route.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
   const module={exports:{}};new Function('require','module','exports',code)(req,module,module.exports);
-  return{...module.exports,calls,Seed,Search,Structured};
+  return{...module.exports,calls,Seed,Search,Structured,PageShell,Suspense};
 }
 function find(tree,type){
   if(Array.isArray(tree)){for(const node of tree){const result=find(node,type);if(result)return result;}return null;}
   if(!tree||typeof tree!=='object')return null;
   return tree.type===type?tree:find(tree.props?.children,type);
+}
+async function resolveTree(tree){
+  if(tree && typeof tree.then==='function') return resolveTree(await tree);
+  if(Array.isArray(tree)) return Promise.all(tree.map(resolveTree));
+  if(!tree||typeof tree!=='object'||!tree.props) return tree;
+  return {...tree,props:{...tree.props,children:await resolveTree(tree.props.children)}};
 }
 
 test('actual regional Flight resolves without importing or waiting for any catalog',{timeout:3000},async()=>{
@@ -74,7 +83,7 @@ test('actual regional Flight resolves without importing or waiting for any catal
 test('all eleven Flight cohorts preserve the rich HTML region selection and editorial content',async()=>{
   for(const region of regions.vacationRegions){
     const html=fixture({accept:'text/html'}),flight=fixture({rsc:'1',[catalogHint.PUBLIC_CATALOG_NAVIGATION_HEADER]:catalogHint.PUBLIC_CATALOG_NAVIGATION_VERSION});
-    const rich=await html.VacationLandingRoute({regionSlug:region.slug});
+    const rich=await resolveTree(await html.VacationLandingRoute({regionSlug:region.slug}));
     const thin=await flight.VacationLandingRoute({regionSlug:region.slug});
     const seed=find(rich,html.Seed),a=find(rich,html.Search).props.landing,b=find(thin,flight.Search).props.landing;
     assert.equal(html.calls.reads,1);assert.equal(flight.calls.reads,0);
@@ -89,10 +98,10 @@ test('HTML still waits for complete accepted data and emits the full collection 
   let release;const gate=new Promise(resolve=>release=resolve),f=fixture({accept:'text/html'},gate);
   let done=false;const promise=f.VacationLandingRoute({regionSlug:'kinneret'}).then(value=>{done=true;return value;});
   await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(f.calls.reads,1);assert.equal(done,false);
-  release();const tree=await promise,seed=find(tree,f.Seed);
+  assert.equal(f.calls.reads,1);assert.equal(done,true);
+  release();const tree=await resolveTree(await promise),seed=find(tree,f.Seed);
   assert.equal(seed.props.entries.length,21);
-  const schemas=tree.props.children.filter(node=>node?.type===f.Structured).map(node=>node.props.data);
+  const schemas=[]; (function collect(node){if(Array.isArray(node)) return node.forEach(collect); if(!node||typeof node!=='object') return; if(node.type===f.Structured) schemas.push(node.props.data); collect(node.props?.children);})(tree);
   const list=schemas.flatMap(schema=>schema['@graph']||[]).find(node=>node['@type']==='ItemList');
   assert.equal(list.numberOfItems,21);
   assert.equal((await f.vacationLandingMetadata('kinneret')).alternates.canonical,'/vacations/kinneret');
