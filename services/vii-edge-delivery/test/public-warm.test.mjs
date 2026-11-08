@@ -14,7 +14,7 @@ test('scheduled public documents warm the same HTML variants used by real browse
   globalThis.caches={default:{async match(key){return entries.get(key.url)?.clone();},async put(key,response){entries.set(key.url,response.clone());}}};
   globalThis.fetch=async request=>{if(new URL(request.url).pathname==='/api/vii/home-holidays')return Response.json({holidays:[]},{headers:{'X-VII-App-Build':'warm-build'}});requests.push(request);return new Response('document '+new URL(request.url).pathname,{headers:{'Content-Type':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':'warm-build','X-VII-Cache-Until':String(Date.now()+300_000)}});};
   try{
-    await worker.scheduled({scheduledTime:Date.now()},env,ctx);await Promise.allSettled(tasks);
+    await worker.scheduled({scheduledTime:0},env,ctx);await Promise.allSettled(tasks);
     assert.deepEqual(requests.map(r=>new URL(r.url).pathname+new URL(r.url).search),publicWarmRequests.map(r=>r.path));
     assert.ok(requests.every(r=>r.method==='GET'&&!r.headers.has('Cookie')&&!r.headers.has('Authorization')));
     assert.ok(requests.every(r=>r.url.includes('.rsc')?r.headers.get('Accept')==='text/x-component'&&r.headers.get('RSC')==='1'&&r.headers.get('X-Vinext-Interception-Context')!==null&&!r.headers.has('Next-Url'):r.headers.get('Accept')==='text/html'&&(!new URL(r.url).search||new URL(r.url).search==='?guests=2')));
@@ -56,6 +56,20 @@ test('one failed document cannot stop other routes and owned background work is 
 test('a successful HTTP response rejected by cache admission is not counted as warm',async()=>{
  const result=await warmPublicDocuments(async()=>new Response('old build',{headers:{'X-VII-Edge-Cache-Skip':'build_mismatch'}}),{waitUntil(){}});
  assert.equal(result.attempted,publicWarmRequests.length);assert.equal(result.completed,0);assert.equal(result.failed,publicWarmRequests.length);
+});
+
+test('budget exhaustion cannot leave the same regional tail behind every cycle',async()=>{
+ const oldNow=Date.now;let now=0;Date.now=()=>now;
+ const first=[],second=[];
+ const read=paths=>async request=>{paths.push(new URL(request.url).pathname+new URL(request.url).search);now+=2500;return new Response('ok',{headers:{'X-VII-Edge-Delivery':'MISS'}});};
+ try{
+  const a=await warmPublicDocuments(read(first),{waitUntil(){}},0);
+  assert.ok(a.skipped>0);assert.ok(a.attempted<publicWarmRequests.length);assert.equal(a.elapsedMs,90000);
+  now=0;const b=await warmPublicDocuments(read(second),{waitUntil(){}},120000);
+  assert.equal(second[0],publicWarmRequests[Math.ceil(publicWarmRequests.length/2)].path);
+  assert.equal(new Set([...first,...second]).size,publicWarmRequests.length);
+  assert.ok(second.includes(publicWarmRequests.at(-1).path));assert.equal(b.elapsedMs,90000);
+ }finally{Date.now=oldNow;}
 });
 
 test('warming aborts each stalled read and never exceeds its total90second budget',async()=>{

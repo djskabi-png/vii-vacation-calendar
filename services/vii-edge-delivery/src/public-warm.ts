@@ -26,14 +26,18 @@ type Context = { waitUntil(promise: Promise<unknown>): unknown };
 
 /** Fixed anonymous HTML and ordinary navigation reads only. The caller supplies the SAME cache
  * admission path as a visitor; this cannot warm APIs or transactional reads. */
-export async function warmPublicDocuments(read: (request: Request, ctx: Context) => Promise<Response>, ctx: Context) {
+export async function warmPublicDocuments(read: (request: Request, ctx: Context) => Promise<Response>, ctx: Context, cycleStart = 0) {
   const started = Date.now();
-  const report = { attempted: 0, completed: 0, failed: 0, elapsedMs: 0 };
+  const report = { policy: 'regional-v2', attempted: 0, completed: 0, failed: 0, skipped: 0, failedPaths: [] as string[], elapsedMs: 0 };
+  // Alternate the leading half every two-minute schedule. A slow origin can
+  // exhaust the bounded budget, but cannot permanently starve the same tail.
+  const offset = Math.floor(cycleStart / 120_000) % 2 ? Math.ceil(publicWarmRequests.length / 2) : 0;
+  const targets = [...publicWarmRequests.slice(offset), ...publicWarmRequests.slice(0, offset)];
   let next = 0;
-  const lane = async () => { while (next < publicWarmRequests.length) {
+  const lane = async () => { while (next < targets.length) {
     const remaining = 90_000 - (Date.now() - started);
     if (remaining <= 0) break;
-    const target = publicWarmRequests[next++];
+    const target = targets[next++];
     const controller = new AbortController();
     const tasks = new Set<Promise<unknown>>();
     const ownedContext = { waitUntil(promise: Promise<unknown>) {
@@ -63,12 +67,13 @@ export async function warmPublicDocuments(read: (request: Request, ctx: Context)
     const deadline = new Promise<false>(resolve => { timer = setTimeout(() => {
       controller.abort(new DOMException("Public warming deadline", "TimeoutError")); resolve(false);
     }, Math.min(10_000, remaining)); });
-    try { if (await Promise.race([work, deadline])) report.completed++; else report.failed++; }
+    try { if (await Promise.race([work, deadline])) report.completed++; else { report.failed++; report.failedPaths.push(target.path); } }
     finally { if (timer) clearTimeout(timer); controller.abort(); }
   } };
   // At most two complete document reads, including their owned cache writes.
   // No unbounded Promise.all across the catalog or supplier API is introduced.
   await Promise.all([lane(), lane()]);
+  report.skipped = targets.length - report.attempted;
   report.elapsedMs = Date.now() - started;
   return report;
 }
