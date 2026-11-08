@@ -12,6 +12,7 @@ import * as hint from '../shared/public-catalog-navigation.ts';
 import {matchesSearchLocation} from '../app/data/search-taxonomy.ts';
 import {worldLocationPath} from '../app/lib/world-location-path.ts';
 import {publicVacationSearchProperties} from '../app/lib/public-vacation-search.ts';
+import * as publicUrl from '../app/lib/public-url.ts';
 
 const require=createRequire(import.meta.url);
 function load(file,dependencies={}){
@@ -28,7 +29,7 @@ function load(file,dependencies={}){
  },module,module.exports);
  return module.exports;
 }
-const seo=load('app/lib/seo.ts',{'./listing-offerings':{getListingOfferings(){throw Error('unrelated detail read');}}});
+const seo=load('app/lib/seo.ts',{'./public-url':publicUrl,'./listing-offerings':{getListingOfferings(){throw Error('unrelated detail read');}}});
 const {StructuredData}=load('app/components/structured-data.tsx');
 const {RegionalSearchLoading}=load('app/components/regional-search-loading.tsx');
 const seed=load('app/lib/published-catalog-seed.tsx');

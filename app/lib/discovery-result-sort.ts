@@ -1,6 +1,6 @@
-import { orderByProximity } from "./proximity-sort";
+import { orderByProximity } from "./proximity-sort.ts";
 import type { SiteLanguage } from "../i18n/locale-provider";
-import { discoverySeedCompare } from "./discovery-slider-order";
+import { discoverySeedCompare } from "./discovery-slider-order.ts";
 
 export type DiscoverySortKey = "recommended" | "popular" | "price-asc" | "price-desc" | "rating-desc" | "name" | "nearest";
 

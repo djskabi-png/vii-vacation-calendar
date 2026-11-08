@@ -1,4 +1,5 @@
 import * as catalogHint from '../shared/public-catalog-navigation.ts';
+import * as publicUrl from '../app/lib/public-url.ts';
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {readFileSync} from 'node:fs';
@@ -16,6 +17,7 @@ const nativeRequire=createRequire(import.meta.url);
 const seoModule={exports:{}};
 new Function('require','module','exports',ts.transpileModule(readFileSync('app/lib/seo.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(name=>{
   if(name==='./listing-offerings')return{getListingOfferings:()=>{throw Error('unexpected_place_offering_read')}};
+  if(name==='./public-url')return publicUrl;
   throw Error('unexpected_schema_dependency:'+name);
 },seoModule,seoModule.exports);
 const seo=seoModule.exports;
