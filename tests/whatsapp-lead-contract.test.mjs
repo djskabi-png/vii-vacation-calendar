@@ -2,6 +2,7 @@ import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { absoluteUrl } from "../app/lib/public-url.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -153,16 +154,17 @@ test("isolated enquiry handler preserves optional context and opens WhatsApp eve
   const handler = source.slice(source.indexOf("  async function submit("), source.indexOf("\n  return <>"))
     .replace("event: FormEvent<HTMLFormElement>", "event")
     .replace(/ as \{ success\?: boolean; reference\?: string \}/, "");
-  const run = new Function("deps", `const {setState,setOpen,stateRef,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
-  for (const mode of ["success", "error", "handoff-error", "retry", "popup-blocked", "busy"]) {
+  const run = new Function("deps", `const {setState,setOpen,stateRef,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber,absoluteUrl,includeServiceInMessage} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
+  for (const mode of ["success", "error", "handoff-error", "retry", "popup-blocked", "generic", "event", "event-vacation", "hourly", "busy"]) {
     const calls = [], states = [], navigations = [];
     const payloads = [];
     const deps = {
+      absoluteUrl,
       stateRef: {current: mode === "busy" ? "submitting" : "idle"}, setOpen: value => calls.push(`open:${value}`), submissionId: mode === "retry" ? "stable-id" : "", setSubmissionId: id => calls.push(`id:${id}`),
       crypto: { randomUUID: () => "new-id" }, setState: state => states.push(state),
       FormData: class { get(key) { return {name:"Test User",phone:"0500000000",requested_date:"2026-12-10",requested_till:"2026-12-12",guests:"6",company_site:""}[key]; } },
       labels: new Proxy({}, {get: (_, key) => key === "messageIntro" ? name => `Hello ${name}` : key}),
-      world:"vacation",placeId:"test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
+      includeServiceInMessage: mode !== "generic", world:mode.startsWith("event") ? "events" : mode === "hourly" ? "hourly" : "vacation",placeId:mode === "event-vacation" ? "vacation-2356" : "test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
       window:{open:url => { calls.push(`window-open:${url}`); if (mode === "popup-blocked") return null; navigations.push(url); return {}; },location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
       fetch: async (url, options) => {
         calls.push(url);
@@ -177,6 +179,10 @@ test("isolated enquiry handler preserves optional context and opens WhatsApp eve
     await run(deps);
     if (mode === "busy") { assert.deepEqual(calls, []); assert.deepEqual(navigations, []); continue; }
     const payload = payloads[0];
+    const draft = new URL(navigations[0]).searchParams.get("text");
+    assert.ok(draft.includes(mode === "event-vacation" ? "https://vii.spaplus.co/business?id=vacation-2356&mode=events" : mode === "event" ? "https://vii.spaplus.co/events/place/test-only" : mode === "hourly" ? "https://vii.spaplus.co/discover/place/test-only" : "https://vii.spaplus.co/business?id=test-only"));
+    assert.equal(draft.includes("messageService"), mode !== "generic", "meaningful selected service context is preserved");
+    assert.ok(payload.message.includes("Selected unit"), "CRM context remains intact");
     assert.equal(payload.requestedDate, "2026-12-10");
     assert.equal(payload.requestedTill, "2026-12-12");
     assert.equal(payload.guests, "6");
@@ -184,7 +190,7 @@ test("isolated enquiry handler preserves optional context and opens WhatsApp eve
     assert.equal(payload.privacyAccepted, true);
     assert.equal(payload.submissionId, mode === "retry" ? "stable-id" : "new-id");
     assert.equal(navigations.length, 1);
-    assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit/);
+    assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6/);
     if (mode === "error") { assert.ok(!calls.includes("tracked")); }
     else {
       assert.equal(payloads[1].submissionId, mode === "retry" ? "stable-id" : "new-id");

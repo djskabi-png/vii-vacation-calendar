@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { trackWhatsAppHandoff, trackWhatsAppLeadSaved } from "../lib/analytics";
 import { useAccountAccess } from "./account-access";
+import { absoluteUrl } from "../lib/public-url";
 
 type Copy = {
   button: string;
@@ -118,6 +119,7 @@ export type WhatsAppLeadButtonProps = {
   placeName: string;
   businessPhone: string;
   serviceName?: string;
+  includeServiceInMessage?: boolean;
   initialDate?: string;
   initialTill?: string;
   initialGuests?: number | string;
@@ -125,7 +127,7 @@ export type WhatsAppLeadButtonProps = {
   buttonClassName?: string;
 };
 
-export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, serviceName = "", initialDate = "", initialTill = "", initialGuests = "", buttonLabel, buttonClassName = "button primary" }: WhatsAppLeadButtonProps) {
+export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, serviceName = "", includeServiceInMessage = true, initialDate = "", initialTill = "", initialGuests = "", buttonLabel, buttonClassName = "button primary" }: WhatsAppLeadButtonProps) {
   const { language, translate } = useSiteLanguage();
   const labels = copy[language];
   const dialogLabels = dialogCopy[language];
@@ -221,6 +223,10 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
     }
 
     const reference = id;
+    const placeUrl = absoluteUrl(world === "vacation" || placeId.startsWith("vacation-")
+      ? `/business?id=${encodeURIComponent(placeId)}${world === "events" ? "&mode=events" : ""}`
+      : world === "events" ? `/events/place/${encodeURIComponent(placeId)}`
+        : `/discover/place/${encodeURIComponent(placeId)}`);
     const whatsappMessage = [
       labels.messageIntro(localizedPlaceName),
       `${labels.messageName}: ${name}`,
@@ -228,7 +234,8 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
       requestedDate ? `${labels.messageDate}: ${requestedDate}` : "",
       requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
       guests ? `${labels.messageGuests}: ${guests}` : "",
-      serviceName ? `${labels.messageService}: ${serviceName}` : "",
+      includeServiceInMessage && serviceName ? `${labels.messageService}: ${serviceName}` : "",
+      placeUrl,
       labels.messageOutro,
     ].filter(Boolean).join("\n");
     const whatsappUrl = `https://wa.me/${destination}?text=${encodeURIComponent(whatsappMessage)}`;

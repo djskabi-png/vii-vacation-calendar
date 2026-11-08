@@ -423,7 +423,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}
               {phoneHref ? <DirectPhoneLink phone={property.contact?.phone} placeName={localizedPropertyName} className="property-phone-action" tracking={{ placeId: property.slug, placeName: property.name, world: activeWorld, placement: "property_detail" }} /> : null}
-              {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
+              {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} includeServiceInMessage={false} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
               <ShareButton title={property.name} image={property.image} />
             </div>
             {activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}

@@ -133,7 +133,9 @@
         "tests/map-split-performance-family.test.mjs",
         "tests/mobile-stability-contract.test.mjs",
         "tests/deferred-search-content.actual.test.mjs",
-        "tests/published-catalog-transition.actual.test.mjs"
+        "tests/published-catalog-transition.actual.test.mjs",
+        "tests/hourly-results-order.test.mjs",
+        "tests/nearby-search-family.test.mjs"
       ]
     },
     "vacations": {
@@ -356,7 +358,8 @@
       ],
       "requiredLocalTests": [
         "tests/booking-mode-contract.test.mjs",
-        "tests/whatsapp-lead-contract.test.mjs"
+        "tests/whatsapp-lead-contract.test.mjs",
+        "tests/booking-lead-identity-actual.test.mjs"
       ]
     },
     "seo": {
@@ -767,7 +770,8 @@
         "app/components/navigation-progress-style.ts",
         "app/lib/regional-catalog-preload.ts",
         "app/lib/catalog-navigation-fetch.ts",
-        "app/lib/use-catalog-navigation-recovery.ts"
+        "app/lib/use-catalog-navigation-recovery.ts",
+        "app/components/card-contact-actions.tsx"
       ]
     },
     {
@@ -803,7 +807,8 @@
         "app/lib/place-recommendation-payload.ts",
         "app/discover/place/",
         "app/components/deferred-search-content.tsx",
-        "app/components/regional-search-loading.tsx"
+        "app/components/regional-search-loading.tsx",
+        "app/lib/discovery-result-sort.ts"
       ]
     },
     {
@@ -922,7 +927,8 @@
       "id": "booking",
       "ownerBox": "booking",
       "match": [
-        "app/components/vacation-booking-hub.tsx"
+        "app/components/vacation-booking-hub.tsx",
+        "app/booking/client-page.tsx"
       ]
     },
     {
@@ -932,7 +938,9 @@
         "app/sitemap.xml/",
         "app/sitemaps/",
         "app/lib/search-page-content.ts",
-        "app/lib/sitemap-inventory.ts"
+        "app/lib/sitemap-inventory.ts",
+        "app/lib/seo.ts",
+        "app/lib/public-url.ts"
       ]
     },
     {

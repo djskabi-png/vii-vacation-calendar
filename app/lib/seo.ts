@@ -3,8 +3,9 @@ import type { EventPlace, Listing } from "../data/site-data";
 import { getListingOfferings } from "./listing-offerings";
 import type { MagazineArticle } from "../data/magazine-data";
 import type { Trail } from "../data/trail-data";
+import { SITE_URL, absoluteUrl } from "./public-url";
+export { SITE_URL, absoluteUrl } from "./public-url";
 
-export const SITE_URL = "https://vii.spaplus.co";
 export const SITE_NAME = "וי פור ויקיישן";
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
@@ -17,14 +18,6 @@ export function worldBreadcrumb(world: string) {
   if (world === "events") return { name: "אירועים", path: "/events" };
   if (world === "corporate") return { name: "אירועי חברה ורווחה", path: "/corporate" };
   return { name: "נופש", path: "/search" };
-}
-
-export function absoluteUrl(path: string) {
-  if (/^https?:\/\//.test(path)) return path;
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  const [pathname, query] = normalized.split("?", 2);
-  const canonicalPath = pathname === "/" ? pathname : pathname.replace(/\/$/, "");
-  return `${SITE_URL}${canonicalPath}${query ? `?${query}` : ""}`;
 }
 
 export function organizationSchema() {

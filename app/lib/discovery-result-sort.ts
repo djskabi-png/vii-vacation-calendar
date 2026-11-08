@@ -67,6 +67,32 @@ export function orderDiscoveryResults<T>(items: readonly T[], sort: DiscoverySor
   });
 }
 
+/** Keep an authoritative exact-city group ahead of nearby recovery results.
+ * Each group still receives the requested stable sort; nearby items already
+ * present in the exact group are removed without inventing geography.
+ */
+export function orderGroupedDiscoveryResults<T>(exact: readonly T[], nearby: readonly T[], sort: DiscoverySortKey, seed: string, model: DiscoverySortModel<T>, key: (item: T) => string): T[] {
+  const exactIds = new Set<string>();
+  const exactUnique = exact.filter((item) => {
+    const id = key(item);
+    if (exactIds.has(id)) return false;
+    exactIds.add(id);
+    return true;
+  });
+  const nearbyIds = new Set<string>();
+  const nearbyOnly = nearby.filter((item) => {
+    const id = key(item);
+    if (exactIds.has(id) || nearbyIds.has(id)) return false;
+    nearbyIds.add(id);
+    return true;
+  });
+  if (nearbyOnly.length === 0) return orderDiscoveryResults(exactUnique, sort, seed, model);
+  return [
+    ...orderDiscoveryResults(exactUnique, sort, `${seed}:exact`, model),
+    ...orderDiscoveryResults(nearbyOnly, sort, `${seed}:nearby`, model),
+  ];
+}
+
 export function numericPriceLabel(value: string | undefined): number | undefined {
   if (!value) return undefined;
   const match = value.replace(/,/g, "").match(/\d+(?:\.\d+)?/);

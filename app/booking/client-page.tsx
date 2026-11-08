@@ -343,6 +343,11 @@ export default function BookingPageClient(props: Props) {
           submissionId: id,
           purpose: isManage ? "booking-management" : "booking",
           world: props.world,
+          placeId: props.placeId,
+          placeName: props.placeName,
+          requestedDate: String(values.get("date") || ""),
+          requestedTill: String(values.get("till") || ""),
+          guests: String(values.get("guests") || ""),
           name: values.get("name"),
           phone: values.get("phone"),
           email: values.get("email"),
@@ -409,7 +414,7 @@ export default function BookingPageClient(props: Props) {
         <span className="booking-success__mark" aria-hidden="true">✓</span>
         <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : supplierBookingStatus === "confirmed" ? "ההזמנה אושרה על ידי המקום" : "הזמנה שממתינה לאישור"}</small>
         <h1>{props.illustrative ? "המחשת ההזמנה הושלמה" : isManage ? "בקשת השינוי התקבלה" : supplierBookingStatus === "confirmed" ? "ההזמנה אושרה" : "בקשת ההזמנה הושלמה"}</h1>
-        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון." : supplierBookingStatus === "confirmed" ? "המקום אישר את ההזמנה. לא בוצע חיוב דרך V." : supplierSiteID ? "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך V." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
+        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון." : supplierBookingStatus === "confirmed" ? "המקום אישר את ההזמנה. לא בוצע חיוב דרך V." : supplierSiteID ? "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך V." : "פרטי הבקשה נשמרו. אישור המועד והמחיר יינתן בנפרד. לא בוצע חיוב."}</p>
         <div className="booking-success__summary">
           <strong>{props.placeName}</strong>
           <span>{arrival}{departure ? " עד " + departure : ""}</span>

@@ -21,7 +21,7 @@ import { nearbySearchRecommendations, completePlaceSearchResults, PLACE_SEARCH_M
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 import { useDocumentSeed } from "./use-document-seed";
-import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
+import { discoverySortLabel, discoverySortOptions, orderGroupedDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 import { MapSplitResultList } from "./map-split-result-list";
 import { managedSearchParams } from "../lib/managed-search-params";
 
@@ -96,7 +96,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     });
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id, origin: { location, area: location, ...center } });
   }, [features, filtered, items, location, managedGeography, maximumPrice]);
-  const resultItems = useMemo(() => orderDiscoveryResults(completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:hourly-search`, sortModel), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
+  const resultItems = useMemo(() => orderGroupedDiscoveryResults(filtered, completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:hourly-search`, sortModel, (item) => item.id), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => trackSearchResults({
@@ -189,6 +189,6 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>{translate("ניקוי סינונים")}</button>
       </div>
     </div>
-    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><MapSplitResultList items={displayed} getId={(item) => item.id} activeId={activeMapPlaceId} className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{(item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />}</MapSplitResultList><div className="airbnb-map-split__map"><DeferredDiscoveryMap focusKey={location} items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>{translate("לא נמצאו מקומות שמתאימים לכל הסינונים")}</strong><p>{translate("אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.")}</p><button type="button" className="button secondary" onClick={resetFilters}>{translate("הצגת כל המקומות")}</button></div>}
+    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><MapSplitResultList items={displayed} getId={(item) => item.id} activeId={activeMapPlaceId} className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{(item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />}</MapSplitResultList><div className="airbnb-map-split__map"><DeferredDiscoveryMap focusKey={location} items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults autoLoad className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>{translate("לא נמצאו מקומות שמתאימים לכל הסינונים")}</strong><p>{translate("אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.")}</p><button type="button" className="button secondary" onClick={resetFilters}>{translate("הצגת כל המקומות")}</button></div>}
   </div>;
 }

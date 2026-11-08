@@ -34,7 +34,7 @@ export function CardContactActions({ world, placeId, placeName, phone, whatsapp,
 
   return <div className="preview-card-contact-row">
     {callablePhone ? <DirectPhoneLink phone={publicPhone} placeName={placeName} className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" tracking={{ placeId, placeName, world, placement: world === "events" ? "event_card" : "discovery_card" }} /> : null}
-    {hasWhatsApp ? <WhatsAppLeadButton world={world} placeId={placeId} placeName={placeName} businessPhone={whatsappNumber!} serviceName={serviceName} initialDate={initialDate} initialGuests={initialGuests} buttonLabel={labels.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
+    {hasWhatsApp ? <WhatsAppLeadButton world={world} placeId={placeId} placeName={placeName} businessPhone={whatsappNumber!} serviceName={serviceName} includeServiceInMessage={false} initialDate={initialDate} initialGuests={initialGuests} buttonLabel={labels.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
   </div>;
 }
 

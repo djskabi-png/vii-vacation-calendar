@@ -128,6 +128,10 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
           submissionId: id,
           purpose: "booking",
           world: "events",
+          placeId: place.slug,
+          placeName: place.name,
+          requestedDate: String(values.get("date") || ""),
+          guests: String(values.get("guests") || ""),
           name: values.get("name"),
           phone: values.get("phone"),
           organization: place.name,
@@ -152,7 +156,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
       <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...localizedEventBreadcrumbs, { name: localizedPlaceName }]} />
-<section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><div className="property-title__trust-signals"><ListingAccessibility slug={place.slug} features={place.features} filterIds={place.searchFilterIds} featureGroups={featureGroups} compact /></div></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact">{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
+<section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><div className="property-title__trust-signals"><ListingAccessibility slug={place.slug} features={place.features} filterIds={place.searchFilterIds} featureGroups={featureGroups} compact /></div></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact">{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} includeServiceInMessage={false} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
         <div className="shell event-gallery-wrap"><FavoriteButton className="discovery-detail__favorite" id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /><PropertyGallery images={place.images} name={localizedPlaceName} onOpen={(index) => openGallery("all", index)} /></div>
         <DetailReviewSummary
           className="shell detail-mobile-review-summary"

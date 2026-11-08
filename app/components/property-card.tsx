@@ -419,7 +419,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref} target="_blank" rel="noopener noreferrer">{copy.quickBook}</Link> : null}
             {!quickBookingReady && !promotional && phone ? <DirectPhoneLink phone={property.contact?.phone} placeName={property.name} className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" tracking={{ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }} /> : null}
-            {!quickBookingReady && !promotional && whatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={whatsapp} serviceName={property.type} initialDate={selectedStay?.from} initialTill={selectedStay?.till} initialGuests={selectedStay?.guests} buttonLabel={copy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
+            {!quickBookingReady && !promotional && whatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={whatsapp} serviceName={property.type} includeServiceInMessage={false} initialDate={selectedStay?.from} initialTill={selectedStay?.till} initialGuests={selectedStay?.guests} buttonLabel={copy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
             {!quickBookingReady && !promotional && property.demoOperations?.fictional ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--card" /> : null}
           </div>
         </div>
