@@ -8,10 +8,14 @@ test('world source isolation preserves every byte of the frozen effective cascad
   const sources=worldStyleSources();
   const css=fs.readFileSync('app/globals.css','utf8');
   assert.ok(css.startsWith('@import "./public-fonts.css";'));
-  // The only deliberate global change is the audited, self-hosted equivalent font.
-  // Preserve byte-for-byte verification of every original world/cascade rule.
+  // Reverse only the two explicitly audited shared changes before comparing
+  // the original cascade. All unrelated world styles must remain byte exact.
   const originalFontImport='@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");';
-  const actual=composeWorldStyles(css.replace('@import "./public-fonts.css";',originalFontImport),sources).replace(/\r\n/g,'\n');
+  const mapFix='.listing-map-shell.single-map,\n.discovery-location .listing-map-shell.single-map { height: 300px; min-height: 300px; }\n.listing-map-shell.single-map .listing-map { height: 100%; min-height: 0; }';
+  const oldMap='.listing-map-shell.single-map { height: 300px; min-height: 300px; }\n.listing-map-shell.single-map .listing-map { height: 300px; min-height: 300px; }';
+  const normalized=css.replace(/\r\n/g,'\n');
+  assert.equal(normalized.split(mapFix).length,2,'the precise audited map repair is present once');
+  const actual=composeWorldStyles(normalized.replace(mapFix,oldMap).replace('@import "./public-fonts.css";',originalFontImport),sources).replace(/\r\n/g,'\n');
   const expected='26c269af41b60dde130dd053ac486e7896eaf34cf68b2035af1afb7bde56ef9f';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
