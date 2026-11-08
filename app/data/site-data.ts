@@ -124,6 +124,7 @@ export type ListingVideo = {
   note: string;
   /** Only real, customer-approved recordings may appear in public video rails. */
   verifiedRealVideo?: true;
+  embedUrl?: string;
 };
 
 export type ListingGuestPhoto = {

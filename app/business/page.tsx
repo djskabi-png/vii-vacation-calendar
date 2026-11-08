@@ -22,6 +22,7 @@ import { managedTrails, managedDiscoveryItems } from "../lib/managed-public-cont
 import { nearbyRecommendations } from "../lib/nearby-recommendations";
 import { serverPublicCopy } from "../i18n/server-public-copy";
 import { localizedPath } from "../i18n/locale-routing";
+import { attachVerifiedSupplierVideo } from "../lib/verified-supplier-videos";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; roomID?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -118,7 +119,8 @@ export default async function Page({ searchParams }: Props) {
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
   // The accepted detail already owns the full galleries, room data and features.
   // Avoid serializing the same large media arrays twice into the business-page RSC payload.
-  const initialProperty = supplierDetail ? { ...property, images: property.images.slice(0, 1), galleryGroups: undefined, roomOptions: undefined, featureGroups: undefined } : property;
+  const propertyWithVerifiedVideo = attachVerifiedSupplierVideo(property);
+  const initialProperty = supplierDetail ? { ...propertyWithVerifiedVideo, images: propertyWithVerifiedVideo.images.slice(0, 1), galleryGroups: undefined, roomOptions: undefined, featureGroups: undefined } : propertyWithVerifiedVideo;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   const selectedDatesHaveLivePrice = Boolean(params.from && params.till && Number(params.price) > 0);
   const resolvedPropertyFaq = propertyFaq.map((item, index) => index === 0 && selectedDatesHaveLivePrice

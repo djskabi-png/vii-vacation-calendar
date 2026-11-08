@@ -8,6 +8,7 @@ import { boundedSliderIndex } from "./slider-rail-controls";
 import { gallerySelectionScope, galleryTopicTabs, uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { signalExperienceStage } from '../lib/experience-signals';
+import { isSafeYoutubeEmbed } from '../lib/verified-supplier-videos';
 
 type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "galleryGroups" | "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
 
@@ -98,6 +99,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const [topic, setTopic] = useState<string | null>(() => resolvedInitialTopic(allItems, property, initialTopic) ?? (initialTab === "all" ? defaultTopic : null));
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
   const [mobileViewer, setMobileViewer] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  useEffect(() => { if (!open) setActiveVideo(null); }, [open]);
 
   const visibleItems = useMemo(() => {
     return visibleGalleryItems(allItems, tab, topic);
@@ -219,8 +222,12 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       {onAddGuestContent ? <button type="button" onClick={onAddGuestContent}>הוספת תמונות וחוות דעת</button> : null}
     </div> : tab === "videos" ? <div className="story-gallery__videos">
       {property.videos?.map((video) => <article key={video.src}>
-        <video controls playsInline preload="metadata" poster={video.poster} aria-label={video.title}><source src={video.src} type="video/mp4" /></video>
-        <div><h3>{video.title}</h3><p>{video.note}</p></div>
+        {video.embedUrl
+          ? isSafeYoutubeEmbed(video.embedUrl) ? activeVideo === video.embedUrl
+            ? <iframe style={{display:"block",width:"100%",height:"auto",aspectRatio:"16 / 9",border:0}} src={`${video.embedUrl}?autoplay=1`} title={video.title} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+            : <button type="button" style={{position:"relative",display:"block",width:"100%",padding:0,border:0,borderRadius:16,overflow:"hidden",cursor:"pointer"}} className="story-gallery__video-poster" onClick={() => setActiveVideo(video.embedUrl!)} aria-label={`הפעלת ${video.title} מיוטיוב`}><img style={{display:"block",width:"100%",aspectRatio:"16 / 9",objectFit:"cover"}} src={video.poster} alt="" /><span style={{position:"absolute",inset:0,display:"grid",placeItems:"center",fontSize:44,color:"white",background:"#0004"}} aria-hidden="true">▶</span></button> : null
+          : <video controls playsInline preload="metadata" poster={video.poster} aria-label={video.title}><source src={video.src} type="video/mp4" /></video>}
+        <div><h3>{video.title}</h3>{video.note ? <p>{video.note}</p> : null}</div>
       </article>)}
     </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
