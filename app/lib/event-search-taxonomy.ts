@@ -1,4 +1,6 @@
 import type { EventPlace } from "../data/site-data.ts";
+import { matchesSearchLocation } from "../data/search-taxonomy.ts";
+import { legacyEventVenueTypes, matchesLegacyEventArea } from "./legacy-event-type-memberships.ts";
 
 type EventSearchSource = Pick<EventPlace, "name" | "description" | "features" | "audiences" | "type" | "eventTypes">;
 type FacetDefinition = { label: string; pattern: RegExp };
@@ -11,9 +13,17 @@ export function normalizeEventVenueType(value: string | null) {
   return eventVenueTypeAliases.get(label) || label;
 }
 
-export function matchesEventVenueType(place: Pick<EventPlace, "type">, selection: string) {
+export function eventVenueTypes(place: Pick<EventPlace, "type"> & { slug?: string; supplierId?: unknown; types?: readonly string[] }) {
+  return [...new Set([place.type, ...(place.types || []), ...legacyEventVenueTypes(place)].map(normalizeEventVenueType))];
+}
+
+export function matchesEventVenueType(place: Pick<EventPlace, "type"> & { slug?: string; supplierId?: unknown; types?: readonly string[] }, selection: string) {
   const requested = normalizeEventVenueType(selection);
-  return requested === "הכל" || normalizeEventVenueType(place.type) === requested;
+  return requested === "הכל" || eventVenueTypes(place).includes(requested);
+}
+
+export function matchesEventSearchLocation(place: { slug?: string; supplierId?: unknown; area?: string; location?: string }, area: string) {
+  return matchesSearchLocation(place, area) || matchesLegacyEventArea(place, area);
 }
 
 const venueTypes: FacetDefinition[] = [

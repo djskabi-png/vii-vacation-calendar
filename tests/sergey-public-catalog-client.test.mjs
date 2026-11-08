@@ -24,7 +24,7 @@ function client(override = {}, extraPlace = false, listOverride = {}, typesOverr
     assert.equal(options.headers.Authorization, "Bearer test-key");
     const path = new URL(url).pathname.replace("/api/ai/vii", "");
     if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
-    if (path === "/vacations/types") return Response.json(typesOverride || {
+    if (path === "/vacations/types" || path === "/events/types") return Response.json(typesOverride || {
       roomTypes: [{ id: 2, title: "סוויטה" }],
       amenity_categories: [{ categoryID: 1, categoryName: "מתקנים" }],
       amenities: [
@@ -34,13 +34,23 @@ function client(override = {}, extraPlace = false, listOverride = {}, typesOverr
         { id: 104, parentID: 103, categoryID: 1, title: "בריכת אינפיניטי" },
       ],
     });
-    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true, ...listOverride }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
-    if (path === "/vacations/17") return Response.json(detail);
+    if (path === "/vacations" || path === "/events") return Response.json({ places: [{ siteID: 17, active: true, ...listOverride }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
+    if (path === "/vacations/17" || path === "/events/17") return Response.json(detail);
     if (path === "/vacations/18") return Response.json({ ...detail, id: 18, galleries: { main: { title: "סוויטה", pictures } } });
     return new Response("", { status: 404 });
   };
   return createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl });
 }
+
+test('event refresh preserves every explicit supplier room classification instead of only the first',async()=>{
+  const result=await client({rooms:[
+    {roomID:55,roomName:'Villa',roomType:4,roomCount:1,maxGuests:20},
+    {roomID:56,roomName:'Loft',roomType:5,roomCount:1,maxGuests:30},
+    {roomID:57,roomName:'Unknown',roomType:9999,roomCount:1,maxGuests:10},
+  ]},false,{}, {roomTypes:[{id:4,title:'וילה'},{id:5,title:'לופט'}],amenities:[],amenity_categories:[]}).fetchCandidate('events');
+  assert.equal(result.entries[0].summary.type,'וילה');
+  assert.deepEqual(result.entries[0].summary.types,['וילה','לופט']);
+});
 
 test("normalizes the full place gallery, rooms, reviews and explicit WhatsApp field", async () => {
   const result = await client().fetchCandidate("vacations");

@@ -45,6 +45,16 @@ test('critical styles also retain streamed loading surfaces before the complete 
   }
 });
 
+test('SPA and home rails keep their complete card geometry before deferred styles arrive', () => {
+  for (const world of ['all', 'spa']) {
+    assert.match(virtual.criticalStyles[world], /\.spa-package-deals \.event-rail\{[^}]*display:flex/);
+    assert.match(virtual.criticalStyles[world], /\.spa-deal-card\{[^}]*flex:0 0/);
+    assert.match(virtual.criticalStyles[world], /\.spa-deal-card__image\{[^}]*aspect-ratio:/);
+    assert.match(virtual.criticalStyles[world], /\.spa-deal-card__image img\{[^}]*object-fit:cover/);
+  }
+  assert.ok(!virtual.default.events.includes('spa-package-deals'));
+});
+
 test('real initial HTML orders critical before full resources and supplies a no-JavaScript fallback', () => {
   const markup = html('/vacations/kinneret', false);
   const document = new JSDOM(markup).window.document;

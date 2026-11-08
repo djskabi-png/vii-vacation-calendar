@@ -156,6 +156,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     sourceUrl: raw.page_url,
   };
   const vacationTypes = world === "vacations" ? accommodationTypes(name, rooms, highlights, searchableFeatures, amenityIndex) : [];
+  const eventTypes = world === "events" ? unique(rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex))) : [];
   const summary = {
     supplierId,
     world,
@@ -169,8 +170,8 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     area,
     type: world === "vacations"
       ? vacationTypes[0]
-      : rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean) || "מקום לאירועים",
-    ...(world === "vacations" ? { types: vacationTypes } : {}),
+      : eventTypes[0] || "מקום לאירועים",
+    types: world === "vacations" ? vacationTypes : eventTypes,
     units,
     ...(bedrooms ? { bedrooms } : {}),
     guests,

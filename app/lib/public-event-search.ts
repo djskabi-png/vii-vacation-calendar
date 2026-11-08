@@ -1,6 +1,6 @@
 import type { EventPlace } from "../data/site-data.ts";
 import { vacationSearchFilterIds } from "./vacation-search-filter-index.ts";
-import { eventSearchTaxonomy } from "./event-search-taxonomy.ts";
+import { eventSearchTaxonomy, eventVenueTypes } from "./event-search-taxonomy.ts";
 
 // Event discovery needs filter, contact, map and card data, not the complete
 // detail-page editorial model for every venue in the initial document.
@@ -13,6 +13,7 @@ export function publicEventSearchPlaces(places: readonly EventPlace[], imageLimi
     location: place.location,
     area: place.area,
     type: taxonomy.type,
+    types: eventVenueTypes(place),
     units: place.units,
     bedrooms: place.bedrooms,
     previewText: place.previewText,

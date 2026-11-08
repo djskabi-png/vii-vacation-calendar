@@ -5185,8 +5185,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .listing-map-shell .leaflet-tile { width: 256px !important; max-width: none !important; }
 .listing-map-shell .leaflet-tile-pane { filter: saturate(.76) contrast(.94) brightness(1.06); }
 .map-loading-preview { position: absolute; inset: 0; z-index: 10; min-height: 100%; border: 0; border-radius: 0; }
-.listing-map-shell.single-map { height: 300px; min-height: 300px; }
-.listing-map-shell.single-map .listing-map { height: 300px; min-height: 300px; }
+.listing-map-shell.single-map,
+.discovery-location .listing-map-shell.single-map { height: 300px; min-height: 300px; }
+.listing-map-shell.single-map .listing-map { height: 100%; min-height: 0; }
 .vii-map-marker-wrap { display: grid !important; place-items: center; background: transparent !important; border: 0 !important; }
 .listing-map-shell,.listing-map-shell button,.listing-map-shell .leaflet-container { font-family: Rubik, Heebo, Assistant, Arial, sans-serif; }
 .vii-map-marker { position: relative; min-width: 48px; width: max-content; height: 42px; display: grid; place-content: center; padding: 0 13px; border: 1px solid rgba(32,89,101,.16); border-radius: 999px; background: rgba(255,255,255,.97); color: #476f79; box-shadow: 0 5px 16px rgba(20,60,69,.18); font-family: Rubik, Heebo, Assistant, Arial, sans-serif; font-size: .82rem; font-weight: 800; line-height: 1; white-space: nowrap; transition: transform .2s ease, color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }

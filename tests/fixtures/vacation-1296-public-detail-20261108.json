@@ -1,0 +1,162 @@
+{
+  "sourceUrl": "https://vii.spaplus.co/api/catalog?world=vacations&id=1296",
+  "capturedDate": "2026-11-08",
+  "privacy": "Only public supplier identity, gallery and unit facts; no reviews, guest or contact data.",
+  "detail": {
+    "sourceUrl": "https://www.vii.co.il/Yvonne_Suite",
+    "images": [
+      "/api/vii/media/776ad9e54c229fc.jpg",
+      "/api/vii/media/56ad9e54c2c0b4.jpg",
+      "/api/vii/media/386ad9e54c19912.jpg",
+      "/api/vii/media/6969faf5a9c9387.jpeg",
+      "/api/vii/media/636ad9e54c1029d.jpg",
+      "/api/vii/media/456ad9e54c466e0.jpg",
+      "/api/vii/media/186ad9e54c01c0d.jpg",
+      "/api/vii/media/706ad9e54c15902.jpg",
+      "/api/vii/media/966ad9e54c418a3.jpg",
+      "/api/vii/media/896ad9e54c4a9a1.jpg",
+      "/api/vii/media/866ad9e54c1db18.jpg",
+      "/api/vii/media/6369faf5a9cea02.jpeg",
+      "/api/vii/media/446ad9e54c31af2.jpg",
+      "/api/vii/media/936ad9e54c36af5.jpg",
+      "/api/vii/media/946ad9e54c3c199.jpg",
+      "/api/vii/media/176ad9e54be49ac.jpg",
+      "/api/vii/media/46ad9e54c50c99.jpg",
+      "/api/vii/media/316ad9e54bf08fd.jpg",
+      "/api/vii/media/306ad9e54c273c6.jpg",
+      "/api/vii/media/5769faf5a9bd012.jpeg",
+      "/api/vii/media/696ad9e54c05f6e.jpg"
+    ],
+    "rooms": [
+      {
+        "id": 2409,
+        "quantity": 1,
+        "guests": 7,
+        "bedrooms": 1,
+        "features": [
+          "בריכת שחייה מחוממת ומקורה",
+          "ג'קוזי ספא",
+          "פינת מנגל",
+          "פינת ישיבה",
+          "פינות שיזוף",
+          "תמי 4",
+          "תנור אפייה",
+          "מקרר",
+          "מיקרוגל",
+          "מכונת אספרסו",
+          "משפחות",
+          "זוגות",
+          "ציבור דתי",
+          "מגבות רחצה",
+          "סבונים",
+          "תה",
+          "סוכר",
+          "קפה",
+          "מיטה זוגית",
+          "פינת אוכל",
+          "מסך טלויזיה LCD",
+          "חיבור לערוצי yes",
+          "אינטרנט אלחוטי (WI-FI)",
+          "מטבחון",
+          "חדר רחצה",
+          "סלון",
+          "עצי נוי",
+          "ספה",
+          "ספה נפתחת",
+          "מסך LCD",
+          "מזגן",
+          "ארונות לאחסון",
+          "חדר רחצה פרטי"
+        ],
+        "featureGroups": [
+          {
+            "title": "מתחם חיצוני",
+            "items": [
+              "בריכת שחייה מחוממת ומקורה",
+              "ג'קוזי ספא",
+              "פינות שיזוף",
+              "פינת ישיבה",
+              "פינת מנגל",
+              "עצי נוי"
+            ]
+          },
+          {
+            "title": "מפרט הצימר",
+            "items": [
+              "מיטה זוגית",
+              "פינת ישיבה",
+              "פינת אוכל",
+              "מסך טלויזיה LCD",
+              "חיבור לערוצי yes",
+              "אינטרנט אלחוטי (WI-FI)",
+              "מטבחון",
+              "חדר רחצה",
+              "סלון",
+              "ספה"
+            ]
+          },
+          {
+            "title": "קהל יעד",
+            "items": [
+              "משפחות",
+              "זוגות",
+              "ציבור דתי"
+            ]
+          },
+          {
+            "title": "מטבח מאובזר",
+            "items": [
+              "מיקרוגל",
+              "תמי 4",
+              "תנור אפייה",
+              "מקרר",
+              "מכונת אספרסו"
+            ]
+          },
+          {
+            "title": "חדרי הרחצה",
+            "items": [
+              "מגבות רחצה",
+              "סבונים"
+            ]
+          },
+          {
+            "title": "כלול באירוח",
+            "items": [
+              "תה",
+              "סוכר",
+              "קפה"
+            ]
+          },
+          {
+            "title": "הסוויטה",
+            "items": [
+              "מיטה זוגית",
+              "ספה נפתחת",
+              "פינת אוכל",
+              "סלון",
+              "מטבחון",
+              "מסך LCD",
+              "מזגן",
+              "פינת ישיבה",
+              "ארונות לאחסון",
+              "חדר רחצה פרטי"
+            ]
+          }
+        ],
+        "images": [
+          "/api/vii/media/716821d38106269.JPG",
+          "/api/vii/media/936ad9e54c36af5.jpg",
+          "/api/vii/media/446ad9e54c31af2.jpg",
+          "/api/vii/media/636ad9e54c1029d.jpg",
+          "/api/vii/media/456ad9e54c466e0.jpg",
+          "/api/vii/media/386ad9e54c19912.jpg",
+          "/api/vii/media/316ad9e54bf08fd.jpg",
+          "/api/vii/media/186ad9e54c01c0d.jpg",
+          "/api/vii/media/706ad9e54c15902.jpg",
+          "/api/vii/media/306ad9e54c273c6.jpg"
+        ]
+      }
+    ]
+  }
+}

@@ -9,7 +9,10 @@ test('full public bundle preserves byte order of every original stylesheet', () 
   const bundles = publicStyleBundleSources();
   const fonts = fs.readFileSync('app/public-fonts.css', 'utf8');
   const original = [composeWorldStyles(fs.readFileSync('app/globals.css', 'utf8')).replace('@import "./public-fonts.css";', fonts), ...publicStyleFiles.slice(1).map(f => fs.readFileSync('app/' + f, 'utf8'))].join('\n');
-  assert.equal(bundles.all, original);
+  const spaCards = fs.readFileSync('app/components/spa-package-deals.css', 'utf8');
+  assert.equal(bundles.all, `${original}\n${spaCards}`);
+  assert.ok(bundles.spa.endsWith(spaCards));
+  for (const world of ['vacations', 'events', 'hourly']) assert.ok(!bundles[world].endsWith(spaCards), world);
 });
 
 test('world bundles remove only nonselected slots, retain shared pickers and cascade order', () => {

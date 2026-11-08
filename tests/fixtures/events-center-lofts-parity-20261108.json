@@ -1,0 +1,975 @@
+{
+  "source": "https://www.vii.co.il/events/s/?marea=2&roomTypes=5",
+  "observedDate": "2026-11-08",
+  "expectedIds": [
+    2242,
+    711,
+    1261,
+    921,
+    2148,
+    1590,
+    1167,
+    1932,
+    2725,
+    981,
+    922,
+    909,
+    1162,
+    2346,
+    453,
+    1574,
+    1070,
+    1000,
+    1057,
+    289,
+    1937,
+    1085,
+    2284,
+    2656,
+    1153,
+    1965,
+    2684,
+    914,
+    1331,
+    599,
+    1161,
+    1629,
+    2487,
+    2078,
+    741,
+    695,
+    976,
+    1284,
+    373,
+    1464,
+    2371,
+    2525,
+    742,
+    346,
+    1911,
+    1138,
+    2326,
+    2051,
+    512,
+    464,
+    70,
+    1860,
+    260,
+    951,
+    867,
+    1548,
+    1619,
+    1949,
+    797,
+    2402,
+    930,
+    1978,
+    1698,
+    397,
+    2360,
+    1701,
+    2259,
+    1700,
+    744,
+    925,
+    2375,
+    2544,
+    2320,
+    1171,
+    1467,
+    2555
+  ],
+  "runtimeSource": "https://vii.spaplus.co/api/catalog?world=events",
+  "runtimeFetchedAt": "2026-11-08T15:33:40.763Z",
+  "entries": [
+    {
+      "supplierId": 2,
+      "slug": "event-2",
+      "type": "לופט",
+      "area": "חיפה וחוף הכרמל",
+      "location": "נשר"
+    },
+    {
+      "supplierId": 65,
+      "slug": "event-65",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "פתחיה"
+    },
+    {
+      "supplierId": 70,
+      "slug": "event-70",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "כפר סבא"
+    },
+    {
+      "supplierId": 124,
+      "slug": "event-124",
+      "type": "לופט",
+      "area": "נגב",
+      "location": "באר שבע"
+    },
+    {
+      "supplierId": 129,
+      "slug": "event-129",
+      "type": "לופט",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 184,
+      "slug": "event-184",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "חדרה"
+    },
+    {
+      "supplierId": 226,
+      "slug": "event-226",
+      "type": "צימר",
+      "area": "גליל מערבי",
+      "location": "ירכא"
+    },
+    {
+      "supplierId": 260,
+      "slug": "event-260",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 287,
+      "slug": "event-287",
+      "type": "לופט",
+      "area": "חיפה וחוף הכרמל",
+      "location": "נשר"
+    },
+    {
+      "supplierId": 289,
+      "slug": "event-289",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 329,
+      "slug": "event-329",
+      "type": "וילה",
+      "area": "מישור החוף הצפוני",
+      "location": "עמק חפר"
+    },
+    {
+      "supplierId": 346,
+      "slug": "event-346",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 373,
+      "slug": "event-373",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 397,
+      "slug": "event-397",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "עזריקם"
+    },
+    {
+      "supplierId": 414,
+      "slug": "event-414",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "עבדון"
+    },
+    {
+      "supplierId": 436,
+      "slug": "event-436",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "עבדון"
+    },
+    {
+      "supplierId": 453,
+      "slug": "event-453",
+      "type": "לופט",
+      "area": "מישור החוף הצפוני",
+      "location": "בנימינה"
+    },
+    {
+      "supplierId": 461,
+      "slug": "event-461",
+      "type": "מתחם אירוח",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 464,
+      "slug": "event-464",
+      "type": "סוויטה",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 472,
+      "slug": "event-472",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "הוד השרון"
+    },
+    {
+      "supplierId": 486,
+      "slug": "event-486",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "נווה זיו"
+    },
+    {
+      "supplierId": 512,
+      "slug": "event-512",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 599,
+      "slug": "event-599",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 642,
+      "slug": "event-642",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "ירכא"
+    },
+    {
+      "supplierId": 680,
+      "slug": "event-680",
+      "type": "סוויטה",
+      "area": "גליל מערבי",
+      "location": "בוסתן הגליל"
+    },
+    {
+      "supplierId": 695,
+      "slug": "event-695",
+      "type": "לופט",
+      "area": "ירושלים והרי יהודה",
+      "location": "מבשרת ציון"
+    },
+    {
+      "supplierId": 711,
+      "slug": "event-711",
+      "type": "מתחם אירועים",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 741,
+      "slug": "event-741",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 742,
+      "slug": "event-742",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 743,
+      "slug": "event-743",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 744,
+      "slug": "event-744",
+      "type": "וילה",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 776,
+      "slug": "event-776",
+      "type": "לופט",
+      "area": "נגב",
+      "location": "באר שבע"
+    },
+    {
+      "supplierId": 779,
+      "slug": "event-779",
+      "type": "לופט",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 797,
+      "slug": "event-797",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 812,
+      "slug": "event-812",
+      "type": "וילה",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 815,
+      "slug": "event-815",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "אשקלון"
+    },
+    {
+      "supplierId": 867,
+      "slug": "event-867",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 871,
+      "slug": "event-871",
+      "type": "סוויטה",
+      "area": "ים המלח והסביבה",
+      "location": "גלגל"
+    },
+    {
+      "supplierId": 886,
+      "slug": "event-886",
+      "type": "לופט",
+      "area": "נגב",
+      "location": "באר שבע"
+    },
+    {
+      "supplierId": 909,
+      "slug": "event-909",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "רחובות"
+    },
+    {
+      "supplierId": 914,
+      "slug": "event-914",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 921,
+      "slug": "event-921",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 922,
+      "slug": "event-922",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 925,
+      "slug": "event-925",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 930,
+      "slug": "event-930",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "נווה מבטח"
+    },
+    {
+      "supplierId": 951,
+      "slug": "event-951",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 976,
+      "slug": "event-976",
+      "type": "לופט",
+      "area": "ירושלים והרי יהודה",
+      "location": "ירושלים"
+    },
+    {
+      "supplierId": 981,
+      "slug": "event-981",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 1000,
+      "slug": "event-1000",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1057,
+      "slug": "event-1057",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 1070,
+      "slug": "event-1070",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1085,
+      "slug": "event-1085",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1138,
+      "slug": "event-1138",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 1153,
+      "slug": "event-1153",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "גבעתיים"
+    },
+    {
+      "supplierId": 1161,
+      "slug": "event-1161",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1162,
+      "slug": "event-1162",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "חדרה"
+    },
+    {
+      "supplierId": 1167,
+      "slug": "event-1167",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 1171,
+      "slug": "event-1171",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1178,
+      "slug": "event-1178",
+      "type": "לופט",
+      "area": "נגב",
+      "location": "באר שבע"
+    },
+    {
+      "supplierId": 1236,
+      "slug": "event-1236",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "ירכא"
+    },
+    {
+      "supplierId": 1261,
+      "slug": "event-1261",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "אור עקיבא"
+    },
+    {
+      "supplierId": 1284,
+      "slug": "event-1284",
+      "type": "לופט",
+      "area": "ירושלים והרי יהודה",
+      "location": "ירושלים"
+    },
+    {
+      "supplierId": 1330,
+      "slug": "event-1330",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "שדה צבי"
+    },
+    {
+      "supplierId": 1331,
+      "slug": "event-1331",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1400,
+      "slug": "event-1400",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "שדה צבי"
+    },
+    {
+      "supplierId": 1406,
+      "slug": "event-1406",
+      "type": "וילה",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 1464,
+      "slug": "event-1464",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "הרצליה"
+    },
+    {
+      "supplierId": 1467,
+      "slug": "event-1467",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "חדרה"
+    },
+    {
+      "supplierId": 1503,
+      "slug": "event-1503",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "ירכא"
+    },
+    {
+      "supplierId": 1548,
+      "slug": "event-1548",
+      "type": "וילה",
+      "area": "ירושלים והרי יהודה",
+      "location": "בית שמש"
+    },
+    {
+      "supplierId": 1568,
+      "slug": "event-1568",
+      "type": "וילה",
+      "area": "ים המלח והסביבה",
+      "location": "גלגל"
+    },
+    {
+      "supplierId": 1574,
+      "slug": "event-1574",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1590,
+      "slug": "event-1590",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 1619,
+      "slug": "event-1619",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1629,
+      "slug": "event-1629",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1698,
+      "slug": "event-1698",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1700,
+      "slug": "event-1700",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1701,
+      "slug": "event-1701",
+      "type": "סוויטה",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 1746,
+      "slug": "event-1746",
+      "type": "וילה",
+      "area": "מישור החוף הדרומי",
+      "location": "הודיה"
+    },
+    {
+      "supplierId": 1758,
+      "slug": "event-1758",
+      "type": "וילה",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 1857,
+      "slug": "event-1857",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "אשקלון"
+    },
+    {
+      "supplierId": 1860,
+      "slug": "event-1860",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 1886,
+      "slug": "event-1886",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 1911,
+      "slug": "event-1911",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 1932,
+      "slug": "event-1932",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 1937,
+      "slug": "event-1937",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1949,
+      "slug": "event-1949",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 1965,
+      "slug": "event-1965",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1971,
+      "slug": "event-1971",
+      "type": "וילה",
+      "area": "ים המלח והסביבה",
+      "location": "ים המלח"
+    },
+    {
+      "supplierId": 1978,
+      "slug": "event-1978",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 1982,
+      "slug": "event-1982",
+      "type": "וילה",
+      "area": "כנרת",
+      "location": "טבריה"
+    },
+    {
+      "supplierId": 2037,
+      "slug": "event-2037",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 2051,
+      "slug": "event-2051",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 2069,
+      "slug": "event-2069",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "צפריה"
+    },
+    {
+      "supplierId": 2078,
+      "slug": "event-2078",
+      "type": "סוויטה",
+      "area": "מישור החוף הצפוני",
+      "location": "בנימינה"
+    },
+    {
+      "supplierId": 2102,
+      "slug": "event-2102",
+      "type": "לופט",
+      "area": "קריות",
+      "location": "קרית אתא"
+    },
+    {
+      "supplierId": 2112,
+      "slug": "event-2112",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "עבדון"
+    },
+    {
+      "supplierId": 2148,
+      "slug": "event-2148",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 2230,
+      "slug": "event-2230",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "עוצם"
+    },
+    {
+      "supplierId": 2239,
+      "slug": "event-2239",
+      "type": "לופט",
+      "area": "מישור החוף הדרומי",
+      "location": "אשקלון"
+    },
+    {
+      "supplierId": 2242,
+      "slug": "event-2242",
+      "type": "לופט",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 2259,
+      "slug": "event-2259",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2284,
+      "slug": "event-2284",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2320,
+      "slug": "event-2320",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2326,
+      "slug": "event-2326",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "הוד השרון"
+    },
+    {
+      "supplierId": 2346,
+      "slug": "event-2346",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2360,
+      "slug": "event-2360",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2371,
+      "slug": "event-2371",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 2375,
+      "slug": "event-2375",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "תל אביב"
+    },
+    {
+      "supplierId": 2384,
+      "slug": "event-2384",
+      "type": "לופט",
+      "area": "גליל מערבי",
+      "location": "נטועה"
+    },
+    {
+      "supplierId": 2402,
+      "slug": "event-2402",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "אור עקיבא"
+    },
+    {
+      "supplierId": 2424,
+      "slug": "event-2424",
+      "type": "מתחם אירועים",
+      "area": "כנרת",
+      "location": "שער העמקים"
+    },
+    {
+      "supplierId": 2487,
+      "slug": "event-2487",
+      "type": "מתחם קיץ",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2524,
+      "slug": "event-2524",
+      "type": "מתחם אירועים",
+      "area": "גליל מערבי",
+      "location": "ירכא"
+    },
+    {
+      "supplierId": 2525,
+      "slug": "event-2525",
+      "type": "מתחם אירועים",
+      "area": "שרון",
+      "location": "נתניה"
+    },
+    {
+      "supplierId": 2536,
+      "slug": "event-2536",
+      "type": "וילה",
+      "area": "מישור החוף והשפלה",
+      "location": "פתח תקווה"
+    },
+    {
+      "supplierId": 2544,
+      "slug": "event-2544",
+      "type": "לופט",
+      "area": "ירושלים והרי יהודה",
+      "location": "לוזית"
+    },
+    {
+      "supplierId": 2553,
+      "slug": "event-2553",
+      "type": "מתחם אירועים",
+      "area": "נגב",
+      "location": "עומר"
+    },
+    {
+      "supplierId": 2555,
+      "slug": "event-2555",
+      "type": "מתחם קיץ",
+      "area": "ירושלים והרי יהודה",
+      "location": "נווה מיכאל"
+    },
+    {
+      "supplierId": 2575,
+      "slug": "event-2575",
+      "type": "מתחם אירועים",
+      "area": "מישור החוף והשפלה",
+      "location": "גן יבנה"
+    },
+    {
+      "supplierId": 2577,
+      "slug": "event-2577",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "עבדון"
+    },
+    {
+      "supplierId": 2582,
+      "slug": "event-2582",
+      "type": "מתחם אירועים",
+      "area": "קריות",
+      "location": "קרית חיים"
+    },
+    {
+      "supplierId": 2656,
+      "slug": "event-2656",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "רמת השרון"
+    },
+    {
+      "supplierId": 2684,
+      "slug": "event-2684",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "ראשון לציון"
+    },
+    {
+      "supplierId": 2706,
+      "slug": "event-2706",
+      "type": "וילה",
+      "area": "גליל מערבי",
+      "location": "לימן"
+    },
+    {
+      "supplierId": 2725,
+      "slug": "event-2725",
+      "type": "לופט",
+      "area": "מישור החוף והשפלה",
+      "location": "בת ים"
+    },
+    {
+      "supplierId": 2738,
+      "slug": "event-2738",
+      "type": "לופט",
+      "area": "קריות",
+      "location": "קרית ביאליק"
+    }
+  ]
+}

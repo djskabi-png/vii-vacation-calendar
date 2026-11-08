@@ -35,3 +35,25 @@ test('a media-only refresh preserves exact current galleries without claiming fu
  assert.equal(result._viiCatalog.checkedAt,undefined);
  const empty=mergeBundledDetail({...accepted,rooms:[]},old);assert.deepEqual(empty.rooms,[]);
 });
+
+test('actual vacation 1296 DTO retains current room gallery and repairs a missing single-unit projection without bundle borrowing', async()=>{
+ const captured=JSON.parse(await (await import('node:fs/promises')).readFile(new URL('./fixtures/vacation-1296-public-detail-20261108.json',import.meta.url),'utf8'));
+ const current=captured.detail;
+ assert.equal(current.rooms[0].id,2409);
+ assert.ok(current.rooms[0].images.length>0);
+ assert.ok(current.rooms[0].features.includes('מיטה זוגית'));
+ assert.ok(current.rooms[0].features.includes('ספה נפתחת'));
+ const accepted={...current,_viiCatalog:{mediaCheckedAt:stamp.checkedAt,attemptedAt:stamp.attemptedAt},rooms:current.rooms.map(room=>({...room,images:[]}))};
+ const bundled={images:['/api/vii/media/bundled-not-current.jpg'],rooms:[{id:2409,quantity:1,images:['/api/vii/media/bundled-unit.jpg'],features:['old']} ]};
+ const result=mergeBundledDetail(accepted,bundled);
+ assert.deepEqual(result.rooms[0].images,accepted.images);
+ assert.deepEqual(result.rooms[0].features,current.rooms[0].features);
+ assert.deepEqual(mergeBundledDetail(current,bundled).rooms[0].images,current.rooms[0].images);
+ const cleared=mergeBundledDetail({...accepted,images:[]},bundled);
+ assert.deepEqual(cleared.rooms[0].images,[]);
+});
+
+test('single-unit projection does not borrow place media for multi-unit quantity three',()=>{
+ const result=mergeBundledDetail({images:['/api/vii/media/place.jpg'],units:3,rooms:[{id:2409,quantity:3,images:[]}]},{images:['/api/vii/media/old.jpg'],rooms:[{id:2409,quantity:3,images:[]}]});
+ assert.deepEqual(result.rooms[0].images,[]);
+});

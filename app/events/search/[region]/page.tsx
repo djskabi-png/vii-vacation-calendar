@@ -3,14 +3,13 @@ import { notFound, redirect } from "next/navigation";
 import EventSearchPage from "../page";
 import type { EventPlace } from "../../../data/site-data";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
-import { matchesSearchLocation } from "../../../data/search-taxonomy";
 import { eventSearchHref } from "../../../data/world-search-landings";
 import { approvedWorldLocation } from "../../../lib/world-location-pages.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
 import { publishedSearchPage } from "../../../lib/search-page-content.ts";
 import { completePlaceSearchResults, nearbySearchRecommendations } from "../../../lib/nearby-recommendations.ts";
-import { normalizeEventVenueType } from "../../../lib/event-search-taxonomy.ts";
+import { normalizeEventVenueType, matchesEventSearchLocation } from "../../../lib/event-search-taxonomy.ts";
 import { eventCombinationHref, eventTypeSlugs } from "../../../data/world-search-landings.ts";
 import { canonicalLegacyEventSearchPath } from '../../../lib/legacy-event-intent-index.ts';
 import { headers } from 'next/headers';
@@ -60,7 +59,7 @@ export default async function EventRegionPage({ params, searchParams }: PageProp
     redirect(localizedPath(suffix ? `${target}?${suffix}` : target, ['he', 'en', 'ru', 'fr'].includes(locale) ? locale as 'he' | 'en' | 'ru' | 'fr' : 'he'));
   }
   const places = await publicCatalogSummaries<EventPlace>("events");
-  const matching = places.filter((place) => matchesSearchLocation(place, location));
+  const matching = places.filter((place) => matchesEventSearchLocation(place, location));
   const represented = completePlaceSearchResults(matching, nearbySearchRecommendations(places, location, [], {
     key: (place) => place.slug,
     origin: { location, area: location },

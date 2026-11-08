@@ -9,8 +9,7 @@ import { PublishedCatalogSeed } from '../../../../lib/published-catalog-seed';
 import type { EventPlace } from '../../../../data/site-data';
 import { publishedSearchPage } from '../../../../lib/search-page-content.ts';
 import { canonicalLegacyEventSearchPath } from '../../../../lib/legacy-event-intent-index.ts';
-import { matchesSearchLocation } from '../../../../data/search-taxonomy.ts';
-import { matchesEventVenueType } from '../../../../lib/event-search-taxonomy.ts';
+import { matchesEventVenueType, matchesEventSearchLocation } from '../../../../lib/event-search-taxonomy.ts';
 import { headers } from 'next/headers';
 import { localizedPath } from '../../../../i18n/locale-routing.ts';
 
@@ -19,7 +18,7 @@ const slugs: Record<string, string> = { lofts: "לופטים", villas: "וילו
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { region, type } = await params; const location = region === 'israel' ? 'כל הארץ' : (await approvedWorldLocation("events", region))?.label; const venue = slugs[type];
   if (!location || !venue || !eventVenueTypeOrder.includes(venue as never)) return { robots: { index: false, follow: false } };
-  const hasInventory = (await publicCatalogSummaries<EventPlace>('events')).some(place => (location === 'כל הארץ' || matchesSearchLocation(place, location)) && matchesEventVenueType(place, venue));
+  const hasInventory = (await publicCatalogSummaries<EventPlace>('events')).some(place => matchesEventSearchLocation(place, location) && matchesEventVenueType(place, venue));
   const canonical = canonicalLegacyEventSearchPath({ location, type: venue }) || eventCombinationHref(location, venue); const title = `${venue} לאירועים ב${location}`; return { title, description: `${title}, עם תמונות, מתקנים ופנייה ישירה למקום.`, ...(!hasInventory ? { robots: { index: false, follow: true } } : {}), alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description: `${title}, עם תמונות, מתקנים ופנייה ישירה למקום.` } };
 }
 export default async function EventCombinationPage({ params, searchParams }: Props) {

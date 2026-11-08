@@ -19,6 +19,7 @@ export function publicStyleBundleSources(root = process.cwd()) {
   composeWorldStyles(global, sources); // Fail closed on a lost/duplicate slot.
   const fonts = fs.readFileSync(path.join(root, 'app/public-fonts.css'), 'utf8');
   const tail = publicStyleFiles.slice(1).map(file => fs.readFileSync(path.join(root, 'app', file), 'utf8')).join('\n');
+  const spaDiscoveryCards = fs.readFileSync(path.join(root, 'app/components/spa-package-deals.css'), 'utf8');
   const result = {};
   for (const world of ['all', ...worlds]) {
     const selected = { ...sources, slots: new Map(sources.slots) };
@@ -28,7 +29,7 @@ export function publicStyleBundleSources(root = process.cwd()) {
       const sharedPicker = /\.(?:event-date|event-calendar|event-period|vacation-party|spa-date|spa-calendar|spa-audience|spa-no-date|spa-count|spa-time|spa-no-preference)/.test(css);
       if (world !== 'all' && slot.world !== world && !sharedPicker) selected.slots.set(slot.marker, '');
     }
-    result[world] = `${composeWorldStyles(global, selected).replace('@import "./public-fonts.css";', fonts)}\n${tail}`;
+    result[world] = `${composeWorldStyles(global, selected).replace('@import "./public-fonts.css";', fonts)}\n${tail}${world === 'all' || world === 'spa' ? `\n${spaDiscoveryCards}` : ''}`;
   }
   return result;
 }

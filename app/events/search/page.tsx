@@ -41,7 +41,7 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
-import { matchesEventVenueType, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
+import { matchesEventVenueType, matchesEventSearchLocation, eventVenueTypes, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import {usePublicPromotionWeights} from "../../components/use-public-promotion-weights";
 import { RecommendedPlacesBanner } from "../../components/recommended-place-banner";
@@ -215,7 +215,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       ? eventOfferHref(place, new URLSearchParams({ from: offer?.from || eventFrom, guests: String(guests), ...(offer?.slot || slot ? { slot: offer?.slot || slot! } : {}) }))
       : eventPlaceHref(place);
   };
-  const types = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.map((place) => normalizeEventVenueType(place.type)), eventVenueTypeOrder)], [eventPlaces]);
+  const types = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap(eventVenueTypes), eventVenueTypeOrder)], [eventPlaces]);
   const eventTypes = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.eventTypes), eventOccasionOrder)], [eventPlaces]);
   const facilities = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.features), eventFacilityOrder)], [eventPlaces]);
   const matchesHardFilters = (place: EventPlace) => matchesEventVenueType(place, type)
@@ -225,7 +225,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
     && (!accessibleOnly || matchesVacationSearchFilter(place, "accessible"));
   const filtered = useMemo(() => {
-    return eventPlaces.filter((place) => matchesSearchLocation(place, area) && matchesHardFilters(place) && confirmedEventPlace(place));
+    return eventPlaces.filter((place) => matchesEventSearchLocation(place, area) && matchesHardFilters(place) && confirmedEventPlace(place));
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, guests, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
 
   const nearbyRecovery = useMemo(() => {

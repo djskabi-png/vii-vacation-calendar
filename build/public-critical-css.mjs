@@ -19,7 +19,7 @@ export function criticalCssProjection(source) {
       if (parent.type === 'atrule' && /keyframes$/i.test(parent.name)) return;
       parent = parent.parent;
     }
-    const sharedInteraction = /\.(?:site-header|mobile-menu|search-|modern-select|sr-only|cookie-|locale-|language-|world-dock|world-mark|header-|icon-button|menu-button|brand|saved-viewed|accessibility-|calendar-|demo-month|compact-|flexible-|guest-|party-|counter-|dialog-backdrop|event-calendar|vacation-party|spa-calendar|vacation-route-loading|global-route-loading)/.test(rule.selector);
+    const sharedInteraction = /\.(?:site-header|mobile-menu|search-|modern-select|sr-only|cookie-|locale-|language-|world-dock|world-mark|header-|icon-button|menu-button|brand|saved-viewed|accessibility-|calendar-|demo-month|compact-|flexible-|guest-|party-|counter-|dialog-backdrop|event-calendar|vacation-party|spa-calendar|spa-package-deals|spa-deal-card|vacation-route-loading|global-route-loading)/.test(rule.selector);
     // A hidden element cannot be selected by a visible-viewport capture. Its
     // hiding rule is nevertheless critical: omitting it reveals closed drawers
     // and shifts every following section before the complete stylesheet loads.

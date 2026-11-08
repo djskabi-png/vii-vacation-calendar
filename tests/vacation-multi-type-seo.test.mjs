@@ -9,8 +9,8 @@ import { vacationAccommodationTypes } from "../app/lib/vacation-accommodation-ty
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("the accepted legacy taxonomy snapshot preserves the complete current zimmer membership", () => {
-  assert.equal(legacyTypes.counts["צימרים"], 166);
-  assert.equal(Object.values(legacyTypes.memberships).filter((types) => types.includes("צימרים")).length, 166);
+  assert.equal(legacyTypes.counts["צימרים"], 159);
+  assert.equal(Object.values(legacyTypes.memberships).filter((types) => types.includes("צימרים")).length, 159);
 });
 
 test("public projection restores secondary legacy memberships on already accepted summaries", () => {
@@ -22,6 +22,12 @@ test("public projection restores secondary legacy memberships on already accepte
 test("API room types take part alongside primary and compatibility types", () => {
   const types = vacationAccommodationTypes({ supplierId: 233, slug: "vacation-233", type: "סוויטה", types: ["מערה"] }, ["צימר"]);
   assert.deepEqual(types, ["מערה", "צימר", ...legacyTypes.memberships["233"], "סוויטה"].filter((value, index, values) => values.indexOf(value) === index));
+});
+
+test("refreshed legacy villa memberships retain every recovered North identity", async () => {
+  const fixture = JSON.parse(readFileSync(new URL("./fixtures/legacy-north-villas-20261108.json", import.meta.url), "utf8"));
+  const missing = fixture.ids.filter((id) => !vacationAccommodationTypes({ supplierId: id }).includes("וילות"));
+  assert.deepEqual(missing, []);
 });
 
 test("accommodation landings match a secondary type instead of only the primary type", () => {

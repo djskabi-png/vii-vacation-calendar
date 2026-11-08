@@ -2,7 +2,9 @@ import { writeFile } from "node:fs/promises";
 import {legacyAccommodationTypeOptions} from '../app/lib/legacy-accommodation-type-options.ts';
 
 const sourceUrl = "https://www.vii.co.il/s/israel/16096";
-const output = new URL("../app/data/legacy-vacation-accommodation-types.json", import.meta.url);
+const output = process.argv[2]
+  ? new URL(process.argv[2], import.meta.url)
+  : new URL("../app/data/legacy-vacation-accommodation-types.json", import.meta.url);
 const typeOptions = legacyAccommodationTypeOptions;
 
 function cookieHeader(response) {
