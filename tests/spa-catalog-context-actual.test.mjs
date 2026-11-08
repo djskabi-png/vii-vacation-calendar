@@ -8,7 +8,7 @@ const compile=path=>ts.transpileModule(readFileSync(new URL(path,import.meta.url
 test('one accepted catalog refresh updates both SPA count and result items while the initial snapshot stays visible',async()=>{
   const initial=[{id:'spa-1',name:'old'},{id:'spa-2',name:'retired'}],cells=[],effects=[],idle=[],requests=[];
   let cursor=0,first=true,resolveRequest;
-  const react={startTransition:fn=>fn(),createContext:initial=>{const ctx={current:initial};ctx.Provider={ctx};return ctx;},useContext:ctx=>ctx.current,
+  const react={useSyncExternalStore:(_subscribe,getSnapshot)=>getSnapshot(),startTransition:fn=>fn(),createContext:initial=>{const ctx={current:initial};ctx.Provider={ctx};return ctx;},useContext:ctx=>ctx.current,
     useState:initial=>{const index=cursor++;if(!(index in cells))cells[index]=typeof initial==='function'?initial():initial;return[cells[index],value=>cells[index]=typeof value==='function'?value(cells[index]):value];},
     useRef:initial=>{const index=cursor++;return cells[index]??(cells[index]={current:initial});},useEffect:fn=>{if(first)effects.push(fn);}};
   const jsx={jsx(type,props){if(type?.ctx)type.ctx.current=props.value;return{type,props};},Fragment:'fragment'};
