@@ -105,7 +105,8 @@
     "search": {
       "dependsOn": [
         "catalog-source",
-        "global-shell"
+        "global-shell",
+        "search-analytics"
       ],
       "requiredChecks": [
         "search.location.semantic"
@@ -325,7 +326,8 @@
     "admin": {
       "dependsOn": [
         "catalog-source",
-        "quality-control"
+        "quality-control",
+        "search-analytics"
       ],
       "requiredChecks": [],
       "buildUnits": [
@@ -657,6 +659,19 @@
       "requiredLocalTests": [
         "tests/server-request-reads.test.mjs",
         "tests/home-request-catalog-dedup.test.mjs"
+      ]
+    },
+    "search-analytics": {
+      "dependsOn": [],
+      "requiredChecks": [
+        "search.location.semantic"
+      ],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/search-analytics.test.mjs",
+        "tests/admin-server-gate.test.mjs"
       ]
     }
   },
@@ -1105,6 +1120,15 @@
         "public/assets/vii-thumbnail-b72a65c1afd4f425c42f.webp",
         "public/assets/vii-thumbnail-8b82698e852bc41e50c2.webp",
         "public/assets/vii-thumbnail-c16802e63f3b46e25cc4.webp"
+      ]
+    },
+    {
+      "id": "search-analytics",
+      "ownerBox": "search-analytics",
+      "match": [
+        "app/api/analytics/search/",
+        "app/lib/search-analytics.ts",
+        "app/lib/analytics.ts"
       ]
     }
   ]
