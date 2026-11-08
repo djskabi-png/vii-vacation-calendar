@@ -124,7 +124,7 @@ test('actual private-cookie request bypasses all public cache lookup before rend
   assert.equal(reads,0);assert.equal(imports,1);
   assert.equal(response.headers.get('Cache-Control'),'private, no-store');
 });
-test('public media streams exact allowlisted R2 bytes without application startup and preserves HEAD and failures',async()=>{
+test('public media streams safe public R2 identities without application startup and preserves HEAD and failures',async()=>{
   const filename=galleryManifest.files[0],requested=[];
   const worker=instance({loadApp:()=>assert.fail('photo initialized whole app')});
   const uploads={get:async key=>{requested.push(key);return {body:new Blob(['same-image-bytes']).stream(),httpMetadata:{contentType:'image/jpeg'},httpEtag:'"same-etag"'};}};
@@ -134,10 +134,10 @@ test('public media streams exact allowlisted R2 bytes without application startu
   assert.deepEqual(requested,[galleryManifest.objectPrefix+filename]);
   const head=await worker.fetch(new Request(url,{method:'HEAD'}),{UPLOADS:uploads},ctx);
   assert.equal(head.status,200);assert.equal((await head.arrayBuffer()).byteLength,0);
-  const absent=await worker.fetch(new Request('https://vii.spaplus.co/api/vii/media/not-in-public-manifest.jpg'),{UPLOADS:uploads},ctx);
-  assert.equal(absent.status,404);assert.equal(requested.length,2);
+  const accepted=await worker.fetch(new Request('https://vii.spaplus.co/api/vii/media/not-in-public-manifest.jpg'),{UPLOADS:uploads},ctx);
+  assert.equal(accepted.status,200);assert.equal(await accepted.text(),'same-image-bytes');assert.equal(requested.length,3);
   const apex=await worker.fetch(new Request(url.replace('vii.spaplus.co','vii.co.il')),{UPLOADS:uploads},ctx);
-  assert.equal(apex.status,301);assert.ok(apex.headers.get('Location').startsWith('https://www.vii.co.il/api/vii/media/'));assert.equal(requested.length,2);
+  assert.equal(apex.status,301);assert.ok(apex.headers.get('Location').startsWith('https://www.vii.co.il/api/vii/media/'));assert.equal(requested.length,3);
   assert.equal((await worker.fetch(new Request(url),{UPLOADS:{get:async()=>null}},ctx)).status,404);
   assert.equal((await worker.fetch(new Request(url),{UPLOADS:{get:async()=>{throw Error('storage');}}},ctx)).status,503);
 });

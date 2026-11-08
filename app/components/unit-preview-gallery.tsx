@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { usePreviewGallery } from "./use-preview-gallery";
-import { ResponsiveCardImage } from "./responsive-card-image";
+import { ViewportResilientImage } from "./viewport-resilient-image";
+import { defaultCardImageSizes, isOptimizableCardMedia, responsiveCardMedia } from "../lib/responsive-media";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
 export function unitPreviewSources(images: string[]) {
@@ -36,12 +37,15 @@ export function UnitPreviewGallery({ images, roomName, propertyName, onOpen }: {
   const { imageIndex, navigationIndex, setImageIndex, warmImages, pending } = usePreviewGallery(galleryImages);
   const galleryKey = galleryImages.join("\n");
   const [brokenState, setBrokenState] = useState<{ key: string; values: Set<string> }>({ key: galleryKey, values: new Set() });
+  const [failedDerivative, setFailedDerivative] = useState<string | null>(null);
   const broken = brokenState.key === galleryKey ? brokenState.values : new Set<string>();
   const touchStart = useRef<number | null>(null);
   const suppressClick = useRef(false);
   useEffect(() => setBrokenState({ key: galleryKey, values: new Set() }), [galleryKey]);
   const usable = galleryImages.filter((image) => !broken.has(image));
   const currentImage = galleryImages[imageIndex] || usable[0] || "";
+  const media = responsiveCardMedia(currentImage);
+  const useOriginal = failedDerivative === currentImage;
   if (!usable.length) return <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={copy.unavailable}><span>{copy.unavailable}</span></div>;
   const move = (event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) => {
     event.preventDefault();
@@ -59,7 +63,8 @@ export function UnitPreviewGallery({ images, roomName, propertyName, onOpen }: {
   const originalIndex = sources[imageIndex]?.originalIndex ?? imageIndex;
   return <div className="room-card__image room-card__image--gallery" aria-busy={pending || undefined} onTouchStart={(event) => { touchStart.current = event.changedTouches[0]?.clientX ?? null; }} onTouchEnd={(event) => { if (touchStart.current === null) return; const delta = event.changedTouches[0]?.clientX - touchStart.current; touchStart.current = null; if (Math.abs(delta) > 45) { suppressClick.current = true; setImageIndex((current) => Math.max(0, Math.min(galleryImages.length - 1, current + (delta < 0 ? 1 : -1)))); window.setTimeout(() => { suppressClick.current = false; }, 500); } }}>
     <button className="room-card__image-button" style={{ position: "absolute", inset: 0, display: "block", width: "100%", height: "100%", padding: 0, border: 0, background: "transparent" }} type="button" data-gallery-trigger onKeyDown={keyMove} onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } onOpen(originalIndex); }} aria-label={`${copy.open}: ${roomName}`}>
-      <ResponsiveCardImage src={currentImage} alt={`${roomName}, ${propertyName}, ${photoLabel} ${imageIndex + 1}/${galleryImages.length}`} title={`${roomName}, ${propertyName}`} width="960" height="640" loading="lazy" decoding="async" onLoad={warmImages} onOriginalFailure={() => {
+      <ViewportResilientImage src={useOriginal ? currentImage : media.src} srcSet={useOriginal ? undefined : media.srcSet} sizes={defaultCardImageSizes} alt={`${roomName}, ${propertyName}, ${photoLabel} ${imageIndex + 1}/${galleryImages.length}`} title={`${roomName}, ${propertyName}`} width="960" height="640" loading="lazy" decoding="async" onLoad={warmImages} onFailure={() => {
+        if (isOptimizableCardMedia(currentImage) && !useOriginal) { setFailedDerivative(currentImage); return; }
         const failedNow = new Set(broken).add(currentImage);
         setBrokenState({ key: galleryKey, values: failedNow });
         const fallback = nextUnitPreviewIndex(galleryImages, failedNow, imageIndex, 1);

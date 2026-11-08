@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import ts from 'typescript';
 import React from 'react';
 import * as jsx from 'react/jsx-runtime';
+import * as responsiveMedia from '../app/lib/responsive-media.ts';
 
 const source = fs.readFileSync(new URL('../app/components/unit-preview-gallery.tsx', import.meta.url), 'utf8');
 const js = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
@@ -20,7 +21,8 @@ function load(hookController) {
     if (name === 'react') return fakeReact;
     if (name === 'react/jsx-runtime') return jsx;
     if (name === './use-preview-gallery') return hookController.preview;
-    if (name === './responsive-card-image') return { ResponsiveCardImage: props => React.createElement('img', props) };
+    if (name === './viewport-resilient-image') return { ViewportResilientImage: props => React.createElement('img', props) };
+    if (name === '../lib/responsive-media') return responsiveMedia;
     if (name === '../i18n/locale-provider') return { useSiteLanguage: () => ({ language: 'he' }) };
     throw Error(`Unexpected dependency: ${name}`);
   }, module, module.exports);
@@ -71,13 +73,25 @@ test('actual unit preview keeps full deduped gallery and original indices', () =
 test('actual unit preview advances on failed image and never falls back to another unit', () => {
   const h = harness(['/a.jpg', '/b.jpg', '/c.jpg']);
   let tree = h.render();
-  find(tree, n => n.type === 'img').props.onOriginalFailure();
+  find(tree, n => n.type === 'img').props.onFailure();
   tree = h.render();
   assert.equal(find(tree, n => n.type === 'img').props.src, '/b.jpg');
-  find(tree, n => n.type === 'img').props.onOriginalFailure();
-  find(h.render(), n => n.type === 'img').props.onOriginalFailure();
+  find(tree, n => n.type === 'img').props.onFailure();
+  find(h.render(), n => n.type === 'img').props.onFailure();
   assert.equal(h.render().props.role, 'img');
   assert.match(h.render().props['aria-label'], /אין תמונה/);
+});
+
+test('a failed derivative first falls back to the same original unit image', () => {
+  const h = harness(['/api/vii/media/own-unit.jpg', '/api/vii/media/next-unit-image.jpg']);
+  let image = find(h.render(), n => n.type === 'img');
+  assert.match(image.props.src, /_vinext\/image/);
+  image.props.onFailure();
+  image = find(h.render(), n => n.type === 'img');
+  assert.equal(image.props.src, '/api/vii/media/own-unit.jpg');
+  assert.equal(h.state.index, 0);
+  image.props.onFailure();
+  assert.equal(h.state.index, 1);
 });
 
 test('actual unit preview arrow bounds, keyboard direction, swipe click suppression and identity reset', () => {

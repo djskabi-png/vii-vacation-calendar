@@ -8,7 +8,8 @@ const graph = loadImpactGraph();
 test('production graph is valid and expands actual generated registry checks', () => {
   assert.deepEqual(validateImpactGraph(graph), []);
   const ids = registeredCheckIds();
-  assert.equal(ids.size, 70);
+  assert.equal(ids.size, 74);
+  for(const world of ['vacations','events','rooms','spa'])assert.ok(ids.has('api.catalog-media.'+world));
   assert.ok(ids.has('quality.public-verification-keys'));
   for(const id of ['discovery.vacation.tomorrow.ready','discovery.vacation.friday-weekend.ready','discovery.events.lastminute.ready','discovery.events.friday.ready'])assert.ok(ids.has(id));
   assert.ok(ids.has('locale.ru.place.semantic'));
