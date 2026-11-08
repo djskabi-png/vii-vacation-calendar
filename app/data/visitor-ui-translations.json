@@ -493,5 +493,8 @@
   "ספא לקבוצות": {"en":"Spa for groups","fr":"Spa pour groupes","ru":"Спа для групп"},
   "שפים לאירוע חברה": {"en":"Chefs for corporate events","fr":"Chefs pour événements d’entreprise","ru":"Шеф-повара для корпоративных мероприятий"},
   "טוענים את לוח התאריכים…": {"en":"Loading dates…","fr":"Chargement du calendrier…","ru":"Загрузка календаря…"},
-  "לא הצלחנו לפתוח את לוח התאריכים.": {"en":"We couldn't open the calendar.","fr":"Le calendrier n’a pas pu être ouvert.","ru":"Не удалось открыть календарь."}
+  "לא הצלחנו לפתוח את לוח התאריכים.": {"en":"We couldn't open the calendar.","fr":"Le calendrier n’a pas pu être ouvert.","ru":"Не удалось открыть календарь."},
+  "הפעלת": {"en":"Play","fr":"Lire","ru":"Воспроизвести"},
+  "מיוטיוב": {"en":"on YouTube","fr":"sur YouTube","ru":"на YouTube"},
+  "סרטון מהמקום": {"en":"Property video","fr":"Vidéo de l’établissement","ru":"Видео объекта"}
 }

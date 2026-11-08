@@ -30,7 +30,7 @@ test('actual gallery creates a live iframe only after its play action and never 
  const visit=n=>{if(ts.isCallExpression(n)&&n.expression.getText(ast)==='property.videos?.map')expression=n;ts.forEachChild(n,visit);};visit(ast);assert.ok(expression);
  const js=ts.transpileModule('const result='+expression.getText(ast)+';',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  let activeVideo=null;const property=attachVerifiedSupplierVideo({slug:'vacation-2356',image:'/same-place.jpg'});
- const render=()=>Function('require','exports','property','activeVideo','setActiveVideo','isSafeYoutubeEmbed',js+';return result;')(()=>jsx,{},property,activeVideo,v=>activeVideo=v,isSafeYoutubeEmbed);
+ const render=()=>Function('require','exports','property','activeVideo','setActiveVideo','isSafeYoutubeEmbed','translate',js+';return result;')(()=>jsx,{},property,activeVideo,v=>activeVideo=v,isSafeYoutubeEmbed,x=>x);
  const nodes=(tree,out=[])=>{for(const node of Array.isArray(tree)?tree:[tree])if(node&&typeof node==='object'){out.push(node);nodes(node.props?.children,out);}return out;};
  let tree=nodes(render());assert.equal(tree.filter(n=>n.type==='iframe').length,0);assert.equal(tree.filter(n=>n.type==='video').length,0);
  tree.find(n=>n.type==='button').props.onClick();tree=nodes(render());
