@@ -143,7 +143,8 @@
         "tests/published-catalog-transition.actual.test.mjs",
         "tests/hourly-results-order.test.mjs",
         "tests/nearby-search-family.test.mjs",
-        "tests/search-opportunity-approval.actual.test.mjs"
+        "tests/search-opportunity-approval.actual.test.mjs",
+        "tests/progressive-results-window.actual.test.mjs"
       ]
     },
     "vacations": {
@@ -167,10 +168,10 @@
         "tests/public-font-delivery.test.mjs",
         "tests/viewport-resilient-image-actual.test.mjs",
         "tests/vacation-regional-seed-completeness.actual.test.mjs",
-        "tests/landing-payload-budget.test.mjs"
-        ,"tests/vacation-sleeping-fallback.test.mjs"
-        ,"tests/vacation-verified-sleeping-details.test.mjs"
-        ,"tests/vacation-2210-legacy-parity.test.mjs"
+        "tests/landing-payload-budget.test.mjs",
+        "tests/vacation-sleeping-fallback.test.mjs",
+        "tests/vacation-verified-sleeping-details.test.mjs",
+        "tests/vacation-2210-legacy-parity.test.mjs"
       ]
     },
     "events": {
