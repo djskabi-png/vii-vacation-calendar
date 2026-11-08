@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchPublishedSearchCatalog } from '../app/lib/published-catalog-client-cache.ts';
+import { fetchPublishedSearchCatalog, peekFreshPublishedSearchCatalog } from '../app/lib/published-catalog-client-cache.ts';
 import { discoveryJson } from '../app/lib/discovery-client-cache.ts';
 import {readFileSync} from 'node:fs';
 const body=(id=1)=>({entries:[{summary:{id,name:'supplier-'+id}}]});
 const response=value=>Response.json(value);
 let serial=0;
-async function fixture(run){const oldFetch=fetch,oldNow=Date.now;let clock=1_800_000_000_000+(++serial)*1_000_000;Date.now=()=>clock;try{await run({advance:ms=>clock+=ms})}finally{globalThis.fetch=oldFetch;Date.now=oldNow;}}
+async function fixture(run){const oldFetch=fetch,oldNow=Date.now,oldWindow=globalThis.window;let clock=1_800_000_000_000+(++serial)*1_000_000;Date.now=()=>clock;try{await run({advance:ms=>clock+=ms})}finally{globalThis.fetch=oldFetch;Date.now=oldNow;if(oldWindow===undefined)delete globalThis.window;else globalThis.window=oldWindow;}}
 const turn=()=>new Promise(resolve=>setImmediate(resolve));
 
 test('simultaneous subscribers share one GET; one abort detaches without cancelling the other',()=>fixture(async()=>{
@@ -16,6 +16,33 @@ test('simultaneous subscribers share one GET; one abort detaches without cancell
 
 test('fresh navigation reuses complete supplier facts without another network read',()=>fixture(async()=>{
  let reads=0;globalThis.fetch=async()=>{reads++;return response(body(7));};assert.deepEqual(await fetchPublishedSearchCatalog('vacations'),body(7));assert.deepEqual(await fetchPublishedSearchCatalog('vacations'),body(7));assert.equal(reads,1);
+}));
+
+test('fresh browser snapshot is synchronous, cloned, world-isolated, and never available during SSR',()=>fixture(async()=>{
+ let reads=0;globalThis.fetch=async()=>{reads++;return response(body(8));};
+ globalThis.window={};
+ await fetchPublishedSearchCatalog('vacations');
+ assert.equal(peekFreshPublishedSearchCatalog('events'),null);
+ assert.equal(peekFreshPublishedSearchCatalog('vacations').entries[0].summary.id,8);
+ const snapshot=peekFreshPublishedSearchCatalog('vacations');snapshot.entries[0].summary.id=99;
+ assert.equal(peekFreshPublishedSearchCatalog('vacations').entries[0].summary.id,8);
+ delete globalThis.window;assert.equal(peekFreshPublishedSearchCatalog('vacations'),null);globalThis.window={};assert.equal(reads,1);
+}));
+
+test('fresh browser snapshot expires exactly at its original freshness boundary',()=>fixture(async({advance})=>{
+ let reads=0;globalThis.fetch=async()=>{reads++;return response(body(3));};await fetchPublishedSearchCatalog('vacations');globalThis.window={};advance(60_000);assert.equal(peekFreshPublishedSearchCatalog('vacations'),null);assert.equal(reads,1);
+}));
+
+test('a malformed value cached by another caller cannot become a public search snapshot',()=>fixture(async()=>{
+ globalThis.fetch=async()=>response({entries:[{}]});
+ await discoveryJson('/api/catalog?world=vacations&view=search','published-catalog-search-v1',{freshMs:60_000,staleMs:270_000,retries:0,staleWhileRevalidate:false});
+ globalThis.window={};assert.equal(peekFreshPublishedSearchCatalog('vacations'),null);
+}));
+
+test('read-only snapshots cannot reuse a POST value even under the same generic cache key',()=>fixture(async()=>{
+ globalThis.fetch=async()=>response(body(77));
+ await discoveryJson('/api/catalog?world=vacations&view=search','published-catalog-search-v1',{method:'POST',freshMs:60_000,staleMs:270_000,retries:0,staleWhileRevalidate:false});
+ globalThis.window={};assert.equal(peekFreshPublishedSearchCatalog('vacations'),null);
 }));
 
 test('expired fresh window waits for refresh and delivers new data to the mounted view',()=>fixture(async({advance})=>{

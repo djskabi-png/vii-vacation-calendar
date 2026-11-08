@@ -89,6 +89,44 @@ test('actual handler separates build/query variants and does not cache an expire
   } finally { h.restore(); }
 });
 
+test('catalog navigation hint is forwarded only on eligible regional Flight MISS and is never stored', async () => {
+  const h = harness({ headers: headers() }); const seen = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = async request => { seen.push(request); return new Response('<flight/>', { status: 200, headers: headers() }); };
+  try {
+    const response = await worker.fetch(new Request('https://edge.test/vacations/north.rsc', { headers: { Accept: 'text/x-component', RSC: '1', 'X-VII-Catalog-Navigation': 'search-v1' } }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, h.ctx);
+    assert.equal(response.headers.get('X-VII-Edge-Cache-Skip'), 'client_catalog_navigation');
+    assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
+    assert.equal(seen[0].headers.get('X-VII-Catalog-Navigation'), 'search-v1');
+    assert.equal(h.stats().writes.length, 0);
+  } finally { globalThis.fetch = original; h.restore(); }
+});
+
+test('invalid, prefetched, and ordinary regional requests keep the baseline path and cache identity', async () => {
+  for (const [label, init] of [
+    ['missing-hint', { Accept: 'text/x-component', RSC: '1' }],
+    ['prefetch', { Accept: 'text/x-component', RSC: '1', 'X-VII-Catalog-Navigation': 'search-v1', 'Next-Router-Prefetch': '1' }],
+    ['ordinary-html', { Accept: 'text/html', 'X-VII-Catalog-Navigation': 'search-v1' }],
+  ]) {
+    const h = harness({ headers: headers() }); const seen = []; const original = globalThis.fetch;
+    globalThis.fetch = async request => { seen.push(request); return new Response('<ok/>', { status: 200, headers: headers() }); };
+    try {
+      const response = await worker.fetch(new Request('https://edge.test/vacations/north.rsc', { headers: init }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, h.ctx);
+      assert.notEqual(response.headers.get('X-VII-Edge-Cache-Skip'), 'client_catalog_navigation', label);
+      assert.notEqual(seen[0]?.headers.get('X-VII-Catalog-Navigation'), 'search-v1', label);
+    } finally { globalThis.fetch = original; h.restore(); }
+  }
+});
+
+test('ineligible hinted POST preserves body and auth while removing only the navigation hint', async () => {
+  const seen = []; const oldFetch = globalThis.fetch;
+  globalThis.fetch = async request => { seen.push(request); return new Response('ok', { status: 200 }); };
+  try {
+    const response = await worker.fetch(new Request('https://edge.test/account', { method: 'POST', headers: { 'Content-Type': 'text/plain', Authorization: 'Bearer test', 'X-VII-Catalog-Navigation': 'search-v1' }, body: 'payload' }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, { waitUntil() {} });
+    assert.equal(response.status, 200); assert.equal(seen[0].headers.get('Authorization'), 'Bearer test'); assert.equal(seen[0].headers.get('X-VII-Catalog-Navigation'), null); assert.equal(await seen[0].text(), 'payload');
+  } finally { globalThis.fetch = oldFetch; }
+});
+
 test('actual handler returns origin failure and never stores it', async () => {
   const h = harness({ headers: headers() }); const original = globalThis.fetch;
   globalThis.fetch = async (request) => { if (request.url.startsWith('https://vii-vacation-calendar')) throw new Error('origin_down'); return original(request); };

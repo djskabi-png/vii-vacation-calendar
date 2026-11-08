@@ -1,4 +1,4 @@
-import { discoveryJson } from './discovery-client-cache.ts';
+import { discoveryJson, peekFreshDiscoveryJson, hasFreshDiscoveryJson } from './discovery-client-cache.ts';
 
 type CatalogEntry = { entries: Array<{ summary: unknown }> };
 const pending = new Map<string, Promise<CatalogEntry>>();
@@ -33,4 +33,13 @@ export function fetchPublishedSearchCatalog(world: 'vacations' | 'events', signa
     signal.addEventListener('abort', abort, { once: true });
     operation.then(value => { signal.removeEventListener('abort', abort); if (!signal.aborted) resolve(value); }, error => { signal.removeEventListener('abort', abort); if (!signal.aborted) reject(error); });
   });
+}
+
+export function peekFreshPublishedSearchCatalog(world: 'vacations' | 'events'): CatalogEntry | null {
+  if (world !== 'vacations' && world !== 'events') return null;
+  return peekFreshDiscoveryJson<CatalogEntry>(`/api/catalog?world=${world}&view=search`, 'published-catalog-search-v1', { validateResponse: valid });
+}
+
+export function hasFreshPublishedSearchCatalog(world: 'vacations' | 'events'): boolean {
+  return (world === 'vacations' || world === 'events') && hasFreshDiscoveryJson(`/api/catalog?world=${world}&view=search`, 'published-catalog-search-v1', { validateResponse: valid });
 }

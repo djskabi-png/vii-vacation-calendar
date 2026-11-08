@@ -1,4 +1,5 @@
 import { withServerRequestReads } from "../app/lib/server-request-reads.ts";
+import { PUBLIC_CATALOG_NAVIGATION_HEADER, isCatalogNavigationHintCandidate } from '../shared/public-catalog-navigation.ts';
 import type { PublicLocale } from "./localized-html.ts";
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
@@ -212,7 +213,11 @@ const worker = {
       return servePublicGalleryMedia(request, env.UPLOADS, env.ASSETS);
     }
 
-    const cachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
+    const ordinaryCachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
+    const catalogNavigation = ordinaryCachePolicy?.kind === 'navigation' && isCatalogNavigationHintCandidate(request);
+    // A thin model depends on a caller-local fresh snapshot. It can never be
+    // stored under the ordinary rich Flight cache identity.
+    const cachePolicy = catalogNavigation ? null : ordinaryCachePolicy;
     if (cachePolicy && !refreshPublic) {
       const lookupStarted = performance.now();
       try {
@@ -255,6 +260,7 @@ const worker = {
       : url.pathname;
     const localeMatch = documentPathname.match(/^\/(en|ru|fr)(?:\/|$)/);
     const requestHeaders = new Headers(request.headers);
+    if (!catalogNavigation) requestHeaders.delete(PUBLIC_CATALOG_NAVIGATION_HEADER);
     requestHeaders.set("x-vii-pathname", documentPathname);
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
@@ -266,6 +272,11 @@ const worker = {
     // Generation identity belongs to the application, including uncached HTML.
     // Cache admission stays separate and must not be implied by this header.
     response.headers.set("X-VII-App-Build", publicCacheBuild);
+    if (catalogNavigation) {
+      response.headers.set('Cache-Control', 'private, no-store');
+      response.headers.delete('Expires');
+      response.headers.set('X-VII-Catalog-Navigation', 'client-fresh');
+    }
     // Separate lazy module startup from time spent producing response headers.
     // These fixed numeric metrics contain no URL, SQL, identity or user input.
     response.headers.append("Server-Timing", `vii-app-load;dur=${appLoadMs}, vii-app-render;dur=${Math.round(performance.now() - appRenderStarted)}`);

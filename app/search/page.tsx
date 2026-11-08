@@ -1,4 +1,5 @@
 "use client";
+import { useCatalogNavigationRecovery } from "../lib/use-catalog-navigation-recovery";
 import { useNearbySort, NearbySortStatus } from "../components/use-nearby-sort";
 import { orderByProximity } from "../lib/proximity-sort";
 
@@ -90,6 +91,7 @@ export type SearchLandingContext = {
   faqs?: Array<{ question: string; answer: string }>;
   relatedLinks?: Array<{ label: string; href: string }>;
   initialFilters?: Record<string, string | number | boolean>;
+  clientCollectionSchema?: boolean;
 };
 
 type VacationFilterState = {
@@ -389,6 +391,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   ];
   const router = useRouter();
   const pathname = usePathname();
+  useCatalogNavigationRecovery(landing?.path || pathname, Boolean(landing?.clientCollectionSchema && catalogError && !catalogLoading && properties.length === 0), router.refresh);
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const initialParams = useMemo(() => managedSearchParams(searchQuery, landing?.initialFilters), [searchQuery, landing?.initialFilters]);
@@ -904,7 +907,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftNearby = (shownFilters.onlineOnly || Boolean(selectedStay)) && shownFilters.guests === guests && draftMatches.length < PLACE_SEARCH_MINIMUM_RESULTS && !isWholeCountrySelection(shownFilters.area)
     ? nearbySearchRecommendations(draftCandidates, shownFilters.area, managedGeography, { key: (property) => property.slug }) : [];
   const draftResultCount = shownFilters.onlineOnly || selectedStay ? completePlaceSearchResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
-  const draftResultLabel = priceFieldEditing ? "החלת סינונים"
+  const draftResultLabel = priceFieldEditing || ((catalogLoading || catalogError) && properties.length === 0) ? "החלת סינונים"
     : shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
     : !undatedSearch && (datedAvailabilityPending || shownFilters.guests !== guests) ? "החלת סינונים"
     : draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
@@ -1073,7 +1076,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       <main id="main-content" className="results-page"><NearbySortStatus state={nearby} />
         {catalogLoading && properties.length === 0 ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
-        {!landing ? <StructuredData data={collectionSchema("מקומות נופש בישראל", "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
+        {(!landing || landing.clientCollectionSchema) && ((!catalogLoading && !catalogError) || properties.length > 0) ? <StructuredData data={collectionSchema(landing?.title || "מקומות נופש בישראל", landing?.description || "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", landing?.path || "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
         {!landing ? <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }])} /> : null}
         <UnavailablePlaceNotice world="vacations" />
         <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} openLocationRequest={openLocationRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
@@ -1128,7 +1131,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
           <section className="results-list" aria-label="תוצאות">
             <section className="results-heading">
-              <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{!onlineCheckPending && !datedAvailabilityPending && !datedAvailabilityError && !undatedCapabilityUnavailable ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
+              <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{((!catalogLoading && !catalogError) || properties.length > 0) && !onlineCheckPending && !datedAvailabilityPending && !datedAvailabilityError && !undatedCapabilityUnavailable ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
             </section>
             <nav className="search-quick-filters" aria-label="סינון מהיר">
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>

@@ -4,8 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from "../lib/navigation-recovery";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { catalogNavigationFetch } from '../lib/catalog-navigation-fetch';
+import { hasFreshPublishedSearchCatalog } from '../lib/published-catalog-client-cache';
 
 export function NavigationProgress() {
+  useEffect(() => {
+    const previous = window.fetch;
+    const wrapped = catalogNavigationFetch(previous.bind(window), window.location.origin, () => hasFreshPublishedSearchCatalog('vacations'));
+    window.fetch = wrapped;
+    return () => { if (window.fetch === wrapped) window.fetch = previous; };
+  }, []);
   const { translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();

@@ -1,3 +1,4 @@
+import * as catalogHint from '../shared/public-catalog-navigation.ts';
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from 'node:fs';
@@ -22,7 +23,7 @@ function loadActual(path,require){
  const module={exports:{}};new Function('require','module','exports',code)(require,module,module.exports);return module.exports;
 }
 
-function harness(path='/vacations/kinneret'){
+function harness(path='/vacations/kinneret',requestHeaders={}){
  const stateStarted=deferred(),summaryStarted=deferred(),stateGate=deferred(),rowsGate=deferred(),flagsGate=deferred();
  const calls={state:0,summary:0,overlay:0,imports:0};
  const empty=new Proxy({},{get:()=>()=>undefined});
@@ -47,8 +48,9 @@ function harness(path='/vacations/kinneret'){
  const worlds=loadActual('app/lib/world-availability.ts',()=>empty);
  const layout=loadActual('app/layout.tsx',name=>{
   if(name==='react/jsx-runtime')return nodeRequire(name);
-  if(name==='next/headers')return{headers:async()=>new Headers({'x-vii-pathname':path,'x-vii-locale':'he'})};
+  if(name==='next/headers')return{headers:async()=>new Headers({'x-vii-pathname':path,'x-vii-locale':'he',...requestHeaders})};
   if(name==='next/navigation')return{redirect:target=>{throw Error('redirect:'+target);}};
+  if(name.includes('public-catalog-navigation'))return catalogHint;
   if(name.includes('regional-catalog-preload'))return preload;
   if(name.includes('world-availability')&&!name.includes('provider'))return{readWorldAvailability:()=>flagsGate.promise,worldForPath:worlds.worldForPath};
   if(name.includes('navigation-progress-style'))return{navigationProgressCriticalCss:''};
@@ -82,6 +84,15 @@ test('actual disabled-world layout keeps its redirect and never starts regional 
  assert.equal(f.calls.imports,0);assert.equal(f.calls.state,0);
 });
 
+test('actual regional Flight layout never starts the redundant server catalog preload',{timeout:3000},async()=>{
+ for(const headers of [{rsc:'1'},{accept:'text/x-component'}]){
+  const f=harness('/vacations/kinneret',{...headers,[catalogHint.PUBLIC_CATALOG_NAVIGATION_HEADER]:catalogHint.PUBLIC_CATALOG_NAVIGATION_VERSION});f.flagsGate.resolve(f.worlds.defaultWorldAvailability);
+  await withServerRequestReads(async()=>{assert.equal((await f.layout.default({children:null})).type,'html');});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(f.calls,{state:0,summary:0,overlay:0,imports:0});
+ }
+});
+
 test('unsupported routes do not even import a catalog reader',async()=>{
  for(const path of ['/admin','/admin/overview','/account','/booking','/business','/events','/spas','/hourly','/vacations/unknown']){
   const f=harness(path);f.preload.preloadRegionalVacationCatalog(path,path.startsWith('/admin'));await Promise.resolve();assert.equal(f.calls.imports,0,path);
@@ -93,4 +104,14 @@ test('a failed speculative module read cannot produce an unhandled rejection',as
  const preload=loadActual('app/lib/regional-catalog-preload.ts',()=>{imports++;throw Error('synthetic_module_failure');});
  assert.doesNotThrow(()=>preload.preloadRegionalVacationCatalog('/vacations/kinneret',false));
  await new Promise(resolve=>setImmediate(resolve));assert.equal(imports,1);
+});
+
+
+test('ordinary unhinted and refresh Flight keep the original root preload',async()=>{
+ for(const headers of [{rsc:'1'},{rsc:'1','X-VII-Catalog-Navigation':'search-v1','X-Vinext-Rsc-Render-Mode':'refresh'},{rsc:'1','X-VII-Catalog-Navigation':'search-v1','Next-Router-Prefetch':'1'}]){
+  const f=harness('/vacations/kinneret',headers);
+  f.flagsGate.resolve(f.worlds.defaultWorldAvailability);f.stateGate.resolve();f.rowsGate.resolve();
+  await withServerRequestReads(async()=>{await f.layout.default({children:null});await f.summaryStarted.promise;});
+  assert.equal(f.calls.imports,1);assert.equal(f.calls.summary,1);
+ }
 });

@@ -64,7 +64,8 @@
         "tests/event-discovery-route-completeness.test.mjs",
         "tests/published-catalog-client-cache.test.mjs",
         "tests/spa-catalog-context-actual.test.mjs",
-        "tests/public-catalog-bootstrap-actual.test.mjs"
+        "tests/public-catalog-bootstrap-actual.test.mjs",
+        "tests/published-catalog-navigation-hook.actual.test.mjs"
       ]
     },
     "global-shell": {
@@ -92,7 +93,10 @@
         "tests/cross-release-client-reference-actual.test.mjs",
         "tests/public-critical-css.actual.test.mjs",
         "tests/navigation-first-paint.actual.test.mjs",
-        "tests/regional-catalog-preload.actual.test.mjs"
+        "tests/regional-catalog-preload.actual.test.mjs",
+        "tests/regional-flight-read-model.actual.test.mjs",
+        "tests/catalog-navigation-fetch.actual.test.mjs",
+        "tests/worker-lazy-entry-actual.test.mjs"
       ]
     },
     "search": {
@@ -736,7 +740,9 @@
         "app/components/navigation-progress.tsx",
         "app/components/navigation-progress.css",
         "app/components/navigation-progress-style.ts",
-        "app/lib/regional-catalog-preload.ts"
+        "app/lib/regional-catalog-preload.ts",
+        "app/lib/catalog-navigation-fetch.ts",
+        "app/lib/use-catalog-navigation-recovery.ts"
       ]
     },
     {
@@ -911,7 +917,8 @@
         "worker/public-cache-work.ts",
         "shared/public-document-clock.ts",
         "shared/public-business-context.ts",
-        "worker/index.ts"
+        "worker/index.ts",
+        "shared/public-catalog-navigation.ts"
       ]
     },
     {

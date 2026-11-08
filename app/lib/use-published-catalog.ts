@@ -1,20 +1,28 @@
 "use client";
 
-import { startTransition, useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { usePublishedCatalogSeed } from "./published-catalog-seed";
 import { discoveryJson } from "./discovery-client-cache.ts";
-import { fetchPublishedSearchCatalog } from "./published-catalog-client-cache.ts";
+import { fetchPublishedSearchCatalog, peekFreshPublishedSearchCatalog } from "./published-catalog-client-cache.ts";
+
+const subscribeToClient = () => () => undefined;
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value: unknown) => T, view?: "cards") {
   const seedState = usePublishedCatalogSeed(world);
   const seed = seedState?.entries ?? null;
   const seedComplete = seedState?.complete ?? false;
-  const [items, setItems] = useState<T[]>(() => (seed || []).map(map));
+  // Hydrating an HTML document must reproduce its server snapshot. A newly
+  // mounted client-navigation view can immediately use the fresh browser data.
+  const clientNavigation = useSyncExternalStore(subscribeToClient, clientSnapshot, serverSnapshot);
+  const [browserCatalog] = useState(() => clientNavigation && seed === null && (world === "vacations" || world === "events") && view !== "cards" ? peekFreshPublishedSearchCatalog(world) : null);
+  const [items, setItems] = useState<T[]>(() => (seed ?? browserCatalog?.entries.map((entry) => entry.summary) ?? []).map(map));
   const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(seed === null || !seedComplete);
+  const [loading, setLoading] = useState((seed === null || !seedComplete) && !browserCatalog);
   const seededAt = useRef(Date.now());
-  const hasAcceptedContent = useRef(seed !== null);
+  const hasAcceptedContent = useRef(seed !== null || browserCatalog !== null);
   useEffect(() => {
     const controller = new AbortController();
     let fetching = false;
@@ -22,7 +30,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       if (fetching) return;
       fetching = true;
       seededAt.current = Date.now();
-      if (seed === null) setLoading(true);
+      if (seed === null && !hasAcceptedContent.current) setLoading(true);
       let committed = false;
       try {
         const searchView = view === "cards" ? "&view=cards" : world === "vacations" || world === "events" ? "&view=search" : "";
@@ -65,7 +73,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
     }
     let idleHandle: number | undefined;
     let timerHandle: ReturnType<typeof globalThis.setTimeout> | undefined;
-    if (seed === null || !seedComplete) void load();
+    if ((seed === null || !seedComplete) && !browserCatalog) void load();
     else if ("requestIdleCallback" in window) idleHandle = window.requestIdleCallback(() => void load(), { timeout: 2_500 });
     else timerHandle = globalThis.setTimeout(() => void load(), 1_000);
     const refreshOnReturn = () => {
@@ -78,6 +86,6 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       if (timerHandle !== undefined) globalThis.clearTimeout(timerHandle);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
-  }, [world, map, seed, seedComplete, view]);
+  }, [world, map, seed, seedComplete, view, browserCatalog]);
   return { items, error, loading };
 }

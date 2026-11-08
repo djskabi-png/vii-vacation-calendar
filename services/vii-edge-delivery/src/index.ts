@@ -8,6 +8,7 @@ import { experienceGateway, type ExperienceGatewayEnvironment } from './experien
 import { deliverPublicRubikFont } from './font-delivery.ts';
 import { publicDocumentClock, publicDocumentExpiry } from '../../../shared/public-document-clock.ts';
 import { publicBusinessContext } from '../../../shared/public-business-context.ts';
+import { PUBLIC_CATALOG_NAVIGATION_HEADER, PUBLIC_CATALOG_NAVIGATION_VERSION, isCatalogNavigationHintCandidate } from '../../../shared/public-catalog-navigation.ts';
 type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
@@ -88,7 +89,7 @@ function publicDocumentRedirect(response: Response, origin: URL, publicUrl: URL)
 // projection even for signed-in visitors; account data continues through the
 // original uncached API/private/action requests. Never forward viewer identity
 // into a response that can be admitted to the shared cache.
-function anonymousPublicRequest(origin: URL, request: Request) {
+function anonymousPublicRequest(origin: URL, request: Request, catalogNavigationHint = false) {
   const headers = new Headers();
   for (const name of [...variantHeaders, "Accept-Language", "User-Agent", "If-None-Match", "If-Modified-Since"]) {
     const value = request.headers.get(name);
@@ -100,6 +101,7 @@ function anonymousPublicRequest(origin: URL, request: Request) {
   }).map(part => part.trim()).join("; ");
   // Cloudflare cookies belong to the browser's host, not the Site alias.
   if (infrastructure && origin.origin === new URL(request.url).origin) headers.set("Cookie", infrastructure);
+  if (catalogNavigationHint) headers.set(PUBLIC_CATALOG_NAVIGATION_HEADER, PUBLIC_CATALOG_NAVIGATION_VERSION);
   return new Request(origin, { method: "GET", headers, redirect: "manual", signal: request.signal });
 }
 
@@ -127,7 +129,7 @@ function safePublicRead(request: Request, url: URL) {
 }
 
 async function fetchPublicRead(request: Request, origin: URL) {
-  const anonymous = anonymousPublicRequest(origin, request);
+  const anonymous = anonymousPublicRequest(origin, request, isCatalogNavigationHintCandidate(request));
   let failed: Response | undefined;
   try {
     const response = await fetch(anonymous);
@@ -198,10 +200,17 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
     if (quality) return quality;
   }
   const url = new URL(request.url);
+  const catalogNavigationHint = isCatalogNavigationHintCandidate(request);
   const discovery=publicDiscoveryCachePolicy(request);
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
-    const upstream = new Request(new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)), request);
+    const upstreamHeaders = new Headers(request.headers);
+    upstreamHeaders.delete(PUBLIC_CATALOG_NAVIGATION_HEADER);
+    const upstreamUrl = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
+    const originalUpstream = new Request(upstreamUrl, request);
+    const upstream = originalUpstream.method === "GET" || originalUpstream.method === "HEAD"
+      ? new Request(upstreamUrl, { method: originalUpstream.method, headers: upstreamHeaders, redirect: "manual", signal: originalUpstream.signal })
+      : new Request(upstreamUrl, { method: originalUpstream.method, headers: upstreamHeaders, body: originalUpstream.body, redirect: "manual", signal: originalUpstream.signal, duplex: "half" } as RequestInit);
     const response=deliverPublicRubikFont(request, await fetch(new Request(upstream, { redirect: "manual" })));
     if((response.status===404||response.status===410)&&retainedAssetRequest(request)){
       const retained=await readRetainedAsset(request,env.PUBLIC_CACHE);
@@ -272,6 +281,13 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const declaredSize = Number(response.headers.get("Content-Length"));
   const hasUnknownSetCookie = response.headers.has("Set-Cookie") && !infrastructureSetCookieOnly(response.headers.get("Set-Cookie"));
   const reason = response.status !== 200 ? "status" : !contentType.includes(expectedType) ? "content_type" : response.headers.get("X-VII-Cache-Build") !== expectedBuild ? "build_mismatch" : hasUnknownSetCookie ? "set_cookie" : /(?:^|,)\s*(?:private|no-store|no-cache)(?:\s*(?:,|=|$))/i.test(control) ? "private_or_no_store" : vary.some((name) => !allowedVary.has(name)) ? "vary" : (Number.isFinite(declaredSize) && declaredSize > maxBytes) ? "oversize" : !Number.isFinite(until) || remaining <= 0 ? "missing_expiry" : discovery&&(response.headers.get('X-VII-Discovery-Verified')!=='1'||until>discovery.expiresAt+1000)?'discovery_authority':null;
+  if (catalogNavigationHint) {
+    const headers = new Headers(response.headers);
+    headers.set("Cache-Control", "private, no-store");
+    headers.set("X-VII-Edge-Cache-Skip", "client_catalog_navigation");
+    deliveryTiming(headers, lookupMs, originMs);
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
   if (reason) { const headers = new Headers(response.headers); deliveryTiming(headers, lookupMs, originMs); headers.set("X-VII-Edge-Cache-Skip", reason); return new Response(response.body, { status: response.status, headers }); }
   const headers = new Headers(response.headers); headers.delete("Set-Cookie"); headers.set("Cache-Control", `public, max-age=${Math.min(60, Math.floor(remaining / 1000))}`); headers.set("X-VII-Edge-Delivery", "MISS"); headers.set("X-VII-Edge-Cache-Backend", cache ? "available" : "unavailable");
   const storedHeaders = new Headers(headers);

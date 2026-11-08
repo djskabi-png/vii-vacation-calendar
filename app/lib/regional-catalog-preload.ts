@@ -9,7 +9,10 @@ export function regionalVacationPreloadPath(pathname: string, isAdmin: boolean):
   return match && regionalVacationSlugs.has(match[1]) ? match[0] : null;
 }
 
-export function preloadRegionalVacationCatalog(pathname: string, isAdmin: boolean): void {
+export function preloadRegionalVacationCatalog(pathname: string, isAdmin: boolean, freshClientNavigation = false): void {
+  // Only a sanitized fresh-client hint skips the read. Ordinary Flight and
+  // HTML retain their complete server seed and failure behavior.
+  if (freshClientNavigation) return;
   if (!regionalVacationPreloadPath(pathname, isAdmin)) return;
   // Keep the catalog reader out of the root layout's eager dependency graph.
   // It owns the request-local read key, so the child consumes the same promise.

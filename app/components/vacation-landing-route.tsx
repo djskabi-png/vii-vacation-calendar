@@ -1,7 +1,8 @@
+import { hasCatalogNavigationHint } from "../../shared/public-catalog-navigation.ts";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { SearchExperience } from "../search/page";
-import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
 import { publicVacationSearchProperties } from "../lib/public-vacation-search";
@@ -25,17 +26,6 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
   const region = vacationRegionBySlug(regionSlug);
   const location = locationOverride || region?.label;
   if (!location) notFound();
-  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
-  const listings = region && !locationOverride
-    ? vacationRegionListings(region, publishedProperties)
-    : publishedProperties.filter((property) => matchesSearchLocation(property, location));
-  const represented = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, location, [], {
-    key: (property) => property.slug,
-    origin: { location, area: location },
-  }), (property) => property.slug);
-  // Complete regional metadata keeps the first count, price sort and filters truthful.
-  // SearchExperience still renders its bounded18-card progressive window.
-  const initialListings = represented;
   const path = locationOverride ? worldLocationPath("vacation", location) : `/vacations/${region!.slug}`;
   const title = `נופש ב${location}`;
   const description = `מקומות נופש פעילים ב${location}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
@@ -49,6 +39,27 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
     { question: "איך יודעים אם אפשר להזמין אונליין?", answer: "אפשרות הזמנה אונליין מוצגת רק כאשר קיימים גם זמינות וגם מחיר מתאימים. במקומות אחרים אפשר לפנות ישירות לבירור." },
     { question: "האם אפשר לסנן לפי סוג מקום ומאפיינים?", answer: "כן. אפשר לסנן את התוצאות לפי סוג מקום, מספר אורחים, חדרי שינה, מתקנים ומאפייני חיפוש נוספים." },
   ];
+  const requestHeaders = await headers();
+  const isFlight = requestHeaders.get("rsc") === "1" || (requestHeaders.get("accept") || "").includes("text/x-component");
+  if (region && !locationOverride && isFlight && hasCatalogNavigationHint(requestHeaders)) {
+    // HTML keeps its complete, authoritative server projection for first visits
+    // and crawlers. Navigation already has a public catalog reader in the
+    // browser, so do not serialize and fetch the same catalog again in Flight.
+    return <>
+      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
+      <SearchExperience key={path} landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, guideTitle, guideParagraphs, faqs, clientCollectionSchema: true }} />
+    </>;
+  }
+  const { publicCatalogSummaries } = await import("../lib/public-catalog-read.ts");
+  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
+  const listings = region && !locationOverride
+    ? vacationRegionListings(region, publishedProperties)
+    : publishedProperties.filter((property) => matchesSearchLocation(property, location));
+  const initialListings = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, location, [], {
+    key: (property) => property.slug,
+    origin: { location, area: location },
+  }), (property) => property.slug);
+  // Complete regional metadata keeps first-document counts and filters truthful.
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
     <StructuredData data={collectionSchema(title, description, path, initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />

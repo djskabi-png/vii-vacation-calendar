@@ -1,3 +1,4 @@
+import { PUBLIC_CATALOG_NAVIGATION_HEADER, isCatalogNavigationHintCandidate } from '../shared/public-catalog-navigation.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -21,7 +22,7 @@ const transform=context=>root=>{
 };
 const executable=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext},transformers:{before:[transform]}}).outputText.replace(/^export \{\};?\s*$/gm,'');
 function instance({loadApp,read=async()=>null,onCacheRead=()=>{}}){
-  const dependencies={loadApp,loadGallery:async()=>({servePublicGalleryMedia}),loadQualityKeys:async()=>({GET:publicQualityKeys}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
+  const dependencies={PUBLIC_CATALOG_NAVIGATION_HEADER,isCatalogNavigationHintCandidate,loadApp,loadGallery:async()=>({servePublicGalleryMedia}),loadQualityKeys:async()=>({GET:publicQualityKeys}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
     legacyDisposition:()=>null,looksLikeUninventoriedLegacyPath:()=>false,publicCachePolicy,
     readPublicCache:async(...args)=>{onCacheRead();return read(...args);},refreshPublicCacheAhead:()=> 'fresh',
     storePublicCache:response=>response,editorialWorldLinks:[],withServerRequestReads};
@@ -105,4 +106,28 @@ test('public media streams exact allowlisted R2 bytes without application startu
   assert.equal(apex.status,301);assert.ok(apex.headers.get('Location').startsWith('https://www.vii.co.il/api/vii/media/'));assert.equal(requested.length,2);
   assert.equal((await worker.fetch(new Request(url),{UPLOADS:{get:async()=>null}},ctx)).status,404);
   assert.equal((await worker.fetch(new Request(url),{UPLOADS:{get:async()=>{throw Error('storage');}}},ctx)).status,503);
+});
+
+
+test('actual app Worker isolates hinted Flight from normal public caches and strips unqualified hints',async()=>{
+ const observed=[];let reads=0;
+ const worker=instance({onCacheRead:()=>reads++,loadApp:async()=>({default:{fetch:async req=>{
+  observed.push(req.headers.get(PUBLIC_CATALOG_NAVIGATION_HEADER));
+  return new Response('flight',{headers:{'Content-Type':'text/x-component','Cache-Control':'public, max-age=999'}});
+ }}})});
+ const normal={Accept:'text/x-component',RSC:'1'},hint={...normal,[PUBLIC_CATALOG_NAVIGATION_HEADER]:'search-v1'};
+ const run=(path,headers)=>worker.fetch(new Request('https://vii.spaplus.co'+path,{headers}),{},ctx);
+ const thin=await run('/vacations/kinneret.rsc?guests=2',hint);
+ assert.equal(observed.at(-1),'search-v1');assert.equal(reads,0);
+ assert.equal(thin.headers.get('Cache-Control'),'private, no-store');
+ for(const [path,headers]of [
+  ['/vacations/kinneret.rsc',normal],
+  ['/vacations/kinneret.rsc',{...hint,'Next-Router-Prefetch':'1'}],
+  ['/vacations/kinneret.rsc',{...hint,'X-Vinext-Rsc-Render-Mode':'refresh'}],
+  ['/vacations/kinneret.rsc',{...hint,Cookie:'vii_admin_session=private'}],
+  ['/vacations/kinneret.rsc',{...hint,Authorization:'Bearer fixture'}],
+  ['/events/search/north.rsc',hint],
+  ['/vacations/kinneret.rsc?unknown=1',hint],
+ ]){await run(path,headers);assert.equal(observed.at(-1),null,path+JSON.stringify(headers));}
+ assert.ok(reads>=2,'ordinary public cache lookup is retained');
 });

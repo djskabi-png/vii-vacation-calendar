@@ -11,7 +11,7 @@ type DiscoveryRequestInit = RequestInit & {
   validateResponse?: (value: unknown) => boolean;
 };
 
-type Entry = { value: unknown; freshUntil: number; staleUntil: number };
+type Entry = { value: unknown; freshUntil: number; staleUntil: number; method?: string };
 const entries = new Map<string, Entry>();
 const storagePrefix = "vii-discovery-v2:";
 const defaultTimeoutMs = 5_000;
@@ -170,7 +170,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
         if (shouldCache(value)) {
           const now = Date.now();
-          remember(key, { value, freshUntil: now + Math.max(1, freshMs), staleUntil: now + Math.max(freshMs, staleMs) }, persist && method === "GET");
+          remember(key, { value, freshUntil: now + Math.max(1, freshMs), staleUntil: now + Math.max(freshMs, staleMs), method }, persist && method === "GET");
         }
         return clone<T>(value);
       } catch (error) {
@@ -195,4 +195,30 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     return release(clone<T>(previous.value));
   }
   return release(load());
+}
+
+/** Read-only synchronous access for an already accepted, in-memory fresh
+ * discovery result. It never reads sessionStorage, never serves stale data,
+ * and is unavailable during SSR. */
+export function peekFreshDiscoveryJson<T>(url: string, scope: string, init: DiscoveryRequestInit = {}): T | null {
+  const value = freshDiscoveryValue(url, scope, init);
+  return value === undefined ? null : clone<T>(value);
+}
+
+export function hasFreshDiscoveryJson(url: string, scope: string, init: DiscoveryRequestInit = {}): boolean {
+  return freshDiscoveryValue(url, scope, init) !== undefined;
+}
+
+function freshDiscoveryValue(url: string, scope: string, init: DiscoveryRequestInit): unknown {
+  if (typeof window === "undefined") return undefined;
+  const method = (init.method || "GET").toUpperCase();
+  if (method !== "GET") return undefined;
+  const key = JSON.stringify([url, scope, init.body ?? null]);
+  const candidate = entries.get(key);
+  if (!candidate || candidate.method !== "GET" || candidate.freshUntil <= Date.now()) return undefined;
+  try {
+    if (init.shouldCache && !init.shouldCache(candidate.value)) return undefined;
+    if (init.validateResponse && !init.validateResponse(candidate.value)) return undefined;
+    return candidate.value;
+  } catch { return undefined; }
 }
