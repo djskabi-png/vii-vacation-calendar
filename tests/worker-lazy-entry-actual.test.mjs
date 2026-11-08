@@ -8,6 +8,8 @@ import { servePublicGalleryMedia } from '../worker/public-gallery-media.ts';
 import galleryManifest from '../app/data/legacy-gallery-media.json' with {type:'json'};
 import { withServerRequestReads } from '../app/lib/server-request-reads.ts';
 import { GET as publicQualityKeys } from '../app/.well-known/vii-quality-jwks.json/route.ts';
+import { rewriteCanonicalStream } from '../worker/stream-canonical.ts';
+import { rewriteOriginStream } from '../worker/stream-origin.ts';
 
 const source=await readFile(new URL('../worker/index.ts',import.meta.url),'utf8');
 const transform=context=>root=>{
@@ -21,11 +23,11 @@ const transform=context=>root=>{
   return ts.visitNode(root,visit);
 };
 const executable=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext},transformers:{before:[transform]}}).outputText.replace(/^export \{\};?\s*$/gm,'');
-function instance({loadApp,read=async()=>null,onCacheRead=()=>{}}){
+function instance({loadApp,read=async()=>null,onCacheRead=()=>{},htmlRewriter}){
   const dependencies={PUBLIC_CATALOG_NAVIGATION_HEADER,isCatalogNavigationHintCandidate,loadApp,loadGallery:async()=>({servePublicGalleryMedia}),loadQualityKeys:async()=>({GET:publicQualityKeys}),cloudflareDatabaseForEnv:()=>undefined,deploymentMediaAliases:{},shouldCheckRedirect:()=>false,
     legacyDisposition:()=>null,looksLikeUninventoriedLegacyPath:()=>false,publicCachePolicy,
     readPublicCache:async(...args)=>{onCacheRead();return read(...args);},refreshPublicCacheAhead:()=> 'fresh',
-    storePublicCache:response=>response,editorialWorldLinks:[],withServerRequestReads};
+    storePublicCache:response=>response,editorialWorldLinks:[],withServerRequestReads,rewriteCanonicalStream,rewriteOriginStream,HTMLRewriter:htmlRewriter};
   return new Function(...Object.keys(dependencies),executable+'\nreturn worker;')(...Object.values(dependencies));
 }
 const ctx={waitUntil(){}};
@@ -57,7 +59,39 @@ test('actual worker cache HIT never initializes application or scheduler modules
   const response=await worker.fetch(request('/search'),{},ctx);
   assert.equal(await response.text(),'accepted cached document');
   assert.equal(imports,0);
-  assert.match(response.headers.get('Server-Timing'),/^vii-cache;dur=\d+$/);
+  assert.match(response.headers.get('Server-Timing'),/^vii-cache;dur=\d+, vii-worker-policy;dur=\d+, vii-worker-entry;dur=\d+$/);
+});
+
+test('actual HTML cache MISS exposes lookup and total entry timing', async () => {
+  const worker = instance({
+    read: async () => { await new Promise(resolve => setTimeout(resolve, 35)); return null; },
+    loadApp: async () => ({ default: { fetch: async () => new Response('<html><head><link rel="canonical" href="/search"></head><body><h1>נופש</h1></body></html>', { headers: { 'Content-Type': 'text/html' } }) } }),
+  });
+  const response = await worker.fetch(request('/search'), {}, ctx);
+  const timing = response.headers.get('Server-Timing') || '';
+  const lookup = Number(timing.match(/vii-cache-lookup;dur=(\d+)/)?.[1]);
+  const entry = Number(timing.match(/vii-worker-entry;dur=(\d+)/)?.[1]);
+  assert.ok(lookup >= 30, timing);
+  assert.ok(entry >= lookup, timing);
+  assert.match(timing, /vii-worker-policy;dur=\d+/);
+  assert.match(await response.text(), /<h1>נופש<\/h1>/);
+});
+
+test('native HTML transform timing preserves streaming body for public and primary origins', async () => {
+  for (const origin of ['https://vii.spaplus.co', 'https://www.vii.co.il']) {
+    let transforms=0,release;
+    const ready=new Promise(resolve=>{release=resolve;});
+    class IdentityRewriter {on(){return this;}transform(response){transforms++;return response;}}
+    const worker=instance({htmlRewriter:IdentityRewriter,read:async()=>null,loadApp:async()=>({default:{fetch:async()=>new Response(new ReadableStream({start(controller){controller.enqueue(new TextEncoder().encode('<html><body>shell'));ready.then(()=>{controller.enqueue(new TextEncoder().encode('results</body></html>'));controller.close();});}}),{headers:{'Content-Type':'text/html'}})}})});
+    let timer;
+    try {
+      const response=await Promise.race([worker.fetch(new Request(origin+'/search',{headers:{Accept:'text/html'}}),{},ctx),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('timing buffered unresolved HTML body')),1000);})]);
+      assert.equal(transforms,1);
+      assert.equal(response.headers.get('X-VII-Html-Transform'),'native-stream');
+      assert.match(response.headers.get('Server-Timing'),/vii-cache-lookup;dur=\d+, vii-worker-entry;dur=\d+/);
+      release();assert.match(await response.text(),/shellresults/);
+    } finally {clearTimeout(timer);release();}
+  }
 });
 
 test('actual worker concurrent MISS shares one module load and preserves locale and Flight request context',async()=>{
@@ -67,7 +101,7 @@ test('actual worker concurrent MISS shares one module load and preserves locale 
     return new Response('{}',{headers:{'Content-Type':'application/json'}});
   }}};}});
   const responses=await Promise.all([worker.fetch(request('/search'),{},ctx),worker.fetch(request('/en/search.rsc'),{},ctx)]);
-  for(const response of responses)assert.match(response.headers.get('Server-Timing'),/vii-app-load;dur=\d+, vii-app-render;dur=\d+/);
+  for(const response of responses)assert.match(response.headers.get('Server-Timing'),/vii-app-load;dur=\d+, vii-app-render;dur=\d+, vii-worker-policy;dur=\d+, vii-cache-lookup;dur=\d+, vii-worker-entry;dur=\d+/);
   for(const response of responses)assert.equal(response.headers.get('X-VII-App-Build'),'local','uncached app responses retain their own generation identity');
   assert.equal(imports,1);
   assert.deepEqual(Object.fromEntries(seen.map(({pathname,...context})=>[pathname,context])),{'/search':{locale:'he',document:'/search'},'/en/search.rsc':{locale:'en',document:'/en/search'}});

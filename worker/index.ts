@@ -28,6 +28,13 @@ function appHandler() {
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
 
+function appendServerTiming(response: Response, entries: string[]) {
+  const headers = new Headers(response.headers);
+  const current = headers.get("Server-Timing");
+  headers.set("Server-Timing", [...(current ? [current] : []), ...entries].join(", "));
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 function goneResponse(request: Request) {
   const body = request.method === "HEAD" ? null : "העמוד הישן הוסר ואין לו עמוד חלופי מדויק.";
   return new Response(body, { status: 410, headers: {
@@ -157,6 +164,7 @@ const worker = {
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
     return withServerRequestReads(async () => {
+    const workerStarted = performance.now();
     // Vinext's local production server does not provide Cloudflare bindings.
     // Keep the public bundled-data paths testable locally while production
     // continues to receive the real Env object from Cloudflare.
@@ -213,26 +221,40 @@ const worker = {
       return servePublicGalleryMedia(request, env.UPLOADS, env.ASSETS);
     }
 
+    const policyStarted = performance.now();
     const ordinaryCachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
+    const policyMs = Math.round(performance.now() - policyStarted);
     const catalogNavigation = ordinaryCachePolicy?.kind === 'navigation' && isCatalogNavigationHintCandidate(request);
     // A thin model depends on a caller-local fresh snapshot. It can never be
     // stored under the ordinary rich Flight cache identity.
     const cachePolicy = catalogNavigation ? null : ordinaryCachePolicy;
+    let cacheLookupMs = 0;
+    const withRequestTiming = (output: Response) => appendServerTiming(output, [
+      `vii-worker-policy;dur=${policyMs}`,
+      `vii-cache-lookup;dur=${cacheLookupMs}`,
+      `vii-worker-entry;dur=${Math.round(performance.now() - workerStarted)}`,
+    ]);
     if (cachePolicy && !refreshPublic) {
       const lookupStarted = performance.now();
       try {
         const cached = await readPublicCache(cachePolicy, env, ctx);
+        cacheLookupMs = Math.round(performance.now() - lookupStarted);
         if (cached) {
-          const cacheReadMs = Math.round(performance.now() - lookupStarted);
+          const cacheReadMs = cacheLookupMs;
           cached.headers.set("X-VII-Cache-Read-Ms", String(cacheReadMs));
           // Keep the cache tier visible in browser/server timing traces. This
           // is diagnostic only and does not alter cache eligibility or body.
           cached.headers.set("Server-Timing", `vii-cache;dur=${cacheReadMs}`);
-          cached.headers.set("X-VII-Cache-Refresh", refreshPublicCacheAhead(cached, cachePolicy, ctx,
+          const timed = appendServerTiming(cached, [
+            `vii-worker-policy;dur=${policyMs}`,
+            `vii-worker-entry;dur=${Math.round(performance.now() - workerStarted)}`,
+          ]);
+          timed.headers.set("X-VII-Cache-Refresh", refreshPublicCacheAhead(timed, cachePolicy, ctx,
             () => worker.fetch(request, env, ctx, true)));
-          return cached;
+          return timed;
         }
       } catch (error) {
+        cacheLookupMs = Math.round(performance.now() - lookupStarted);
         console.error("VII public cache read failed", cachePolicy.kind, error);
       }
     }
@@ -297,7 +319,12 @@ const worker = {
         return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
       }
       const output = await withLaunchSeo(response, url, primary);
-      return storePublicCache(output, cachePolicy?.kind !== "document" ? cachePolicy : null, env, ctx);
+      const timedOutput = appendServerTiming(output, [
+        `vii-worker-policy;dur=${policyMs}`,
+        `vii-cache-lookup;dur=${cacheLookupMs}`,
+        `vii-worker-entry;dur=${Math.round(performance.now() - workerStarted)}`,
+      ]);
+      return storePublicCache(timedOutput, cachePolicy?.kind !== "document" ? cachePolicy : null, env, ctx);
     }
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
@@ -385,11 +412,11 @@ const worker = {
       if (!primary) {
         const output = await withLaunchSeo(transformed, url, false);
         output.headers.set("X-VII-Html-Transform", "native-stream");
-        return storePublicCache(output, cachePolicy, env, ctx);
+        return storePublicCache(withRequestTiming(output), cachePolicy, env, ctx);
       }
       const output = rewriteOriginStream(transformed, temporaryOrigin, primaryOrigin);
       output.headers.set("X-VII-Html-Transform", "native-stream");
-      return storePublicCache(output, cachePolicy, env, ctx);
+      return storePublicCache(appendServerTiming(output, [`vii-worker-policy;dur=${policyMs}`, `vii-cache-lookup;dur=${cacheLookupMs}`, `vii-worker-entry;dur=${Math.round(performance.now() - workerStarted)}`]), cachePolicy, env, ctx);
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -398,7 +425,7 @@ const worker = {
     if (locale === "he" && cachePolicy?.kind === "document") {
       const canonical = rewriteCanonicalStream(response, makeLocaleLinks);
       const output = primary ? rewriteOriginStream(canonical, temporaryOrigin, primaryOrigin) : canonical;
-      return storePublicCache(await withLaunchSeo(output, url, primary), cachePolicy, env, ctx);
+      return storePublicCache(withRequestTiming(await withLaunchSeo(output, url, primary)), cachePolicy, env, ctx);
     }
     const html = await response.text();
     const htmlWithoutAlternates = html.replace(
@@ -416,9 +443,9 @@ const worker = {
     const headers = new Headers(response.headers);
     headers.delete("content-length");
     if (!primary) headers.set("X-Robots-Tag", "noindex");
-    return storePublicCache(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
+    return storePublicCache(withRequestTiming(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
-    }), cachePolicy, env, ctx);
+    })), cachePolicy, env, ctx);
     }, ctx);
   },
 };
