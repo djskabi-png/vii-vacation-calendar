@@ -24,3 +24,20 @@ test('actual discovery wrapper preserves a live map on refreshed results and sin
  assert.equal(DiscoveryMap({items:[a],initialItems:[a],tone:'spa',focusKey:'north'}).key,DiscoveryMap({items:[a,b],initialItems:[a,b],tone:'spa',focusKey:'north'}).key);
  assert.notEqual(ListingMap({listings:[listing('a')],single:true}).key,ListingMap({listings:[listing('b')],single:true}).key);
 });
+
+test('actual provider initialization wakes after an empty result stream without restarting for positive catalog growth',async()=>{
+ const source=readFileSync(new URL('../app/components/map/leaflet-places-map.tsx',import.meta.url),'utf8');
+ const ast=ts.createSourceFile('map.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let effect,deps;
+ const visit=n=>{if(ts.isCallExpression(n)&&n.expression.getText(ast)==='useEffect'&&n.arguments[0]?.getText(ast).includes('const map = L.map(container')){effect=n.arguments[0];deps=n.arguments[1];}ts.forEachChild(n,visit);};visit(ast);
+ assert.ok(effect&&deps);
+ const compile=n=>ts.transpileModule('const result='+n.getText(ast)+';',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText+';return result;';
+ const evaluate=(node,ctx)=>Function('ctx','with(ctx){'+compile(node)+'}')(ctx);
+ let starts=0;const errors=[];const noop=()=>{};
+ const ctx={providerError:null,enabled:true,hasPlaces:false,interactive:true,selectPlace:noop,single:false,tone:'events',language:'he',cardCopy:{openCluster:'cluster'},mapControlCopy:{cluster:'cluster',zoomIn:'in',zoomOut:'out'},providerRetry:0,mapElement:{current:{}},markerInstances:{current:new Map()},suppressViewportPrompt:{current:false},setViewportDirty:noop,setPendingVisibleIds:noop,setMapReady:noop,keepMapFocusInViewport:()=>noop,setProviderError:e=>errors.push(e),preloadLeaflet:()=>Promise.resolve({map(){starts++;throw Error('fixture-constructor-stop');}})};
+ ctx.mapInstance={current:null};
+ let lastDeps;function render(hasPlaces){ctx.hasPlaces=hasPlaces;const next=evaluate(deps,ctx);if(!lastDeps||next.some((value,index)=>!Object.is(value,lastDeps[index]))){lastDeps=next;evaluate(effect,ctx)();}}
+ render(false);await Promise.resolve();assert.equal(starts,0);
+ render(true);await Promise.resolve();await Promise.resolve();assert.equal(starts,1,'data arriving after opening must initialize the provider');
+ render(true);await Promise.resolve();assert.equal(starts,1,'positive result growth must reconcile markers without recreating the map');
+ assert.equal(errors[0]?.message,'fixture-constructor-stop');
+});

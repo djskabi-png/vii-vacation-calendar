@@ -83,6 +83,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
   ].join(":")).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const places = useMemo(() => incomingPlaces, [placesSignature]);
+  const hasPlaces = places.length > 0;
   const placesRef = useRef(places);
   placesRef.current = places;
   const { language } = useSiteLanguage();
@@ -323,7 +324,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
   }, [activePlaceId, mapReady, places, selectPlace, tone, providerRetry]);
 
   useEffect(() => {
-    if (providerError || !enabled || !mapElement.current || places.length === 0) return;
+    if (providerError || !enabled || !mapElement.current || !hasPlaces) return;
     const container = mapElement.current;
     const markerRegistry = markerInstances.current;
     let cancelled = false;
@@ -747,7 +748,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
   // coordinate set nor a longer focus list is an instruction to tear down the
   // live Leaflet instance, reset its camera or discard the user's selection.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, interactive, selectPlace, single, tone, language, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut, providerRetry, providerError]);
+  }, [enabled, hasPlaces, interactive, selectPlace, single, tone, language, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut, providerRetry, providerError]);
 
   useEffect(() => {
     // Catalog, coordinate and presentation data can arrive after the map has
