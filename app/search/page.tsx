@@ -65,7 +65,9 @@ import { prioritizeOnlineFirst } from "../lib/vacation-online-first";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { RegionalAvailability } from "../components/regional-availability";
 import { canShowDatedSearchResult, datedSearchResultTier } from "../lib/dated-availability-eligibility";
-import {usePublicPromotionWeights} from "../components/use-public-promotion-weights";
+import {usePublicPromotionWeights,usePublicPromotionFlags} from "../components/use-public-promotion-weights";
+import { RecommendedPlacesBanner } from "../components/recommended-place-banner";
+import { turboOrder } from "../lib/promotion-result-policy";
 import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
@@ -402,6 +404,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
   const documentSeed = useDocumentSeed();
   const promotionWeight=usePublicPromotionWeights("vacations");
+  const promotionFlags=usePublicPromotionFlags("vacations");
   const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
@@ -835,6 +838,10 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
   const resultSet = useMemo(() => {
     const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
     if (sort === "nearest") return orderByProximity(complete, nearby.distance);
+    if (sort === "recommended" && undatedSearch) {
+      const exact = new Set(filtered.map(place => place.slug));
+      return turboOrder(complete,"vacations",complete.flatMap(place => {const value=promotionFlags(place.slug);return value?[value]:[];}),true,place=>place.slug,place=>exact.has(place.slug)?0:1);
+    }
     if (sort !== "price-asc" && sort !== "price-desc") return complete;
     return orderVacationResultsByDisplayedPrice(
       complete,
@@ -846,7 +853,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
   // starting prices load independently, so they remain an explicit dependency.
   // Listing the render-local function itself would invalidate this memo on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, nearbyRecovery, propertyOrderBySlug, sort, startingPrices, nearby.origin]);
+  }, [filtered, nearbyRecovery, propertyOrderBySlug, sort, startingPrices, nearby.origin,undatedSearch,promotionFlags]);
   const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((property) => {
     const availability = liveAvailabilityFor(property.slug)?.quote;
     if (selectedStay || flexibleSearch) {
@@ -1162,6 +1169,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(selectedStay || flexibleSearch)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
+            <RecommendedPlacesBanner world="vacations" items={filtered.map(property=>({id:property.slug,name:property.name,image:property.image||property.images[0],location:property.location,href:detailHref(property.slug)}))} />
             {resultSet.length > 0 && <h2 className="sr-only">{translate("מקומות שמתאימים לחיפוש")}</h2>}
             {!mapOpen && <ProgressiveResults autoLoad initialCount={initialResultWindow} className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setResultWindow((current) => ({ key: resultWindowKey, count: Math.min(displayedResults.length, (current.key === resultWindowKey ? current.count : initialResultWindow) + 9) }))}>{visibleResults.map((property, index) => <PropertyCard key={property.slug} property={property} catalogStartingPrices={startingPrices[property.slug]} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} priority={index < 3} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">

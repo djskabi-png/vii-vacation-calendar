@@ -5,6 +5,26 @@ export type GallerySelectionItem = {
 
 export type GallerySelectionTab = "all" | GallerySelectionItem["category"] | "videos";
 
+export function gallerySelectionScope<T extends GallerySelectionItem>(items: T[], tab: GallerySelectionTab, topic: string | null = null): GallerySelectionItem["category"] {
+  if (tab === "units" || tab === "bedrooms" || tab === "guests") return tab;
+  // Preserve old gallery=all links to unit-only topics without combining a
+  // room's copy of a photograph with an editorial source gallery.
+  if (topic && !items.some(item => item.category === "place" && item.topic === topic)) {
+    const unitTopic = items.find(item => item.topic === topic && (item.category === "units" || item.category === "bedrooms"));
+    if (unitTopic) return unitTopic.category;
+  }
+  return "place";
+}
+
+export function galleryTopicTabs<T extends GallerySelectionItem>(items: T[], category: GallerySelectionItem["category"]) {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    if (item.category !== category) continue;
+    counts.set(item.topic, (counts.get(item.topic) || 0) + 1);
+  }
+  return [...counts].map(([title, count]) => ({ title, count }));
+}
+
 export function uniqueGalleryItems<T extends GallerySelectionItem & { src: string }>(items: T[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -19,9 +39,7 @@ export function uniqueGalleryItems<T extends GallerySelectionItem & { src: strin
 }
 
 export function visibleGalleryItems<T extends GallerySelectionItem>(items: T[], tab: GallerySelectionTab, topic: string | null) {
-  // A supplier-named gallery is authoritative. Its media can also belong to a
-  // unit. Topic-first filtering keeps unit deep-links intact while the item
-  // builder preserves every category and topic identity.
-  if (topic) return items.filter((item) => item.topic === topic);
-  return tab === "all" ? items : tab === "videos" ? [] : items.filter((item) => item.category === tab);
+  if (tab === "videos") return [];
+  const scope = gallerySelectionScope(items, tab, topic);
+  return items.filter(item => item.category === scope && (!topic || item.topic === topic));
 }

@@ -20,12 +20,26 @@ export function readPublicPromotionWeights() {
   return request;
 }
 
-export function usePublicPromotionWeights(world: World) {
+function usePromotionSnapshot() {
   const [weights, setWeights] = useState<Weight[]>(() => snapshot || []);
   useEffect(() => { let active = true; const refresh=()=>{ if (globalThis.document?.visibilityState === "hidden") return; void readPublicPromotionWeights().then(value=>{if(active)setWeights(value);}); }; refresh(); const timer=setInterval(refresh,60_000); globalThis.addEventListener("focus",refresh); return () => { active = false; clearInterval(timer); globalThis.removeEventListener("focus",refresh); }; }, []);
+  return weights;
+}
+
+export function usePublicPromotionWeights(world: World) {
+  const weights = usePromotionSnapshot();
   return useMemo(() => {
     const map = new Map<number, number>();
     weights.filter((entry) => entry.world === world).forEach((entry) => map.set(entry.supplierId, entry.weight));
     return (supplierId: number|string) => map.get(promotionSupplierId(supplierId))||0;
+  }, [weights, world]);
+}
+
+export function usePublicPromotionFlags(world: World) {
+  const weights = usePromotionSnapshot();
+  return useMemo(() => {
+    const map = new Map<number, Weight>();
+    weights.filter(entry => entry.world === world).forEach(entry => map.set(entry.supplierId, entry));
+    return (supplierId: number | string) => map.get(promotionSupplierId(supplierId)) || null;
   }, [weights, world]);
 }

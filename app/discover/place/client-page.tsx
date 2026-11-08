@@ -38,6 +38,7 @@ import { FloatingContactActions } from "../../components/floating-contact-action
 import { DirectPhoneLink } from "../../components/direct-phone-link";
 import { FeatureIcon } from "../../components/feature-icon";
 import { SearchAfterResults } from "../../components/search-after-results";
+import { ShareButton } from "../../components/share-dialog";
 import { providerDepthLocation } from "../../lib/world-depth-policy";
 import { activityRegion, activityType } from "../../lib/activity-discovery-taxonomy";
 import { HomeMobileRail } from "../../components/home-mobile-rail";
@@ -46,6 +47,7 @@ import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from
 import { hourlyBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../../data/spa-search-landings";
 import { discoveryBreadcrumbsForLocation } from "../../lib/place-breadcrumb-locations";
+import { filterSpaSourceAbout } from "../../lib/spa-about-source";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
   const [room, duration, day] = value.split(" · ");
@@ -117,7 +119,10 @@ function SpaPackageCard({ pack, requestedDate, onBook }: { pack: SpaPackage; req
   const text = spaDealCopy[language];
   const title = localizedSpaPackageTitle({title:pack.title,durationMinutes:pack.durationMinutes || null,people:pack.people || null,group:pack.group},language,translate);
   const hasImage = Boolean(pack.image) && !imageFailed;
-  return <article className="spa-package-card" id={`spa-package-${pack.id}`}>
+  const packageBasis = pack.people
+    ? ({ he: `מחיר החבילה עבור ${pack.people} אנשים`, en: `Package price for ${pack.people} people`, ru: `Цена пакета для ${pack.people} человек`, fr: `Prix du forfait pour ${pack.people} personnes` }[language])
+    : translate("מחיר החבילה");
+  return <article className="spa-package-card" id={`spa-package-${pack.id}`} onClick={() => onBook(pack)}>
     <div className={`spa-package-card__media${hasImage ? "" : " spa-package-card__media--empty"}`}>
       {hasImage
         ? <img className="spa-package-card__image" src={pack.image} alt={title} title={title} loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
@@ -132,8 +137,8 @@ function SpaPackageCard({ pack, requestedDate, onBook }: { pack: SpaPackage; req
       {requestedDate ? <p className="spa-package-request-date" data-no-translate>{text.requested}: {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, {day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(`${requestedDate}T12:00:00Z`))}. {text.chooseDate}</p> : null}
       {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul>}
       <footer>
-        <div className="spa-package-card__price"><small>{translate("מחיר החבילה")}</small><strong>{pack.price}</strong></div>
-        <button className="button primary" type="button" onClick={() => onBook(pack)} aria-label={`בדיקת זמינות והזמנת ${pack.title}`}>{translate("בדיקת זמינות והזמנה")}</button>
+        <div className="spa-package-card__price"><small>{packageBasis}</small><strong>{pack.price}</strong></div>
+        <button className="button primary" type="button" onClick={(event) => { event.stopPropagation(); onBook(pack); }} aria-label={`בדיקת זמינות והזמנת ${pack.title}`}>{translate("בדיקת זמינות והזמנה")}</button>
       </footer>
     </div>
   </article>;
@@ -175,7 +180,8 @@ function SpaContent({ details }: { details: SpaDetails }) {
       .then((body: { about?: unknown; editorial?: unknown }) => {
         if (body.editorial !== "vii" || !Array.isArray(body.about) || !body.about.length || body.about.some((value) => typeof value !== "string")) throw new Error("editorial_unavailable");
         if (!controller.signal.aborted) {
-          setSourceAbout(body.about.filter((value): value is string => typeof value === "string"));
+          const summary = localizedBusinessText(details.editorialSummary, language, translate, sourceFallback).trim();
+          setSourceAbout(filterSpaSourceAbout(summary, body.about.filter((value): value is string => typeof value === "string")));
           setSourceError(false);
         }
       })
@@ -360,7 +366,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
   const hourlyDetails = item.world === "hourly" ? initialHourlyDetails || getHourlyDetails(item) : undefined;
   const activityDetails = item.world === "activities" ? getActivityDetails(item) : undefined;
-  const galleryImages = item.images?.length ? item.images : item.image ? [item.image] : [];
+  const galleryImages = [...new Set(item.images?.length ? item.images : item.image ? [item.image] : [])];
   const gallerySubject = { name: item.name, images: galleryImages };
   const sections = useMemo<DetailSectionLink[]>(() => {
     if (spaDetails) return [
@@ -411,7 +417,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
             ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...localizedBreadcrumbs(discoveryBreadcrumbsForLocation("activities", item.area, item.location), breadcrumbPrefix.activities), { name: localizedItemName }]
             : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...localizedBreadcrumbs(discoveryBreadcrumbsForLocation("providers", undefined, item.location), breadcrumbPrefix.providers), { name: localizedItemName }]} />
       <section className="shell discovery-detail__hero">
-        <div className="discovery-detail__copy"><span className="eyebrow">{translate(world.label)}</span><h1>{localizedItemName}</h1><p className="discovery-detail__location"><PinIcon />{localizedLocation}, {localizedArea}</p>{(item.world === "spa" || item.world === "hourly") ? <ListingAccessibility slug={item.id} features={item.features} compact /> : null}<ExpandableDescription text={localizedDescription} />{item.world !== "hourly" && <div className="discovery-card__chips">{localizedFeatures.map((feature) => <span key={feature}><FeatureIcon label={feature} className="discovery-card__chip-icon" /><span>{feature}</span></span>)}</div>}<div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">{translate("לבחירת חבילה")}</a> : providerDetails ? <a className="button primary" href="#provider-services">{translate("לבחירת שירות")}</a> : hourlyDetails ? <DirectPhoneLink phone={item.phone} placeName={localizedItemName} className="button primary" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_title" }} /> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">{translate("איך מזמינים")}</a> : activityDetails ? <a className="button primary" href="#activity-plan">{translate("לתכנון המלא")}</a> : <Link className="button primary" href={world.href}>{translate("לכל האפשרויות")}</Link>}</div></div>
+        <div className="discovery-detail__copy"><span className="eyebrow">{translate(world.label)}</span><h1>{localizedItemName}</h1><p className="discovery-detail__location"><PinIcon />{localizedLocation}, {localizedArea}</p>{(item.world === "spa" || item.world === "hourly") ? <ListingAccessibility slug={item.id} features={item.features} compact /> : null}<ExpandableDescription text={localizedDescription} />{item.world !== "hourly" && <div className="discovery-card__chips">{localizedFeatures.map((feature) => <span key={feature}><FeatureIcon label={feature} className="discovery-card__chip-icon" /><span>{feature}</span></span>)}</div>}<div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">{translate("לבחירת חבילה")}</a> : providerDetails ? <a className="button primary" href="#provider-services">{translate("לבחירת שירות")}</a> : hourlyDetails ? <DirectPhoneLink phone={item.phone} placeName={localizedItemName} className="button primary" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_title" }} /> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">{translate("איך מזמינים")}</a> : activityDetails ? <a className="button primary" href="#activity-plan">{translate("לתכנון המלא")}</a> : <Link className="button primary" href={world.href}>{translate("לכל האפשרויות")}</Link>} {item.world === "spa" ? <ShareButton title={item.name} image={item.image} /> : null}</div></div>
         <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}><FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} className="discovery-detail__favorite" />{item.image ? <><button className="discovery-detail__gallery-media" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt="" title="" data-image-role="decorative" /></button><button className="discovery-detail__gallery-launch" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>
       </section>
       <DetailStickyDock name={localizedItemName} sections={sections} onlineHref={onlineHref} onlineLabel={onlineLabel} phone={phone} />
@@ -421,8 +427,8 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}
       {((spaDetails && item.lat && item.lng) || (hourlyDetails && item.lat && item.lng)) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><h2>המקום על המפה</h2><p>{item.world === "spa" ? "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DeferredDiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single /></section> : null}
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} features={item.features} /></div>}
-      {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <div className="section shell"><GuestReviewStudio placeName={localizedItemName} subjectId={item.id} rating={item.rating} /></div>
+      {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><h2>{translate("עוד אפשרויות שכדאי לראות")}</h2></div></div><HomeMobileRail shufflePlaces id="discovery-detail-related" label={translate("עוד אפשרויות שכדאי לראות")} className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</HomeMobileRail></div></section>
       {item.world === "hourly" ? <FloatingContactActions world="hourly" placeId={item.id} placeName={item.name} phone={item.phone} whatsapp={item.whatsapp} serviceName="חדרים לפי שעה" /> : null}
       {item.world === "providers" ? <FloatingContactActions world="providers" placeId={item.id} placeName={item.name} phone={providerDetails?.phone || item.phone} whatsapp={providerDetails?.bookingMode === "whatsapp" ? providerDetails.phone : item.whatsapp} serviceName={providerDetails?.services[0]?.title || "שירות"} /> : null}

@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
-import { uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
+import { gallerySelectionScope, galleryTopicTabs, uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { signalExperienceStage } from '../lib/experience-signals';
 
@@ -93,6 +93,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     ]);
   }, [guestPhotos, property]);
   const defaultTopic = useMemo(() => allItems.find((item) => item.category !== "guests")?.topic ?? null, [allItems]);
+  const topicScope = gallerySelectionScope(allItems, initialTab === "guests" || initialTab === "videos" ? "all" : initialTab, resolvedInitialTopic(allItems, property, initialTopic) ?? defaultTopic);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
   const [topic, setTopic] = useState<string | null>(() => resolvedInitialTopic(allItems, property, initialTopic) ?? (initialTab === "all" ? defaultTopic : null));
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
@@ -116,14 +117,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     });
     return [...groups.entries()];
   }, [visibleItems]);
-  const topicTabs = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const item of allItems) {
-      if (item.category === "guests") continue;
-      counts.set(item.topic, (counts.get(item.topic) || 0) + 1);
-    }
-    return [...counts].map(([title, count]) => ({ title, count }));
-  }, [allItems]);
+  const topicTabs = useMemo(() => galleryTopicTabs(allItems, topicScope), [allItems, topicScope]);
   const move = useCallback((direction: -1 | 1) => {
     if (!visibleItems.length) return;
     setSelected((value) => boundedSliderIndex(value, direction, visibleItems.length));
@@ -199,7 +193,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   }
 
   function selectTopic(next: string) {
-    setTab("all");
+    setTab(topicScope === "place" ? "all" : topicScope);
     setTopic(next);
     setSelected(0);
     setMobileViewer(false);
@@ -214,8 +208,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
 
     <nav className="story-gallery__tabs" aria-label="נושאים בגלריה">
       {topicTabs.map((item) => <button key={item.title} type="button" aria-pressed={topic === item.title} onClick={() => selectTopic(item.title)}>{item.title}<small>{item.count}</small></button>)}
-      <button type="button" aria-pressed={tab === "guests"} onClick={() => selectTab("guests")}>{tabLabels.guests}<small>{guestPhotos.length}</small></button>
-      {property.videos?.length ? <button type="button" aria-pressed={tab === "videos"} onClick={() => selectTab("videos")}>{tabLabels.videos}<small>{property.videos.length}</small></button> : null}
+      {topicScope === "place" ? <button type="button" aria-pressed={tab === "guests"} onClick={() => selectTab("guests")}>{tabLabels.guests}<small>{guestPhotos.length}</small></button> : null}
+      {topicScope === "place" && property.videos?.length ? <button type="button" aria-pressed={tab === "videos"} onClick={() => selectTab("videos")}>{tabLabels.videos}<small>{property.videos.length}</small></button> : null}
     </nav>
 
     {tab === "guests" && !guestPhotos.length ? <div className="story-gallery__guest-empty">
@@ -230,7 +224,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </article>)}
     </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
-        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab("all"); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /></button>)}</div></section>)}
+        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab(topicScope === "place" ? "all" : topicScope); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /></button>)}</div></section>)}
       </div>
       <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__mobile-media">

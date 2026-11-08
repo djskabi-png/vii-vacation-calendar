@@ -43,7 +43,7 @@ export function validateVacationReadiness(value: unknown, expected: {
     const seen = new Set<number>();
     for (const value of row.deals) {
         const deal = record(value);
-        if (!deal || !positive(deal.siteID) || seen.has(Number(deal.siteID)) || deal.priceGuests !== guests || typeof deal.total !== 'number' || !Number.isFinite(deal.total) || deal.total <= 0 || deal.from !== expected.from || deal.till !== expected.till || deal.nights !== expected.nights)
+        if (!deal || !positive(deal.siteID) || seen.has(Number(deal.siteID)) || deal.priceGuests !== guests || deal.total !== null && (typeof deal.total !== 'number' || !Number.isFinite(deal.total) || deal.total <= 0) || deal.from !== expected.from || deal.till !== expected.till || deal.nights !== expected.nights)
             return { ok: false, reason: 'deal_contract' };
         seen.add(Number(deal.siteID));
     }

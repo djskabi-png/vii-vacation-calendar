@@ -11,21 +11,21 @@ type World = "vacations" | "events" | "rooms" | "spa";
 type Kind = "manual" | "new_place" | "ending_contract";
 type Draft = {
   eventId: string; campaignId: string; version: number; world: World; supplierId: number; placeName: string;
-  kind: Kind; weight: number; startsOn: string; endsOn: string; contractEndsOn: string | null;
+  kind: Kind; weight: number; featured?: boolean; turboEligible?: boolean; startsOn: string; endsOn: string; contractEndsOn: string | null;
   contractSource: string | null; note: string; status: "draft" | "published" | "archived";
   actorEmail: string; savedAt: string;
 };
 type Dashboard = { drafts: Draft[]; activity: Draft[]; publicRankingEnabled: boolean };
 type Form = {
   campaignId: string | null; expectedVersion: number | null; world: World; supplierId: string;
-  kind: Kind; weight: number; startsOn: string; endsOn: string; contractEndsOn: string;
+  kind: Kind; weight: number; featured: boolean; turboEligible: boolean; startsOn: string; endsOn: string; contractEndsOn: string;
   contractSource: string; note: string;
 };
 
 const worlds: Record<World, string> = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" };
 const kinds: Record<Kind, string> = { manual: "קידום יזום", new_place: "מקום חדש", ending_contract: "פרסום לקראת סיום" };
 const emptyForm = (): Form => ({ campaignId: null, expectedVersion: null, world: "vacations", supplierId: "",
-  kind: "manual", weight: 2, startsOn: "", endsOn: "", contractEndsOn: "", contractSource: "", note: "" });
+  kind: "manual", weight: 2, featured: false, turboEligible: false, startsOn: "", endsOn: "", contractEndsOn: "", contractSource: "", note: "" });
 const date = (value: string) => new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
 function statusLabel(draft: Draft) {
   if (draft.status !== "published") return draft.status === "draft" ? "טיוטה" : "ארכיון";
@@ -93,7 +93,7 @@ export default function DiscoveryPromotionsPage() {
 
   function edit(draft: Draft) {
     setForm({ campaignId: draft.campaignId, expectedVersion: draft.version, world: draft.world,
-      supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+      supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight, featured: draft.featured === true, turboEligible: draft.turboEligible === true,
       startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
       contractSource: draft.contractSource || "", note: draft.note });
     setResolvedName(draft.placeName); setError(""); setNotice(""); pendingRequest.current = null;
@@ -154,6 +154,8 @@ export default function DiscoveryPromotionsPage() {
             {Object.entries(kinds).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select></label>
           <label>משקל מוצע <strong>{form.weight} מתוך 5</strong><input type="range" min="1" max="5" step="1"
             value={form.weight} onChange={(event) => change("weight", Number(event.target.value))} disabled={busy} /></label>
+          <label><input type="checkbox" checked={form.featured} onChange={(event) => change("featured", event.target.checked)} disabled={busy} /> הופעה בבאנר המומלץ</label>
+          <label><input type="checkbox" checked={form.turboEligible} onChange={(event) => change("turboEligible", event.target.checked)} disabled={busy} /> Turbo בתוצאות ללא תאריך ובהמלצה</label>
           <div className={styles.fieldRow}><ModernDateInput label={<>מתאריך</>} required value={form.startsOn}
             onChange={(event) => change("startsOn", event.target.value)} disabled={busy}  />
             <ModernDateInput label={<>עד תאריך</>} required min={form.startsOn} value={form.endsOn}
@@ -179,16 +181,19 @@ export default function DiscoveryPromotionsPage() {
                 {draft.status === "draft" ? <button type="button" title="פרסום" aria-label={`פרסום ${draft.placeName}`}
                   onClick={() => void save("published", { campaignId: draft.campaignId, expectedVersion: draft.version,
                     world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+                    featured: Boolean(draft.featured), turboEligible: Boolean(draft.turboEligible),
                     startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
                     contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Save size={17} /></button> : null}
                 {draft.status === "published" ? <button type="button" title="ביטול פרסום" aria-label={`ביטול פרסום ${draft.placeName}`}
                   onClick={() => void save("archived", { campaignId: draft.campaignId, expectedVersion: draft.version,
                     world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+                    featured: Boolean(draft.featured), turboEligible: Boolean(draft.turboEligible),
                     startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
                     contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Archive size={17} /></button> : null}
                 {draft.status === "draft" ? <button type="button" title="העברה לארכיון" aria-label={`העברת ${draft.placeName} לארכיון`}
                   onClick={() => void save("archived", { campaignId: draft.campaignId, expectedVersion: draft.version,
                     world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+                    featured: Boolean(draft.featured), turboEligible: Boolean(draft.turboEligible),
                     startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
                     contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Archive size={17} /></button> : null}</div></td>
             </tr>)}</tbody></table></div> : <p className={styles.empty}>עדיין אין טיוטות קידום.</p>}

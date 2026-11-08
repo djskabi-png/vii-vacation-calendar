@@ -13,6 +13,17 @@ test("single-unit supplier price basis stays distinct from requested guests and 
   assert.equal(requested.rooms[0].adults, 2);
 });
 
+test("authoritative available stay without a supplier price remains contact-only", async () => {
+  const dates = homeDealDates("tomorrow", new Date("2026-10-05T12:00:00Z"));
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test", publicSiteIds: new Set([2211]),
+    fetchImpl: async (_url, init) => { const body = JSON.parse(init.body); assert.equal(body.rooms[0].adults, 2); return Response.json({ sites: [{ siteID: 2211, available: true, onlineBooking: true, minTotal: null, cheapest: { from: dates.from, till: dates.till, rooms: [{ roomID: 3729 }] } }] }); },
+    resolveCatalog: async () => new Map([[2211, { name: "Unpriced VIP", images: ["/api/vii/media/unpriced.jpg"], city: "Jerusalem", area: "Jerusalem", rooms: [{ roomID: 3729, maxGuests: 8 }] }]]) });
+  assert.equal(result.deals.length, 1);
+  assert.equal(result.deals[0].total, null);
+  assert.equal(result.deals[0].onlineBooking, false);
+  assert.equal(result.deals[0].roomID, 3729);
+});
+
 test("discovery enriches live search from accepted catalog without broken supplier list or location calls", async () => {
   let calls = 0;
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test", publicSiteIds: new Set([11, 12]),

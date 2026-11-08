@@ -79,19 +79,20 @@ export function dealProperty(deal: HomeDeal): Property {
 }
 
 export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
+  const hasPrice = typeof deal.total === "number" && Number.isFinite(deal.total) && deal.total > 0 && deal.nights > 0;
   return {
     from: deal.from,
     till: deal.till,
     availability: "available",
-    totalPrice: deal.total,
-    nightlyPrice: Math.round(deal.total / Math.max(1, deal.nights)),
+    totalPrice: hasPrice ? deal.total! : undefined,
+    nightlyPrice: hasPrice ? Math.round(deal.total! / deal.nights) : undefined,
     includedGuests: deal.priceGuests,
     quotedGuests: deal.priceGuests,
     priceBasisGuests: deal.priceBasisGuests,
     priceMode: "stay_total",
     // An accepted last-known snapshot remains valid discovery evidence while
     // the background refresh retries. Checkout still revalidates live.
-    onlineBooking: deal.onlineBooking,
+    onlineBooking: hasPrice ? deal.onlineBooking : false,
     bookingSupported: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0,
     supplierRoomID: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0 ? deal.roomID : undefined,
     showSelectedDates: true,

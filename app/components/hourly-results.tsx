@@ -21,6 +21,9 @@ import { nearbySearchRecommendations, completePlaceSearchResults, PLACE_SEARCH_M
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 import {usePublicPromotionWeights} from "./use-public-promotion-weights";
+import {usePublicPromotionFlags} from "./use-public-promotion-weights";
+import {turboOrder} from "../lib/promotion-result-policy";
+import { RecommendedPlacesBanner } from "./recommended-place-banner";
 import { useDocumentSeed } from "./use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderGroupedDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 import { MapSplitResultList } from "./map-split-result-list";
@@ -53,6 +56,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const { language, translate } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
   const promotionWeight=usePublicPromotionWeights("rooms");
+  const promotionFlags=usePublicPromotionFlags("rooms");
   const [location, setLocation] = useState(requestedLocation);
   const managedGeography = useManagedGeography(location !== "כל הארץ");
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
@@ -98,7 +102,11 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     });
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id, origin: { location, area: location, ...center } });
   }, [features, filtered, items, location, managedGeography, maximumPrice]);
-  const resultItems = useMemo(() => orderGroupedDiscoveryResults(filtered, completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:hourly-search`, sortModel, (item) => item.id), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
+  const resultItems = useMemo(() => {
+    const ordered = orderGroupedDiscoveryResults(filtered, completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:hourly-search`, sortModel, (item) => item.id);
+    const exact = new Set(filtered.map(item=>item.id));
+    return turboOrder(ordered,"rooms",ordered.flatMap(item=>{const value=promotionFlags(item.id);return value?[value]:[];}),sort==="recommended",item=>item.id,item=>exact.has(item.id)?0:1);
+  }, [documentSeed, filtered, nearbyRecovery, sort, sortModel, promotionFlags]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => trackSearchResults({
@@ -191,6 +199,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>{translate("ניקוי סינונים")}</button>
       </div>
     </div>
+    <RecommendedPlacesBanner world="rooms" items={filtered.map(item=>({id:item.id,name:item.name,image:item.image,location:item.location,href:localizedPath(`/discover/place/${item.id}`,language)}))} />
     {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><MapSplitResultList items={displayed} getId={(item) => item.id} activeId={activeMapPlaceId} className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{(item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />}</MapSplitResultList><div className="airbnb-map-split__map"><DeferredDiscoveryMap focusKey={location} items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults autoLoad className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>{translate("לא נמצאו מקומות שמתאימים לכל הסינונים")}</strong><p>{translate("אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.")}</p><button type="button" className="button secondary" onClick={resetFilters}>{translate("הצגת כל המקומות")}</button></div>}
   </div>;
 }

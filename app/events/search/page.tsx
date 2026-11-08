@@ -44,6 +44,9 @@ import { RegionalAvailability } from "../../components/regional-availability";
 import { matchesEventVenueType, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import {usePublicPromotionWeights} from "../../components/use-public-promotion-weights";
+import { RecommendedPlacesBanner } from "../../components/recommended-place-banner";
+import { usePublicPromotionFlags } from "../../components/use-public-promotion-weights";
+import { turboOrder } from "../../lib/promotion-result-policy";
 import { useDocumentSeed } from "../../components/use-document-seed";
 import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, orderGroupedDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
 import { eventMatchesFeatureSelection, eventFeatureSelectionLabel } from "../../lib/event-search-features.ts";
@@ -74,6 +77,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
         : { home: "Accueil", events: "Événements", results: "Lieux événementiels" };
   const documentSeed = useDocumentSeed();
   const promotionWeight=usePublicPromotionWeights("events");
+  const promotionFlags=usePublicPromotionFlags("events");
   const managedGeography = useManagedGeography();
   const liveCopy = eventLiveCopy[language];
   const slotCopy = eventSlotCopy[language];
@@ -233,8 +237,10 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const resultSet = useMemo(() => {
     const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
     if (sort === "capacity") return [...complete].sort((first, second) => second.guests - first.guests || first.name.localeCompare(second.name, "he"));
-    return sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:event-search`,sortModel,place=>place.slug):orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
-  }, [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
+    const ordered = sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:event-search`,sortModel,place=>place.slug):orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
+    const exact = new Set(filtered.map(place=>place.slug));
+    return turboOrder(ordered,"events",ordered.flatMap(place=>{const value=promotionFlags(place.slug);return value?[value]:[];}),!eventFrom&&sort==="recommended",place=>place.slug,place=>exact.has(place.slug)?0:1);
+  }, [documentSeed, filtered, nearbyRecovery, sort, sortModel, eventFrom, promotionWeight, promotionFlags]);
   const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((place) => {
     if (datedEventSearch && /^event-\d+$/.test(place.slug)) {
       const result = supplierSearch.results[Number(place.slug.slice("event-".length))];
@@ -344,6 +350,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             </div> : null}
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(eventFrom)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className={`event-filter-toggle ${filtersOpen ? "active" : ""}`} aria-controls="event-result-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg><span>סינון</span></button><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label={discoverySortLabel(language)} value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
+            <RecommendedPlacesBanner world="events" items={filtered.map(place=>({id:place.slug,name:place.name,image:place.image,location:place.location,href:detailHref(place)}))} />
             {mapOpen ? <div className="airbnb-map-split event-map-split"><MapSplitResultList items={displayed} getId={(place) => place.slug} activeId={activeMapPlaceId} className={`airbnb-map-split__results event-map-results results-view results-view--${viewMode}`}>{(place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} startingPrice={undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => setActiveMapPlaceId(active ? place.slug : null)} />}</MapSplitResultList><div className="airbnb-map-split__map event-map-pane"><DeferredListingMap focusKey={area} listings={resultSet} mode="events" autoLoad priceById={mapPriceById} onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} startingPrice={undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null} />)}
             {!datedEventSearch && !catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה או מקום קרוב</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
             {!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && facility === "הכל" && !noNoiseLimit && !accessibleOnly ? <RegionalAvailability world="events" region={area} guests={guests || 20} embedded /> : null}

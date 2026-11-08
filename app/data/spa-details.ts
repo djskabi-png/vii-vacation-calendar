@@ -54,7 +54,10 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
     includes: [],
     image: pack.image || undefined,
     bookingUrl: publicSpaBookingUrl(pack.bookingUrl || site.bookingUrl!),
-  }));
+  })).sort((a, b) => {
+    const price = (value: string) => Number(value.replace(/[^0-9.]/g, ""));
+    return price(a.price) - price(b.price) || Number(a.id) - Number(b.id);
+  });
   const suitableFor = [...new Set(packages.map((pack) => pack.audience).filter((value) => value !== "לא צוין"))];
   const hours = site.opening.map((time, index) => `${weekdays[index] || `יום ${index + 1}`}: ${time === "closed" ? "סגור" : time}`);
   return {

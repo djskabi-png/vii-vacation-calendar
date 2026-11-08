@@ -90,7 +90,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()),
       shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as HolidayDealResponse | null), validateResponse: validHomeOfferResponse })
       .then((data) => {
-        if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
+        if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || deal.total !== null && (!Number.isFinite(deal.total) || deal.total <= 0))) throw new Error("invalid_deals");
         return data;
       })
       .then((data) => {

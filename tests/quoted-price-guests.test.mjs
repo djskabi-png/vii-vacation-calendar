@@ -20,6 +20,20 @@ test("actual shared home/holiday offer adapter preserves both quote party and su
   assert.equal(value.quotedGuests, 2); assert.equal(value.priceBasisGuests, 8); assert.equal(value.totalPrice, 1500);
 });
 
+test("unpriced available home deal renders contact-only without zero or NaN price", async () => {
+ const source = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
+ const ast = ts.createSourceFile("home.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+ const fn = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "dealAvailability");
+ const code = ts.transpileModule(fn.getText(ast).replace("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+ const adapt = Function(code + ";return dealAvailability;")();
+ const value = adapt({ from: "2026-11-12", till: "2026-11-13", total: null, nights: 1, priceGuests: 2, roomID: 3728, onlineBooking: true });
+ assert.equal(value.availability, "available");
+ assert.equal(value.totalPrice, undefined);
+ assert.equal(value.nightlyPrice, undefined);
+ assert.equal(value.onlineBooking, false);
+ assert.equal(value.bookingSupported, true);
+});
+
 test("a priced card describes the exact requested party instead of supplier basis occupancy", () => {
   assert.equal(quotedPriceGuestCount(6, true), 6);
   assert.equal(quotedPriceGuestLabel("he", 6, true), "המחיר עבור 6 אורחים");

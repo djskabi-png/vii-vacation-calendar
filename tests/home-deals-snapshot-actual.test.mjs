@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {homeDealsPreparation} from './helpers/home-deals-preparation-fixtures.mjs';
 import {homeDealDates} from '../app/lib/home-deal-dates.ts';
 import {dealClockKey} from '../app/lib/deal-clock.ts';
+import {selectHomeDeals} from '../app/lib/home-deals-snapshot.ts';
 function fixture({age=0,missing=false}={}){
  const now=new Date(),dates=homeDealDates('weekend',now),primary={id:'editorial'},catalog={id:'catalog'};
  let reads=0,key,curationDb;
@@ -22,4 +23,15 @@ test('actual SSR reader uses CMS default, exact cache key, primary editorial DB 
 });
 test('actual SSR reader rejects snapshots too old for five-minute HTML lifetime and leaves API recovery untouched',async()=>{
  for(const options of [{age:54*60_000},{missing:true}]){const f=fixture(options);assert.equal(await f.readHomeDealsSnapshot({guests:2,locale:'he',now:f.now}),null);assert.equal(f.reads,1);}
+});
+
+test('actual full-page selector preserves every priced and unpriced identity beyond the old twenty-card cap', async()=>{
+ const now=new Date('2026-11-08T10:00:00Z'), dates=homeDealDates('weekend',now);
+ const deals=Array.from({length:24},(_,index)=>({siteID:index+1,name:`Place ${index+1}`,from:dates.from,till:dates.till,nights:dates.nights,priceGuests:2,total:index%2?null:1200+index,roomID:index+1,onlineBooking:index%2===0}));
+ const index={publishedIds:new Set(deals.map(deal=>deal.siteID)),places:deals.map(deal=>({supplierId:deal.siteID}))};
+ const selected=selectHomeDeals(deals,index,dates,2,now);
+ assert.equal(selected.deals.length,24);
+ assert.deepEqual(selected.deals.map(deal=>deal.siteID).sort((a,b)=>a-b),deals.map(deal=>deal.siteID));
+ assert.equal(selected.deals.filter(deal=>deal.total===null).length,12);
+ assert.ok(selected.deals.every(deal=>deal.total===null || Number.isFinite(deal.total) && deal.total>0));
 });

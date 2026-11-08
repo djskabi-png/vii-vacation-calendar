@@ -44,10 +44,12 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     features: [...new Set([...audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`), ...factualFeatures])],
     searchTerms: [...site.packages.map((pack) => pack.title), ...factualFeatures, ...(site.optionalFeatures || []).filter(feature=>feature && typeof feature.label==='string').map(feature=>feature.label), ...spaSourceServiceTerms(site)],
     image: site.image || undefined,
+    // The place gallery is supplier-owned venue media. Package photos stay on
+    // their package cards and must not inflate or change the representative
+    // venue gallery.
     images: [...new Set([
       site.image,
       ...(site.gallery || []),
-      ...site.packages.map((pack) => pack.image),
     ].filter((image): image is string => Boolean(image)))],
     priceLabel: prices.length ? `החל מ־₪ ${Math.min(...prices).toLocaleString("he-IL")}` : undefined,
     spaPackagePrices: priceIndex,

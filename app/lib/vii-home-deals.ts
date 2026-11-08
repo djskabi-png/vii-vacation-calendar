@@ -7,7 +7,7 @@ import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 
 export type HomeDeal = {
   siteID: number; name: string; image: string; images?: string[]; city: string; area: string; score: number | null; reviewCount: number;
-  from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
+  from: string; till: string; total: number | null; nights: number; priceGuests: number; roomID?: number; roomName?: string;
   bedrooms?: number; maxGuests?: number; priceBasisGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
 };
 
@@ -101,7 +101,7 @@ export async function getHomeDealsForDates(options: {
   const search = record(await searchResponse.json());
   const locations = locationsResponse?.ok ? record(await locationsResponse.json().catch(() => ({}))) : {};
   if ((!options.resolveCatalog && !Array.isArray(catalog.places)) || !Array.isArray(search.sites) || search.error) throw new Error("invalid_supplier_response");
-  const accepted = options.resolveCatalog ? await options.resolveCatalog(search.sites.map(record).filter(item => item.available === true && typeof item.minTotal === "number" && Number.isFinite(item.minTotal) && item.minTotal > 0).map(item => item.siteID).filter((id): id is number => Number.isSafeInteger(id) && options.publicSiteIds.has(id as number))) : null;
+  const accepted = options.resolveCatalog ? await options.resolveCatalog(search.sites.map(record).filter(item => item.available === true).map(item => item.siteID).filter((id): id is number => Number.isSafeInteger(id) && options.publicSiteIds.has(id as number))) : null;
 
   const areas = new Map<number, string>();
   for (const value of Array.isArray(locations.areas) ? locations.areas : []) {
@@ -124,8 +124,9 @@ export async function getHomeDealsForDates(options: {
   for (const value of search.sites) {
     const result = record(value);
     const siteID = result.siteID;
-    const total = result.minTotal;
-    if (result.available !== true || !Number.isSafeInteger(siteID) || !options.publicSiteIds.has(siteID as number) || typeof total !== "number" || !Number.isFinite(total) || total <= 0) continue;
+    const rawTotal = result.minTotal;
+    const total = typeof rawTotal === "number" && Number.isFinite(rawTotal) && rawTotal > 0 ? rawTotal : null;
+    if (result.available !== true || !Number.isSafeInteger(siteID) || !options.publicSiteIds.has(siteID as number)) continue;
     const cheapest = record(result.cheapest);
     const place = places.get(siteID as number);
     const canonical = accepted?.get(siteID as number);
@@ -142,7 +143,7 @@ export async function getHomeDealsForDates(options: {
         && cheapest.from >= options.window.from && cheapest.till <= options.window.till
         && checkoutDate(cheapest.from, dates.nights) === cheapest.till
       : cheapest.from === dates.from && cheapest.till === dates.till;
-    if (!image || !name || !validStay || (typeof cheapest.total === "number" && cheapest.total !== total)) continue;
+    if (!image || !name || !validStay || (typeof cheapest.total === "number" && total !== null && cheapest.total !== total)) continue;
     const location = canonical ? { city: canonical.city, area: canonical.area } : cities.get(record(place?.location).cityID as number);
     const fallbackReviews = canonical?.score === undefined || canonical?.reviews === undefined ? await fallbackReviewStats(siteID as number) : null;
     const score = typeof canonical?.score === "number" && Number.isFinite(canonical.score) ? canonical.score : fallbackReviews?.score || null;
@@ -169,7 +170,7 @@ export async function getHomeDealsForDates(options: {
       from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: guests,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),
       ...(roomID && priceBasisGuests ? { priceBasisGuests } : {}),
-      ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}), onlineBooking: result.onlineBooking === true });
+      ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}), onlineBooking: total !== null && result.onlineBooking === true });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

@@ -85,6 +85,13 @@
       "when": 1793091247316,
       "tag": "0011_strong_roland_deschain",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1794168000000,
+      "tag": "0012_promotion_membership_flags",
+      "breakpoints": true
     }
   ]
 }

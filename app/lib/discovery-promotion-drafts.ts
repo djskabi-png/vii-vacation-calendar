@@ -16,6 +16,8 @@ export type PromotionDraft = {
   placeName: string;
   kind: PromotionKind;
   weight: number;
+  featured?: boolean;
+  turboEligible?: boolean;
   startsOn: string;
   endsOn: string;
   contractEndsOn: string | null;
@@ -87,6 +89,8 @@ export function parsePromotionDraft(value: unknown) {
     supplierId: input.supplierId as number,
     kind: input.kind as PromotionKind,
     weight: input.weight as number,
+    featured: input.featured === true,
+    turboEligible: input.turboEligible === true,
     startsOn: input.startsOn as string,
     endsOn: input.endsOn as string,
     contractEndsOn: contractEndsOn as string | null,
@@ -101,26 +105,36 @@ export function parsePromotionDraft(value: unknown) {
  * time snapshot so all worlds in one request share the same cutoff. */
 export async function readActivePromotionWeights(db: D1Database, now = new Date().toISOString()) {
   const today = eventDealDate(0, new Date(now));
-  const result = await db.prepare(`SELECT world, supplier_id AS supplierId, weight
+  const query = (withFlags: boolean) => db.prepare(`SELECT e.world, e.supplier_id AS supplierId, e.weight,
+      ${withFlags ? "e.featured, e.turbo_eligible AS turboEligible" : "0 AS featured, 0 AS turboEligible"}
     FROM discovery_promotion_draft_events e
+    JOIN supplier_catalog_state s ON s.world = e.world
+    JOIN supplier_catalog_entries ce ON ce.run_id = s.active_run_id AND ce.world = e.world AND ce.supplier_id = e.supplier_id
     WHERE status = 'published' AND starts_on <= ? AND ends_on >= ?
       AND version = (SELECT MAX(version) FROM discovery_promotion_draft_events
         WHERE campaign_id = e.campaign_id AND status IN ('published', 'archived')
           AND (status = 'archived' OR starts_on <= ?))
-    ORDER BY world, supplier_id`).bind(today, today, today).all<{ world: SupplierCatalogWorld; supplierId: number; weight: number }>();
+    ORDER BY e.world, e.supplier_id`).bind(today, today, today);
+  let result;
+  try { result = await query(true).all<{ world: SupplierCatalogWorld; supplierId: number; weight: number; featured: number|boolean; turboEligible: number|boolean }>(); }
+  catch (error) {
+    if (!(error instanceof Error && /no such column|has no column named|unknown column/i.test(error.message) && /featured|turbo_eligible/i.test(error.message))) throw error;
+    result = await query(false).all<{ world: SupplierCatalogWorld; supplierId: number; weight: number; featured: number|boolean; turboEligible: number|boolean }>();
+  }
   const valid = result.results.filter((row) => Number.isSafeInteger(row.supplierId) && row.supplierId > 0 && Number.isInteger(row.weight) && row.weight >= 1 && row.weight <= 5);
-  const byIdentity = new Map<string, { world: SupplierCatalogWorld; supplierId: number; weight: number }>();
+  const byIdentity = new Map<string, { world: SupplierCatalogWorld; supplierId: number; weight: number; featured?: boolean; turboEligible?: boolean }>();
   for (const row of valid) {
-    const next = { world: row.world, supplierId: row.supplierId, weight: row.weight };
+    const next = { world: row.world, supplierId: row.supplierId, weight: row.weight, ...(row.featured === true || row.featured === 1 ? { featured: true } : {}), ...(row.turboEligible === true || row.turboEligible === 1 ? { turboEligible: true } : {}) };
     const key = `${next.world}:${next.supplierId}`;
     const previous = byIdentity.get(key);
-    if (!previous || next.weight > previous.weight) byIdentity.set(key, next);
+    byIdentity.set(key, {world:next.world,supplierId:next.supplierId,weight:Math.max(previous?.weight||0,next.weight),...(previous?.featured||next.featured?{featured:true}:{}),...(previous?.turboEligible||next.turboEligible?{turboEligible:true}:{})});
   }
   return [...byIdentity.values()].sort((a, b) => a.world.localeCompare(b.world) || a.supplierId - b.supplierId);
 }
 
 const columns = `event_id AS eventId, campaign_id AS campaignId, version, world,
   supplier_id AS supplierId, place_name AS placeName, kind, weight,
+  featured, turbo_eligible AS turboEligible,
   starts_on AS startsOn, ends_on AS endsOn, contract_ends_on AS contractEndsOn,
   contract_source AS contractSource, note, status, actor_email AS actorEmail, saved_at AS savedAt`;
 
@@ -144,7 +158,7 @@ export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmai
     if (previousRequest.actorEmail !== actorEmail ||
       (input.campaignId && previousRequest.campaignId !== input.campaignId) ||
       previousRequest.world !== input.world || previousRequest.supplierId !== input.supplierId ||
-      previousRequest.kind !== input.kind || previousRequest.weight !== input.weight ||
+      previousRequest.kind !== input.kind || previousRequest.weight !== input.weight || Boolean(previousRequest.featured) !== input.featured || Boolean(previousRequest.turboEligible) !== input.turboEligible ||
       previousRequest.startsOn !== input.startsOn || previousRequest.endsOn !== input.endsOn ||
       previousRequest.contractEndsOn !== input.contractEndsOn || previousRequest.contractSource !== input.contractSource ||
       previousRequest.note !== input.note || previousRequest.status !== input.status ||
@@ -174,16 +188,17 @@ export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmai
     version: (current?.version || 0) + 1, world: input.world, supplierId: input.supplierId,
     placeName, kind: input.kind, weight: input.weight, startsOn: input.startsOn, endsOn: input.endsOn,
     contractEndsOn: input.contractEndsOn, contractSource: input.contractSource, note: input.note,
+    ...(input.featured ? { featured: true } : {}), ...(input.turboEligible ? { turboEligible: true } : {}),
     status: input.status, actorEmail, savedAt: new Date().toISOString(),
   };
   try {
     await db.prepare(`INSERT INTO discovery_promotion_draft_events
       (event_id, campaign_id, version, world, supplier_id, place_name, kind, weight,
-       starts_on, ends_on, contract_ends_on, contract_source, note, status, actor_email, saved_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+       starts_on, ends_on, contract_ends_on, contract_source, note, status, actor_email, saved_at, featured, turbo_eligible)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(row.eventId, row.campaignId, row.version, row.world, row.supplierId, row.placeName,
         row.kind, row.weight, row.startsOn, row.endsOn, row.contractEndsOn, row.contractSource,
-        row.note, row.status, row.actorEmail, row.savedAt).run();
+        row.note, row.status, row.actorEmail, row.savedAt, row.featured ? 1 : 0, row.turboEligible ? 1 : 0).run();
   } catch (error) {
     if (error instanceof Error && /unique constraint/i.test(error.message)) {
       throw new PromotionDraftError("version_conflict", 409);

@@ -211,6 +211,8 @@ export const discoveryPromotionDraftEvents = sqliteTable("discovery_promotion_dr
   placeName: text("place_name").notNull(),
   kind: text("kind").notNull(),
   weight: integer("weight").notNull(),
+  featured: integer("featured", { mode: "boolean" }).notNull().default(false),
+  turboEligible: integer("turbo_eligible", { mode: "boolean" }).notNull().default(false),
   startsOn: text("starts_on").notNull(),
   endsOn: text("ends_on").notNull(),
   contractEndsOn: text("contract_ends_on"),

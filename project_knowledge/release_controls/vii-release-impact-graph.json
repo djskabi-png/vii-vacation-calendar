@@ -219,7 +219,8 @@
         "tests/spa-search-prices.actual.test.mjs",
         "tests/spa-search-state.actual.test.mjs",
         "tests/spa-facility-evidence.actual.test.mjs",
-        "tests/spa-facility-parser.actual.test.mjs"
+        "tests/spa-facility-parser.actual.test.mjs",
+        "tests/spa-liran-repairs.test.mjs"
       ]
     },
     "hourly": {
@@ -608,7 +609,8 @@
         "tests/public-gallery-identity.actual.test.mjs",
         "tests/media-route-authority.actual.test.mjs",
         "tests/verified-media-recovery.test.mjs",
-        "tests/unit-preview-gallery.actual.test.mjs"
+        "tests/unit-preview-gallery.actual.test.mjs",
+        "tests/gallery-editorial-unit-scope.test.mjs"
       ]
     },
     "experience-contract": {
@@ -736,7 +738,9 @@
         "tests/public-promotion-ranking.actual.test.mjs",
         "tests/discovery-promotion-drafts.test.mjs",
         "tests/cross-world-discovery-sort.test.mjs",
-        "tests/discovery-slider-order.test.mjs"
+        "tests/discovery-slider-order.test.mjs",
+        "tests/promotion-sql-actual.test.mjs",
+        "tests/promotion-result-policy.test.mjs"
       ]
     }
   },
@@ -776,7 +780,10 @@
         "app/lib/published-catalog-client-cache.ts",
         "app/lib/content-studio.ts",
         "app/lib/public-search-catalog-snapshot.ts",
-        "app/lib/cached-public-vacation-search.ts"
+        "app/lib/cached-public-vacation-search.ts",
+        "app/lib/vacation-online-first.ts",
+        "db/schema.ts",
+        "drizzle/meta/_journal.json"
       ]
     },
     {
@@ -917,7 +924,8 @@
         "scripts/extract-spaplus-facility-evidence.mjs",
         "scripts/lib/spaplus-facility-parser.mjs",
         "app/components/spa-package-deals.css",
-        "app/lib/spa-package-deals.ts"
+        "app/lib/spa-package-deals.ts",
+        "app/lib/spa-about-source.ts"
       ]
     },
     {
@@ -1173,7 +1181,8 @@
         "public/media-recovery/",
         "app/components/unit-preview-gallery.tsx",
         "app/lib/gallery-media-identity.ts",
-        "app/data/verified-media-recovery.json"
+        "app/data/verified-media-recovery.json",
+        "app/components/gallery-selection.ts"
       ]
     },
     {
@@ -1243,7 +1252,11 @@
         "app/lib/discovery-slider-order.ts",
         "app/lib/discovery-exposure-scope.ts",
         "app/lib/public-promotion-policy.ts",
-        "app/api/discovery-promotions/"
+        "app/api/discovery-promotions/",
+        "app/lib/promotion-result-policy.ts",
+        "app/components/recommended-place-banner.tsx",
+        "app/components/recommended-place-banner.css",
+        "drizzle/0012_promotion_membership_flags.sql"
       ]
     }
   ]
