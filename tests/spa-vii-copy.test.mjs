@@ -25,7 +25,8 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
     assert.deepEqual([...new Set(review.coverage.map(x=>x.sourceParagraph))].sort((a,b)=>a-b), site.about.map((_,i)=>i));
     assert.notEqual(copy.cardSummary, site.shortDescription);
     const oldCard = site.shortDescription || site.about[0] || "";
-    for (const facet of spaLandings.filter(facet => !["lodging", "hourly-room"].includes(facet.id))) assert.equal(facet.terms.some(x=>copy.filterText.includes(x)), facet.terms.some(x=>oldCard.includes(x)), `${site.id}: preserve ${facet.id} filter`);
+    const narrativeFacets = spaLandings.filter(facet => !["lodging", "hourly-room", "indoor-pool", "outdoor-pool", "heated-pool", "hammam"].includes(facet.id));
+    for (const facet of narrativeFacets) assert.equal(facet.terms.some(x=>copy.filterText.includes(x)), facet.terms.some(x=>oldCard.includes(x)), `${site.id}: preserve ${facet.id} filter`);
     // New service facets use source facts, independently of rewritten display prose.
     const searchTerms = [...site.packages.map(pack => pack.title), ...spaSourceServiceTerms(site)];
     for (const facet of spaLandings.filter(facet => ["lodging", "hourly-room"].includes(facet.id))) {
@@ -73,21 +74,21 @@ test("official SpaPlus facility evidence survives editorial projection for the t
     const projected = await projectSpaViiSite(site);
     assert.ok(projected.facilityIds?.length, String(id));
     assert.ok(projected.facilityIds.includes(id === 6 ? 115 : 214), String(id));
-    for (const label of (id === 6 ? ["בריכה", "חדר כושר", "בריכה חיצונית"] : ["ג'קוזי פרטי", "בריכה"])) {
-      assert.ok(projected.features.includes(label), `${id}: ${label}`);
-    }
+    for (const label of (id === 6 ? ["בריכה", "חדר כושר", "בריכה חיצונית"] : ["ג'קוזי פרטי"])) assert.ok(projected.features.includes(label), `${id}: ${label}`);
+    if (id === 385) assert.ok(projected.optionalFeatures?.some((feature) => feature.label === "בריכה"), `${id}: optional pool`);
     if (id === 6) assert.ok(!projected.features.includes("ג'קוזי פרטי"));
     if (id === 385) assert.ok(!projected.features.includes("בריכה חיצונית"));
   }
 });
 
-test("explicit supplier facility facts supersede reviewed fallback evidence", async () => {
+test("empty partial supplier facilities cannot erase reviewed authoritative facility evidence", async () => {
   const source = structuredClone(catalog.sites.find((entry) => entry.id === 6));
   source.features = [];
   source.facilityIds = [];
   const projected = await projectSpaViiSite(source);
-  assert.deepEqual(projected.features, []);
-  assert.deepEqual(projected.facilityIds, []);
+  assert.ok(projected.features.includes("בריכה"));
+  assert.ok(projected.features.includes("חדר כושר"));
+  assert.ok(projected.facilityIds.length > 0);
 });
 
 test("verified facility facts reach the real Spa search pipeline without package inclusion claims", async () => {
@@ -98,6 +99,19 @@ test("verified facility facts reach the real Spa search pipeline without package
   assert.ok(!cards.find((card) => card.id === "spa-385")?.searchTerms?.includes("החבילה כוללת כניסה לבריכה"));
   const outdoor = spaSearchStateFromValues("תל אביב", undefined, ["pool"]);
   assert.ok(spaItemMatchesSearch(cards.find((card) => card.id === "spa-6"), outdoor));
+});
+
+test("expanded facility filters use projected structured facts, including optional paid facilities", async () => {
+  const projected = await Promise.all([6, 385].map(async (id) => projectSpaViiSite(catalog.sites.find((site) => site.id === id))));
+  const cards = spaPlacesFromSites(projected);
+  for (const id of ["indoor-pool", "outdoor-pool", "heated-pool", "hammam"]) {
+    const landing = spaLandings.find((entry) => entry.id === id);
+    assert.ok(landing);
+    for (const card of cards.filter((entry) => spaItemMatches(entry, landing))) assert.ok(card.spaFacilityTerms?.some((term) => landing.terms.some((needle) => term.includes(needle))));
+  }
+  const kempinski = cards.find((card) => card.id === "spa-385");
+  assert.ok(kempinski?.spaFacilityTerms?.includes("בריכה"));
+  assert.equal(kempinski?.searchTerms?.includes("החבילה כוללת כניסה לבריכה"), false);
 });
 
 test("already-projected runtime Spa entries remain renderable after package updates", async () => {

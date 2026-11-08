@@ -8,8 +8,9 @@ const page = readFileSync(new URL("../app/spas/[slug]/page.tsx", import.meta.url
 const sitemap = readFileSync(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8");
 const searchLandings = readFileSync(new URL("../app/data/spa-search-landings.ts", import.meta.url), "utf8");
 
-test("all eleven spa feature controls are crawlable clean links", () => {
-  assert.equal((taxonomy.match(/slug: "/g) || []).length, 11);
+test("all supported spa feature controls are crawlable clean links", () => {
+  assert.equal((taxonomy.match(/slug: "/g) || []).length, 15);
+  for (const slug of ["spa-with-indoor-pool", "spa-with-outdoor-pool", "spa-with-heated-pool", "spa-with-hammam"]) assert.match(taxonomy, new RegExp(`slug: "${slug}"`));
   assert.match(taxonomy, /slug: "spa-with-lodging"/);
   assert.match(taxonomy, /slug: "spa-hourly-room"/);
   assert.match(results, /<Link key=\{filter\.id\} href=\{spaLandingContext\(filter\.id\)\}/);

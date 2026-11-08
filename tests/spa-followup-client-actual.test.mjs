@@ -1,3 +1,4 @@
+import {discoverySeedRank} from "../app/lib/discovery-slider-order.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -15,7 +16,7 @@ const js=ts.transpileModule(`globalThis.start=${effect};globalThis.reset=${reset
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 function harness(){let id=0,attempt=0,result={key:'',data:null,status:'loading'};const timers=new Map(),requests=[];
  const window={setTimeout(fn,ms){timers.set(++id,{fn,ms});return id;},clearTimeout(key){timers.delete(key);}};
- const context={AbortController,active:true,clockKey:'fixture',regionLabel:undefined,requestKey:'a',requestedDate:'',fixedDate:undefined,fixedWeekday:undefined,fixedDateOffset:undefined,URLSearchParams,window,followupKeyRef:{current:'a'},followupCountRef:{current:0},
+ const context={AbortController,active:true,unsupportedDate:false,discoverySeedRank,documentSeed:"fixture",fullDateRequest:false,requestDate:"",clockKey:'fixture',regionLabel:undefined,requestKey:'a',requestedDate:'',fixedDate:undefined,fixedWeekday:undefined,fixedDateOffset:undefined,URLSearchParams,window,followupKeyRef:{current:'a'},followupCountRef:{current:0},
  setResult(value){result=typeof value==='function'?value(result):value;},setAttempt(value){attempt=value(attempt);},
  scheduleSpaDealFollowup:(status,count,fn)=>scheduleSpaDealFollowup(status,count,fn,window.setTimeout),
  discoveryJson(url,optionsKey,options){return new Promise((resolve,reject)=>requests.push({resolve,reject,options,url}));}};

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { canonicalVerifiedSliderItems } from "../app/lib/verified-slider-offers.ts";
+import { orderDiscoveryItems } from "../app/lib/discovery-slider-order.ts";
 
 test("verified slider keeps API order, removes invalid duplicates and caps after acceptance", () => {
   const items = [
@@ -17,16 +18,36 @@ test("verified slider keeps API order, removes invalid duplicates and caps after
   assert.deepEqual(canonicalVerifiedSliderItems(items, item => item.id, item => item.valid), result);
 });
 
-test("verified vacation and event rails cannot reshuffle an accepted API payload in the browser", () => {
+test("verified vacation and event rails apply stable weighted exposure after supplier acceptance", () => {
   const vacation = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   assert.match(vacation, /canonicalVerifiedSliderItems\(eligibleDeals, deal => deal\.siteID\)/);
-  assert.doesNotMatch(vacation, /useDocumentSeed|orderDiscoveryRail/);
+  assert.match(vacation, /useDocumentSeed/);
+  assert.match(vacation, /orderDiscoveryItems/);
 
   const events = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
   assert.match(events, /const supplierOrder = search\.resultOrder\.length/);
   assert.match(events, /uniqueEventVenueItems\(supplierOrder\.flatMap/);
   const verifiedSection = events.slice(events.indexOf("const supplierOrder"), events.indexOf("const confirmed"));
-  assert.doesNotMatch(verifiedSection, /documentSeed|orderDiscoveryRail/);
+  assert.match(verifiedSection, /documentSeed/);
+  assert.match(verifiedSection, /orderDiscoveryItems/);
+});
+
+test("weighted rail exposure preserves accepted identities, price cohorts and selected-search stability", () => {
+  const offers = [
+    { id: 1, online: false, priority: 0, weight: 99 },
+    { id: 2, online: true, priority: 1, weight: 99 },
+    { id: 3, online: true, priority: 0, weight: 1 },
+    { id: 4, online: true, priority: 0, weight: 5 },
+    { id: 4, online: true, priority: 0, weight: 100 },
+  ];
+  const accepted = canonicalVerifiedSliderItems(offers, offer => offer.id);
+  const options = { id: offer => offer.id, online: offer => offer.online, priority: offer => offer.priority, promotionWeight: offer => offer.weight, seed: "same-search" };
+  const result = orderDiscoveryItems(accepted, options);
+  assert.deepEqual(result.map(offer => offer.id), [4, 3, 2, 1]);
+  assert.deepEqual(orderDiscoveryItems(accepted, options), result);
+  assert.deepEqual(result.map(offer => offer.id).sort(), accepted.map(offer => offer.id).sort());
+  assert.equal(result[0].weight, 5, "duplicate offers cannot replace the accepted supplier record");
+  assert.deepEqual(accepted.map(offer => offer.id), [1, 2, 3, 4], "exposure ordering cannot mutate the accepted snapshot");
 });
 
 test("event API returns only complete offers with matching public cards in the same order", () => {

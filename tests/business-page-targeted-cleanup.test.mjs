@@ -38,8 +38,8 @@ test("vacation units and verified bedrooms remain separate visible sections", ()
   assert.doesNotMatch(business, /property\.scenario === "single" \? "מקום אירוח שלם"/);
   assert.match(business, /<section id="rooms" className="units-section" aria-labelledby="units-heading-title">/);
   assert.match(business, /property\.scenario === "multi" \? "הסוויטות והיחידות" : "מבנה המקום"/);
-  assert.match(business, /property\.scenario === "multi" \? \(roomQuantity === 1/);
-  assert.match(business, /"המקום כולו עומד לרשותכם"/);
+  assert.match(business, /roomQuantity === 1 \? "יחידת אירוח אחת"/);
+  assert.match(business, /units-total--single/);
   assert.match(business, /room\.featureGroups/);
   assert.match(business, /verifiedBedroomGroupsFromRoom/);
   assert.match(business, /<VerifiedSleepingDetails placeName=\{localizedPropertyName\} rooms=\{verifiedSleepingRooms\} \/>/);

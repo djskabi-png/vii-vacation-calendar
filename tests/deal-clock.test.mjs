@@ -1,3 +1,4 @@
+import {spaDealRouteDependencies,spaDealDays} from "./helpers/spa-deal-route-fixtures.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -61,6 +62,7 @@ test('futureholiday isnot hidden; ongoingholiday beginsatfirsteligibleday',async
 function route(path,method,dependencies){
  dependencies={firstDealDate,eventDealDate,canonicalVerifiedSliderItems,validEventDiscoveryResult,EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},runtimeCatalogDatabase:async()=>null,cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:'2026-10-17T10:00:00Z'}}),...dependencies};
  dependencies=eventRouteDependencies(dependencies);
+ if(path==='spa/deals')dependencies=spaDealRouteDependencies(dependencies);
  const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
  const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
  return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));
@@ -69,7 +71,7 @@ const fixed=iso=>class extends Date {constructor(...args){super(...(args.length?
 
 test('actual SPA API excludes today from 14:00 and never caches boundary-sensitive days',async()=>{
  for(const [time,visible] of [['13:59:59',true],['14:00:00',false],['00:00:00',true],['00:01:00',true]]){
- const GET=route('spa/deals','GET',{Date:fixed(`2026-10-17T${time}+03:00`),dealRailDays,regionalAvailabilityRegion:()=>null,publicCatalogSummaries:async()=>[],readSpaAvailability:async()=>[],spaDiscoveryInputs,selectSpaPackageDeals:()=>[]});
+ const GET=route('spa/deals','GET',{Date:fixed(`2026-10-17T${time}+03:00`),dealRailDays,regionalAvailabilityRegion:()=>null,publicCatalogSummaries:async()=>[],readSpaAvailability:async()=>spaDealDays(new Date(`2026-10-17T${time}+03:00`)).map(date=>({siteID:999,date,available:0})),spaDiscoveryInputs,selectSpaPackageDeals:()=>[]});
   const response=await GET(new Request('https://example.test/api/spa/deals')); const body=await response.json();
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(body.days.includes('2026-10-17'),visible);assert.equal(Object.hasOwn(body.offers,'2026-10-17'),visible);
  }
@@ -100,6 +102,6 @@ test('shared clock ticks and focus re-evaluate the 14:00 cutoff, share one timer
 
 test('SPA labelsfollowactualdates notfilteredindices; allsharedrail clientsuseclock',()=>{
  const spa=readFileSync(new URL('../app/components/spa-package-deals.tsx',import.meta.url),'utf8');
- assert.doesNotMatch(spa,/index===0\?text.today/);assert.match(spa,/day===eventDealDate\(0,clock!\.now\)/);assert.match(spa,/data\?\.days.filter\(day=>eligibleDealDate/);
+ assert.doesNotMatch(spa,/index===0\?text.today/);assert.match(spa,/day===eventDealDate\(0,clock!\.now\)/);assert.match(spa,/spaDealDays\(clock.now\)\.filter\(day=>!data \|\| data.days.includes\(day\)\)/);
  for(const name of ['spa-package-deals','home-live-deals','event-last-minute','holiday-live-deals'])assert.match(readFileSync(new URL(`../app/components/${name}.tsx`,import.meta.url),'utf8'),/useDealClock/);
 });

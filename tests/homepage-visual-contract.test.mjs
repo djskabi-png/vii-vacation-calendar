@@ -107,9 +107,10 @@ test("spa result filters use compact illustrated choice tiles without a duplicat
   const component = await readFile(new URL("app/components/world-map-results.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(component, /function SpaFilterIcon/);
-  for (const id of ["hotel", "boutique", "pool", "jacuzzi", "sauna", "gym", "couples", "day-pass"]) {
+  for (const id of ["hotel", "boutique", "jacuzzi", "sauna", "gym", "couples", "day-pass"]) {
     assert.match(component, new RegExp(`id === "${id}"`));
   }
+  assert.match(component, /\["pool", "indoor-pool", "outdoor-pool", "heated-pool"\]\.includes\(id\)/);
   assert.doesNotMatch(component, /spa-results__location-card/);
   assert.match(component, /spa-results__filter-icon/);
   assert.match(component, /spa-results__filter-label/);

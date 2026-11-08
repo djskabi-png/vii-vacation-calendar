@@ -28,9 +28,13 @@ test("discovery and event cards use the same browse-before-entry control", () =>
   assert.match(eventCard, /ru: "фото"/);
 });
 
-test("spa listing projection keeps verified package images", () => {
-  assert.match(worldData, /\.\.\.site\.packages\.map\(\(pack\) => pack\.image\)/);
-  assert.match(worldData, /images:\s*\[\.\.\.new Set/);
+test("spa listing projection keeps venue gallery independent from package media", () => {
+  const projection = fs.readFileSync(new URL("../app/lib/spa-discovery-card.ts", import.meta.url), "utf8");
+  assert.match(projection, /images:\s*\[\.\.\.new Set\(\[/);
+  assert.match(projection, /site\.image/);
+  assert.match(projection, /site\.gallery/);
+  assert.match(projection, /package photos stay on[\s\S]{0,40}package cards/i);
+  assert.doesNotMatch(projection, /site\.packages\.map\(\(pack\) => pack\.image\)/);
 });
 
 test("active and unavailable arrows have distinct visible states", () => {

@@ -67,7 +67,7 @@ test('actual vacation metadata owns its OG fields and reviewed metro description
   const source=read('app/components/vacation-landing-route.tsx');
   const snippet=source.slice(source.indexOf('export async function vacationLandingMetadata('),source.indexOf('\nexport async function VacationLandingRoute(')).replace('export async','async');
   const regions={haifa:{slug:'haifa-carmel',label:'חיפה והכרמל'},dan:{slug:'tel-aviv-area',label:'תל אביב וגוש דן'}};
-  const metadata=new Function('vacationRegionBySlug','publicCatalogSummaries','vacationRegionListings',compile(snippet)+'\nreturn vacationLandingMetadata;')(id=>regions[id],async()=>[{}],()=>[{}]);
+  const metadata=new Function('vacationRegionBySlug','publicSearchContent',compile(snippet)+'\nreturn vacationLandingMetadata;')(id=>regions[id],async()=>null);
   for(const id of ['haifa','dan']) {
     const result=await metadata(id);
     assert.equal(result.openGraph.title,result.title);

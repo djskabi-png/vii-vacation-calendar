@@ -8,7 +8,7 @@ function load(file, imports={}) {
  const module={exports:{}};new Function('require','module','exports',code)(name=>imports[name]||{},module,module.exports);return module.exports;
 }
 const proximity=load('app/lib/proximity-sort.ts');
-const sort=load('app/lib/discovery-result-sort.ts',{'./proximity-sort':proximity,'./discovery-slider-order':{discoverySeedCompare:(a,b)=>String(a).localeCompare(String(b))}});
+const sort=load('app/lib/discovery-result-sort.ts',{'./proximity-sort':proximity,'./proximity-sort.ts':proximity,'./discovery-slider-order':{discoverySeedCompare:(a,b)=>String(a).localeCompare(String(b))},'./discovery-slider-order.ts':{discoverySeedCompare:(a,b)=>String(a).localeCompare(String(b))}});
 test('nearest sorts the complete inventory globally, with missing and invalid coordinates last',()=>{
  const origin={lat:32.0853,lng:34.7818};
  const items=Array.from({length:150},(_,i)=>({id:String(i),lat:origin.lat+i*.01,lng:origin.lng})).reverse();

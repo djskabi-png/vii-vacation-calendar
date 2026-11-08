@@ -33,7 +33,8 @@ test("broken unit media never leaves an empty image frame", async () => {
   assert.match(page, /ResilientImage/);
   assert.match(page, /markRoomImageFailed\(room\.image\)/);
   assert.match(page, /room-card__image--unavailable/);
-  assert.match(page, /תמונת המתחם, לא היחידה/);
+  assert.match(page, /תמונת היחידה/);
+  assert.doesNotMatch(page, /תמונת המתחם, לא היחידה/);
   assert.match(bookingHub, /failedUnitImages\.has\(room\.image\)/);
   assert.match(bookingHub, /vacation-booking-dialog__unit-image--missing/);
   assert.match(resilientImage, /image\?\.complete && image\.naturalWidth === 0/);

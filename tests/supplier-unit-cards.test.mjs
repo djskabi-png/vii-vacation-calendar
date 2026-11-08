@@ -36,9 +36,9 @@ test("active catalog retains the verified October 11 supplier room identities an
       [1131, "בית האצילים", 1, 1], [4574, "מצודת דוד", 1, 1], [4575, "מצודת לונדון", 1, 1],
     ]);
   }
-  assert.deepEqual(supplierPlaceDetail("vacation-2528").rooms.map((room) => [room.id, room.name, room.quantity, room.bedrooms, room.images]), [
-    [4328, "הוילה בוטיק בספסופה", 1, 10, []],
-  ]);
+  const recovered = supplierPlaceDetail("vacation-2528").rooms;
+  assert.deepEqual(recovered.map((room) => [room.id, room.name, room.quantity, room.bedrooms]), [[4328, "הוילה בוטיק בספסופה", 1, 10]]);
+  assert.ok(recovered[0].images.length > 0);
 });
 
 test("supplier request requires a verified detail room as well as the exact vacancy quote", async () => {
@@ -46,7 +46,8 @@ test("supplier request requires a verified detail room as well as the exact vaca
   const booking = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
   const page = await readFile(new URL("../app/booking/page.tsx", import.meta.url), "utf8");
   assert.match(business, /property\.roomOptions\?\.some\(\(room\) => room\.supplierRoomID === supplierQuote\.roomIDs\[0\]\)/);
-  assert.match(business, /תמונת המתחם, לא היחידה/);
+  assert.match(business, /תמונת היחידה/);
+  assert.doesNotMatch(business, /תמונת המתחם, לא היחידה/);
   assert.match(page, /await liveSupplierPlaceDetail\(property\.slug\)/);
   assert.match(page, /supplierRoomVerified: Boolean\(supplierRoomID && selectedUnit\)/);
   assert.match(booking, /props\.supplierRoomVerified && props\.supplierRoomID && supplierQuote\.roomIDs\.includes\(props\.supplierRoomID\)/);

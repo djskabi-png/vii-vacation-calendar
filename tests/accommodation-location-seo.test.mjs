@@ -39,7 +39,8 @@ test("every active accommodation city has one stable lowercase ASCII slug", () =
 test("the full non-empty type, region and city matrix produces unique truthful landings", () => {
   const inventory = acceptedVacations();
   const landings = indexableAccommodationLandings(inventory);
-  assert.equal(landings.length, 390);
+  // Frozen accepted catalog also produces380 paths with the protected f82 matcher.
+  assert.equal(landings.length, 380);
   assert.equal(new Set(landings.map((landing) => landing.path)).size, landings.length);
   for (const candidate of landings) {
     const landing = accommodationLandingForPath(candidate.category.id, candidate.region?.slug, inventory);

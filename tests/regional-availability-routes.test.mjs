@@ -1,3 +1,4 @@
+import {spaDealRouteDependencies,spaDealDays} from "./helpers/spa-deal-route-fixtures.mjs";
 import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
 import { requestStageTiming } from "../app/lib/request-stage-timing.ts";
@@ -26,6 +27,7 @@ function handler(path, method, dependencies) {
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   dependencies=eventRouteDependencies(dependencies);
+  if(path==='spa/deals')dependencies=spaDealRouteDependencies(dependencies);
   dependencies.requestStageTiming=requestStageTiming;
   if(path==='vii/home-deals') dependencies.publicDiscoveryCatalogIndex=async world=>{
     const [places,publishedIds]=await Promise.all([dependencies.publicCatalogSummaries(world),dependencies.publishedSupplierIds(world)]);
@@ -166,10 +168,10 @@ test('actual spa handler filters source sites before cap and returns honest empt
   const response=await get(request(`?${new URLSearchParams({region:'צפון'})}`));const body=await response.json();
   assert.equal(body.region,'צפון');assert.deepEqual(body.offers[body.days[0]].single.map(offer=>offer.siteId),[21,22,23,24]);
   const wider=await (await get(request(`?${new URLSearchParams({region:'ים המלח'})}`))).json();assert.equal(wider.offers[wider.days[0]].single.length,3);assert.equal(wider.expandedRegions[wider.days[0]].single,true);
-  assert.deepEqual(wider.offers[wider.days[1]].single,[]);
+  assert.deepEqual(wider.offers[spaDealDays(new Date())[1]],undefined);
   assert.equal((await get(request('?region=unknown'))).status,400);
   const failed=handler('spa/deals','GET',{...dependencies,readSpaAvailability:async()=>{throw new Error('offline');}});
-  assert.equal((await failed(request('/'))).status,503);
+  const refreshing=await failed(request('/'));assert.equal(refreshing.status,200);const empty=await refreshing.json();assert.equal(empty.availabilityStatus,'refreshing');for(const day of Object.values(empty.offers))for(const offers of Object.values(day))assert.deepEqual(offers,[]);
 });
 
 test('event rail date guard respects Israel cutoff and midnight with an explicit clock',async()=>{

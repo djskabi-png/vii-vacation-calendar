@@ -1,3 +1,4 @@
+import {spaDealRouteDependencies,spaDealDays} from "./helpers/spa-deal-route-fixtures.mjs";
 import {homeDealsPreparation} from "./helpers/home-deals-preparation-fixtures.mjs";
 import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import { eventRouteDependencies } from "./helpers/event-discovery-route-fixtures.mjs";
@@ -36,6 +37,7 @@ const publicPlaces=places.filter(p=>p.supplierId!==7);
 function handler(path,method,dependencies){
   dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,canonicalVerifiedSliderItems,validEventDiscoveryResult,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
   dependencies=eventRouteDependencies(dependencies);
+  if(path==='spa/deals')dependencies=spaDealRouteDependencies(dependencies);
   dependencies.requestStageTiming=requestStageTiming;
   if(path==='vii/home-deals') dependencies.publicDiscoveryCatalogIndex=async world=>{
     const [places,publishedIds]=await Promise.all([dependencies.publicCatalogSummaries(world),dependencies.publishedSupplierIds(world)]);
@@ -100,7 +102,7 @@ test('actual SPA expansion is after availability and cap, with selection-specifi
     publicCatalogSummaries:async()=>sites,readSpaAvailability:async()=>sites.filter(s=>[21,23,24].includes(s.id)).map(s=>({siteID:s.id,date:day,available:2}))});
   const response=await get(new Request(`https://example.test/?${new URLSearchParams({region:'צפון'})}`));const body=await response.json();
   assert.equal(response.status,200);assert.deepEqual(body.offers[day].single.map(o=>o.siteId),[23,24,21]);assert.equal(body.expandedRegions[day].single,true);
-  assert.equal(body.expandedRegions[day].couple,undefined);assert.equal(body.expandedRegions[next],undefined);assert.deepEqual(body.offers[next].single,[]);
+  assert.equal(body.expandedRegions[day].couple,undefined);assert.equal(body.expandedRegions[next],undefined);assert.deepEqual(body.offers[next],undefined);
 });
 test('all four visitor locales disclose geography only, without technical explanations or stale global SPA flags',()=>{
   for(const language of ['he','en','ru','fr'])assert.ok(regionalExpansionCopy[language].length>20);

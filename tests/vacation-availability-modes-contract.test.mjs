@@ -43,7 +43,7 @@ test("unit cards keep compact facts, a distinct sleeping explanation and place s
   assert.match(page, /נדרשים לפחות \$\{roomAvailability\.minimumNights\} לילות/);
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
-  assert.match(page, /room-card__sleeping/);
+  assert.match(page, /RoomSleepingPreview/);
   assert.match(css, /grid-template-areas: "image identity" "image body"/);
   assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);

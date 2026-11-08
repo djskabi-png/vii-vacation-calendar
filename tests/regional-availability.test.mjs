@@ -90,6 +90,6 @@ test('regional requests reject wrong scopes and booking links retain real guest 
   assert.match(spa,/spaSearchStateFromValues\(scope.label,audience\)/);
   assert.match(spa,/validSpaDealDate\(requestedDate\)\?normalizeDealDate\(requestedDate,clock.now\)/);
   assert.match(spa,/eligibleDealDate\(requestedDate,clock.now\)/);
-  assert.match(spa,/new URLSearchParams\(\{date:linkDate\}\)/);
+  assert.match(spa,/new URLSearchParams\(\{spaDealFor:audience,\.\.\.\(scope && linkDate\?\{date:linkDate\}:\{\}\)\}\)/);
   for(const path of ['app/api/vii/home-deals/route.ts','app/api/spa/deals/route.ts']) assert.match(read(path),/invalid_region/);
 });
