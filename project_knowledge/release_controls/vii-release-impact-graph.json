@@ -1188,6 +1188,7 @@
         "app/lib/sergey-gallery.ts",
         "app/lib/verified-media-recovery.ts",
         "app/lib/verified-supplier-videos.ts",
+        "app/lib/home-video-selection.ts",
         "app/preview-card-consistency.css",
         "app/api/vii/media/",
         "worker/public-gallery-media.ts",
