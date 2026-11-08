@@ -18,6 +18,7 @@ export type SpaPackage = {
 export type SpaDetails = {
   siteId: number;
   editorialSummary: string;
+  sourceAbout?: string[];
   packages: SpaPackage[];
   facilities: string[];
   treatments?: { name: string; durations?: string[]; priceNote?: string }[];
@@ -62,7 +63,8 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
   const hours = site.opening.map((time, index) => `${weekdays[index] || `יום ${index + 1}`}: ${time === "closed" ? "סגור" : time}`);
   return {
     siteId: site.id,
-    editorialSummary: site.about?.filter(Boolean).join("\n\n") || spaEditorialSummary(site),
+    editorialSummary: spaEditorialSummary(site),
+    ...(site.about?.length ? { sourceAbout: site.about.filter(Boolean) } : {}),
     packages,
     facilities: [],
     suitableFor,

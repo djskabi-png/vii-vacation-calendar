@@ -92,6 +92,16 @@ test("ungrouped bed text without a bedroom count does not fabricate a sleeping s
   assert.deepEqual(rooms, []);
 });
 
+test("declared bedroom without supplier bed facts stays empty instead of showing confirmation placeholder", () => {
+  const rooms = verifiedSleepingRoomsFromProperty({
+    scenario: "single",
+    rooms: [{ name: "יחידת L85-38", quantity: 1, bedrooms: 1, features: [], featureGroups: [], images: [] }],
+  });
+  assert.equal(rooms.length, 1);
+  assert.deepEqual(rooms[0].details, []);
+  assert.equal(rooms[0].details.includes("סוגי המיטות נמסרים באישור המקום"), false);
+});
+
 test("supplier-grouped bed facts render without fabricating a bedroom count", () => {
   const rooms = verifiedSleepingRoomsFromProperty({
     scenario: "single",

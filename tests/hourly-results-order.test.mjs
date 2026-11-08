@@ -7,6 +7,8 @@ import { orderDiscoveryResults, orderGroupedDiscoveryResults } from "../app/lib/
 import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../app/lib/nearby-recommendations.ts";
 import { matchesSearchLocation } from "../app/data/search-taxonomy.ts";
 
+import { turboOrder } from "../app/lib/promotion-result-policy.ts";
+
 const model = { id: (item) => item.id, name: (item) => item.name, price: (item) => item.price };
 const key = (item) => item.id;
 
@@ -23,7 +25,7 @@ function actualResultItems(source, vars, name = "resultItems") {
   visit(file);
   assert.ok(arrow, "resultItems useMemo initializer exists");
   const js = ts.transpileModule(`const __fn = ${arrow};`, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
-  const context = { ...vars, completePlaceSearchResults, orderDiscoveryResults, orderGroupedDiscoveryResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS, matchesSearchLocation };
+  const context = { turboOrder, promotionFlags: () => null, ...vars, completePlaceSearchResults, orderDiscoveryResults, orderGroupedDiscoveryResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS, matchesSearchLocation };
   vm.createContext(context);
   vm.runInContext(`${js}\nresult = __fn();`, context);
   return context.result;

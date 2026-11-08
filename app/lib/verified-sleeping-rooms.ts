@@ -118,11 +118,15 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
     // A supplier can confirm the sleeping arrangement without declaring a
     // bedroom count. Show those verified facts, but never invent a room.
     if (!bedroomCount && !groupedSleepingFacts.length) return [];
+    // Do not manufacture a confirmation sentence when the supplier supplied
+    // no room-level sleeping fact. The room can still be represented by its
+    // verified bedroom count, while the absence of bed data remains explicit.
+    const details = groupedSleepingFacts.length ? groupedSleepingFacts : sleepingFacts;
     return [{
       key: `${roomIndex}-verified-bedroom-summary`,
       name: bedroomCount ? bedroomCountLabel(bedroomCount) : "סידור השינה ביחידה",
       unitName: scenario === "multi" ? room.name : undefined,
-      details: groupedSleepingFacts.length ? groupedSleepingFacts : sleepingFacts.length ? sleepingFacts : ["סוגי המיטות נמסרים באישור המקום"],
+      details,
       galleryImage: room.images?.[0],
       bedroomCount,
       totalUnits,

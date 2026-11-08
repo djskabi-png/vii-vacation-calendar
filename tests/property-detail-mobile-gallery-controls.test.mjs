@@ -1,3 +1,4 @@
+import { visibleGalleryItems } from "../app/components/gallery-selection.ts";
 import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -44,7 +45,9 @@ test("supplier cover remains first while repeated unit media keeps one consisten
   assert.match(galleryExperience, /return uniqueGalleryItems\(\[/);
   assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.ungroupedPlaceItems,[\s\S]*?\.\.\.unitItems,/);
   assert.match(gallerySelection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
-  assert.match(gallerySelection, /if \(topic\) return items\.filter\(\(item\) => item\.topic === topic\)/);
+  const scoped=[{category:"place",topic:"Suite",src:"editorial"},{category:"units",topic:"Suite",src:"room"}];
+  assert.deepEqual(visibleGalleryItems(scoped,"all","Suite").map(item=>item.src),["editorial"]);
+  assert.deepEqual(visibleGalleryItems(scoped,"units","Suite").map(item=>item.src),["room"]);
 });
 
 test("desktop gallery remains a five-image composition", () => {

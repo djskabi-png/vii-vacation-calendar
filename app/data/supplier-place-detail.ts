@@ -37,7 +37,16 @@ export function supplierPlaceDetail(slug: string): SupplierPlaceDetail | undefin
   const detail = (source.details as Record<string, SupplierPlaceDetail>)[slug];
   if (!detail) return undefined;
   const cancellationTerms = (legacyAgreements.policies as Record<string, string>)[slug]?.trim();
-  return cancellationTerms ? { ...detail, policy: { ...detail.policy, cancellationTerms } } : detail;
+  const accepted = cancellationTerms ? { ...detail, policy: { ...detail.policy, cancellationTerms } } : detail;
+  return applyVerifiedSingleUnitMedia(accepted);
+}
+
+function applyVerifiedSingleUnitMedia(detail: SupplierPlaceDetail): SupplierPlaceDetail {
+  if (detail.rooms.length !== 1) return detail;
+  const room = detail.rooms[0];
+  const totalUnits = detail.rooms.reduce((sum, candidate) => sum + Math.max(1, candidate.quantity || 1), 0);
+  if (room.quantity !== 1 || (detail.units !== undefined && detail.units !== 1) || totalUnits !== 1 || room.images?.length) return detail;
+  return { ...detail, rooms: [{ ...room, images: detail.images }] };
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -124,6 +133,16 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         const roomName = typeof room.roomName === "string" ? room.roomName.trim() : "";
         const verifiedRoomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
         const roomImages = verifiedRoomID ? sergeyRoomImages(room, detail.galleries) : [];
+        // A current provider detail may omit unit galleries or sleeping facts
+        // while still returning the same verified room identity. Preserve the
+        // accepted room-scoped snapshot in that narrow case. Never fall back
+        // to place-wide galleries or facts from another unit.
+        const acceptedRoom = verifiedRoomID ? fallback.rooms.find((candidate) => candidate.id === verifiedRoomID) : undefined;
+        const currentFeatures = [...new Set([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((value) => {
+          const features = record(value).features;
+          return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];
+        })])];
+        const currentFeatureGroups = [...sergeyAmenityGroups(room.amenities, amenityIndex), ...sergeyRoomFeatureGroups(room)];
         return {
           ...(verifiedRoomID ? { id: verifiedRoomID } : {}),
           name: roomName || "יחידת אירוח",
@@ -138,12 +157,15 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
           builtArea: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
           totalArea: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize : undefined,
           area: typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
-          features: [...new Set([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((value) => {
-            const features = record(value).features;
-            return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];
-          })])],
-          featureGroups: [...sergeyAmenityGroups(room.amenities, amenityIndex), ...sergeyRoomFeatureGroups(room)],
-          images: roomImages,
+          features: currentFeatures.length ? currentFeatures : (acceptedRoom?.features || []),
+          featureGroups: currentFeatureGroups.length ? currentFeatureGroups : (acceptedRoom?.featureGroups || []),
+          // A verified single-unit place has no competing unit ownership:
+          // its accepted place gallery is also the unit gallery. Multi-unit
+          // places remain strict and never inherit place-wide media.
+          images: roomImages.length ? roomImages : (acceptedRoom?.images?.length
+            ? acceptedRoom.images
+            : (acceptedRoom && fallback.rooms.length === 1 && acceptedRoom.quantity === 1
+              && (fallback.units === undefined || fallback.units === 1) ? fallback.images : [])),
         };
       }) : fallback.rooms.map((room) => {
         const currentImages = room.id ? sergeyRoomImages({ roomID: room.id, roomName: room.name }, detail.galleries) : [];

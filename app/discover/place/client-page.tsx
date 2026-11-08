@@ -120,7 +120,9 @@ function SpaPackageCard({ pack, requestedDate, onBook }: { pack: SpaPackage; req
   const title = localizedSpaPackageTitle({title:pack.title,durationMinutes:pack.durationMinutes || null,people:pack.people || null,group:pack.group},language,translate);
   const hasImage = Boolean(pack.image) && !imageFailed;
   const packageBasis = pack.people
-    ? ({ he: `מחיר החבילה עבור ${pack.people} אנשים`, en: `Package price for ${pack.people} people`, ru: `Цена пакета для ${pack.people} человек`, fr: `Prix du forfait pour ${pack.people} personnes` }[language])
+    ? (pack.people === 1
+      ? { he: "מחיר החבילה לאדם אחד", en: "Package price for one person", ru: "Цена пакета для одного человека", fr: "Prix du forfait pour une personne" }[language]
+      : { he: `מחיר החבילה עבור ${pack.people} אנשים`, en: `Package price for ${pack.people} people`, ru: `Цена пакета для ${pack.people} человек`, fr: `Prix du forfait pour ${pack.people} personnes` }[language])
     : translate("מחיר החבילה");
   return <article className="spa-package-card" id={`spa-package-${pack.id}`} onClick={() => onBook(pack)}>
     <div className={`spa-package-card__media${hasImage ? "" : " spa-package-card__media--empty"}`}>
@@ -154,7 +156,8 @@ function SpaContent({ details }: { details: SpaDetails }) {
   const sourceFallback = { he: "מידע נוסף נמסר ישירות מהמקום.", en: "Additional information is supplied directly by the spa.", ru: "Дополнительная информация предоставлена непосредственно спа-центром.", fr: "Les informations complémentaires sont fournies directement par le spa." }[language];
   const addressFallback = { he: "הכתובת המלאה מופיעה בפרטי המקום.", en: "The full address appears in the venue details.", ru: "Полный адрес указан в информации о спа-центре.", fr: "L’adresse complète figure dans les informations du spa." }[language];
   const [expanded, setExpanded] = useState(false);
-  const [sourceAbout, setSourceAbout] = useState<string[] | null>(null);
+  const [sourceAbout, setSourceAbout] = useState<string[] | null>(() => details.sourceAbout?.length
+    ? filterSpaSourceAbout(details.editorialSummary, details.sourceAbout) : null);
   const [sourceError, setSourceError] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const bookingToken = searchParams.get("booking");
@@ -192,7 +195,7 @@ function SpaContent({ details }: { details: SpaDetails }) {
   return <>
     <section className="section shell spa-about" id="spa-about">
       <div><h2>{translate("על המקום")}</h2><p className="spa-about__summary">{localizedBusinessText(details.editorialSummary, language, translate, sourceFallback)}</p>
-        <button type="button" className="spa-about__more" aria-expanded={expanded} aria-controls="spa-source-description" onClick={() => setExpanded((value) => !value)}>{expanded ? "הצג פחות" : "קרא עוד"}</button>
+        {(sourceAbout === null || sourceAbout.length > 0) && <button type="button" className="spa-about__more" aria-expanded={expanded} aria-controls="spa-source-description" onClick={() => setExpanded((value) => !value)}>{expanded ? "הצג פחות" : "קרא עוד"}</button>}
         <div id="spa-source-description" hidden={!expanded}>
           {expanded && <><h3>{translate("עוד על המקום")}</h3>{sourceAbout?.map((paragraph, index) => <p key={`${index}-${paragraph}`}>{localizedBusinessText(paragraph, language, translate, sourceFallback)}</p>)}{!sourceAbout && !sourceError && <p role="status">{translate("טוענים את המידע הנוסף...")}</p>}{sourceError && <p role="alert">{translate("לא הצלחנו לטעון את המידע.")} <button type="button" className="spa-about__more" onClick={() => { setSourceError(false); setAttempt((value) => value + 1); }}>{translate("נסו שוב")}</button></p>}</>}
         </div>

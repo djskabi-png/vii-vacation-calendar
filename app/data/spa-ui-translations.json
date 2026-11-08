@@ -1,4 +1,9 @@
 {
+  "מקומות מומלצים בחיפוש שלכם": {"en":"Featured places for your search","fr":"Établissements à découvrir pour votre recherche","ru":"Рекомендуемые места по вашему запросу"},
+  "סוג חבילה וקהל": {"en":"Package and guests","fr":"Forfait et participants","ru":"Пакет и гости"},
+  "מה במתחם": {"en":"Venue facilities","fr":"Équipements sur place","ru":"Удобства на территории"},
+  "מחיר החבילה עבור": {"en":"Package price for","fr":"Prix du forfait pour","ru":"Стоимость пакета для"},
+  "מחיר החבילה לאדם אחד": {"en":"Package price for one person","fr":"Prix du forfait pour une personne","ru":"Цена пакета для одного человека"},
   "לא צוין": { "en": "Not specified", "ru": "Не указано", "fr": "Non précisé" },
   "חבילות ליחיד": { "en": "Packages for one", "ru": "Пакеты для одного", "fr": "Forfaits pour une personne" },
   "חבילות לקבוצות": { "en": "Group packages", "ru": "Пакеты для групп", "fr": "Forfaits de groupe" },

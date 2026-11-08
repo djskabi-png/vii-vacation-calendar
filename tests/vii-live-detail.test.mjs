@@ -101,3 +101,18 @@ test("live detail restores supplier amenities and capacity fields from the types
   assert.equal(detail.rooms[0].maxKids, 2);
   assert.ok(detail.rooms[0].features.includes("מייבש כביסה"));
 });
+
+test("same verified room keeps accepted unit media and sleeping facts when live detail omits them", async () => {
+  const accepted = supplierPlaceDetail("vacation-1296");
+  assert.ok(accepted?.rooms.some((room) => room.id === 2409));
+  const detail = await liveSupplierPlaceDetail("vacation-1296", {
+    token: "test-token", fallback: accepted,
+    fetchImpl: async (url) => Response.json(url.endsWith("/locations") ? {} : {
+      id: 1296, active: true, galleries: { main: { pictures: ["/gallery/place.jpg"] } },
+      rooms: [{ roomID: 2409, roomName: "סוויטת איבון", roomCount: 1, maxGuests: 7, bedrooms: 1, spaces: [] }],
+    }),
+  });
+  assert.deepEqual(detail.rooms[0].images, accepted.images);
+  assert.ok(detail.rooms[0].features.includes("מיטה זוגית"));
+  assert.ok(detail.rooms[0].features.includes("ספה נפתחת"));
+});
