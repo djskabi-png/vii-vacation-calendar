@@ -117,7 +117,7 @@ export default function DiscoveryPromotionsPage() {
       pendingRequest.current = null;
       setForm(emptyForm()); setResolvedName("");
       await refresh();
-      setNotice(status === "archived" ? "הטיוטה הועברה לארכיון." : status === "published" ? "הקידום פורסם לתוצאות הציבוריות בתקופה שנבחרה." : "הטיוטה נשמרה. היא אינה משנה את תוצאות האתר.");
+      setNotice(status === "archived" ? "הקידום הועבר לארכיון ואינו משפיע על הדירוג." : status === "published" ? "הקידום פורסם לתוצאות הציבוריות בתקופה שנבחרה." : "הטיוטה נשמרה. היא אינה משנה את תוצאות האתר.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "תוצאת השמירה אינה ידועה. בדקו את היומן לפני ניסיון נוסף.");
     } finally { setBusy(false); }
@@ -128,7 +128,7 @@ export default function DiscoveryPromotionsPage() {
   return <main dir="rtl" className={styles.page}>
     <header className={styles.header}>
       <div><p className={styles.eyebrow}>V · ניהול</p><h1>ניהול חשיפה</h1>
-        <p>טיוטות קידום למקומות פעילים. כללי הדירוג הציבוריים עדיין אינם מופעלים.</p></div>
+        <p>טיוטות קידום למקומות פעילים. פרסמו קידום כדי להפעיל משקל בתקופה שנבחרה. טיוטה אינה מחליפה קידום שכבר פורסם.</p></div>
       <button type="button" className={styles.iconButton} onClick={() => void refresh()} disabled={loading || busy}
         title="רענון מצב" aria-label="רענון מצב"><RotateCcw size={19} /></button>
     </header>
@@ -168,7 +168,7 @@ export default function DiscoveryPromotionsPage() {
         </form>
       </section>
       <div className={styles.records}>
-        <section aria-labelledby="promotion-list-title"><div className={styles.sectionHeading}><h2 id="promotion-list-title">טיוטות שמורות</h2><span>{dashboard.drafts.length}</span></div>
+        <section aria-labelledby="promotion-list-title"><div className={styles.sectionHeading}><h2 id="promotion-list-title">קידומים וטיוטות</h2><span>{dashboard.drafts.length}</span></div>
           {dashboard.drafts.length ? <div className={styles.tableWrap}><table><thead><tr><th>מקום</th><th>סיבה</th><th>תקופה</th><th>משקל</th><th>מצב</th><th>פעולות</th></tr></thead>
             <tbody>{dashboard.drafts.map((draft) => <tr key={draft.campaignId}>
               <td><strong>{draft.placeName}</strong><small>{worlds[draft.world]} · {draft.supplierId}</small></td>
@@ -196,7 +196,7 @@ export default function DiscoveryPromotionsPage() {
         <section aria-labelledby="promotion-log-title"><div className={styles.sectionHeading}><h2 id="promotion-log-title">יומן שינויים</h2></div>
           {dashboard.activity.length ? <div className={styles.tableWrap}><table><thead><tr><th>זמן</th><th>מקום</th><th>שינוי</th><th>עודכן על ידי</th></tr></thead>
             <tbody>{dashboard.activity.map((entry) => <tr key={entry.eventId}><td>{date(entry.savedAt)}</td>
-              <td>{entry.placeName}</td><td>גרסה {entry.version} · {entry.status === "archived" ? "ארכיון" : "טיוטה"}</td>
+              <td>{entry.placeName}</td><td>גרסה {entry.version} · {statusLabel(entry)}</td>
               <td dir="ltr">{entry.actorEmail}</td></tr>)}</tbody></table></div> : <p className={styles.empty}>אין פעולות מתועדות.</p>}
         </section>
       </div>

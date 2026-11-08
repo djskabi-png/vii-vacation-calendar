@@ -59,6 +59,7 @@ function Search({landing,embedded=false}){
 function fixture(gate){
  let reads=0;
  const mod=load('app/components/vacation-landing-route.tsx',{
+  '../lib/public-search-page-snapshot.ts':{publicSearchContent:async()=>null},
   '../../shared/public-catalog-navigation.ts':hint,'next/navigation':{notFound(){throw Error('not_found');}},
   'next/headers':{headers:async()=>new Headers({Accept:'text/html'})},
   '../search/page':{SearchExperience:Search},'../lib/published-catalog-seed':seed,

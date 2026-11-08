@@ -55,6 +55,8 @@ export default function SearchPagesAdmin() {
   const [versions, setVersions] = useState<Version[]>([]);
   const [statusFilter, setStatusFilter] = useState<Status | "active" | "internal" | "existing" | "all">("active");
   const [query, setQuery] = useState("");
+  const [visibleCount,setVisibleCount]=useState(50);
+  useEffect(()=>setVisibleCount(50),[query,statusFilter]);
   const [tab, setTab] = useState<Tab>("brief");
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -167,9 +169,10 @@ export default function SearchPagesAdmin() {
         <aside className={styles.queue} aria-label="תור עמודי חיפוש">
           <div className={styles.queueHead}><div><h2>תור עבודה</h2><span>{filtered.length} מתוך {dashboard.opportunities.length}</span></div><label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עמוד, אזור או כתובת" /></label></div>
           <div className={styles.statusTabs} role="tablist" aria-label="סינון לפי סטטוס"><button type="button" aria-pressed={statusFilter === "active"} onClick={() => setStatusFilter("active")}>לטיפול <b>{dashboard.metrics.pending}</b></button><button type="button" aria-pressed={statusFilter === "internal"} onClick={() => setStatusFilter("internal")}>בדיקות שלי <b>{dashboard.metrics.internalSearches}</b></button><button type="button" aria-pressed={statusFilter === "existing"} onClick={() => setStatusFilter("existing")}>עמודים קיימים <b>{dashboard.metrics.published}</b></button><button type="button" aria-pressed={statusFilter === "all"} onClick={() => setStatusFilter("all")}>הכול</button></div>
-          <div className={styles.queueList}>{loading ? <div className={styles.queueState}><RefreshCw className={styles.spin} /> טוענים הזדמנויות...</div> : filtered.length ? filtered.map((item) => <button type="button" key={item.id} className={selectedId === item.id ? styles.selected : ""} onClick={() => void loadDetail(item.id)}>
+          <div className={styles.queueList}>{loading ? <div className={styles.queueState}><RefreshCw className={styles.spin} /> טוענים הזדמנויות...</div> : filtered.length ? filtered.slice(0,visibleCount).map((item) => <button type="button" key={item.id} className={selectedId === item.id ? styles.selected : ""} onClick={() => void loadDetail(item.id)}>
             <div className={styles.itemTop}><span data-status={item.existingApproved && item.status === "pending" ? "published" : item.internalOnly ? "internal" : item.status}>{item.existingApproved && item.status === "pending" ? "עמוד קיים באתר" : item.internalOnly ? "בדיקת מנהל" : statusLabels[item.status]}</span><small>{worldLabels[item.world] || item.world}</small></div><strong>{item.title || item.suggestedTitle}</strong><p>{item.location}{searchFilterSummary(item.filters).length ? ` · ${searchFilterSummary(item.filters).join(" · ")}` : ""}</p><div className={styles.itemMetrics}><span><Search size={13} /> {number(item.searches)} גולשים</span>{item.internalSearches > 0 ? <span><Target size={13} /> {number(item.internalSearches)} בדיקות</span> : null}<span><Eye size={13} /> {number(item.latestResultCount)} תוצאות</span><span>{item.readiness}% מוכן</span></div>
           </button>) : <div className={styles.queueState}><ListFilter size={24} /><strong>אין עמודים במסנן הזה</strong><button type="button" onClick={() => { setStatusFilter("all"); setQuery(""); }}>הצגת כל העמודים</button></div>}</div>
+          {!loading && visibleCount < filtered.length ? <button type="button" className={styles.scheduleButton} onClick={()=>setVisibleCount(count=>count+50)}>הצגת 50 נוספים ({Math.min(visibleCount,filtered.length)} מתוך {filtered.length})</button> : null}
         </aside>
         <section className={styles.workspace} aria-live="polite">
           {detailLoading ? <div className={styles.blankState}><RefreshCw className={styles.spin} /><h2>פותחים את סביבת העבודה...</h2></div> : current ? <>

@@ -31,7 +31,7 @@ const inventory=regions.vacationRegions.flatMap((region,group)=>Array.from({leng
 function fixture(headerValues={},gate=null){
   const calls={imports:0,reads:0};
   const Seed=()=>null, Search=()=>null, Structured=()=>null, PageShell=({children})=>children, Suspense=({children})=>children, Loading=()=>null;
-  const req=name=>{
+  const req=name=>{if(name.includes('public-search-page-snapshot'))return{publicSearchContent:async()=>null};
     if(name.includes('public-catalog-navigation'))return catalogHint;
     if(name==='react/jsx-runtime')return nativeRequire(name);
     if(name==='react')return{Suspense};

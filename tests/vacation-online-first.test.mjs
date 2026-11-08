@@ -89,7 +89,7 @@ test("all vacation discovery surfaces use the shared online-first comparator", (
       assert.match(source, /matchesVacationOnlineBooking/);
     } else if (file.includes("home-live-deals")) {
       assert.match(source, /canonicalVerifiedSliderItems/);
-      assert.doesNotMatch(source, /useDocumentSeed|orderDiscoveryRail/);
+      assert.match(source, /useDocumentSeed/);assert.match(source,/promotionWeight/);assert.doesNotMatch(source, /orderDiscoveryRail/);
     } else {
       assert.match(source, /orderDiscoveryItems\(/);
       assert.match(source, /isHomeDealOnlineEligible/);
