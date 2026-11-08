@@ -1,37 +1,32 @@
-import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
-
-const catalog = JSON.parse(await readFile(new URL("../app/data/spaplus-catalog.json", import.meta.url), "utf8"));
-const output = new URL("../app/data/spaplus-official-facility-evidence.json", import.meta.url);
-const sites = catalog.sites.filter((site) => site.city === "תל אביב" && typeof site.bookingUrl === "string");
-const observedAt = new Date().toISOString();
-const queue = [...sites];
-const entries = {};
-async function worker() {
-  while (queue.length) {
-    const site = queue.shift();
-    try {
-      const response = await fetch(site.bookingUrl, { redirect: "follow", signal: AbortSignal.timeout(20_000) });
-      const html = await response.text();
-      if (!response.ok || response.url && !new URL(response.url).hostname.endsWith("spaplus.co.il")) throw new Error(`http_${response.status}`);
-      const start = html.lastIndexOf("מאפייני המקום");
-      const end = html.indexOf("תיאור המקום", start);
-      const section = start >= 0 && end > start ? html.slice(start, end) : "";
-      const labels = [], facilityIds = [];
-      for (const match of section.matchAll(/<div[^>]*data-cid=['\"]([^'\"]+)['\"][^>]*>[\s\S]{0,12000}?<span>([^<]+)<\/span>(?:<desc>([^<]*)<\/desc>)?/gi)) {
-        const label = match[2].replace(/\\/g, "").replace(/\s+/g, " ").trim();
-        if (!label) continue;
-        labels.push(label);
-        const ids = match[1].split(",").map(Number).filter(Number.isSafeInteger);
-        facilityIds.push(...ids);
-      }
-      const optionalPool = html.includes("כניסה לבריכה ב200") && html.includes("החבילה לא כוללת כניסה לבריכה");
-      const quoteIndex = optionalPool ? html.lastIndexOf("כניסה לבריכה") : -1;
-      const packageId = quoteIndex >= 0 ? (html.slice(Math.max(0, quoteIndex - 5000), quoteIndex).match(/https:\/\/www\.spaplus\.co\.il\/[^\" ]+\/([0-9]+)_package[^\" ]*/g)?.at(-1)?.match(/\/([0-9]+)_package/)?.[1] || null) : null;
-      entries[String(site.id)] = { sourceUrl: site.bookingUrl, checkedAt: observedAt, htmlSha256: createHash("sha256").update(html).digest("hex"), providerFacilityIds: [...new Set(facilityIds)], labels: [...new Set(labels)], ...(optionalPool ? { optionalFeatures: [{ label: "בריכה", kind: "optional-paid", ...(packageId ? { packageId } : {}), sourceQuote: "כניסה לבריכה ב200 ש\"ח לאדם בהתאם לזמינות" }] } : {}) };
-    } catch (error) { entries[String(site.id)] = { sourceUrl: site.bookingUrl, checkedAt: observedAt, error: error instanceof Error ? error.message : "unavailable" }; }
-  }
-}
-await Promise.all(Array.from({ length: 4 }, worker));
-await writeFile(output, `${JSON.stringify({ schemaVersion: 2, source: "official-spaplus-place-pages", checkedAt: observedAt, scope: "tel-aviv-active-sites", entries }, null, 2)}\n`);
-console.log(JSON.stringify({ sites: sites.length, ok: Object.values(entries).filter((entry) => !entry.error).length, failed: Object.values(entries).filter((entry) => entry.error).length, output: output.pathname }));
+// Read-only nationwide maintenance. Stages a candidate for review, never writes public source data.
+import fs from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {parseSpaPlusFacilities} from './lib/spaplus-facility-parser.mjs';
+const dir=path.resolve(process.argv[2] || '.qa-output/spaplus-facility-audit'); fs.mkdirSync(dir,{recursive:true});
+const catalog=JSON.parse(fs.readFileSync('app/data/spaplus-public-catalog.json','utf8'));
+const previous=JSON.parse(fs.readFileSync('app/data/spaplus-official-facility-evidence.json','utf8'));
+const operationFile=path.join(dir,'official-facility-audit.json'); if(fs.existsSync(operationFile)&&JSON.parse(fs.readFileSync(operationFile,'utf8')).state==='running')throw Error('previous_audit_not_terminal');
+const operation={operation:'official-spa-facility-audit-841',attempt:1,previousResult:null,changedVariable:'Audit all accepted SPA supplier IDs, validate page hidden siteid before extracting only its own facility section',startedAt:new Date().toISOString(),deadline:new Date(Date.now()+180000).toISOString(),state:'running',rows:[]};
+const save=()=>fs.writeFileSync(path.join(dir,'official-facility-audit.json'),JSON.stringify(operation,null,2));save();
+const queue=[...catalog.sites],entries={...previous.entries};
+async function worker(){while(queue.length&&Date.now()<Date.parse(operation.deadline)){
+ const site=queue.shift(),row={supplierId:site.id,sourceUrl:site.bookingUrl};
+ try{
+  const input=new URL(site.bookingUrl);if(!['spaplus.co.il','www.spaplus.co.il'].includes(input.hostname)||input.protocol!=='https:')throw Error('unapproved_source');
+  const response=await fetch(input,{signal:AbortSignal.timeout(Math.max(1,Math.min(20000,Date.parse(operation.deadline)-Date.now())))});
+  const html=await response.text();row.status=response.status;row.resolvedUrl=response.url;
+  if(!response.ok||!['spaplus.co.il','www.spaplus.co.il'].includes(new URL(response.url).hostname))throw Error('source_http_or_host');
+  const facts=parseSpaPlusFacilities(html,site.id);
+  const entry={sourceUrl:site.bookingUrl,resolvedUrl:response.url,checkedAt:new Date().toISOString(),htmlSha256:createHash('sha256').update(html).digest('hex'),...facts};
+  // Optional paid access is independently sourced; retain its original evidence.
+  if(previous.entries[site.id]?.optionalFeatures)entry.optionalFeatures=previous.entries[site.id].optionalFeatures.map(feature=>({...feature,checkedAt:previous.entries[site.id].checkedAt,sourceUrl:previous.entries[site.id].sourceUrl}));
+  entries[site.id]=entry;row.result='verified';row.facilityCount=entry.labels.length;
+ }catch(error){row.result='not_verified';row.reason=error.message;}
+ operation.rows.push(row);save();
+}}
+await Promise.all(Array.from({length:3},worker));
+operation.notAttempted=queue.map(s=>s.id);operation.state=queue.length?'deadline_reached':'completed';operation.finishedAt=new Date().toISOString();save();
+const candidate={schemaVersion:3,source:'official-spaplus-place-pages',checkedAt:operation.finishedAt,scope:'accepted-public-spa-catalog-nationwide',entries};
+fs.writeFileSync(path.join(dir,'facility-evidence-candidate.json'),JSON.stringify(candidate,null,2)+'\n');
+console.log(JSON.stringify({state:operation.state,verified:operation.rows.filter(r=>r.result==='verified').length,notVerified:operation.rows.filter(r=>r.result!=='verified'),notAttempted:queue.length,totalEvidence:Object.keys(entries).length}));

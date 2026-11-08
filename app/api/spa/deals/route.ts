@@ -10,13 +10,14 @@ import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { firstDealDate } from "../../../lib/deal-clock.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { spaDiscoveryInputs } from "../../../lib/spa-discovery-inputs.ts";
+import { spaDealDays } from "../../../lib/spa-deal-window.ts";
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const region = regionalAvailabilityRegion(params.get("region"));
   if (params.has("region") && !region) return Response.json({ error: "invalid_region" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   try {
     const now = new Date();
-    const days = Array.from({ length: 7 }, (_, index) => eventDealDate(index + (firstDealDate(now) === eventDealDate(0, now) ? 0 : 1), now));
+    const days = spaDealDays(now);
     const full = params.get("full") === "1";
     const requestedDate = params.get("date");
     // An explicit "spa today" page keeps today's calendar date after the

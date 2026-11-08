@@ -28,6 +28,8 @@ export type DiscoveryItem = {
   imageLabel?: string;
   searchTerms?: string[];
   priceLabel?: string;
+  spaPackagePrices?: import('../lib/spa-search-prices').SpaPriceIndex;
+  spaFacilityTerms?: string[];
   phone?: string;
   whatsapp?: string;
   contactName?: string;

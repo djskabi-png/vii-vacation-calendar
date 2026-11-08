@@ -550,6 +550,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         const selectedEventSlot = new URLSearchParams(searchParamsKey).get("slot");
         if (selectedEventSlot === "morning" || selectedEventSlot === "evening") params.set("slot", selectedEventSlot);
       } else if (mode === "spa") {
+        if(/^\/(?:en\/|fr\/|ru\/)?spas(?:\/|$)/.test(window.location.pathname))for(const key of ['minPrice','maxPrice','sort']){const value=new URLSearchParams(searchParamsKey).get(key);if(value)params.set(key,value);}
         if (selectedSpaDate.date) params.set("date", selectedSpaDate.date);
         if (selectedSpaDate.withoutDate) params.set("withoutDate", "1");
       } else {

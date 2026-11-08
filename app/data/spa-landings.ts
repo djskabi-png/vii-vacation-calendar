@@ -34,6 +34,9 @@ export function spaLandingHref(landing: SpaLanding) {
 }
 
 export function spaItemMatches(item: DiscoveryItem, landing: SpaLanding) {
+  if (["pool", "jacuzzi", "sauna", "gym"].includes(landing.id) && Array.isArray(item.spaFacilityTerms)) {
+    return item.spaFacilityTerms.some(label => landing.terms.some(term => label.includes(term)));
+  }
   const text = `${item.name} ${item.filterText ?? item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
   if (landing.id === "lodging") return spaHasLodging(text);
   if (landing.id === "hourly-room") return spaHasHourlyRoom(text);

@@ -6,6 +6,7 @@ export type SpaPlusSite = (typeof catalog.sites)[number] & {
   gallery?: string[];
   facilityIds?: number[];
   features?: string[];
+  optionalFeatures?: { label: string; kind?: string; packageId?: string; sourceQuote?: string }[];
 };
 export type SpaPlusPackage = SpaPlusSite["packages"][number];
 

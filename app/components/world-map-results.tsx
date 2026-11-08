@@ -1,7 +1,7 @@
 "use client";
 import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { MapIcon } from "../site-header";
@@ -10,7 +10,9 @@ import { DeferredDiscoveryMap, preloadListingMap } from "./deferred-listing-map"
 import Link from "next/link";
 import { spaLandings } from "../data/spa-landings";
 import { useMapViewState } from "./map-view-state";
-import { spaSearchHref, spaSearchStateFromValues, type SpaSearchAudienceId } from "../data/spa-search-landings";
+import { spaSearchHref, spaSearchStateFromValues, spaItemMatchesSearch, type SpaSearchAudienceId } from "../data/spa-search-landings";
+import { pricedSpaSearchItem, spaPriceQuery } from "../lib/spa-search-prices";
+import "../worlds/spa/styles/spa-search-prices.css";
 import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
@@ -52,10 +54,6 @@ function SpaFilterIcon({ id }: { id: string }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true" {...shared}><path d="M5 4h12v7a6 6 0 0 1-12 0V4Zm12 2h1a3 3 0 0 1 0 6h-1M4 21h15" /><path d="M8 1v3m4-3v3" /></svg>;
 }
 
-function searchableText(item: DiscoveryItem) {
-  return `${item.name} ${item.filterText ?? item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
-}
-
 function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
   const items = useSpaCatalogItems() ?? initialItems;
   const router = useRouter();
@@ -66,6 +64,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
   const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
   const requestedAudience = searchParams.get("spaFor") || initialSpaAudience;
   const requestedDate = searchParams.get("date") || "";
+  const [minimumPrice,setMinimumPrice]=useState(searchParams.get("minPrice")||"");
+  const [maximumPrice,setMaximumPrice]=useState(searchParams.get("maxPrice")||"");
+  const [priceError,setPriceError]=useState(false);
+  const requestedMinPrice=Math.max(0,Number(searchParams.get("minPrice"))||0);
+  const requestedMaxPrice=searchParams.has("maxPrice")?Math.max(0,Number(searchParams.get("maxPrice"))||0):Infinity;
+  useEffect(()=>{setMinimumPrice(searchParams.get("minPrice")||"");setMaximumPrice(searchParams.get("maxPrice")||"");setPriceError(false);},[searchQuery]);
   const [availability, setAvailability] = useState<{ status: "idle" | "loading" | "ready" | "unavailable"; checkedDate: string; dates: string[]; sites: Map<number, number> }>({ status: "idle", checkedDate: "", dates: [], sites: new Map() });
   const [availabilityRetry, setAvailabilityRetry] = useState(0);
   const [location, setLocation] = useState(requestedLocation);
@@ -121,16 +125,11 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
   }, [location, searchParams, selectedFilters, spaAudience]);
 
 
-  const amenityFiltered = useMemo(() => items.filter((item) => {
-    const text = searchableText(item);
-    const featuresMatch = selectedFilters.every((filterId) => {
-      const filter = spaFilters.find((entry) => entry.id === filterId);
-      return filter ? filter.terms.some((term) => text.includes(term)) : true;
-    });
-    const audience = spaAudience ? spaAudiences[spaAudience] : null;
-    const audienceMatch = spaAudience === "couple" ? item.features.includes("חבילות זוגיות") : audience ? audience.terms.some((term) => text.includes(term)) : true;
-    return featuresMatch && audienceMatch;
-  }), [items, selectedFilters, spaAudience]);
+  const amenityFiltered = useMemo(() => items.flatMap((item) => {
+    if(!spaItemMatchesSearch(item,spaSearchStateFromValues(undefined,spaAudience,selectedFilters)))return [];
+    const priced=pricedSpaSearchItem(item,spaAudience,requestedMinPrice,requestedMaxPrice);
+    return priced?[priced]:[];
+  }), [items, selectedFilters, spaAudience,requestedMinPrice,requestedMaxPrice]);
 
   const dateCovered = availability.status === "ready" && availability.checkedDate === requestedDate && availability.dates.includes(requestedDate);
   const checkingDate = Boolean(requestedDate) && (availability.checkedDate !== requestedDate || availability.status === "idle" || availability.status === "loading");
@@ -168,11 +167,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     return () => window.clearTimeout(timer);
   }, [availabilityFailed, checkingDate, resultItems.length, location, requestedDate, selectedFilters, sort, spaAudience]);
 
-  function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[], nextSort: DiscoverySortKey = sort) {
+  function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[], nextSort: DiscoverySortKey = sort,clearPrice=false) {
     const params = new URLSearchParams(window.location.search);
     params.delete("location");
     params.delete("spaFor");
     params.delete("features");
+    if(clearPrice){params.delete("minPrice");params.delete("maxPrice");}
     if (nextSort === "recommended") params.delete("sort");
     else params.set("sort", nextSort);
     const path = spaSearchHref(spaSearchStateFromValues(nextLocation, nextAudience, nextFilters));
@@ -197,7 +197,17 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     setSpaAudience("");
     setSelectedFilters([]);
     setSort("recommended");
-    updateUrl("כל הארץ", "", [], "recommended");
+    setMinimumPrice("");setMaximumPrice("");setPriceError(false);
+    updateUrl("כל הארץ", "", [], "recommended",true);
+  }
+
+  function applyPrice(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    const query=spaPriceQuery(new URLSearchParams(window.location.search),minimumPrice,maximumPrice);
+    if(!query){setPriceError(true);return;}
+    query.delete('location');query.delete('spaFor');query.delete('features');
+    setPriceError(false);
+    router.push(localizedPath(`${spaSearchHref(spaSearchStateFromValues(location,spaAudience,selectedFilters))}${query.size?'?'+query:''}`,language));
   }
 
   function clearDateAndFilters() {
@@ -210,11 +220,13 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     params.delete("spaFor");
     params.delete("features");
     params.delete("sort");
+    params.delete("minPrice");params.delete("maxPrice");
+    setMinimumPrice("");setMaximumPrice("");setPriceError(false);
     setSort("recommended");
     router.push(localizedPath(spaSearchHref(spaSearchStateFromValues("כל הארץ", "", [])) + (params.toString() ? `?${params}` : ""), language));
   }
 
-  const hasFilters = location !== "כל הארץ" || spaAudience !== "" || selectedFilters.length > 0;
+  const hasFilters = location !== "כל הארץ" || spaAudience !== "" || selectedFilters.length > 0 || requestedMinPrice>0 || Number.isFinite(requestedMaxPrice);
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultItems;
     const visible = new Set(mapVisibleIds);
@@ -270,6 +282,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
         <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><header><div><strong>איך בא לכם להתפנק?</strong><span>בחרו מה חשוב לכם ונציג רק מקומות מתאימים</span></div><small>החליקו לעוד אפשרויות</small></header><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id); const pending = pendingFilterId === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} aria-busy={pending} className={`${selected ? "selected" : ""}${pending ? " is-loading" : ""}`} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { setPendingFilterId(filter.id); setSelectedFilters((current) => current.includes(filter.id) ? current.filter((id) => id !== filter.id) : [...current, filter.id]); } }}><span className="spa-results__filter-icon">{pending ? <span className="spa-results__filter-spinner" aria-hidden="true" /> : <SpaFilterIcon id={filter.id} />}</span><span className="spa-results__filter-label">{pending ? "מעדכנים..." : filter.label}</span><span className="spa-results__filter-check" aria-hidden="true">✓</span></Link>; })}</div></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
+      <form className="spa-results__price-filter" onSubmit={applyPrice}>
+        <label><span>מחיר מינימלי לחבילה</span><input type="number" min="0" step="any" inputMode="decimal" dir="ltr" value={minimumPrice} onChange={event=>setMinimumPrice(event.target.value)} placeholder="₪"/></label>
+        <label><span>מחיר מקסימלי לחבילה</span><input type="number" min="0" step="any" inputMode="decimal" dir="ltr" value={maximumPrice} onChange={event=>setMaximumPrice(event.target.value)} placeholder="₪"/></label>
+        <button type="submit" className="button secondary">עדכון טווח המחירים</button>
+        {priceError?<p role="alert">המחיר המינימלי צריך להיות נמוך מהמחיר המקסימלי או שווה לו.</p>:null}
+      </form>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
     </section>
     <div className="spa-results__heading">

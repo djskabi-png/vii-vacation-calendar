@@ -46,14 +46,16 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
   const canonicalSite = withCanonicalSpaImage(site);
   const evidence = (officialFacilityEvidence.entries as Record<string, SpaFacilityEvidence>)[String(site.id)];
   const evidenceLabels = evidence?.labels || [];
-  const optionalLabels = evidence?.optionalFeatures?.map((feature) => feature.label) || [];
   const evidenceIds = evidence?.providerFacilityIds || [];
-  const providerFacilityFactsPresent = ["facilityIds", "facility_ids", "accessoryIds", "accessories", "facilities", "features"]
-    .some((field) => Object.prototype.hasOwnProperty.call(site as object, field));
-  const withFacilities = evidence && !providerFacilityFactsPresent
+  const optionalFeatures = [...(canonicalSite.optionalFeatures || []), ...(evidence?.optionalFeatures || [])].filter((feature,index,rows)=>feature && typeof feature.label==='string' && rows.findIndex(other=>other.label===feature.label && other.kind===feature.kind && other.packageId===feature.packageId)===index);
+  // Upstream rows can contain a partial facility projection. Evidence must
+  // therefore be unioned even when one of the generic facility fields exists;
+  // gating on field presence silently preserved incomplete feature mappings.
+  const withFacilities = evidence
     ? { ...canonicalSite,
       facilityIds: [...new Set([...(canonicalSite.facilityIds || []), ...evidenceIds])].sort((a, b) => a - b),
-      features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels, ...optionalLabels])] }
+      features: [...new Set([...(canonicalSite.features || []), ...evidenceLabels])],
+      optionalFeatures }
     : canonicalSite;
   let copy;
   try { copy = spaViiCopy(site.id); } catch {

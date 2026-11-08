@@ -5,6 +5,7 @@ import { spaPlusArea } from "../data/spa-regions.ts";
 import { spaViiCopyOrNull } from "../data/spa-vii-copy.ts";
 import { spaSourceServiceTerms } from "../data/spa-landings.ts";
 import { verifiedSpaMapLocation } from "./spa-map-location.ts";
+import { spaPackagePriceIndex } from "./spa-search-prices.ts";
 
 const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "נהריה": { lat: 33.006, lng: 35.095 },
@@ -26,7 +27,8 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
 
 export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sites.map((site) => {
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
-  const prices = site.packages.map((pack) => pack.price);
+  const priceIndex = spaPackagePriceIndex(site.packages);
+  const prices = priceIndex.all;
   const verifiedCoordinates = verifiedSpaMapLocation(site);
   const coordinates = verifiedCoordinates || spaAreaCoordinates[site.city];
   const approvedCopy = spaViiCopyOrNull(site.id);
@@ -40,7 +42,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     description: site.shortDescription || approvedCopy?.cardSummary || `${site.title}, מתחם ספא ב${site.city || "ישראל"}.`,
     filterText: approvedCopy?.filterText || [site.title, site.city, ...site.packages.map((pack) => pack.title)].filter(Boolean).join(" "),
     features: [...new Set([...audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`), ...factualFeatures])],
-    searchTerms: [...site.packages.map((pack) => pack.title), ...factualFeatures, ...spaSourceServiceTerms(site)],
+    searchTerms: [...site.packages.map((pack) => pack.title), ...factualFeatures, ...(site.optionalFeatures || []).filter(feature=>feature && typeof feature.label==='string').map(feature=>feature.label), ...spaSourceServiceTerms(site)],
     image: site.image || undefined,
     images: [...new Set([
       site.image,
@@ -48,6 +50,8 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
       ...site.packages.map((pack) => pack.image),
     ].filter((image): image is string => Boolean(image)))],
     priceLabel: prices.length ? `החל מ־₪ ${Math.min(...prices).toLocaleString("he-IL")}` : undefined,
+    spaPackagePrices: priceIndex,
+    spaFacilityTerms: [...new Set([...factualFeatures, ...(site.optionalFeatures || []).map(feature=>feature.label)])],
     phone: site.phone || undefined,
     sourceUrl: site.bookingUrl || undefined,
     sourceName: "ספא פלוס",

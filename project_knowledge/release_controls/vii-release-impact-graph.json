@@ -205,7 +205,16 @@
         "tests/map-split-performance-family.test.mjs",
         "tests/mobile-stability-contract.test.mjs",
         "tests/place-open-critical-path-actual.test.mjs",
-        "tests/public-font-delivery.test.mjs"
+        "tests/public-font-delivery.test.mjs",
+        "tests/spa-package-deals.test.mjs",
+        "tests/spa-weekday-client-actual.test.mjs",
+        "tests/spa-weekday-pages.test.mjs",
+        "tests/spa-rail-selection.actual.test.mjs",
+        "tests/spa-deals-api.actual.test.mjs",
+        "tests/spa-search-prices.actual.test.mjs",
+        "tests/spa-search-state.actual.test.mjs",
+        "tests/spa-facility-evidence.actual.test.mjs",
+        "tests/spa-facility-parser.actual.test.mjs"
       ]
     },
     "hourly": {
@@ -345,7 +354,8 @@
       ],
       "requiredLocalTests": [
         "tests/admin-control-inventory.test.mjs",
-        "tests/admin-permissions.test.mjs"
+        "tests/admin-permissions.test.mjs",
+        "tests/world-popular-editor.actual.test.mjs"
       ]
     },
     "booking": {
@@ -364,7 +374,8 @@
         "tests/whatsapp-lead-contract.test.mjs",
         "tests/booking-lead-identity-actual.test.mjs",
         "tests/detail-calendar-action.actual.test.mjs",
-        "tests/quoted-price-guests.test.mjs"
+        "tests/quoted-price-guests.test.mjs",
+        "tests/event-whatsapp-inquiry.actual.test.mjs"
       ]
     },
     "seo": {
@@ -497,7 +508,8 @@
       ],
       "requiredLocalTests": [
         "tests/hourly-world-faq-cms.test.mjs",
-        "tests/world-landing-management.test.mjs"
+        "tests/world-landing-management.test.mjs",
+        "tests/world-popular-editor.actual.test.mjs"
       ]
     },
     "legal": {
@@ -830,7 +842,8 @@
         "app/discover/place/",
         "app/components/deferred-search-content.tsx",
         "app/components/regional-search-loading.tsx",
-        "app/lib/discovery-result-sort.ts"
+        "app/lib/discovery-result-sort.ts",
+        "app/components/world-map-results.tsx"
       ]
     },
     {
@@ -866,7 +879,15 @@
         "app/worlds/spa/",
         "app/lib/spa-discovery-card.ts",
         "app/lib/spa-editorial-policy.ts",
-        "app/lib/spaplus-catalog-client.ts"
+        "app/lib/spaplus-catalog-client.ts",
+        "app/lib/spa-deal-window.ts",
+        "app/lib/spa-search-prices.ts",
+        "app/api/spa/deals/",
+        "app/data/spa-landings.ts",
+        "app/data/spaplus-official-facility-evidence.json",
+        "scripts/extract-spaplus-facility-evidence.mjs",
+        "scripts/lib/spaplus-facility-parser.mjs",
+        "app/components/spa-package-deals.css"
       ]
     },
     {
@@ -953,7 +974,8 @@
         "app/components/vacation-booking-hub.tsx",
         "app/booking/client-page.tsx",
         "app/components/detail-sticky-dock.tsx",
-        "app/lib/quoted-price-guests.ts"
+        "app/lib/quoted-price-guests.ts",
+        "app/lib/event-whatsapp-inquiry.ts"
       ]
     },
     {

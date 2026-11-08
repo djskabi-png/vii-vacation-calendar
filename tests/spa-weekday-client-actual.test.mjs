@@ -4,6 +4,7 @@ import fs from "node:fs";
 import ts from "typescript";
 import { orderDiscoveryItems, orderDiscoveryRail } from "../app/lib/discovery-slider-order.ts";
 import { spaWeekdayPath, spaWeekdaySlugs } from "../app/lib/spa-weekday-pages.ts";
+import { spaRailSelectionHref } from "../app/lib/spa-deal-window.ts";
 
 const source = fs.readFileSync(new URL("../app/components/spa-package-deals.tsx", import.meta.url), "utf8");
 const ast = ts.createSourceFile("spa-package-deals.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -34,7 +35,22 @@ test("actual component initializes the derived date before the pending-date ref"
 });
 test("actual nested select preserves same-weekday state and routes across weekdays", () => {
   const calls = []; let selected;
-  const base = { setAudience: value => { selected = value; }, pendingDateRef: { current: "2026-11-06" }, date: "2026-11-06", fixedDateOffset: undefined, scope: null, language: "he", spaWeekdaySlugs, spaWeekdayPath, localizedPath: value => value, pathname: "/spas/day/friday", params: new URLSearchParams("spaDealFor=single"), window: { history: { pushState: (...args) => calls.push(["history", ...args]) } }, router: { push: value => calls.push(["push", value]) }, sectionId: "fixture" };
+  const base = { layout: "grid", setAudience: value => { selected = value; }, pendingDateRef: { current: "2026-11-06" }, date: "2026-11-06", fixedDateOffset: undefined, scope: null, language: "he", spaWeekdaySlugs, spaWeekdayPath, localizedPath: value => value, pathname: "/spas/day/friday", params: new URLSearchParams("spaDealFor=single"), window: { history: { pushState: (...args) => calls.push(["history", ...args]) } }, router: { push: value => calls.push(["push", value]) }, sectionId: "fixture", spaRailSelectionHref };
   actualFunction("select", base)("2026-11-06", "couple"); assert.equal(selected, "couple"); assert.equal(calls[0][0], "history"); assert.match(calls[0][3], /spaDealFor=couple/);
   calls.length = 0; actualFunction("select", { ...base, params: new URLSearchParams() })("2026-11-07", "group"); assert.equal(calls[0][0], "push"); assert.equal(calls[0][1], "/spas/day/saturday?spaDealFor=group");
+});
+
+test("actual rail selection updates in place and never calls router", () => {
+  const calls = []; let selected; let railDate;
+  const base = { layout: "rail", setAudience: value => { selected = value; }, setRailDate: value => { railDate = value; }, pendingDateRef: { current: "2026-11-06" }, date: "2026-11-06", fixedDateOffset: undefined, scope: null, language: "he", spaWeekdaySlugs, spaWeekdayPath, localizedPath: value => value, pathname: "/spas", params: new URLSearchParams("utm=x"), window: { history: { replaceState: (...args) => calls.push(args) } }, router: { push: () => { throw new Error("rail must not route"); }, replace: () => { throw new Error("rail must not replace"); } }, sectionId: "fixture", spaRailSelectionHref };
+  actualFunction("select", base)("2026-11-07", "group");
+  assert.equal(selected, "group"); assert.equal(railDate, "2026-11-07");
+  assert.equal(calls.length, 1); assert.match(calls[0][2], /utm=x/); assert.match(calls[0][2], /spaDealDate=2026-11-07/); assert.match(calls[0][2], /spaDealFor=group/);
+});
+
+test("rail day and audience are presentation state, not fetch identity", () => {
+  const match = source.match(/const requestKey\s*=\s*([^;]+);/);
+  assert.ok(match, "request key declaration must remain explicit");
+  assert.doesNotMatch(match[1], /railDate|audience|spaDealFor/);
+  assert.match(source, /layout === "rail"\)\s*\{[\s\S]*?setRailDate\(targetDate\)[\s\S]*?history\.replaceState/);
 });

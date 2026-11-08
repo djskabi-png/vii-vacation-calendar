@@ -5,7 +5,8 @@ import { localizedPlaceBreadcrumbs } from "../../lib/localized-place-breadcrumbs
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 
-import { FormEvent, useMemo, useState, type ReactNode } from "react";
+import { FormEvent, useMemo, useRef, useState, type ReactNode } from "react";
+import { eventWhatsAppDestination, startEventWhatsAppInquiry } from "../../lib/event-whatsapp-inquiry";
 import Link from "next/link";
 import { CollapsibleFeatureList } from "../../components/collapsible-feature-list";
 import { DeferredListingMap } from "../../components/deferred-listing-map";
@@ -59,7 +60,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const selectedSlot = searchParams.get("slot") === "morning" ? "morning" : searchParams.get("slot") === "evening" ? "evening" : undefined;
   const [eventDate, setEventDate] = useState(selectedDate);
   const [dateOpenRequest, setDateOpenRequest] = useState(0);
-  const openEventCalendar = () => setDateOpenRequest(value => value + 1);
+  const openEventCalendar = () => { submitLock.current = false; setSubmitState("idle"); setSubmissionId(""); setDateOpenRequest(value => value + 1); };
   const [eventGuests, setEventGuests] = useState(selectedGuests);
   const [eventSlot, setEventSlot] = useState<EventSlot | undefined>(selectedSlot);
   const slotCopy = eventSlotCopy[language];
@@ -80,7 +81,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
       : eventQuoteCopy.inquiry;
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [reference, setReference] = useState("");
+  const submitLock = useRef(false);
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => projectEventPlaceDetail(initialPlace, supplierDetail), [initialPlace, supplierDetail]);
   const featureGroups = useMemo(() => completeFeatureGroups(place.featureGroups, place.features), [place.featureGroups, place.features]);
@@ -115,41 +116,26 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
     return [masu, ...otherProviders.slice(start), ...otherProviders.slice(0, start)].filter((item): item is DiscoveryItem => Boolean(item)).slice(0, 3);
   }, [place.slug, providerInventory]);
 
-  async function submitInquiry(event: FormEvent<HTMLFormElement>) {
+  function submitInquiry(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitState === "submitting" || submitState === "success") return;
+    if (submitLock.current || submitState === "success") return;
+    submitLock.current = true;
     setSubmitState("submitting");
     const form = event.currentTarget;
     const values = new FormData(form);
     const id = submissionId || crypto.randomUUID();
     if (!submissionId) setSubmissionId(id);
     try {
-      const response = await fetch("/api/leads/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          submissionId: id,
-          purpose: "booking",
-          world: "events",
-          placeId: place.slug,
-          placeName: place.name,
-          requestedDate: String(values.get("date") || ""),
-          guests: String(values.get("guests") || ""),
-          name: values.get("name"),
-          phone: values.get("phone"),
-          organization: place.name,
-          location: `${place.location}, ${place.area}`,
-          message: `בקשת התאמה ל${place.name}. תאריך: ${values.get("date")}. משתתפים: ${values.get("guests")}. מועד: ${eventSlot ? eventSlotCopy.he[eventSlot] : eventSlotCopy.he.both}. סוג אירוע: ${values.get("eventType")}.`,
-          honey: values.get("company_site"),
-          privacyAccepted: values.get("privacy") === "on",
-          sourcePage: window.location.href,
-        }),
-      });
-      const result = await response.json() as { success?: boolean; reference?: string };
-      if (!response.ok || !result.success) throw new Error("submission failed");
-      setReference(result.reference || "");
+      const opened = startEventWhatsAppInquiry({ submissionId: id, placeId: place.slug, placeName: place.name, whatsapp: ownerWhatsapp, placePath: eventPlaceHref(place), language,
+        date: String(values.get("date") || ""), guests: String(values.get("guests") || ""),
+        name: String(values.get("name") || ""), phone: String(values.get("phone") || ""),
+        slot: eventSlot ? eventSlotCopy[language][eventSlot] : eventSlotCopy[language].both, eventType: String(values.get("eventType") || ""),
+        honey: String(values.get("company_site") || ""), privacyAccepted: values.get("privacy") === "on", sourcePage: window.location.href },
+        { open: window.open.bind(window), assign: window.location.assign.bind(window.location), fetch });
+      if (!opened) throw new Error("whatsapp unavailable");
       setSubmitState("success");
     } catch {
+      submitLock.current = false;
       setSubmitState("error");
     }
   }
@@ -194,7 +180,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
             <GuestReviewStudio placeName={localizedPlaceName} subjectId={place.slug} rating={supplierDetail?.reviewScore ?? place.score} reviewCount={supplierDetail?.reviewCount ?? place.reviews} supplierReviews={supplierDetail?.reviews} />
           </div>
 
-          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הבקשה התקבלה. האירוע אינו מאושר עד לאישור הזמינות והמחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><ModernDateInput openRequest={dateOpenRequest} label={<>תאריך מבוקש</>} name="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} required  /><label>כמות משתתפים<input name="guests" type="number" min="1" value={eventGuests} onChange={(event) => setEventGuests(event.target.value)} placeholder="הקלידו כמות" required /></label><ModernSelect label={slotCopy.label} value={eventSlot || "both"} onChange={(value) => setEventSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} /><p role="status" aria-live="polite">{eventDate && Number(eventGuests) > 0 ? eventQuote : "בחרו תאריך וכמות משתתפים לבדיקה"}</p>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
+          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>{translate(eventWhatsAppDestination(ownerWhatsapp) ? "פנייה בוואטסאפ למקום" : "יצירת קשר עם המקום")}</h2>{!eventWhatsAppDestination(ownerWhatsapp) ? <div className="event-inquiry-contact">{phoneHref ? <a className="button primary wide" href={phoneHref}><span dir="ltr">{ownerPhone}</span></a> : <p role="status">{translate("פרטי הקשר של המקום אינם זמינים כרגע.")}</p>}</div> : submitState === "success" ? <div className="inquiry-success" role="status"><b>{translate("וואטסאפ נפתח")}</b><p>{translate("אפשר להמשיך את הפנייה בשיחה עם המקום.")}</p></div> : <form onSubmit={submitInquiry}><ModernDateInput openRequest={dateOpenRequest} label={<>תאריך מבוקש</>} name="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} required  /><label>כמות משתתפים<input name="guests" type="number" min="1" value={eventGuests} onChange={(event) => setEventGuests(event.target.value)} placeholder="הקלידו כמות" required /></label><ModernSelect label={slotCopy.label} value={eventSlot || "both"} onChange={(value) => setEventSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} /><p role="status" aria-live="polite">{eventDate && Number(eventGuests) > 0 ? eventQuote : "בחרו תאריך וכמות משתתפים לבדיקה"}</p>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? translate("פותחים וואטסאפ...") : translate("המשך לוואטסאפ")}</button>{submitState === "error" ? <p className="form-error" role="alert">לא הצלחנו לפתוח את וואטסאפ. הפרטים נשמרו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
         </div>
 
         <section className="section property-complements">

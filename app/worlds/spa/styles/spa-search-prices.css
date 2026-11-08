@@ -1,0 +1,6 @@
+.spa-results__price-filter{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;padding-block:16px;border-top:1px solid #d5e5e9}
+.spa-results__price-filter label{display:grid;gap:6px;min-width:0;flex:0 1 180px;color:#355c67;font-weight:700;font-size:.85rem}
+.spa-results__price-filter input{min-height:44px;width:100%;border:1px solid #cce1e7;border-radius:12px;background:#fff;padding:10px 12px;font:inherit;color:#173d49}
+.spa-results__price-filter input:focus-visible{outline:3px solid #139eae;outline-offset:2px}
+.spa-results__price-filter p{flex-basis:100%;margin:0;color:#a33131}
+@media(max-width:600px){.spa-results__price-filter label{flex:1 1 120px}.spa-results__price-filter button{width:100%}}

@@ -1,6 +1,8 @@
 "use client";
 import { ModernDateTimeInput } from "../../components/modern-date-time-input";
 import { WorldLandingFaqEditor } from "./world-landing-faq-editor";
+import { WorldPopularEditor } from "./world-popular-editor";
+import { useSearchParams } from "next/navigation";
 
 import { useAdminCanEdit } from "../admin-access-context.tsx";
 import { ModernDateInput } from "../../components/modern-date-input";
@@ -9,7 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
 import { defaultHomepagePresentation, worldPopularSearchItems, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
-import { popularSearchWorlds, popularSearchesForWorld, type PopularSearchWorld } from "../../lib/world-popular-search-defaults";
+import { isPopularSearchWorld, popularSearchWorlds, popularSearchesForWorld, type PopularSearchWorld } from "../../lib/world-popular-search-defaults";
 import { homepageContentInventory } from "../../data/homepage-content-inventory";
 import { defaultEventLandingPresentation, eventLandingSourceAttributes, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
 import { defaultWorldLandingPresentations, isManagedWorldLandingType, worldLandingSourceAttributes } from "../../lib/world-landing-presentation";
@@ -41,10 +43,13 @@ function discoveryItems(value: string | undefined, fallback: HomeDiscoveryItem[]
 
 export default function ContentStudioPage() {
   const canEdit = useAdminCanEdit();
-  const [popularWorld, setPopularWorld] = useState<PopularSearchWorld>("vacation");
+  const searchParams = useSearchParams();
+  const requestedPopularWorld = searchParams.get("popularWorld");
+  const popularMode = isPopularSearchWorld(requestedPopularWorld);
+  const [popularWorld, setPopularWorld] = useState<PopularSearchWorld>(popularMode ? requestedPopularWorld : "vacation");
   const popularDefinition = popularSearchWorlds.find(item => item.id === popularWorld)!;
 
-  const [type, setType] = useState("spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
+  const [type, setType] = useState(popularMode ? "homepage" : "spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
   const [data, setData] = useState<Payload | null>(null); const [selected, setSelected] = useState<(Item & { versions: Version[] }) | null>(null);
   const [draft, setDraft] = useState<Content | null>(null);
   const popularFallback = worldPopularSearchItems(draft?.attributes, popularWorld); const [tab, setTab] = useState<"content" | "seo" | "links" | "preview" | "history">("content");
@@ -53,11 +58,12 @@ export default function ContentStudioPage() {
   const [creating, setCreating] = useState(false); const [newTitle, setNewTitle] = useState(""); const [newKey, setNewKey] = useState("");
   const [scheduledAt, setScheduledAt] = useState(""); const [restoring, setRestoring] = useState(false);
   const [homeHolidays, setHomeHolidays] = useState<AdminHoliday[]>([]); const [homeHolidaysError, setHomeHolidaysError] = useState("");
+  useEffect(()=>{if(isPopularSearchWorld(requestedPopularWorld)){setPopularWorld(requestedPopularWorld);setType("homepage");setTab("content");}},[requestedPopularWorld]);
 
   const load = useCallback(async (nextType = type, id = "") => {
     setLoading(true); setError("");
     try {
-      const params = new URLSearchParams({ type: nextType, locale }); if (query.trim()) params.set("q", query.trim()); if (id) params.set("id", id);
+      const params = new URLSearchParams({ type: nextType, locale }); if (query.trim()) params.set("q", query.trim()); if (id) params.set("id", id); else if(popularMode && nextType === "homepage") params.set("id",`homepage:vacation-sliders:${locale}`);
       const response = await fetch(`/api/admin/content-studio?${params}`, { cache: "no-store" });
       if (response.status === 403) { setForbidden(true); return; }
       if (!response.ok) throw new Error("סטודיו התוכן אינו זמין כרגע.");
@@ -75,17 +81,17 @@ export default function ContentStudioPage() {
       else { setSelected(null); setDraft(null); }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת טעינה"); }
     finally { setLoading(false); }
-  }, [locale, query, type]);
+  }, [locale, query, type, popularMode]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 220); return () => window.clearTimeout(timer); }, [load]);
   useEffect(() => {
-    if (type !== "homepage") return;
+    if (type !== "homepage" || popularMode) return;
     const controller = new AbortController();
     fetch("/api/vii/home-holidays?all=1", { cache: "no-store", signal: controller.signal })
       .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ holidays: AdminHoliday[] }>; })
       .then((result) => { setHomeHolidaysError(""); setHomeHolidays(Array.isArray(result.holidays) ? result.holidays : []); })
       .catch((cause) => { if ((cause as { name?: string })?.name !== "AbortError") setHomeHolidaysError("לא ניתן לטעון כרגע את לוח החגים מהספק."); });
     return () => controller.abort();
-  }, [type]);
+  }, [type, popularMode]);
 
   function clearInventory() { setData(null); setSelected(null); setDraft(null); setCreating(false); }
 
@@ -160,8 +166,8 @@ export default function ContentStudioPage() {
 
   if (forbidden) return <section className={styles.empty}><h1>נדרשת הרשאת מנהל</h1><p>תוכן ספקים וטיוטות אינם חשופים ללא הרשאה.</p><a href="/api/auth/google?returnTo=%2Fadmin%2Fcontent-studio">כניסה עם Google</a></section>;
   return <main className={styles.page}>
-    <section className={styles.hero}><div><span className={styles.eyebrow}>V CONTENT STUDIO</span><h1>כל התוכן. מקור אמת אחד.</h1><p>משווים למקור, עורכים את שכבת V, מאשרים ורק אז מפרסמים.</p></div><div className={styles.heroStats}><span><strong>{data?.total || 0}</strong><small>פריטים בתחום</small></span><span><strong>{data?.items.filter((item) => item.status === "review").length || 0}</strong><small>ממתינים בתצוגה</small></span></div></section>
-    <nav className={styles.toolbar} aria-label="תחומי תוכן">{types.map(([id, label]) => <button key={id} type="button" data-active={type === id} onClick={() => { clearInventory(); setType(id); setTab("content"); }}>{label}</button>)}<select aria-label="שפת תוכן" value={locale} onChange={(event) => { clearInventory(); setLocale(event.target.value); }}><option value="he">עברית</option><option value="en">English</option><option value="ru">Русский</option><option value="fr">Français</option></select></nav>
+    <section className={styles.hero}><div><span className={styles.eyebrow}>V CONTENT STUDIO</span><h1>{popularMode ? "חיפושים נפוצים" : "כל התוכן. מקור אמת אחד."}</h1><p>{popularMode ? "עורכים את ההצעות שמופיעות בכל עולם, כולל תמונה, קישור וסדר." : "משווים למקור, עורכים את שכבת V, מאשרים ורק אז מפרסמים."}</p></div><div className={styles.heroStats}><span><strong>{data?.total || 0}</strong><small>פריטים בתחום</small></span><span><strong>{data?.items.filter((item) => item.status === "review").length || 0}</strong><small>ממתינים בתצוגה</small></span></div></section>
+    <nav className={styles.toolbar} aria-label="תחומי תוכן">{types.filter(([id])=>!popularMode || id === "homepage").map(([id, label]) => <button key={id} type="button" data-active={type === id} onClick={() => { clearInventory(); setType(id); setTab("content"); }}>{label}</button>)}<select aria-label="שפת תוכן" value={locale} onChange={(event) => { clearInventory(); setLocale(event.target.value); }}><option value="he">עברית</option><option value="en">English</option><option value="ru">Русский</option><option value="fr">Français</option></select></nav>
     {error ? <p className={styles.error} role="alert">{error}</p> : null}
     <section className={styles.workspace}>
       <aside className={styles.inventory}><div className={styles.inventoryHeader}><input value={query} onChange={(event) => { clearInventory(); setQuery(event.target.value); }} placeholder="חיפוש בשם או במזהה" />{["providers", "attractions", "trails", "magazine"].includes(type) ? <button className={extras.createButton} type="button" onClick={() => setCreating((value) => !value)}>יצירת פריט חדש</button> : null}{creating ? <div className={extras.createPanel}><input value={newTitle} onChange={(event) => setNewTitle(event.target.value)} placeholder="שם הפריט" /><input dir="ltr" value={newKey} onChange={(event) => setNewKey(event.target.value.toLowerCase())} placeholder="english-slug" /><button type="button" disabled={saving} onClick={() => void createItem()}>יצירת טיוטה</button></div> : null}</div>{loading && !data ? <p className={styles.loading}>טוענים את מקור התוכן...</p> : visible.length ? visible.map((item) => <button className={styles.item} data-active={selected?.id === item.id} key={item.id} type="button" onClick={() => void load(type, item.id)}><strong>{item.draft.title}</strong><span>{item.sourceLabel}</span><small>{item.entityKey} · גרסה {item.version}</small><span className={styles.status}>{statusLabel[item.status]}</span></button>) : <div className={styles.empty}><strong>אין פריטים מתאימים</strong><p>אפשר להחליף תחום או לנקות את החיפוש.</p></div>}</aside>
@@ -170,11 +176,12 @@ export default function ContentStudioPage() {
         <details className={styles.source}><summary>הצגת המקור: {selected.sourceLabel}</summary><div><strong>{selected.source.title}</strong>{"\n"}{selected.source.summary}{selected.source.body ? `\n\n${selected.source.body}` : ""}</div></details>
         <nav className={styles.tabs} aria-label="כלי עריכה"><button type="button" data-active={tab === "content"} onClick={() => setTab("content")}>תוכן</button><button type="button" data-active={tab === "seo"} onClick={() => setTab("seo")}>SEO</button>{["navigation", "footer"].includes(selected.contentType) ? <button type="button" data-active={tab === "links"} onClick={() => setTab("links")}>קישורים</button> : null}<button type="button" data-active={tab === "preview"} onClick={() => setTab("preview")}>תצוגה מקדימה</button><button type="button" data-active={tab === "history"} onClick={() => setTab("history")}>היסטוריה</button></nav>
         {tab === "content" ? <div className={styles.form}>
-          <label className={styles.field}><span>כותרת</span><input value={draft.title} onChange={(event) => update("title", event.target.value)} /></label>
+          {!popularMode ? <><label className={styles.field}><span>כותרת</span><input value={draft.title} onChange={(event) => update("title", event.target.value)} /></label>
           <label className={styles.field}><span>טקסט קצר לכרטיס</span><textarea value={draft.summary} onChange={(event) => update("summary", event.target.value)} /></label>
           <label className={`${styles.field} ${styles.wide}`}><span>תוכן מלא</span><textarea value={draft.body} onChange={(event) => update("body", event.target.value)} rows={12} /></label>
-          <label className={`${styles.field} ${styles.wide}`}><span>תיאור תמונה חלופי</span><input value={draft.imageAlt} onChange={(event) => update("imageAlt", event.target.value)} /></label>
-          {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
+          <label className={`${styles.field} ${styles.wide}`}><span>תיאור תמונה חלופי</span><input value={draft.imageAlt} onChange={(event) => update("imageAlt", event.target.value)} /></label></> : null}
+          {selected.contentType === "homepage" && popularMode ? <WorldPopularEditor world={popularWorld} onWorldChange={world=>{setPopularWorld(world);const next=new URL(window.location.href);next.searchParams.set("popularWorld",world);window.history.replaceState(window.history.state,"",next);}} attributes={draft.attributes} onChange={attributes=>update("attributes",attributes)} disabled={!canEdit}/> : null}
+          {selected.contentType === "homepage" && !popularMode ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
             <legend>שליטה בחיפושים ובסליידרים בעמוד הבית</legend>
             <p>כל פריט כולל תמונה, טקסט ויעד. אפשר להסתיר, לערוך ולשנות סדר. רק פרסום מעדכן את האתר.</p>
             <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>מפת כל רכיבי עמוד הבית</strong><small>כך יודעים מה מנוהל כאן, מה מגיע חי ממקור נתונים ואיפה מכבים עולם שלם.</small></div></div><div className={extras.discoveryControlList}>{homepageContentInventory.map((item) => <div className={extras.periodControlRow} key={item.id}><strong>{item.label}</strong><span>{item.owner}</span><span className={extras.visibilityToggle}>{item.mode === "managed" ? "מנוהל תוכן" : item.mode === "live" ? "נתונים חיים" : item.mode === "managed-live" ? "ניהול + נתונים חיים" : "טקסט מערכת"}</span></div>)}</div></section>

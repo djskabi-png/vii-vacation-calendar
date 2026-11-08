@@ -11,6 +11,7 @@ export const adminNavigationGroups = [
   ] },
   { label: "תוכן וגילוי", links: [
     { href: "/admin/content-studio", label: "סטודיו תוכן", hint: "כל העולמות, מגזין, תפריטים ופוטר", icon: LibraryBig },
+    { href: "/admin/content-studio?popularWorld=spa", label: "חיפושים נפוצים", hint: "הצעות החיפוש בכל עולם, סדר ותמונות", icon: Search },
     { href: "/admin/worlds", label: "הפעלת עולמות", hint: "הגדרת העולמות שמופיעים באתר", icon: Sparkles },
     { href: "/admin/search-analytics", label: "מודיעין חיפושים", hint: "ביקוש, אזורים ואפס תוצאות", icon: Search },
     { href: "/admin/content-queue", label: "תור אישורים", hint: "עמודים שנוצרו מביקוש אמיתי", icon: ListChecks },

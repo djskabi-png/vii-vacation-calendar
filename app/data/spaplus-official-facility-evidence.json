@@ -1,13 +1,15 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "source": "official-spaplus-place-pages",
-  "checkedAt": "2026-11-06T20:33:24.883Z",
-  "scope": "tel-aviv-active-sites",
+  "checkedAt": "2026-11-08T14:22:48.294Z",
+  "scope": "accepted-public-spa-catalog-nationwide",
   "entries": {
     "6": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=6&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "3f31abc774468e244ca3d54d81a8ed1f596b008943d2400acceec1563bf19810",
+      "resolvedUrl": "https://www.spaplus.co.il/the_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:08.947Z",
+      "htmlSha256": "e5ddd65dd70e915887b4b879fcd4370ff2761c3e5fc0bfe7e2d19bf738d5039c",
+      "verifiedSupplierId": 6,
       "providerFacilityIds": [
         1999,
         115,
@@ -30,10 +32,38 @@
         "סאונה רטובה"
       ]
     },
+    "8": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=8&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/holmes_place_spa_rishon_lezion?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:09.041Z",
+      "htmlSha256": "8238ef2a6a7e8f271a7e557c76de5d37ec6e75d99ac392752a890afe3c062fe3",
+      "verifiedSupplierId": 8,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2003,
+        180,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "ג'קוזי",
+        "חדר כושר",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
     "12": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=12&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "6056f0ef36403f5e45f3d258922d39f4829eb3e0027d02c3da2e489dd3b0189b",
+      "resolvedUrl": "https://www.spaplus.co.il/royal_beach_tel_aviv_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:11.104Z",
+      "htmlSha256": "bb53d3f1b121c9cf05e7af78285dd502b044210b53e3a25093b9a88ab4f549ba",
+      "verifiedSupplierId": 12,
       "providerFacilityIds": [
         1999,
         115,
@@ -59,10 +89,53 @@
         "סאונה יבשה"
       ]
     },
+    "19": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=19&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/ahuzat_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:12.555Z",
+      "htmlSha256": "856c643c0e45c56bad6daaeaa7c5755646247397d952b9263b1d21900cbcd36c",
+      "verifiedSupplierId": 19,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "25": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=25&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/titanic_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:12.846Z",
+      "htmlSha256": "5272000d49252c64fbebf6cc7008bde7f159854b2e8b29490b76662d0ae69626",
+      "verifiedSupplierId": 25,
+      "providerFacilityIds": [
+        1770,
+        164,
+        187
+      ],
+      "labels": [
+        "ארוחה",
+        "סוויטה פרטית עם ג'קוזי"
+      ]
+    },
     "31": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=31&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "d6c8f0792c3e130e5e35858860b55fd3d29b702d238583186ab250b9ae385544",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_bell?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:15.042Z",
+      "htmlSha256": "693a9e84ebe7432f9886b44efe6d61e02fd4fea66d3bf32ae58949ac7e824ce6",
+      "verifiedSupplierId": 31,
       "providerFacilityIds": [
         1998,
         178,
@@ -77,10 +150,208 @@
         "סאונה יבשה"
       ]
     },
+    "35": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=35&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_pnina_bacarmel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:16.488Z",
+      "htmlSha256": "e9eb79f837abbda50e6722297026df3b4ae365a61dd04390c2af307b66f99e87",
+      "verifiedSupplierId": 35,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1794,
+        214,
+        1686,
+        165,
+        1996,
+        176,
+        185
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ג'קוזי פרטי",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סוויטה"
+      ]
+    },
+    "45": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=45&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/ocean_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:16.660Z",
+      "htmlSha256": "c40d26bfe01a99c25baa2f09f6134a6ed2ff0a62ff337752e0a329b8e481fb7b",
+      "verifiedSupplierId": 45,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "48": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=48&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/jah_spa_dan_accadia?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:18.870Z",
+      "htmlSha256": "8a9fa1fefdf14dd28f0b35fb0fc10630c2397de37f053ee245859457b67d98f4",
+      "verifiedSupplierId": 48,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        2141,
+        182,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "54": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=54&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/darya_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:20.349Z",
+      "htmlSha256": "3431a0d27b2c42b27f50291d1ed05f1cbf947b436744ff09c01f26dad20a7fbb",
+      "verifiedSupplierId": 54,
+      "providerFacilityIds": [
+        1998,
+        178,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
     "66": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=66&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "08bc4460409839663070e27b2c059209910b6c374cb551b6a331445fe14af381",
+      "resolvedUrl": "https://www.spaplus.co.il/berdichevsky_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:20.449Z",
+      "htmlSha256": "06a8957ffbe0aae0fae3fdbeb70accb0dbd9566dba6cf813f668a6b1fc39311f",
+      "verifiedSupplierId": 66,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "69": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=69&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/club_hotel_eilat_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:24.475Z",
+      "htmlSha256": "ff1f95b807426f9c8b1ba4b9139db01d14e8d7ffa5141cc7a4eab41e97a7edbc",
+      "verifiedSupplierId": 69,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        172,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "76": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=76&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Palm_Beach_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:25.515Z",
+      "htmlSha256": "9ff20ebdc06c9022392ce203ef0808f65365d8fe67f7aa8203917c6118eba14c",
+      "verifiedSupplierId": 76,
+      "providerFacilityIds": [
+        1770,
+        164,
+        1998,
+        178,
+        2001,
+        179,
+        2141,
+        182,
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "ארוחה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "גישה לחוף הים",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "80": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=80&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Crowne_Plaza_Haifa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:28.079Z",
+      "htmlSha256": "30a185c345307992be68cdd1c5fceeffb57d6f3df6f63e34d30e5ab10da3e1ec",
+      "verifiedSupplierId": 80,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "82": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=82&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/mantra_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:28.037Z",
+      "htmlSha256": "87c51c8daf89aad6ddc0b61fecc246e36dd2c46f684c9f8d86deb8eb60447816",
+      "verifiedSupplierId": 82,
       "providerFacilityIds": [
         1686,
         165
@@ -91,8 +362,10 @@
     },
     "108": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=108&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "edc3934831202598597948b43b654da5cebdce32e93fba8c33eb554652852188",
+      "resolvedUrl": "https://www.spaplus.co.il/Crowne_Plaza_Tel_Aviv_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:28.948Z",
+      "htmlSha256": "f6e39422e5447fc101709e8d3edc7dfff8e56ef92b1b8d371008edd75ef04736",
+      "verifiedSupplierId": 108,
       "providerFacilityIds": [
         1999,
         115,
@@ -115,10 +388,296 @@
         "סאונה יבשה"
       ]
     },
+    "126": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=126&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Home_spa_in_the_Galilee?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:31.240Z",
+      "htmlSha256": "9509efc556b334bb0f7a495e61a5ae6e5ae0a93685ddb8b93e22055f8a3d9277",
+      "verifiedSupplierId": 126,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "143": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=143&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/hod_hamidbar_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:30.992Z",
+      "htmlSha256": "3ac3daa34cd43f825a496f5e649e50f1adfc3c35cc1d9e56c299824ec9bba778",
+      "verifiedSupplierId": 143,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2003,
+        180,
+        2141,
+        182,
+        172,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "חדר כושר",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "151": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=151&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/canaan_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:32.276Z",
+      "htmlSha256": "6a1ca38bf6bd9b5cc4cf101fddaf52ec3beb69629d9387eb7a7f0ee01c40f42c",
+      "verifiedSupplierId": 151,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2001,
+        179,
+        2000,
+        173,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "ג'קוזי",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "155": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=155&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/shizan_spa_dead_sea?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:34.353Z",
+      "htmlSha256": "ea60becc2b640f20890e066e469c34a8f220fa1f8fb6231d7340cf466a8d471f",
+      "verifiedSupplierId": 155,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        172,
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "163": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=163&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/mizpe_hayamim_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:34.927Z",
+      "htmlSha256": "16cf1f72b186481aa3ffb4e6bc8b424b1ead55ab8becffcbdf39f472b7646dc8",
+      "verifiedSupplierId": 163,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "169": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=169&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/sealife_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:35.678Z",
+      "htmlSha256": "2f18a1e63ad9aa0cc749b42c4b45e1c78f73ad286f95ff6fb726d99f6644ae49",
+      "verifiedSupplierId": 169,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "173": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=173&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/elma_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:37.257Z",
+      "htmlSha256": "df9e67df417a47bd40d297ac025c36f181e6a759b6e869b968020cde336aae56",
+      "verifiedSupplierId": 173,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2000,
+        173,
+        1686,
+        165
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "בריכה פנימית",
+        "ארוחת בוקר"
+      ]
+    },
+    "174": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=174&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Caesar_Spa_1858?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:37.909Z",
+      "htmlSha256": "b6ed639b06da2293c59e1235eefc73436a06e310efe375d87cc207c1e8837888",
+      "verifiedSupplierId": 174,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2001,
+        179,
+        172,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "175": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=175&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/armanni_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:38.660Z",
+      "htmlSha256": "ab76926857c43d2576b489f69cb7600e478407cb636cdd390cf2e0c4adf875cb",
+      "verifiedSupplierId": 175,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2003,
+        180,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177,
+        188
+      ],
+      "labels": [
+        "ג'קוזי",
+        "חדר כושר",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה",
+        "חדר פרטי"
+      ]
+    },
+    "177": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=177&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_6_sense?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:40.386Z",
+      "htmlSha256": "77911257b35dcc9ba39c2e78b4c24a748d2a0983ddcb6e986f076088147c2190",
+      "verifiedSupplierId": 177,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2003,
+        180,
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167
+      ],
+      "labels": [
+        "ג'קוזי",
+        "חדר כושר",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים"
+      ]
+    },
     "179": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=179&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "91f65fabb55f5db9a07dfc033747f74ac7580b8722fc86b6351b36e1b7dba499",
+      "resolvedUrl": "https://www.spaplus.co.il/brown_beach_house_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:40.592Z",
+      "htmlSha256": "42151c032dbaca94cc5fa81bb5112ef10f4242a2c1bf78efcaf8349396750990",
+      "verifiedSupplierId": 179,
       "providerFacilityIds": [
         2001,
         179,
@@ -129,6 +688,52 @@
         "חדר פרטי"
       ]
     },
+    "185": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=185&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_at_the_Starkman_Arena_Hotel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:41.507Z",
+      "htmlSha256": "68c3a7c91f4dbbeed9566303024d1451f4f5cb4e5f4689ca715056d2ac40c114",
+      "verifiedSupplierId": 185,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "193": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=193&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Herbert_Samuel_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:43.311Z",
+      "htmlSha256": "7bc04595b7eb6bb76243b0aa2a580b966796f1cde2693016181b85ee21fe7fd4",
+      "verifiedSupplierId": 193,
+      "providerFacilityIds": [
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
     "199": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=199&domainSrc=vii",
       "checkedAt": "2026-11-06T20:33:24.883Z",
@@ -136,10 +741,80 @@
       "providerFacilityIds": [],
       "labels": []
     },
+    "205": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=205&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Carmel_Forest_Spa_-_Royal_Beach_Eilat?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:44.270Z",
+      "htmlSha256": "0d66620eb386d52b7d7f911e6caf4fb53c9f7c181793be91b0a26fcc1fc03fec",
+      "verifiedSupplierId": 205,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2001,
+        179,
+        1794,
+        214,
+        172,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "ג'קוזי פרטי",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "207": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=207&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/caesar_spa_tiberias?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:45.290Z",
+      "htmlSha256": "d8a1e6d497e09d2c33e4fcf825c3384a32133b6c87307940b1036ca3b81c405f",
+      "verifiedSupplierId": 207,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
     "210": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=210&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "b64f267969c08ac73b58564fa49685427858acdeaec131ef52fa6ac624085a0f",
+      "resolvedUrl": "https://www.spaplus.co.il/Polyhaus_Boutique_Hotel_and_Spa_Tel_Aviv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:46.416Z",
+      "htmlSha256": "766fee5fe448b049a99dfb50f835d972332ba69299d31b947d3660e7baf9a3da",
+      "verifiedSupplierId": 210,
       "providerFacilityIds": [
         1999,
         115,
@@ -156,10 +831,60 @@
         "סאונה יבשה"
       ]
     },
-    "273": {
-      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=273&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "4bc18ce2569fcbef997510d98e72f4f438dfd552fe5894bbf9b2d88081ab0fc7",
+    "220": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=220&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/elevate_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:47.131Z",
+      "htmlSha256": "9ca03e50eb19a562c7c699c44a55aabbebe4ad037865770aae4502966d34a73b",
+      "verifiedSupplierId": 220,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "ג'קוזי",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "225": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=225&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/galei_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:48.763Z",
+      "htmlSha256": "29d95609af9e4fc9a9917c1f75d8bc323e6922c08c363f077e69ac6315d4bfe5",
+      "verifiedSupplierId": 225,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "228": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=228&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/tomoko_japanese_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:49.470Z",
+      "htmlSha256": "78261e61e8ee998909ed814c81f4a17f6e96dcb6fc2af230bc53e765391c48bd",
+      "verifiedSupplierId": 228,
       "providerFacilityIds": [
         1686,
         165
@@ -168,10 +893,667 @@
         "ארוחת בוקר"
       ]
     },
+    "231": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=231&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/villa_brown_jerusalem_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:50.161Z",
+      "htmlSha256": "14ada359731e89ab84131ec14206f39c958a155fb12cf7e088f611a3bd97eb4f",
+      "verifiedSupplierId": 231,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "233": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=233&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/oasis_spa_dead_sea?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:51.717Z",
+      "htmlSha256": "152503a7a4724521bd5c1f17883ec18511191003e4eb0912f3169d0b1f10aeb6",
+      "verifiedSupplierId": 233,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2001,
+        179,
+        2003,
+        180,
+        2141,
+        182,
+        172,
+        2000,
+        173,
+        1686,
+        165
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "חדר כושר",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת בוקר"
+      ]
+    },
+    "236": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=236&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/calma_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:52.544Z",
+      "htmlSha256": "8a8c9b2054787e56940de8df167facdb876ed928845da37bf9922358f252e920",
+      "verifiedSupplierId": 236,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165,
+        1996,
+        176,
+        185,
+        188
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סוויטה",
+        "חדר פרטי"
+      ]
+    },
+    "239": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=239&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/jah_spa_dan_eilat?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:53.005Z",
+      "htmlSha256": "ff61110c4c92e332ec58b4044f92566e4b43dd63405f945d0899c335d9816e3f",
+      "verifiedSupplierId": 239,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "240": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=240&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/nea_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:54.777Z",
+      "htmlSha256": "95656fcc9e7b52f326be5a44b86f0e418fb6dc88b849d52e581f4d685fc0a789",
+      "verifiedSupplierId": 240,
+      "providerFacilityIds": [
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "241": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=241&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/ritz_carlton_herzliya_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:56.392Z",
+      "htmlSha256": "7267f830feed919c405a8bb8c31c002391f5e673ec098637e5f0058c390adfca",
+      "verifiedSupplierId": 241,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2003,
+        180,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "חדר כושר",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "242": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=242&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/isrotel_dead_sea_esprit_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:56.558Z",
+      "htmlSha256": "13fed7b310419c5ea640b854ce2b1df67b5f5506ad0c269252bbdaacb1a26060",
+      "verifiedSupplierId": 242,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2141,
+        182,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "243": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=243&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/isrotel_ganim_esprit_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:58.121Z",
+      "htmlSha256": "2f228e42f07fa66c5bc12782bb682abb4a065d0d5f3399d098e2563353722fd1",
+      "verifiedSupplierId": 243,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        2000,
+        173,
+        1688,
+        167
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת צהריים"
+      ]
+    },
+    "246": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=246&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/dan_panorama_jerusalem_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:59.195Z",
+      "htmlSha256": "f05e4ebf6d4be709671a775f6c96917a62dabd29b481542bac04e7440a9c1564",
+      "verifiedSupplierId": 246,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        1686,
+        165
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "ארוחת בוקר"
+      ]
+    },
+    "248": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=248&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/ramada_nazareth_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:20:59.601Z",
+      "htmlSha256": "6663d954fac1eb87c827ac93d55102251868d72efc1749aa164c218b4104ff4a",
+      "verifiedSupplierId": 248,
+      "providerFacilityIds": [
+        2003,
+        180,
+        2000,
+        173,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "חדר כושר",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "249": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=249&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/orient_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:01.043Z",
+      "htmlSha256": "f831dc251a43398b5446d9e646ba6386d5158021741b46e2e3b54450161f451a",
+      "verifiedSupplierId": 249,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2003,
+        180,
+        1794,
+        214,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "חדר כושר",
+        "ג'קוזי פרטי",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "263": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=263&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/u_boutique_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:02.120Z",
+      "htmlSha256": "0aaf152fccd8ca798262737fbbcb3b6c1c043607802bb51268e02c5b6d2e9024",
+      "verifiedSupplierId": 263,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2003,
+        180,
+        2141,
+        182,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "חדר כושר",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "264": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=264&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/leonardo_plaza_tiberias_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:02.698Z",
+      "htmlSha256": "d75335607e8838563977b8c807bce0e5a86e33ce009cff3a329725da3a371024",
+      "verifiedSupplierId": 264,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165,
+        1689,
+        168,
+        1766,
+        169,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר",
+        "ארוחת ערב",
+        "ארוחת צהריים / ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "267": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=267&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_at_the_Leonardo_Hotel_Jerusalem_Boutique?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:04.313Z",
+      "htmlSha256": "b95bcc9cafaf795ad786a659535a1120692313a2d106d69f552fd14160de211b",
+      "verifiedSupplierId": 267,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר"
+      ]
+    },
+    "273": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=273&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/breeut_pinuk_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:05.070Z",
+      "htmlSha256": "6bbe2a6c5b60bc7760e4d3af2c5e698c0685f73e90eb3009fc0298957f2857d9",
+      "verifiedSupplierId": 273,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "275": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=275&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/shizan_spa_herzliya?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:05.716Z",
+      "htmlSha256": "887130120639d3e19b5db7aa9ac84a48c619d32e6fdbf0c283ac18f8c832d5bc",
+      "verifiedSupplierId": 275,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2003,
+        180,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "276": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=276&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/West_End_Spa_Netanya?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:07.693Z",
+      "htmlSha256": "ea3108005202bc9109b9267b5aa64df253d3250b77e2d0ca9e24af9e75933281",
+      "verifiedSupplierId": 276,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2003,
+        180,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "חדר כושר",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "278": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=278&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Hacienda_Mansion_Spa_in_the_forest?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:08.268Z",
+      "htmlSha256": "fc1cc2283dacdb9bfa761529ed73c33e846a61fb6b60f246d99c043cd4ea0388",
+      "verifiedSupplierId": 278,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2001,
+        179,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "280": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=280&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/leonardo_negev_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:09.039Z",
+      "htmlSha256": "72fbe5056718740738d9d700975153421004105a1f410f5f7f80ca4c1f4a8af1",
+      "verifiedSupplierId": 280,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2003,
+        180,
+        1686,
+        165,
+        1689,
+        168,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "ג'קוזי",
+        "חדר כושר",
+        "ארוחת בוקר",
+        "ארוחת ערב",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "285": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=285&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_dan_caesarea?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:11.224Z",
+      "htmlSha256": "6efa66f15a1d290b2c48e6d897821fa4db88ac843b46ec2781f7236d5b68c06c",
+      "verifiedSupplierId": 285,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "286": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=286&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_at_Carmela_Boutique_Haifa_Hotel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:11.554Z",
+      "htmlSha256": "edf7b07c47aced631a6dafd003f842e67fd2017cd419220a92d6ebbcf0a87b7d",
+      "verifiedSupplierId": 286,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר"
+      ]
+    },
+    "289": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=289&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/sarana_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:12.150Z",
+      "htmlSha256": "8d40acfc983a1ea08b858879bab53b7be666e0519aa09bfd4ed6649479f96523",
+      "verifiedSupplierId": 289,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "290": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=290&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/zeuspa_ramat_gan?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:14.233Z",
+      "htmlSha256": "1c3ed5f9c35b8da27fd9446ae9c0f1cad5a43e4daa9e6e8f0df63582675a9037",
+      "verifiedSupplierId": 290,
+      "providerFacilityIds": [
+        2003,
+        180,
+        1794,
+        214,
+        2000,
+        173,
+        2930,
+        211,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "חדר כושר",
+        "ג'קוזי פרטי",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "294": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=294&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/flamingo_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:14.672Z",
+      "htmlSha256": "4c7cdee9fe0ba61c0a2926fbf43420f08bbab6a133a5a3fa032cacfa6f09389c",
+      "verifiedSupplierId": 294,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "298": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=298&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/west_and_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:15.166Z",
+      "htmlSha256": "91d7a78833b0387a49c95d1e292259c6a5055efcd3024f26a8cc19e3add9230e",
+      "verifiedSupplierId": 298,
+      "providerFacilityIds": [
+        2003,
+        180,
+        1686,
+        165
+      ],
+      "labels": [
+        "חדר כושר",
+        "ארוחת בוקר"
+      ]
+    },
+    "299": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=299&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/holmes_place_spa_haifa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:17.281Z",
+      "htmlSha256": "32a1452e964008539dd99b265d75982f6b4568d9b07e135e8293a9e954060e3a",
+      "verifiedSupplierId": 299,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2000,
+        173,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "בריכה פנימית",
+        "סאונה יבשה"
+      ]
+    },
     "301": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=301&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "f9ce0c67a9f50007d57fa6e687c3bc8d27ed5bdc0ddef1dcc000ca5cda9cc10f",
+      "resolvedUrl": "https://www.spaplus.co.il/holmes_place_azrieli_tel_aviv_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:17.861Z",
+      "htmlSha256": "bd479b63954a46bbc951e231ac4067a33cc7006c9b784e409cb2f340f58267f7",
+      "verifiedSupplierId": 301,
       "providerFacilityIds": [
         2001,
         179,
@@ -192,10 +1574,62 @@
         "סאונה רטובה"
       ]
     },
+    "303": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=303&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/holmes_place_spa_rehovot?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:18.156Z",
+      "htmlSha256": "36a68a5d93dca1dbfb5a070b1645a74b7d8cb104af5cb2e0a95791dbf2cc1103",
+      "verifiedSupplierId": 303,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2003,
+        180,
+        2000,
+        173,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "חדר כושר",
+        "בריכה פנימית",
+        "סאונה יבשה"
+      ]
+    },
+    "307": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=307&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/gordons_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:19.958Z",
+      "htmlSha256": "8129821b653893a667c28c14acdc4b4df099416e3e4d1d7a194ce1185106c038",
+      "verifiedSupplierId": 307,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2141,
+        182,
+        172,
+        1686,
+        165,
+        188
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "חדר פרטי"
+      ]
+    },
     "341": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=341&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "89771edb9c672e0a9054a35c7c688855ff5596cd7a682015ba325b0ae02815ba",
+      "resolvedUrl": "https://www.spaplus.co.il/orchid_tlv_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:21.205Z",
+      "htmlSha256": "deabb76bbe8d640f786debddb2939f3eb540b65451110df81b878087e1fbc521",
+      "verifiedSupplierId": 341,
       "providerFacilityIds": [
         1686,
         165,
@@ -207,10 +1641,88 @@
         "סאונה יבשה"
       ]
     },
+    "346": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=346&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/olive_gilboa_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:22.681Z",
+      "htmlSha256": "8f85cebe76167167e4ffa48ff5e2dfb4b3a750eae792268fef6595c86f1a5401",
+      "verifiedSupplierId": 346,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "348": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=348&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/guerlain_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:23.810Z",
+      "htmlSha256": "84aed20404ecb7703886ea530be07a3697d04cdbdee0c5162853564ea39ff6e6",
+      "verifiedSupplierId": 348,
+      "providerFacilityIds": [
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167
+      ],
+      "labels": [
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים"
+      ]
+    },
+    "349": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=349&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/zamarin_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:24.072Z",
+      "htmlSha256": "3a357c1ddba4891aa647e34086188e9944997304eff737d94b9725864855aae3",
+      "verifiedSupplierId": 349,
+      "providerFacilityIds": [
+        1770,
+        164,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "ארוחה",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "353": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=353&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_bahar?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:25.861Z",
+      "htmlSha256": "b0f961c195033722d2f03847282fc123317409236f44bc08d16e30a77e11ed77",
+      "verifiedSupplierId": 353,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
     "356": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=356&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "58c2e64dad7cf326d0af054acde044a9a003810e62f1e183c5020054ab08c06c",
+      "resolvedUrl": "https://www.spaplus.co.il/bobo_tlv_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:26.720Z",
+      "htmlSha256": "4039bbe05d7c47a7d3673559e0e5b7db9eb4b8e62e1527f9099aaede31fca6d2",
+      "verifiedSupplierId": 356,
       "providerFacilityIds": [
         1999,
         115,
@@ -227,10 +1739,52 @@
         "ארוחת בוקר"
       ]
     },
+    "360": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=360&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/synergy_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:27.339Z",
+      "htmlSha256": "4fcfa4b68190d381a0d8abe32ca1430afc6b9141937c2c9de24c0f90f5e9f2bb",
+      "verifiedSupplierId": 360,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        1794,
+        214,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי פרטי",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
     "365": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=365&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "5420469fbe8375e345b36a7058280b35ea176dccbb9753699e06c13ff66d028b",
+      "resolvedUrl": "https://www.spaplus.co.il/assemblage_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:29.014Z",
+      "htmlSha256": "d75824786061d1c28b53de7328878e16c4c1f3c345d224a2aa1cbb340bdef24b",
+      "verifiedSupplierId": 365,
       "providerFacilityIds": [
         1997,
         177,
@@ -239,6 +1793,143 @@
       "labels": [
         "סאונה רטובה",
         "חדר פרטי"
+      ]
+    },
+    "366": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=366&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/caesar_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:29.551Z",
+      "htmlSha256": "a786aeee04d846419a390144805bf3c3282ea08e14dc8d0339a4375e4b6f46c3",
+      "verifiedSupplierId": 366,
+      "providerFacilityIds": [
+        2003,
+        180,
+        1996,
+        176
+      ],
+      "labels": [
+        "חדר כושר",
+        "סאונה יבשה"
+      ]
+    },
+    "371": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=371&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/milos_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:30.296Z",
+      "htmlSha256": "5c5ef7c4e87d4a79d06eb9f82618e3bf570da69ab4570d6896b7758b908720e9",
+      "verifiedSupplierId": 371,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2003,
+        180,
+        2141,
+        182,
+        172,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "חדר כושר",
+        "גישה לחוף הים",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "373": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=373&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_bahar_premium?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:32.166Z",
+      "htmlSha256": "5b01dadee1158dab1578152d00e39d2d950c21de203e0173bc246d750e842088",
+      "verifiedSupplierId": 373,
+      "providerFacilityIds": [
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "374": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=374&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Yama_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:32.489Z",
+      "htmlSha256": "5238a2204b1e26316cd3eb7f49b526076b7a78f59e68a968188e1b78e1e6f96d",
+      "verifiedSupplierId": 374,
+      "providerFacilityIds": [
+        1998,
+        178,
+        2001,
+        179,
+        1794,
+        214,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "ג'קוזי",
+        "ג'קוזי פרטי",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "378": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=378&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/edmond_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:33.235Z",
+      "htmlSha256": "aa376a7ff4b83ce89c7978ac8914a32e2eb7550a8c00f56f6d85228997903886",
+      "verifiedSupplierId": 378,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        2003,
+        180,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
       ]
     },
     "379": {
@@ -250,8 +1941,10 @@
     },
     "385": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=385&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "f9a425f3f2c35a8207c2e34645fb4cac541609e9bd8b96bad8d9720a4504125f",
+      "resolvedUrl": "https://www.spaplus.co.il/OKOA_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:33.321Z",
+      "htmlSha256": "8b0738df2d6f35bf53c8d20c01fa7823380f4e21cb223e4de3e3dfd7ea4a43af",
+      "verifiedSupplierId": 385,
       "providerFacilityIds": [
         1794,
         214,
@@ -273,8 +1966,78 @@
           "label": "בריכה",
           "kind": "optional-paid",
           "packageId": "510654",
-          "sourceQuote": "כניסה לבריכה ב200 ש\"ח לאדם בהתאם לזמינות"
+          "sourceQuote": "כניסה לבריכה ב200 ש\"ח לאדם בהתאם לזמינות",
+          "checkedAt": "2026-11-06T20:33:24.883Z",
+          "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=385&domainSrc=vii"
         }
+      ]
+    },
+    "391": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=391&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Jah_spa_eilat?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:35.997Z",
+      "htmlSha256": "b52b4673c8cebfb0a68578d111816926849af172c6bbd1edb51388f025ef367d",
+      "verifiedSupplierId": 391,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "394": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=394&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/americana?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:36.032Z",
+      "htmlSha256": "eac20c73943e396e53fcf5d6440d730ecada2afb92bfef14ef630ac4cbc19cef",
+      "verifiedSupplierId": 394,
+      "providerFacilityIds": [
+        1996,
+        176
+      ],
+      "labels": [
+        "סאונה יבשה"
+      ]
+    },
+    "398": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=398&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/SPA_RAMAT_RACHEL?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:38.047Z",
+      "htmlSha256": "91955503198a95aa6f7e268029bf76d91fedad6f07b877c015e73c8a1a31a18f",
+      "verifiedSupplierId": 398,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2001,
+        179,
+        2003,
+        180,
+        2103,
+        171,
+        172,
+        2000,
+        173,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "ג'קוזי",
+        "חדר כושר",
+        "בריכת ילדים",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
       ]
     },
     "400": {
@@ -286,8 +2049,10 @@
     },
     "401": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=401&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "bf11821620642c3949ebaccd163222fb76183f794e52059927f3a06629df69bd",
+      "resolvedUrl": "https://www.spaplus.co.il/mayer_house_hotel_spa_tel_aviv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:38.756Z",
+      "htmlSha256": "a5d0bad3dd9696919bb110681badf4b4aef371232c7f59ba0b9d1e70ed426d95",
+      "verifiedSupplierId": 401,
       "providerFacilityIds": [
         1999,
         115,
@@ -309,8 +2074,10 @@
     },
     "404": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=404&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "c8d348db530c104be8d84fd0de99fb72bc5a45b9c25247a319ab4b0c1b38b286",
+      "resolvedUrl": "https://www.spaplus.co.il/Alberto_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:40.845Z",
+      "htmlSha256": "c525f53800aefec6b549291b67d3bf917c8bed9f7ff5f1290bd553c83698e1fc",
+      "verifiedSupplierId": 404,
       "providerFacilityIds": [
         1999,
         115,
@@ -327,10 +2094,40 @@
         "ארוחת בוקר"
       ]
     },
+    "405": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=405&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/rimonim_aqueduct_hotel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:41.626Z",
+      "htmlSha256": "61b6c6beda239c541495b71bab068996efb444bf4e8096fc95175e22b0d5eb58",
+      "verifiedSupplierId": 405,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        172,
+        2930,
+        211,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "בריכה חיצונית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
     "406": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=406&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "8e947524fc1a354c2d587242677e091e98df4f4025231bb378e62a6d62819c43",
+      "resolvedUrl": "https://www.spaplus.co.il/Debrah_hotel_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:41.728Z",
+      "htmlSha256": "e3c96d1ff3b478f3e7b9da0a9492777038315ca550d8ba4ea06fb19b05115f81",
+      "verifiedSupplierId": 406,
       "providerFacilityIds": [
         2001,
         179,
@@ -342,10 +2139,372 @@
         "ארוחת בוקר"
       ]
     },
+    "407": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=407&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_orchid_eilat?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:43.627Z",
+      "htmlSha256": "3ec96f9547838772d57330f1d68e17a811a52e3a8269b6c08a15727dfacc95ef",
+      "verifiedSupplierId": 407,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "413": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=413&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Setai_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:44.893Z",
+      "htmlSha256": "8f83f8518d56c3a34d3e8475dbf6042f37bb02a643d2980a09482f3176df709b",
+      "verifiedSupplierId": 413,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2003,
+        180,
+        172,
+        2000,
+        173,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
     "414": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=414&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "4bb5cbcb627d646d9ac28f084c788db45fb022582ab44024ea1229437475d8da",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_OpolSky?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:45.372Z",
+      "htmlSha256": "6ed6dc18f762f6959fe0e05e4dc16a80e767dc46e548054ce88236b47f942e28",
+      "verifiedSupplierId": 414,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2003,
+        180,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "415": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=415&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_roxon?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:46.844Z",
+      "htmlSha256": "5215ba42b6b4be9db9abf0f7049d7a7ef72533c4cdc0ab5a1f2ef6062f3b6838",
+      "verifiedSupplierId": 415,
+      "providerFacilityIds": [
+        1686,
+        165,
+        1996,
+        176,
+        188,
+        208
+      ],
+      "labels": [
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "חדר פרטי",
+        "חדר לינה במלון"
+      ]
+    },
+    "419": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=419&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Isrotel_Kedma?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:47.656Z",
+      "htmlSha256": "50b6eec0cfe0f761a4e4d8274ef99eb0b6928ca02c26ccf7f8be9433191612de",
+      "verifiedSupplierId": 419,
+      "providerFacilityIds": [
+        1999,
+        115,
+        1998,
+        178,
+        2003,
+        180,
+        172,
+        2000,
+        173,
+        1686,
+        165,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "חמאם טורקי",
+        "חדר כושר",
+        "בריכה חיצונית",
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "421": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=421&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/chiangmai_RL?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:48.644Z",
+      "htmlSha256": "305763e1c2e186aa804ffb26678b73b620d29668ebca3a84010fc64223693419",
+      "verifiedSupplierId": 421,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "425": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=425&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Almond_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:50.005Z",
+      "htmlSha256": "e367b4df61019b3f107a1f6e1de72a1df29633e4a7453237d6612218a089c958",
+      "verifiedSupplierId": 425,
+      "providerFacilityIds": [
+        1999,
+        115,
+        2001,
+        179,
+        172,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה",
+        "ג'קוזי",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "427": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=427&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/soleil_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:50.623Z",
+      "htmlSha256": "3a1ae755e7a1294d499c0214227ff719adf2aac84c5db3a368ae740742097e14",
+      "verifiedSupplierId": 427,
+      "providerFacilityIds": [
+        2930,
+        211,
+        1686,
+        165,
+        190
+      ],
+      "labels": [
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "חדר פרטי עם ג'קוזי"
+      ]
+    },
+    "429": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=429&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Nitza_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:51.779Z",
+      "htmlSha256": "bec260b976e5557783b201e6fdfd78c918562b9b0ce5d24aec2c73911b9b0b81",
+      "verifiedSupplierId": 429,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "433": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=433&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_clarins?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:52.828Z",
+      "htmlSha256": "0e41e14f805274da49f78a9c43e923f4c7dd1e20aa38ffc91309937347e7cc1b",
+      "verifiedSupplierId": 433,
+      "providerFacilityIds": [
+        2003,
+        180,
+        2000,
+        173,
+        2930,
+        211,
+        1686,
+        165,
+        1688,
+        167,
+        1996,
+        176
+      ],
+      "labels": [
+        "חדר כושר",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "סאונה יבשה"
+      ]
+    },
+    "435": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=435&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Leo_spa_villa_boutique_ashkelon?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:54.700Z",
+      "htmlSha256": "b2b0d8dca376bfb3a01d761a2a172d13ef96ed42a2490d7313d75fcab910af99",
+      "verifiedSupplierId": 435,
+      "providerFacilityIds": [
+        2000,
+        173,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה פנימית",
+        "סאונה יבשה"
+      ]
+    },
+    "437": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=437&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/flow_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:55.575Z",
+      "htmlSha256": "087c46c02ffb453444301795a44ebf47b6e2817d92c1bdc4ee4acd8e69e42522",
+      "verifiedSupplierId": 437,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "439": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=439&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_efendi?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:56.859Z",
+      "htmlSha256": "7ec88ec2ffa4a0affcdb0bfe14801fefd907aa95c889dddba06281d297219f58",
+      "verifiedSupplierId": 439,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "440": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=440&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Nova_hotel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:57.718Z",
+      "htmlSha256": "0b203d34a9088bf4afd741f691479f7f7d7145204321436961e4fed8a46c0f16",
+      "verifiedSupplierId": 440,
+      "providerFacilityIds": [
+        2003,
+        180,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "חדר כושר",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "441": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=441&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Leonardo_Plaza?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:58.873Z",
+      "htmlSha256": "b4aba8f454741ddf43c28057845b60e200f031216bf1c854029509f02ea109f0",
+      "verifiedSupplierId": 441,
+      "providerFacilityIds": [
+        2930,
+        211,
+        1686,
+        165,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה מחוממת",
+        "ארוחת בוקר",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "442": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=442&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_Cassia_Jerusalem?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:21:59.589Z",
+      "htmlSha256": "eeb535c866812ef58243337e127bca69704d8224624395bbdadf211b05cd23ae",
+      "verifiedSupplierId": 442,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "444": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=444&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_darya_Tiberias?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:00.653Z",
+      "htmlSha256": "cfe7812604edd21c37b93d2faad49834c33e28e6c00628edc695ae32d65a320e",
+      "verifiedSupplierId": 444,
       "providerFacilityIds": [
         1999,
         115,
@@ -370,14 +2529,135 @@
     },
     "445": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=445&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "2b64f649287c679bbc62d04dfb1fcbb50609e588cbb4f30177d67947b040e581",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_play?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:01.757Z",
+      "htmlSha256": "ec5a567b689adaeea26a19d04ec18a490d257ac5ac51151050e9b8ddcf6f86b4",
+      "verifiedSupplierId": 445,
       "providerFacilityIds": [
         1686,
         165
       ],
       "labels": [
         "ארוחת בוקר"
+      ]
+    },
+    "449": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=449&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Roxon_hotel_bat_yam?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:02.952Z",
+      "htmlSha256": "d8556f121569ed518ea801287c1978e72c34ded7f7e3141c897a455f23c49f3e",
+      "verifiedSupplierId": 449,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "456": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=456&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Medical_spa_center?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:04.143Z",
+      "htmlSha256": "73926c20ab489eb2318dba962eed7e856e711d5df559473dd8aa7b5c7b85be7c",
+      "verifiedSupplierId": 456,
+      "providerFacilityIds": [
+        1998,
+        178,
+        185
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "סוויטה"
+      ]
+    },
+    "461": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=461&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_jaffa_port_tlv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:04.965Z",
+      "htmlSha256": "7e6a1a68092fc8a4f807b6a4a8333053b1a2671e56f1342146917fc47935dbf7",
+      "verifiedSupplierId": 461,
+      "providerFacilityIds": [
+        185
+      ],
+      "labels": [
+        "סוויטה"
+      ]
+    },
+    "464": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=464&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_yadshan?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:05.978Z",
+      "htmlSha256": "9e6e9273c7792d7a790207afc3da02c72c839897dd5aa5f8e1aaf5c1f5e29773",
+      "verifiedSupplierId": 464,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        1686,
+        165
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "ארוחת בוקר"
+      ]
+    },
+    "467": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=467&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_Diamonds?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:07.342Z",
+      "htmlSha256": "fcb9a2689082703858920ef5a75751f8d7f97e269924ffd3de4224645b2d0236",
+      "verifiedSupplierId": 467,
+      "providerFacilityIds": [
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "472": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=472&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_Brown_Jlm?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:08.265Z",
+      "htmlSha256": "75ab2bddfc61e6bea9995564da8ded41f9f11b1c0132d2e1211f11a5ff1ba211",
+      "verifiedSupplierId": 472,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "473": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=473&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/City_of_Dreams?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:09.314Z",
+      "htmlSha256": "6d621f5fbcb1562e8308aed32e1df5f55987911d7a9e25e5cd28b21a1fa59770",
+      "verifiedSupplierId": 473,
+      "providerFacilityIds": [
+        2003,
+        180,
+        2000,
+        173,
+        2930,
+        211,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "חדר כושר",
+        "בריכה פנימית",
+        "בריכה מחוממת",
+        "סאונה יבשה",
+        "סאונה רטובה"
       ]
     },
     "479": {
@@ -403,8 +2683,10 @@
     },
     "484": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=484&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "b78120e1ec49bd3521731af7f6f7ee2dee3d535ee02c41e9bf3a83fe95af19c0",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_casa_suzanna?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:15.605Z",
+      "htmlSha256": "1db00c25da56233e85a2eb59f7b8e6d86ed97134ca05055ed4010d371d4906fe",
+      "verifiedSupplierId": 484,
       "providerFacilityIds": [
         1996,
         176
@@ -415,8 +2697,10 @@
     },
     "488": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=488&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "c18ba7f938d83c7d2418ab762d536097e4a9cc5c6d7e73afdb8639e00b9cd6e8",
+      "resolvedUrl": "https://www.spaplus.co.il/the_gutman_hotel_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:17.800Z",
+      "htmlSha256": "a21a3aedb59399073b4945044361ee037c8cb762b79c233897d00e0c6925b2e7",
+      "verifiedSupplierId": 488,
       "providerFacilityIds": [
         1686,
         165
@@ -427,8 +2711,10 @@
     },
     "490": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=490&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "9b6e36e1fb2f5295a839e737d4ba84f4c2bd12d35deac54fb0e6b08ae786340d",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_poli_urban?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:18.641Z",
+      "htmlSha256": "a0b4436ae9d97b0cf9b897d9de67d0caac315058e1ccc8e2d6d4f923973a9b6e",
+      "verifiedSupplierId": 490,
       "providerFacilityIds": [
         1998,
         178,
@@ -443,10 +2729,111 @@
         "סאונה יבשה"
       ]
     },
+    "500": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=500&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_almera?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:22.407Z",
+      "htmlSha256": "ce118921f6f038473b352ea75fa456be2e23202d4dd8f045988ef5b5c872fc86",
+      "verifiedSupplierId": 500,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "502": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=502&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/isla_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:24.216Z",
+      "htmlSha256": "ace387c470a0356c4c9a50bed36143ed1aa6c2c0812de009db8b42e4018d239f",
+      "verifiedSupplierId": 502,
+      "providerFacilityIds": [
+        1999,
+        115,
+        172,
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "בריכה",
+        "בריכה חיצונית",
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
+    "504": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=504&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_atlantis?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:25.255Z",
+      "htmlSha256": "423b4934aea8a1c1d55125dfdc7f803a24a5c26b1a0d9dca16ffa5f19b24707d",
+      "verifiedSupplierId": 504,
+      "providerFacilityIds": [
+        1998,
+        178,
+        1687,
+        166,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "חמאם טורקי",
+        "ארוחת בראנץ'",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "507": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=507&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_ramada_jerusalem?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:26.247Z",
+      "htmlSha256": "537517bf0539d34fc056b66d9e433153f4918efeab70127f0207b580b4b90ab8",
+      "verifiedSupplierId": 507,
+      "providerFacilityIds": [
+        2000,
+        173,
+        1686,
+        165,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה פנימית",
+        "ארוחת בוקר",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "509": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=509&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_machne_yehuda?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:27.966Z",
+      "htmlSha256": "784205ff882704a7b071fac82fcb803213039d01a8ca6f636fd81cfc5b60b3cb",
+      "verifiedSupplierId": 509,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר"
+      ]
+    },
     "514": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=514&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "834ee8c4e46a32fddba26e57196fb6b2e77f8d05340ea3498cfa50d30a9094d0",
+      "resolvedUrl": "https://www.spaplus.co.il/The_george_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:29.797Z",
+      "htmlSha256": "7ca0d9ebf628f47e8eb081b33bf37c68a83e0c7347aad31ecf6569f1b1324969",
+      "verifiedSupplierId": 514,
       "providerFacilityIds": [
         1686,
         165,
@@ -463,8 +2850,10 @@
     },
     "522": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=522&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "323ec1f0c967ac024445a30823d0216f3304c294d7e43ba9e87ec3805db654fc",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_thai_tlv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:30.678Z",
+      "htmlSha256": "dd54a75f9751fe28b44c915f9884f3a2ff29ce15298e3483a55496a9cb40d5de",
+      "verifiedSupplierId": 522,
       "providerFacilityIds": [
         1686,
         165
@@ -473,10 +2862,83 @@
         "ארוחת בוקר"
       ]
     },
+    "523": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=523&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Infinite_beauty_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:31.650Z",
+      "htmlSha256": "0ae677bdcb7582af213b7909e25f09f6df652273d331fc7ff91a12f80063f9d9",
+      "verifiedSupplierId": 523,
+      "providerFacilityIds": [
+        1794,
+        214,
+        2930,
+        211,
+        1996,
+        176
+      ],
+      "labels": [
+        "ג'קוזי פרטי",
+        "בריכה מחוממת",
+        "סאונה יבשה"
+      ]
+    },
+    "525": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=525&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_hotel_u_splash?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:32.418Z",
+      "htmlSha256": "f8fcc1b605468924e4de5c33907149d50de18418ee0af037f64256ae070669bb",
+      "verifiedSupplierId": 525,
+      "providerFacilityIds": [
+        2930,
+        211,
+        1996,
+        176,
+        1997,
+        177
+      ],
+      "labels": [
+        "בריכה מחוממת",
+        "סאונה יבשה",
+        "סאונה רטובה"
+      ]
+    },
+    "528": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=528&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_hotel_arroyo?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:33.809Z",
+      "htmlSha256": "34203d1d937352d361838eb84da223704ac7ceefa174f93cabd666f1b1f3c834",
+      "verifiedSupplierId": 528,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "530": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=530&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_Alaya?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:34.736Z",
+      "htmlSha256": "75def2356dc48bf77cb1b343b5c019c4884d7471da42a60ff661aca2efd022c0",
+      "verifiedSupplierId": 530,
+      "providerFacilityIds": [
+        1686,
+        165,
+        1996,
+        176
+      ],
+      "labels": [
+        "ארוחת בוקר",
+        "סאונה יבשה"
+      ]
+    },
     "533": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=533&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "b76a07ae46be38bea1282a0f4f64c1b823c7bbc42d31afaa173fca8b8ea1510f",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_dan_panorama_tlv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:37.402Z",
+      "htmlSha256": "2d506a0c5bf0c7bf7e7ae5cef3a34511ebd9bda9b5c848657318aeb0d702a232",
+      "verifiedSupplierId": 533,
       "providerFacilityIds": [
         1999,
         115,
@@ -496,6 +2958,37 @@
         "סאונה יבשה"
       ]
     },
+    "537": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=537&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/rish_spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:39.245Z",
+      "htmlSha256": "4fcf75cb2217ee03c5accbc131e569729caf4292e2b4dfcbd08fedf60d155af5",
+      "verifiedSupplierId": 537,
+      "providerFacilityIds": [
+        1686,
+        165,
+        1688,
+        167
+      ],
+      "labels": [
+        "ארוחת בוקר",
+        "ארוחת צהריים"
+      ]
+    },
+    "539": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=539&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/angel_spa_and_Hamam?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:39.876Z",
+      "htmlSha256": "9011f7af06f5895dfabf8c699e47dacff00f5432db407f079907b05b014388c9",
+      "verifiedSupplierId": 539,
+      "providerFacilityIds": [
+        2001,
+        179
+      ],
+      "labels": [
+        "ג'קוזי"
+      ]
+    },
     "540": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=540&domainSrc=vii",
       "checkedAt": "2026-11-06T20:33:24.883Z",
@@ -503,10 +2996,69 @@
       "providerFacilityIds": [],
       "labels": []
     },
+    "541": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=541&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Liberty_spa_and_suites?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:42.130Z",
+      "htmlSha256": "eb8664f631702c429c2f1aab3cb71daebce62b67083c933385c9afddf4f5e9b6",
+      "verifiedSupplierId": 541,
+      "providerFacilityIds": [
+        2001,
+        179,
+        2930,
+        211
+      ],
+      "labels": [
+        "ג'קוזי",
+        "בריכה מחוממת"
+      ]
+    },
+    "548": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=548&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_hotel_prima_jerusalem?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:44.986Z",
+      "htmlSha256": "6c30fbb857a9a3bcae53ac9a4914b2ecfe850d4761ba7bf7d3a6206b0b2f2de1",
+      "verifiedSupplierId": 548,
+      "providerFacilityIds": [
+        1686,
+        165,
+        1688,
+        167,
+        1689,
+        168,
+        1996,
+        176
+      ],
+      "labels": [
+        "ארוחת בוקר",
+        "ארוחת צהריים",
+        "ארוחת ערב",
+        "סאונה יבשה"
+      ]
+    },
+    "550": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=550&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Spa_in_h34_hotel_in_nahariya?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:45.604Z",
+      "htmlSha256": "cc0546da011547e8179525568e9c94bbed7bd2952ac90270bab52a36feda293e",
+      "verifiedSupplierId": 550,
+      "providerFacilityIds": [
+        2001,
+        179,
+        1686,
+        165
+      ],
+      "labels": [
+        "ג'קוזי",
+        "ארוחת בוקר"
+      ]
+    },
     "551": {
       "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=551&domainSrc=vii",
-      "checkedAt": "2026-11-06T20:33:24.883Z",
-      "htmlSha256": "cd22bbae5c51342b1fb105649abbc5be398c88e601a3feac93ee7019fd1bbe9c",
+      "resolvedUrl": "https://www.spaplus.co.il/Head_spa_in_debrah_hotel_tlv?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:47.652Z",
+      "htmlSha256": "b0b6caddec69722d5891633e2c39860276f3bb0df898318769e1fc0ca10b9027",
+      "verifiedSupplierId": 551,
       "providerFacilityIds": [
         2001,
         179,
@@ -518,6 +3070,34 @@
       "labels": [
         "ג'קוזי",
         "חדר כושר",
+        "ארוחת בוקר"
+      ]
+    },
+    "553": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=553&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/Iseum_Boutique_Spa?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:47.690Z",
+      "htmlSha256": "584924698d71d239cfc15a3e04f41cb8b5076719c98617c37c458470474663d8",
+      "verifiedSupplierId": 553,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
+        "ארוחת בוקר"
+      ]
+    },
+    "554": {
+      "sourceUrl": "https://www.spaplus.co.il/packages.php?siteid=554&domainSrc=vii",
+      "resolvedUrl": "https://www.spaplus.co.il/spa_in_hotal_domus_carmel?tab=1&isFrame=1&ispackFrame=1&domainSrc=vii",
+      "checkedAt": "2026-11-08T14:22:48.293Z",
+      "htmlSha256": "76e465589b84daf6069f6e987ff39c90ec668e30fd10211cc0cb5c55d5e47add",
+      "verifiedSupplierId": 554,
+      "providerFacilityIds": [
+        1686,
+        165
+      ],
+      "labels": [
         "ארוחת בוקר"
       ]
     }
