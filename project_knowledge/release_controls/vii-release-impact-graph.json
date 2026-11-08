@@ -65,7 +65,9 @@
         "tests/published-catalog-client-cache.test.mjs",
         "tests/spa-catalog-context-actual.test.mjs",
         "tests/public-catalog-bootstrap-actual.test.mjs",
-        "tests/published-catalog-navigation-hook.actual.test.mjs"
+        "tests/published-catalog-navigation-hook.actual.test.mjs",
+        "tests/public-search-catalog-snapshot.actual.test.mjs",
+        "tests/cached-public-vacation-search.actual.test.mjs"
       ]
     },
     "global-shell": {
@@ -691,7 +693,9 @@
         "app/lib/provider-catalog-inspection.ts",
         "app/lib/use-published-catalog.ts",
         "app/lib/published-catalog-client-cache.ts",
-        "app/lib/content-studio.ts"
+        "app/lib/content-studio.ts",
+        "app/lib/public-search-catalog-snapshot.ts",
+        "app/lib/cached-public-vacation-search.ts"
       ]
     },
     {

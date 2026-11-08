@@ -34,6 +34,7 @@ function fixture(headerValues={},gate=null){
     if(name==='react/jsx-runtime')return nativeRequire(name);
     if(name==='next/headers')return{headers:async()=>new Headers(headerValues)};
     if(name==='next/navigation')return{notFound:()=>{throw Error('not_found')}};
+    if(name.includes('cached-public-vacation-search')){calls.imports++;return{publicRegionalVacationSearch:async()=>{calls.reads++;if(gate)await gate;return publicVacationSearchProperties(inventory);}};}
     if(name.includes('public-catalog-read')){calls.imports++;return{publicCatalogSummaries:async()=>{calls.reads++;if(gate)await gate;return inventory;}};}
     if(name.includes('public-vacation-search'))return{publicVacationSearchProperties};
     if(name.includes('vacation-landings'))return regions;

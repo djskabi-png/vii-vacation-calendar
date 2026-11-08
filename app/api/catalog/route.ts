@@ -18,6 +18,7 @@ import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 import { projectSergeyPublicCatalogValue } from "../../lib/sergey-public-catalog-projection.ts";
 import { mergeBundledDetail } from "../../lib/public-catalog-read.ts";
+import { readPublicSearchCatalogSnapshot } from "../../lib/public-search-catalog-snapshot.ts";
 import { spaPlacesFromSites } from "../../lib/spa-discovery-card.ts";
 import type { SpaPlusSite } from "../../data/spaplus.ts";
 
@@ -117,6 +118,15 @@ export async function catalogResponse(request: Request, db: D1Database | null): 
   const supplierId = rawId === null ? null : Number(rawId);
   if (rawId !== null && (!Number.isSafeInteger(supplierId) || supplierId! < 1)) {
     return Response.json({ error: "invalid_id" }, { status: 400, headers: noStore });
+  }
+
+  // Search/list consumers and SSR must see one publication/editorial
+  // projection. The snapshot reader uses the atomic accepted-generation
+  // bootstrap; if it cannot prove completeness, continue into the existing
+  // bundled/runtime fallback below rather than returning a false empty list.
+  if (db && view === "search" && (world === "vacations" || world === "events")) {
+    const snapshot = await readPublicSearchCatalogSnapshot(db, world);
+    if (snapshot) return Response.json(snapshot, { headers: publicCatalogCache });
   }
 
   if (db) {

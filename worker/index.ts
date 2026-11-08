@@ -419,7 +419,7 @@ const worker = {
     return storePublicCache(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
     }), cachePolicy, env, ctx);
-    });
+    }, ctx);
   },
 };
 

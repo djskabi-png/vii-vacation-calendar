@@ -16,5 +16,5 @@ export function preloadRegionalVacationCatalog(pathname: string, isAdmin: boolea
   if (!regionalVacationPreloadPath(pathname, isAdmin)) return;
   // Keep the catalog reader out of the root layout's eager dependency graph.
   // It owns the request-local read key, so the child consumes the same promise.
-  void import("./public-catalog-read.ts").then(({ publicCatalogSummaries }) => publicCatalogSummaries("vacations")).catch(() => undefined);
+  void import("./cached-public-vacation-search.ts").then(({ publicRegionalVacationSearch }) => publicRegionalVacationSearch()).catch(() => undefined);
 }

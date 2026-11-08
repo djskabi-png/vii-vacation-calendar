@@ -4,8 +4,6 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { SearchExperience } from "../search/page";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
-import type { Property } from "../data/site-data";
-import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { StructuredData } from "./structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-landings";
@@ -50,8 +48,8 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
       <SearchExperience key={path} landing={{ path, title, description, breadcrumb: title, type: "הכל", area: location, guideTitle, guideParagraphs, faqs, clientCollectionSchema: true }} />
     </>;
   }
-  const { publicCatalogSummaries } = await import("../lib/public-catalog-read.ts");
-  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
+  const { publicRegionalVacationSearch } = await import("../lib/cached-public-vacation-search.ts");
+  const publishedProperties = await publicRegionalVacationSearch();
   const listings = region && !locationOverride
     ? vacationRegionListings(region, publishedProperties)
     : publishedProperties.filter((property) => matchesSearchLocation(property, location));

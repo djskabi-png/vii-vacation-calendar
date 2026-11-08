@@ -1,3 +1,4 @@
+import {publicVacationSearchProperties} from '../app/lib/public-vacation-search.ts';
 import * as catalogHint from '../shared/public-catalog-navigation.ts';
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -32,7 +33,7 @@ function harness(path='/vacations/kinneret',requestHeaders={}){
   if(name.includes('published-supplier-ids'))return{runtimeCatalogDatabase:async()=>({})};
   if(name.includes('supplier-catalog-store'))return{
    readSupplierCatalogState:async()=>{calls.state++;stateStarted.resolve();await stateGate.promise;return{activeRunId:'accepted-test',activeCount:1};},
-   readSupplierCatalogSummaries:async()=>{calls.summary++;summaryStarted.resolve();await rowsGate.promise;return{entries:[{summary:{supplierId:7,slug:'vacation-7',name:'Accepted',description:'Preserved',location:'כנרת',area:'כנרת'}}]};},
+   readSupplierCatalogSummaries:async()=>{calls.summary++;summaryStarted.resolve();await rowsGate.promise;return{entries:[{summary:{supplierId:7,slug:'vacation-7',name:'Accepted',description:'Preserved',location:'כנרת',area:'כנרת',type:'צימר',units:1,guests:2,bedrooms:1,image:'/a.jpg',images:['/a.jpg'],features:[],audiences:[],badges:[]}}]};},
   };
   if(name.includes('content-studio'))return{readPublishedItems:async()=>{calls.overlay++;return[];}};
   if(name.includes('public-catalog-policy'))return{publicCatalogEntryAllowed:()=>true};
@@ -41,8 +42,15 @@ function harness(path='/vacations/kinneret',requestHeaders={}){
   if(name.includes('accepted-bundled-catalog'))return{acceptedSergeySummaries:()=>[]};
   return empty;
  });
+ const regionalReader=loadActual('app/lib/cached-public-vacation-search.ts',name=>{
+  if(name.includes('server-request-reads'))return{readOnceInServerRequest};
+  if(name.includes('public-catalog-read'))return reader;
+  if(name.includes('public-vacation-search'))return{publicVacationSearchProperties};
+  if(name==='cloudflare:workers')throw Error('no_cloud_bindings_in_fixture');
+  return empty;
+ });
  const preload=loadActual('app/lib/regional-catalog-preload.ts',name=>{
-  if(name.includes('public-catalog-read')){calls.imports++;return reader;}
+  if(name.includes('cached-public-vacation-search')){calls.imports++;return regionalReader;}
   throw Error('unexpected_preload_dependency:'+name);
  });
  const worlds=loadActual('app/lib/world-availability.ts',()=>empty);

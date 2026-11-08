@@ -147,13 +147,27 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
     home = path === "/" || /^\/(?:en|ru|fr)\/?$/.test(path);
   }
   if (query === null || query.length > 600) return null;
-  const variants = routingHeaders.map((name) => [name, request.headers.get(name)]);
+  // This exact public JSON projection does not negotiate HTML, locale or
+  // account state. Browser fetch and server reads share its existing cache;
+  // private requests, transport variants and every other endpoint keep their
+  // original identities. These are the original project's public aliases.
+  const searchProjection = kind === "data" && url.pathname === "/api/catalog"
+    && ["vacations", "events"].includes(url.searchParams.get("world") || "")
+    && url.searchParams.get("view") === "search"
+    && ["", "*/*", "application/json"].includes(request.headers.get("Accept") || "")
+    && routingHeaders.filter(name => name !== "Accept").every(name => !request.headers.has(name));
+  const identityUrl = new URL(url);
+  if (searchProjection && ["vii.spaplus.co", "www.vii.co.il", "vii.co.il", "vii-vacation-calendar.adir-naor-7510.chatgpt.site"].includes(url.hostname)) {
+    identityUrl.host = "vii.spaplus.co";
+    identityUrl.protocol = "https:";
+  }
+  const variants = routingHeaders.map((name) => [name, searchProjection && name === "Accept" ? "application/json" : request.headers.get(name)]);
   if (JSON.stringify(variants).length > 8192) return null;
   const clock = kind === "data" ? null : publicDocumentClock(url.pathname, now);
-  const identity = await digest(JSON.stringify([url.origin, url.pathname, query, variants, ...(clock ? [clock] : [])]));
-  const key = `runtime-cache/public/${publicCacheVersion}/${build}/${url.hostname}/${kind}/${identity}`;
+  const identity = await digest(JSON.stringify([identityUrl.origin, url.pathname, query, variants, ...(clock ? [clock] : [])]));
+  const key = `runtime-cache/public/${publicCacheVersion}/${build}/${identityUrl.hostname}/${kind}/${identity}`;
   const expiresAt = kind === "data" ? undefined : publicDocumentExpiry(url.pathname, now.getTime() + ttlSeconds * 1000, now);
-  return { key, edgeUrl: `${url.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build, expiresAt };
+  return { key, edgeUrl: `${identityUrl.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build, expiresAt };
 }
 
 function edgeCache(): EdgeCache | undefined {

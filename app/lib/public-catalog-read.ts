@@ -66,11 +66,11 @@ async function loadPublicCatalogSummariesFromDatabase<T>(db: D1Database, world: 
     // read can fail before the summary-row fallback below is reached, so keep
     // the immutable accepted build available at this boundary as well.
     console.warn(`public_catalog_state_fallback:${world}`);
-    return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
+    return projectPublicCatalogWithEditorial(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   }
-  if (!state?.activeRunId) return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
+  if (!state?.activeRunId) return projectPublicCatalogWithEditorial(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   const cached = catalogCache.get(world);
-  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return withEditorialOverlays(world, await cached.items, await overlays) as T[];
+  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return projectPublicCatalogWithEditorial(world, await cached.items, await overlays) as T[];
   const runId = state.activeRunId;
   const items = (async () => {
     const accepted = bootstrap.summaries && bootstrap.summaries.activeRunId === runId
@@ -81,7 +81,7 @@ async function loadPublicCatalogSummariesFromDatabase<T>(db: D1Database, world: 
   })();
   catalogCache.set(world, { runId, expiresAt: Date.now() + 5 * 60_000, items });
   try {
-    return withEditorialOverlays(world, await items, await overlays) as T[];
+    return projectPublicCatalogWithEditorial(world, await items, await overlays) as T[];
   } catch (error) {
     if (catalogCache.get(world)?.items === items) catalogCache.delete(world);
     // An accepted generation pointer can briefly outlive its materialized
@@ -89,7 +89,7 @@ async function loadPublicCatalogSummariesFromDatabase<T>(db: D1Database, world: 
     // must keep serving the last immutable accepted build instead of replacing
     // the whole world with the generic error surface.
     console.warn(`public_catalog_summaries_fallback:${world}`);
-    return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
+    return projectPublicCatalogWithEditorial(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   }
 }
 
@@ -204,7 +204,7 @@ export async function publicEventResultSummaries<T>(supplierIds: readonly number
     console.warn("public_event_results_fallback");
     entries = fallback();
   }
-  return withEditorialOverlays("events", await publicSummaries("events", entries), await overlays) as T[];
+  return projectPublicCatalogWithEditorial("events", await publicSummaries("events", entries), await overlays) as T[];
 }
 
 function contentTypeForWorld(world: SupplierCatalogWorld): ContentType {
@@ -228,12 +228,17 @@ function applyEditorial(world: SupplierCatalogWorld, value: unknown, content: Ed
   return { ...row, name: content.title, description: content.summary };
 }
 
-function withEditorialOverlays(world: SupplierCatalogWorld, entries: unknown[], published: { key: string; content: EditorialContent }[]) {
+export function projectPublicCatalogWithEditorial(world: SupplierCatalogWorld, entries: unknown[], published: { key: string; content: EditorialContent }[]) {
     const overlays = new Map(published.map((entry) => [entry.key, entry.content]));
     return entries.map((entry) => {
       const content = overlays.get(catalogIdentity(world, entry));
       return content ? applyEditorial(world, entry, content) : entry;
     });
+}
+
+/** The canonical SSR projection for public search snapshots. */
+export async function projectPublicSearchCatalogEntries(world: "vacations" | "events", entries: unknown[], published: { key: string; content: EditorialContent }[]) {
+  return projectPublicCatalogWithEditorial(world, await publicSummaries(world, entries), published);
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {
