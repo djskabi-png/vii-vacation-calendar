@@ -37,11 +37,14 @@ export async function POST(request: Request) {
     if (body.length > 20_000) return Response.json({ error: "too_large" }, { status: 413, headers });
     input = JSON.parse(body);
   } catch { return Response.json({ error: "invalid_input" }, { status: 400, headers }); }
-  const change = parseOpportunityChange(input);
-  if (!change) return Response.json({ error: "invalid_page" }, { status: 400, headers });
   try {
-    const result = await saveOpportunity(await opportunityDatabase(), change, actor);
-    if ("error" in result) return Response.json({ error: result.error }, { status: result.error === "not_found" ? 404 : result.error === "invalid_identity" || result.error === "indexing_required" ? 400 : 409, headers });
+    const database = await opportunityDatabase();
+    const id = input && typeof input === "object" ? (input as Record<string, unknown>).id : null;
+    const prior = typeof id === "string" ? await readOpportunity(database, id) : null;
+    const change = parseOpportunityChange(input, Boolean(prior?.opportunity.existingApproved));
+    if (!change) return Response.json({ error: "invalid_page" }, { status: 400, headers });
+    const result = await saveOpportunity(database, change, actor);
+    if ("error" in result) return Response.json({ error: result.error }, { status: result.error === "not_found" ? 404 : result.error === "invalid_page" || result.error === "invalid_identity" || result.error === "indexing_required" ? 400 : 409, headers });
     return Response.json(result, { headers });
   } catch (error) {
     console.error("VII search opportunity save unavailable", error);

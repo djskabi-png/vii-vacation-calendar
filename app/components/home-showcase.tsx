@@ -24,6 +24,7 @@ import { HomeMobileRail } from "./home-mobile-rail";
 import { homeEventPhotography, homeReviewExcerpt } from "../lib/home-preview-content";
 import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
 import { useDocumentSeed } from "./use-document-seed";
 import { homeTourVideos } from "../lib/home-video-selection";
 import { useWorldAvailability } from "./world-availability-provider";
@@ -89,13 +90,14 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
 }) {
   const router = useRouter();
   const documentSeed = useDocumentSeed();
+  const vacationWeight=usePublicPromotionWeights("vacations"),eventWeight=usePublicPromotionWeights("events"),hourlyWeight=usePublicPromotionWeights("rooms");
   const { language, translate } = useSiteLanguage();
   const { enabled } = useWorldAvailability();
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id) && enabled(world.id));
   const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
-    { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
+    { id: ({ property, video }) => `${property.slug}:${video.src}`, promotionWeight:({property})=>vacationWeight(property.slug),seed: `${documentSeed}:home-tours`, limit: 7 });
   const destinationImages = orderDiscoveryRail(properties.filter((property) => property.image), { id: property => property.slug, seed: `${documentSeed}:home-destination-images` });
   const usedDestinationImages = new Set<string>();
   const destinationPlaces = vacationDestinations.map((_destination, index) => {
@@ -104,9 +106,9 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
     if (place) usedDestinationImages.add(place.image);
     return place;
   });
-  const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, seed: `${documentSeed}:home-hourly`,
+  const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, promotionWeight:item=>hourlyWeight(item.id),seed: `${documentSeed}:home-hourly`,
     compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });
-  const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, seed: `${documentSeed}:home-events` });
+  const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, promotionWeight:place=>eventWeight(place.slug),seed: `${documentSeed}:home-events` });
   const eventFallback = { he: { venue: "מתחם אירועים", location: "ישראל", description: "מתחם לאירועים פרטיים ועסקיים", guests: "אורחים ביחידה הגדולה" }, en: { venue: "Event venue", location: "Israel", description: "Venue for private and business events", guests: "guests in the largest unit" }, ru: { venue: "Площадка для мероприятий", location: "Израиль", description: "Площадка для частных и деловых мероприятий", guests: "гостей в самой большой зоне" }, fr: { venue: "Lieu événementiel", location: "Israël", description: "Lieu pour événements privés et professionnels", guests: "personnes dans le plus grand espace" } }[language];
   const localizeEvent = (place: EventPlace) => ({
     // Keep the first server and browser render identical. Generated catalog

@@ -8,7 +8,7 @@ function loadTsModule(relativePath) {
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
   new Function("require", "module", "exports", output)((name) => {
-    if (name === "./discovery-slider-order") {
+    if (name.startsWith("./discovery-slider-order")) {
       const { discoverySeedCompare } = loadTsModule("app/lib/discovery-slider-order.ts");
       return { discoverySeedCompare };
     }
@@ -41,6 +41,17 @@ test("explicit numeric sorts are truthful and keep unknown values last", () => {
   assert.deepEqual(orderDiscoveryResults(items, "popular", "seed", model).map(item => item.id), ["d", "a", "b", "c"]);
 });
 
+test("recommended ordering applies higher admin promotion weight only inside the same priority tier", () => {
+  const weighted = [
+    { id: "low", name: "Low", priority: 1, promotionWeight: 1 },
+    { id: "high", name: "High", priority: 1, promotionWeight: 5 },
+    { id: "relevant", name: "Relevant", priority: 0, promotionWeight: 1 },
+  ];
+  const weightedModel = { id: item => item.id, name: item => item.name, priority: item => item.priority, promotionWeight: item => item.promotionWeight };
+  assert.deepEqual(orderDiscoveryResults(weighted, "recommended", "stable", weightedModel).map(item => item.id), ["relevant", "high", "low"]);
+  assert.deepEqual(orderDiscoveryResults(weighted, "name", "stable", weightedModel).map(item => item.id), ["high", "low", "relevant"]);
+});
+
 test("sort options only expose signals present in the inventory", () => {
   const rich = discoverySortOptions(items, model, "he").map(option => option.value);
   assert.deepEqual(rich, ["recommended", "nearest", "popular", "price-asc", "price-desc", "rating-desc", "name"]);
@@ -57,7 +68,7 @@ test("every DiscoveryItem result family imports the shared truthful sort model",
     "app/trails/trails-explorer.tsx",
   ]) {
     const source = readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-    assert.match(source, /orderDiscoveryResults/, path);
+    assert.match(source, /order(?:Grouped)?DiscoveryResults/, path);
     assert.match(source, /useDocumentSeed/, path);
     assert.match(source, /discoverySortOptions/, path);
   }

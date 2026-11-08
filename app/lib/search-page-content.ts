@@ -1,3 +1,5 @@
+import { publicSearchContent } from "./public-search-page-snapshot.ts";
+import { vacationRegions } from "../data/vacation-landings.ts";
 import { readOnceInServerRequest } from "./server-request-reads.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
@@ -6,11 +8,12 @@ import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { eventSearchHref, eventCombinationHref, eventTypeSlugs, hourlySearchHref } from "../data/world-search-landings.ts";
 import { canonicalLegacyEventSearchPath } from './legacy-event-intent-index.ts';
 
-export type SearchPageDefinition = { path: string; world: "spa" | "events" | "hourly"; title: string; description: string };
+export type SearchPageDefinition = { path: string; world: "vacation" | "spa" | "events" | "hourly"; title: string; description: string };
 export type SearchPageStatus = "draft" | "published" | "scheduled";
 export type SearchPageContent = { path: string; title: string; description: string; status: SearchPageStatus; scheduledAt: string | null; version: number; updatedAt: string; updatedBy: string };
 
 const allSearchPageDefinitions: SearchPageDefinition[] = [
+  ...vacationRegions.map(region => ({ path: `/vacations/${region.slug}`, world: "vacation" as const, title: `נופש ב${region.label}`, description: `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.` })),
   ...['כל הארץ', ...searchLocationOptions('events').filter(location => !['כל הארץ', 'הכל'].includes(location))].flatMap(location => Object.keys(eventTypeSlugs).filter(type => !canonicalLegacyEventSearchPath({ location, type })).map(type => ({ path: eventCombinationHref(location, type), world: 'events' as const, title: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}`, description: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}, עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.` }))),
   { path: "/spas", world: "spa", title: "בתי ספא בישראל", description: "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם." },
   ...spaLandings.map((landing) => ({ path: spaLandingHref(landing), world: "spa" as const, title: landing.title, description: landing.description })),
@@ -62,11 +65,8 @@ export async function publishedSearchPage(path: string): Promise<SearchPageDefin
   if (!definition) return null;
   try {
     const now = new Date().toISOString();
-    const managed = await (await db()).prepare(`SELECT title, meta_description AS description
-      FROM vii_search_page_opportunities WHERE canonical_path = ? AND robots_index = 1
-      AND (status = 'published' OR (status = 'scheduled' AND scheduled_at <= ?)) ORDER BY version DESC LIMIT 1`)
-      .bind(path, now).first<{ title: string; description: string }>();
-    if (managed) return { ...definition, title: managed.title, description: managed.description };
+    const managed = await publicSearchContent(path);
+    if (managed) return { ...definition, title: managed.h1 || managed.title, description: managed.metaDescription };
     // The editable row is the latest draft.  Public content must instead be
     // resolved from the latest version eligible at this instant, otherwise a
     // future version would hide an already-published page until its date.

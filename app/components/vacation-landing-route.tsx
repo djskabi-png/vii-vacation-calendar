@@ -1,3 +1,4 @@
+import { publicSearchContent } from "../lib/public-search-page-snapshot.ts";
 import { hasCatalogNavigationHint } from "../../shared/public-catalog-navigation.ts";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -17,8 +18,9 @@ import { RegionalSearchLoading } from "./regional-search-loading";
 export async function vacationLandingMetadata(regionSlug?: string | null): Promise<Metadata> {
   const region = vacationRegionBySlug(regionSlug);
   if (!region) return {};
-  const title = `נופש ב${region.label}`;
-  const description = `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
+  const approved = await publicSearchContent(`/vacations/${region.slug}`);
+  const title = approved?.metaTitle || `נופש ב${region.label}`;
+  const description = approved?.metaDescription || `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
   const path = `/vacations/${region.slug}`;
   return { title, description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title, description } };
 }
@@ -28,14 +30,15 @@ export async function VacationLandingRoute({ regionSlug, locationOverride }: { r
   const location = locationOverride || region?.label;
   if (!location) notFound();
   const path = locationOverride ? worldLocationPath("vacation", location) : `/vacations/${region!.slug}`;
-  const title = `נופש ב${location}`;
-  const description = `מקומות נופש פעילים ב${location}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
+  const approved = await publicSearchContent(path);
+  const title = approved?.h1 || `נופש ב${location}`;
+  const description = approved?.summary || `מקומות נופש פעילים ב${location}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
   const guideTitle = `איך בוחרים מקום נופש ב${location}`;
-  const guideParagraphs = [
+  const guideParagraphs = approved?.body ? approved.body.split(/\n\s*\n/).filter(Boolean) : [
     `בעמוד זה מוצגים מקומות הנופש הפעילים ב${location}. אפשר להשוות בין סוגי האירוח, מספר האורחים, החדרים, המתקנים ואפשרויות יצירת הקשר שמופיעות בכל כרטיס.`,
     "מחיר וזמינות מוצגים רק כאשר הספק מסר מידע מתאים. כשאין יומן או מחיר מאומת, העמוד מפנה לבירור ישיר בטלפון או בוואטסאפ במקום להציג זמינות שאינה ידועה.",
   ];
-  const faqs = [
+  const faqs = approved?.faq.length ? approved.faq : [
     { question: `אילו מקומות נופש מופיעים ב${location}?`, answer: `מופיעים מקומות פעילים שהמיקום שלהם משויך ל${location} בקטלוג VII. התוצאות מתעדכנות לפי המידע שמתקבל מהספקים.` },
     { question: "איך יודעים אם אפשר להזמין אונליין?", answer: "אפשרות הזמנה אונליין מוצגת רק כאשר קיימים גם זמינות וגם מחיר מתאימים. במקומות אחרים אפשר לפנות ישירות לבירור." },
     { question: "האם אפשר לסנן לפי סוג מקום ומאפיינים?", answer: "כן. אפשר לסנן את התוצאות לפי סוג מקום, מספר אורחים, חדרי שינה, מתקנים ומאפייני חיפוש נוספים." },

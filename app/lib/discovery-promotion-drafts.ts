@@ -1,10 +1,11 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { readSupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { eventDealDate } from "./event-deal-dates.ts";
 
 export const promotionWorlds = ["vacations", "events", "rooms", "spa"] as const;
 export const promotionKinds = ["manual", "new_place", "ending_contract"] as const;
 export type PromotionKind = typeof promotionKinds[number];
-export type PromotionStatus = "draft" | "archived";
+export type PromotionStatus = "draft" | "published" | "archived";
 
 export type PromotionDraft = {
   eventId: string;
@@ -63,7 +64,7 @@ export function parsePromotionDraft(value: unknown) {
   if (input.contractSource && contractSource === null) throw new PromotionDraftError("invalid_contract_source");
   if (contractEndsOn && !contractSource) throw new PromotionDraftError("contract_source_required");
   if (input.kind === "ending_contract" && !contractEndsOn) throw new PromotionDraftError("contract_end_required");
-  if (input.status !== "draft" && input.status !== "archived") throw new PromotionDraftError("invalid_status");
+  if (input.status !== "draft" && input.status !== "published" && input.status !== "archived") throw new PromotionDraftError("invalid_status");
   const note = shortText(input.note, 500);
   if (note === null) throw new PromotionDraftError("invalid_note");
   const campaignId = input.campaignId == null ? null : input.campaignId;
@@ -95,6 +96,29 @@ export function parsePromotionDraft(value: unknown) {
   };
 }
 
+/** Read only explicitly published, currently valid weights. Drafts and
+ * archived versions never enter public ranking. The caller supplies a single
+ * time snapshot so all worlds in one request share the same cutoff. */
+export async function readActivePromotionWeights(db: D1Database, now = new Date().toISOString()) {
+  const today = eventDealDate(0, new Date(now));
+  const result = await db.prepare(`SELECT world, supplier_id AS supplierId, weight
+    FROM discovery_promotion_draft_events e
+    WHERE status = 'published' AND starts_on <= ? AND ends_on >= ?
+      AND version = (SELECT MAX(version) FROM discovery_promotion_draft_events
+        WHERE campaign_id = e.campaign_id AND status IN ('published', 'archived')
+          AND (status = 'archived' OR starts_on <= ?))
+    ORDER BY world, supplier_id`).bind(today, today, today).all<{ world: SupplierCatalogWorld; supplierId: number; weight: number }>();
+  const valid = result.results.filter((row) => Number.isSafeInteger(row.supplierId) && row.supplierId > 0 && Number.isInteger(row.weight) && row.weight >= 1 && row.weight <= 5);
+  const byIdentity = new Map<string, { world: SupplierCatalogWorld; supplierId: number; weight: number }>();
+  for (const row of valid) {
+    const next = { world: row.world, supplierId: row.supplierId, weight: row.weight };
+    const key = `${next.world}:${next.supplierId}`;
+    const previous = byIdentity.get(key);
+    if (!previous || next.weight > previous.weight) byIdentity.set(key, next);
+  }
+  return [...byIdentity.values()].sort((a, b) => a.world.localeCompare(b.world) || a.supplierId - b.supplierId);
+}
+
 const columns = `event_id AS eventId, campaign_id AS campaignId, version, world,
   supplier_id AS supplierId, place_name AS placeName, kind, weight,
   starts_on AS startsOn, ends_on AS endsOn, contract_ends_on AS contractEndsOn,
@@ -109,7 +133,7 @@ export async function readPromotionDraftDashboard(db: D1Database) {
     db.prepare(`SELECT ${columns} FROM discovery_promotion_draft_events
       ORDER BY saved_at DESC LIMIT 40`).all<PromotionDraft>(),
   ]);
-  return { drafts: drafts.results, activity: activity.results, publicRankingEnabled: false };
+  return { drafts: drafts.results, activity: activity.results, publicRankingEnabled: true };
 }
 
 export async function savePromotionDraft(db: D1Database, raw: unknown, actorEmail: string) {

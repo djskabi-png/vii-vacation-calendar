@@ -113,7 +113,8 @@
       "dependsOn": [
         "catalog-source",
         "global-shell",
-        "search-analytics"
+        "search-analytics",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "search.location.semantic"
@@ -137,7 +138,8 @@
         "tests/deferred-search-content.actual.test.mjs",
         "tests/published-catalog-transition.actual.test.mjs",
         "tests/hourly-results-order.test.mjs",
-        "tests/nearby-search-family.test.mjs"
+        "tests/nearby-search-family.test.mjs",
+        "tests/search-opportunity-approval.actual.test.mjs"
       ]
     },
     "vacations": {
@@ -146,7 +148,8 @@
         "maps",
         "catalog-source",
         "global-shell",
-        "search"
+        "search",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "world.vacations.semantic",
@@ -169,7 +172,8 @@
         "maps",
         "catalog-source",
         "global-shell",
-        "search"
+        "search",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "world.events.semantic",
@@ -191,7 +195,8 @@
         "maps",
         "catalog-source",
         "global-shell",
-        "search"
+        "search",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "world.spas.semantic",
@@ -223,7 +228,8 @@
         "maps",
         "catalog-source",
         "global-shell",
-        "search"
+        "search",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "world.hourly.semantic",
@@ -286,7 +292,8 @@
     "home-sliders": {
       "dependsOn": [
         "catalog-source",
-        "global-shell"
+        "global-shell",
+        "discovery-exposure"
       ],
       "requiredChecks": [
         "api.home.presentation",
@@ -346,7 +353,8 @@
       "dependsOn": [
         "catalog-source",
         "quality-control",
-        "search-analytics"
+        "search-analytics",
+        "discovery-exposure"
       ],
       "requiredChecks": [],
       "buildUnits": [
@@ -355,7 +363,11 @@
       "requiredLocalTests": [
         "tests/admin-control-inventory.test.mjs",
         "tests/admin-permissions.test.mjs",
-        "tests/world-popular-editor.actual.test.mjs"
+        "tests/world-popular-editor.actual.test.mjs",
+        "tests/professor-business-breakdown.actual.test.mjs",
+        "tests/admin-professor-intent.test.mjs",
+        "tests/admin-edit-hub.actual.test.mjs",
+        "tests/search-opportunity-approval.actual.test.mjs"
       ]
     },
     "booking": {
@@ -711,6 +723,21 @@
         "tests/search-analytics.test.mjs",
         "tests/admin-server-gate.test.mjs"
       ]
+    },
+    "discovery-exposure": {
+      "dependsOn": [
+        "catalog-source"
+      ],
+      "requiredChecks": [],
+      "buildUnits": [
+        "managed-site"
+      ],
+      "requiredLocalTests": [
+        "tests/public-promotion-ranking.actual.test.mjs",
+        "tests/discovery-promotion-drafts.test.mjs",
+        "tests/cross-world-discovery-sort.test.mjs",
+        "tests/discovery-slider-order.test.mjs"
+      ]
     }
   },
   "entries": [
@@ -843,7 +870,9 @@
         "app/components/deferred-search-content.tsx",
         "app/components/regional-search-loading.tsx",
         "app/lib/discovery-result-sort.ts",
-        "app/components/world-map-results.tsx"
+        "app/components/world-map-results.tsx",
+        "app/lib/public-search-page-snapshot.ts",
+        "app/lib/search-page-approval.ts"
       ]
     },
     {
@@ -887,7 +916,8 @@
         "app/data/spaplus-official-facility-evidence.json",
         "scripts/extract-spaplus-facility-evidence.mjs",
         "scripts/lib/spaplus-facility-parser.mjs",
-        "app/components/spa-package-deals.css"
+        "app/components/spa-package-deals.css",
+        "app/lib/spa-package-deals.ts"
       ]
     },
     {
@@ -964,7 +994,12 @@
       "match": [
         "app/admin/",
         "app/api/admin/",
-        "app/lib/vii-conversions.ts"
+        "app/lib/vii-conversions.ts",
+        "app/lib/admin-professor-intent.ts",
+        "app/lib/admin-professor-openai.ts",
+        "app/lib/admin-professor.ts",
+        "app/lib/professor-business-breakdown.ts",
+        "app/lib/professor-period-bounds.ts"
       ]
     },
     {
@@ -1196,6 +1231,19 @@
         "app/api/analytics/search/",
         "app/lib/search-analytics.ts",
         "app/lib/analytics.ts"
+      ]
+    },
+    {
+      "id": "discovery-exposure",
+      "ownerBox": "discovery-exposure",
+      "match": [
+        "app/components/use-document-seed.ts",
+        "app/components/use-public-promotion-weights.ts",
+        "app/lib/discovery-promotion-drafts.ts",
+        "app/lib/discovery-slider-order.ts",
+        "app/lib/discovery-exposure-scope.ts",
+        "app/lib/public-promotion-policy.ts",
+        "app/api/discovery-promotions/"
       ]
     }
   ]

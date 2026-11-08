@@ -1,9 +1,26 @@
+import {discoverySeedRank} from './discovery-slider-order.ts';
 import type { SpaPlusSite } from "../data/spaplus";
 import { eventDealDate } from "./event-deal-dates.ts";
 export type SpaDayAvailability = { siteID: number; date: string; available: number };
 export type SpaDealAudience = "single" | "couple" | "group";
 export type SpaDealSite = Pick<SpaPlusSite, "id" | "title" | "city" | "image"> & { titleEN?:string|null; packages: SpaPlusSite["packages"] };
 export type SpaPackageDeal = { siteId: number; packageId: number; siteName: string; siteNameEN:string; city: string; title: string; price: number; people: number | null; durationMinutes: number | null; image: string; href: string };
+export type SpaPromotionWeight = { supplierId: number; weight: number };
+export function orderSpaDealExposure(deals: readonly SpaPackageDeal[], weights: readonly SpaPromotionWeight[], seed: string) {
+  const bySite = new Map(weights.map((entry) => [entry.supplierId, entry.weight]));
+  return [...deals].sort((a, b) => a.price - b.price
+    || (bySite.get(b.siteId) ?? 0) - (bySite.get(a.siteId) ?? 0)
+    || discoverySeedRank(`${a.siteId}:${a.packageId}`, seed) - discoverySeedRank(`${b.siteId}:${b.packageId}`, seed)
+    || a.siteId - b.siteId || a.packageId - b.packageId);
+}
+/** The preview gives each supplier a ticket; the full page retains every package. */
+export function spaSliderRepresentatives(orderedDeals: readonly SpaPackageDeal[]) {
+  const seen = new Set<number>();
+  return orderedDeals.filter(deal => {
+    if (seen.has(deal.siteId)) return false;
+    seen.add(deal.siteId); return true;
+  });
+}
 export function validSpaDealDate(value: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T12:00:00Z`)) && new Date(`${value}T12:00:00Z`).toISOString().slice(0, 10) === value;
 }

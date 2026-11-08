@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {selectSpaPackageDeals,validSpaDealDate,spaPackageDealHref,millisecondsToNextIsraelDay} from '../app/lib/spa-package-deals.ts';
+import {selectSpaPackageDeals,orderSpaDealExposure,validSpaDealDate,spaPackageDealHref,millisecondsToNextIsraelDay} from '../app/lib/spa-package-deals.ts';
 import { scheduleSpaDealFollowup } from '../app/lib/spa-followup.ts';
 
 test('followup scheduler executes bounded 2s then 4s sequence and stops when verified',()=>{const timers=[];const calls=[];let count=0;let next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('first'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,1);assert.equal(timers[0].delay,2000);timers.shift().fn();count=next.nextCount;next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('second'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,2);assert.equal(timers[0].delay,4000);assert.equal(scheduleSpaDealFollowup('verified',count,()=>{},()=>{}),null);assert.equal(scheduleSpaDealFollowup('refreshing',2,()=>{},()=>{}),null);assert.deepEqual(calls,['first']);});
@@ -12,6 +12,7 @@ const site=(id,packages)=>({id,title:`Spa ${id}`,city:'City',image:photo,package
 const sites=[site(1,[pack(11,400),pack(12,100),pack(13,200,2),pack(14,300,3,true)]),site(2,[pack(21,50)]),site(3,[pack(31,1)])];
 const rows=[{siteID:1,date:'2026-10-17',available:2},{siteID:2,date:'2026-10-18',available:3},{siteID:3,date:'2026-10-17',available:0}];
 test('packages not venues: every qualifying package, numerical lowest first',()=>{const result=selectSpaPackageDeals(sites,rows,'2026-10-17','single');assert.deepEqual(result.map(x=>x.packageId),[12,11]);assert.deepEqual(result.map(x=>x.price),[100,400]);});
+test('weighted exposure is applied before the twenty-item rail cap and rotates equal-weight ties by request seed',()=>{const deals=Array.from({length:21},(_,i)=>({...selectSpaPackageDeals([site(i+1,[pack((i+1)*10,100)])],[{siteID:i+1,date:'2026-10-17',available:1}],'2026-10-17','single')[0]})); const weights=[{supplierId:21,weight:5},{supplierId:1,weight:5}]; const first=orderSpaDealExposure(deals,weights,'search-a'); const second=orderSpaDealExposure(deals,weights,'search-b'); assert.equal(first.slice(0,20).some(d=>d.siteId===21),true); assert.notDeepEqual(first.map(d=>d.siteId),second.map(d=>d.siteId)); assert.equal(first.length,21);});
 test('tomorrow join changes site inventory; missing and zero excluded',()=>{assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-18','single').map(x=>x.siteId),[2]);assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-19','single'),[]);});
 test('audience is package-specific, group does not leak into couple or solo',()=>{assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-17','couple').map(x=>x.packageId),[13]);assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-17','group').map(x=>x.packageId),[14]);});
 test('invalid amount, unsafe image and duplicate package not rendered',()=>{const input=[site(1,[pack(1,0),pack(2,-1),pack(3,NaN),{...pack(4,1),image:'javascript:bad'},pack(5,50),pack(5,50)])];assert.deepEqual(selectSpaPackageDeals(input,rows,'2026-10-17','single').map(x=>x.packageId),[5]);});

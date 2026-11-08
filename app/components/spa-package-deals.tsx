@@ -22,6 +22,8 @@ import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { spaWeekdayDate, spaWeekdayPath, spaWeekdaySlugs, type SpaWeekdaySlug } from "../lib/spa-weekday-pages";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryItems, orderDiscoveryRail } from "../lib/discovery-slider-order";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
+import {discoverySeedRank} from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 import { scheduleSpaDealFollowup } from "../lib/spa-followup";
 import { spaDealDays, supportedSpaDealDate, spaRailSelectionHref } from "../lib/spa-deal-window.ts";
@@ -32,7 +34,8 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  const {language,translate} = useSiteLanguage();
  const active = useSectionActivation(`${sectionId}-title`,deferUntilNearViewport);
  const clock = useDealClock();
- const documentSeed = useDocumentSeed();
+ const documentSeed = useDocumentSeed(false);
+ const promotionWeight=usePublicPromotionWeights("spa");
  const text = spaDealCopy[language];
  const params = useSearchParams(); const pathname = usePathname(); const router = useRouter();
  const scope = regionalAvailabilityRegion(region ?? (/^\/(?:en\/|fr\/|ru\/)?spas(?:\/|$)/.test(pathname) ? params.get("location") : null));
@@ -76,7 +79,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   if(!clockKey || !active || unsupportedDate) return;
   const controller = new AbortController();
   let followupTimer: number | undefined;
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:4_500, totalTimeoutMs:10_000, retries:1, cache:"no-store",
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,rotation:String(discoverySeedRank(regionLabel||"all",documentSeed)),...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:4_500, totalTimeoutMs:10_000, retries:1, cache:"no-store",
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){
     const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);});
@@ -86,7 +89,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
     if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
   return ()=>{controller.abort(); if(followupTimer !== undefined) window.clearTimeout(followupTimer);};
- },[active,attempt,regionLabel,clockKey,requestKey,requestDate,fullDateRequest,unsupportedDate]);
+ },[active,attempt,regionLabel,clockKey,requestKey,requestDate,fullDateRequest,unsupportedDate,documentSeed]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000){setResult(current=>({...current,status:"loading"}));setAttempt(value=>value+1);}};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
@@ -118,7 +121,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
  }
  const requestPending=!unsupportedDate && (status==="loading" || Boolean(data && data.region!==regionLabel));
  const refreshing=requestPending && data!==null;
- const offers=data ? (layout === "grid" ? orderDiscoveryItems : orderDiscoveryRail)(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
+ const offers=data ? (layout === "grid" ? orderDiscoveryItems : orderDiscoveryRail)(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, promotionWeight:offer=>promotionWeight(offer.siteId), priority: offer => offer.price }) : [];
  const visibleOffers=offers;
  const expandedRegion=!!scope && status==="ready" && data?.region===regionLabel && data?.expandedRegions?.[date]?.[audience]===true;
  const linkDate=date || (clock && validSpaDealDate(requestedDate)?normalizeDealDate(requestedDate,clock.now):"");

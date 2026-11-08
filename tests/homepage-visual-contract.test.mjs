@@ -37,7 +37,9 @@ test("homepage uses scheduled dated snapshots without unsupported static offers"
   assert.match(deals, /selectedHoliday\?\.exactStay \? \{ from: selectedHoliday\.from, till: selectedHoliday\.till \} : \{\}/);
   assert.match(deals, /displayedDeals\.map/);
   assert.match(deals, /canonicalVerifiedSliderItems\(/);
-  assert.doesNotMatch(deals, /useDocumentSeed|orderDiscoveryRail/);
+  assert.match(deals, /useDocumentSeed/);
+  assert.match(deals, /promotionWeight/);
+  assert.doesNotMatch(deals, /orderDiscoveryRail/);
   assert.match(route, /readCachedDiscovery/);
   assert.doesNotMatch(route, /supplierToken|getHomeDeals/);
   assert.match(warmer, /supplierToken\(\)/);

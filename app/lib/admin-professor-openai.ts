@@ -38,6 +38,9 @@ function responseText(payload: unknown) {
 }
 
 export async function interpretProfessorQuestion(question: string): Promise<ProfessorInterpretation> {
+  const {parseProfessorIntent}=await import('./admin-professor-intent.ts');
+  const explicit=parseProfessorIntent(question,[]);
+  if(explicit.breakdown&&explicit.explicitMetrics)return {canonicalQuestion:question,provider:'deterministic',warning:null};
   const env = await professorEnvironment();
   if (!env.apiKey) return { canonicalQuestion: question, provider: "deterministic", warning: "openai_not_configured" };
 

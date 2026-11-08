@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
-import { parsePromotionDraft, PromotionDraftError, readPromotionDraftDashboard, savePromotionDraft } from "../app/lib/discovery-promotion-drafts.ts";
+import { parsePromotionDraft, PromotionDraftError, readPromotionDraftDashboard, readActivePromotionWeights, savePromotionDraft } from "../app/lib/discovery-promotion-drafts.ts";
 import { createSignedValue } from "../app/lib/google-auth.ts";
 import { GET, POST } from "../app/api/admin/discovery-promotions/route.ts";
 
@@ -25,6 +25,7 @@ function database() {
         throw new Error(`Unexpected SELECT: ${sql}`);
       },
       async all() {
+        if (sql.includes("status = 'published'")) return { results: events.filter((event) => event.status === "published" && event.startsOn <= parameters[0] && event.endsOn >= parameters[1]) };
         return { results: sql.includes("WHERE version =") ? events.filter((event) =>
           event.version === Math.max(...events.filter((row) => row.campaignId === event.campaignId).map((row) => row.version)))
           : [...events].reverse() };
@@ -73,12 +74,22 @@ test("drafts use published supplier identity, append audit versions, and dedupli
   assert.equal(changed.status, "archived");
   assert.equal(events.length, 2);
   const dashboard = await readPromotionDraftDashboard(db);
-  assert.equal(dashboard.publicRankingEnabled, false);
+  assert.equal(dashboard.publicRankingEnabled, true);
   assert.equal(dashboard.drafts.length, 1);
   assert.equal(dashboard.drafts[0].version, 2);
   assert.equal(dashboard.activity.length, 2);
   await assert.rejects(savePromotionDraft(db, input({ campaignId: created.campaignId,
     expectedVersion: 1 }), "admin@vii.co.il"), (error) => error.code === "version_conflict");
+});
+
+test("only explicitly published, current promotions feed weighted ranking", async () => {
+  const { db } = database();
+  await savePromotionDraft(db, input({ status: "draft", weight: 5 }), "admin@vii.co.il");
+  assert.deepEqual(await readActivePromotionWeights(db, "2026-10-15T12:00:00.000Z"), []);
+  const state = database();
+  await savePromotionDraft(state.db, input({ status: "published", weight: 5 }), "admin@vii.co.il");
+  assert.deepEqual(await readActivePromotionWeights(state.db, "2026-10-15T12:00:00.000Z"), [{ world: "vacations", supplierId: 389, weight: 5 }]);
+  assert.deepEqual(await readActivePromotionWeights(state.db, "2026-11-01T12:00:00.000Z"), []);
 });
 
 test("a removed supplier cannot receive a new or updated promotion draft", async () => {

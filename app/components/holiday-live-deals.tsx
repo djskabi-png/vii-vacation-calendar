@@ -18,6 +18,7 @@ import { useDealClock } from "./use-deal-clock";
 import { isHomeDealOnlineEligible } from "../lib/vacation-online-first.ts";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { orderDiscoveryItems } from "../lib/discovery-slider-order.ts";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
 import { useDocumentSeed } from "./use-document-seed.ts";
 import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
 import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
@@ -36,6 +37,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const clock = useDealClock();
   const { language } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("vacations");
   const text = copy[language];
   const [selection, setSelection] = useState(initialSelection);
   const [retry, setRetry] = useState(0);
@@ -51,7 +53,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const window = holidayDealWindow(currentHoliday, normalizedSelection.part);
   const key = `${holiday.id}:${normalizedSelection.audience}:${normalizedSelection.part}:${clock?.key || "loading"}`;
   const state = result.key === key ? result.status : "loading";
-  const deals = state === "ready" && clock ? orderDiscoveryItems(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), { id: deal => deal.siteID, seed: `${documentSeed}:holiday:${holiday.id}:${selection.part}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) }) : [];
+  const deals = state === "ready" && clock ? orderDiscoveryItems(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), { id: deal => deal.siteID, seed: `${documentSeed}:holiday:${holiday.id}:${selection.part}`, online: deal => isHomeDealOnlineEligible(deal), compare: (a,b) => promotionWeight(b.siteID)-promotionWeight(a.siteID) || (managedVacationPriority((a as HomeDeal & { curatedRank?: number }).curatedRank) ?? 1000)-(managedVacationPriority((b as HomeDeal & { curatedRank?: number }).curatedRank) ?? 1000) }) : [];
   const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, normalizedSelection), language);
 
   useEffect(() => {

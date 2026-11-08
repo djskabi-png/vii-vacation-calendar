@@ -21,6 +21,8 @@ import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { normalizeDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
+import {orderDiscoveryItems} from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 import { useStartingPrices } from "../lib/use-starting-prices";
 import { supplierStartingPrice } from "../lib/supplier-starting-price";
@@ -39,6 +41,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const { language, translate } = useSiteLanguage();
   const clock = useDealClock();
   const documentSeed = useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("events");
   const geography = useManagedGeography(language !== "he");
   const text = copy[language];
   const scope = regionalAvailabilityRegion(region);
@@ -82,7 +85,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
       const match = /^event-(\d+)$/.exec(place.slug);
       return match ? [Number(match[1])] : [];
     });
-  const candidates = uniqueEventVenueItems(supplierOrder.flatMap((siteID) => {
+  const rawCandidates = uniqueEventVenueItems(supplierOrder.flatMap((siteID) => {
     const place = placeBySupplierId.get(siteID);
     if (!place) return [];
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
@@ -90,6 +93,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     if (offer?.available !== true || !offer.from || !offer.slot) return [];
     return [{ place, offer }];
   }), item => item.place.slug);
+  const candidates=orderDiscoveryItems(rawCandidates,{id:item=>item.place.slug,seed:`${documentSeed}:events:${date}:${guests}:${selectedSlot}`,promotionWeight:item=>promotionWeight(item.place.slug)});
   const confirmed = new Set(candidates.map(({ place }) => place.slug));
   const additionalPlaces = orderDiscoveryRail(places.flatMap((place) => {
     if (!place.image || confirmed.has(place.slug)) return [];
@@ -97,6 +101,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     return [homeEventPhotography(place)];
   }), {
     id: place => place.slug,
+    promotionWeight:place=>promotionWeight(place.slug),
     seed: `${documentSeed}:${sectionId}:${date}:more`,
     // Without a selected date, an accepted supplier advertising floor is the
     // useful commercial fact. Keep those cards first instead of letting the

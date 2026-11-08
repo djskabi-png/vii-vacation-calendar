@@ -20,6 +20,11 @@ import { eligibleDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
+import {useDocumentSeed} from "./use-document-seed";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
+import {orderDiscoveryItems} from "../lib/discovery-slider-order";
+import {isHomeDealOnlineEligible} from "../lib/vacation-online-first";
+import {matchesSearchLocation} from "../data/search-taxonomy";
 import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
 import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
@@ -95,6 +100,8 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
 
 export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false, initialData, pendingSeed = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean; initialData?: HomeDealsInitialData | null; pendingSeed?: boolean }) {
   const clock = useDealClock();
+  const documentSeed=useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("vacations");
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
@@ -270,10 +277,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   }
 
   const eligibleDeals = useMemo(() => data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [data?.deals, clock?.key]);
-  // The API already applies publication, online-booking and editorial order.
-  // Keep that exact commercial order at the final browser boundary. A
-  // document seed here made identical API responses render differently.
-  const displayedDeals = useMemo(() => canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID), [eligibleDeals]);
+  // Preserve accepted identities and truth cohorts before weighted exposure.
+  // Each independent search rotates equal-weight eligible venues; the
+  // selected search remains stable through map/list and pagination changes.
+  const displayedDeals = useMemo(() => orderDiscoveryItems(canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID), {id:deal=>deal.siteID,seed:`${documentSeed}:vacation:${period}:${guests}`,online:deal=>isHomeDealOnlineEligible(deal),priority:deal=>scope&&!matchesSearchLocation({location:deal.city,area:deal.area},scope.label)?1:0,promotionWeight:deal=>promotionWeight(deal.siteID)}), [eligibleDeals,documentSeed,period,guests,scope?.label,promotionWeight]);
   const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && data !== null;

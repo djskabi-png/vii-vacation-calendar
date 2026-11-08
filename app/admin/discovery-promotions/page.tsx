@@ -12,10 +12,10 @@ type Kind = "manual" | "new_place" | "ending_contract";
 type Draft = {
   eventId: string; campaignId: string; version: number; world: World; supplierId: number; placeName: string;
   kind: Kind; weight: number; startsOn: string; endsOn: string; contractEndsOn: string | null;
-  contractSource: string | null; note: string; status: "draft" | "archived";
+  contractSource: string | null; note: string; status: "draft" | "published" | "archived";
   actorEmail: string; savedAt: string;
 };
-type Dashboard = { drafts: Draft[]; activity: Draft[]; publicRankingEnabled: false };
+type Dashboard = { drafts: Draft[]; activity: Draft[]; publicRankingEnabled: boolean };
 type Form = {
   campaignId: string | null; expectedVersion: number | null; world: World; supplierId: string;
   kind: Kind; weight: number; startsOn: string; endsOn: string; contractEndsOn: string;
@@ -27,6 +27,13 @@ const kinds: Record<Kind, string> = { manual: "קידום יזום", new_place: 
 const emptyForm = (): Form => ({ campaignId: null, expectedVersion: null, world: "vacations", supplierId: "",
   kind: "manual", weight: 2, startsOn: "", endsOn: "", contractEndsOn: "", contractSource: "", note: "" });
 const date = (value: string) => new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
+function statusLabel(draft: Draft) {
+  if (draft.status !== "published") return draft.status === "draft" ? "טיוטה" : "ארכיון";
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+  if (today < draft.startsOn) return "מתוזמן";
+  if (today > draft.endsOn) return "הסתיים";
+  return "פעיל";
+}
 const errors: Record<string, string> = {
   forbidden: "אין הרשאת מנהל.", invalid_origin: "הבקשה נחסמה. רעננו את העמוד ונסו שוב.",
   invalid_period: "בדקו שתאריכי ההתחלה והסיום תקינים.", invalid_contract_end: "תאריך סיום הפרסום אינו תקין.",
@@ -93,7 +100,7 @@ export default function DiscoveryPromotionsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function save(status: "draft" | "archived", sourceForm = form) {
+  async function save(status: "draft" | "published" | "archived", sourceForm = form) {
     if (!canEdit) return;
     if (busy) return;
     setBusy(true); setError(""); setNotice("");
@@ -110,7 +117,7 @@ export default function DiscoveryPromotionsPage() {
       pendingRequest.current = null;
       setForm(emptyForm()); setResolvedName("");
       await refresh();
-      setNotice(status === "archived" ? "הטיוטה הועברה לארכיון." : "הטיוטה נשמרה. היא אינה משנה את תוצאות האתר.");
+      setNotice(status === "archived" ? "הטיוטה הועברה לארכיון." : status === "published" ? "הקידום פורסם לתוצאות הציבוריות בתקופה שנבחרה." : "הטיוטה נשמרה. היא אינה משנה את תוצאות האתר.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "תוצאת השמירה אינה ידועה. בדקו את היומן לפני ניסיון נוסף.");
     } finally { setBusy(false); }
@@ -166,9 +173,19 @@ export default function DiscoveryPromotionsPage() {
             <tbody>{dashboard.drafts.map((draft) => <tr key={draft.campaignId}>
               <td><strong>{draft.placeName}</strong><small>{worlds[draft.world]} · {draft.supplierId}</small></td>
               <td>{kinds[draft.kind]}</td><td><span dir="ltr">{draft.startsOn}</span> עד <span dir="ltr">{draft.endsOn}</span></td>
-              <td>{draft.weight}/5</td><td>{draft.status === "draft" ? "טיוטה" : "ארכיון"}</td>
+              <td>{draft.weight}/5</td><td>{statusLabel(draft)}</td>
               <td><div className={styles.actions}><button type="button" title="עריכת טיוטה" aria-label={`עריכת ${draft.placeName}`}
                 onClick={() => edit(draft)} disabled={busy}><Pencil size={17} /></button>
+                {draft.status === "draft" ? <button type="button" title="פרסום" aria-label={`פרסום ${draft.placeName}`}
+                  onClick={() => void save("published", { campaignId: draft.campaignId, expectedVersion: draft.version,
+                    world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+                    startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
+                    contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Save size={17} /></button> : null}
+                {draft.status === "published" ? <button type="button" title="ביטול פרסום" aria-label={`ביטול פרסום ${draft.placeName}`}
+                  onClick={() => void save("archived", { campaignId: draft.campaignId, expectedVersion: draft.version,
+                    world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
+                    startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
+                    contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Archive size={17} /></button> : null}
                 {draft.status === "draft" ? <button type="button" title="העברה לארכיון" aria-label={`העברת ${draft.placeName} לארכיון`}
                   onClick={() => void save("archived", { campaignId: draft.campaignId, expectedVersion: draft.version,
                     world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,

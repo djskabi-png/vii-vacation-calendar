@@ -1,8 +1,9 @@
-import { BarChart3, BrainCircuit, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
+import { Pencil, BarChart3, BrainCircuit, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp } from "lucide-react";
 
 export const adminNavigationGroups = [
   { label: "מרכז שליטה", links: [
     { href: "/admin", label: "תמונת מצב", hint: "מדדים, בריאות המערכת וסדר היום", icon: Gauge },
+    { href: "/admin/edit", label: "מרכז עריכה", hint: "כל אזורי העריכה, התוכן והעיצוב במקום אחד", icon: Pencil },
     { href: "/admin/growth", label: "מרכז קידום", hint: "SEO, מפות אתר, מדידה ותוכן", icon: Sparkles },
     { href: "/admin/search-pages", label: "מרכז עמודי חיפוש", hint: "עריכה, תזמון ופרסום", icon: FileSearch },
     { href: "/admin/business-performance", label: "ביצועי עסקים", hint: "חשיפות, כניסות ופעולות", icon: BarChart3 },

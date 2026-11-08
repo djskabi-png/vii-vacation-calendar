@@ -43,8 +43,9 @@ import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
 import { matchesEventVenueType, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
+import {usePublicPromotionWeights} from "../../components/use-public-promotion-weights";
 import { useDocumentSeed } from "../../components/use-document-seed";
-import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
+import { discoverySortLabel, discoverySortOptions, orderDiscoveryResults, orderGroupedDiscoveryResults, type DiscoverySortKey } from "../../lib/discovery-result-sort";
 import { eventMatchesFeatureSelection, eventFeatureSelectionLabel } from "../../lib/event-search-features.ts";
 import { managedPresentationHref, managedSearchParams } from "../../lib/managed-search-params";
 import type { MapPriceQuote } from "../../lib/map-price";
@@ -72,6 +73,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
         ? { home: "Главная", events: "Мероприятия", results: "Площадки для мероприятий" }
         : { home: "Accueil", events: "Événements", results: "Lieux événementiels" };
   const documentSeed = useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("events");
   const managedGeography = useManagedGeography();
   const liveCopy = eventLiveCopy[language];
   const slotCopy = eventSlotCopy[language];
@@ -152,6 +154,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const sortModel = useMemo(() => ({
     distance: nearby.distance,
     id: (place: EventPlace) => place.slug,
+    promotionWeight:(place:EventPlace)=>promotionWeight(place.slug),
     name: (place: EventPlace) => place.name,
     price: (place: EventPlace) => supplierStartingPrice(startingPrices[place.slug] ?? place) || undefined,
     rating: (place: EventPlace) => place.score,
@@ -163,7 +166,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       }
       return 0;
     },
-  }), [startingPrices, undatedSearch, nearby.origin]);
+  }), [startingPrices, undatedSearch, nearby.origin,promotionWeight]);
   const sortOptions = useMemo(() => {
     const common = discoverySortOptions(eventPlaces, sortModel, language);
     if (!eventPlaces.some((place) => place.capacityScope !== "unit")) return common;
@@ -230,7 +233,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const resultSet = useMemo(() => {
     const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
     if (sort === "capacity") return [...complete].sort((first, second) => second.guests - first.guests || first.name.localeCompare(second.name, "he"));
-    return orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
+    return sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:event-search`,sortModel,place=>place.slug):orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
   }, [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
   const mapPriceById = Object.fromEntries(resultSet.flatMap<[string, MapPriceQuote]>((place) => {
     if (datedEventSearch && /^event-\d+$/.test(place.slug)) {

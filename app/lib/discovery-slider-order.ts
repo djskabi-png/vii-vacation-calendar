@@ -6,6 +6,7 @@ type DiscoveryOrder<T> = {
   id: (item: T) => string | number;
   online?: (item: T) => boolean;
   priority?: (item: T) => number | undefined;
+  promotionWeight?: (item:T)=>number|undefined;
   compare?: (left: T, right: T) => number;
   seed: string | number;
 };
@@ -14,6 +15,9 @@ export function discoverySeedRank(id: string | number, seed: string | number): n
   const value = `${seed}:${id}`;
   let hash = 2166136261;
   for (let index = 0; index < value.length; index += 1) hash = Math.imul(hash ^ value.charCodeAt(index), 16777619);
+  // FNV alone leaves adjacent numeric supplier IDs correlated. Avalanche the
+  // final bits so equal-weight suppliers receive an even independent rotation.
+  hash^=hash>>>16;hash=Math.imul(hash,0x85ebca6b);hash^=hash>>>13;hash=Math.imul(hash,0xc2b2ae35);hash^=hash>>>16;
   return hash >>> 0;
 }
 
@@ -26,6 +30,7 @@ export function discoverySeedCompare(firstId: string | number, secondId: string 
 export function orderDiscoveryItems<T>(items: readonly T[], options: DiscoveryOrder<T>): T[] {
   const compare = (left: T, right: T) => (options.compare?.(left, right) ??
     (options.priority?.(left) ?? 1000) - (options.priority?.(right) ?? 1000))
+    || (options.promotionWeight?.(right)??0)-(options.promotionWeight?.(left)??0)
     || discoverySeedCompare(options.id(left), options.id(right), options.seed)
     || String(options.id(left)).localeCompare(String(options.id(right)));
   return options.online ? prioritizeOnlineFirst(items, options.online, compare) : [...items].sort(compare);

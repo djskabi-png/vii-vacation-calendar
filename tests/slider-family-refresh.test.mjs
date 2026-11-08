@@ -16,7 +16,7 @@ test('every static place/trail recommendation family explicitly opts in, semanti
 test('quote rails reuse proof and managed rank without a daily tiebreaker shadowing refresh',()=>{
  const homeDeals=read('components/home-live-deals.tsx');
  assert.match(homeDeals,/canonicalVerifiedSliderItems/);
- assert.doesNotMatch(homeDeals,/useDocumentSeed|orderDiscoveryRail/);
+ assert.match(homeDeals,/useDocumentSeed/);assert.match(homeDeals,/promotionWeight/);assert.doesNotMatch(homeDeals,/orderDiscoveryRail/);
  const holidayDeals=read('components/holiday-live-deals.tsx');
  assert.match(holidayDeals,/orderDiscoveryItems/);assert.match(holidayDeals,/useDocumentSeed/);
  assert.match(holidayDeals,/isHomeDealOnlineEligible/);assert.match(holidayDeals,/managedVacationPriority/);
@@ -26,12 +26,13 @@ test('quote rails reuse proof and managed rank without a daily tiebreaker shadow
  assert.match(home,/const featuredRatings = orderDiscoveryRail/);
  assert.match(home,/const featuredTours = orderDiscoveryRail/);
 });
-test('document seed is shared in memory, not persisted between full loads or sent upstream',()=>{
+test('document seed is shared in memory, not persisted between full loads or forwarded as a raw identity',()=>{
  const seed=read('components/use-document-seed.ts');
  assert.match(seed,/let sharedDocumentSeed/);assert.match(seed,/if \(!sharedDocumentSeed\)/);
  assert.match(seed,/useState\("0"\)/);
  assert.doesNotMatch(seed,/localStorage|sessionStorage|fetch\(|cookie/);
  for(const path of ['components/home-live-deals.tsx','components/holiday-live-deals.tsx','components/spa-package-deals.tsx','components/event-last-minute.tsx']){
-  const source=read(path);assert.doesNotMatch(source,/new URLSearchParams\([^;]*documentSeed/);
+  const source=read(path);assert.doesNotMatch(source,/rotation:\s*documentSeed/);
+  if(path.includes("spa-package"))assert.match(source,/rotation:String\(discoverySeedRank/);
  }
 });

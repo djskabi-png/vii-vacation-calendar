@@ -14,6 +14,9 @@ export type DiscoverySortModel<T> = {
   rating?: NumericValue<T>;
   popularity?: NumericValue<T>;
   priority?: NumericValue<T>;
+  /** Admin promotion weight. Higher is stronger, but only within the same
+   * truthful/relevance priority tier and never for explicit user sorts. */
+  promotionWeight?: NumericValue<T>;
 };
 
 const copy: Record<SiteLanguage, Record<DiscoverySortKey | "label", string>> = {
@@ -63,7 +66,9 @@ export function orderDiscoveryResults<T>(items: readonly T[], sort: DiscoverySor
     if (sort === "price-desc") return compareKnownNumbers(model.price?.(first), model.price?.(second), "desc") || stableFallback(first, second);
     if (sort === "rating-desc") return compareKnownNumbers(model.rating?.(first), model.rating?.(second), "desc") || stableFallback(first, second);
     if (sort === "name") return model.name(first).localeCompare(model.name(second)) || stableFallback(first, second);
-    return compareKnownNumbers(model.priority?.(first), model.priority?.(second), "asc") || stableFallback(first, second);
+    return compareKnownNumbers(model.priority?.(first), model.priority?.(second), "asc")
+      || compareKnownNumbers(model.promotionWeight?.(first), model.promotionWeight?.(second), "desc")
+      || stableFallback(first, second);
   });
 }
 

@@ -8,6 +8,8 @@ import {homeDealDates,homeDealPeriods} from '../app/lib/home-deal-dates.ts';
 import {dealClockKey,eligibleDealDate} from '../app/lib/deal-clock.ts';
 import {acceptedHomeDealsSeed} from '../app/lib/home-deals-seed.ts';
 import * as freshness from '../app/lib/home-offer-freshness.ts';
+import {orderDiscoveryItems} from '../app/lib/discovery-slider-order.ts';
+import {isHomeDealOnlineEligible} from '../app/lib/vacation-online-first.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -18,6 +20,11 @@ function fixture(clock=null) {
  const hookJs=ts.transpileModule(fs.readFileSync('app/components/use-paced-rail-render.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
  vm.runInNewContext(hookJs,{module:hookModule,exports:hookModule.exports,require:n=>n==='react'?React:{schedulePacedRailRender:()=>{throw Error('SSR must not schedule');}}});
  const mocks={
+ './use-document-seed':{useDocumentSeed:()=> '0'},
+ './use-public-promotion-weights':{usePublicPromotionWeights:()=>()=>0},
+ '../lib/discovery-slider-order':{orderDiscoveryItems},
+ '../lib/vacation-online-first':{isHomeDealOnlineEligible},
+ '../data/search-taxonomy':{matchesSearchLocation:()=>true},
  './use-paced-rail-render':hookModule.exports,
  'react':React,'react/jsx-runtime':jsx,'next/link':{default:({children,href})=>React.createElement('a',{href},children)},
  './use-section-activation':{useSectionActivation:()=>true},

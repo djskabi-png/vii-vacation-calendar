@@ -24,8 +24,9 @@ import { NearbySearchNotice } from "./nearby-search-notice";
 import { publicAvailabilityNotice } from "../lib/public-availability-notice";
 import { matchesSearchLocation } from "../data/search-taxonomy";
 import { ModernSelect } from "./modern-select";
+import {usePublicPromotionWeights} from "./use-public-promotion-weights";
 import { useDocumentSeed } from "./use-document-seed";
-import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
+import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, orderGroupedDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 import { MapSplitResultList } from "./map-split-result-list";
 import { useSpaCatalogItems } from "./spa-catalog-context";
 
@@ -60,6 +61,7 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("spa");
   const searchQuery = searchParams.toString();
   const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
   const requestedAudience = searchParams.get("spaFor") || initialSpaAudience;
@@ -82,7 +84,7 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
   const nearby = useNearbySort();
-  const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), [nearby.origin]);
+  const sortModel = useMemo(() => ({ promotionWeight:(item:DiscoveryItem)=>promotionWeight(item.id), distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), [nearby.origin,promotionWeight]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const requestedSort = searchParams.get("sort") || "recommended";
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
@@ -149,7 +151,7 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id,
       origin: { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined } });
   }, [amenityFiltered, availability.sites, availabilityFailed, checkingDate, datedAvailabilityReady, filtered.length, items, location, managedGeography, requestedDate]);
-  const resultItems = useMemo(() => orderDiscoveryResults(completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:spa-search`, sortModel), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
+  const resultItems = useMemo(() => sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:spa-search`,sortModel,item=>item.id):orderDiscoveryResults(completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:spa-search`, sortModel), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
 
   useEffect(() => {
     if (checkingDate || availabilityFailed) return;

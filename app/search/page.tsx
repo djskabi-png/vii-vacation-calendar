@@ -65,6 +65,7 @@ import { prioritizeOnlineFirst } from "../lib/vacation-online-first";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { RegionalAvailability } from "../components/regional-availability";
 import { canShowDatedSearchResult, datedSearchResultTier } from "../lib/dated-availability-eligibility";
+import {usePublicPromotionWeights} from "../components/use-public-promotion-weights";
 import { useDocumentSeed } from "../components/use-document-seed";
 import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
@@ -400,6 +401,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
   const [openLocationRequest, setOpenLocationRequest] = useState(0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
   const documentSeed = useDocumentSeed();
+  const promotionWeight=usePublicPromotionWeights("vacations");
   const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
@@ -787,7 +789,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
         if (tierPriority) return tierPriority;
       }
       if (sort === "recommended") {
-        return Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
+        return promotionWeight(b.slug)-promotionWeight(a.slug) || Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
           || discoverySeedCompare(a.slug, b.slug, `${documentSeed}:vacation-search`);
       }
       if (sort === "recommended" && availabilityDemoActive) {
@@ -808,7 +810,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, documentSeed, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, propertyOrderBySlug, startingPrices, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, documentSeed, promotionWeight, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, propertyOrderBySlug, startingPrices, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || isWholeCountrySelection(area)) return [];

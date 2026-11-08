@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
 
 const AccessContext = createContext<AdminAccess>({ fullAccess: false, manageUsers: false, permissions: {} });
+export function useAdminAccess(){return useContext(AccessContext);}
 export function useAdminCanEdit() {
   return adminRouteAllowed(useContext(AccessContext), usePathname(), "POST");
 }

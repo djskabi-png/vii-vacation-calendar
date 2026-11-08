@@ -1,7 +1,8 @@
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { readSpaAvailability } from "../../../lib/spa-availability.ts";
 import { eventDealDate } from "../../../lib/event-deal-dates.ts";
-import { selectSpaCatalogPackages, selectSpaPackageDeals, type SpaDealAudience } from "../../../lib/spa-package-deals.ts";
+import { spaSliderRepresentatives, orderSpaDealExposure, selectSpaCatalogPackages, selectSpaPackageDeals, type SpaDealAudience } from "../../../lib/spa-package-deals.ts";
+import { readActivePromotionWeights } from "../../../lib/discovery-promotion-drafts.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { spaPlusArea } from "../../../data/spa-regions.ts";
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
     const days = spaDealDays(now);
     const full = params.get("full") === "1";
     const requestedDate = params.get("date");
+    const rotationSeed = (params.get("rotation") || "default").slice(0, 128);
     // An explicit "spa today" page keeps today's calendar date after the
     // discovery cutoff. Weekday discovery itself still advances at 14:00.
     if (full && (!requestedDate || (!days.includes(requestedDate) && requestedDate !== eventDealDate(0, now)))) return Response.json({ error: "invalid_date" }, { status: 400, headers: { "Cache-Control": "no-store" } });
@@ -37,6 +39,11 @@ export async function GET(request: Request) {
         { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": "catalog", "Server-Timing": timing } });
     }
     const availability = cached.value;
+    let promotionWeights: Awaited<ReturnType<typeof readActivePromotionWeights>> = [];
+    try {
+      const promotionDb = await runtimeCatalogDatabase();
+      if (promotionDb) promotionWeights = await readActivePromotionWeights(promotionDb);
+    } catch { promotionWeights = []; }
     const covered = new Set(availability.map(row=>row.date));
     const coveredDays = days.filter(day=>covered.has(day));
     if (!coveredDays.length && (!full || !covered.has(requestedDate!))) throw new Error("availability_coverage_missing");
@@ -44,9 +51,10 @@ export async function GET(request: Request) {
     const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
     const expandedRegions: Record<string, Partial<Record<SpaDealAudience, boolean>>> = {};
     const offers = Object.fromEntries((full ? offerDays : coveredDays).map(date => [date, Object.fromEntries(audiences.map(audience => {
-      const allDeals = selectSpaPackageDeals(sites, availability, date, audience);
-      if (!region) return [audience, full ? allDeals : allDeals.slice(0, 20)];
-      const selected = selectRegionalOffers(allDeals, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: full ? undefined : 20 });
+      const allDeals = orderSpaDealExposure(selectSpaPackageDeals(sites, availability, date, audience), promotionWeights.filter(entry=>entry.world==='spa').map((entry) => ({ supplierId: entry.supplierId, weight: entry.weight })), `${rotationSeed}:${region?.label||'all'}:${date}:${audience}`);
+      const discoveryDeals = full ? allDeals : spaSliderRepresentatives(allDeals);
+      if (!region) return [audience, full ? allDeals : discoveryDeals.slice(0, 20)];
+      const selected = selectRegionalOffers(discoveryDeals, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: full ? undefined : 20 });
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));

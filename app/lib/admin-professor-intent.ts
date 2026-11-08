@@ -10,6 +10,7 @@ export type ProfessorIntent = {
   metrics: ProfessorMetric[];
   explicitMetrics: boolean;
   ranking: boolean;
+  breakdown?: boolean;
   unsupportedReason: string | null;
 };
 
@@ -63,11 +64,11 @@ function requestedMetrics(question: string): { metrics: ProfessorMetric[]; expli
   const metrics: ProfessorMetric[] = [];
   const add = (...items: ProfessorMetric[]) => items.forEach((item) => { if (!metrics.includes(item)) metrics.push(item); });
   if (/חשיפות?/.test(question)) add("impressions");
-  if (/כניסות?|צפיות?|עמודי?\s+עסק/.test(question)) add("pageViews");
+  if (/כניסות?|צפיות?|ביקורים|עמודי?\s+עסק/.test(question)) add("pageViews");
   if (/טלפונים?|לחיצ(?:ה|ות)\s+(?:על\s+)?(?:מספר|טלפון)|גילוי\s+מספר/.test(question)) add("phone", "bizCalls");
   if (/וואטסאפ|whatsapp|הודעות?/.test(question)) add("whatsapp", "bizWhatsapp");
   if (/בקשות?\s+הזמנה|הזמנות?\s+(?:מ|של)[-\u05BE]?v\b/.test(question)) add("viiBookings");
-  if (/שיחות?|מסקיו/.test(question)) add("bizCalls");
+  if (/שיחות?|מסקיו|מסקייו|מאסקיו|maskyoo/.test(question)) add("bizCalls");
   if (/לידים?|פניות?|אנשי\s+קשר/.test(question)) add("phone", "whatsapp", "bizCalls", "bizWhatsapp");
   if (/לקוחות?/.test(question)) add("bizCalls", "bizWhatsapp", "bizOrders");
   if (/מכירות?|עסקאות?/.test(question)) add("bizOrders", "bizRevenue");
@@ -121,7 +122,8 @@ export function matchProfessorPlace(question: string, places: ProfessorPlace[]) 
 
 export function parseProfessorIntent(question: string, places: ProfessorPlace[], now = new Date()): ProfessorIntent & { ambiguous: ProfessorPlace[] } {
   const normalized = cleanProfessorText(question); const range = professorRange(question, now);
-  const placeMatch = matchProfessorPlace(normalized, places);
+  const breakdown = professorRequestsBusinessBreakdown(normalized);
+  const placeMatch = breakdown ? {place:null,ambiguous:[] as ProfessorPlace[]} : matchProfessorPlace(normalized, places);
   const requested = requestedMetrics(normalized);
   const world = placeMatch.place?.world || WORLD_TERMS.find(([, pattern]) => pattern.test(normalized))?.[0] || null;
   const comparison = /לעומת|השוו|בהשוואה|מול\s+(?:התקופה|החודש|השבוע)|הבדל|שינוי|עלה|ירד/.test(normalized);
@@ -136,6 +138,7 @@ export function parseProfessorIntent(question: string, places: ProfessorPlace[],
     metrics: requested.metrics,
     explicitMetrics: requested.explicit,
     ranking: /מי\s+(?:הכי|מוביל)|הכי\s+(?:הרבה|גבוה)|עסקים?\s+מובילים|טופ\s*\d*/.test(normalized),
+    breakdown,
     unsupportedReason: asksCause
       ? "אני יכול למדוד שינוי, אבל הנתונים אינם מוכיחים את הסיבה. אפשר לשאול מה עלה או ירד לעומת התקופה הקודמת."
       : missingBusiness ? "לא מצאתי עסק שמתאים לשם שכתבת. כתוב את שם העסק כפי שהוא מופיע במערכת." : null,
@@ -145,8 +148,13 @@ export function parseProfessorIntent(question: string, places: ProfessorPlace[],
 
 export function professorNeedsInventory(question: string) {
   const normalized = cleanProfessorText(question);
-  return /מי\s+(?:הכי|מוביל)|הכי\s+(?:הרבה|גבוה)|עסקים?\s+מובילים|טופ\s*\d*/u.test(normalized)
+  return professorRequestsBusinessBreakdown(normalized) || /מי\s+(?:הכי|מוביל)|הכי\s+(?:הרבה|גבוה)|עסקים?\s+מובילים|טופ\s*\d*/u.test(normalized)
     || /(?:לעסק|עבור\s+עסק)\s+/u.test(normalized)
     || /(?:^|\s)ל(?!כולם(?:\s|$)|כל(?:\s|$)|מי(?:\s|$)|מה(?:\s|$)|תקופה(?:\s|$)|חודש(?:\s|$)|שבוע(?:\s|$)|שנה(?:\s|$))[\p{L}]{3,}/u.test(normalized)
     || /של\s+(?!החודש(?:\s|$)|השבוע(?:\s|$)|השנה(?:\s|$)|כל(?:\s|$)|העסק(?:\s|$))[\p{L}]{2,}/u.test(normalized);
+}
+
+export function professorRequestsBusinessBreakdown(question:string){
+ const text=cleanProfessorText(question);
+ return !/(?:בסך\s+הכל|בסהכ|ביחד|סך\s+הכל)/.test(text)&&/(?:לכל|לפי|עבור\s+כל|של\s+כל)\s+(?:אחד\s+מ)?(?:ה)?(?:ספקים|עסקים|מקומות|ספק|עסק|מקום)(?=$|\s)/u.test(text);
 }

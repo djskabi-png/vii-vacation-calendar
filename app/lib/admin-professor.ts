@@ -3,9 +3,11 @@ import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
 import { parseProfessorIntent, professorNeedsInventory, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
 import { interpretProfessorQuestion } from "./admin-professor-openai.ts";
+import { readProfessorBusinessBreakdown, type ProfessorBusinessRow } from './professor-business-breakdown.ts';
+import {professorPeriodBounds} from './professor-period-bounds.ts';
 
 type MetricValues = {
-  impressions: number; pageViews: number; phone: number; whatsapp: number; viiBookings: number;
+  impressions: number | null; pageViews: number | null; phone: number | null; whatsapp: number | null; viiBookings: number | null;
   bizCalls: number | null; bizWhatsapp: number | null; bizOrders: number | null; bizRevenue: number | null;
 };
 type ProfessorAnswer = {
@@ -14,6 +16,8 @@ type ProfessorAnswer = {
   insights: Array<{ kind: "up" | "down" | "neutral" | "conversion" | "warning"; title: string; detail: string }>;
   plan: { scope: string; metrics: ProfessorMetric[]; source: string }; ranking: Array<{ name: string; value: number }>;
   freshness: { internal: string; biz: string | null; coverage: string; bizRange?: ProfessorRange | null }; reportHref: string;
+  businessRows?: ProfessorBusinessRow[];
+  dataStatus?: 'ready'|'partial'|'unavailable';
 };
 
 export class ProfessorQuestionError extends Error {
@@ -37,9 +41,10 @@ const METRIC_LABEL: Record<ProfessorMetric, string> = {
   viiBookings: "בקשות הזמנה באתר V", bizCalls: "שיחות Maskyoo", bizWhatsapp: "שיחות WhatsApp במערכת Biz", bizOrders: "הזמנות Biz", bizRevenue: "הכנסות Biz",
 };
 
-async function inventory(): Promise<ProfessorPlace[]> {
+async function inventory(strict = false): Promise<ProfessorPlace[]> {
   const worlds = ["vacations", "events", "rooms", "spa"] as const;
   const results = await Promise.allSettled(worlds.map((world) => publicCatalogSummaries<Record<string, unknown>>(world)));
+  if(strict&&results.some(result=>result.status==='rejected'))throw new Error('professor_inventory_unavailable');
   return results.flatMap((result, index) => {
     if (result.status !== "fulfilled") return [];
     const world = worlds[index];
@@ -91,7 +96,7 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
   bizDb?: D1Database;
   now?: Date;
 } = {}) {
-  const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere(intent);
+  const {since,until}=professorPeriodBounds(range.from,range.till); const scope = scopeWhere(intent);
   const needsInternal = intent.metrics.some((metric) => ["impressions", "pageViews", "phone", "whatsapp"].includes(metric));
   const needsBookings = intent.metrics.includes("viiBookings");
   const needsBiz = intent.metrics.some((metric) => metric.startsWith("biz"));
@@ -137,7 +142,7 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
 
 async function ranking(db: D1Database, bizDb: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
   if (!intent.ranking) return [];
-  const since = `${range.from}T00:00:00.000Z`; const until = nextDay(range.till); const scope = scopeWhere({ ...intent, place: null });
+  const {since,until}=professorPeriodBounds(range.from,range.till); const scope = scopeWhere({ ...intent, place: null });
   const requested = intent.metrics[0];
   const eventNames: Partial<Record<ProfessorMetric, string[]>> = { impressions: ["impression"], pageViews: ["page_view"], phone: ["phone_reveal", "phone_click"], whatsapp: ["whatsapp_lead", "whatsapp_handoff"] };
   const names = eventNames[requested];
@@ -196,6 +201,7 @@ function answerText(intent: ProfessorIntent, current: MetricValues, comparison: 
   const lines = [`היי אדיר, ${intent.range.label} עבור ${scopeLabel(intent)}.`, ...requested];
   if (comparisonText.length) lines.push(`בהשוואה לתקופה הקודמת: ${comparisonText.join("; ")}.`);
   if (ranked.length) lines.push(`המובילים לפי ${METRIC_LABEL[intent.metrics[0]]}: ${ranked.map((row, index) => `${index + 1}. ${row.name}, ${row.value.toLocaleString("he-IL")}`).join("; ")}.`);
+  if(intent.breakdown)lines.push('הפירוט לכל עסק מוצג בטבלה. סכומים כוללים רק עסקים שיש להם נתונים שמורים לטווח שנבחר.');
   return lines.join("\n");
 }
 
@@ -239,8 +245,11 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
   const interpretation = await interpretProfessorQuestion(normalizedQuestion);
   const interpretedQuestion = interpretation.canonicalQuestion;
-  const places = professorNeedsInventory(normalizedQuestion) || professorNeedsInventory(interpretedQuestion) ? await inventory() : [];
-  const parsed = parseProfessorIntent(interpretedQuestion, places);
+  const places = professorNeedsInventory(normalizedQuestion) || professorNeedsInventory(interpretedQuestion) ? await inventory(Boolean(parseProfessorIntent(normalizedQuestion,[]).breakdown)) : [];
+  const originalIntent = parseProfessorIntent(normalizedQuestion, places);
+  const interpretedIntent = parseProfessorIntent(interpretedQuestion, places);
+  // Explicit scope, metric and period from the visitor cannot be erased by a rewrite.
+  const parsed = originalIntent.breakdown ? {...interpretedIntent,...originalIntent} : interpretedIntent;
   if (parsed.ambiguous.length) throw new ProfessorQuestionError("clarification_required", `מצאתי כמה עסקים מתאימים: ${parsed.ambiguous.map((place) => place.name).join(", ")}. כתוב את השם המלא של העסק.`);
   if (parsed.unsupportedReason) throw new ProfessorQuestionError("unsupported_question", parsed.unsupportedReason);
   const isFollowUp = /^(?:ומה|ומה לגבי|ואיך|אותו|אותה|ובחודש|ובשבוע|לעומת|בהשוואה)/.test(normalizedQuestion);
@@ -260,29 +269,42 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   };
   const current = await readSnapshot(intent.range);
   const previous = intent.compareRange ? await readSnapshot(intent.compareRange) : null;
+  const closedDate = new Date(`${day(new Date())}T12:00:00Z`);closedDate.setUTCDate(closedDate.getUTCDate()-1);
+  const closedTill=day(closedDate);
+  const effectiveBizRange=current.bizRange||(intent.range.till>=day(new Date())&&intent.range.from<=closedTill?{...intent.range,till:closedTill}:intent.range);
+  const businessRows = intent.breakdown ? await readProfessorBusinessBreakdown(reportingDb,db,intent.range,effectiveBizRange,intent,places) : undefined;
+  if(businessRows){
+   for(const metric of intent.metrics){const values=businessRows.map(row=>row.values[metric]).filter((value):value is number=>value!=null);current.metrics[metric]=values.length?values.reduce((sum,value)=>sum+value,0):null;}
+   if(businessRows.some(row=>intent.metrics.some(metric=>metric.startsWith('biz')&&row.values[metric]!=null))){current.bizRange=effectiveBizRange;current.bizSavedAt=businessRows.map(row=>row.bizSavedAt||'').sort().at(-1)||current.bizSavedAt;}
+  }
   let ranked: Array<{ name: string; value: number }> = [];
-  try { ranked = await ranking(reportingDb, db, intent.range, intent, places); }
+  try { ranked = businessRows ? businessRows.filter(row=>row.values[intent.metrics[0]]!=null).slice(0,10).map(row=>({name:row.name,value:row.values[intent.metrics[0]]!})) : await ranking(reportingDb, db, intent.range, intent, places); }
   catch (error) {
     if (reportingDb === db) throw error;
     ranked = await ranking(db, db, intent.range, intent, places);
   }
-  const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric, metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
+  const previousBusinessRows = businessRows&&previous ? await readProfessorBusinessBreakdown(reportingDb,db,intent.compareRange!,previous.bizRange||intent.compareRange!,intent,places) : undefined;
+  const comparison = previous ? Object.fromEntries(intent.metrics.map((metric) => [metric,previousBusinessRows ? businessRows!.every(row=>row.values[metric]!=null)&&previousBusinessRows.every(row=>row.values[metric]!=null)?previousBusinessRows.reduce((sum,row)=>sum+Number(row.values[metric]),0):null : metricValue(previous.metrics, metric)])) as Partial<Record<ProfessorMetric, number | null>> : null;
+  const previousMetrics=previous&&comparison?{...previous.metrics,...comparison}:null;
   const bizRequested = intent.metrics.some((metric) => metric.startsWith("biz"));
+  const knownRows = businessRows?.filter(row=>intent.metrics.every(metric=>row.values[metric]!=null)).length || 0;
+  const dataStatus = businessRows ? knownRows===businessRows.length&&knownRows>0?'ready':knownRows>0?'partial':'unavailable' : intent.metrics.some(metric=>current.metrics[metric]!=null)?'ready':'unavailable';
   const partialBizRange = current.bizRange && (current.bizRange.from !== intent.range.from || current.bizRange.till !== intent.range.till);
-  const coverage = !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows
+  const coverage = businessRows ? `נתונים שמורים עבור ${knownRows} מתוך ${businessRows.length} עסקים${current.bizRange?`, נתוני Biz עד ${current.bizRange.till}`:''}` : !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows
     ? `נתוני V ומערכת Biz שמורים, כיסוי Biz עבור ${current.bizRows} עסקים${partialBizRange ? ` עד ${current.bizRange?.till}` : ""}`
     : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
   const result: ProfessorAnswer = {
-    answer: answerText(intent, current.metrics, previous?.metrics || null, ranked), range: intent.range, compareRange: intent.compareRange,
+    answer: answerText(intent, current.metrics, previousMetrics, ranked), range: intent.range, compareRange: intent.compareRange,
     place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
-    insights: buildInsights(intent, current.metrics, previous?.metrics || null),
+    businessRows, dataStatus,
+    insights: buildInsights(intent, current.metrics, previousMetrics),
     plan: { scope: scopeLabel(intent), metrics: intent.metrics, source: interpretation.provider === "openai"
       ? "פענוח OpenAI מאומת מול מסד V ומטמון Biz"
       : "מסד V ומטמון Biz בלבד" },
     freshness: { internal: new Date().toISOString(), biz: current.bizSavedAt, coverage, bizRange: current.bizRange },
     reportHref: `/admin/business-performance?from=${intent.range.from}&till=${intent.range.till}${intent.place ? `&business=${encodeURIComponent(intent.place.placeId)}` : intent.world ? `&scope=${intent.world}` : ""}`,
   };
-  await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), email.trim().toLowerCase(), normalizedQuestion, JSON.stringify(result), "success", Date.now() - started, new Date().toISOString()).run();
+  await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), email.trim().toLowerCase(), normalizedQuestion, JSON.stringify(result), dataStatus==='unavailable'?'unavailable':"success", Date.now() - started, new Date().toISOString()).run();
   return result;
 }
 export async function professorHistory(db: D1Database, email: string) { await ensureProfessorSchema(db); const rows = await db.prepare("SELECT id,question,answer_json AS answerJson,duration_ms AS durationMs,created_at AS createdAt FROM vii_professor_questions_v1 WHERE email = ? AND status = 'success' ORDER BY created_at DESC LIMIT 20").bind(email.trim().toLowerCase()).all<{ id: string; question: string; answerJson: string; durationMs: number; createdAt: string }>(); return rows.results.map((row) => { try { return { ...row, answer: JSON.parse(row.answerJson) as ProfessorAnswer }; } catch { return null; } }).filter(Boolean); }

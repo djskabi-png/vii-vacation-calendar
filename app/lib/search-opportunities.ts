@@ -1,3 +1,4 @@
+import {approvedVacationPage,searchApprovalFingerprint} from './search-page-approval.ts';
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { searchPageDatabase, searchPageDefinitions, searchPageInventory } from "./search-page-content.ts";
 import { searchAnalyticsDatabase } from "./search-analytics.ts";
@@ -52,10 +53,13 @@ export type SearchOpportunity = {
   updatedBy: string | null;
   readiness: number;
   priority: number;
+  existingApproved?: boolean;
+  existingApprovedPath?: string | null;
   fallbackMode?: "nearby";
   editPath?: string;
 };
 
+export {approvedVacationSourcePath} from './search-page-approval.ts';
 type LegacySearchPageRecord = {
   id: string; legacySourcePath: string; sourcePath: string; location: string; slug: string;
   title: string; metaTitle: string; metaDescription: string; h1: string; summary: string;
@@ -95,6 +99,24 @@ export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "ti
 const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages, ...(legacyEventSearchPages as LegacySearchPageRecord[]).map(page => ({ ...page, world: "events" as const }))] as LegacySearchPageRecord[])
   .map(hydrateLegacyPage)
   .filter(publicSearchOpportunityAllowed);
+let approvalIndex:Map<string,Set<string>>|null=null;
+const definitionApprovalIndexes=new Map<string,Map<string,string>>();
+export function approvedExistingPath(world:string,sourcePath:string,filters:Record<string,string|number|boolean>,locale:string){
+ let definitions=definitionApprovalIndexes.get(locale);if(!definitions){definitions=new Map(searchPageDefinitions.map(page=>[page.world+':'+searchApprovalFingerprint(page.path,{},locale),page.path]));definitionApprovalIndexes.set(locale,definitions);}
+ const exact=definitions.get(world+':'+searchApprovalFingerprint(sourcePath,filters,locale));if(exact)return (locale==='he'?'':'/'+locale)+exact;
+ const region=world==='vacation'?approvedVacationPage(sourcePath,filters,locale):null;if(region)return region;
+ if(!approvalIndex){
+  approvalIndex=new Map();
+  for(const page of staticSearchPages){
+   for(const [path,values]of [[page.sourcePath,page.filters],[page.canonicalPath,page.filters],[page.canonicalPath,{}]] as const){
+    const fingerprint=searchApprovalFingerprint(path,values,page.locale);if(!fingerprint)continue;
+    const key=page.world+':'+page.locale+':'+fingerprint;const paths=approvalIndex.get(key)||new Set<string>();paths.add(page.canonicalPath);approvalIndex.set(key,paths);
+   }
+  }
+ }
+ const fingerprint=searchApprovalFingerprint(sourcePath,filters,locale),paths=approvalIndex.get(world+':'+locale+':'+fingerprint);
+ return paths?.size===1?[...paths][0]:null;
+}
 
 function normalizedHolidayName(value: string) {
   return value.toLocaleLowerCase("he").replace(/^(?:חג|ערב חג)\s+/, "").replace(/["'״׳]/g, "").replace(/\s+/g, " ").trim();
@@ -141,8 +163,9 @@ function fieldReady(row: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDe
     row.h1.length >= 8, row.summary.length >= 30, row.body.length >= 120, /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(row.slug)];
 }
 
-export function opportunityReadiness(row: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDescription" | "h1" | "summary" | "body" | "slug">) {
+export function opportunityReadiness(row: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDescription" | "h1" | "summary" | "body" | "slug">, existing = false) {
   const checks = fieldReady(row);
+  if (existing) checks[5] = true;
   return Math.round(checks.filter(Boolean).length / checks.length * 100);
 }
 
@@ -168,6 +191,8 @@ function hydrate(row: OpportunityRow): SearchOpportunity {
   const internalSearches = Number(row.internalPeriodSearches ?? 0);
   const internalUniqueSessions = Number(row.internalUniqueSessions ?? 0);
   const zeroResults = Number(row.periodZeroResults ?? row.zeroResultCount ?? 0);
+  const existingApprovedPath = approvedExistingPath(row.world,row.sourcePath,filters,row.locale);
+  const approvedExisting=Boolean(existingApprovedPath);
   return {
     id: row.id,
     origin: row.canonicalKey.startsWith("managed:") ? "managed" : "search",
@@ -180,11 +205,11 @@ function hydrate(row: OpportunityRow): SearchOpportunity {
     // old administrator checks silently reappear as public content work after 30 days.
     // Once an editor deliberately advances an item, keep it visible as authored work.
     internalOnly: opportunityInternalOnly(row),
-    zeroResults, status: row.status, assignee: row.assignee,
+    zeroResults, status: row.status, existingApproved: approvedExisting, existingApprovedPath, assignee: row.assignee,
     ...content, faq, canonicalPath: row.canonicalPath || row.proposedPath, robotsIndex: row.robotsIndex === 1,
     scheduledAt: row.scheduledAt, publishedAt: row.publishedAt, version: Number(row.version || 0),
     updatedAt: row.updatedAt, updatedBy: row.updatedBy,
-    readiness: opportunityReadiness(content),
+    readiness: opportunityReadiness(content, approvedExisting),
     priority: searches * 4 + uniqueSessions * 2 + Math.min(zeroResults, 10) + (row.latestResultCount > 0 ? 6 : 0),
   };
 }
@@ -255,8 +280,8 @@ export async function readOpportunityDashboard(db: D1Database, days: number) {
     metrics: {
       recordedSearches: opportunities.reduce((sum, item) => sum + item.searches, 0),
       uniqueSessions: Number(globalUnique?.count || 0),
-      pending: opportunities.filter((item) => !item.internalOnly && ["pending", "draft", "review"].includes(item.status)).length,
-      published: statusCounts.published,
+      pending: opportunities.filter((item) => !item.internalOnly && !(item.existingApproved && item.status==="pending") && ["pending", "draft", "review"].includes(item.status)).length,
+      published: new Set(opportunities.filter(item=>item.status==="published"||item.existingApproved).map(item=>item.existingApprovedPath||item.canonicalPath)).size,
       zeroResultSearches: opportunities.reduce((sum, item) => sum + item.zeroResults, 0),
       internalSearches: Number(globalInternal?.count || 0),
     },
@@ -312,7 +337,7 @@ function cleanText(value: unknown, max: number) {
   return text.length <= max && !/[<>]/.test(text) ? text : null;
 }
 
-export function parseOpportunityChange(value: unknown) {
+export function parseOpportunityChange(value: unknown, existing = false) {
   if (!value || typeof value !== "object") return null;
   const row = value as Record<string, unknown>;
   if (typeof row.id !== "string" || row.id.length > 80 || !Number.isSafeInteger(row.expectedVersion) || Number(row.expectedVersion) < 0 ||
@@ -333,7 +358,7 @@ export function parseOpportunityChange(value: unknown) {
   if (status === "scheduled" && (!scheduled || !Number.isFinite(scheduled.getTime()) || scheduled.getTime() <= Date.now())) return null;
   if ((status === "published" || status === "scheduled") && row.robotsIndex !== true) return null;
   const content = { title: title!, metaTitle: metaTitle!, metaDescription: metaDescription!, h1: h1!, summary: summary!, body: body!, slug };
-  if ((status === "published" || status === "scheduled" || status === "review") && opportunityReadiness(content) < 100) return null;
+  if ((status === "published" || status === "scheduled" || status === "review") && opportunityReadiness(content, existing) < 100) return null;
   return { id: row.id, expectedVersion: Number(row.expectedVersion), status, assignee, ...content, faq,
     robotsIndex: row.robotsIndex === true, scheduledAt: scheduled?.toISOString() || null };
 }
@@ -363,7 +388,9 @@ export async function saveOpportunity(db: D1Database, change: NonNullable<Return
   if (["published", "scheduled"].includes(change.status) && !change.robotsIndex) return { error: "indexing_required" as const };
   const version = prior.version + 1;
   const at = new Date().toISOString();
-  const canonicalPath = publicSearchPagePath(prior.world as SearchWorld, change.slug, prior.locale as SiteLanguage);
+  const existingApprovedPath = approvedExistingPath(prior.world, prior.sourcePath, safeJson(prior.filtersJson, {}), prior.locale);
+  if (["published", "scheduled", "review"].includes(change.status) && opportunityReadiness(change, Boolean(existingApprovedPath)) < 100) return { error: "invalid_page" as const };
+  const canonicalPath = existingApprovedPath || publicSearchPagePath(prior.world as SearchWorld, change.slug, prior.locale as SiteLanguage);
   const collision = await db.prepare("SELECT opportunity_id AS id FROM vii_search_page_publications WHERE canonical_path = ? AND opportunity_id <> ? LIMIT 1").bind(canonicalPath, change.id).first<{ id: string }>();
   if (collision) return { error: "url_conflict" as const };
   const publishedAt = change.status === "published" ? at : null;
@@ -373,8 +400,8 @@ export async function saveOpportunity(db: D1Database, change: NonNullable<Return
     suggestedTitle: prior.suggestedTitle, latestResultCount: Number(prior.latestResultCount || 0),
     firstSeenAt: prior.firstSeenAt, lastSeenAt: prior.lastSeenAt, searches: Number(prior.searchCount || 0),
     uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
-    zeroResults: Number(prior.zeroResultCount || 0), canonicalPath,
-    publishedAt, version, updatedAt: at, updatedBy: actor, readiness: opportunityReadiness(change), priority: 0,
+    zeroResults: Number(prior.zeroResultCount || 0), canonicalPath, existingApproved: Boolean(existingApprovedPath), existingApprovedPath,
+    publishedAt, version, updatedAt: at, updatedBy: actor, readiness: opportunityReadiness(change, Boolean(existingApprovedPath)), priority: 0,
   };
   const statements = [
     db.prepare(`UPDATE vii_search_page_opportunities SET status = ?, assignee = ?, title = ?, meta_title = ?,

@@ -21,11 +21,12 @@ function retainedClient(now) {
     '../lib/deal-clock':{normalizeDealDate},
     './use-deal-clock':{useDealClock:()=>({now})},
     './use-document-seed':{useDocumentSeed:()=> 'test'},
+    './use-public-promotion-weights':{usePublicPromotionWeights:()=>()=>0},
     './use-section-activation':{useSectionActivation:()=>true},
     './use-managed-geography':{useManagedGeography:()=>({})},
     '../lib/regional-availability':{regionalAvailabilityRegion:()=>null},
     '../lib/use-starting-prices':{useStartingPrices:()=>({})},
-    '../lib/discovery-slider-order':{orderDiscoveryRail:()=>[]},
+    '../lib/discovery-slider-order':{orderDiscoveryRail:()=>[],orderDiscoveryItems:items=>items},
     '../lib/event-discovery-contract.ts':{eventDealPagePath,uniqueEventVenueItems},
     './use-vii-live-search':{useViiLiveSearch:(...args)=>{selection=args;return {status:'ready',results:{},resultOrder:[],places:[]}}},
   };
