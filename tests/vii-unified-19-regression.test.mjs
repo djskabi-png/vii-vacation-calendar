@@ -72,7 +72,7 @@ test("catalog state read failures reach the immutable accepted fallback", async 
   assert.match(source, /const bootstrap = await readCatalogBootstrap\(db, world(?:,[^)]*)?\)/);
   assert.match(source, /if \(bootstrap\.stateError\) throw bootstrap\.stateError/);
   assert.match(source, /public_catalog_state_fallback:\$\{world\}/);
-  assert.match(source, /return withEditorialOverlays\(world, await publicSummaries\(world, bundled\(world\)\), await overlays\)/);
+  assert.match(source, /return projectPublicCatalogWithEditorial\(world, await publicSummaries\(world, bundled\(world\)\), await overlays\)/);
 });
 
 test("older accepted detail rows inherit newly supported gallery presentation fields", async () => {

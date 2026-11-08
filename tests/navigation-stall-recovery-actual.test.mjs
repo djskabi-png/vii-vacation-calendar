@@ -13,8 +13,11 @@ function fixture(){
  const ctx={pathname:'/booking',searchParams:new URLSearchParams(location.search),timer:{current:null},pendingHref:{current:null},committedRoute:{current:'/booking?place=vacation-11'},active:false,setActive:value=>{ctx.active=value;},URL,NAVIGATION_START_EVENT,NAVIGATION_RECOVERY_DELAY_MS,recoverStalledNavigation,
  Date:{now:()=>100000},setTimeout:(callback,ms)=>{tasks.set(++next,{callback,ms});return next;},clearTimeout:id=>tasks.delete(id),window:{location,sessionStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)},document:{documentElement:{dataset:{}},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)}};
  const callbacks=effects.map(effect=>new Function('ctx',`with(ctx){return ${ts.transpileModule(`const effect=${effect.getText(ast)};`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText.replace(/^const effect\s*=\s*/,'').replace(/;\s*$/,'')};}`)(ctx));
- const cleanup=callbacks[1]();
- return {ctx,tasks,events,values,replaced,commit:callbacks[0],cleanup,start:href=>events.get(NAVIGATION_START_EVENT)({detail:{href}}),fire:()=>{const [id,task]=[...tasks.entries()][0];tasks.delete(id);task.callback();}};
+ const listenerIndex=effects.findIndex(effect=>effect.getText(ast).includes('window.addEventListener(NAVIGATION_START_EVENT'));
+ const commitIndex=effects.findIndex(effect=>effect.getText(ast).includes('committedRoute.current = committed'));
+ assert.ok(listenerIndex>=0&&commitIndex>=0,'the actual recovery/commit effects must exist');
+ const cleanup=callbacks[listenerIndex]();
+ return {ctx,tasks,events,values,replaced,commit:callbacks[commitIndex],cleanup,start:href=>events.get(NAVIGATION_START_EVENT)({detail:{href}}),fire:()=>{const [id,task]=[...tasks.entries()][0];tasks.delete(id);task.callback();}};
 }
 test('actual router/back recovery retains exact target and is bounded to one document GET',()=>{
  const f=fixture();f.start('/?from=2026-11-05&guests=6#home-live-deals');assert.equal(f.ctx.active,true);assert.equal([...f.tasks.values()][0].ms,8000);f.fire();

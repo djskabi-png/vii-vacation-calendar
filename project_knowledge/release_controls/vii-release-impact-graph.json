@@ -67,7 +67,10 @@
         "tests/public-catalog-bootstrap-actual.test.mjs",
         "tests/published-catalog-navigation-hook.actual.test.mjs",
         "tests/public-search-catalog-snapshot.actual.test.mjs",
-        "tests/cached-public-vacation-search.actual.test.mjs"
+        "tests/cached-public-vacation-search.actual.test.mjs",
+        "tests/public-catalog-api.test.mjs",
+        "tests/vacation-online-first.test.mjs",
+        "tests/vii-unified-19-regression.test.mjs"
       ]
     },
     "global-shell": {
@@ -99,7 +102,9 @@
         "tests/regional-flight-read-model.actual.test.mjs",
         "tests/catalog-navigation-fetch.actual.test.mjs",
         "tests/worker-lazy-entry-actual.test.mjs",
-        "tests/regional-streaming-shell.actual.test.mjs"
+        "tests/regional-streaming-shell.actual.test.mjs",
+        "tests/navigation-stall-recovery-actual.test.mjs",
+        "tests/rendered-html.test.mjs"
       ]
     },
     "search": {

@@ -73,6 +73,26 @@ test("runtime search snapshot and API share complete editorial projection and so
   } finally { sqlite.close(); }
 });
 
+test("vacation search API retains the same published management priority through the shared snapshot", async () => {
+  const { db, sqlite } = makeDb();
+  try {
+    sqlite.exec("UPDATE supplier_catalog_state SET world='vacations'; UPDATE supplier_catalog_entries SET world='vacations';");
+    for (const row of sqlite.prepare("SELECT supplier_id,summary_json FROM supplier_catalog_entries").all()) {
+      const summary = { ...JSON.parse(row.summary_json), world: "vacations", slug: `vacation-${row.supplier_id}`, type: "צימר", curatedRank: 99 };
+      sqlite.prepare("UPDATE supplier_catalog_entries SET summary_json=? WHERE supplier_id=?").run(JSON.stringify(summary), row.supplier_id);
+    }
+    sqlite.exec("UPDATE vii_content_items SET content_type='vacation',world='vacations';");
+    const editorial = JSON.parse(sqlite.prepare("SELECT content_json FROM vii_content_versions").get().content_json);
+    editorial.attributes.homeDealOrder = "13";
+    sqlite.prepare("UPDATE vii_content_versions SET content_json=?").run(JSON.stringify(editorial));
+    const snapshot = await readPublicSearchCatalogSnapshot(db, "vacations");
+    assert.equal(snapshot.entries[0].summary.curatedRank, 13);
+    assert.equal(snapshot.entries[1].summary.curatedRank, 99);
+    const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=vacations&view=search"), db);
+    assert.deepEqual(await response.json(), JSON.parse(JSON.stringify(snapshot)));
+  } finally { sqlite.close(); }
+});
+
 test("invalid complete-generation evidence falls through without a false empty success", async () => {
   const { db, sqlite } = makeDb({ count: 3 });
   try {

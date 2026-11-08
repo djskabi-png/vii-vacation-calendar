@@ -70,7 +70,10 @@ test("SSR seed and API both project the existing published management priority",
   assert.match(read("app/lib/public-vacation-search.ts"),/curatedRank: property.curatedRank/);
   assert.match(read("app/search/layout.tsx"),/bundledPublicCatalogSummaries/);
   assert.match(read("app/search/layout.tsx"),/complete=\{false\}/);
-  for(const file of ["app/components/vacation-landing-route.tsx","app/components/accommodation-landing-route.tsx"]) assert.match(read(file),/publicCatalogSummaries/);
+  assert.match(read("app/components/vacation-landing-route.tsx"),/publicRegionalVacationSearch/);
+  assert.match(read("app/lib/cached-public-vacation-search.ts"),/readPublicSearchCatalogSnapshot\(db, 'vacations'\)/);
+  assert.match(read("app/lib/cached-public-vacation-search.ts"),/publicCatalogSummaries<Property>\('vacations'\)/);
+  assert.match(read("app/components/accommodation-landing-route.tsx"),/publicCatalogSummaries/);
   const api=read("app/api/vii/home-deals/route.ts");
   assert.match(api,/selectHomeDeals\(selectedSnapshot\.deals/);
   const route=read("app/lib/home-deals-snapshot.ts");

@@ -85,6 +85,7 @@ test('actual regional route streams its real shell and heading before a blocked 
   assert.match(html,/<header data-real-shell="true">/);
   assert.match(html,/נופש בכנרת/);
   assert.match(html,/regional-search-loading/);
+  assert.match(html,/role="heading" aria-level="1"/);
   assert.doesNotMatch(html,/<article|data-seeded-count|"numberOfItems"/);
   assert.equal(f.reads(),1);
   release();
@@ -95,6 +96,7 @@ test('actual regional route streams its real shell and heading before a blocked 
   assert.match(html,/"numberOfItems":65/);
   assert.equal((html.match(/<header /g)||[]).length,1,'one real shell only');
   assert.equal((html.match(/<footer/g)||[]).length,1);
+  assert.equal((html.match(/<h1(?:\s|>)/g)||[]).length,1,'the complete crawlable stream has one canonical native h1');
   assert.equal(f.reads(),1);
  }finally{release();controller.abort();await reader?.cancel().catch(()=>{});}
 });

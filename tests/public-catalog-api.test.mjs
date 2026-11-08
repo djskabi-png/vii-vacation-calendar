@@ -166,8 +166,11 @@ test("search paints bounded snapshots and replaces them with the accepted catalo
     readFile(new URL("app/search/layout.tsx", root), "utf8"),
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),
   ]);
-  assert.match(hook, /useState<T\[\]>\(\(\) => \(seed \|\| \[\]\)\.map\(map\)\)/);
-  assert.match(hook, /if \(seed === null \|\| !seedComplete\) void load\(\)/);
+  // Exact initialization and hydration behavior are executed by the published
+  // catalog hook tests. Keep this family wiring guard independent of syntax.
+  assert.match(hook, /usePublishedCatalogSeed\(world\)/);
+  assert.match(hook, /peekFreshPublishedSearchCatalog\(world\)/);
+  assert.match(hook, /if \(\(seed === null \|\| !seedComplete\) && !browserCatalog\) void load\(\)/);
   assert.match(hook, /visibilitychange/);
   assert.match(vacationLayout, /bundledPublicCatalogSummaries<Property>\("vacations"\)/);
   assert.match(eventLayout, /bundledPublicCatalogSummaries<EventPlace>\("events"\)/);
