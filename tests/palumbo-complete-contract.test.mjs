@@ -64,7 +64,8 @@ test("vacation discovery and result controls implement Palumbo requirements", as
   assert.match(search, /א-ב \(סדר עולה\)/);
   assert.match(search, /מחיר ומאפיינים/);
   assert.match(search, /<ProgressiveResults autoLoad/);
-  assert.match(search, /const initialResultWindow = 18/);
+  assert.match(search, /totalCount=\{displayedResults\.length\}/);
+  assert.match(search, /mapOpen \? displayedResults : displayedResults\.slice\(0, visibleResultCount\)/);
   assert.match(progressive, /IntersectionObserver/);
   assert.match(box, /destinationChildren\(destinations, browseKey/);
   assert.match(box, /matchingDestinations\(destinations, locationQuery, translate\)/);

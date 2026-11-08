@@ -918,11 +918,10 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
     return resultSet.filter((property) => visible.has(property.slug));
   }, [resultSet, mapOpen, mapVisibleIds]);
   const resultWindowKey = [area, selectedTypes.join(","), bedrooms, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
-  // Keep the initial SSR window small while preserving total, ranking,
-  // filters and the progressive continuation.
-  // A search page must open with a useful comparison set. Six cards made a
-  // healthy result set look truncated until the user reached the sentinel.
-  const initialResultWindow = 18;
+  // Mount six ordered cards first to keep the initial viewport responsive.
+  // The complete catalog, ranking, filters, map data and SEO/count metadata
+  // remain intact; ProgressiveResults continues loading nine cards at a time.
+  const initialResultWindow = 6;
   const [resultWindow, setResultWindow] = useState({ key: resultWindowKey, count: initialResultWindow });
   const visibleResultCount = resultWindow.key === resultWindowKey ? resultWindow.count : initialResultWindow;
   const visibleResults = mapOpen ? displayedResults : displayedResults.slice(0, visibleResultCount);
