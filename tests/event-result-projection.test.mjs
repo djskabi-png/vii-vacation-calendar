@@ -32,7 +32,7 @@ test('actual SQLite selected read preserves 40/100 IDs without full/detail reads
 function resultReader(dependencies){
  const source=readFileSync(new URL('../app/lib/public-catalog-read.ts',import.meta.url),'utf8');
  const ast=ts.createSourceFile('reader.ts',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TS);
- const names=new Set(['publicEventResultSummaries','withEditorialOverlays','applyEditorial','catalogIdentity']);
+ const names=new Set(['publicEventResultSummaries','projectPublicCatalogWithEditorial','applyEditorial','catalogIdentity']);
  const functions=ast.statements.filter(n=>ts.isFunctionDeclaration(n)&&names.has(n.name?.text)).map(n=>n.getText(ast).replace(/^export /,'')).join('\n');
  const code=ts.transpileModule(functions,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;
  return new Function(...Object.keys(dependencies),code+'\nreturn publicEventResultSummaries;')(...Object.values(dependencies));
