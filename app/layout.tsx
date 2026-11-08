@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { AccountAccessProvider } from "./components/account-access";
 import { WorldAvailabilityProvider } from "./components/world-availability-provider";
 import { readWorldAvailability, worldForPath } from "./lib/world-availability";
+import { preloadRegionalVacationCatalog } from "./lib/regional-catalog-preload";
 import { redirect } from "next/navigation";
 import { GoogleTagManager } from "./components/google-tag-manager";
 import { NavigationProgress } from "./components/navigation-progress";
@@ -149,6 +150,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const normalizedPathname = stripLocale(pathname);
   const isAdmin = normalizedPathname === "/admin" || normalizedPathname.startsWith("/admin/");
   const isFlight = requestHeaders.get('rsc') === '1' || (requestHeaders.get('accept') || '').includes('text/x-component');
+  preloadRegionalVacationCatalog(normalizedPathname, isAdmin);
   const worldAvailability = await readWorldAvailability();
   const requestedWorld = isAdmin ? null : worldForPath(normalizedPathname);
   if (requestedWorld && !worldAvailability[requestedWorld]) {

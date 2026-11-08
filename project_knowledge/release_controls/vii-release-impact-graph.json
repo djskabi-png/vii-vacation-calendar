@@ -91,7 +91,8 @@
         "tests/slider-settle-layout-actual.test.mjs",
         "tests/cross-release-client-reference-actual.test.mjs",
         "tests/public-critical-css.actual.test.mjs",
-        "tests/navigation-first-paint.actual.test.mjs"
+        "tests/navigation-first-paint.actual.test.mjs",
+        "tests/regional-catalog-preload.actual.test.mjs"
       ]
     },
     "search": {
@@ -734,7 +735,8 @@
         "app/components/home-discovery-sections.tsx",
         "app/components/navigation-progress.tsx",
         "app/components/navigation-progress.css",
-        "app/components/navigation-progress-style.ts"
+        "app/components/navigation-progress-style.ts",
+        "app/lib/regional-catalog-preload.ts"
       ]
     },
     {
