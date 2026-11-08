@@ -128,12 +128,20 @@ function safePublicRead(request: Request, url: URL) {
   return eligible(request, eligibilityOnly);
 }
 
+function publicReadAttemptResponse(response: Response, attempts: 1 | 2) {
+  const headers = new Headers(response.headers);
+  // This describes the origin fill. A later shared HIT retains this history,
+  // while X-VII-Edge-Delivery distinguishes it from a new origin invocation.
+  headers.set("X-VII-Edge-Origin-Attempts", String(attempts));
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 async function fetchPublicRead(request: Request, origin: URL) {
   const anonymous = anonymousPublicRequest(origin, request, isCatalogNavigationHintCandidate(request));
   let failed: Response | undefined;
   try {
     const response = await fetch(anonymous);
-    if (response.status < 500) return response;
+    if (response.status < 500) return publicReadAttemptResponse(response, 1);
     failed = response;
   } catch (error) {
     if (request.signal.aborted || error instanceof Error && error.name === "AbortError") throw error;
@@ -146,7 +154,7 @@ async function fetchPublicRead(request: Request, origin: URL) {
   headers.delete("If-Modified-Since");
   // Exactly one changed, read-only retry. Private/API/action/POST traffic
   // never enters this helper, and a second failure is returned unchanged.
-  return fetch(new Request(anonymous, { headers, cache: "reload", redirect: "manual" }));
+  return publicReadAttemptResponse(await fetch(new Request(anonymous, { headers, cache: "reload", redirect: "manual" })), 2);
 }
 
 function keyFor(request: Request, url: URL, build: string, now = new Date()) {

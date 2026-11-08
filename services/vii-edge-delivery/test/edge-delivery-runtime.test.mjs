@@ -26,10 +26,10 @@ test('delivery timing describes this lookup and distinguishes retained origin fi
  const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
  try{
  const first=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html'}}),env,h.ctx);
- assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.ok(Number.isFinite(Number(first.headers.get('X-VII-Edge-Origin-Ms'))));assert.match(first.headers.get('Server-Timing'),/vii-edge-origin;dur=/);
+ assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(first.headers.get('X-VII-Edge-Origin-Attempts'),'1');assert.ok(Number.isFinite(Number(first.headers.get('X-VII-Edge-Origin-Ms'))));assert.match(first.headers.get('Server-Timing'),/vii-edge-origin;dur=/);
  await new Promise(resolve=>setTimeout(resolve,0));
  const hit=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html'}}),env,h.ctx);
- assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(hit.headers.get('X-VII-Edge-Origin-Ms'),null);assert.match(hit.headers.get('X-VII-Edge-Lookup-Ms'),/^\d+$/);assert.match(hit.headers.get('Server-Timing'),/vii-cache;dur=999/);assert.match(hit.headers.get('Server-Timing'),/app;desc="one,vii-edge-origin;dur=42"/);assert.match(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=8888/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-origin;dur=7777/);assert.equal(hit.headers.get('X-VII-Cache-Read-Ms'),'999');assert.equal(h.stats().originCalls,1);
+ assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(hit.headers.get('X-VII-Edge-Origin-Attempts'),'1');assert.equal(hit.headers.get('X-VII-Edge-Origin-Ms'),null);assert.match(hit.headers.get('X-VII-Edge-Lookup-Ms'),/^\d+$/);assert.match(hit.headers.get('Server-Timing'),/vii-cache;dur=999/);assert.match(hit.headers.get('Server-Timing'),/app;desc="one,vii-edge-origin;dur=42"/);assert.match(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-lookup;dur=8888/);assert.doesNotMatch(hit.headers.get('Server-Timing'),/vii-edge-origin;dur=7777/);assert.equal(hit.headers.get('X-VII-Cache-Read-Ms'),'999');assert.equal(h.stats().originCalls,1);
  }finally{h.restore();}
 });
 
@@ -220,11 +220,21 @@ test('anonymous MISS avoids the public proxy hop while host-bound traffic and re
 test('a transient public GET500 gets exactly one changed retry while retaining complete dated party intent',async()=>{
  const h=harness({headers:headers()});const old=globalThis.fetch;const seen=[];const url='https://vii.spaplus.co/search?pool=1&from=2026-11-26&till=2026-11-28&guests=2&children=1&rooms=1';
  globalThis.fetch=async r=>{seen.push({url:r.url,cookie:r.headers.get('Cookie'),control:r.headers.get('Cache-Control')});return seen.length===1?new Response('transient',{status:500}):new Response('<html>verified public</html>',{headers:headers()});};
- try{const r=await worker.fetch(new Request(url,{headers:{Accept:'text/html',Cookie:'vii_admin_session=private'}}),{},h.ctx);assert.equal(r.status,200);assert.equal(seen.length,2);assert.ok(seen.every(x=>x.url===url&&x.cookie===null));assert.equal(seen[1].control,'no-cache');}finally{globalThis.fetch=old;h.restore();}
+ try{const r=await worker.fetch(new Request(url,{headers:{Accept:'text/html',Cookie:'vii_admin_session=private'}}),{},h.ctx);assert.equal(r.status,200);assert.equal(r.headers.get('X-VII-Edge-Origin-Attempts'),'2');assert.equal(seen.length,2);assert.ok(seen.every(x=>x.url===url&&x.cookie===null));assert.equal(seen[1].control,'no-cache');}finally{globalThis.fetch=old;h.restore();}
+});
+
+test('single origin attempt is visible before a blocked body and preserves the stream',async()=>{
+ const h=harness({headers:headers()}),old=globalThis.fetch;let release,timer,calls=0;
+ const ready=new Promise(resolve=>{release=resolve;});
+ globalThis.fetch=async()=>{calls++;return new Response(new ReadableStream({start(controller){controller.enqueue(new TextEncoder().encode('shell'));ready.then(()=>{controller.enqueue(new TextEncoder().encode('results'));controller.close();});}}),{headers:headers()});};
+ try{
+  const r=await Promise.race([worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{EXPECTED_BUILD:'test-build'},h.ctx),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('attempt diagnostic buffered the body')),1000);})]);
+  assert.equal(r.headers.get('X-VII-Edge-Origin-Attempts'),'1');assert.equal(calls,1);release();assert.equal(await r.text(),'shellresults');
+ }finally{clearTimeout(timer);release();globalThis.fetch=old;h.restore();}
 });
 test('repeated public failures stop after two attempts and private or transactional traffic never retries',async()=>{
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return new Response('unavailable',{status:503});};
- try{const r=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx);assert.equal(r.status,503);assert.equal(calls,2);assert.equal(h.stats().writes.length,0);for(const request of [new Request('https://vii.spaplus.co/api/vii/stay-quote',{method:'POST',body:'{}'}),new Request('https://vii.spaplus.co/admin',{headers:{Cookie:'vii_admin_session=private'}}),new Request('https://vii.spaplus.co/search',{headers:{Authorization:'Bearer synthetic'}})]){calls=0;await worker.fetch(request,{},h.ctx);assert.equal(calls,1);}}finally{globalThis.fetch=old;h.restore();}
+ try{const r=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx);assert.equal(r.status,503);assert.equal(calls,2);assert.equal(h.stats().writes.length,0);for(const request of [new Request('https://vii.spaplus.co/api/vii/stay-quote',{method:'POST',body:'{}'}),new Request('https://vii.spaplus.co/admin',{headers:{Cookie:'vii_admin_session=private'}}),new Request('https://vii.spaplus.co/search',{headers:{Authorization:'Bearer synthetic'}})]){calls=0;const excluded=await worker.fetch(request,{},h.ctx);assert.equal(calls,1);assert.equal(excluded.headers.get('X-VII-Edge-Origin-Attempts'),null);}}finally{globalThis.fetch=old;h.restore();}
 });
 test('one public network failure recovers but an explicit cancellation never retries',async()=>{
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;if(calls===1)throw new TypeError('transient transport');return new Response('ok',{headers:headers()});};
