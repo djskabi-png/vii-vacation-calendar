@@ -1,8 +1,30 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import ts from "typescript";
+import * as jsx from "react/jsx-runtime";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const { totalBedroomCountFromRooms, totalVerifiedBedroomCount, verifiedBedroomGroupsFromRoom, verifiedSleepingRoomsFromProperty } = await import("../app/lib/verified-sleeping-rooms.ts");
+
+test("actual unit preview uses supplied ungrouped bed facts and keeps the declared bedroom count", async () => {
+  const fixture=JSON.parse(await readFile(new URL("./fixtures/vacation-1296-public-detail-20261108.json",import.meta.url),"utf8"));
+  const room=(fixture.entry?.detail || fixture.detail || fixture).rooms[0];
+  const business=await readFile(new URL("../app/business/client-page.tsx",import.meta.url),"utf8");
+  const ast=ts.createSourceFile("business.tsx",business,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+  let initializer; const visit=n=>{if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==="sleepingPreviewGroups")initializer=n.initializer;ts.forEachChild(n,visit);};visit(ast);
+  assert.ok(initializer,"unit preview must use current supplier sleeping facts");
+  const code=ts.transpileModule("const result="+initializer.getText(ast)+";",{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+  const groups=Function("room","roomSleepingGroups","verifiedSleepingRoomsFromProperty",code+";return result;")(room,verifiedBedroomGroupsFromRoom(room),verifiedSleepingRoomsFromProperty);
+  assert.ok(groups.flatMap(g=>g.items).includes("מיטה זוגית"));
+  assert.ok(groups.flatMap(g=>g.items).includes("ספה נפתחת"));
+  const componentSource=await readFile(new URL("../app/components/room-sleeping-preview.tsx",import.meta.url),"utf8");
+  const js=ts.transpileModule(componentSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+  const module={exports:{}};
+  Function("require","module","exports",js)(name=>name==="react"?{useState:()=>[false,()=>{}]}:name==="react/jsx-runtime"?jsx:{useSiteLanguage:()=>({translate:x=>x})},module,module.exports);
+  const html=renderToStaticMarkup(module.exports.RoomSleepingPreview({roomName:room.name,groups,bedroomCount:3}));
+  assert.match(html,/3 חדרי שינה/);assert.match(html,/מיטה זוגית/);assert.doesNotMatch(html,/סוגי המיטות נמסרים/);
+});
 
 test("a verified bedroom count survives a supplier group whose title is not a bedroom", () => {
   const rooms = verifiedSleepingRoomsFromProperty({

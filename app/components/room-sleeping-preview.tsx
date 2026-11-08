@@ -5,7 +5,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 
 type SleepingGroup = { title: string; items: string[] };
 
-export function RoomSleepingPreview({ roomName, groups }: { roomName: string; groups: SleepingGroup[] }) {
+export function RoomSleepingPreview({ roomName, groups, bedroomCount }: { roomName: string; groups: SleepingGroup[]; bedroomCount?: number }) {
   const [expanded, setExpanded] = useState(false);
   const { translate } = useSiteLanguage();
   const visibleGroups = expanded ? groups : groups.slice(0, 2);
@@ -14,7 +14,7 @@ export function RoomSleepingPreview({ roomName, groups }: { roomName: string; gr
   return <section className="room-card__sleeping" aria-label={`איפה תשנו ב${roomName}`}>
     <div className="room-card__sleeping-heading">
       <strong>{translate("איפה תשנו ביחידה?")}</strong>
-      <span>{groups.length === 1 ? translate("חדר שינה אחד") : `${groups.length} ${translate("חדרי שינה")}`}</span>
+      {Number.isFinite(bedroomCount) && bedroomCount! > 0 ? <span>{bedroomCount === 1 ? translate("חדר שינה אחד") : `${bedroomCount} ${translate("חדרי שינה")}`}</span> : null}
     </div>
     <div className="room-card__sleeping-list">
       {visibleGroups.map((group) => <div key={group.title}><b>{group.title}</b><span>{group.items.join(" · ")}</span></div>)}
