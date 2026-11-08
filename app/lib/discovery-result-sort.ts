@@ -68,8 +68,9 @@ export function orderDiscoveryResults<T>(items: readonly T[], sort: DiscoverySor
 }
 
 /** Keep an authoritative exact-city group ahead of nearby recovery results.
- * Each group still receives the requested stable sort; nearby items already
- * present in the exact group are removed without inventing geography.
+ * Default recovery retains the supplier/geography pipeline's nearest-first
+ * ranking. Explicit sorts apply within each group. Duplicate IDs are removed
+ * without inventing geography.
  */
 export function orderGroupedDiscoveryResults<T>(exact: readonly T[], nearby: readonly T[], sort: DiscoverySortKey, seed: string, model: DiscoverySortModel<T>, key: (item: T) => string): T[] {
   const exactIds = new Set<string>();
@@ -89,7 +90,7 @@ export function orderGroupedDiscoveryResults<T>(exact: readonly T[], nearby: rea
   if (nearbyOnly.length === 0) return orderDiscoveryResults(exactUnique, sort, seed, model);
   return [
     ...orderDiscoveryResults(exactUnique, sort, `${seed}:exact`, model),
-    ...orderDiscoveryResults(nearbyOnly, sort, `${seed}:nearby`, model),
+    ...(sort === "recommended" ? nearbyOnly : orderDiscoveryResults(nearbyOnly, sort, `${seed}:nearby`, model)),
   ];
 }
 

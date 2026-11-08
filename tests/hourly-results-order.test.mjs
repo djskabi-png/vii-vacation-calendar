@@ -71,6 +71,20 @@ test("recommended unfiltered hourly results preserve the original seeded sorter 
   assert.deepEqual(orderGroupedDiscoveryResults(exact, [], "recommended", "hourly-stable", model, key).map(key), orderDiscoveryResults([{ id: "b", name: "B", price: 2 }, { id: "a", name: "A", price: 1 }], "recommended", "hourly-stable", model).map(key));
 });
 
+test("actual hourly default preserves the authoritative nearby distance ranking instead of reshuffling it", () => {
+  const source = fs.readFileSync(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8");
+  const exact = [{ id: "city", name: "City", price: 300 }];
+  const recovery = [
+    { id: "near-1", name: "Nearest", price: 300 },
+    { id: "near-2", name: "Second", price: 50 },
+    { id: "near-3", name: "Third", price: 200 },
+  ];
+  for (const seed of ["first-visit", "reload", "next-day"]) {
+    const result = actualResultItems(source, { filtered: exact, nearbyRecovery: recovery, sort: "recommended", documentSeed: seed, sortModel: model });
+    assert.deepEqual(result.map(key), ["city", "near-1", "near-2", "near-3"]);
+  }
+});
+
 test("actual hourly initializer keeps hard-filter eligibility and recommended nearby grouping", () => {
   const source = fs.readFileSync(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8");
   const common = { description: "", features: ["pool"], area: "מרכז", lat: 32.32, lng: 34.85 };
