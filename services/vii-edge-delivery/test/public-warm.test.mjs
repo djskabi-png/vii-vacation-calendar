@@ -17,7 +17,7 @@ test('scheduled public documents warm the same HTML variants used by real browse
     await worker.scheduled({scheduledTime:Date.now()},env,ctx);await Promise.allSettled(tasks);
     assert.deepEqual(requests.map(r=>new URL(r.url).pathname+new URL(r.url).search),publicWarmRequests.map(r=>r.path));
     assert.ok(requests.every(r=>r.method==='GET'&&!r.headers.has('Cookie')&&!r.headers.has('Authorization')));
-    assert.ok(requests.every(r=>r.url.includes('.rsc')?r.headers.get('Accept')==='text/x-component'&&r.headers.get('RSC')==='1'&&r.headers.get('X-Vinext-Interception-Context')!==null&&!r.headers.has('Next-Url'):r.headers.get('Accept')==='text/html'&&!new URL(r.url).search));
+    assert.ok(requests.every(r=>r.url.includes('.rsc')?r.headers.get('Accept')==='text/x-component'&&r.headers.get('RSC')==='1'&&r.headers.get('X-Vinext-Interception-Context')!==null&&!r.headers.has('Next-Url'):r.headers.get('Accept')==='text/html'&&(!new URL(r.url).search||new URL(r.url).search==='?guests=2')));
     assert.ok(requests.every(r=>!/^\/(api|booking|admin|account)/.test(new URL(r.url).pathname)));
     for(const accept of ['text/html','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8']){
       const response=await worker.fetch(new Request('https://vii.spaplus.co/',{headers:{Accept:accept}}),env,ctx);
@@ -41,7 +41,7 @@ test('pending build admission never starts scheduled warming',async()=>{
   try{await worker.scheduled({scheduledTime:Date.now()},{EXPECTED_BUILD:'pending-next-release'},{waitUntil(){queued++;}});assert.equal(reads,0);assert.equal(queued,0);}finally{globalThis.fetch=old;}
 });
 
-test('one failed document cannot stop other routes and owned background work is drained sequentially',async()=>{
+test('one failed document cannot stop other routes and owned background work is drained with at most two active documents',async()=>{
   let active=0,maxActive=0,background=0;const paths=[];
   const result=await warmPublicDocuments(async(request,ctx)=>{
     const path=new URL(request.url).pathname;paths.push(path);active++;maxActive=Math.max(maxActive,active);
@@ -50,7 +50,7 @@ test('one failed document cannot stop other routes and owned background work is 
     return new Response('ok',{headers:{'X-VII-Edge-Delivery':'MISS'}});
   },{waitUntil(){}});
   assert.equal(result.attempted,publicWarmRequests.length);assert.equal(result.completed,publicWarmRequests.length-1);assert.equal(result.failed,1);
-  assert.equal(background,publicWarmRequests.length);assert.equal(maxActive,1);assert.deepEqual(paths,publicWarmRequests.map(r=>new URL(r.path,'https://vii.spaplus.co').pathname));
+  assert.equal(background,publicWarmRequests.length);assert.equal(maxActive,2);assert.deepEqual(paths,publicWarmRequests.map(r=>new URL(r.path,'https://vii.spaplus.co').pathname));
 });
 
 test('a successful HTTP response rejected by cache admission is not counted as warm',async()=>{
@@ -66,7 +66,7 @@ test('warming aborts each stalled read and never exceeds its total90second budge
   try{
     const pending=warmPublicDocuments(request=>new Promise((_resolve,reject)=>{active++;maxActive=Math.max(maxActive,active);request.signal.addEventListener('abort',()=>{active--;reject(request.signal.reason);},{once:true});}),{waitUntil(){}});
     for(const step of Array(9).fill(10_000)){now+=step;for(const [id,timer]of [...timers])if(timer.due<=now){timers.delete(id);timer.fn();}await flush();}
-    const result=await pending;assert.equal(result.attempted,9);assert.equal(result.elapsedMs,90_000);assert.equal(result.failed,9);
-    assert.ok(budgets.every(ms=>ms<=10_000));assert.equal(active,0);assert.equal(maxActive,1);assert.equal(timers.size,0);
+    const result=await pending;assert.equal(result.attempted,18);assert.equal(result.elapsedMs,90_000);assert.equal(result.failed,18);
+    assert.ok(budgets.every(ms=>ms<=10_000));assert.equal(active,0);assert.equal(maxActive,2);assert.equal(timers.size,0);
   }finally{Date.now=oldNow;globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;}
 });

@@ -1,4 +1,4 @@
-import {publicWarmRoutes,browserRscHashes} from './public-warm.ts';
+import {publicWarmRoutes,browserRscHashes,regionalWarmPaths} from './public-warm.ts';
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 
 export type PublicCacheBucket={
@@ -25,7 +25,11 @@ export function globalPublicVariant(request:Request,build:string){
  const params=new URLSearchParams(url.search);
  if(rsc){const context=request.headers.get('X-Vinext-Interception-Context');if(request.headers.get('Accept')!=='text/x-component'||request.headers.get('RSC')!=='1'||!context||!rscContexts.has(context)||params.getAll('_rsc').length!==1||params.get('_rsc')!==browserRscHashes[context])return false;params.delete('_rsc');}
  else if(request.headers.has('RSC')||!(request.headers.get('Accept')||'').includes('text/html'))return false;
- return base==='/business'?[...params].length===1&&/^(?:vacation|event)-[1-9]\d{0,8}$/.test(params.get('id')||''):params.size===0;
+ if(base==='/business')return [...params].length===1&&/^(?:vacation|event)-[1-9]\d{0,8}$/.test(params.get('id')||'');
+ // Keep the complete cache key. This admits the explicit default party only
+ // on the fixed region family; dates, duplicate fields and other guests never
+ // become the same document or gain broader global-cache eligibility.
+ return params.size===0 || regionalWarmPaths.includes(base)&&params.size===1&&params.getAll('guests').length===1&&params.get('guests')==='2';
 }
 
 async function keyFor(key:Request,build:string){

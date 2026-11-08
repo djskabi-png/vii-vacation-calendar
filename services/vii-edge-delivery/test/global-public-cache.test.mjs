@@ -13,6 +13,18 @@ function fixture(){
 }
 const request=(path='/',headers={Accept:'text/html'})=>new Request('https://vii.spaplus.co'+path,{headers});
 
+test('explicit two-guest region survives a regional cache miss without sharing other party intent',async()=>{
+ const f=fixture();try{
+  const path='/vacations/kinneret?guests=2';
+  const first=await worker.fetch(request(path),f.env,f.ctx);await first.text();await f.drain();f.region();
+  const hit=await worker.fetch(request(path),f.env,f.ctx);await hit.text();await f.drain();
+  assert.equal(hit.headers.get('X-VII-Edge-Cache-Backend'),'global-r2');assert.equal(f.calls,1);
+  for(const query of ['guests=3','guests=2&guests=2','guests=2&children=1','guests=2&rooms=2','guests=2&from=2026-11-26','guests=02','guests=2&unknown=1'])assert.equal(globalPublicVariant(request('/vacations/kinneret?'+query),'global-build'),false,query);
+  assert.equal(globalPublicVariant(request('/events?guests=2'),'global-build'),false);
+  const other=await worker.fetch(request('/vacations/kinneret'),f.env,f.ctx);await other.text();await f.drain();assert.equal(f.calls,2,'canonical and explicit party retain separate keys');
+ }finally{f.restore();}
+});
+
 test('period pages reuse global R2 across regions but never across cutoff or midnight', async t => {
  t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-11-07T11:59:59.500Z')});
  for(const [before,after] of [['2026-11-07T11:59:59.500Z','2026-11-07T12:00:00Z'],['2026-11-07T21:59:59.500Z','2026-11-07T22:00:00Z']]) {

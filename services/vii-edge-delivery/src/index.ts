@@ -67,6 +67,23 @@ function bypassOrigin(requestUrl: URL, configuredOrigin: string | undefined) {
   return requestUrl.hostname === "vii.spaplus.co" ? requestUrl.origin : configuredOrigin || ORIGIN;
 }
 
+function anonymousDocumentOrigin(requestUrl: URL, configuredOrigin: string | undefined) {
+  // Only the original, build-checked Site may serve this anonymous projection.
+  // Private requests/actions keep bypassOrigin's host-bound route. Avoid the
+  // additional public-host proxy hop for cache-admitted HTML and Flight reads.
+  return (configuredOrigin || ORIGIN) === ORIGIN ? ORIGIN : bypassOrigin(requestUrl, configuredOrigin);
+}
+
+function publicDocumentRedirect(response: Response, origin: URL, publicUrl: URL) {
+  const location = response.headers.get('Location');
+  if (response.status < 300 || response.status >= 400 || !location || origin.origin === publicUrl.origin) return response;
+  let target: URL; try { target = new URL(location, origin); } catch { return response; }
+  if (target.origin !== origin.origin) return response;
+  const headers = new Headers(response.headers);
+  headers.set('Location', new URL(target.pathname + target.search + target.hash, publicUrl.origin).href);
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 // Public HTML and public RSC contain no account state. Fetch their anonymous
 // projection even for signed-in visitors; account data continues through the
 // original uncached API/private/action requests. Never forward viewer identity
@@ -81,7 +98,8 @@ function anonymousPublicRequest(origin: URL, request: Request) {
     const separator = part.indexOf("=");
     return separator > 0 && infrastructureCookies.has(part.slice(0, separator).trim());
   }).map(part => part.trim()).join("; ");
-  if (infrastructure) headers.set("Cookie", infrastructure);
+  // Cloudflare cookies belong to the browser's host, not the Site alias.
+  if (infrastructure && origin.origin === new URL(request.url).origin) headers.set("Cookie", infrastructure);
   return new Request(origin, { method: "GET", headers, redirect: "manual", signal: request.signal });
 }
 
@@ -228,10 +246,10 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
     headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", hitLayer);
     return new Response(hit.body, { status: hit.status, headers });
   }
-  const origin = new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN));
+  const origin = new URL(url.pathname + url.search, anonymousDocumentOrigin(url, env.ORIGIN));
   const lookupMs = Math.round(performance.now() - lookupStarted);
   const originStarted = performance.now();
-  let response = await fetchPublicRead(request, origin);
+  let response = publicDocumentRedirect(await fetchPublicRead(request, origin), origin, url);
   const originExpiry = Number(response.headers.get("X-VII-Cache-Until"));
   if (Number.isFinite(originExpiry) && originExpiry > 0 && publicDocumentClock(url.pathname)) {
     const capped = publicDocumentExpiry(url.pathname, originExpiry, clockNow);

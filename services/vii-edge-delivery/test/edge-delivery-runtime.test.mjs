@@ -133,7 +133,7 @@ test('public-origin action and quote bypass retains method, origin, credentials 
 
 test('real anonymous browsers carrying only Cloudflare infrastructure cookies still receive warm hits', async () => {
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;
- globalThis.fetch=async request=>{assert.equal(request.url,'https://vii.spaplus.co/search');calls++;return new Response('<html>public</html>',{headers:headers()});};
+ globalThis.fetch=async request=>{assert.equal(request.url,'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site/search');assert.equal(request.headers.get('Cookie'),null);calls++;return new Response('<html>public</html>',{headers:headers()});};
  try {const req=()=>new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html',Cookie:'__cf_bm=synthetic; cf_clearance=synthetic; '}});await worker.fetch(req(),{EXPECTED_BUILD:'test-build'},h.ctx);await new Promise(r=>setTimeout(r,0));const hit=await worker.fetch(req(),{EXPECTED_BUILD:'test-build'},h.ctx);assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(hit.headers.get('Set-Cookie'),null);assert.equal(calls,1);
  } finally {globalThis.fetch=old;h.restore();}
 });
@@ -146,7 +146,7 @@ test('a session mixed with infrastructure cookies remains uncached at the public
 test('signed-in public shells fetch without viewer credentials and never cache identity', async () => {
  const h=harness({headers:headers()});const old=globalThis.fetch;const upstream=[];
  globalThis.fetch=async request=>{upstream.push({cookie:request.headers.get('Cookie'),identity:request.headers.get('X-Customer-Email'),url:request.url});return new Response('<html>anonymous public shell</html>',{headers:headers()});};
- try{for(const session of ['viewer-A','viewer-B']){const result=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html',Cookie:'vii_admin_session='+session+'; __cf_bm=synthetic','X-Customer-Email':'private-fixture'}}),{EXPECTED_BUILD:'test-build'},h.ctx);assert.equal(await result.text(),'<html>anonymous public shell</html>');await new Promise(r=>setTimeout(r,0));}assert.equal(upstream.length,1);assert.equal(upstream[0].cookie,'__cf_bm=synthetic');assert.equal(upstream[0].identity,null);assert.equal(upstream[0].url,'https://vii.spaplus.co/search');
+ try{for(const session of ['viewer-A','viewer-B']){const result=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html',Cookie:'vii_admin_session='+session+'; __cf_bm=synthetic','X-Customer-Email':'private-fixture'}}),{EXPECTED_BUILD:'test-build'},h.ctx);assert.equal(await result.text(),'<html>anonymous public shell</html>');await new Promise(r=>setTimeout(r,0));}assert.equal(upstream.length,1);assert.equal(upstream[0].cookie,null);assert.equal(upstream[0].identity,null);assert.equal(upstream[0].url,'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site/search');
  }finally{globalThis.fetch=old;h.restore();}
 });
 test('recognized sessions stay intact on account APIs and action POSTs',async()=>{
@@ -165,6 +165,18 @@ test('canonical and legacy redirects remain visible 301 responses instead of bei
  const h=harness({headers:headers()});const old=globalThis.fetch;const target='https://vii.spaplus.co/vacations/search/karmiel?pool=1';
  globalThis.fetch=async request=>{assert.equal(request.redirect,'manual');return new Response(null,{status:301,headers:{Location:target}});};
  try{for(const path of ['/search?location=karmiel&pool=1','/s?attr=277']){const r=await worker.fetch(new Request('https://vii.spaplus.co'+path,{headers:{Accept:'text/html'}}),{},h.ctx);assert.equal(r.status,301);assert.equal(r.headers.get('Location'),target);}assert.equal(h.stats().writes.length,0);}finally{globalThis.fetch=old;h.restore();}
+});
+
+test('anonymous MISS avoids the public proxy hop while host-bound traffic and redirects retain their destination',async()=>{
+ const h=harness({headers:headers()}),old=globalThis.fetch,seen=[];
+ globalThis.fetch=async request=>{seen.push({url:request.url,cookie:request.headers.get('Cookie'),method:request.method});return new Response(null,{status:308,headers:{Location:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site/events/search/north/lofts?guests=2#results'}});};
+ try{
+  const response=await worker.fetch(new Request('https://vii.spaplus.co/events/search/north?type=loft',{headers:{Accept:'text/html',Cookie:'vii_customer_session=private; cf_clearance=host-bound'}}),{EXPECTED_BUILD:'test-build'},h.ctx);
+  assert.equal(seen[0].url,'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site/events/search/north?type=loft');assert.equal(seen[0].cookie,null);
+  assert.equal(response.status,308);assert.equal(response.headers.get('Location'),'https://vii.spaplus.co/events/search/north/lofts?guests=2#results');assert.equal(h.stats().writes.length,0);
+  await worker.fetch(new Request('https://vii.spaplus.co/account',{headers:{Accept:'text/html',Cookie:'vii_customer_session=private'}}),{EXPECTED_BUILD:'test-build'},h.ctx);
+  assert.equal(seen[1].url,'https://vii.spaplus.co/account');assert.equal(seen[1].cookie,'vii_customer_session=private');
+ }finally{globalThis.fetch=old;h.restore();}
 });
 
 test('a transient public GET500 gets exactly one changed retry while retaining complete dated party intent',async()=>{
@@ -187,7 +199,7 @@ test('analytics-only visitors reuse the anonymous public shell without forwardin
  const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
  try{
   const first=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:'_ga=one; _ga_G123ABC=two; _gid=three; _gat_UA-123-1=four; _gcl_au=five; vii_customer_session=signed; __cf_bm=infra'}}),env,h.ctx);
-  assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(seen[0].cookie,'__cf_bm=infra');
+  assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(seen[0].cookie,null);
   await new Promise(resolve=>setTimeout(resolve,0));
   for(const cookie of ['_ga=other','_ga_G123ABC=another','_gid=other','_gat=one','_gat_UA-123-1=other','_gcl_au=other']){
    const result=await worker.fetch(new Request('https://edge.test/search',{headers:{Accept:'text/html',Cookie:cookie}}),env,h.ctx);
