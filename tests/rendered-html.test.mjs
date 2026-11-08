@@ -707,7 +707,11 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(eventSearch, /const \[guests, setGuests\] = useState\(/);
   assert.match(eventSearch, /initialGuests/);
   assert.match(eventSearch, /place.capacityScope === "unit" \|\| place.guests >= guests/);
-  assert.match(eventPlace, /fetch\("\/api\/leads\/"/);
+  assert.match(eventPlace, /startEventWhatsAppInquiry\(/);
+  const inquiryHelper = await readFile(new URL('../app/lib/event-whatsapp-inquiry.ts', import.meta.url), 'utf8');
+  assert.match(inquiryHelper, /purpose: 'whatsapp_enquiry'/);
+  assert.match(inquiryHelper, /https:\/\/wa\.me\//);
+  assert.doesNotMatch(eventPlace, /purpose:\s*["']booking["']/);
   assert.match(eventPlace, /privacyAccepted/);
   assert.doesNotMatch(eventPlace, /defaultValue=\{Math\.min\(40/);
   assert.equal((magazineData.match(/slug: "/g) || []).length, 10);
@@ -1374,7 +1378,8 @@ test("spa results expose working place and amenity filters before the result lis
   }
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
-  assert.match(source, /selectedFilters\.every/);
+  assert.match(source, /spaItemMatchesSearch\(item,spaSearchStateFromValues\(undefined,spaAudience,selectedFilters\)\)/);
+  assert.match(source, /pricedSpaSearchItem\(item,spaAudience,requestedMinPrice,requestedMaxPrice\)/);
   assert.match(source, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\} initialItems=\{resultItems\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);

@@ -37,16 +37,20 @@ export async function GET(request: Request) {
         { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": "catalog", "Server-Timing": timing } });
     }
     const availability = cached.value;
+    const covered = new Set(availability.map(row=>row.date));
+    const coveredDays = days.filter(day=>covered.has(day));
+    if (!coveredDays.length && (!full || !covered.has(requestedDate!))) throw new Error("availability_coverage_missing");
+    if (full && !covered.has(requestedDate!)) return Response.json({ error:"date_not_covered" },{status:422,headers:{"Cache-Control":"no-store"}});
     const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
     const expandedRegions: Record<string, Partial<Record<SpaDealAudience, boolean>>> = {};
-    const offers = Object.fromEntries(offerDays.map(date => [date, Object.fromEntries(audiences.map(audience => {
+    const offers = Object.fromEntries((full ? offerDays : coveredDays).map(date => [date, Object.fromEntries(audiences.map(audience => {
       const allDeals = selectSpaPackageDeals(sites, availability, date, audience);
       if (!region) return [audience, full ? allDeals : allDeals.slice(0, 20)];
       const selected = selectRegionalOffers(allDeals, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: full ? undefined : 20 });
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));
-    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status, "Server-Timing": timing } });
+    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days:coveredDays, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status, "Server-Timing": timing } });
   } catch {
     return Response.json({ error: "spa_deals_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }

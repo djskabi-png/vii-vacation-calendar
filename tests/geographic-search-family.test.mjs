@@ -98,7 +98,9 @@ test('spa UI and shared picker use the canonical boundary, preserve non-geograph
  const ui=read('app/components/world-map-results.tsx');
  assert.match(ui,/matchesSearchLocation\(item, location\)/);
  assert.doesNotMatch(ui,/item\.area === location \|\| item\.location === location/);
- assert.match(ui,/selectedFilters\.every/);
+ assert.match(ui,/spaItemMatchesSearch\(item,spaSearchStateFromValues\(undefined,spaAudience,selectedFilters\)\)/);
+ assert.equal(spaItemMatchesSearch({name:'Fixture',location:'ירושלים',area:'ירושלים והסביבה',features:['בריכה','סאונה יבשה','חבילות זוגיות'],spaFacilityTerms:['בריכה','סאונה יבשה']},spaSearchStateFromValues(undefined,'couple',['pool','sauna'])),true);
+ assert.equal(spaItemMatchesSearch({name:'Fixture',features:['בריכה','חבילות זוגיות'],spaFacilityTerms:['בריכה']},spaSearchStateFromValues(undefined,'couple',['pool','sauna'])),false);
  assert.match(ui,/availability\.sites\.has/);
  assert.match(read('app/components/search-box.tsx'),/destinationInventory\(managedGeography/);
  assert.match(read('app/components/search-box.tsx'),/matchingDestinations\(destinations, locationQuery, translate\)/);

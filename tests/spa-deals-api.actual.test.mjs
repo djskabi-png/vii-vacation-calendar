@@ -12,11 +12,16 @@ const load=createSourceLoader({
  '../../../lib/discovery-offer-cache.ts':{cachedDiscovery:async()=>null},
  '../../../lib/published-supplier-ids.ts':{runtimeCatalogDatabase:async()=>null},
  'vinext/shims/request-context':{getRequestExecutionContext:()=>({waitUntil:p=>waits.push(p)})},
- '../../../lib/spa-discovery-inputs.ts':{spaDiscoveryInputs:async()=>{if(status==='error')throw Error('fixture offline');return {sites,cached:status==='refreshing'?null:{value:spaDealDays().map(date=>({siteID:6,date,available:1})),cache:{status:'fresh',checkedAt:new Date().toISOString()}},refresh:Promise.resolve(),catalogMs:1,availabilityMs:1,elapsedMs:2};}}
+ '../../../lib/spa-discovery-inputs.ts':{spaDiscoveryInputs:async()=>{if(status==='error')throw Error('fixture offline');const dates=[...new Set([eventDealDate(0),...spaDealDays()])];return {sites,cached:status==='refreshing'?null:{value:(status==='empty'?[]:status==='partial'?dates.slice(0,-1):dates).map(date=>({siteID:6,date,available:1})),cache:{status:'fresh',checkedAt:new Date().toISOString()}},refresh:Promise.resolve(),catalogMs:1,availabilityMs:1,elapsedMs:2};}}
 });
 const {GET}=load('app/api/spa/deals/route.ts');
-test('actual SPA rail API returns exactly six supported dates and audience-specific offers',async()=>{
- status='verified';const response=await GET(new Request('https://fixture.test/api/spa/deals'));assert.equal(response.status,200);const data=await response.json();assert.deepEqual(data.days,spaDealDays());assert.equal(data.days.length,6);assert.equal(Object.keys(data.offers).length,6);for(const date of data.days){assert.equal(data.offers[date].single[0].price,200);assert.equal(data.offers[date].couple[0].price,600);assert.deepEqual(data.offers[date].group,[]);}
+test('actual SPA rail API returns only supported supplier dates and audience-specific offers',async()=>{
+ status='verified';const response=await GET(new Request('https://fixture.test/api/spa/deals'));assert.equal(response.status,200);const data=await response.json();assert.deepEqual(data.days,spaDealDays());assert.ok(data.days.length<=6);assert.equal(Object.keys(data.offers).length,data.days.length);for(const date of data.days){assert.equal(data.offers[date].single[0].price,200);assert.equal(data.offers[date].couple[0].price,600);assert.deepEqual(data.offers[date].group,[]);}
+});
+test('supplier coverage gaps remove unsupported tabs instead of inventing empty availability',async()=>{
+ status='partial';const response=await GET(new Request('https://fixture.test/api/spa/deals'));const data=await response.json();assert.deepEqual(data.days,spaDealDays().slice(0,-1));
+ const uncovered=await GET(new Request('https://fixture.test/api/spa/deals?full=1&date='+spaDealDays().at(-1)));assert.equal(uncovered.status,422);
+ status='empty';const empty=await GET(new Request('https://fixture.test/api/spa/deals'));assert.equal(empty.status,503);
 });
 test('actual full-page API accepts last supported date and rejects unsupported seventh day',async()=>{
  status='verified';const days=spaDealDays(),seventh=new Date(days.at(-1)+'T12:00:00Z');seventh.setUTCDate(seventh.getUTCDate()+1);

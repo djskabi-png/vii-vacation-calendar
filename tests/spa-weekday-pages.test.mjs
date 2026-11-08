@@ -31,13 +31,13 @@ test("weekday route, API six-day payload and sitemap are wired", async () => {
   for (const slug of spaWeekdaySlugs) assert.match(sitemap, new RegExp(`/spas/day/\\$\\{day\\}`));
 });
 
-test("spa discovery rail is exactly six dates while SEO weekday pages remain seven", () => {
+test("spa discovery rail stays within six supplier dates while SEO weekday pages remain seven", () => {
   const beforeCutoff = new Date("2026-11-05T13:59:59+02:00");
   const afterCutoff = new Date("2026-11-05T14:00:00+02:00");
   for (const now of [beforeCutoff, afterCutoff]) {
     const days = spaDealDays(now);
-    assert.equal(days.length, SPA_DISCOVERY_DAYS);
-    assert.equal(new Set(days).size, SPA_DISCOVERY_DAYS);
+    assert.equal(days.length, now === beforeCutoff ? SPA_DISCOVERY_DAYS : SPA_DISCOVERY_DAYS-1);
+    assert.equal(new Set(days).size, days.length);
     assert.equal(supportedSpaDealDate(days[0], now), true);
     assert.equal(supportedSpaDealDate(days.at(-1), now), true);
     const seventh = new Date(`${days.at(-1)}T12:00:00Z`);

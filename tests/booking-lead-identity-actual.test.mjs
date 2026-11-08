@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
+import {startEventWhatsAppInquiry} from '../app/lib/event-whatsapp-inquiry.ts';
 
 function requestPayload(file, variables) {
   const source = fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
@@ -23,11 +24,13 @@ function requestPayload(file, variables) {
 const values = { get: key => ({ name: 'QA fixture', phone: '0500000000', date: '2026-11-23', till: '2026-11-24', guests: '2', privacy: 'on' })[key] || '' };
 const window = { location: { href: 'https://vii.spaplus.co/fixture' } };
 
-test('actual event and general booking requests carry stable business identity and structured dates', async () => {
-  const event = requestPayload('app/events/place/client-page.tsx', {
-    id: 'event-fixture', values, window, eventSlot: '', eventSlotCopy: { he: { both: 'both' } },
-    place: { slug: 'event-1400', name: 'Event fixture', location: 'city', area: 'region' },
-  });
+test('actual event WhatsApp and general booking requests carry stable identity and keep separate audit purposes', async () => {
+  let event;
+  const opened=startEventWhatsAppInquiry({submissionId:'event-fixture',placeId:'event-1400',placeName:'Event fixture',whatsapp:'0500000000',date:values.get('date'),guests:values.get('guests'),name:values.get('name'),phone:values.get('phone'),slot:'',eventType:'',sourcePage:window.location.href,privacyAccepted:true},
+    {open:()=>({opener:null}),assign:()=>assert.fail('duplicate handoff'),fetch:async(url,init)=>{event=JSON.parse(init.body);return Response.json({success:true});}});
+  assert.equal(opened,true);
+  assert.equal(event.purpose,'whatsapp_enquiry');
+  assert.equal(event.email,undefined);
   const activity = requestPayload('app/booking/client-page.tsx', {
     id: 'activity-fixture', values, window, isManage: false, supplierSiteID: undefined, supplierQuote: {}, details: 'fixture details',
     props: { world: 'activities', placeId: 'museum-fixture', placeName: 'Museum fixture', offerId: 'entry' },
@@ -56,6 +59,6 @@ test('actual event and general booking requests carry stable business identity a
     assert.equal(response.status, 200);
   }
   assert.deepEqual(forwarded.map(row => row.placeId), ['event-1400', 'museum-fixture']);
-  assert.deepEqual(audits.map(row => row.placeId), ['event-1400', 'museum-fixture']);
+  assert.deepEqual(audits.map(row => row.placeId), ['museum-fixture'],'opening an event WhatsApp enquiry is not a booking acceptance');
   assert.ok(audits.every(row => row.status === 'lead_service_accepted'), 'acceptance is not relabeled supplier delivery');
 });

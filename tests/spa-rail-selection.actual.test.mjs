@@ -35,9 +35,9 @@ test('all-link copy names the chosen future day in all locales',()=>{
  assert.match(spaAllPackagesLabel('2026-11-11','2026-11-08','2026-11-09','ru','fallback'),/среду/);
  for(const locale of ['en','fr'])assert.doesNotMatch(spaAllPackagesLabel('2026-11-11','2026-11-08','2026-11-09',locale,'fallback'),/[א-ת]/);
 });
-test('the rolling horizon remains six dates through cutoff and midnight without removing SEO weekdays',()=>{
+test('the supplier six-day horizon never grows an unsupported date at cutoff or midnight',()=>{
  assert.deepEqual(spaDealDays(new Date('2026-11-08T11:59:59Z')),['2026-11-08','2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13']);
- assert.deepEqual(spaDealDays(new Date('2026-11-08T12:00:00Z')),['2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13','2026-11-14']);
+ assert.deepEqual(spaDealDays(new Date('2026-11-08T12:00:00Z')),['2026-11-09','2026-11-10','2026-11-11','2026-11-12','2026-11-13']);
  assert.equal(spaDealDays(new Date('2026-11-08T22:01:00Z')).length,6);assert.equal(spaWeekdaySlugs.length,7);
 });
 test('a media failure cannot remove an otherwise valid package from the rail',()=>{
