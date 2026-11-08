@@ -60,6 +60,9 @@
       ],
       "requiredLocalTests": [
         "tests/supplier-worker-transport.test.mjs",
+        "tests/sergey-public-catalog-client.test.mjs",
+        "tests/accepted-detail-authority.test.mjs",
+        "tests/vacation-multi-type-seo.test.mjs",
         "tests/event-result-projection.test.mjs",
         "tests/event-discovery-route-completeness.test.mjs",
         "tests/published-catalog-client-cache.test.mjs",
@@ -165,6 +168,9 @@
         "tests/viewport-resilient-image-actual.test.mjs",
         "tests/vacation-regional-seed-completeness.actual.test.mjs",
         "tests/landing-payload-budget.test.mjs"
+        ,"tests/vacation-sleeping-fallback.test.mjs"
+        ,"tests/vacation-verified-sleeping-details.test.mjs"
+        ,"tests/vacation-2210-legacy-parity.test.mjs"
       ]
     },
     "events": {
@@ -767,6 +773,8 @@
         "app/api/catalog/",
         "app/data/",
         "app/lib/public-catalog-read.ts",
+        "app/lib/sergey-public-catalog-client.ts",
+        "app/lib/sergey-public-catalog-projection.ts",
         "app/lib/supplier-catalog-store.ts",
         "app/lib/supplier-detail-contract.ts",
         "app/lib/schema-initializer.ts",
@@ -872,7 +880,6 @@
         "app/components/modern-select.tsx",
         "app/lib/event-search-taxonomy.ts",
         "app/lib/legacy-event-type-memberships.ts",
-        "app/data/legacy-event-search-memberships.json",
         "app/lib/legacy-event-intent-index.ts",
         "app/results-view.css",
         "app/lib/place-recommendation-payload.ts",
@@ -893,6 +900,7 @@
         "app/business/",
         "app/components/property-card.tsx",
         "app/lib/public-vacation-search.ts",
+        "app/lib/verified-sleeping-rooms.ts",
         "app/worlds/vacations/",
         "app/components/viewport-resilient-image.tsx",
         "app/components/accommodation-landing-route.tsx"
