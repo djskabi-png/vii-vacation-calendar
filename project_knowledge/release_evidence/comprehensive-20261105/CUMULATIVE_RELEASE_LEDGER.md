@@ -59,3 +59,15 @@ Anonymous cache-eligible document MISS reads use the exact original Site alias, 
 Performance is NOT accepted yet. Native cold examples still took2.9to3.7seconds to headers and2.9to5.7seconds to the complete document. Repeated HIT examples took23to63ms to headers. These are HTTP samples, not browser-load or field P75 claims. Latest cold PageSpeed mobile69,LCP5.25seconds,SpeedIndex7.54seconds; the LCP element was the privacy notice. Do not certify the whole V/QQQAAA program from this scoped release. Current remaining investigation: separate world-availability head gating, regional catalog body timing, and hydration/rendering costs without changing disabled-world redirects or catalog/booking truth.
 
 Evidence: `.release-v790-candidate/.qa-output/v828-first-visible/published-gate.json` and `.release-v790-candidate/.qa-output/v830-warm-fairness/published-gate.json`, corresponding source/operation/HTTP/browser/scheduled-warm receipts.
+
+
+### 2026-11-08 Sites v829 actual publication, internal QA v831
+
+- Actual original project deployment: appgdep_6aefdb1f6bf0819199cdf1191060caad, version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_07677a79acd48191bceb2fc94815d648. Terminal succeeded, PUBLIC/env32. One save and one deploy, no rebuild.
+- Published source5a1628e393235f5d180fdda7f4528d79cb084918, managed534bd3b2ab674e2ded1d277b125af8a42e85e023, tree912c5929ec60498d10a40d5b296981dad1bd0453, build7ed91710-f010-660e-ca57-60c9108aef80, archiveSHA5eabefcd0c2ae277879c03ac3a7e05e6bd720e4ab01a5436296f92f531807bb4.
+- Change: preload canonicalregional vacation catalog before rootflags await, using existing requestdedupe. No supplier/cacheTTL/data/design changes.
+- Candidate: build/types/audit passed; full2667coverage aggregate2666pass1skip. Original2 infrastructurecancelledcases preserved; singleisolatedsame-source/same-timeout3pass recovery closedboth. Native84/qualityruntime105, HTTP48, browser24samples andactualoldv828client->newFlight pass.
+- Public: directalias exactbuild; 48HTTPchecks passed,819retainedoldassets byteverified; desktoplogo->home/mobilekinneret have actualheadings/cards andzero capturedconsoleerrors. Scoped publishedgatepassed.
+- Auxiliarysettings only3writes, then exactnativecodeSHA27134ea3602dbf5cbbae7a61ca6e6580a62190c71643e74225fb83f1f0925bb6 readback. Nativeactiveversione203f296-d79e-43f6-928a-afd1cdbdc2f5. Routes/cron/subdomain/allnonbindingSettings andallbindings except expectedappids unchanged.
+- Speed NOT accepted: nonwarmed regionaldocuments headers2.6-4.5s/full4.4-5.7s in small NodeHTTPsample; exactguests2 first613/813ms then25/30ms. PSI mobile74 FCP1216ms,LCP5251ms,TBT40ms,SI6625ms. Report https://pagespeed.web.dev/analysis/https-vii-spaplus-co-vacations-kinneret/1md0z4n0o5?form_factor=mobile . No wholeproject/launch100percent claim.
+- Evidence: .release-v790-candidate/.qa-output/v831-regional-parallel. Active nextcausalcycle: reduce cold acceptedcatalog D1roundtrips while preserving generation/publication/count invariants.

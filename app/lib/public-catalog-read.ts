@@ -37,16 +37,25 @@ export async function bundledPublicCatalogSummaries<T>(world: SupplierCatalogWor
 }
 
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
-  return readOnceInServerRequest(`public-catalog-summaries:${world}`, () => loadPublicCatalogSummaries<T>(world));
+  return readOnceInServerRequest(`public-catalog-summaries:${world}`, async () => {
+    const db = await runtimeCatalogDatabase();
+    if (!db) return await publicSummaries(world, bundled(world)) as T[];
+    return loadPublicCatalogSummariesFromDatabase<T>(db, world);
+  });
 }
 
-async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
-  const db = await runtimeCatalogDatabase();
-  if (!db) return await publicSummaries(world, bundled(world)) as T[];
-  // The pointer and editorial overlay are independent, bounded reads. Batch
-  // them when the D1 adapter supports it, while retaining the old per-read
-  // fallbacks so an overlay failure never hides the accepted catalog.
-  const bootstrap = await readCatalogBootstrap(db, world);
+export async function publicCatalogSummariesFromDatabase<T>(db: D1Database, world: SupplierCatalogWorld): Promise<T[]> {
+  return loadPublicCatalogSummariesFromDatabase<T>(db, world);
+}
+
+async function loadPublicCatalogSummariesFromDatabase<T>(db: D1Database, world: SupplierCatalogWorld): Promise<T[]> {
+  // Read the pointer, live editorial overlay and cold summary rows in one D1
+  // transaction. The SQL excludes a reusable generation before joining its
+  // entries, so warm reads do not transfer the full catalog again. Keep the
+  // existing per-read fallbacks if the batch or either projection fails.
+  const cachedBeforeBootstrap = catalogCache.get(world);
+  const reusableCache = cachedBeforeBootstrap && cachedBeforeBootstrap.expiresAt > Date.now() ? cachedBeforeBootstrap : undefined;
+  const bootstrap = await readCatalogBootstrap(db, world, reusableCache?.runId || "");
   const overlays = bootstrap.overlays;
   let state = bootstrap.state;
   try {
@@ -64,7 +73,9 @@ async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promi
   if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return withEditorialOverlays(world, await cached.items, await overlays) as T[];
   const runId = state.activeRunId;
   const items = (async () => {
-    const accepted = await readSupplierCatalogSummaries(db, world, state);
+    const accepted = bootstrap.summaries && bootstrap.summaries.activeRunId === runId
+      ? bootstrap.summaries
+      : await readSupplierCatalogSummaries(db, world, state);
     if (!accepted) throw new Error("catalog_active_generation_missing");
     return publicSummaries(world, accepted.entries.map((entry) => entry.summary));
   })();
@@ -82,9 +93,10 @@ async function loadPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promi
   }
 }
 
-export async function readCatalogBootstrap(db: D1Database, world: SupplierCatalogWorld): Promise<{
+export async function readCatalogBootstrap(db: D1Database, world: SupplierCatalogWorld, skipSummaryRunId = ""): Promise<{
   state: Awaited<ReturnType<typeof readSupplierCatalogState>>;
   overlays: Promise<{ key: string; content: EditorialContent }[]>;
+  summaries?: { activeRunId: string; acceptedAt: string | null; entries: Array<{ supplierId: number; summary: unknown }> };
   stateError?: unknown;
 }> {
   const type = contentTypeForWorld(world);
@@ -93,11 +105,24 @@ export async function readCatalogBootstrap(db: D1Database, world: SupplierCatalo
     const overlayRead = preparePublishedItemsRead(db, type, "he", now);
     const stateStatement = db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
       accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ?`).bind(world);
+    const summaryStatement = db.prepare(`SELECT s.active_run_id AS activeRunId, s.active_count AS activeCount,
+      s.accepted_at AS acceptedAt, e.supplier_id AS supplierId, e.summary_json AS summaryJson
+      FROM supplier_catalog_state s LEFT JOIN supplier_catalog_entries e
+        ON e.run_id = s.active_run_id AND e.world = s.world
+      WHERE s.world = ? AND s.active_run_id <> ? ORDER BY e.supplier_id`).bind(world, skipSummaryRunId);
     const decodeOverlay = (result: { results: Array<{ entityKey: string; contentJson: string }> }) => overlayRead.decode(result);
     if (typeof db.batch !== "function") throw new Error("catalog_batch_unavailable");
-    const [stateResult, overlayResult] = await db.batch([stateStatement, overlayRead.statement]);
+    const [stateResult, overlayResult, summaryResult] = await db.batch([stateStatement, overlayRead.statement, summaryStatement]);
     const state = (stateResult.results?.[0] || null) as Awaited<ReturnType<typeof readSupplierCatalogState>>;
-    return { state, overlays: Promise.resolve(decodeOverlay(overlayResult as { results: Array<{ entityKey: string; contentJson: string }> })) };
+    const summaryRows = summaryResult.results as Array<{ activeRunId: string; activeCount: number; acceptedAt: string | null; supplierId: number | null; summaryJson: string | null }>;
+    const expectedCount = state && typeof state.activeCount === "number" && Number.isSafeInteger(state.activeCount) && state.activeCount >= 0 ? state.activeCount : null;
+    const activeRunId = summaryRows[0]?.activeRunId || state?.activeRunId;
+    const taggedRowsMatch = Boolean(state?.activeRunId && summaryRows.every(row => row.activeRunId === state.activeRunId));
+    const entries = summaryRows.filter(row => row.supplierId !== null && row.summaryJson !== null);
+    const summaries = activeRunId && expectedCount !== null && taggedRowsMatch && entries.length === expectedCount
+      ? { activeRunId, acceptedAt: summaryRows[0]?.acceptedAt ?? state?.acceptedAt ?? null, entries: entries.map(row => ({ supplierId: Number(row.supplierId), summary: JSON.parse(row.summaryJson!) })) }
+      : undefined;
+    return { state, summaries, overlays: Promise.resolve(decodeOverlay(overlayResult as { results: Array<{ entityKey: string; contentJson: string }> })) };
   } catch (batchError) {
     // D1 batch is atomic at the adapter boundary. Re-run each read once so a
     // transient batch/overlay failure retains the established partial fallback.

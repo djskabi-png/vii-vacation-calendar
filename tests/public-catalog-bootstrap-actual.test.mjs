@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { readCatalogBootstrap } from "../app/lib/public-catalog-read.ts";
+import { readCatalogBootstrap, publicCatalogSummariesFromDatabase } from "../app/lib/public-catalog-read.ts";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -14,9 +14,15 @@ function database() {
   );
   CREATE TABLE vii_content_versions (
     item_id TEXT, version INTEGER, content_json TEXT
+  );
+  CREATE TABLE supplier_catalog_entries (
+    supplier_id INTEGER, run_id TEXT, world TEXT, summary_json TEXT
   );`);
   const db = {
     batchCalls: 0,
+    outsideBatchAllCalls: 0,
+    summaryRowCounts: [],
+    batchDepth: 0,
     failOverlay: false,
     prepare(sql) {
       let values = [];
@@ -25,14 +31,21 @@ function database() {
         async first() { return sqlite.prepare(sql).get(...values) ?? null; },
         async all() {
           if (db.failOverlay && sql.includes("vii_content_items")) throw new Error("overlay_read_failed");
-          return { results: sqlite.prepare(sql).all(...values) };
+          if (!db.batchDepth) db.outsideBatchAllCalls += 1;
+          const results = sqlite.prepare(sql).all(...values);
+          if (sql.includes('LEFT JOIN supplier_catalog_entries')) db.summaryRowCounts.push(results.filter(row => row.supplierId !== null).length);
+          return { results };
         },
       };
       return statement;
     },
     async batch(statements) {
       db.batchCalls += 1;
-      return Promise.all(statements.map((statement) => statement.all()));
+      db.batchDepth += 1;
+      sqlite.exec('BEGIN');
+      try { const results = []; for (const statement of statements) results.push(await statement.all()); sqlite.exec('COMMIT'); return results; }
+      catch (error) { sqlite.exec('ROLLBACK'); throw error; }
+      finally { db.batchDepth -= 1; }
     },
   };
   return { sqlite, db };
@@ -42,6 +55,94 @@ function content(title) {
   return JSON.stringify({ title, summary: "תקציר עריכתי מלא", body: "תוכן", metaTitle: title,
     metaDescription: "תיאור", imageAlt: "תמונה", links: [], attributes: {} });
 }
+
+function accept(sqlite, runId, ids, count = ids.length) {
+  sqlite.prepare('INSERT OR REPLACE INTO supplier_catalog_state VALUES (?, ?, ?, ?)').run('events', runId, count, '2026-11-08T00:00:00Z');
+  for (const id of ids) sqlite.prepare('INSERT INTO supplier_catalog_entries VALUES (?, ?, ?, ?)').run(id, runId, 'events', JSON.stringify({ supplierId: id, world: 'events', name: `Place ${id}`, description: 'מקום אירועים', location: 'מרכז', area: 'מרכז', slug: `event-${id}`, image: '/image.jpg', images: ['/image.jpg'] }));
+}
+
+test('warm accepted reader skips summary rows and still applies fresh editorial changes', async () => {
+  const { sqlite, db } = database();
+  try {
+    accept(sqlite, 'reader-warm', [900001, 900002]);
+    const first = await publicCatalogSummariesFromDatabase(db, 'events');
+    assert.deepEqual(first.map(row => row.supplierId), [900001, 900002]);
+    sqlite.prepare('INSERT INTO vii_content_items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run('events:900001:he', 'events', '900001', 'events', 'he', 'published', null, 1, 1);
+    sqlite.prepare('INSERT INTO vii_content_versions VALUES (?, ?, ?)').run('events:900001:he', 1, content('עדכון מיידי'));
+    const second = await publicCatalogSummariesFromDatabase(db, 'events');
+    assert.equal(second[0].name, 'עדכון מיידי');
+    assert.deepEqual(db.summaryRowCounts, [2, 0]);
+    assert.equal(db.outsideBatchAllCalls, 0);
+    assert.equal(db.batchCalls, 2);
+  } finally { sqlite.close(); }
+});
+
+test('a changed accepted generation is read atomically despite a warm previous generation', async () => {
+  const { sqlite, db } = database();
+  try {
+    accept(sqlite, 'reader-pointer-old', [900011, 900012]);
+    await publicCatalogSummariesFromDatabase(db, 'events');
+    accept(sqlite, 'reader-pointer-new', [900013]);
+    const next = await publicCatalogSummariesFromDatabase(db, 'events');
+    assert.deepEqual(next.map(row => row.supplierId), [900013]);
+    assert.deepEqual(db.summaryRowCounts, [2, 1]);
+    assert.equal(db.outsideBatchAllCalls, 0);
+  } finally { sqlite.close(); }
+});
+
+test('an expired catalog reads complete rows again without another network round trip', async () => {
+  const { sqlite, db } = database();
+  const now = Date.now;
+  try {
+    accept(sqlite, 'reader-expiry', [900021]);
+    const startedAt = now();
+    await publicCatalogSummariesFromDatabase(db, 'events');
+    Date.now = () => startedAt + 5 * 60_000 + 1000;
+    const next = await publicCatalogSummariesFromDatabase(db, 'events');
+    assert.deepEqual(next.map(row => row.supplierId), [900021]);
+    assert.deepEqual(db.summaryRowCounts, [1, 1]);
+    assert.equal(db.outsideBatchAllCalls, 0);
+  } finally { Date.now = now; sqlite.close(); }
+});
+
+test('NULL, negative and fractional counts never authorize empty summaries; valid zero does', async () => {
+  for (const count of [null, -1, 0.5, 0]) {
+    const { sqlite, db } = database();
+    try {
+      accept(sqlite, `reader-count-${count}`, [], count);
+      const result = await readCatalogBootstrap(db, 'events');
+      if (count === 0) assert.deepEqual(result.summaries.entries, []);
+      else assert.equal(result.summaries, undefined, String(count));
+    } finally { sqlite.close(); }
+  }
+});
+
+test('a partial generation is never served as complete by the optimized reader', async () => {
+  const { sqlite, db } = database();
+  try {
+    accept(sqlite, 'reader-partial', [900031], 2);
+    const result = await publicCatalogSummariesFromDatabase(db, 'events');
+    assert.ok(!result.some(row => row.supplierId === 900031), 'partial accepted rows must not escape the established fallback');
+    assert.equal(db.batchCalls, 1);
+    assert.ok(db.outsideBatchAllCalls > 0, 'the original guarded summary reader remains the bounded fallback');
+  } finally { sqlite.close(); }
+});
+
+test('invalid summary JSON and an overlay batch failure keep the existing bounded fallback', async () => {
+  for (const failure of ['json', 'overlay']) {
+    const { sqlite, db } = database();
+    try {
+      accept(sqlite, `reader-failure-${failure}`, [900041]);
+      if (failure === 'json') sqlite.prepare('UPDATE supplier_catalog_entries SET summary_json = ?').run('{');
+      else db.failOverlay = true;
+      const result = await publicCatalogSummariesFromDatabase(db, 'events');
+      if (failure === 'json') assert.ok(!result.some(row => row.supplierId === 900041));
+      else assert.deepEqual(result.map(row => row.supplierId), [900041]);
+      assert.equal(db.batchCalls, 1);
+      assert.ok(db.outsideBatchAllCalls > 0);
+    } finally { sqlite.close(); }
+  }
+});
 
 test("catalog bootstrap batches state and overlays while preserving published predicates", async () => {
   const { sqlite, db } = database();
@@ -56,6 +157,7 @@ test("catalog bootstrap batches state and overlays while preserving published pr
 
     const result = await readCatalogBootstrap(db, "vacations");
     assert.equal(db.batchCalls, 1);
+    assert.equal(db.outsideBatchAllCalls, 0, "cold summaries must not use a standalone read");
     assert.equal(result.state.activeRunId, "run-a");
     assert.deepEqual((await result.overlays).map((item) => item.key), ["live"]);
   } finally { sqlite.close(); }
@@ -70,6 +172,20 @@ test("overlay failure after batch falls back once and keeps state isolated", asy
     assert.equal(result.state.activeRunId, "run-e");
     assert.deepEqual(await result.overlays, []);
     assert.equal(db.batchCalls, 1);
+  } finally { sqlite.close(); }
+});
+
+test("public catalog reader consumes complete same-generation summaries from the cold batch", async () => {
+  const { sqlite, db } = database();
+  try {
+    sqlite.prepare("INSERT INTO supplier_catalog_state VALUES (?, ?, ?, ?)").run("events", "run-complete", 2, "2026-11-08T00:00:00.000Z");
+    const summary = JSON.stringify({ supplierId: 1, world: "events", name: "מקום אירועים", description: "מקום אירועים במרכז", location: "מרכז", area: "מרכז", image: "https://example.test/a.jpg", images: ["https://example.test/a.jpg"], slug: "event-1" });
+    sqlite.prepare("INSERT INTO supplier_catalog_entries VALUES (?, ?, ?, ?)").run(1, "run-complete", "events", summary);
+    sqlite.prepare("INSERT INTO supplier_catalog_entries VALUES (?, ?, ?, ?)").run(2, "run-complete", "events", summary.replace("event-1", "event-2"));
+    const result = await publicCatalogSummariesFromDatabase(db, "events");
+    assert.equal(db.batchCalls, 1);
+    assert.equal(db.outsideBatchAllCalls, 0, 'actual reader must not perform the former second summary round trip');
+    assert.equal(result.length, 2);
   } finally { sqlite.close(); }
 });
 
