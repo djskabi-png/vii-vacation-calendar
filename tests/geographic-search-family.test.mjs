@@ -6,7 +6,16 @@ import {vacationRegionByLabel,cleanVacationPath} from '../app/data/vacation-land
 import {eventSearchHref,hourlySearchHref,mergeSearchHref,searchLocationFromSlug} from '../app/data/world-search-landings.ts';
 import {regionalAvailabilityRegion,selectRegionalOffers} from '../app/lib/regional-availability.ts';
 import {approvedSearchLocationFromSlug} from '../app/lib/world-location-pages.ts';
+import {matchesSearchLocation} from '../app/data/search-taxonomy.ts';
+import {completePlaceSearchResults} from '../app/lib/nearby-recommendations.ts';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+test('Jerusalem city matches stay ahead of neighboring towns that share its regional name',()=>{
+ const city={slug:'city',location:'ירושלים',area:'ירושלים והרי יהודה'},neighbor={slug:'neighbor',location:'גבעת זאב',area:'ירושלים והרי יהודה'};
+ assert.equal(matchesSearchLocation(city,'ירושלים'),true);assert.equal(matchesSearchLocation(neighbor,'ירושלים'),false);
+ assert.equal(matchesSearchLocation(neighbor,'ירושלים והסביבה'),true);assert.equal(matchesSearchLocation(neighbor,'ירושלים והרי יהודה'),true);
+ const exact=[neighbor,city].filter(place=>matchesSearchLocation(place,'ירושלים'));
+ assert.deepEqual(completePlaceSearchResults(exact,[neighbor,city],p=>p.slug).map(p=>p.slug),['city','neighbor']);
+});
 test('curated region routes remain approved even when catalog rows use cities instead of umbrella regions',()=>{
   assert.equal(approvedSearchLocationFromSlug('events','north'),'צפון');
   assert.equal(approvedSearchLocationFromSlug('events','center'),'מרכז');

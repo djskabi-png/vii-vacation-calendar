@@ -75,7 +75,7 @@ export function matchesSearchLocation(place: SearchablePlace, selection: string)
   const canonical = canonicalSearchLocation(selection);
   const metro = metropolitanLocationMatches(place, canonical);
   if (metro !== null) return metro;
-  if (canonical === "חיפה" || canonical === "תל אביב") {
+  if (canonical === "חיפה" || canonical === "תל אביב" || canonical === "ירושלים") {
     return normalizeGeographicName(canonicalSearchLocation(place.location || place.area)) === normalizeGeographicName(canonical);
   }
   const haystack = normalizeGeographicName(`${place.area ?? ""} ${place.location ?? ""}`);
