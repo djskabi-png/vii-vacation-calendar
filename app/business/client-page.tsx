@@ -6,6 +6,7 @@ import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import { ModernDateInput } from "../components/modern-date-input";
 import { Info } from "lucide-react";
 import Link from "next/link";
+import { CollapsibleFeatureList } from "../components/collapsible-feature-list";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation, vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
 import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
@@ -595,7 +596,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
               {featureGroups.length ? <><div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
                 {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}
               </div>
-              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></article>)}</div>)}</div>
+              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><CollapsibleFeatureList key={`${property.slug}:${group.title}`} className="feature-list">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</CollapsibleFeatureList></article>)}</div>)}</div>
               <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
                 <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
                 <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section> : null; })}</div>

@@ -1,5 +1,6 @@
 "use client";
 import { ModernDateTimeInput } from "../../components/modern-date-time-input";
+import { WorldLandingFaqEditor } from "./world-landing-faq-editor";
 
 import { useAdminCanEdit } from "../admin-access-context.tsx";
 import { ModernDateInput } from "../../components/modern-date-input";
@@ -219,6 +220,7 @@ export default function ContentStudioPage() {
                 <div className={extras.heroImageFields}><label><span>תמונת התחום</span><input dir="ltr" value={draft.attributes.worldTopicImage || worldLandingDefaults(selected.contentType).heroImages[0].src} onChange={(event) => updateAttribute("worldTopicImage", event.target.value)} /></label><label><span>תיאור חלופי לתמונת התחום</span><input value={draft.attributes.worldTopicImageAlt || worldLandingDefaults(selected.contentType).heroImages[0].alt} onChange={(event) => updateAttribute("worldTopicImageAlt", event.target.value)} /></label></div>
                 <p>תמונה אחת שמייצגת את התחום, לא עסק מסוים. בוחרים נכס מתוך תיקיית התמונות של העולמות.</p>
                 {[0, 1, 2].map((index) => <label key={`world-proof-${index}`}><span>יתרון קצר {index + 1}</span><input value={draft.attributes[`worldProof${index + 1}`] || worldLandingDefaults(selected.contentType).proof[index]} onChange={(event) => updateAttribute(`worldProof${index + 1}`, event.target.value)} /></label>)}
+                {selected.contentType === "hourly" ? <WorldLandingFaqEditor value={draft.attributes.worldFaq || ""} onChange={value => updateAttribute("worldFaq", value)} /> : null}
               </div>
             </section>
           </fieldset> : null}

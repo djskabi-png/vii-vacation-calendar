@@ -104,7 +104,9 @@
         "tests/worker-lazy-entry-actual.test.mjs",
         "tests/regional-streaming-shell.actual.test.mjs",
         "tests/navigation-stall-recovery-actual.test.mjs",
-        "tests/rendered-html.test.mjs"
+        "tests/rendered-html.test.mjs",
+        "tests/collapsible-feature-list.actual.test.mjs",
+        "tests/sitewide-mobile-polish.test.mjs"
       ]
     },
     "search": {
@@ -490,7 +492,10 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/hourly-world-faq-cms.test.mjs",
+        "tests/world-landing-management.test.mjs"
+      ]
     },
     "legal": {
       "dependsOn": [
@@ -771,7 +776,11 @@
         "app/lib/regional-catalog-preload.ts",
         "app/lib/catalog-navigation-fetch.ts",
         "app/lib/use-catalog-navigation-recovery.ts",
-        "app/components/card-contact-actions.tsx"
+        "app/components/card-contact-actions.tsx",
+        "app/components/collapsible-feature-list.tsx",
+        "app/components/search-after-results.tsx",
+        "app/home-mobile.css",
+        "app/mobile-polish.css"
       ]
     },
     {
@@ -1013,7 +1022,10 @@
       "match": [
         "app/guides/",
         "app/questions/",
-        "app/contact/"
+        "app/contact/",
+        "app/lib/world-landing-faq.ts",
+        "app/lib/world-landing-presentation.ts",
+        "app/admin/content-studio/"
       ]
     },
     {

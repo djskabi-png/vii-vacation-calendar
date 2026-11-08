@@ -2,6 +2,7 @@ import { readPublishedContent, type ContentType, type EditorialContent } from ".
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
 import { runtimeDatabase } from "./runtime-database.ts";
+import { publicWorldLandingFaq, type WorldLandingFaq } from "./world-landing-faq.ts";
 
 export const managedWorldLandingTypes = ["hourly", "providers", "attractions", "trails", "spa"] as const;
 export type ManagedWorldLandingType = typeof managedWorldLandingTypes[number];
@@ -13,6 +14,7 @@ export type WorldLandingPresentation = {
   eyebrow: string;
   proof: [string, string, string];
   heroImages: [HeroImage];
+  faqs?: WorldLandingFaq[];
 };
 
 export const defaultWorldLandingPresentations: Record<ManagedWorldLandingType, WorldLandingPresentation> = {
@@ -63,7 +65,8 @@ export function parseWorldLandingPresentation(type: ManagedWorldLandingType, con
     description: content?.summary?.trim() || fallback.description,
     eyebrow: attributes.worldHeroEyebrow?.trim().slice(0, 100) || fallback.eyebrow,
     proof: fallback.proof.map((value, index) => attributes[`worldProof${index + 1}`]?.trim().slice(0, 100) || value) as WorldLandingPresentation["proof"],
-    heroImages: [resolveWorldTopicImage(type, attributes.worldTopicImage, attributes.worldTopicImageAlt)]
+    heroImages: [resolveWorldTopicImage(type, attributes.worldTopicImage, attributes.worldTopicImageAlt)],
+    faqs: publicWorldLandingFaq(attributes.worldFaq),
   };
 }
 
@@ -85,10 +88,10 @@ export function validWorldLandingAttributes(attributes: Record<string, string>) 
   return true;
 }
 
-export async function readWorldLandingPresentation(type: ManagedWorldLandingType) {
+export async function readWorldLandingPresentation(type: ManagedWorldLandingType, locale: "he" | "en" | "fr" | "ru" = "he") {
   const db = await worldLandingDatabase();
   if (!db) return defaultWorldLandingPresentations[type];
-  const published = await readPublishedContent(db, type as ContentType, "landing", "he").catch(() => null);
+  const published = await readPublishedContent(db, type as ContentType, "landing", locale).catch(() => null);
   return parseWorldLandingPresentation(type, published?.content);
 }
 

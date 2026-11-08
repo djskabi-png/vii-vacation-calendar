@@ -1,5 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { isManagedSearchListAttribute, validManagedSearchList } from "./homepage-search-href.ts";
+import { decodeWorldLandingFaq } from "./world-landing-faq.ts";
 
 export const contentTypes = ["homepage", "holiday", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
 export const contentLocales = ["he", "en", "ru", "fr"] as const;
@@ -68,7 +69,10 @@ function attributes(value: unknown) {
   const result: Record<string, string> = {};
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
     if (!/^[a-z][A-Za-z0-9]{0,39}$/.test(key) || typeof raw !== "string" || /[<>]/.test(raw)) return null;
-    if (isManagedSearchListAttribute(key)) {
+    if (key === "worldFaq") {
+      if (decodeWorldLandingFaq(raw) === null) return null;
+      result[key] = raw;
+    } else if (isManagedSearchListAttribute(key)) {
       if (!validManagedSearchList(raw)) return null;
       result[key] = raw;
     } else result[key] = clean(raw, 1200);

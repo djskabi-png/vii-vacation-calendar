@@ -418,6 +418,7 @@ export function SearchAfterResults({
   inventory = [],
   discoveryOnly = false,
   baseParams = {},
+  hideFaq = false,
 }: {
   world: SearchContentWorld;
   location?: string;
@@ -427,6 +428,7 @@ export function SearchAfterResults({
   inventory?: SearchDepthInventoryPlace[];
   discoveryOnly?: boolean;
   baseParams?: Record<string, string>;
+  hideFaq?: boolean;
 }) {
   const { language, translate } = useSiteLanguage();
   const localizedEntity = (value: string, fallback = "Israel") => localizedBusinessText(value, language, translate, latinBusinessAlias(value) || fallback);
@@ -496,7 +498,7 @@ export function SearchAfterResults({
     .map((provider) => ({ label: localizedEntity(provider.name, discovery.providers), href: localizedPath(`/discover/place/${provider.id}`, language), meta: language === "he" ? provider.meta : localizedEntity(provider.area), image: provider.image })) : [];
 
   return <section className={`search-depth search-depth--${world}`} aria-label={`${translate("מידע נוסף לתכנון")}${locationLabel}`}>
-    {!hideGuideAndFaq && !discoveryOnly ? <StructuredData data={faqSchema(localizedContent.faqs)} /> : null}
+    {!hideGuideAndFaq && !hideFaq && !discoveryOnly ? <StructuredData data={faqSchema(localizedContent.faqs)} /> : null}
     <div className="shell search-depth__inner">
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__guide" aria-labelledby={`search-guide-${world}`}>
 
@@ -509,7 +511,7 @@ export function SearchAfterResults({
         {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context ? translate(review.context) : reviewCopy.context}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{reviewCopy.published(review.reviews)}</p> : <p>{reviewCopy.full}</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{localizedContent.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
       </section> : null}
 
-      {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>
+      {!hideGuideAndFaq && !hideFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>
 
         <h2 id={`search-faq-${world}`}>{translate("שאלות נפוצות")}</h2>
         <div>{localizedContent.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>

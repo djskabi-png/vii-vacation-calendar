@@ -1,5 +1,6 @@
 "use client";
 import { ExpandableDescription } from "../../components/expandable-description";
+import { CollapsibleFeatureList } from "../../components/collapsible-feature-list";
 import { localizedPlaceBreadcrumbs } from "../../lib/localized-place-breadcrumbs";
 import type { SearchDepthInventoryPlace } from "../../lib/search-depth-model";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
@@ -304,7 +305,7 @@ function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number
       <div className="hourly-contact-card" id="hourly-contact"><div><span className="eyebrow">{contactCopy.eyebrow}</span><h3>{contactCopy.title}</h3><p>{selectedRate ? contactCopy.selected(hourlyRateLabel(selectedRate.duration, language, translate), selectedRate.price) : ""}{contactCopy.confirm}</p></div><aside><small>{translate("טלפון המקום")}</small>{phoneHref ? <DirectPhoneLink phone={item.phone} placeName={item.name} className="hourly-phone-number" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_detail" }} /> : <span className="hourly-phone-missing">{translate("מספר טלפון אינו זמין כרגע")}</span>}<small>{contactCopy.payment}</small></aside></div>
     </div></section>
     <section className="section shell hourly-practical">
-      {details.amenities.length ? <div id="hourly-amenities"><span className="eyebrow">מה מחכה בחדר</span><h2>{translate("מתקנים ושירותים")}</h2><div className="hourly-feature-grid">{details.amenities.map((entry) => <article key={entry}><FeatureIcon label={entry} className="hourly-feature-icon" /><strong>{translate(entry)}</strong></article>)}</div></div> : null}
+      {details.amenities.length ? <div id="hourly-amenities"><span className="eyebrow">מה מחכה בחדר</span><h2>{translate("מתקנים ושירותים")}</h2><CollapsibleFeatureList key={item.id} className="hourly-feature-grid">{details.amenities.map((entry) => <article key={entry}><FeatureIcon label={entry} className="hourly-feature-icon" /><strong>{translate(entry)}</strong></article>)}</CollapsibleFeatureList></div> : null}
       <div id="hourly-info"><span className="eyebrow">לפני שמגיעים</span><h2>{translate("מידע שימושי")}</h2><div className="hourly-info-list">{details.arrivalNotes.map((entry) => <p key={entry}>{safeHourlyText(entry, hourlyFallback.note)}</p>)}</div></div>
     </section>
     <section className="section shell depth-faq" id="hourly-faq"><div className="section-head"><div><h2>{translate("שאלות נפוצות")}</h2></div></div>{details.faq.map((entry) => <details key={entry.question}><summary>{translate(entry.question)}</summary><p>{translate(entry.answer)}</p></details>)}</section>
