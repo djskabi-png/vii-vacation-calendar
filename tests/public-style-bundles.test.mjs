@@ -10,9 +10,14 @@ test('full public bundle preserves byte order of every original stylesheet', () 
   const fonts = fs.readFileSync('app/public-fonts.css', 'utf8');
   const original = [composeWorldStyles(fs.readFileSync('app/globals.css', 'utf8')).replace('@import "./public-fonts.css";', fonts), ...publicStyleFiles.slice(1).map(f => fs.readFileSync('app/' + f, 'utf8'))].join('\n');
   const spaCards = fs.readFileSync('app/components/spa-package-deals.css', 'utf8');
-  assert.equal(bundles.all, `${original}\n${spaCards}`);
-  assert.ok(bundles.spa.endsWith(spaCards));
-  for (const world of ['vacations', 'events', 'hourly']) assert.ok(!bundles[world].endsWith(spaCards), world);
+  const spaOwned = fs.readFileSync('app/worlds/spa/styles/world-owned.css', 'utf8');
+  assert.equal(bundles.all, `${original}\n${spaCards}\n${spaOwned}`);
+  assert.ok(bundles.spa.endsWith(`${spaCards}\n${spaOwned}`));
+  for (const world of ['vacations', 'events', 'hourly']) {
+    assert.ok(!bundles[world].endsWith(spaCards), world);
+    assert.ok(!bundles[world].includes('.spa-hours-list'), world);
+  }
+  assert.ok(bundles.all.indexOf(spaCards) < bundles.all.indexOf(spaOwned));
 });
 
 test('world bundles remove only nonselected slots, retain shared pickers and cascade order', () => {
