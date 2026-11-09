@@ -16,13 +16,19 @@ export function localGalleryFilename(path: string) {
   return filename;
 }
 
-export async function optimizedMediaSource(path: string, uploads: R2Bucket, assets?: { fetch(request: Request): Promise<Response> }) {
+export async function optimizedMediaSource(path: string, uploads: R2Bucket, assets?: { fetch(request: Request): Promise<Response> }, db?: D1Database) {
   const filename = localGalleryFilename(path);
   if (!filename) return null;
   const object = await uploads.get(`${PUBLIC_GALLERY_OBJECT_PREFIX}${filename}`);
   if (!object) {
     const { recoverVerifiedGalleryMedia } = await import("../app/lib/verified-media-recovery.ts");
-    return await recoverVerifiedGalleryMedia(new Request(new URL(path, "https://vii.spaplus.co")), filename, assets)
+    const request = new Request(new URL(path, "https://vii.spaplus.co"));
+    let recovered = await recoverVerifiedGalleryMedia(request, filename, assets);
+    if (!recovered && db) {
+      const { recoverCatalogMedia } = await import("../app/lib/catalog-media-origin-recovery.ts");
+      recovered = await recoverCatalogMedia(request, filename, { DB: db, UPLOADS: uploads });
+    }
+    return recovered
       || new Response("Image not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   }
   const contentType = storedGalleryContentType(object.httpMetadata?.contentType);

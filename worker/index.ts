@@ -218,7 +218,7 @@ const worker = {
     // public photo fast path. Streaming R2 bytes does not need the app router.
     if ((request.method === "GET" || request.method === "HEAD") && url.pathname.startsWith("/api/vii/media/")) {
       const { servePublicGalleryMedia } = await import("./public-gallery-media.ts");
-      return servePublicGalleryMedia(request, env.UPLOADS, env.ASSETS);
+      return servePublicGalleryMedia(request, env.UPLOADS, env.ASSETS, env.DB);
     }
 
     const policyStarted = performance.now();
@@ -262,7 +262,7 @@ const worker = {
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
-        fetchAsset: async (path) => (await optimizedMediaSource(path, env.UPLOADS, env.ASSETS))
+        fetchAsset: async (path) => (await optimizedMediaSource(path, env.UPLOADS, env.ASSETS, env.DB))
           || env.ASSETS.fetch(new Request(new URL(path, request.url))),
         transformImage: (body, options) => transformResponsiveImage(body, options, env.IMAGES),
       }, allowedWidths);

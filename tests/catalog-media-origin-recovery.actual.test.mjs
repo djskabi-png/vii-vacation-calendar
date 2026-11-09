@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {DatabaseSync} from 'node:sqlite';
 import {catalogReferencesGallery,recoverCatalogMedia} from '../app/lib/catalog-media-origin-recovery.ts';
+import {servePublicGalleryMedia} from '../worker/public-gallery-media.ts';
+import {optimizedMediaSource} from '../worker/optimized-media-source.ts';
 
 const photo=Uint8Array.from([255,216,255,...Array(61).fill(7)]);
 const request=(file='new.jpg',method='GET')=>new Request('https://vii.spaplus.co/api/vii/media/'+file,{method});
@@ -18,6 +20,31 @@ function bucket(){
  return{data,puts,async get(key){const v=data.get(key);return v?{size:v.bytes.length,body:new Blob([v.bytes]).stream(),httpMetadata:{contentType:v.type},httpEtag:'"stored"'}:null},async put(key,bytes,options){puts.push({key,options});assert.equal(options.onlyIf.get('If-None-Match'),'*');if(data.has(key))return null;data.set(key,{bytes:Uint8Array.from(bytes),type:options.httpMetadata.contentType});return{httpEtag:'"new"'}}};
 }
 const image=()=>new Response(photo,{headers:{'Content-Type':'image/jpeg','Content-Length':String(photo.length)}});
+
+test('public Worker GET and HEAD import an accepted missing image through the shared authority',async t=>{
+ const b=bucket(),db=database();let reads=0;
+ t.mock.method(globalThis,'fetch',async(url,options)=>{reads++;assert.equal(url,'https://www.vii.co.il/gallery/new.jpg');assert.equal(options.headers.Cookie,undefined);return image()});
+ const result=await servePublicGalleryMedia(request(),b,undefined,db);
+ assert.equal(result.status,200);assert.equal(result.headers.get('X-VII-Media'),'catalog-imported');assert.deepEqual(new Uint8Array(await result.arrayBuffer()),photo);
+ const head=await servePublicGalleryMedia(request('new.jpg','HEAD'),b,undefined,db);
+ assert.equal(head.status,200);assert.equal(await head.text(),'');assert.equal(reads,1);assert.equal(b.puts.length,1);
+});
+
+test('Worker derivative source imports accepted bytes and rejects unreferenced filenames without a fetch',async t=>{
+ const b=bucket(),db=database();let reads=0;
+ t.mock.method(globalThis,'fetch',async()=>{reads++;return image()});
+ const result=await optimizedMediaSource('/api/vii/media/new.jpg',b,undefined,db);
+ assert.equal(result.status,200);assert.deepEqual(new Uint8Array(await result.arrayBuffer()),photo);
+ const missing=await optimizedMediaSource('/api/vii/media/unknown.jpg',b,undefined,db);
+ assert.equal(missing.status,404);assert.equal(reads,1);assert.equal(b.puts.length,1);
+});
+
+test('a failed catalog authority becomes retryable Worker 503 without source fetch or write',async t=>{
+ const b=bucket();let reads=0;
+ t.mock.method(globalThis,'fetch',async()=>{reads++;return image()});
+ const result=await servePublicGalleryMedia(request(),b,undefined,{prepare(){throw Error('database unavailable')}});
+ assert.equal(result.status,503);assert.equal(result.headers.get('Cache-Control'),'no-store');assert.equal(reads,0);assert.equal(b.puts.length,0);
+});
 
 test('SQL authorization excludes previous generations, descriptions and foreign origins',async()=>{
  assert.equal(await catalogReferencesGallery(database(undefined,false),'new.jpg'),false);
