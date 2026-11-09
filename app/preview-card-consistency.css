@@ -161,6 +161,7 @@
 }
 .trail-grid:not([data-horizontal-rail]) .trail-visual {
   min-height: 0;
+  padding: 0;
   aspect-ratio: 4 / 3;
 }
 .spa-packages-grid .spa-package-card__media {
