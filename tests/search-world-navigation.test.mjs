@@ -29,6 +29,9 @@ test("world navigation stays available throughout every public search flow", asy
   assert.match(styles, /mobile-expanded .location-list . top: 146px;/);
   assert.match(switcher, /onNavigate\?: \(\) => void/);
   assert.match(switcher, /router\.push\(href, \{ scroll: false \}\)/);
+  assert.match(switcher, /NAVIGATION_START_EVENT/);
+  assert.match(switcher, /lastNavigationRef\.current\?\.href === href && performance\.now\(\) < lastNavigationRef\.current\.until/);
+  assert.match(switcher, /new CustomEvent\(NAVIGATION_START_EVENT, \{ detail: \{ href \} \}\)/);
   assert.match(switcher, /searchWorldHref\(worldId, location \|\| undefined\)/);
   assert.match(switcher, /cleanVacationPath\(location\)/);
   assert.match(switcher, /spaSearchHref\(spaSearchStateFromValues\(location\)\)/);

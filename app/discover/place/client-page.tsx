@@ -33,6 +33,7 @@ import { GalleryExperience } from "../../components/gallery-experience";
 import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import "./detail-spacing.css";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
 import { FloatingContactActions } from "../../components/floating-contact-actions";
 import { DirectPhoneLink } from "../../components/direct-phone-link";

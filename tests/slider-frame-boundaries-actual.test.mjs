@@ -44,6 +44,20 @@ test('actual hook collapses resize mutation and scroll bursts into one geometry 
   assert.equal(f.resize[0].items.size, 4, 'rail and every card remain observed');
 });
 
+test('actual hook keeps arrows unavailable until measured, including streamed and non-overflow rails', () => {
+  const ready = fixture();
+  assert.equal(ready.boundary.previous, false);
+  assert.equal(ready.boundary.next, false, 'SSR and hydration cannot advertise a live handler');
+  ready.flush();
+  assert.equal(ready.state().next, true, 'the measured overflow rail becomes usable');
+  ready.cleanup();
+  const fits = fixture(0, 2, 300, 300);
+  assert.equal(fits.boundary.next, false);
+  fits.flush();
+  assert.equal(fits.state().next, false, 'a fitting desktop row must not expose a dead next arrow');
+  fits.cleanup();
+});
+
 test('actual hook keeps RTL boundaries and reacts to card size changes', () => {
   const f = fixture(-150);
   assert.equal(f.rail.scrollLeft, 0, 'restored RTL position normalized before controls publish');

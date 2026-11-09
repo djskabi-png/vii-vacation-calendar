@@ -139,3 +139,31 @@
 .event-result-card .event-result-card__location,
 .discovery-card .discovery-card__meta { font-size:.88rem; line-height:1.5; }
 .discovery-card .discovery-card__meta small { font-size:inherit; }
+
+/* Grid preview cards use the approved vacation 4:3 image box. Keep list mode
+   and compact editorial rails untouched because their geometry is intentional. */
+.discovery-grid.results-view--grid .discovery-card__visual {
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}
+.discovery-grid.results-view--grid .discovery-card__visual img {
+  height: 100%;
+}
+
+/* Full discovery grids in spa, hourly, providers and attractions follow the
+   same 4:3 preview box. Compact horizontal rails remain intentionally wide. */
+.discovery-grid:not(.discovery-grid--compact):not(.results-view--list):not(.home-mobile-rail):not([data-horizontal-rail]) .discovery-card__visual {
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}
+.discovery-grid:not(.discovery-grid--compact):not(.results-view--list):not(.home-mobile-rail):not([data-horizontal-rail]) .discovery-card__visual img {
+  height: 100%;
+}
+.trail-grid:not([data-horizontal-rail]) .trail-visual {
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}
+.spa-packages-grid .spa-package-card__media {
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+}

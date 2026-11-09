@@ -57,7 +57,10 @@ export function scrollSliderRailToCard(rail: HTMLElement, index: number, itemSel
 }
 
 export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scope > *", disabled = false }: SliderRailTarget) {
-  const [state, setState] = useState<SliderRailState>({ previous: false, next: true });
+  // SSR and a still-hydrating rail cannot handle an arrow yet. Publish enabled
+  // controls only after the first actual geometry measurement, including when
+  // streamed cards arrive later, rather than accepting a click that does nothing.
+  const [state, setState] = useState<SliderRailState>({ previous: false, next: false });
   const boundaryFrame = useRef<number | null>(null);
   const observing = useRef(false);
   const resolveRail = useCallback(() => railRef?.current || (railId ? document.getElementById(railId) : null), [railId, railRef]);

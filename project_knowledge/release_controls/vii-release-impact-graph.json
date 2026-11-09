@@ -117,7 +117,9 @@
         "tests/rendered-html.test.mjs",
         "tests/collapsible-feature-list.actual.test.mjs",
         "tests/sitewide-mobile-polish.test.mjs",
-        "tests/guest-review-count-contract.test.mjs"
+        "tests/guest-review-count-contract.test.mjs",
+        "tests/world-switcher-events.actual.test.mjs",
+        "tests/slider-frame-boundaries-actual.test.mjs"
       ]
     },
     "search": {
@@ -305,7 +307,10 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/provider-category-rail-actual.test.mjs",
+        "tests/provider-service-areas-contract.test.mjs"
+      ]
     },
     "home-sliders": {
       "dependsOn": [
@@ -1305,7 +1310,9 @@
         "app/events/near-me/",
         "app/hourly/near-me/",
         "app/trails/near-me/",
-        "app/attractions/near-me/"
+        "app/attractions/near-me/",
+        "app/providers/near-me/",
+        "app/lib/provider-service-areas.ts"
       ]
     },
     {

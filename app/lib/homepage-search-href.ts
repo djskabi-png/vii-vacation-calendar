@@ -11,7 +11,7 @@ export function normalizeHomepageSearchHref(href: string): string {
 }
 
 export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
-  const nearbyRoutes:Record<string,string>={"/search":"/vacations/near-me","/spas":"/spas/near-me","/events/search":"/events/near-me","/hourly":"/hourly/near-me","/trails":"/trails/near-me","/attractions":"/attractions/near-me"};
+  const nearbyRoutes:Record<string,string>={"/search":"/vacations/near-me","/spas":"/spas/near-me","/events/search":"/events/near-me","/hourly":"/hourly/near-me","/trails":"/trails/near-me","/attractions":"/attractions/near-me","/providers":"/providers/near-me"};
   return items.map((item) => {
     let href=normalizeHomepageSearchHref(item.href);
     if ((item as T & {action?:string}).action === "nearby") {

@@ -1,0 +1,20 @@
+/* Scoped spacing correction for discovery place details.
+   Keeps the approved hero/gallery/content and only removes compounded
+   empty-wrapper and review-section margins on spa/hourly detail routes. */
+.discovery-detail > .discovery-detail__accessibility:empty {
+  display: none;
+}
+
+.discovery-detail > .section {
+  padding-block: 28px;
+}
+
+.discovery-detail > .section > .review-experience {
+  margin-block: 0;
+}
+
+@media (max-width: 820px) {
+  .discovery-detail > .section {
+    padding-block: 18px;
+  }
+}

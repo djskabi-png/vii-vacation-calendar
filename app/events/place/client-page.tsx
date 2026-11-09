@@ -22,6 +22,7 @@ import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import "./detail-spacing.css";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { DetailReviewSummary, DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { ModernSelect } from "../../components/modern-select";

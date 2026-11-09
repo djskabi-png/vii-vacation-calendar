@@ -10,7 +10,7 @@ import { DiscoveryCard } from "./discovery-card";
 import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { SliderRailControls } from "./slider-rail-controls";
+import { SliderRailControls, scrollSliderRailToCard } from "./slider-rail-controls";
 import { useDocumentSeed } from "./use-document-seed";
 import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 
@@ -93,7 +93,10 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   }, [searchQuery, sortOptions]);
 
   useEffect(() => {
-    categoryNavRef.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "center" });
+    const rail = categoryNavRef.current;
+    if (!rail) return;
+    const selectedIndex = providerCategories.findIndex((entry) => entry.id === category);
+    if (selectedIndex >= 0) scrollSliderRailToCard(rail, selectedIndex, ":scope > *");
   }, [category]);
 
   return <div className="provider-results"><NearbySortStatus state={nearby} />

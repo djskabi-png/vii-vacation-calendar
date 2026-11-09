@@ -1,0 +1,20 @@
+/* Event place spacing correction. Keep the event content, booking card,
+   gallery and feature-group internals unchanged; remove only compounded
+   outer layout/section padding measured on the live detail route. */
+.event-place-page > .event-place-layout {
+  padding-bottom: 0;
+}
+
+.event-place-page > .event-place-layout > div > .review-experience:last-child {
+  margin-bottom: 0;
+}
+
+.event-place-page > .section {
+  padding-block: 28px;
+}
+
+@media (max-width: 820px) {
+  .event-place-page > .section {
+    padding-block: 18px;
+  }
+}

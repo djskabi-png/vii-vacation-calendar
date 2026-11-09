@@ -11,6 +11,7 @@ import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-land
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 import { headerWorldCompactLabel, headerWorldLabel, headerWorldOptions } from "../data/world-switcher-labels";
 import { useWorldAvailability } from "./world-availability-provider";
+import { NAVIGATION_START_EVENT } from "../lib/navigation-recovery";
 
 function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", location?: string) {
   if (!location || location === "כל הארץ") return worlds.find((item) => item.id === world)!.href;
@@ -57,6 +58,8 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
     if (!href) return;
     if (lastNavigationRef.current?.href === href && performance.now() < lastNavigationRef.current.until) return;
     closeSwitcher();
+    lastNavigationRef.current = { href, until: performance.now() + 650 };
+    window.dispatchEvent(new CustomEvent(NAVIGATION_START_EVENT, { detail: { href } }));
     router.push(href);
   };
   const navigateFromSwitcherPointer = (event: ReactPointerEvent<HTMLAnchorElement>) => {
@@ -66,6 +69,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
     event.preventDefault();
     lastNavigationRef.current = { href, until: performance.now() + 650 };
     closeSwitcher();
+    window.dispatchEvent(new CustomEvent(NAVIGATION_START_EVENT, { detail: { href } }));
     router.push(href);
   };
 
@@ -91,6 +95,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
   const moreRef = useRef<HTMLDetailsElement>(null);
   const moreSummaryRef = useRef<HTMLElement>(null);
   const { enabled } = useWorldAvailability();
+  const lastNavigationRef = useRef<{ href: string; until: number } | null>(null);
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
   const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]) && enabled(world.id));
 
@@ -114,7 +119,13 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
 
   const navigateWithinSearch = (href: string, afterNavigate?: (event: ReactMouseEvent<HTMLAnchorElement>) => void) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (lastNavigationRef.current?.href === href && performance.now() < lastNavigationRef.current.until) {
+      event.preventDefault();
+      return;
+    }
     event.preventDefault();
+    lastNavigationRef.current = { href, until: performance.now() + 650 };
+    window.dispatchEvent(new CustomEvent(NAVIGATION_START_EVENT, { detail: { href } }));
     afterNavigate?.(event);
     router.push(href, { scroll: false });
     window.setTimeout(() => {
