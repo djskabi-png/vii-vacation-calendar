@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createGalleryAuditJob, readGalleryAuditJob, retryGalleryAuditSources, stepGalleryAuditJob } from "../app/lib/gallery-api-audit-job.ts";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
+import { normalizeSpaPlusCatalog } from '../app/lib/spaplus-catalog-client.ts';
 
 class Bucket {
   objects = new Map(); revision = 0;
@@ -22,6 +23,8 @@ test("retry repairs only terminal SPA context failure and remains idempotent", a
   const db = { prepare(sql) { return { bind(...args) { return { async first() { if (sql.includes("JOIN supplier_catalog_entries")) return { summaryJson: JSON.stringify(accepted.summary), detailJson: JSON.stringify(accepted.detail), acceptedAt: new Date().toISOString() }; const world = args[0]; return { activeRunId: `run-${world}`, activeCount: 1 }; }, async all() { return { results: [{ supplierId: ids[args[1]] }] }; } }; } }; } };
   const bucket = new Bucket(), jobId = "7edc4e9c-91a7-4f1b-b103-58796a14e781";
   await createGalleryAuditJob({ db, bucket, jobId, now: () => 1_000 });
+  // Retain the original pre-per-world job recovery contract.
+  const stored=bucket.objects.get(`vii-gallery-audit/v1/${jobId}/job.json`);const legacy=JSON.parse(stored.text);delete legacy.contextMode;delete legacy.contextWorlds;stored.text=JSON.stringify(legacy);
   const failed = await stepGalleryAuditJob({ db, bucket, jobId, batchSize: 1, env: { SERGEY_VII_API_TOKEN: "fixture", SPAPLUS_VII_API_KEY: "fixture" }, fetchImpl, now: () => 2_000 });
   assert.equal(failed.state, "error");
   assert.ok([...bucket.objects].some(([key]) => key.includes("context/") && key.endsWith(".json")));
@@ -56,4 +59,26 @@ test('retry refuses expired, uncertain, foreign-context and active-lease evidenc
  assert.equal((await retryGalleryAuditSources({bucket,jobId,now:()=>1000})).state,'error');
  await stepGalleryAuditJob({bucket,db:{},jobId,now:()=>1000,env:{},fetchImpl:async()=>{calls++;throw Error('must_not_fetch')}});
  assert.equal(calls,0);
+});
+
+test('scoped SPA timeout retries once without fetching another world',async()=>{
+ const payload={status:'ok',sites:{'20':{siteid:20,title:'ספא בדיקה',spa_picture:'https://www.spaplus.co.il/gallery/site.jpg',gallery:['https://www.spaplus.co.il/gallery/site.jpg'],packages:{'7':{MainPageID:7,idPack:8,price:200,MainPageTitle:'חבילה',pack_picture:'https://www.spaplus.co.il/gallery/pack.jpg'}}}}};
+ const entry=normalizeSpaPlusCatalog(payload)[0],bucket=new Bucket(),jobId='99999999-9999-4999-8999-999999999999';
+ const db={prepare(sql){return{bind(){return{first:async()=>sql.includes('JOIN supplier_catalog_entries')?{summaryJson:JSON.stringify(entry.summary),detailJson:entry.detail?JSON.stringify(entry.detail):null,acceptedAt:new Date().toISOString()}:{activeRunId:'spa-seed',activeCount:1},all:async()=>({results:[{supplierId:20}]})};}};}};
+ let calls=0;const fetchImpl=async input=>{assert.equal(new URL(input).hostname,'www.spaplus.co.il');if(++calls===1)throw Error('provider_timeout');return response(payload);};
+ await createGalleryAuditJob({db,bucket,jobId,scopeWorld:'spa'});
+ const input={db,bucket,jobId,env:{SPAPLUS_VII_API_KEY:'fixture'},fetchImpl};
+ assert.equal((await stepGalleryAuditJob(input)).state,'error');
+ await retryGalleryAuditSources(input);const complete=await stepGalleryAuditJob(input);
+ assert.equal(complete.state,'complete');assert.equal(complete.matched,1);assert.equal(complete.scopeWorld,'spa');assert.equal(calls,2);
+ await retryGalleryAuditSources(input);await stepGalleryAuditJob(input);assert.equal(calls,2);
+});
+
+test('per-world SPA retry preserves an already completed immutable prefix',async()=>{
+ const bucket=new Bucket(),jobId='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',p='vii-gallery-audit/v1/'+jobId+'/';
+ const results=[{world:'vacations',supplierId:17,status:'match',issues:[]}];
+ const state={jobId,state:'error',contextMode:'per-world',contextWorlds:['vacations','events','rooms'],contextsReady:false,total:2,cursor:1,createdAt:new Date().toISOString(),deadline:new Date(Date.now()+3600000).toISOString(),sourceIssues:['provider_context:spa:provider_timeout'],worldCounts:{vacations:1,events:0,rooms:0,spa:1},inventory:[{world:'vacations',supplierId:17},{world:'spa',supplierId:20}],results};
+ await bucket.put(p+'job.json',JSON.stringify(state));await bucket.put(p+'context/spa.json.error',JSON.stringify({code:'provider_timeout'}));await bucket.put(p+'raw/vacations-17.json','immutable-prefix');
+ const result=await retryGalleryAuditSources({bucket,db:{},jobId});assert.equal(result.cursor,1);assert.equal(result.completed,1);assert.equal(result.sourceRetryUsed,true);
+ const saved=JSON.parse(bucket.objects.get(p+'job.json').text);assert.deepEqual(saved.results,results);assert.deepEqual(saved.inventory,state.inventory);assert.equal(bucket.objects.get(p+'raw/vacations-17.json').text,'immutable-prefix');
 });

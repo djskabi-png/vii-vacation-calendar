@@ -52,6 +52,25 @@ SELECT 'control' AS kind, '' AS key, '' AS world,
   NULL AS summary,NULL AS detail FROM guard
 UNION ALL SELECT kind,key,world,data,summary,detail FROM rows WHERE (SELECT ok FROM guard)=1
 ORDER BY kind,key`;
+// Fixed, payload-free operator diagnostic. Keep this query deliberately
+// separate from the export projection: it returns only guard measurements and
+// booleans, never supplier summaries/details or caller SQL.
+export const CATALOG_SNAPSHOT_DIAGNOSTIC_SQL = `WITH
+states AS (SELECT world,active_run_id,accepted_at,active_count,lock_run_id,lock_until FROM supplier_catalog_state),
+active_runs AS (SELECT r.id,r.world,r.source,r.status,r.started_at,r.finished_at,r.before_count,r.candidate_count,r.added_count,r.changed_count,r.removed_count,r.error_code,r.diagnostics_json FROM supplier_catalog_runs r JOIN states s ON s.active_run_id=r.id),
+rows AS (
+ SELECT 'run' kind,r.id key,r.world world,
+   json_object('id',r.id,'world',r.world,'source',r.source,'status',r.status,'startedAt',r.started_at,'finishedAt',r.finished_at,'beforeCount',r.before_count,'candidateCount',r.candidate_count,'addedCount',r.added_count,'changedCount',r.changed_count,'removedCount',r.removed_count,'errorCode',r.error_code,'diagnosticsJson',r.diagnostics_json) data,NULL summary,NULL detail FROM active_runs r
+ UNION ALL SELECT 'entry',e.id,e.world,json_object('id',e.id,'runId',e.run_id,'world',e.world,'supplierId',e.supplier_id),e.summary_json,e.detail_json FROM supplier_catalog_entries e JOIN states s ON s.active_run_id=e.run_id
+ UNION ALL SELECT 'state',s.world,s.world,json_object('world',s.world,'activeRunId',s.active_run_id,'acceptedAt',s.accepted_at,'activeCount',s.active_count,'lockRunId',s.lock_run_id,'lockUntil',s.lock_until),NULL,NULL FROM states s
+), measure AS (SELECT COUNT(*) row_count,COALESCE(SUM(length(CAST(COALESCE(data,'') AS BLOB))+length(CAST(COALESCE(summary,'') AS BLOB))+length(CAST(COALESCE(detail,'') AS BLOB))+length(CAST(key AS BLOB))+length(CAST(world AS BLOB))+128),0) raw_bytes,COALESCE(MAX(length(CAST(COALESCE(data,'') AS BLOB))+length(CAST(COALESCE(summary,'') AS BLOB))+length(CAST(COALESCE(detail,'') AS BLOB))+128),0) max_row_bytes FROM rows)
+SELECT m.row_count,m.raw_bytes,m.max_row_bytes,
+ (SELECT COUNT(*) FROM states)=4 AS states_ok,
+ (SELECT COUNT(*) FROM active_runs)=4 AS active_runs_ok,
+ NOT EXISTS(SELECT 1 FROM states s LEFT JOIN active_runs r ON r.id=s.active_run_id WHERE s.world NOT IN ('vacations','events','rooms','spa') OR s.active_run_id IS NULL OR s.accepted_at IS NULL OR s.lock_run_id IS NOT NULL OR s.lock_until IS NOT NULL OR s.active_count<1 OR s.active_count IS NULL OR r.id IS NULL OR r.world<>s.world OR r.status<>'accepted' OR r.finished_at IS NULL OR s.active_count<>(SELECT COUNT(*) FROM supplier_catalog_entries e WHERE e.run_id=s.active_run_id)) AS state_integrity_ok,
+ NOT EXISTS(SELECT 1 FROM supplier_catalog_entries e JOIN states s ON s.active_run_id=e.run_id WHERE e.world<>s.world OR e.world IS NULL OR e.supplier_id<1 OR e.supplier_id IS NULL OR e.summary_json IS NULL) AS entry_integrity_ok,
+ m.row_count<=${SNAPSHOT_MAX_ROWS} AS row_limit_ok,m.raw_bytes<=${SNAPSHOT_MAX_BYTES} AS byte_limit_ok,m.max_row_bytes<=1900000 AS row_size_ok
+ FROM measure m`;
 
 type SnapshotRow = { kind: string; key: string; world: string; data: string | null; summary: string | null; detail: string | null };
 const worlds = new Set(["vacations", "events", "rooms", "spa"]);
@@ -120,8 +139,15 @@ export async function catalogSnapshotResponse(request: Request, dependencies: De
   if (request.method !== "GET") return Response.json({ error: "method_not_allowed" }, { status: 405, headers: { ...headers, Allow: "GET" } });
   const url = new URL(request.url), origin = request.headers.get("origin");
   if (origin && origin !== url.origin) return Response.json({ error: "forbidden" }, { status: 403, headers });
-  if (url.search) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  const diagnostics = url.searchParams.get("diagnostics");
+  if (url.search && !(url.search === "?diagnostics=1" && diagnostics === "1")) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
+    if (diagnostics === "1") {
+      const result = await dependencies.database().then(db => db.prepare(CATALOG_SNAPSHOT_DIAGNOSTIC_SQL).all<Record<string, unknown>>());
+      if (!result.success || result.results.length !== 1) throw new Error("snapshot_diagnostic_unavailable");
+      const value = result.results[0];
+      return Response.json({ ...value, ok: Boolean(value.states_ok && value.active_runs_ok && value.state_integrity_ok && value.entry_integrity_ok && value.row_limit_ok && value.byte_limit_ok && value.row_size_ok) }, { headers });
+    }
     const body = await activeCatalogSnapshot(await dependencies.database());
     return new Response(body, { headers: { ...headers, "Content-Type": "application/x-ndjson; charset=utf-8",
       "Content-Disposition": 'attachment; filename="vii-active-catalog.ndjson"' } });

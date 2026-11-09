@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CATALOG_SNAPSHOT_SQL, catalogSnapshotResponse } from '../app/lib/catalog-snapshot.ts';
+import { CATALOG_SNAPSHOT_SQL, CATALOG_SNAPSHOT_DIAGNOSTIC_SQL, catalogSnapshotResponse } from '../app/lib/catalog-snapshot.ts';
 import { verifyActiveCatalogSnapshot } from '../infrastructure/postgres/catalog-snapshot-reader.mjs';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
 import { createSignedValue } from '../app/lib/google-auth.ts';
@@ -160,4 +160,39 @@ test('route uses only existing admin/database and no schema/config grants',()=>{
   const route=readFileSync(new URL('../app/api/admin/catalog-snapshot/route.ts',import.meta.url),'utf8');
   assert.match(route,/authorizedAdminSession/); assert.match(route,/catalogSnapshotResponse/);
   assert.doesNotMatch(route,/ensure|CREATE|ALTER|INSERT|UPDATE|DELETE|process\.env|Bearer|Secret/);
+});
+
+test('private diagnostics expose only fixed guard counters and no supplier payload',async()=>{
+ const f=fixture(); try {
+  const before=f.sqlite.prepare('SELECT total_changes() AS n').get().n;
+  const response=await catalogSnapshotResponse(new Request(endpoint+'?diagnostics=1'),deps(f.db));
+  assert.equal(response.status,200); const value=await response.json();
+  assert.equal(value.ok,true); assert.equal(value.states_ok,1); assert.equal(value.active_runs_ok,1);
+  assert.equal(value.row_count,12); assert.equal(value.raw_bytes>0,true); assert.equal(value.max_row_bytes>0,true);
+  const control=JSON.parse((await f.db.prepare(CATALOG_SNAPSHOT_SQL).all()).results[0].data);
+  assert.equal(value.raw_bytes,control.rawBytes);
+  assert.equal('summary_json' in value,false); assert.equal('detail_json' in value,false); assert.equal('DO_NOT_EXPORT' in value,false);
+  assert.equal(f.queries.length,2); assert.equal(f.queries[0],CATALOG_SNAPSHOT_DIAGNOSTIC_SQL);
+  assert.equal(f.sqlite.prepare('SELECT total_changes() AS n').get().n,before);
+ } finally { f.sqlite.close(); }
+});
+
+test('diagnostics report byte overflow and stale locks without returning payloads',async()=>{
+ const f=fixture(); try {
+  f.sqlite.prepare("UPDATE supplier_catalog_entries SET detail_json=? WHERE id='entry-spa'").run(JSON.stringify({large:'א'.repeat(7000000)}));
+  const overflow=await catalogSnapshotResponse(new Request(endpoint+'?diagnostics=1'),deps(f.db)); const over=await overflow.json();
+  assert.equal(overflow.status,200); assert.equal(over.byte_limit_ok,0); assert.equal(over.ok,false); assert.equal('large' in over,false);
+  f.sqlite.exec("UPDATE supplier_catalog_state SET lock_until='2026-10-19T00:00:00Z' WHERE world='spa'");
+  const locked=await catalogSnapshotResponse(new Request(endpoint+'?diagnostics=1'),deps(f.db)); const lock=await locked.json();
+  assert.equal(locked.status,200); assert.equal(lock.state_integrity_ok,0); assert.equal(lock.ok,false); assert.equal('detail_json' in lock,false);
+ } finally { f.sqlite.close(); }
+});
+
+test('diagnostic mode rejects arbitrary query strings',async()=>{
+ const f=fixture(); try {
+  for(const query of ['?diagnostics=0','?diagnostics=1&sql=SELECT','?foo=1']) {
+   const response=await catalogSnapshotResponse(new Request(endpoint+query),deps(f.db));
+   assert.equal(response.status,400,query);
+  }
+ } finally { f.sqlite.close(); }
 });

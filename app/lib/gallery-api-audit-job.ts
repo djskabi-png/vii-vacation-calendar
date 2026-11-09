@@ -14,11 +14,13 @@ export type GalleryAuditJobSummary = {
   sourceRetryUsed?: boolean;
   continuationUsed?: boolean;
   previousDeadline?: string;
+  scopeWorld?: AuditWorld;
 };
 type Target = { world: AuditWorld; supplierId: number };
 type Finding = Target & { status: "match" | "mismatch" | "unverified"; issues: string[]; recordKey: string; sha256?: string };
 type Job = Omit<GalleryAuditJobSummary, "completed" | "matched" | "mismatched" | "unverified" | "errors"> & {
   inventory: Target[]; results: Finding[]; createdAt: string; contextsReady: boolean;
+  contextMode?: 'per-world'; contextWorlds?: AuditWorld[];
   lease?: { owner: string; until: string };
 };
 type ProviderEnv = { SERGEY_VII_API_TOKEN?: string; SPAPLUS_VII_API_KEY?: string };
@@ -52,16 +54,25 @@ function summary(j: Job): GalleryAuditJobSummary {
     mismatched: rows.filter(x => x.status === "mismatch").length,
     unverified: rows.filter(x => x.status === "unverified").length,
     errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts,
+    ...(j.scopeWorld ? { scopeWorld: j.scopeWorld } : {}),
     ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}), ...(j.continuationUsed ? { continuationUsed: true, previousDeadline: j.previousDeadline } : {}) };
+}
+function selectedWorlds(job: Pick<Job, 'scopeWorld'>): AuditWorld[] {
+  if (job.scopeWorld !== undefined && !worlds.includes(job.scopeWorld)) throw new Error('invalid_audit_scope');
+  return job.scopeWorld ? [job.scopeWorld] : worlds;
 }
 export async function readGalleryAuditJob(bucket: R2Bucket, id: string) {
   const stored = await read(bucket, id); return stored ? summary(stored.value) : null;
 }
-export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomUUID(), now = Date.now }: Options & { jobId?: string }) {
-  const previous = await read(bucket, jobId); if (previous) return summary(previous.value);
+export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomUUID(), now = Date.now, scopeWorld }: Options & { jobId?: string; scopeWorld?: AuditWorld }) {
+  const chosen = selectedWorlds({scopeWorld});
+  const previous = await read(bucket, jobId); if (previous) {
+    if (previous.value.scopeWorld !== scopeWorld) throw new Error('gallery_audit_scope_changed');
+    return summary(previous.value);
+  }
   const inventory: Target[] = [];
   const worldCounts = { vacations: 0, events: 0, rooms: 0, spa: 0 };
-  for (const world of worlds) {
+  for (const world of chosen) {
     const current = await readSupplierCatalogInventory(db, world);
     if (!current || !current.entries.length) throw new Error(`missing_world_inventory:${world}`);
     const ids = current.entries.map(x => idNumber(x.supplierId));
@@ -71,7 +82,8 @@ export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomU
   }
   const time = now();
   const job: Job = { jobId, state: "starting", total: inventory.length, cursor: 0, deadline: new Date(time + 3_600_000).toISOString(),
-    sourceIssues: [], worldCounts, inventory, results: [], createdAt: new Date(time).toISOString(), contextsReady: false };
+    sourceIssues: [], worldCounts, inventory, results: [], createdAt: new Date(time).toISOString(), contextsReady: false,
+    contextMode:'per-world', contextWorlds:[], ...(scopeWorld ? {scopeWorld} : {}) };
   await immutable(bucket, key(jobId), JSON.stringify(job));
   const saved = await read(bucket, jobId);
   if (!saved) throw new Error("audit_reservation_unresolved");
@@ -112,7 +124,9 @@ async function provider(path: string, env: ProviderEnv, fetchImpl: typeof fetch)
 async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchImpl: typeof fetch, requiredWorlds: AuditWorld[] = worlds) {
   // The first pass freezes the complete provider inventory. Resumed passes only
   // need the worlds represented by their current batch.
-  const required = new Set(job.contextsReady ? requiredWorlds : worlds);
+  const chosen = selectedWorlds(job);
+  const required = new Set(job.contextsReady || job.contextMode === 'per-world' ? requiredWorlds : chosen);
+  if ([...required].some(world => !chosen.includes(world))) throw new Error('gallery_audit_scope_changed');
   const requiredPaths = new Set<string>();
   for (const world of required) {
     if (world === "spa") requiredPaths.add("spa");
@@ -163,13 +177,15 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     active.set(world, new Set(ids as number[]));
   }
   if (!job.contextsReady) {
-    for (const target of job.inventory) if (!active.get(target.world)!.has(target.supplierId)) job.sourceIssues.push(`accepted_not_active:${target.world}:${target.supplierId}`);
-    for (const world of worlds) for (const supplierId of active.get(world)!) {
+    const frozen = new Set(job.contextWorlds || []);
+    for (const target of job.inventory) if (required.has(target.world) && !frozen.has(target.world) && !active.get(target.world)!.has(target.supplierId)) job.sourceIssues.push(`accepted_not_active:${target.world}:${target.supplierId}`);
+    for (const world of required) if (!frozen.has(world)) for (const supplierId of active.get(world)!) {
       if (!job.inventory.some(x => x.world === world && x.supplierId === supplierId)) {
         job.inventory.push({ world, supplierId }); job.worldCounts[world]++; job.sourceIssues.push(`api_not_accepted:${world}:${supplierId}`);
       }
     }
-    job.total = job.inventory.length; job.contextsReady = true;
+    job.contextWorlds = [...new Set([...frozen, ...required])];
+    job.total = job.inventory.length; job.contextsReady = chosen.every(world => job.contextWorlds!.includes(world));
   }
   return { texts, parsed, active, capturedAt };
 }
@@ -242,14 +258,15 @@ export async function stepGalleryAuditJob(options: Options & { jobId: string; en
   try {
     if (now() >= Date.parse(job.deadline)) job.state = "deadline";
     else {
-      const initialPass = !job.contextsReady;
-      const initialContexts = initialPass ? await loadContexts(job, bucket, options.env, fetchImpl, worlds) : null;
       const firstTarget = job.inventory[job.cursor];
       const count = options.batchSize === undefined
         ? (firstTarget?.world === "spa" ? 2 : 4)
         : Math.max(1, Math.min(4, Math.floor(options.batchSize)));
-      const targets = job.inventory.slice(job.cursor, job.cursor + count);
-      const contexts = initialContexts || await loadContexts(job, bucket, options.env, fetchImpl, [...new Set(targets.map(target => target.world))]);
+      // A batch never retains more than one world's provider contexts. Older
+      // jobs preserve their original initial-inventory behavior in loadContexts.
+      const targets = job.inventory.slice(job.cursor, job.cursor + count).filter(target => target.world === firstTarget?.world);
+      if (!targets.length) throw new Error('gallery_audit_inventory_incomplete');
+      const contexts = await loadContexts(job, bucket, options.env, fetchImpl, [firstTarget.world]);
       job.state = "running"; await checkpoint();
       const findings = await Promise.allSettled(targets.map(target => auditTarget(target, job, { ...options, fetchImpl }, contexts)));
       const failure = findings.find((item): item is PromiseRejectedResult => item.status === "rejected");
@@ -286,7 +303,9 @@ export async function retryGalleryAuditSources({ bucket, jobId, now = Date.now }
   if (job.sourceRetryUsed) return summary(job);
   if (now() >= Date.parse(job.deadline)) throw new Error("gallery_audit_deadline");
   if (job.lease && Date.parse(job.lease.until) > now()) throw new Error("audit_step_in_progress");
-  if (job.state !== "error" || job.cursor !== 0 || job.results.length || job.contextsReady
+  const validPrefix = job.contextMode === 'per-world' && job.results.length === job.cursor && job.inventory[job.cursor]?.world === 'spa'
+    && !job.contextWorlds?.includes('spa') && job.results.every(item => item.world !== 'spa');
+  if (job.state !== "error" || (!validPrefix && (job.cursor !== 0 || job.results.length)) || job.contextsReady
     || !job.sourceIssues.includes("provider_context:spa:provider_timeout")) throw new Error("gallery_source_retry_not_allowed");
   const failure = await bucket.get(contextKey(jobId, "spa") + ".error");
   if (!failure || record(JSON.parse(await failure.text())).code !== "provider_timeout") throw new Error("gallery_source_retry_not_allowed");
@@ -305,7 +324,7 @@ export async function continueGalleryAuditJob({ bucket, jobId, now = Date.now }:
   if (current < originalDeadline) throw new Error("gallery_audit_continuation_too_early");
   if (job.state === "complete" || job.state === "error") throw new Error("gallery_audit_continuation_terminal");
   if (job.lease && Date.parse(job.lease.until) > current) throw new Error("audit_step_in_progress");
-  if (!job.contextsReady || !job.results.length || job.results.length !== job.cursor || job.cursor >= job.total || job.inventory.length !== job.total) throw new Error("gallery_audit_continuation_not_ready");
+  if ((!job.contextsReady && !(job.contextMode === 'per-world' && job.contextWorlds?.length)) || !job.results.length || job.results.length !== job.cursor || job.cursor >= job.total || job.inventory.length !== job.total) throw new Error("gallery_audit_continuation_not_ready");
   const hardDeadline = Date.parse(job.createdAt) + 120 * 60_000;
   if (current >= hardDeadline) throw new Error("gallery_audit_continuation_deadline");
   job.continuationUsed = true; job.previousDeadline = job.deadline; job.deadline = new Date(Math.min(current + 60 * 60_000, hardDeadline)).toISOString();

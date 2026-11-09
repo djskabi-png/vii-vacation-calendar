@@ -24,12 +24,12 @@ export default function GalleryAuditPage() {
   const [applyResults, setApplyResults] = useState<Record<string, ApplyResult>>({});
   const runRef = useRef<AbortController | null>(null);
 
-  async function request(id: string, action?: "start" | "step" | "retry" | "continue", signal?: AbortSignal) {
+  async function request(id: string, action?: "start" | "step" | "retry" | "continue", signal?: AbortSignal, scopeWorld?: keyof typeof labels) {
     const timeout = AbortSignal.timeout(90_000);
     const response = await fetch(`/api/admin/gallery-audit${action ? "" : `?jobId=${encodeURIComponent(id)}`}`, {
       method: action ? "POST" : "GET", cache: "no-store", credentials: "same-origin",
       signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-      ...(action ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, jobId: id }) } : {}),
+      ...(action ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, jobId: id, ...(scopeWorld ? {scopeWorld} : {}) }) } : {}),
     });
     const body = await response.json() as { ok?: boolean; job?: GalleryAuditJobSummary; error?: string };
     if (!response.ok || !body.ok || !body.job || body.job.jobId !== id) {
@@ -53,7 +53,7 @@ export default function GalleryAuditPage() {
     return () => { controller.abort(); runRef.current?.abort(); runRef.current = null; };
   }, []);
 
-  async function run(start: boolean, retrySource = false, continueWindow = false) {
+  async function run(start: boolean, retrySource = false, continueWindow = false, scopeWorld?: keyof typeof labels) {
     if (!canEdit || runRef.current) return;
     const controller = new AbortController();
     runRef.current = controller;
@@ -65,11 +65,12 @@ export default function GalleryAuditPage() {
       localStorage.setItem(savedJobKey, id);
       setSavedId(id);
       setJob(null);
+      setApplyResults({});
       setJobMissing(false);
     }
     const deadline = Date.now() + 60 * 60_000;
     try {
-      let current = await request(id, continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal);
+      let current = await request(id, continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal, start ? scopeWorld : undefined);
       for (let step = 0; step < 1024 && !terminal(current); step++) {
         if (controller.signal.aborted) break;
         if (Date.now() >= deadline || Date.now() >= Date.parse(current.deadline)) {
@@ -140,6 +141,7 @@ export default function GalleryAuditPage() {
     <section aria-label="הרצת בדיקה" style={{ padding: 20, marginBlock: 24, border: "1px solid #cde0e2", borderRadius: 18, background: "#fff" }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
+        {canEdit && !busy && !applying ? (Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} onClick={() => void run(true, false, false, world)}>בדיקת {labels[world]} בלבד</button>) : null}
         {canEdit && !busy && !applying && job?.state === "error" && !job.sourceRetryUsed && job.sourceIssues.includes("provider_context:spa:provider_timeout") ? <button type="button" style={buttonStyle} onClick={() => void run(false, true)}>ניסיון נוסף למקור הספא</button> : null}
         {canEdit && !busy && !applying && job && job.state !== "complete" && job.state !== "error" && !job.continuationUsed && job.cursor > 0 && Date.now() >= Date.parse(job.deadline) ? <button type="button" style={buttonStyle} onClick={() => void run(false, false, true)}>המשך מהתוצאות השמורות בחלון נוסף</button> : null}
         {canEdit && savedId && !busy && job && !terminal(job) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(false)}>המשך הבדיקה השמורה</button> : null}
@@ -156,13 +158,13 @@ export default function GalleryAuditPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBlock: 18 }}>
           {[["תואם למקור", job.matched], ["נמצאו פערים", job.mismatched], ["לא אומת", job.unverified]].map(([label, count]) => <div key={label} style={{ padding: 16, borderRadius: 12, background: "#f1f7f7" }}><span>{label}</span><strong style={{ display: "block", fontSize: "1.6rem" }}>{Number(count).toLocaleString("he-IL")}</strong></div>)}
         </div>
-        <p>{Object.entries(job.worldCounts).map(([world, count]) => `${labels[world as keyof typeof labels]}: ${count.toLocaleString("he-IL")}`).join(" · ")}</p>
+        <p>{Object.entries(job.worldCounts).filter(([,count]) => count > 0).map(([world, count]) => `${labels[world as keyof typeof labels]}: ${count.toLocaleString("he-IL")}`).join(" · ")}</p>
         {passed ? <p role="status">כל המקומות בבדיקה הזאת תואמים לנתוני הספק שנמשכו. בדיקת קובצי התמונות והעותקים השמורים נפרדת מהשוואת הסדר.</p> : job.state === "complete" ? <p role="alert">ההשוואה הסתיימה ויש תוצאות שדורשות טיפול. אין עדיין אישור שכל הגלריות תואמות.</p> : terminal(job) ? <p role="alert">הבדיקה לא הושלמה. אין אישור לכלל הגלריות.</p> : null}
         <details style={{ marginTop: 20 }}><summary>תיעוד הבדיקה</summary><p>הדוח כולל שיוך תמונות ותוצאות השוואה. הגישה מוגנת בהרשאות הניהול.</p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&download=1`} download>הורדת דוח מפורט</a><p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&diagnostics=1`}>אבחון מקורות</a></p></details>
         {canEdit && job.state === "complete" ? <section aria-label="תיקון גלריות מאומתות" style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #cde0e2" }}>
           <h2 style={{ fontSize: "1.25rem" }}>תיקון גלריות מאומתות</h2>
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'&&!recoverableApply(applyResults[world])} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'||recoverableApply(applyResults[world])?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).filter(world => job.worldCounts[world] > 0).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'&&!recoverableApply(applyResults[world])} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'||recoverableApply(applyResults[world])?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
           {applying?<button type="button" style={{...buttonStyle,marginTop:12}} onClick={()=>{runRef.current?.abort();setNotice('ההרצה נעצרה בדפדפן. יש לקרוא מצב שמור לפני המשך.');}}>עצירה ושמירת התקדמות</button>:null}
           {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{value.state === "accepted" ? `${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.` : value.state === "reserved"&&value.version===1 ? value.phase==='verify'?`בודקים את הדור שפורסם: ${value.verifyCursor} מתוך ${value.total}.`:`מכינים עדכון: ${value.cursor} מתוך ${value.total}. הגרסה הפעילה תוחלף רק בסיום ההכנה.` : value.state==='reserved' ? 'הפעולה הקודמת דורשת בדיקת מצב לפני המשך.' : "העדכון לא אושר. יש לבדוק את הדוח; המידע הפעיל לא מוחלף במקרה של הכנה שנכשלה."}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
         </section> : null}

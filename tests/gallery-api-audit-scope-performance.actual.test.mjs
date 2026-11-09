@@ -27,7 +27,7 @@ test('actual two-step audit scopes resumed reads and preserves provider gallery 
     },
   };
   const bucket = new Bucket(); const jobId = '11111111-1111-4111-8111-111111111111'; const env = { SERGEY_VII_API_TOKEN: 'fixture', SPAPLUS_VII_API_KEY: 'fixture' }; await createGalleryAuditJob({ db, bucket, jobId });
-  const first = await stepGalleryAuditJob({ db, bucket, jobId, batchSize: 1, env, fetchImpl }); assert.equal(first.completed, 1); const firstContextCalls = calls.filter(x => !x.endsWith('/vacations/17')); assert.equal(firstContextCalls.length, 9); assert.ok(firstContextCalls.some(x => x.startsWith('www.spaplus.co.il')));
+  const first = await stepGalleryAuditJob({ db, bucket, jobId, env, fetchImpl }); assert.equal(first.completed, 1); const firstContextCalls = calls.filter(x => !x.endsWith('/vacations/17')); assert.equal(firstContextCalls.length, 3); assert.ok(!firstContextCalls.some(x => x.startsWith('www.spaplus.co.il')));
   const before = calls.length; bucket.reads.length = 0; const second = await stepGalleryAuditJob({ db, bucket, jobId, batchSize: 1, env, fetchImpl }); assert.equal(second.completed, 2); assert.ok(calls.slice(before).some(x => x.endsWith('/events/18'))); assert.ok(!calls.slice(before).some(x => x.includes('/vacations/'))); assert.deepEqual(new Set(bucket.reads.map(x => x.split('/context/')[1])), new Set(['locations.json', 'events.json', 'events-types.json']));
   const item = await readGalleryAuditItem(bucket, jobId, 'events', 18); assert.equal(item.finding.status, 'match', JSON.stringify(item.finding.issues)); assert.deepEqual(item.api.entities.map(x => x.imageIds), [['place.jpg', 'second.jpg'], ['unit.jpg']]);
   assert.equal(await readGalleryAuditSource(bucket, jobId, 'events', 18), bodies.events);
