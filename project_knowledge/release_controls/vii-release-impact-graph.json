@@ -65,6 +65,7 @@
       "requiredLocalTests": [
         "tests/supplier-worker-transport.test.mjs",
         "tests/sergey-public-catalog-client.test.mjs",
+        "tests/sergey-rooms-catalog-client.test.mjs",
         "tests/accepted-detail-authority.test.mjs",
         "tests/vacation-multi-type-seo.test.mjs",
         "tests/event-result-projection.test.mjs",
@@ -782,6 +783,7 @@
         "app/data/",
         "app/lib/public-catalog-read.ts",
         "app/lib/sergey-public-catalog-client.ts",
+        "app/lib/sergey-rooms-catalog-client.ts",
         "app/lib/sergey-public-catalog-projection.ts",
         "app/lib/supplier-catalog-store.ts",
         "app/lib/supplier-detail-contract.ts",
