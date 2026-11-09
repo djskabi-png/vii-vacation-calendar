@@ -68,11 +68,32 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || projectionIssues(source.api, source.normalizedContract).length) { receipt.skipped++; entries.push(current); continue; }
           const contract = await buildAcceptedGalleryContract(world, current);
           if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) throw new Error("gallery_baseline_changed");
+          // A source can declare a new empty, incomplete unit. Keep that owner
+          // unpublished and explicit in the receipt while repairing existing
+          // owners. Never discard an API owner which has usable media.
+          let expected: GalleryContract = source.api;
+          let normalized = source.normalized as SupplierCatalogEntry;
+          const currentKeys = new Set(contract.entities.map(owner => owner.entityKey));
+          // The already accepted business owns its place gallery even when it
+          // currently has no photos. Adding its API photos adds no new owner.
+          currentKeys.add(`${world}:${current.supplierId}:place`);
+          const sourceKeys = new Set(expected.entities.map(owner => owner.entityKey));
+          if (contract.entities.some(owner => !sourceKeys.has(owner.entityKey))) { receipt.skipped++; entries.push(current); continue; }
+          const extraOwners = expected.entities.filter(owner => !currentKeys.has(owner.entityKey));
+          if (extraOwners.length) {
+            if ((world !== "vacations" && world !== "events") || extraOwners.some(owner => owner.imageIds.length || !owner.entityKey.startsWith(`${world}:${current.supplierId}:room:`))) { receipt.skipped++; entries.push(current); continue; }
+            const roomIds = new Set((Array.isArray(row(current.detail).rooms) ? row(current.detail).rooms as unknown[] : []).map(room => Number(row(room).id)));
+            normalized = { ...normalized, detail: { ...row(normalized.detail), rooms: (Array.isArray(row(normalized.detail).rooms) ? row(normalized.detail).rooms as unknown[] : []).filter(room => roomIds.has(Number(row(room).id))) } };
+            expected = { ...expected, entities: expected.entities.filter(owner => currentKeys.has(owner.entityKey)) };
+            (receipt.sourceWarnings ||= []).push({ supplierId: current.supplierId, issues: extraOwners.map(owner => `unverified_unpublished_empty_api_owner:${owner.entityKey}`) });
+          }
           if ((source.api as GalleryContract).entities.some(owner => !owner.imageIds.length && contract.entities.some(previous => previous.entityKey === owner.entityKey && previous.imageIds.length > 0))) { receipt.skipped++; entries.push(current); continue; }
-          const next = patchGalleryMedia(world, current, source.normalized);
+          const currentRooms = Array.isArray(row(current.detail).rooms) ? row(current.detail).rooms as unknown[] : [];
+          if ((world === "vacations" || world === "events") && currentRooms.length !== (Array.isArray(row(normalized.detail).rooms) ? (row(normalized.detail).rooms as unknown[]).length : -1)) { receipt.skipped++; entries.push(current); continue; }
+          const next = patchGalleryMedia(world, current, normalized);
           const patched = await buildAcceptedGalleryContract(world, next);
-          if (projectionIssues(source.api, patched).length) { receipt.skipped++; entries.push(current); continue; }
-          const warnings = compareGalleryContracts(source.api, patched).issues.filter(issue => issue.startsWith("unverified_"));
+          if (projectionIssues(expected, patched).length) { receipt.skipped++; entries.push(current); continue; }
+          const warnings = compareGalleryContracts(expected, patched).issues.filter(issue => issue.startsWith("unverified_"));
           if (warnings.length) (receipt.sourceWarnings ||= []).push({ supplierId: current.supplierId, issues: [...new Set(warnings)] });
           if (world === "vacations" || world === "events") {
             const wire = rawById.get(current.supplierId);
@@ -85,7 +106,7 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
             next.detailProof = proof;
           } else if (Date.now() - Date.parse(String(source.fetchedAt)) > MEDIA_EVIDENCE_MAX_AGE || Date.parse(String(source.fetchedAt)) > Date.now() + 300_000 || !Number.isFinite(Date.parse(String(source.fetchedAt)))) throw new Error("gallery_evidence_expired");
           await archiveGalleryCandidate({ previous: current, candidate: next, bucket });
-          entries.push(next); checked.push({ supplierId: current.supplierId, api: source.api });
+          entries.push(next); checked.push({ supplierId: current.supplierId, api: expected });
           if (JSON.stringify(current.summary) !== JSON.stringify(next.summary) || JSON.stringify(current.detail) !== JSON.stringify(next.detail)) receipt.changed++;
         }
         }
