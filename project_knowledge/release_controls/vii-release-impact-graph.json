@@ -759,6 +759,7 @@
         "tests/discovery-promotion-drafts.test.mjs",
         "tests/cross-world-discovery-sort.test.mjs",
         "tests/discovery-slider-order.test.mjs",
+        "tests/home-spa-sibling-rail-order.actual.test.mjs",
         "tests/promotion-sql-actual.test.mjs",
         "tests/promotion-result-policy.test.mjs"
       ]
