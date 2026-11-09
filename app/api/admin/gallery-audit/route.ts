@@ -3,7 +3,7 @@ import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
 import { createGalleryAuditJob, continueGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
 import { readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
-import { readBoundedGalleryApply, startBoundedGalleryApply, stepBoundedGalleryApply } from "../../../lib/gallery-audit-bounded-apply.ts";
+import { readBoundedGalleryApply, startBoundedGalleryApply, stepBoundedGalleryApply, recoverBoundedGalleryApply } from "../../../lib/gallery-audit-bounded-apply.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const valid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 async function environment() {
@@ -49,13 +49,13 @@ export async function POST(request: Request) {
   let body: { jobId?: unknown; action?: unknown; world?: unknown; recovery?: unknown };
   try { const text = await request.text(); if (text.length > 1024) throw new Error("body_size"); body = JSON.parse(text); }
   catch { return Response.json({ error: "malformed_json" }, { status: 400, headers }); }
-  if (!body || !valid(body.jobId) || !["start", "step", "apply", "apply-step", "retry", "continue"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  if (!body || !valid(body.jobId) || !["start", "step", "apply", "apply-step", "apply-recover", "retry", "continue"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
     const { db, bucket, env } = await environment();
-    if (body.action === "apply" || body.action === "apply-step") {
+    if (body.action === "apply" || body.action === "apply-step" || body.action === "apply-recover") {
       if (!["vacations", "events", "rooms", "spa"].includes(String(body.world))) return Response.json({ error: "invalid_world" }, { status: 400, headers });
       const input={db,bucket,jobId:body.jobId,world:body.world as "vacations"|"events"|"rooms"|"spa"};
-      const apply=body.action==='apply-step'?await stepBoundedGalleryApply(input):await startBoundedGalleryApply({...input,recovery:body.recovery===true});
+      const apply=body.action==='apply-step'?await stepBoundedGalleryApply(input):body.action==='apply-recover'?await recoverBoundedGalleryApply(input):await startBoundedGalleryApply({...input,recovery:body.recovery===true});
       return Response.json({ok:true,apply},{headers});
     }
     const job = body.action === "start" ? await createGalleryAuditJob({ db, bucket, jobId: body.jobId })

@@ -2,27 +2,40 @@ import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
 import { GALLERY_AUDIT_PREFIX, downloadGalleryAuditJob, readGalleryAuditItem, readGalleryAuditJob, type AuditWorld } from "./gallery-api-audit-job.ts";
 import { prepareGalleryAuditEntry, readGalleryAuditApply } from "./gallery-audit-apply.ts";
 import { buildAcceptedGalleryContract, compareGalleryContracts, parseOrderedJson, type GalleryContract } from "./supplier-gallery-contract.ts";
-import { supplierNonMediaFactsMatch } from "./supplier-detail-contract.ts";
+import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
 import { catalogContentIntegrityIssues } from "./supplier-catalog-sync.ts";
 import { validSupplierDetailProof } from "./supplier-detail-contract.ts";
 import { spaMediaWithinGuard, finishSupplierCatalogRun, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
-import { acceptGalleryGeneration, galleryGenerationEntry, galleryGenerationIds, galleryGenerationState, renewGalleryGeneration, stageGalleryEntry, startGalleryGeneration } from "./gallery-audit-generation-store.ts";
+import { acceptGalleryGeneration, galleryGenerationEntry, galleryGenerationIds, galleryGenerationState, renewGalleryGeneration, stageGalleryEntry, startGalleryGeneration, recoverGalleryPreparation } from "./gallery-audit-generation-store.ts";
 
 type Warning={supplierId:number;issues:string[]};
-export type GalleryApplyState={version:1;jobId:string;world:AuditWorld;runId:string;state:'reserved'|'accepted'|'not_accepted';phase:'initialize'|'prepare'|'accept'|'verify'|'complete'|'error';cursor:number;verifyCursor:number;total:number;ids:number[];baselineRunId?:string;recovery:boolean;changed:number;skipped:number;verified:number;sourceWarnings:Warning[];verificationIssues:Warning[];lease?:{owner:string;until:string};errorCode?:string;createdAt:string;deadline:string;finishedAt?:string};
+export type GalleryApplyState={version:1;jobId:string;world:AuditWorld;runId:string;state:'reserved'|'accepted'|'not_accepted';phase:'initialize'|'prepare'|'accept'|'verify'|'complete'|'error';cursor:number;verifyCursor:number;total:number;ids:number[];baselineRunId?:string;recovery:boolean;factsRecoveryUsed?:boolean;changed:number;skipped:number;verified:number;sourceWarnings:Warning[];verificationIssues:Warning[];lease?:{owner:string;until:string};errorCode?:string;createdAt:string;deadline:string;finishedAt?:string};
 type Prepared=Awaited<ReturnType<typeof prepareGalleryAuditEntry>>&{jobId:string;world:AuditWorld;baselineRunId:string;baselineFingerprint:string};
 const key=(id:string,world:AuditWorld)=>`${GALLERY_AUDIT_PREFIX}${id}/apply/${world}.bounded.json`;
 const preparedKey=(state:GalleryApplyState,id:number)=>`${GALLERY_AUDIT_PREFIX}${state.jobId}/apply/prepared/${state.world}-${id}.json`;
 const metadata={contentType:'application/json',cacheControl:'private, no-store'};
 const hash=async(value:string)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(x=>x.toString(16).padStart(2,'0')).join('');
-function sameFacts(world:AuditWorld,next:SupplierCatalogEntry,current:SupplierCatalogEntry) {
-  if(world!=='spa')return supplierNonMediaFactsMatch(next,current);
-  // Package presentation follows API order; business facts remain keyed by ID.
-  const before=current.summary as {packages?:Array<{id:number}>},after=next.summary as {packages?:Array<{id:number}>};
-  if(!Array.isArray(before.packages)||!Array.isArray(after.packages)||before.packages.length!==after.packages.length)return false;
-  const byId=new Map(after.packages.map(value=>[value.id,value]));
-  if(byId.size!==after.packages.length||before.packages.some(value=>!byId.has(value.id)))return false;
-  return supplierNonMediaFactsMatch({...next,summary:{...after,packages:before.packages.map(value=>byId.get(value.id))}},current);
+export function galleryNonMediaFactsMatch(world:AuditWorld,next:SupplierCatalogEntry,current:SupplierCatalogEntry) {
+  const project=(entry:SupplierCatalogEntry)=>{
+    const value=structuredClone(entry) as unknown as Record<string,unknown>;delete value.detailProof;
+    const clean=(item:unknown)=>{if(!item||typeof item!=='object'||Array.isArray(item))return;const row=item as Record<string,unknown>;for(const name of ['image','images','gallery','galleryGroups'])delete row[name];for(const name of ['rooms','packages'])if(Array.isArray(row[name])){for(const child of row[name])clean(child);if(world==='spa'&&name==='packages')row[name].sort((a,b)=>Number(a.id)-Number(b.id));}};
+    clean(value.summary);clean(value.detail);return value;
+  };
+  return JSON.stringify(project(next))===JSON.stringify(project(current));
+}
+function quarantineFree(entry:SupplierCatalogEntry):SupplierCatalogEntry {
+  const clean=(value:unknown):unknown=>typeof value==='string'&&isQuarantinedGalleryMedia(value)?'':Array.isArray(value)?value.filter(x=>!isQuarantinedGalleryMedia(x)).map(clean):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([k,v])=>[k,clean(v)])):value;
+  return clean(entry) as SupplierCatalogEntry;
+}
+export async function recoverBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Database;bucket:R2Bucket;jobId:string;world:AuditWorld}) {
+  const object=await bucket.get(key(jobId,world));if(!object)throw Error('gallery_apply_not_started');const state=JSON.parse(await object.text()) as GalleryApplyState;
+  if(state.jobId!==jobId||state.world!==world||state.phase!=='error'||state.state!=='not_accepted'||state.errorCode!=='gallery_nonmedia_facts_changed'||state.factsRecoveryUsed||!state.baselineRunId||state.verifyCursor!==0||state.cursor>=state.total||Date.parse(state.deadline)<=Date.now())throw Error('gallery_facts_recovery_requires_review');
+  if(state.lease&&Date.parse(state.lease.until)>Date.now())throw Error('gallery_apply_step_in_progress');
+  state.lease={owner:crypto.randomUUID(),until:new Date(Date.now()+120_000).toISOString()};
+  const lease=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata});if(!lease)throw Error('gallery_apply_step_in_progress');
+  try{await recoverGalleryPreparation(db,{world,runId:state.runId,baseline:state.baselineRunId,expectedIds:state.ids,expectedStagedIds:state.ids.slice(0,state.cursor)});state.phase='prepare';state.state='reserved';state.factsRecoveryUsed=true;delete state.errorCode;delete state.finishedAt;}
+  finally{delete state.lease;const saved=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata});if(!saved)throw Error('gallery_apply_progress_uncertain');}
+  return state;
 }
 export async function readBoundedGalleryApply(bucket:R2Bucket,jobId:string,world:AuditWorld):Promise<GalleryApplyState|null>{const object=await bucket.get(key(jobId,world));return object?JSON.parse(await object.text()):null;}
 
@@ -79,11 +92,11 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
           }
         }
         const result=await prepareGalleryAuditEntry({current,source,wire,listing,bucket,world,jobId});
-        if(!result.entry||!sameFacts(world,result.entry,current))throw Error('gallery_nonmedia_facts_changed');
+        if(!result.entry||!galleryNonMediaFactsMatch(world,result.entry,current))throw Error('gallery_nonmedia_facts_changed');
         const issues=catalogContentIntegrityIssues(world,[current],[result.entry]);
         if(issues.length&&!await validSupplierDetailProof(result.entry.detailProof,result.entry,new Date(),current))throw Error('catalog_content_requires_review');
         // Per-entry no-loss is stricter than the native aggregate five-percent guard.
-        if(world==='spa'&&!spaMediaWithinGuard([current],[result.entry])){result.entry=current;result.api=undefined;result.changed=0;result.skipped=1;result.sourceWarnings.push({supplierId:id,issues:['unverified_spa_media_loss_preserved']});}
+        if(world==='spa'&&!spaMediaWithinGuard([quarantineFree(current)],[result.entry])){result.entry=current;result.api=undefined;result.changed=0;result.skipped=1;result.sourceWarnings.push({supplierId:id,issues:['unverified_spa_media_loss_preserved']});}
         prepared={...result,jobId,world,baselineRunId:state.baselineRunId!,baselineFingerprint:fingerprint};
         const saved=await bucket.put(preparedKey(state,id),JSON.stringify(prepared),{onlyIf:{etagDoesNotMatch:'*'},httpMetadata:metadata});if(!saved)throw Error('gallery_prepared_write_uncertain');
       }

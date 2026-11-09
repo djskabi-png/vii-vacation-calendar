@@ -9,6 +9,7 @@ const validId = (value: string | null) => !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[
 const terminal = (job: GalleryAuditJobSummary) => ["complete", "deadline", "error"].includes(job.state);
 const labels = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" } as const;
 type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;verificationIssues:unknown[]};
+const recoverableApply=(value?:ApplyResult)=>value?.version===1&&value.state==='not_accepted'&&value.errorCode==='gallery_nonmedia_facts_changed';
 
 export default function GalleryAuditPage() {
   const canEdit = useAdminCanEdit();
@@ -102,7 +103,7 @@ export default function GalleryAuditPage() {
     const controller=new AbortController();runRef.current=controller;
     setApplying(world); setError("");setNotice("");
     const url = `/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&applyWorld=${world}`;
-    const read=async(action?:'apply'|'apply-step',recovery=false):Promise<ApplyResult|null>=>{
+    const read=async(action?:'apply'|'apply-step'|'apply-recover',recovery=false):Promise<ApplyResult|null>=>{
       const response=await fetch(action?'/api/admin/gallery-audit':url,{method:action?'POST':'GET',cache:'no-store',credentials:'same-origin',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(90_000)]),...(action?{headers:{'Content-Type':'application/json'},body:JSON.stringify({action,world,jobId:job.jobId,recovery})}:{})});
       let result:{ok?:boolean;apply?:ApplyResult|null};try{result=await response.json();}catch{throw Error('השרת לא החזיר אישור תקין. התקדמות שנשמרה לא תישלח מחדש.');}
       if(!response.ok||!result.ok)throw Error('לא התקבל אישור לצעד. יש לרענן את המצב לפני המשך.');
@@ -111,6 +112,7 @@ export default function GalleryAuditPage() {
     try {
       let value=await read();
       if(!value||value.state==='reserved'&&value.version!==1)value=await read('apply',!!value);
+      if(recoverableApply(value||undefined))value=await read('apply-recover');
       const deadline=Date.now()+55*60_000;
       for(let step=0;value?.state==='reserved'&&step<2400;step++){
         if(controller.signal.aborted||Date.now()>=deadline){setNotice('ההתקדמות נשמרה. אפשר להמשיך מהצעד האחרון.');break;}
@@ -159,7 +161,7 @@ export default function GalleryAuditPage() {
         {canEdit && job.state === "complete" ? <section aria-label="תיקון גלריות מאומתות" style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #cde0e2" }}>
           <h2 style={{ fontSize: "1.25rem" }}>תיקון גלריות מאומתות</h2>
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'&&!recoverableApply(applyResults[world])} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'||recoverableApply(applyResults[world])?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
           {applying?<button type="button" style={{...buttonStyle,marginTop:12}} onClick={()=>{runRef.current?.abort();setNotice('ההרצה נעצרה בדפדפן. יש לקרוא מצב שמור לפני המשך.');}}>עצירה ושמירת התקדמות</button>:null}
           {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{value.state === "accepted" ? `${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.` : value.state === "reserved"&&value.version===1 ? value.phase==='verify'?`בודקים את הדור שפורסם: ${value.verifyCursor} מתוך ${value.total}.`:`מכינים עדכון: ${value.cursor} מתוך ${value.total}. הגרסה הפעילה תוחלף רק בסיום ההכנה.` : value.state==='reserved' ? 'הפעולה הקודמת דורשת בדיקת מצב לפני המשך.' : "העדכון לא אושר. יש לבדוק את הדוח; המידע הפעיל לא מוחלף במקרה של הכנה שנכשלה."}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
         </section> : null}

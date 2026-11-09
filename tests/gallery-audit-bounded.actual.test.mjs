@@ -3,7 +3,8 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 import { runSupplierCatalogSync } from "../app/lib/supplier-catalog-sync.ts";
-import { startBoundedGalleryApply, stepBoundedGalleryApply, readBoundedGalleryApply } from "../app/lib/gallery-audit-bounded-apply.ts";
+import { startBoundedGalleryApply, stepBoundedGalleryApply, readBoundedGalleryApply, recoverBoundedGalleryApply, galleryNonMediaFactsMatch } from "../app/lib/gallery-audit-bounded-apply.ts";
+import { finishSupplierCatalogRun } from "../app/lib/supplier-catalog-store.ts";
 import { buildAcceptedGalleryContract, buildApiGalleryContract, parseOrderedJson, compareGalleryContracts } from "../app/lib/supplier-gallery-contract.ts";
 import { normalizeSpaPlusCatalog } from "../app/lib/spaplus-catalog-client.ts";
 import { proveSupplierMediaDetail } from "../app/lib/supplier-detail-contract.ts";
@@ -75,6 +76,14 @@ async function runPrefetchCase(tamper=''){
  const bucket=new FakeR2(objects),get=bucket.get.bind(bucket);let inflight=0,max=0;const readKeys=[];bucket.get=async key=>{readKeys.push(key);const bounded=key.includes('/items/')||key.includes('/raw/');if(!bounded)return get(key);inflight++;max=Math.max(max,inflight);try{await new Promise(r=>setImmediate(r));return await get(key);}finally{inflight--;}};
  try{
   assert.equal((await runSupplierCatalogSync(db,{id:'prefetch-seed',world:'vacations',source:'test',baseline,now:()=>now,fetchCandidate:async()=>({fetchedAt:now.toISOString(),entries:baseline})})).status,'accepted');
+  if(tamper==='recoverFacts'||tamper==='recoverWrongPrefix'){
+   const input={db,bucket,jobId,world:'vacations'};await startBoundedGalleryApply(input);await stepBoundedGalleryApply(input);let state=await stepBoundedGalleryApply(input);assert.equal(state.cursor,1);
+   await finishSupplierCatalogRun(db,{id:state.runId,world:'vacations',status:'failed',errorCode:'gallery_nonmedia_facts_changed',finishedAt:new Date().toISOString()});state.state='not_accepted';state.phase='error';state.errorCode='gallery_nonmedia_facts_changed';
+   if(tamper==='recoverWrongPrefix')state.cursor=2;
+   await bucket.put(prefix+'apply/vacations.bounded.json',JSON.stringify(state));
+   if(tamper==='recoverWrongPrefix'){await assert.rejects(recoverBoundedGalleryApply(input),/gallery_facts_recovery_requires_review/);assert.equal((await db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind('vacations').first()).active_run_id,'prefetch-seed');return;}
+   state=await recoverBoundedGalleryApply(input);assert.equal(state.cursor,1);assert.equal(state.changed,1);assert.equal(state.phase,'prepare');await assert.rejects(recoverBoundedGalleryApply(input),/gallery_facts_recovery_requires_review/);
+  }
   const receipt=await applyGalleryAuditWorld({db,bucket,jobId,world:'vacations'});
   if(tamper==='hash'||tamper==='foreign'){assert.equal(receipt.state,'not_accepted',JSON.stringify(receipt));assert.equal(receipt.verified,0);assert.ok(!readKeys.includes('another-job/private.json'));const current=await db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world = ?').bind('vacations').first();assert.equal(current.active_run_id,'prefetch-seed');return;}
   if(tamper==='emptyErase'){assert.equal(receipt.verified,0);assert.equal(receipt.skipped,9);const rows=(await db.prepare('SELECT detail_json FROM supplier_catalog_entries WHERE run_id = ?').bind(receipt.runId).all()).results;assert.equal(rows.length,9);for(const row of rows)assert.deepEqual(JSON.parse(row.detail_json).rooms[1].images,['/gallery/same.jpg']);return;}
@@ -98,9 +107,39 @@ test('a new API owner with photos blocks a partial owner-set patch',()=>runPrefe
 test('API photos can fill an empty gallery belonging to an existing business',()=>runPrefetchCase('emptyPlace'));
 test('a concurrent sync which already matches the API keeps all newer accepted facts',()=>runPrefetchCase('alreadyRepaired'));
 test('a different concurrent media change remains untouched and explicitly unverified',()=>runPrefetchCase('changedBaseline'));
+test('a known false-positive facts failure resumes after its exact staged prefix without repeating counters',()=>runPrefetchCase('recoverFacts'));
+test('facts recovery cannot accept an unverified staged-prefix cursor',()=>runPrefetchCase('recoverWrongPrefix'));
+
+test('actual hourly summary galleries change while names, prices, features and room identities remain intact',async()=>{
+ const db=await database(),world='rooms',current={supplierId:1,summary:{name:'Hourly owner',price:200,features:['Pool'],image:'/gallery/same.jpg',images:['/gallery/same.jpg'],galleryGroups:[{id:'old',images:['/gallery/same.jpg']}],rooms:[{id:100,name:'Private room',price:220,features:['Bath'],image:'/gallery/same.jpg',images:['/gallery/same.jpg'],galleryGroups:[{id:'old-room',images:['/gallery/same.jpg']}]}]}};
+ const normalized=structuredClone(current);normalized.summary.galleryGroups[0].id='9';normalized.summary.rooms[0].galleryGroups[0].id='2';
+ const raw={galleries:{9:{galleryID:9,pictures:['/gallery/same.jpg']}},rooms:[{roomID:100,galleries:[{galleryID:2,pictures:['/gallery/same.jpg']}]}]},wire=JSON.stringify(raw),finding={world,supplierId:1,status:'mismatch',recordKey:prefix+'items/rooms-1.json'};
+ const bucket=new FakeR2({[prefix+'job.json']:JSON.stringify({jobId,state:'complete',total:1,cursor:1,results:[finding],deadline:new Date(Date.now()+3600000).toISOString(),sourceIssues:[],worldCounts:{vacations:0,events:0,rooms:1,spa:0}}),[finding.recordKey]:JSON.stringify({finding,api:await buildApiGalleryContract(world,1,raw,wire),normalized,acceptedContract:await buildAcceptedGalleryContract(world,current),normalizedContract:await buildAcceptedGalleryContract(world,normalized),fetchedAt:new Date().toISOString()})});
+ try{assert.equal((await runSupplierCatalogSync(db,{id:'hourly-facts-seed',world,source:'test',baseline:[current],fetchCandidate:async()=>({fetchedAt:new Date().toISOString(),entries:[current]})})).status,'accepted');
+  const receipt=await applyGalleryAuditWorld({db,bucket,jobId,world});assert.equal(receipt.state,'accepted',JSON.stringify(receipt));assert.equal(receipt.verified,1);assert.equal(receipt.changed,1);
+  const saved=JSON.parse((await db.prepare('SELECT summary_json FROM supplier_catalog_entries WHERE run_id=?').bind(receipt.runId).first()).summary_json);assert.equal(saved.galleryGroups[0].id,'9');assert.equal(saved.rooms[0].galleryGroups[0].id,'2');assert.equal(saved.rooms[0].price,220);assert.deepEqual(saved.rooms[0].features,['Bath']);assert.equal(saved.price,200);
+ }finally{db.close();}
+});
+test('four world-specific media shapes are excluded from fact equality while business facts still block changes',()=>{
+ for(const world of ['vacations','events','rooms','spa']){
+  const current={supplierId:1,summary:{name:'Owner',price:123,images:['old'],gallery:['old'],galleryGroups:[{id:'old'}],rooms:[{id:1,name:'Room',price:234,images:['old'],galleryGroups:[{id:'old'}]}],packages:[{id:1,title:'Pack',price:345,image:'old',gallery:['old']}]},detail:{images:['old'],galleryGroups:[{id:'old'}],rooms:[{id:1,name:'Room',price:456,images:['old'],galleryGroups:[{id:'old'}]}]}};
+  const next=structuredClone(current);next.summary.images=['new'];next.summary.gallery=['new'];next.summary.galleryGroups=[{id:'new'}];next.summary.rooms[0].images=['new'];next.summary.rooms[0].galleryGroups=[{id:'new'}];next.summary.packages[0].image='new';next.summary.packages[0].gallery=['new'];next.detail.images=['new'];next.detail.rooms[0].images=['new'];assert.equal(galleryNonMediaFactsMatch(world,next,current),true,world);
+  for(const change of [x=>x.summary.price++,x=>x.summary.rooms[0].name='Foreign',x=>x.summary.packages[0].price++,x=>x.detail.rooms[0].id=2]){const bad=structuredClone(next);change(bad);assert.equal(galleryNonMediaFactsMatch(world,bad,current),false,world);}
+ }
+});
+test('a known quarantined SPA image remains an explicit warning while healthy package order is repaired',async()=>{
+ const db=await database(),world='spa',bad='https://www.spaplus.co.il/gallery/1773307880052130.jpeg';
+ const wire=`{"status":"ok","sites":{"42":{"siteid":42,"title":"Spa","city":"Haifa","spa_picture":"https://www.spaplus.co.il/gallery/site.jpg","gallery":["https://www.spaplus.co.il/gallery/site.jpg"],"packages":{"7":{"MainPageID":7,"idPack":70,"MainPageTitle":"Seven","price":700,"pack_picture":"${bad}"},"3":{"MainPageID":3,"idPack":30,"MainPageTitle":"Three","price":300,"pack_picture":"https://www.spaplus.co.il/gallery/three.jpg"}}}}}`;
+ const raw=parseOrderedJson(wire),normalized=normalizeSpaPlusCatalog(raw)[0],baseline=structuredClone(normalized);baseline.summary.packages.reverse();baseline.summary.packages.find(x=>x.id===7).image=bad;
+ const finding={world,supplierId:42,status:'unverified',recordKey:prefix+'items/spa-42.json'};
+ const bucket=new FakeR2({[prefix+'job.json']:JSON.stringify({jobId,state:'complete',total:1,cursor:1,results:[finding],deadline:new Date(Date.now()+3600000).toISOString(),sourceIssues:[],worldCounts:{vacations:0,events:0,rooms:0,spa:1}}),[finding.recordKey]:JSON.stringify({finding,api:await buildApiGalleryContract(world,42,raw.sites['42'],wire),normalized,acceptedContract:await buildAcceptedGalleryContract(world,baseline),normalizedContract:await buildAcceptedGalleryContract(world,normalized),fetchedAt:new Date().toISOString()})});
+ try{assert.equal((await runSupplierCatalogSync(db,{id:'spa-quarantine-seed',world,source:'test',baseline:[baseline],fetchCandidate:async()=>({fetchedAt:new Date().toISOString(),entries:[baseline]})})).status,'accepted');const receipt=await applyGalleryAuditWorld({db,bucket,jobId,world});assert.equal(receipt.state,'accepted',JSON.stringify(receipt));assert.equal(receipt.verified,1);assert.equal(receipt.skipped,0);assert.ok(receipt.sourceWarnings.some(x=>x.issues.some(i=>i.includes('1773307880052130.jpeg'))));
+  const summary=JSON.parse((await db.prepare('SELECT summary_json FROM supplier_catalog_entries WHERE run_id=?').bind(receipt.runId).first()).summary_json);assert.deepEqual(summary.packages.map(x=>x.id),[7,3]);assert.equal(summary.packages[0].image,null);assert.equal(summary.packages[0].price,700);
+ }finally{db.close();}
+});
 test('actual SPA generation repairs API package-owner order without changing prices or titles',async()=>{
  const db=await database(),wire='{"status":"ok","sites":{"42":{"siteid":42,"title":"Spa","city":"Haifa","spa_picture":"https://www.spaplus.co.il/gallery/site.jpg","gallery":["https://www.spaplus.co.il/gallery/site.jpg"],"packages":{"7":{"MainPageID":7,"idPack":70,"MainPageTitle":"Seven","price":700,"pack_picture":"https://www.spaplus.co.il/gallery/seven.jpg"},"3":{"MainPageID":3,"idPack":30,"MainPageTitle":"Three","price":300,"pack_picture":"https://www.spaplus.co.il/gallery/three.jpg"}}}}}';
- const raw=parseOrderedJson(wire),normalized=normalizeSpaPlusCatalog(raw)[0],baseline=structuredClone(normalized);baseline.summary.packages.reverse();baseline.summary.packages[0].price=333;baseline.summary.packages[1].price=777;
+ const raw=parseOrderedJson(wire),normalized=normalizeSpaPlusCatalog(raw)[0],baseline=structuredClone(normalized);baseline.summary.packages.reverse();baseline.summary.packages[0].price=333;baseline.summary.packages[1].price=777;baseline.summary.packages[0].image='https://www.spaplus.co.il/gallery/old-package-image.jpg';
  const api=await buildApiGalleryContract('spa',42,raw.sites['42'],wire),finding={world:'spa',supplierId:42,status:'mismatch',issues:['entity_order:1'],recordKey:prefix+'items/spa-42.json'};
  const job={jobId,state:'complete',total:1,cursor:1,results:[finding],deadline:new Date(now.getTime()+3600000).toISOString(),sourceIssues:[],worldCounts:{vacations:0,events:0,rooms:0,spa:1}};
  const bucket=new FakeR2({[prefix+'job.json']:JSON.stringify(job),[finding.recordKey]:JSON.stringify({finding,api,normalized,acceptedContract:await buildAcceptedGalleryContract('spa',baseline),normalizedContract:await buildAcceptedGalleryContract('spa',normalized),fetchedAt:now.toISOString(),rawKey:prefix+'context/spa.json'})});
