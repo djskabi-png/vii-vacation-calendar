@@ -160,7 +160,8 @@ test("event search serializes a bounded discovery projection", async () => {
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),
     readFile(new URL("app/lib/public-event-search.ts", root), "utf8"),
   ]);
-  assert.match(layout, /publicEventSearchPlaces\([^)]*[\s\S]*?, 1\)/);
+  assert.match(layout, /publicEventSearchPlaces\(/);
+  assert.doesNotMatch(layout, /publicEventSearchPlaces\([^)]*,\s*1\)/);
   assert.match(projection, /imageLimit = 5/);
   assert.match(projection, /description: ""/);
   assert.doesNotMatch(projection, /roomOptions|dailyAvailability|dateQuotes|reviewHighlights/);

@@ -19,7 +19,7 @@ export function publicStyleBundleSources(root = process.cwd()) {
   composeWorldStyles(global, sources); // Fail closed on a lost/duplicate slot.
   const fonts = fs.readFileSync(path.join(root, 'app/public-fonts.css'), 'utf8');
   const tail = publicStyleFiles.slice(1).map(file => fs.readFileSync(path.join(root, 'app', file), 'utf8')).join('\n');
-  const spaDiscoveryCards = fs.readFileSync(path.join(root, 'app/components/spa-package-deals.css'), 'utf8');
+  const spaDiscoveryCards = fs.readFileSync(path.join(root, 'app/components/spa-package-deals.css'), 'utf8') + '\n' + fs.readFileSync(path.join(root, 'app/worlds/spa/styles/world-owned.css'), 'utf8');
   const result = {};
   for (const world of ['all', ...worlds]) {
     const selected = { ...sources, slots: new Map(sources.slots) };

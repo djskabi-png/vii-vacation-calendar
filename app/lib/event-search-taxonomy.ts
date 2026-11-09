@@ -82,6 +82,30 @@ export const legacyEventFacilities: FacetDefinition[] = [
 export const eventOccasionOrder = legacyEventOccasions.map((definition) => definition.label);
 export const eventFacilityOrder = legacyEventFacilities.map((definition) => definition.label);
 
+// Search URLs historically used both the natural singular form ("יום הולדת")
+// and the catalog facet form ("ימי הולדת"). Keep the canonical facet for
+// headings/links, but accept the approved singular/plural aliases in the
+// predicate so a copied search URL cannot silently become a false zero result.
+const eventOccasionAliases = new Map([
+  ["יום הולדת", "ימי הולדת"],
+  ["מסיבה", "מסיבות"],
+  ["חתונה", "חתונות"],
+  ["אירוע חברה", "אירועי חברה"],
+  ["אירוע פרטי", "אירועים פרטיים"],
+  ["קבוצה", "קבוצות"],
+]);
+
+export function normalizeEventOccasion(value: string | null) {
+  const label = value?.trim() || "הכל";
+  return eventOccasionAliases.get(label) || label;
+}
+
+export function matchesEventOccasion(place: Pick<EventPlace, "eventTypes" | "name" | "description" | "features" | "audiences" | "type">, selection: string) {
+  const requested = normalizeEventOccasion(selection);
+  const values = [...place.eventTypes, ...eventSearchOccasions(place)];
+  return requested === "הכל" || values.some((value) => normalizeEventOccasion(value) === requested);
+}
+
 export function orderedEventFacetValues(values: Iterable<string>, preferredOrder: readonly string[]) {
   const remaining = new Set(Array.from(values).filter(Boolean));
   const ordered = preferredOrder.filter((value) => remaining.delete(value));
@@ -89,7 +113,7 @@ export function orderedEventFacetValues(values: Iterable<string>, preferredOrder
 }
 
 function searchableText(place: EventSearchSource) {
-  return [place.name, place.description, ...place.features, ...place.audiences, ...place.eventTypes].join(" ");
+  return [place.name, place.description, ...(place.features || []), ...(place.audiences || []), ...(place.eventTypes || [])].join(" ");
 }
 
 function matchingLabels(definitions: readonly FacetDefinition[], text: string) {
@@ -102,7 +126,7 @@ export function eventSearchVenueType(place: EventSearchSource) {
 }
 
 export function eventSearchOccasions(place: EventSearchSource) {
-  return [...new Set([...place.eventTypes, ...matchingLabels(legacyEventOccasions, searchableText(place))])];
+  return [...new Set([...(place.eventTypes || []), ...matchingLabels(legacyEventOccasions, searchableText(place))])];
 }
 
 export function eventSearchFacilities(place: EventSearchSource) {

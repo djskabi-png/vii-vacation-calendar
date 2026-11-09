@@ -1,3 +1,6 @@
+import { NearbyRouteActivation } from "../components/nearby-route-activation";
+import { nearbyPageContent, nearbyPageFaq } from "../lib/nearby-page-content";
+import { faqSchema } from "../lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
@@ -32,20 +35,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function AttractionsPage({ topic }: { topic?: WorldDepthTopic } = {}) {
+export default async function AttractionsPage({ topic, nearbyLanding = false }: { topic?: WorldDepthTopic; nearbyLanding?: boolean } = {}) {
   const attractions = await managedDiscoveryItems(paidAttractions, "attractions");
   const topicItems = topic ? attractions.filter((item) => (!topic.params.area || activityRegion(item) === topic.params.area) && (!topic.params.type || activityType(item) === topic.params.type)) : attractions;
   const presentation = await readWorldLandingPresentation("attractions");
-  const topicCopy = topic ? worldDepthCopy(topic.label, (await headers()).get("x-vii-locale"), "activities") : null;
+  const topicCopy = nearbyLanding ? nearbyPageContent.attractions : topic ? worldDepthCopy(topic.label, (await headers()).get("x-vii-locale"), "activities") : null;
   return <PageShell variant="activities">
     <main id="main-content" className="attractions-page">
-      <StructuredData data={collectionSchema(topicCopy?.title || "אטרקציות בתשלום בישראל", topicCopy?.description || "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", topic ? `/attractions/explore/${topic.slug}` : "/attractions/", topicItems.map((item) => ({ name: item.name, path: `/discover/place/${item.id}` })))} />
-      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions/" }, ...(topic ? [{ name: topic.label, path: `/attractions/explore/${topic.slug}` }] : [])])} />
+      <StructuredData data={collectionSchema(topicCopy?.title || "אטרקציות בתשלום בישראל", topicCopy?.description || "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", nearbyLanding ? nearbyPageContent.attractions.path : topic ? `/attractions/explore/${topic.slug}` : "/attractions/", topicItems.map((item) => ({ name: item.name, path: `/discover/place/${item.id}` })))} />
+      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions/" }, ...(nearbyLanding ? [{name:nearbyPageContent.attractions.title,path:nearbyPageContent.attractions.path}] : topic ? [{ name: topic.label, path: `/attractions/explore/${topic.slug}` }] : [])])} />
       <SpecialWorldSearch active="attractions" targetId="attraction-search" initialArea={topic?.params.area} description="בחרו אזור וסוג חוויה" />
-      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions" }, ...(topic ? [{ name: topic.label }] : [])]} />
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions" }, ...(nearbyLanding ? [{name:nearbyPageContent.attractions.title,path:nearbyPageContent.attractions.path}] : topic ? [{ name: topic.label }] : [])]} />
       <DiscoveryWorldHero className="attractions-hero" showBreadcrumbs={false} type="attractions" presentation={topicCopy ? { ...presentation, ...topicCopy } : presentation} breadcrumbs={[]} count={topicItems.length} countLabel="חוויות לבחירה" targetId="attraction-search" />
+      {nearbyLanding && <NearbyRouteActivation />}
       <section id="attraction-search" className="section shell trail-explorer attraction-explorer"><AttractionsExplorer items={attractions} initialArea={topic?.params.area} initialType={topic?.params.type} /></section>
       <section className="attraction-trust"><div className="shell"><div><strong>מידע מאומת</strong><span>מוצגים ספק, אזור, תנאים ודרך הזמנה ברורה.</span></div><div><strong>בלי הפתעות בהזמנה</strong><span>המגבלות, הביטוח, מדיניות הביטול ומה כלול מוצגים לפני אישור.</span></div><div><strong>הכל במקום אחד</strong><span>המידע ודרך ההזמנה נשארים בתוך V, בהתאם לשיטת המכירה של הספק.</span></div><Link href="/trails">מסלולי טיול עצמאיים</Link></div></section>
+      {nearbyLanding && <><StructuredData data={faqSchema(nearbyPageFaq("attractions"))} /><section className="section shell managed-search-faq"><h2>שאלות נפוצות</h2><p>{nearbyPageContent.attractions.body}</p>{nearbyPageFaq("attractions").map(item=><details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section></>}
       <SearchAfterResults world="activities" baseParams={topic?.params} inventory={attractions.map((item) => ({ location: item.location, area: activityRegion(item) || "", type: activityType(item) || undefined }))} reviewHighlights={topicItems.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} />
     </main>
   </PageShell>;

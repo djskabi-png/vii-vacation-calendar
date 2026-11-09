@@ -43,7 +43,7 @@ export async function readPublicSearchCatalogSnapshot(
     const raw = visible.map((entry) => entry.summary);
     const projected = await projectPublicSearchCatalogEntries(world, raw, await bootstrap.overlays);
     const searchProjected = world === "events"
-      ? publicEventSearchPlaces(projected as EventPlace[], 1)
+      ? publicEventSearchPlaces(projected as EventPlace[])
       : publicVacationSearchProperties(projected as Property[]);
     if (searchProjected.length !== visible.length) return null;
 

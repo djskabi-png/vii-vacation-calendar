@@ -63,7 +63,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts"), import("./world-location-pages.ts")]);
     const properties = await publicCatalogSummaries<Property>("vacations");
     return unique(expand([
-      { path: "/search" }, { path: "/last-minute" }, { path: "/weekend/thursday-to-saturday" }, { path: "/weekend/friday-to-sunday" }, { path: "/weekend/thursday-night" }, { path: "/weekend/friday-night" },
+      { path: "/search" }, { path: "/vacations/near-me" }, { path: "/last-minute" }, { path: "/weekend/thursday-to-saturday" }, { path: "/weekend/friday-to-sunday" }, { path: "/weekend/thursday-night" }, { path: "/weekend/friday-night" },
       ...indexableAccommodationLandings(properties).map(({ path }) => ({ path })), ...indexableVacationLandings(properties).map(({ path }) => ({ path })),
       ...(await worldLocationInventory("vacation")).map(({ path }) => ({ path })),
       ...properties.filter((place) => place.indexable !== false).map((place) => ({ path: `/business?id=${place.slug}`, images: [place.image, ...place.images] })),
@@ -85,7 +85,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       .map(type => ({ path: canonicalLegacyEventSearchPath({ location: label, type }) || eventCombinationHref(label, type) })))
       .filter(({path})=>!managedPaths.has(path));
     return unique(expand([
-      { path: "/events" }, { path: "/events/last-minute" }, { path: "/events/thursday" }, { path: "/events/friday" }, { path: "/events/search" },
+      { path: "/events" }, { path: "/events/near-me" }, { path: "/events/last-minute" }, { path: "/events/thursday" }, { path: "/events/friday" }, { path: "/events/search" },
       ...(await worldLocationInventory("events")).map(({ path }) => ({ path })),
       ...eventCombinationPaths,
       ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => ({ path: `/events/place/${place.slug}`, images: [place.image, ...place.images] })),
@@ -98,7 +98,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const spaPlaces = spaPlacesFromSites(spaSites);
     return unique(expand([
-      { path: "/spas" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => ({ path: `/spas/day/${day}` })), ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
+      { path: "/spas" }, { path: "/spas/near-me" }, { path: "/spas/today" }, { path: "/spas/tomorrow" }, ...["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].map((day) => ({ path: `/spas/day/${day}` })), ...spaLandings.map((landing) => ({ path: spaLandingHref(landing) })),
       ...(await worldLocationInventory("spa")).map(({ path }) => ({ path })),
       ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => ({ path })),
       ...spaPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
@@ -112,7 +112,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     const hourlyCatalogPlaces = await publicCatalogSummaries<HourlyCatalogPlace>("rooms");
     const hourlyPlaces = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
     return unique(expand([
-      { path: "/hourly" }, ...(await worldLocationInventory("hourly")).map(({ path }) => ({ path })),
+      { path: "/hourly" }, { path: "/hourly/near-me" }, ...(await worldLocationInventory("hourly")).map(({ path }) => ({ path })),
       ...hourlyPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));
   }
@@ -123,7 +123,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       ? [{ url: absoluteUrl(`/guides/${article.slug}`), images: [absoluteUrl(article.image)], lastModified: article.modifiedAt }]
       : localizedEntries(`/guides/${article.slug}`, [article.image]));
     return unique([...expand([
-      ...(availability.trails ? [{ path: "/trails" }] : []), ...(availability.attractions ? [{ path: "/attractions" }] : []), { path: "/guides" },
+      ...(availability.trails ? [{ path: "/trails" }, { path: "/trails/near-me" }] : []), ...(availability.attractions ? [{ path: "/attractions" }, { path: "/attractions/near-me" }] : []), { path: "/guides" },
       ...(availability.attractions ? activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })) : []),
       ...(availability.trails ? trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })) : []),
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities")) && availability[(place.world === "activities" ? "attractions" : place.world) as keyof typeof availability] !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),

@@ -5,7 +5,7 @@ import { orderByProximity } from "../lib/proximity-sort";
 
 import "./search-tablet.css";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { HomeQuickSearches } from "../components/home-discovery-sections";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -374,7 +374,7 @@ function runtimeProperty(value: unknown): Property {
   return { ...property, type: inferredType, description: supplierDisplayDescription(property) };
 }
 
-export function SearchExperience({ landing, embedded = false }: { landing?: SearchLandingContext; embedded?: boolean }) {
+export function SearchExperience({ landing, embedded = false, beforeResults }: { landing?: SearchLandingContext; embedded?: boolean; beforeResults?: ReactNode }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
   const { language, translate } = useSiteLanguage();
   const completeInitialCatalog = usePublishedCatalogSeed("vacations")?.complete === true;
@@ -1089,6 +1089,7 @@ export function SearchExperience({ landing, embedded = false }: { landing?: Sear
         <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} openLocationRequest={openLocationRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
         <BreadcrumbTrail items={breadcrumbItems} />
         <div className="shell world-popular-searches"><HomeQuickSearches /></div>
+        {beforeResults}
         {vacationRegionByLabel(area) ? <div className="shell"><VacationGeographyNav region={vacationRegionByLabel(area)!} inventory={properties} /></div> : null}
         <div className={`shell results-layout airbnb-results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות" role={filtersOpen ? "dialog" : undefined} aria-modal={filtersOpen || undefined}>

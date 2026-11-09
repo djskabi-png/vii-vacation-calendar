@@ -139,3 +139,20 @@
   }
 
 }
+
+/* Shared compact result disclosures and location-entry landing action. */
+.nearby-search-notice { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin-block:12px; padding:10px 14px; border:1px solid #c9e4e8; border-radius:14px; background:#f1fafb; color:#526f7c; font-size:.875rem; line-height:1.5; }
+.nearby-search-notice strong { color:#087486; font-size:inherit; }
+.nearby-search-notice small { flex-basis:100%; font-size:.8rem; }
+.nearby-page-action { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:16px; }
+.nearby-page-action p { margin:4px 0 0; color:#526f7c; font-size:.9rem; line-height:1.5; }
+.nearby-page-action .button { flex-shrink:0; }
+@media(max-width:620px) { .nearby-page-action { align-items:stretch; flex-direction:column; gap:10px; } .nearby-page-action .button { align-self:flex-start; } }
+/* A single compact line for filter and sort, including narrow iPhones. */
+@media(max-width:760px) {
+ .event-list > .results-toolbar { display:flex; flex-wrap:nowrap; align-items:center; gap:8px; }
+ .event-list > .results-toolbar .results-toolbar__actions { flex:0 0 auto; }
+ .event-list > .results-toolbar .results-toolbar__sort { flex:1 1 0; min-width:0; width:auto; }
+ .event-list > .results-toolbar .modern-select__trigger { min-width:0; }
+ .event-list > .results-toolbar .modern-select__label { display:none; }
+}

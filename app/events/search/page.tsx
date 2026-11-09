@@ -1,4 +1,5 @@
 "use client";
+import type { ReactNode } from "react";
 import { useNearbySort, NearbySortStatus } from "../../components/use-nearby-sort";
 
 /* eslint-disable @next/next/no-img-element */
@@ -41,7 +42,7 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
-import { matchesEventVenueType, matchesEventSearchLocation, eventVenueTypes, normalizeEventVenueType, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
+import { matchesEventVenueType, matchesEventOccasion, matchesEventSearchLocation, eventVenueTypes, normalizeEventVenueType, normalizeEventOccasion, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
 import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
 import {usePublicPromotionWeights} from "../../components/use-public-promotion-weights";
 import { RecommendedPlacesBanner } from "../../components/recommended-place-banner";
@@ -63,7 +64,7 @@ function runtimeEventPlace(value: unknown): EventPlace {
   return { ...place, description: supplierDisplayDescription(place) };
 }
 
-export default function EventSearchPage({ initialArea, landingTitle, landingDescription, initialSearchParams, managedPath, managedBody, managedFaq }: { initialArea?: string; landingTitle?: string; landingDescription?: string; initialSearchParams?: Record<string, string>; managedPath?: string; managedBody?: string; managedFaq?: Array<{ question: string; answer: string }> }) {
+export default function EventSearchPage({ initialArea, landingTitle, landingDescription, initialSearchParams, managedPath, managedBody, managedFaq, beforeResults }: { initialArea?: string; landingTitle?: string; landingDescription?: string; initialSearchParams?: Record<string, string>; managedPath?: string; managedBody?: string; managedFaq?: Array<{ question: string; answer: string }>; beforeResults?: ReactNode }) {
   const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -87,7 +88,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const initialGuests = Number(initialParams.get("guests") || 0);
   const [area, setArea] = useState(initialParams.get("location") || (initialArea === "כל הארץ" ? "הכל" : initialArea) || "הכל");
   const [type, setType] = useState(normalizeEventVenueType(initialParams.get("type")));
-  const [eventType, setEventType] = useState(initialParams.get("eventType") || "הכל");
+  const [eventType, setEventType] = useState(normalizeEventOccasion(initialParams.get("eventType")));
   const [facility, setFacility] = useState(initialParams.get("features") || "הכל");
   const [guests, setGuests] = useState(Number.isFinite(initialGuests) && initialGuests > 0 ? Math.max(10, initialGuests) : initialEventFrom ? 20 : 0);
   const [noNoiseLimit, setNoNoiseLimit] = useState(initialParams.get("noise") === "1");
@@ -136,7 +137,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       setArea(requestedArea && requestedArea !== "כל הארץ" ? requestedArea : initialArea && initialArea !== "כל הארץ" ? initialArea : "הכל");
       setGuests(Number.isFinite(requestedGuests) && requestedGuests > 0 ? Math.max(10, requestedGuests) : params.get("from") ? 20 : 0);
       setType(normalizeEventVenueType(params.get("type")));
-      setEventType(params.get("eventType") || "הכל");
+      setEventType(normalizeEventOccasion(params.get("eventType")));
       setFacility(params.get("features") || "הכל");
       setNoNoiseLimit(params.get("noise") === "1");
       setAccessibleOnly(params.get("accessible") === "1");
@@ -219,7 +220,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const eventTypes = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.eventTypes), eventOccasionOrder)], [eventPlaces]);
   const facilities = useMemo(() => ["הכל", ...orderedEventFacetValues(eventPlaces.flatMap((place) => place.features), eventFacilityOrder)], [eventPlaces]);
   const matchesHardFilters = (place: EventPlace) => matchesEventVenueType(place, type)
-    && (eventType === "הכל" || place.eventTypes.includes(eventType))
+    && (eventType === "הכל" || place.eventTypes.includes(eventType) || (eventType === "ימי הולדת" && place.eventTypes.includes("יום הולדת")) || (eventType === "יום הולדת" && place.eventTypes.includes("ימי הולדת")) || (eventType === "מסיבות" && place.eventTypes.includes("מסיבה")) || (eventType === "חתונות" && place.eventTypes.includes("חתונה")) || (eventType === "אירועי חברה" && place.eventTypes.includes("אירוע חברה")) || (eventType === "אירועים פרטיים" && place.eventTypes.includes("אירוע פרטי")) || (eventType === "קבוצות" && place.eventTypes.includes("קבוצה")))
     && eventMatchesFeatureSelection(place, facility)
     && (!guests || place.capacityScope === "unit" || place.guests >= guests)
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
@@ -322,8 +323,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
         {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
         {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         <div className="results-search shell"><SearchBox mode="events" compact initialLocation={area === "הכל" ? undefined : area} initialGuests={guests || undefined} /></div>
-        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: eventBreadcrumbFilters.length ? "/events/search" : undefined }, ...(eventBreadcrumbFilters.length ? [{ name: eventBreadcrumbFilters.join(" · ") }] : [])]} />
-        <div className="shell event-results-layout">
+        <BreadcrumbTrail items={managedPath?.endsWith("/near-me") ? [{ name:"ראשי",path:"/" },{ name:"אירועים",path:"/events" },{ name:landingTitle || "מקומות לאירועים קרובים אליי" }] : [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: eventBreadcrumbFilters.length ? "/events/search" : undefined }, ...(eventBreadcrumbFilters.length ? [{ name: eventBreadcrumbFilters.join(" · ") }] : [])]} />
+        {beforeResults}
+      <div className="shell event-results-layout">
           <aside id="event-result-filters" className={`filter-panel ${filtersOpen ? "open" : ""}`} aria-label="סינון תוצאות אירועים">
             <div className="filter-panel__scroll"><div className="filter-head"><h2>סינון</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירת סינון"><CloseIcon /></button></div>
               <ModernSelect retainSelectedOption label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />

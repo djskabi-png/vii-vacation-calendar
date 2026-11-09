@@ -134,3 +134,8 @@
 .event-map-results.results-view--list { grid-template-columns: minmax(0, 1fr); }
 .event-map-results.results-view--list > .event-result-card { display: grid; grid-template-columns: minmax(150px, 38%) minmax(0, 1fr); }
 .event-map-results.results-view--list > .event-result-card > .event-card-gallery img { height: 100%; min-height: 245px; aspect-ratio: auto; }
+
+/* Location typography follows the approved accommodation card in every world. */
+.event-result-card .event-result-card__location,
+.discovery-card .discovery-card__meta { font-size:.88rem; line-height:1.5; }
+.discovery-card .discovery-card__meta small { font-size:inherit; }

@@ -58,7 +58,7 @@ function PopularSearchLink({ item }: { item: HomeDiscoveryItem }) {
   const imageAlt = item.imageAlt?.endsWith(", תמונת אווירה") ? `${translate(item.imageAlt.slice(0, -", תמונת אווירה".length))}, ${translate("תמונת אווירה")}` : translate(item.imageAlt || item.label);
   return <div className="home-popular-search-item">
     <Link href={localizedPath(item.href, language)} prefetch={false} aria-busy={busy || undefined} aria-disabled={busy || undefined} onClick={event => {
-      if (item.action !== "nearby" || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (item.action !== "nearby" || item.href.split("?")[0].endsWith("/near-me") || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault(); if (pending.current) return;
       pending.current = true; setBusy(true); setError(false);
       void requestNearbyOrigin().then(() => {

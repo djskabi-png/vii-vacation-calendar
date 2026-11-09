@@ -13,6 +13,6 @@ const searchDepthSeed = {
 };
 
 export default async function EventSearchLayout({ children }: { children: ReactNode }) {
-  const entries = publicEventSearchPlaces(await bundledPublicCatalogSummaries<EventPlace>("events"), 1);
+  const entries = publicEventSearchPlaces(await bundledPublicCatalogSummaries<EventPlace>("events"));
   return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries} complete={false}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

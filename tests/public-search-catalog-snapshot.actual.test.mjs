@@ -48,7 +48,7 @@ test("supplier description-only facilities survive display and editorial shorten
     assert.equal(eventMatchesFeatureSelection(summary, "בר אלכוהול"), true);
     assert.equal(eventMatchesFeatureSelection(snapshot.entries[1].summary, "בר אלכוהול"), false);
     assert.ok(summary.eventTypes.includes("אירועי חברה"));
-    assert.deepEqual(publicEventSearchPlaces([summary], 1)[0], summary, "search projection is idempotent");
+    assert.deepEqual(publicEventSearchPlaces([summary])[0], { ...summary, images: summary.images.slice(0, 5) }, "search projection is idempotent with bounded image metadata");
     const api = await (await catalogResponse(request(), db)).json();
     assert.deepEqual(api, JSON.parse(JSON.stringify(snapshot)));
     assert.equal(summary.description, "");
@@ -64,9 +64,9 @@ test("runtime search snapshot and API share complete editorial projection and so
     assert.ok(snapshot);
     assert.deepEqual(snapshot.entries.map((entry) => entry.supplierId), [7001, 7002]);
     assert.equal(snapshot.entries[0].summary.name, "שם עריכתי");
-    assert.equal(snapshot.entries[0].summary.images.length, 1, "event search projection keeps imageLimit=1");
+    assert.equal(snapshot.entries[0].summary.images.length, 2, "event search projection keeps bounded image metadata");
     const api = await (await catalogResponse(request(), db)).json();
-    assert.equal(api.entries[0].summary.images.length, 1, JSON.stringify({ snapshot: snapshot.entries[0].summary, api: api.entries[0].summary }));
+    assert.equal(api.entries[0].summary.images.length, 2, JSON.stringify({ snapshot: snapshot.entries[0].summary, api: api.entries[0].summary }));
     assert.deepEqual(api, JSON.parse(JSON.stringify(snapshot)));
     assert.equal(api.entries[0].summary.name, "שם עריכתי");
     assert.equal(api.entries[0].summary.units.length, 1);

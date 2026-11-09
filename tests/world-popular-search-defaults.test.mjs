@@ -6,11 +6,11 @@ import {parseHomepagePresentation,worldPopularSearchItems,readHomepagePresentati
 import {validManagedSearchList} from '../app/lib/homepage-search-href.ts';
 import {spaHasLodging,spaHasHourlyRoom,spaSourceServiceTerms} from '../app/data/spa-landings.ts';
 import {normalizeEventVenueType,eventVenueTypeOrder} from '../app/lib/event-search-taxonomy.ts';
-test('all8worlds have a nearby action and truthful result-world destinations with local media',()=>{
+test('canonical nearby worlds keep direct links while legacy nearby actions retain nearest sorting',()=>{
  assert.equal(popularSearchWorlds.length,8);
  for(const world of popularSearchWorlds){
  const rows=parseHomepagePresentation(undefined,world.id).popular;
- assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest');
+ assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);if(['providers','corporate'].includes(world.id)) assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest'); else assert.match(nearby.href,/\/near-me$/);
  for(const row of rows)assert.ok(existsSync(new URL('../public'+row.image,import.meta.url)),row.image);
  }
 });

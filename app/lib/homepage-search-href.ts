@@ -11,7 +11,17 @@ export function normalizeHomepageSearchHref(href: string): string {
 }
 
 export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
-  return items.map((item) => ({ ...item, href: normalizeHomepageSearchHref(item.href) }));
+  const nearbyRoutes:Record<string,string>={"/search":"/vacations/near-me","/spas":"/spas/near-me","/events/search":"/events/near-me","/hourly":"/hourly/near-me","/trails":"/trails/near-me","/attractions":"/attractions/near-me"};
+  return items.map((item) => {
+    let href=normalizeHomepageSearchHref(item.href);
+    if ((item as T & {action?:string}).action === "nearby") {
+      const url=new URL(href,"https://vii.invalid");
+      const locale=url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
+      const path=url.pathname.slice(locale.length).replace(/\/$/,"");
+      if(nearbyRoutes[path] && [...url.searchParams.keys()].every(key=>key==="sort") && url.searchParams.get("sort")==="nearest") href=`${locale}${nearbyRoutes[path]}${url.hash}`;
+    }
+    return {...item,href};
+  });
 }
 
 export function isManagedSearchListAttribute(key: string) {

@@ -14,12 +14,13 @@ function harness(){const cells=[];let index=0,resolve,reject,requests=0;const de
 }
 const click=()=>({button:0,preventDefault(){this.prevented=true}});
 const settle=async()=>{for(let i=0;i<4;i++)await Promise.resolve()};
-test('actual nearby links prevent double requests, await position then preserve intent and nearest without sharing coordinates',async()=>{
- for(const world of ['vacation','spa','events','hourly','providers','trails','attractions','corporate']){
- const h=harness();const item=popularSearchesForWorld(world)[0];const event=click();const tree=h.render(item);const action=tree.props.children[0].props.onClick;action(event);action(click());assert.equal(h.requests,1);assert.equal(h.destinations.length,0);assert.equal(event.prevented,true);
- h.resolve();await settle();assert.equal(h.destinations.length,1);const href=h.destinations[0];assert.equal(new URL(href,'https://vii.invalid').searchParams.get('sort'),'nearest');assert.doesNotMatch(href,/lat|lng|32\.2|34\.8/);if(world==='corporate')assert.equal(new URL(href,'https://vii.invalid').searchParams.get('eventType'),'אירועי חברה');
+test('canonical near-me links navigate normally without requesting GPS',async()=>{
+ for(const world of ['vacation','spa','events','hourly','trails','attractions']){
+ const h=harness();const item=popularSearchesForWorld(world).find(candidate=>candidate.href.split('?')[0].endsWith('/near-me'));assert.ok(item);const event=click();const tree=h.render(item);const action=tree.props.children[0].props.onClick;action(event);assert.equal(h.requests,0);assert.equal(h.destinations.length,0);assert.equal(event.prevented,undefined);
+ assert.equal(item.href.split('?')[0].endsWith('/near-me'),true);assert.equal(tree.props.children[0].props.href,localizedPath(item.href,'he'));
  }
 });
-test('denied position never navigates and the visible item supports a clean retry',async()=>{
- const h=harness(),item=popularSearchesForWorld('spa')[0];h.render(item).props.children[0].props.onClick(click());h.reject();await settle();assert.equal(h.destinations.length,0);const next=h.render(item);assert.equal(next.props.children[1].props.role,'status');next.props.children[0].props.onClick(click());assert.equal(h.requests,2);h.resolve();await settle();assert.equal(h.destinations.length,1);
+test('custom nearby links await GPS, preserve filters and support denial retry',async()=>{
+ const h=harness(),items=['providers','corporate'].map(world=>popularSearchesForWorld(world).find(item=>item.action==='nearby')).filter(Boolean);
+ for(const item of items){const before=h.requests,beforeDest=h.destinations.length;const event=click();h.render(item).props.children[0].props.onClick(event);assert.equal(h.requests,before+1);assert.equal(event.prevented,true);h.reject();await settle();assert.equal(h.destinations.length,beforeDest);const next=h.render(item);assert.equal(next.props.children[1].props.role,'status');next.props.children[0].props.onClick(click());assert.equal(h.requests,before+2);h.resolve();await settle();assert.equal(h.destinations.length,beforeDest+1);const href=h.destinations.at(-1);assert.equal(new URL(href,'https://vii.invalid').searchParams.get('sort'),'nearest');assert.doesNotMatch(href,/lat|lng|32\.2|34\.8/);}
 });
