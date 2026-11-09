@@ -89,6 +89,7 @@
         "tests/gallery-audit-apply.test.mjs",
         "tests/gallery-api-audit-source-flow.test.mjs",
         "tests/gallery-api-audit-job-sqlite.actual.test.mjs",
+        "tests/gallery-ordered-json-large.actual.test.mjs",
         "tests/gallery-candidate-archive.test.mjs",
         "tests/gallery-audit-apply.actual.test.mjs",
         "tests/gallery-archive-runtime.actual.test.mjs"

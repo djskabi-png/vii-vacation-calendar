@@ -1,6 +1,6 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
-import { createGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
+import { createGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditDiagnostics, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
 import { applyGalleryAuditWorld, readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
@@ -19,6 +19,7 @@ export async function GET(request: Request) {
   if (!valid(id)) return Response.json({ error: "invalid_job_id" }, { status: 400, headers });
   try {
     const { bucket } = await environment();
+    if (query.get("diagnostics") === "1") return Response.json({ ok: true, contexts: await readGalleryAuditDiagnostics(bucket, id) }, { headers });
     const applyWorld = query.get("applyWorld");
     if (applyWorld) {
       if (!["vacations", "events", "rooms", "spa"].includes(applyWorld)) return Response.json({ error: "invalid_world" }, { status: 400, headers });

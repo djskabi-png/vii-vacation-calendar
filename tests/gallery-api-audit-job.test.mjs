@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchGalleryAuditSource, createGalleryAuditJob, readGalleryAuditJob, stepGalleryAuditJob } from "../app/lib/gallery-api-audit-job.ts";
+import { fetchGalleryAuditSource, createGalleryAuditJob, readGalleryAuditJob, readGalleryAuditDiagnostics, stepGalleryAuditJob } from "../app/lib/gallery-api-audit-job.ts";
 
 const jsonResponse = (value, init = {}) => new Response(JSON.stringify(value), { headers: { "content-type": "application/json" }, ...init });
 
@@ -12,7 +12,7 @@ test("gallery source rejects redirects before following", async () => {
 });
 
 test("gallery source enforces streamed body limit", async () => {
-  const oversized = new Uint8Array(8_000_001);
+  const oversized = new Uint8Array(16_000_001);
   await assert.rejects(
     fetchGalleryAuditSource("https://bizonline.co.il/api/ai/vii/vacations/1", {}, async () => new Response(oversized, { status: 200 })),
     /provider_body_too_large/,
@@ -53,6 +53,25 @@ function fakeDb(worlds) {
     } };
   } };
 }
+
+test("a failed context identifies its source and stores private metadata without retrying the terminal job", async () => {
+  const bucket = new FakeR2(), db = fakeDb({ vacations: [1], events: [2], rooms: [3], spa: [4] });
+  const jobId = "11111111-1111-4111-8111-111111111111";
+  await createGalleryAuditJob({ db, bucket, jobId });
+  let calls = 0;
+  const fetchImpl = async () => { calls++; return new Response("not-json"); };
+  const options = { db, bucket, jobId, env: { SERGEY_VII_API_TOKEN: "fixture", SPAPLUS_VII_API_KEY: "fixture" }, fetchImpl };
+  const failed = await stepGalleryAuditJob(options);
+  assert.equal(failed.state, "error");
+  assert.deepEqual(failed.sourceIssues, ["provider_context:locations:gallery_invalid_json"]);
+  const diagnostics = await readGalleryAuditDiagnostics(bucket, jobId);
+  assert.equal(diagnostics.length, 9);
+  assert.equal(diagnostics[0].state, "error");
+  assert.equal(diagnostics[0].errorCode, "gallery_invalid_json");
+  assert.equal(JSON.stringify(diagnostics).includes("not-json"), false);
+  await stepGalleryAuditJob(options);
+  assert.equal(calls, 1);
+});
 
 test("concurrent start with same UUID reserves one identical job", async () => {
   const bucket = new FakeR2();

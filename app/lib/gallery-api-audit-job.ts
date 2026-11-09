@@ -25,6 +25,7 @@ const root = "https://bizonline.co.il/api/ai/vii";
 const paths = ["/locations", "/vacations", "/vacations/types", "/events", "/events/types", "/rooms", "/rooms/locations", "/rooms/types", "spa"];
 export const GALLERY_AUDIT_PREFIX = "vii-gallery-audit/v1/";
 const metadata = { contentType: "application/json", cacheControl: "private, no-store" };
+const PROVIDER_BODY_MAX = 16_000_000;
 const key = (id: string, suffix = "job.json") => `${GALLERY_AUDIT_PREFIX}${id}/${suffix}`;
 const contextKey = (id: string, path: string) => key(id, `context/${path === "spa" ? "spa" : path.slice(1).replaceAll("/", "-")}.json`);
 const record = (v: unknown): Record<string, unknown> => v && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : {};
@@ -80,11 +81,11 @@ export async function fetchGalleryAuditSource(url: string, headers: Record<strin
     const response = await fetchImpl(url, { headers, signal: controller.signal, redirect: "manual", cache: "no-store" });
     if (response.status >= 300 && response.status < 400) throw new Error("provider_redirect");
     if (!response.ok) throw new Error(`provider_http_${response.status}`);
-    if (Number(response.headers.get("content-length")) > 8_000_000) throw new Error("provider_body_too_large");
+    if (Number(response.headers.get("content-length")) > PROVIDER_BODY_MAX) throw new Error("provider_body_too_large");
     if (!response.body) throw new Error("provider_empty");
     reader = response.body.getReader(); const chunks: Uint8Array[] = []; let bytes = 0;
     while (true) { const chunk = await reader.read(); if (chunk.done) break; bytes += chunk.value.byteLength;
-      if (bytes > 8_000_000) throw new Error("provider_body_too_large"); chunks.push(chunk.value); }
+      if (bytes > PROVIDER_BODY_MAX) throw new Error("provider_body_too_large"); chunks.push(chunk.value); }
     const all = new Uint8Array(bytes); let offset = 0;
     for (const chunk of chunks) { all.set(chunk, offset); offset += chunk.length; }
     const wire = new TextDecoder("utf-8", { fatal: true }).decode(all);
@@ -103,15 +104,22 @@ async function provider(path: string, env: ProviderEnv, fetchImpl: typeof fetch)
 }
 async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchImpl: typeof fetch) {
   const texts = new Map<string, string>();
-  for (let start = 0; start < paths.length; start += 4) {
-    const fetched = await Promise.allSettled(paths.slice(start, start + 4).map(async path => {
+  for (const path of paths) {
+    const fetched = await Promise.allSettled([ (async () => {
       const name = contextKey(job.jobId, path); const old = await bucket.get(name);
       if (old) { texts.set(path, await old.text()); return; }
       // Reserve a single attempt. A killed worker cannot silently restart an
       // uncertain provider operation; the job then needs an explicit review.
       if (!await immutable(bucket, name + ".attempt", JSON.stringify({ at: new Date().toISOString() }))) throw new Error("context_fetch_uncertain");
-      const wire = await provider(path, env, fetchImpl); await immutable(bucket, name, wire); texts.set(path, wire);
-    }));
+      try {
+        const wire = await provider(path, env, fetchImpl); await immutable(bucket, name, wire); texts.set(path, wire);
+      } catch (cause) {
+        const context = path === "spa" ? "spa" : path.slice(1).replaceAll("/", "_");
+        const code = message(cause);
+        await immutable(bucket, name + ".error", JSON.stringify({ context, code, at: new Date().toISOString() }));
+        throw new Error(`provider_context:${context}:${code}`);
+      }
+    })() ]);
     const failure = fetched.find((item): item is PromiseRejectedResult => item.status === "rejected");
     if (failure) throw failure.reason;
   }
@@ -219,4 +227,17 @@ export async function downloadGalleryAuditJob(bucket: R2Bucket, id: string) {
 }
 export async function readGalleryAuditItem(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
   const item = await bucket.get(key(id, `items/${world}-${supplierId}.json`)); return item ? JSON.parse(await item.text()) : null;
+}
+export async function readGalleryAuditDiagnostics(bucket: R2Bucket, id: string) {
+  const allowed = paths.map(path => path === "spa" ? "spa" : path.slice(1).replaceAll("/", "-"));
+  const contexts = [];
+  for (const name of allowed) {
+    const object = await bucket.get(key(id, `context/${name}.json`));
+    const error = await bucket.get(key(id, `context/${name}.json.error`));
+    const failure = error ? record(JSON.parse(await error.text())) : null;
+    contexts.push({ context: name, state: object ? "stored" : error ? "error" : "not_fetched", bytes: object?.size,
+      sha256: object?.customMetadata?.sha256,
+      errorCode: failure && typeof failure.code === "string" && /^[a-z_0-9:.-]{3,150}$/.test(failure.code) ? failure.code : undefined });
+  }
+  return contexts;
 }

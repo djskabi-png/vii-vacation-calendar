@@ -141,7 +141,7 @@ export default function GalleryAuditPage() {
         </div>
         <p>{Object.entries(job.worldCounts).map(([world, count]) => `${labels[world as keyof typeof labels]}: ${count.toLocaleString("he-IL")}`).join(" · ")}</p>
         {passed ? <p role="status">כל המקומות בבדיקה הזאת תואמים לנתוני הספק שנמשכו. בדיקת קובצי התמונות והעותקים השמורים נפרדת מהשוואת הסדר.</p> : job.state === "complete" ? <p role="alert">ההשוואה הסתיימה ויש תוצאות שדורשות טיפול. אין עדיין אישור שכל הגלריות תואמות.</p> : terminal(job) ? <p role="alert">הבדיקה לא הושלמה. אין אישור לכלל הגלריות.</p> : null}
-        <details style={{ marginTop: 20 }}><summary>תיעוד הבדיקה</summary><p>הדוח כולל שיוך תמונות ותוצאות השוואה. הגישה מוגנת בהרשאות הניהול.</p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&download=1`} download>הורדת דוח מפורט</a></details>
+        <details style={{ marginTop: 20 }}><summary>תיעוד הבדיקה</summary><p>הדוח כולל שיוך תמונות ותוצאות השוואה. הגישה מוגנת בהרשאות הניהול.</p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&download=1`} download>הורדת דוח מפורט</a><p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&diagnostics=1`}>אבחון מקורות</a></p></details>
         {canEdit && job.state === "complete" ? <section aria-label="תיקון גלריות מאומתות" style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #cde0e2" }}>
           <h2 style={{ fontSize: "1.25rem" }}>תיקון גלריות מאומתות</h2>
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>

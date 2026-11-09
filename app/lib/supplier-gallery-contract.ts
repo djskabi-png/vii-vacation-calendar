@@ -28,21 +28,55 @@ const first = (value: unknown, keys: string[]) => { const row = object(value); f
 const ordered = (value: unknown) => (object(value) as OrderedObject)[orderedEntries] || Object.entries(object(value));
 const images = (value: unknown) => Array.isArray(value) ? value.map((item) => typeof item === "string" ? canonicalImage(item) : first(item, ["id", "imageID", "imageId", "url", "src", "path"])).filter((item): item is string => Boolean(item)) : [];
 
-export function parseOrderedJson(source: string, maxBytes = 8_000_000, maxDepth = 32): unknown {
+export function parseOrderedJson(source: string, maxBytes = 16_000_000, maxDepth = 32, maxNodes = 1_000_000): unknown {
   if (new TextEncoder().encode(source).byteLength > maxBytes) throw new Error("gallery_json_too_large");
-  try { JSON.parse(source); } catch { throw new Error("gallery_invalid_json"); }
-  let cursor = 0; let nodes = 0;
-  const whitespace = () => { while (/\s/.test(source[cursor] || "")) cursor++; };
-  const read = (depth: number): unknown => {
-    if (++nodes > 200_000) throw new Error("gallery_json_too_large");
-    if (depth > maxDepth) throw new Error("gallery_json_too_deep");
+  // Allocate the provider tree once. A lexical pass annotates only objects
+  // whose numeric-key order would otherwise change in JavaScript.
+  let result: unknown;
+  try { result = JSON.parse(source); } catch { throw new Error("gallery_invalid_json"); }
+  let cursor = 0, nodes = 0;
+  const budget = () => { if (++nodes > maxNodes) throw new Error("gallery_json_too_many_nodes"); };
+  const whitespace = () => { while (/[ \t\r\n]/.test(source[cursor] || "")) cursor++; };
+  const stringEnd = () => { const start = cursor++; while (cursor < source.length) { const char = source[cursor++]; if (char === '"') return start; if (char === "\\") cursor++; } throw new Error("gallery_invalid_json"); };
+  const scan = (target: unknown, depth: number): void => {
+    budget(); if (depth > maxDepth) throw new Error("gallery_json_too_deep");
     whitespace(); const marker = source[cursor];
-    if (marker === '"') { const start = cursor; cursor++; while (cursor < source.length) { const char = source[cursor++]; if (char === '"') return JSON.parse(source.slice(start, cursor)); if (char === "\\") cursor++; if (char && char < " ") throw new Error("gallery_invalid_json"); } throw new Error("gallery_invalid_json"); }
-    if (marker === "[") { cursor++; const result: unknown[] = []; whitespace(); if (source[cursor] === "]") { cursor++; return result; } while (cursor < source.length) { result.push(read(depth + 1)); whitespace(); const separator = source[cursor++]; if (separator === "]") return result; if (separator !== ",") throw new Error("gallery_invalid_json"); } }
-    if (marker === "{") { cursor++; const result: OrderedObject = Object.create(null); const entries: Array<[string, unknown]> = []; const seen = new Set<string>(); whitespace(); if (source[cursor] === "}") { cursor++; result[orderedEntries] = entries; return result; } while (cursor < source.length) { const key = read(depth + 1); if (typeof key !== "string" || seen.has(key)) throw new Error("gallery_duplicate_key"); seen.add(key); whitespace(); if (source[cursor++] !== ":") throw new Error("gallery_invalid_json"); const child = read(depth + 1); Object.defineProperty(result, key, { value: child, enumerable: true, writable: true, configurable: true }); entries.push([key, child]); whitespace(); const separator = source[cursor++]; if (separator === "}") { result[orderedEntries] = entries; return result; } if (separator !== ",") throw new Error("gallery_invalid_json"); } }
-    const literal = source.slice(cursor).match(/^(true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/); if (!literal) throw new Error("gallery_invalid_json"); cursor += literal[1].length; return literal[1] === "true" ? true : literal[1] === "false" ? false : literal[1] === "null" ? null : Number(literal[1]);
+    if (marker === '"') { stringEnd(); return; }
+    if (marker === "[") {
+      cursor++; whitespace(); let index = 0;
+      if (source[cursor] === "]") { cursor++; return; }
+      while (cursor < source.length) {
+        scan(Array.isArray(target) ? target[index++] : undefined, depth + 1);
+        whitespace(); const separator = source[cursor++]; if (separator === "]") return;
+        if (separator !== ",") throw new Error("gallery_invalid_json");
+      }
+    } else if (marker === "{") {
+      cursor++; whitespace(); const keys: string[] = [], seen = new Set<string>();
+      const objectTarget = target && typeof target === "object" && !Array.isArray(target) ? target as OrderedObject : undefined;
+      const finish = () => {
+        if (!objectTarget) return;
+        Object.setPrototypeOf(objectTarget, null);
+        const natural = Object.keys(objectTarget);
+        if (keys.some((key, index) => key !== natural[index])) Object.defineProperty(objectTarget, orderedEntries,
+          { value: keys.map(key => [key, objectTarget[key]]), enumerable: false });
+      };
+      if (source[cursor] === "}") { cursor++; finish(); return; }
+      while (cursor < source.length) {
+        whitespace(); if (source[cursor] !== '"') throw new Error("gallery_invalid_json");
+        budget(); const start = stringEnd(), key = JSON.parse(source.slice(start, cursor)) as string;
+        if (seen.has(key)) throw new Error("gallery_duplicate_key"); seen.add(key); keys.push(key);
+        whitespace(); if (source[cursor++] !== ":") throw new Error("gallery_invalid_json");
+        scan(objectTarget?.[key], depth + 1);
+        whitespace(); const separator = source[cursor++]; if (separator === "}") { finish(); return; }
+        if (separator !== ",") throw new Error("gallery_invalid_json");
+      }
+    } else {
+      while (cursor < source.length && !/[\s,\]}]/.test(source[cursor])) cursor++;
+      return;
+    }
+    throw new Error("gallery_invalid_json");
   };
-  const result = read(0); whitespace(); if (cursor !== source.length) throw new Error("gallery_invalid_json"); return result;
+  scan(result, 0); whitespace(); if (cursor !== source.length) throw new Error("gallery_invalid_json"); return result;
 }
 export function orderedObjectEntries(value: unknown): Array<[string, unknown]> { return ordered(value); }
 
