@@ -30,7 +30,7 @@ test("slider boundaries are calculated from actual scroll progress in both direc
   const controls = read("app/components/slider-rail-controls.tsx");
   assert.match(controls, /maxScroll = Math\.max\(0, rail\.scrollWidth - rail\.clientWidth\)/);
   assert.match(controls, /Math\.abs\(rail\.scrollLeft\)/);
-  assert.match(controls, /useState<SliderRailState>\(\{ previous: false, next: true \}\)/);
+  assert.match(controls, /useState<SliderRailState>\(\{ previous: false, next: false \}\)/);
   assert.match(controls, /settleFrame = window\.requestAnimationFrame\(normalize\)/);
   assert.match(controls, /settleInterval = window\.setInterval\(normalize, 100\)/);
   assert.match(controls, /if \(userInteracted \|\| controlInteracted\.current\) return/);

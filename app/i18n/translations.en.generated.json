@@ -8898,5 +8898,11 @@
   "יום חמישי": "Thursday",
   "בחרו תאריך תקין בטווח המותר": "Enter a valid date within the allowed range",
   "לאירועים ב": "For events in",
-  ", עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.": ", with photos, facilities and contact details to plan your event."
+  ", עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.": ", with photos, facilities and contact details to plan your event.",
+  "ספקים קרובים אליי": "Providers near me",
+  "שפים, מוזיקה, צילום, עיצוב ושירותים שמגיעים לאזור שלכם. בחרו אזור כדי למצוא ספקים לפי אזורי השירות שלהם.": "Chefs, music, photography, design and services that come to your area. Choose an area to find providers by their service coverage.",
+  "ספקי האירוח והאירועים עובדים לפי אזורי שירות ולא תמיד מחזיקים כתובת קבועה. בחרו אזור ברשימת הסינון, בדקו אילו ספקים מציינים שהם מגיעים אליו, ופנו אליהם לקבלת הצעה ותיאום.": "Hospitality and event providers work by service areas and may not have a fixed address. Choose an area in the filters, check which providers serve it, and contact them for a quote and coordination.",
+  "איך מוצאים ספק שמגיע לאזור שלי?": "How do I find a provider who serves my area?",
+  "בחרו אזור ברשימת הסינון. התוצאות מבוססות על אזורי השירות שהספקים פרסמו, ולא על מרחק GPS מדויק או זמן נסיעה.": "Choose an area in the filters. Results are based on the service areas providers publish, not exact GPS distance or travel time.",
+  "חיפה ועד אשדוד": "Haifa to Ashdod"
 }

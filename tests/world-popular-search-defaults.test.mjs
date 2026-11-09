@@ -10,7 +10,7 @@ test('canonical nearby worlds keep direct links while legacy nearby actions reta
  assert.equal(popularSearchWorlds.length,8);
  for(const world of popularSearchWorlds){
  const rows=parseHomepagePresentation(undefined,world.id).popular;
- assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);if(['providers','corporate'].includes(world.id)) assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest'); else assert.match(nearby.href,/\/near-me$/);
+ assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);if(['corporate'].includes(world.id)) assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest'); else assert.match(nearby.href,/\/near-me$/);
  for(const row of rows)assert.ok(existsSync(new URL('../public'+row.image,import.meta.url)),row.image);
  }
 });

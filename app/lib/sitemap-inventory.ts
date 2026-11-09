@@ -123,7 +123,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       ? [{ url: absoluteUrl(`/guides/${article.slug}`), images: [absoluteUrl(article.image)], lastModified: article.modifiedAt }]
       : localizedEntries(`/guides/${article.slug}`, [article.image]));
     return unique([...expand([
-      ...(availability.trails ? [{ path: "/trails" }, { path: "/trails/near-me" }] : []), ...(availability.attractions ? [{ path: "/attractions" }, { path: "/attractions/near-me" }] : []), ...(availability.providers ? [{ path: "/providers" }, { path: "/providers/near-me" }] : []), { path: "/guides" },
+      ...(availability.trails ? [{ path: "/trails" }, { path: "/trails/near-me" }] : []), ...(availability.attractions ? [{ path: "/attractions" }, { path: "/attractions/near-me" }] : []), ...(availability.providers ? [{ path: "/providers/near-me" }] : []), { path: "/guides" },
       ...(availability.attractions ? activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })) : []),
       ...(availability.trails ? trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })) : []),
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities")) && availability[(place.world === "activities" ? "attractions" : place.world) as keyof typeof availability] !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
