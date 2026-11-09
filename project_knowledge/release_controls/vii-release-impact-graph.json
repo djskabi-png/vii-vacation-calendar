@@ -845,6 +845,8 @@
         "app/lib/sergey-amenities.ts",
         "app/lib/gallery-api-audit-job.ts",
         "app/lib/catalog-snapshot.ts",
+        "infrastructure/postgres/catalog-snapshot-reader.mjs",
+        "infrastructure/postgres/catalog-snapshot-limits.json",
         "app/lib/gallery-api-audit.ts",
         "app/lib/supplier-gallery-contract.ts",
         "app/lib/gallery-media-patch.ts",

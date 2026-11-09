@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CATALOG_SNAPSHOT_SQL, CATALOG_SNAPSHOT_DIAGNOSTIC_SQL, catalogSnapshotResponse } from '../app/lib/catalog-snapshot.ts';
+import { CATALOG_SNAPSHOT_SQL, CATALOG_SNAPSHOT_DIAGNOSTIC_SQL, SNAPSHOT_MAX_BYTES, catalogSnapshotResponse } from '../app/lib/catalog-snapshot.ts';
 import { verifyActiveCatalogSnapshot } from '../infrastructure/postgres/catalog-snapshot-reader.mjs';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
 import { createSignedValue } from '../app/lib/google-auth.ts';
@@ -87,18 +87,37 @@ test('mismatched counts, world, locks, malformed JSON and missing generations fa
 test('SQL guards measure UTF8 bytes and withhold all row bodies for oversized input',async()=>{
   const f=fixture();
   try {
-    // One large raw field stays below provider row limit, but total >12MiB.
+    // Each field stays below the row limit, while the aggregate exceeds cap.
     const payload=JSON.stringify({large:'א'.repeat(799000)});
     f.sqlite.prepare('UPDATE supplier_catalog_entries SET detail_json=?').run(payload);
     for(let i=2;i<=3;i++) f.sqlite.prepare('INSERT INTO supplier_catalog_entries VALUES(?,?,?,?,?,?)').run('extra'+i,'run-spa','spa',i,'{}',payload);
     f.sqlite.exec("UPDATE supplier_catalog_state SET active_count=3 WHERE world='spa'");
     // Add another couple of bounded rows to cross cap without oversize rows.
-    for(let i=4;i<=5;i++) f.sqlite.prepare('INSERT INTO supplier_catalog_entries VALUES(?,?,?,?,?,?)').run('extra'+i,'run-spa','spa',i,'{}',payload);
-    f.sqlite.exec("UPDATE supplier_catalog_state SET active_count=5 WHERE world='spa'");
+    for(let i=4;i<=11;i++) f.sqlite.prepare('INSERT INTO supplier_catalog_entries VALUES(?,?,?,?,?,?)').run('extra'+i,'run-spa','spa',i,'{}',payload);
+    f.sqlite.exec("UPDATE supplier_catalog_state SET active_count=11 WHERE world='spa'");
+    const measured=JSON.parse(f.sqlite.prepare(CATALOG_SNAPSHOT_SQL).all()[0].data).rawBytes;
+    const reducedBytes=Buffer.byteLength(payload)-(measured-SNAPSHOT_MAX_BYTES-1);
+    const emptyBytes=Buffer.byteLength(JSON.stringify({large:''}));
+    assert.ok(reducedBytes>emptyBytes);
+    f.sqlite.prepare("UPDATE supplier_catalog_entries SET detail_json=? WHERE id='extra11'").run(JSON.stringify({large:'x'.repeat(reducedBytes-emptyBytes)}));
     const raw=f.sqlite.prepare(CATALOG_SNAPSHOT_SQL).all();
     assert.equal(raw.length,1); assert.equal(raw[0].kind,'control'); assert.equal(JSON.parse(raw[0].data).ok,0);
+    assert.equal(JSON.parse(raw[0].data).rawBytes,SNAPSHOT_MAX_BYTES+1);
     assert.equal((await catalogSnapshotResponse(new Request(endpoint),deps(f.db))).status,503);
   } finally {f.sqlite.close();}
+});
+
+test('a complete formerly blocked catalog above 12MiB exports and verifies through the independent reader',async()=>{
+ const f=fixture();try{
+  const payload=JSON.stringify({large:'א'.repeat(799000)});
+  f.sqlite.prepare('UPDATE supplier_catalog_entries SET detail_json=?').run(payload);
+  for(let i=2;i<=5;i++)f.sqlite.prepare('INSERT INTO supplier_catalog_entries VALUES(?,?,?,?,?,?)').run('larger'+i,'run-spa','spa',i,'{}',payload);
+  f.sqlite.exec("UPDATE supplier_catalog_state SET active_count=5 WHERE world='spa'");
+  const response=await catalogSnapshotResponse(new Request(endpoint),deps(f.db));assert.equal(response.status,200);
+  const text=await response.text(),manifest=JSON.parse(text.slice(0,text.indexOf('\n')));
+  assert.ok(manifest.rawBytes>12*1024*1024);assert.ok(manifest.rawBytes<SNAPSHOT_MAX_BYTES);
+  const result=verifyActiveCatalogSnapshot(text);assert.equal(result.proof.integrityVerified,true);assert.equal(result.proof.counts.entry,8);
+ }finally{f.sqlite.close();}
 });
 
 test('invalid method/query/origin/identity and database failure do not expose payloads or retry',async()=>{
@@ -179,7 +198,7 @@ test('private diagnostics expose only fixed guard counters and no supplier paylo
 
 test('diagnostics report byte overflow and stale locks without returning payloads',async()=>{
  const f=fixture(); try {
-  f.sqlite.prepare("UPDATE supplier_catalog_entries SET detail_json=? WHERE id='entry-spa'").run(JSON.stringify({large:'א'.repeat(7000000)}));
+  f.sqlite.prepare("UPDATE supplier_catalog_entries SET detail_json=? WHERE id='entry-spa'").run(JSON.stringify({large:'א'.repeat(Math.ceil(SNAPSHOT_MAX_BYTES/2))}));
   const overflow=await catalogSnapshotResponse(new Request(endpoint+'?diagnostics=1'),deps(f.db)); const over=await overflow.json();
   assert.equal(overflow.status,200); assert.equal(over.byte_limit_ok,0); assert.equal(over.ok,false); assert.equal('large' in over,false);
   f.sqlite.exec("UPDATE supplier_catalog_state SET lock_until='2026-10-19T00:00:00Z' WHERE world='spa'");

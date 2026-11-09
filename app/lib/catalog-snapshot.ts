@@ -1,6 +1,9 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import snapshotLimits from '../../infrastructure/postgres/catalog-snapshot-limits.json' with { type: 'json' };
 
-export const SNAPSHOT_MAX_BYTES = 12 * 1024 * 1024;
+// The accepted four-world catalog measured 13,196,686 raw bytes after gallery
+// repair. Keep an explicit cap while admitting the complete current catalog.
+export const SNAPSHOT_MAX_BYTES = snapshotLimits.maxRawBytes;
 export const SNAPSHOT_MAX_ROWS = 5008;
 export const SNAPSHOT_SEED = "vii-active-catalog-snapshot-v1";
 // One SQL statement is the snapshot boundary. No pagination, session bookmark

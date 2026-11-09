@@ -1,12 +1,15 @@
 import { createHash } from 'node:crypto';
 import { convertCatalogSnapshot } from './catalog-converter.mjs';
+import snapshotLimits from './catalog-snapshot-limits.json' with {type:'json'};
 
 // Independent consumer: no application helper, authorization or network calls.
 // The caller owns private artifact handling. Never print or commit raw rows.
 const seed = 'vii-active-catalog-snapshot-v1';
 const worlds = new Set(['vacations', 'events', 'rooms', 'spa']);
 export function verifyActiveCatalogSnapshot(text) {
-  if (typeof text !== 'string' || Buffer.byteLength(text) > 28 * 1024 * 1024 || !text.endsWith('\n')) throw new Error('invalid_snapshot_stream');
+  // JSON escaping can double raw bytes. Retain bounded manifest/row overhead.
+  const maxWireBytes = snapshotLimits.maxRawBytes * 2 + 4 * 1024 * 1024;
+  if (typeof text !== 'string' || Buffer.byteLength(text) > maxWireBytes || !text.endsWith('\n')) throw new Error('invalid_snapshot_stream');
   const lines = text.slice(0, -1).split('\n');
   if (lines.length < 14 || lines.length > 5010) throw new Error('invalid_snapshot_stream');
   let manifest, footer, chain = seed;
