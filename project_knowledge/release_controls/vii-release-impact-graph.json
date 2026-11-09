@@ -94,6 +94,7 @@
         "tests/gallery-api-audit-scope-performance.actual.test.mjs",
         "tests/gallery-audit-continuation.actual.test.mjs",
         "tests/gallery-audit-apply-prefetch.actual.test.mjs",
+        "tests/gallery-regular-sync-retention.actual.test.mjs",
         "tests/gallery-candidate-archive.test.mjs",
         "tests/gallery-audit-apply.actual.test.mjs",
         "tests/gallery-archive-runtime.actual.test.mjs"

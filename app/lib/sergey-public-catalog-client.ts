@@ -268,9 +268,14 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             summary: record(old.detail).summary || "", meta: { description: record(old.summary).description || "" },
             has_prices: record(old.summary).onlinePrices === true,
           }, cities, areas, amenityIndex);
+          const previewImages = unique([
+            ...(Array.isArray(record(normalized.summary).images) ? record(normalized.summary).images as string[] : []),
+            ...sergeyPlaceImages([{ pictures: record(old.detail).images }]),
+          ]);
           entries[index] = { supplierId: ids[index], summary: {
             ...record(old.summary),
             ...record(normalized.summary),
+            image: previewImages[0], images: previewImages,
             description: record(old.summary).description || record(normalized.summary).description,
             ...("highlights" in record(old.summary) ? { highlights: record(old.summary).highlights } : {}),
           }, detail: old.detail };

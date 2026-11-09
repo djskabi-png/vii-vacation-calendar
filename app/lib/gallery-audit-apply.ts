@@ -66,8 +66,19 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           // normalized and API copies for all 545 vacation places at once.
           const source = sourceById.get(current.supplierId);
           if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || projectionIssues(source.api, source.normalizedContract).length) { receipt.skipped++; entries.push(current); continue; }
+          if (world === "vacations" || world === "events") {
+            const wire = rawById.get(current.supplierId);
+            if (!wire) throw new Error("gallery_source_snapshot_missing");
+            const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(wire)))].map(x => x.toString(16).padStart(2, "0")).join("");
+            if (sha !== source.finding?.sha256) throw new Error("gallery_source_checksum_changed");
+          }
           const contract = await buildAcceptedGalleryContract(world, current);
-          if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) throw new Error("gallery_baseline_changed");
+          if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) {
+            // A concurrent, guarded sync may already have repaired this owner.
+            // Keep its current facts. A different media change is never undone.
+            if (!projectionIssues(source.api, contract).length) { entries.push(current); checked.push({ supplierId: current.supplierId, api: source.api }); continue; }
+            receipt.skipped++; (receipt.sourceWarnings ||= []).push({ supplierId: current.supplierId, issues: ["unverified_gallery_baseline_changed"] }); entries.push(current); continue;
+          }
           // A source can declare a new empty, incomplete unit. Keep that owner
           // unpublished and explicit in the receipt while repairing existing
           // owners. Never discard an API owner which has usable media.
@@ -98,8 +109,6 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           if (world === "vacations" || world === "events") {
             const wire = rawById.get(current.supplierId);
             if (!wire) throw new Error("gallery_source_snapshot_missing");
-            const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(wire)))].map(x => x.toString(16).padStart(2, "0")).join("");
-            if (sha !== source.finding?.sha256) throw new Error("gallery_source_checksum_changed");
             const listing = listingById.get(current.supplierId);
             const proof = await proveSupplierMediaDetail(parseOrderedJson(wire), listing, next, current, new Date());
             if (!proof) { receipt.skipped++; entries.push(current); continue; }

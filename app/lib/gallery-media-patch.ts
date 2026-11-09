@@ -21,7 +21,8 @@ export function patchGalleryMedia(world: SupplierCatalogWorld, current: Supplier
   } else {
     const oldPackages = children(cs.packages), newPackages = children(ns.packages);
     if (!sameChildren(oldPackages, newPackages)) throw new Error("gallery_child_set_mismatch");
-    const byId = new Map(newPackages.map((r) => [childId(r), r])); next.summary = { ...media(cs, ns), packages: oldPackages.map((r) => media(r, byId.get(childId(r))!)) };
+    const beforeById = new Map(oldPackages.map((r) => [childId(r), r]));
+    next.summary = { ...media(cs, ns), packages: newPackages.map((r) => media(beforeById.get(childId(r))!, r)) };
   }
   return next;
 }
