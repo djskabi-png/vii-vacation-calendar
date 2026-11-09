@@ -22,7 +22,7 @@ export function pricedSpaSearchItem(item:DiscoveryItem,audience:SpaSearchAudienc
   if(!index)return min>0||Number.isFinite(max)?null:audience?{...item,priceLabel:undefined}:item;
   const prices=(audience?index[audience]||[]:index.all).filter(value=>Number.isFinite(value)&&value>0&&value>=min&&value<=max);
   if(!prices.length)return min>0||Number.isFinite(max)?null:{...item,priceLabel:undefined};
-  return {...item,priceLabel:`החל מ־₪ ${Math.min(...prices).toLocaleString('he-IL')}`};
+  return {...item,priceLabel:`החל מ ₪ ${Math.min(...prices).toLocaleString('he-IL')}`};
 }
 
 export function spaPriceQuery(params:URLSearchParams,minText:string,maxText:string) {

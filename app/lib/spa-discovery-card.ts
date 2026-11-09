@@ -51,7 +51,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
       site.image,
       ...(site.gallery || []),
     ].filter((image): image is string => Boolean(image)))],
-    priceLabel: prices.length ? `החל מ־₪ ${Math.min(...prices).toLocaleString("he-IL")}` : undefined,
+    priceLabel: prices.length ? `החל מ ₪ ${Math.min(...prices).toLocaleString("he-IL")}` : undefined,
     spaPackagePrices: priceIndex,
     spaFacilityTerms: [...new Set([...factualFeatures, ...(site.optionalFeatures || []).map(feature=>feature.label)])],
     phone: site.phone || undefined,
