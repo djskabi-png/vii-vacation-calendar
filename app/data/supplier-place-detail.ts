@@ -7,6 +7,7 @@ import { unknownReviewer } from "../i18n/vii-live-search-copy.ts";
 import { supplierContactNumber } from "../lib/supplier-contact.ts";
 import { sergeyPlaceGalleryGroups, sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "../lib/sergey-gallery.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "../lib/sergey-amenities.ts";
+import { parseOrderedJson } from "../lib/supplier-gallery-contract.ts";
 
 export type SupplierPlaceDetail = {
   name?: string;
@@ -22,7 +23,7 @@ export type SupplierPlaceDetail = {
   features?: string[];
   featureGroups?: Array<{ title: string; items: string[] }>;
   images: string[];
-  galleryGroups?: Array<{ title: string; images: string[] }>;
+  galleryGroups?: Array<{ id?: string; title: string; images: string[] }>;
   summary: string;
   previewText?: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string; cancellationTerms?: string };
@@ -76,7 +77,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       fetchImpl(`https://bizonline.co.il/api/ai/vii/${world}/types`, { headers, cache: "no-store", signal: AbortSignal.timeout(6_000) }).catch(() => null),
     ]);
     if (!response.ok) return fallback;
-    const detail = record(await response.json());
+    const detail = record(parseOrderedJson(await response.text()));
     if (detail.active !== true || detail.id !== Number(match[2])) return fallback;
     const images = sergeyPlaceImages(detail.galleries);
     if (!images.length) return fallback;

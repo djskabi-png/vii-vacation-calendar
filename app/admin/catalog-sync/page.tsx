@@ -187,6 +187,7 @@ export default function CatalogSyncPage() {
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
       <div><h1 style={{ margin: 0, fontSize: "1.8rem" }}>סנכרון קטלוגים</h1><p>מקומות, חדרים וחבילות לפי הנתונים שהתקבלו מהספקים.</p>
         <nav aria-label="מסכי ניהול" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <a href="/admin/gallery-audit" style={{ color: "#126d75", textDecoration: "underline" }}>בדיקת גלריות מול המקור</a>
           <a href="/admin/discovery-promotions" style={{ color: "#126d75", textDecoration: "underline" }}>ניהול חשיפה</a>
           <a href="/admin/operations" style={{ color: "#126d75", textDecoration: "underline" }}>הזמנות וחוות דעת</a>
           <a href="/admin/whatsapp-leads" style={{ color: "#126d75", textDecoration: "underline" }}>פניות וואטסאפ</a>

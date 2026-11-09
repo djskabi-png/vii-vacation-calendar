@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
-import { gallerySelectionScope, galleryTopicTabs, uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
+import { gallerySelectionScope, galleryTopicTabs, resolveGalleryTopic, uniqueGalleryItems, visibleGalleryItems, type GallerySelectionTab } from "./gallery-selection";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { signalExperienceStage } from '../lib/experience-signals';
 import { isSafeYoutubeEmbed } from '../lib/verified-supplier-videos';
@@ -17,6 +17,7 @@ type GalleryItem = {
   label: string;
   category: "place" | "units" | "bedrooms" | "guests";
   topic: string;
+  topicKey?: string;
 };
 
 export type GalleryTab = GallerySelectionTab;
@@ -47,14 +48,6 @@ const tabLabels: Record<GalleryTab, string> = {
   videos: "סרטונים",
 };
 
-function resolvedInitialTopic(items: GalleryItem[], property: GallerySubject, requested?: string | null) {
-  if (!requested) return null;
-  if (items.some((item) => item.topic === requested)) return requested;
-  const room = property.roomOptions?.find((option) => option.name === requested);
-  const roomSources = new Set(room ? (room.images?.length ? room.images : room.image ? [room.image] : []) : []);
-  return items.find((item) => roomSources.has(item.src))?.topic ?? null;
-}
-
 export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", initialTopic, guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; initialTopic?: string | null; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number, topic: string | null) => void; onClose: () => void }) {
   const { language, translate } = useSiteLanguage();
   const experienceScope = useId();
@@ -73,13 +66,15 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const dialog = useRef<HTMLDivElement>(null);
   const gestureStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const allItems = useMemo(() => {
-    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: galleryItemLabel(room.name, property.name, index), category: "units" as const, topic: room.name })));
+    const roomIds = new Map<number, number>();
+    for (const room of property.roomOptions || []) { const id = room.supplierRoomID; if (typeof id === "number" && Number.isSafeInteger(id) && id > 0) roomIds.set(id, (roomIds.get(id) || 0) + 1); }
+    const unitItems = (property.roomOptions || []).flatMap((room, roomIndex) => { const id = room.supplierRoomID; const topicKey = typeof id === "number" && Number.isSafeInteger(id) && id > 0 && roomIds.get(id) === 1 ? `unit:${id}` : `unit:index:${roomIndex}`; return (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: galleryItemLabel(room.name, property.name, index), category: "units" as const, topic: room.name, topicKey })); });
     const groupedPlaceItems = property.galleryGroups?.length
-      ? property.galleryGroups.flatMap((group) => group.images.map((src, index) => ({ src, label: galleryItemLabel(group.title, property.name, index), category: "place" as const, topic: group.title })))
-      : property.images.map((src, index) => ({ src, label: galleryItemLabel("המקום והמתקנים", property.name, index), category: "place" as const, topic: "המקום והמתקנים" }));
+      ? property.galleryGroups.flatMap((group, groupIndex) => group.images.map((src, index) => ({ src, label: galleryItemLabel(group.title, property.name, index), category: "place" as const, topic: group.title, topicKey: `place:${groupIndex}:${group.title}` })))
+      : property.images.map((src, index) => ({ src, label: galleryItemLabel("המקום והמתקנים", property.name, index), category: "place" as const, topic: "המקום והמתקנים", topicKey: "place:default" }));
     const groupedSources = new Set(groupedPlaceItems.map((item) => item.src));
     const ungroupedPlaceItems = property.galleryGroups?.length
-      ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: galleryItemLabel("תמונות נוספות", property.name, index), category: "place" as const, topic: "תמונות נוספות" }))
+      ? property.images.filter((src) => !groupedSources.has(src)).map((src, index) => ({ src, label: galleryItemLabel("תמונות נוספות", property.name, index), category: "place" as const, topic: "תמונות נוספות", topicKey: "place:ungrouped" }))
       : [];
     return uniqueGalleryItems([
       // Supplier galleries are the editorial source of truth. Keep their
@@ -89,14 +84,15 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       ...groupedPlaceItems,
       ...ungroupedPlaceItems,
       ...unitItems,
-      ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
-      ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
+      ...(property.sleepingArrangements || []).map((room, index) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה", topicKey: `bedroom:${room.name}:${index}` })),
+      ...guestPhotos.map((photo, index) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים", topicKey: `guest:${index}` })),
     ]);
   }, [guestPhotos, property]);
-  const defaultTopic = useMemo(() => allItems.find((item) => item.category !== "guests")?.topic ?? null, [allItems]);
-  const topicScope = gallerySelectionScope(allItems, initialTab === "guests" || initialTab === "videos" ? "all" : initialTab, resolvedInitialTopic(allItems, property, initialTopic) ?? defaultTopic);
+  const defaultTopic = useMemo(() => { const item = allItems.find((candidate) => candidate.category !== "guests"); return item?.topicKey || item?.topic || null; }, [allItems]);
+  const resolvedTopic = resolveGalleryTopic(allItems, initialTopic, initialTab);
+  const topicScope = gallerySelectionScope(allItems, initialTab === "guests" || initialTab === "videos" ? "all" : initialTab, resolvedTopic ?? defaultTopic);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
-  const [topic, setTopic] = useState<string | null>(() => resolvedInitialTopic(allItems, property, initialTopic) ?? (initialTab === "all" ? defaultTopic : null));
+  const [topic, setTopic] = useState<string | null>(() => resolvedTopic ?? (initialTab === "all" ? defaultTopic : null));
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
   const [mobileViewer, setMobileViewer] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -115,8 +111,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const mobileGroups = useMemo(() => {
     const groups = new Map<string, Array<{ item: GalleryItem; index: number }>>();
     visibleItems.forEach((item) => {
-      const current = groups.get(item.topic) || [];
-      groups.set(item.topic, [...current, { item, index: current.length }]);
+      const groupKey = item.topicKey || item.topic; const current = groups.get(groupKey) || [];
+      groups.set(groupKey, [...current, { item, index: current.length }]);
     });
     return [...groups.entries()];
   }, [visibleItems]);
@@ -204,13 +200,13 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
-      <div><span>{topic ? `גלריית ${topic}` : "גלריית תמונות"}</span><h2 id="story-gallery-title">{topic ? `${topic} · ${property.name}` : property.name}</h2></div>
+      <div><span>{topic ? `גלריית ${current?.topic || "תמונות"}` : "גלריית תמונות"}</span><h2 id="story-gallery-title">{topic ? `${current?.topic || "תמונות"} · ${property.name}` : property.name}</h2></div>
       <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : mobileViewer ? `${selected + 1} מתוך ${visibleItems.length}` : `${visibleItems.length} תמונות`}</div>
       <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
     </header>
 
     <nav className="story-gallery__tabs" aria-label="נושאים בגלריה">
-      {topicTabs.map((item) => <button key={item.title} type="button" aria-pressed={topic === item.title} onClick={() => selectTopic(item.title)}>{item.title}<small>{item.count}</small></button>)}
+      {topicTabs.map((item) => { const key = ("key" in item ? item.key : undefined) || item.title; return <button key={key} type="button" aria-pressed={topic === key} onClick={() => selectTopic(key)}>{item.title}<small>{item.count}</small></button>; })}
       {topicScope === "place" ? <button type="button" aria-pressed={tab === "guests"} onClick={() => selectTab("guests")}>{tabLabels.guests}<small>{guestPhotos.length}</small></button> : null}
       {topicScope === "place" && property.videos?.length ? <button type="button" aria-pressed={tab === "videos"} onClick={() => selectTab("videos")}>{tabLabels.videos}<small>{property.videos.length}</small></button> : null}
     </nav>
@@ -231,7 +227,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </article>)}
     </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
-        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab(topicScope === "place" ? "all" : topicScope); setTopic(item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /></button>)}</div></section>)}
+        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{items[0]?.item.topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setTab(topicScope === "place" ? "all" : topicScope); setTopic(item.topicKey || item.topic); setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" onLoad={event => reportImage(event.currentTarget, 'ready')} onError={event => reportImage(event.currentTarget, 'error')} /></button>)}</div></section>)}
       </div>
       <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__mobile-media">

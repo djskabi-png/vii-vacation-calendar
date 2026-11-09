@@ -9,7 +9,7 @@ export const adminModules = [
   { id: "professor", label: "שאל את פרופסור", editable: true, pages: ["/admin/professor"], apis: ["professor"] },
   { id: "promotions", label: "קידום מקומות", editable: true, pages: ["/admin/discovery-promotions"], apis: ["discovery-promotions"] },
   { id: "redirects", label: "כתובות והפניות", editable: true, pages: ["/admin/redirects"], apis: ["redirects"] },
-  { id: "catalogs", label: "קטלוגים וספקים", editable: true, pages: ["/admin/catalog-sync"], apis: ["catalog-sync"] },
+  { id: "catalogs", label: "קטלוגים וספקים", editable: true, pages: ["/admin/catalog-sync", "/admin/gallery-audit"], apis: ["catalog-sync", "gallery-audit"] },
   { id: "geography", label: "ערים ואזורים", editable: true, pages: ["/admin/geography"], apis: ["geography"] },
   { id: "operations", label: "הזמנות וחוות דעת", editable: true, pages: ["/admin/operations"], apis: ["operations"] },
   { id: "leads", label: "פניות וואטסאפ", editable: true, pages: ["/admin/whatsapp-leads"], apis: ["whatsapp-leads"] },

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {gallerySelectionScope,galleryTopicTabs,uniqueGalleryItems,visibleGalleryItems} from '../app/components/gallery-selection.ts';
+import {gallerySelectionScope,galleryTopicTabs,resolveGalleryTopic,uniqueGalleryItems,visibleGalleryItems} from '../app/components/gallery-selection.ts';
 
 const item=(category,topic,src)=>({category,topic,src});
 const media=uniqueGalleryItems([
@@ -37,4 +37,29 @@ test('guest, bedroom and video modes retain independent identities',()=>{
  assert.deepEqual(visibleGalleryItems(media,'guests',null).map(x=>x.src),['guest.jpg']);
  assert.deepEqual(visibleGalleryItems(media,'videos',null),[]);
  assert.equal(media.length,9);
+});
+test('entity keys keep same-title units and same-source images independently addressable',()=>{
+ const collision=[
+  item('place','סוויטה','place.jpg'),
+  {...item('units','סוויטה','unit-a.jpg'),topicKey:'unit:4602:0'},
+  {...item('units','סוויטה','unit-b.jpg'),topicKey:'unit:4603:1'},
+  {...item('units','סוויטה','shared.jpg'),topicKey:'unit:4602:0'},
+  {...item('place','סוויטה','shared.jpg'),topicKey:'place:0:סוויטה'},
+ ];
+ assert.deepEqual(galleryTopicTabs(collision,'all'),[
+  {title:'סוויטה',count:1},
+  {key:'unit:4602:0',title:'סוויטה',count:2},
+  {key:'unit:4603:1',title:'סוויטה',count:1},
+  {key:'place:0:סוויטה',title:'סוויטה',count:1},
+ ]);
+ assert.deepEqual(visibleGalleryItems(collision,'all','unit:4602:0').map(x=>x.src),['unit-a.jpg','shared.jpg']);
+ assert.deepEqual(visibleGalleryItems(collision,'all','unit:4603:1').map(x=>x.src),['unit-b.jpg']);
+});
+test('legacy unit topic resolves to the unit entity when place shares its title',()=>{
+ const items=[
+  {src:'place.jpg',label:'',category:'place',topic:'סוויטה',topicKey:'place:0:סוויטה'},
+  {src:'unit.jpg',label:'',category:'units',topic:'סוויטה',topicKey:'unit:4602'},
+ ];
+ assert.equal(resolveGalleryTopic(items,'סוויטה','units'),'unit:4602');
+ assert.equal(resolveGalleryTopic(items,'סוויטה','all'),'place:0:סוויטה');
 });

@@ -10684,7 +10684,7 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 }
 .home-popular-search-item { min-width:0; scroll-snap-align:start; }
 .home-popular-search-item > a { height:100%; }
-.home-popular-search-location { width:58px; height:56px; padding:15px; border-radius:12px; color:#087d88; background:#e8f7f7; }
+.home-popular-search-location { box-sizing:border-box; width:58px; height:56px; padding:15px; flex:none; border-radius:12px; color:#087d88; background:#e8f7f7; }
 .home-popular-search-error { display:block; padding:6px; color:#9b3030; font-size:.75rem; }
 .home-popular-search-item a[aria-busy="true"] { opacity:.65; cursor:progress; }
 .world-popular-searches { margin-block:18px 24px; min-width:0; }

@@ -3,7 +3,8 @@ import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "./sergey-amenities.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
-import { sergeyRoomImages } from "./sergey-gallery.ts";
+import { sergeyPlaceGalleryGroups, sergeyRoomImages } from "./sergey-gallery.ts";
+import { orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -24,7 +25,7 @@ function plainText(value: unknown) {
 }
 
 function pictures(galleries: unknown) {
-  const values = Array.isArray(galleries) ? galleries : Object.values(record(galleries));
+  const values = Array.isArray(galleries) ? galleries : orderedObjectEntries(galleries).map(([, value]) => value);
   return [...new Set(values.flatMap((gallery) => {
     const items = record(gallery).pictures;
     return Array.isArray(items) ? items : [];
@@ -61,7 +62,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
     } catch { throw new Error("sergey_transport_error"); }
     if (response.status >= 300 && response.status < 400) throw new SupplierCatalogRedirectError("sergey_redirect_not_allowed", response.status, response.headers.get("Location"), `${root}${path}`);
     if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "sergey_not_authorized" : "sergey_provider_error");
-    try { return record(await response.json()); } catch { throw new Error("invalid_sergey_response"); }
+    try { return record(parseOrderedJson(await response.text())); } catch { throw new Error("invalid_sergey_response"); }
   }
 
   return {
@@ -112,6 +113,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
               featureGroups: sergeyAmenityGroups(room.amenities, amenityIndex),
               rates: rates(room.basePrices),
               images: roomPictures(room, detail.galleries),
+              galleryGroups: sergeyPlaceGalleryGroups(room.galleries),
             };
           }) : [];
           entries[index] = { supplierId, summary: {
@@ -125,6 +127,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
             features: sharedFeatures,
             featureGroups: sergeyAmenityGroups(detail.shared_amenities, amenityIndex),
             images: pictures(detail.galleries),
+            galleryGroups: sergeyPlaceGalleryGroups(detail.galleries),
             phone: typeof record(detail.contact).phone === "string" ? record(detail.contact).phone : "",
             whatsapp: typeof record(detail.contact).whatsapp === "string" ? record(detail.contact).whatsapp : "",
             lat: record(detail.gps).lat,

@@ -44,7 +44,7 @@ test("supplier cover remains first while repeated unit media keeps one consisten
   assert.match(business, /const placeGalleryImages = property\.images;/);
   assert.match(galleryExperience, /return uniqueGalleryItems\(\[/);
   assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.ungroupedPlaceItems,[\s\S]*?\.\.\.unitItems,/);
-  assert.match(gallerySelection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
+  assert.match(gallerySelection, /const identity = `\$\{item\.category\}\\u0000\$\{keyFor\(item\)\}\\u0000\$\{item\.src\}`/);
   const scoped=[{category:"place",topic:"Suite",src:"editorial"},{category:"units",topic:"Suite",src:"room"}];
   assert.deepEqual(visibleGalleryItems(scoped,"all","Suite").map(item=>item.src),["editorial"]);
   assert.deepEqual(visibleGalleryItems(scoped,"units","Suite").map(item=>item.src),["room"]);

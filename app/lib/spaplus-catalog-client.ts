@@ -1,6 +1,7 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError, SpaCatalogJsonError } from "./supplier-catalog-diagnostics.ts";
+import { orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
 
 type ParseNode = { nodeName: string; value?: string; childNodes?: ParseNode[] };
 
@@ -76,7 +77,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
     if (!id || Number(key) !== id || !title) throw new Error("invalid_spa_site");
     if (site.gallery !== undefined && !Array.isArray(site.gallery)) throw new Error("invalid_spa_gallery");
     const gallery = [...new Set((site.gallery || []).map((value) => safeUrl(value)).filter((url): url is string => Boolean(url)))];
-    const packages = Object.values(record(site.packages)).map((value) => {
+    const packages = orderedObjectEntries(site.packages).map(([, value]) => {
       const pack = record(value);
       const packageId = positive(pack.MainPageID);
       const supplierPackageId = positive(pack.idPack);
@@ -146,12 +147,12 @@ export function createSpaPlusCatalogClient(options: { apiKey: string; fetchImpl?
       // Decode once as response.json() does, including UTF-8 BOM handling. Body stays in memory only.
       const text = new TextDecoder().decode(bytes);
       let body: unknown;
-      try { body = JSON.parse(text); } catch (error) {
+      try { body = parseOrderedJson(text); } catch (error) {
         const first = text.trimStart()[0];
         throw new SpaCatalogJsonError({ httpStatus: response.status, contentType: response.headers.get("Content-Type"),
           responseBytes: bytes.byteLength,
           firstCharacterKind: first === "{" || first === "[" ? "json-like" : first === "<" ? "html-like" : "other",
-          parseErrorKind: error instanceof SyntaxError ? "syntax_error" : "other" });
+          parseErrorKind: error instanceof SyntaxError || error instanceof Error && error.message === "gallery_invalid_json" ? "syntax_error" : "other" });
       }
       return { fetchedAt: new Date().toISOString(), entries: normalizeSpaPlusCatalog(body) };
     },

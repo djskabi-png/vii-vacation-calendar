@@ -24,7 +24,7 @@ export type Listing = {
   bedrooms?: number;
   image: string;
   images: string[];
-  galleryGroups?: Array<{ title: string; images: string[] }>;
+  galleryGroups?: Array<{ id?: string; title: string; images: string[] }>;
   description: string;
   features: string[];
   searchFilterIds?: string[];

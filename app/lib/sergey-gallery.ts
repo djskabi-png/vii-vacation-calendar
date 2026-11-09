@@ -1,13 +1,18 @@
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
+import { orderedObjectEntries } from "./supplier-gallery-contract.ts";
 
-type Gallery = { title?: unknown; pictures?: unknown; roomID?: unknown };
+type Gallery = { id?: unknown; galleryID?: unknown; galleryId?: unknown; title?: unknown; pictures?: unknown; roomID?: unknown; _wireKey?: string };
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
 function galleryList(value: unknown): Gallery[] {
-  return (Array.isArray(value) ? value : Object.values(record(value))).map((item) => record(item));
+  return (Array.isArray(value) ? value.map((item) => ["", item] as const) : orderedObjectEntries(value)).map(([key, item]) => {
+    const row = record(item);
+    return Object.prototype.hasOwnProperty.call(row, "id") || Object.prototype.hasOwnProperty.call(row, "galleryID") || Object.prototype.hasOwnProperty.call(row, "galleryId")
+      ? row as Gallery : { ...row, _wireKey: key } as Gallery;
+  });
 }
 
 function imageUrl(value: unknown): string | null {
@@ -19,8 +24,10 @@ function images(galleries: Gallery[]): string[] {
     ? gallery.pictures.map(imageUrl).filter((url): url is string => Boolean(url)) : []))];
 }
 
-export function sergeyPlaceGalleryGroups(galleries: unknown): Array<{ title: string; images: string[] }> {
+export function sergeyPlaceGalleryGroups(galleries: unknown): Array<{ id?: string; title: string; images: string[] }> {
   return galleryList(galleries).map((gallery, index) => ({
+    ...((gallery.id ?? gallery.galleryID ?? gallery.galleryId ?? gallery._wireKey) !== undefined && String(gallery.id ?? gallery.galleryID ?? gallery.galleryId ?? gallery._wireKey).trim()
+      ? { id: String(gallery.id ?? gallery.galleryID ?? gallery.galleryId ?? gallery._wireKey).trim() } : {}),
     title: typeof gallery.title === "string" && gallery.title.trim() ? gallery.title.trim() : `גלריה ${index + 1}`,
     images: images([gallery]),
   })).filter((gallery) => gallery.images.length);
@@ -40,6 +47,10 @@ export function sergeyPlaceImages(galleries: unknown): string[] {
 }
 
 export function sergeyRoomImages(room: Record<string, unknown>, siteGalleries: unknown): string[] {
+  if (Object.prototype.hasOwnProperty.call(room, "galleries")) {
+    const explicit = galleryList(room.galleries);
+    if (!explicit.length) return [];
+  }
   const roomGalleries = galleryList(room.galleries);
   if (roomGalleries.length) return images(roomGalleries);
   const roomId = Number(room.roomID);

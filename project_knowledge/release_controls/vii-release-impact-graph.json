@@ -80,7 +80,14 @@
         "tests/vacation-online-first.test.mjs",
         "tests/vii-unified-19-regression.test.mjs",
         "tests/amenity-identities.actual.test.mjs",
-        "tests/legacy-place-feature-groups-2728.test.mjs"
+        "tests/legacy-place-feature-groups-2728.test.mjs",
+        "tests/supplier-gallery-contract.test.mjs",
+        "tests/supplier-gallery-contract.actual.test.mjs",
+        "tests/gallery-api-audit.test.mjs",
+        "tests/gallery-api-audit-job.test.mjs",
+        "tests/gallery-media-patch.test.mjs",
+        "tests/gallery-audit-apply.test.mjs",
+        "tests/gallery-api-audit-source-flow.test.mjs"
       ]
     },
     "global-shell": {
@@ -121,7 +128,8 @@
         "tests/sitewide-mobile-polish.test.mjs",
         "tests/guest-review-count-contract.test.mjs",
         "tests/world-switcher-events.actual.test.mjs",
-        "tests/slider-frame-boundaries-actual.test.mjs"
+        "tests/slider-frame-boundaries-actual.test.mjs",
+        "tests/popular-nearby-tile-layout-contract.test.mjs"
       ]
     },
     "search": {
@@ -822,7 +830,12 @@
         "db/schema.ts",
         "drizzle/meta/_journal.json",
         "app/lib/business-amenities-cache.ts",
-        "app/lib/sergey-amenities.ts"
+        "app/lib/sergey-amenities.ts",
+        "app/lib/gallery-api-audit-job.ts",
+        "app/lib/gallery-api-audit.ts",
+        "app/lib/supplier-gallery-contract.ts",
+        "app/lib/gallery-media-patch.ts",
+        "app/lib/gallery-audit-apply.ts"
       ]
     },
     {

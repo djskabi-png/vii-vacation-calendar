@@ -11,6 +11,7 @@ import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.
 import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
 import { proveSupplierDetail, proveSupplierMediaDetail, supplierEntryFingerprint, supplierDetailProofIssue } from "./supplier-detail-contract.ts";
 import {selectDetailRefreshIds,stampDetailRefresh} from './supplier-detail-refresh.ts';
+import { parseOrderedJson } from './supplier-gallery-contract.ts';
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -142,6 +143,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
         })]),
         featureGroups: [...sergeyAmenityGroups(room.amenities, amenityIndex), ...sergeyRoomFeatureGroups(room)],
         images: positive(room.roomID) ? sergeyRoomImages(room, raw.galleries) : [],
+        galleryGroups: sergeyPlaceGalleryGroups(room.galleries),
       };
     }),
     reviews: (Array.isArray(reviews.list) ? reviews.list : []).map(record)
@@ -224,7 +226,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
     } catch { throw new Error("sergey_transport_error"); }
     if (response.status >= 300 && response.status < 400) throw new SupplierCatalogRedirectError("sergey_redirect_not_allowed", response.status, response.headers.get("Location"), `${root}${path}`);
     if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "sergey_not_authorized" : "sergey_provider_error");
-    try { return record(await response.json()); } catch { throw new Error("invalid_sergey_response"); }
+    try { return record(parseOrderedJson(await response.text())); } catch { throw new Error("invalid_sergey_response"); }
   }
 
   return {
