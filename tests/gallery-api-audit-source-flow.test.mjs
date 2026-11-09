@@ -44,6 +44,7 @@ test('actual resumable job matches complete nonempty place AND unit through the 
   assert.ok(item.finding.sha256.match(/^[a-f0-9]{64}$/));
   assert.ok(bucket.objects.has(item.rawKey));
   assert.equal(calls.filter(x=>x.endsWith('/vacations/17')).length,1);
-  assert.equal(calls.filter(x=>x.startsWith('www.spaplus.co.il')).length,1);
+  // The vacation batch must not retain the unrelated full SPA response.
+  assert.equal(calls.filter(x=>x.startsWith('www.spaplus.co.il')).length,0);
   assert.equal(completed.value.matched,1);
 });
