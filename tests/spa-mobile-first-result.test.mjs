@@ -32,7 +32,7 @@ test("the shared discovery hero grid is not overridden by obsolete attractions o
 
 test("spa filter button controls the real filter strip", async () => {
   const results = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
-  assert.match(results, /id="spa-result-filters"[^>]*hidden=\{!filtersOpen\}/);
+  assert.match(results, /id="spa-result-filters"[^>]*data-open=\{filtersOpen\}/);
   assert.match(results, /className="spa-results__filter-toggle"[^>]*aria-controls="spa-result-filters"[^>]*aria-expanded=\{filtersOpen\}/);
   assert.match(results, /aria-busy=\{pending\}/);
   assert.match(results, /spa-results__filter-spinner/);
