@@ -108,12 +108,16 @@ export async function assertGallerySourceProjection(world: GalleryContract["worl
   const source = listPlace ? { ...object(raw), representative_galleries: object(listPlace).galleries } : raw;
   const expected = await buildApiGalleryContract(world, supplierId, source);
   const actual = await buildAcceptedGalleryContract(world, entry);
-  const issues = compareGalleryContracts(expected, actual).issues.filter(issue => !issue.startsWith("unverified_empty_owner_media:"));
+  // Reviewed source-file failures remain visible in the audit. They must not
+  // prevent healthy owners from refreshing when their surviving order agrees.
+  const issues = compareGalleryContracts(expected, actual).issues.filter(issue =>
+    !issue.startsWith("unverified_empty_owner_media:") && !issue.startsWith("unverified_quarantined_api_media:"));
   if (issues.length) throw new Error("supplier_gallery_projection_mismatch");
 }
 
 export function compareGalleryContracts(expected: GalleryContract, actual: GalleryContract) {
   const issues: string[] = []; if (!expected.entities.length || !actual.entities.length) issues.push("unknown_or_empty"); if (expected.world !== actual.world || expected.supplierId !== actual.supplierId) issues.push("foreign_entity"); if (expected.entities.length !== actual.entities.length) issues.push("entity_membership");
+  for (const filename of expected.excludedImageIds || []) issues.push(`unverified_quarantined_api_media:${filename}`);
   for (const value of [...expected.entities, ...actual.entities]) if (!value.imageIds.length) issues.push(`unverified_empty_owner_media:${value.entityKey}`);
   if (expected.previewImageIds && JSON.stringify(expected.previewImageIds) !== JSON.stringify(actual.previewImageIds)) issues.push("preview_image_order");
   for (let index = 0; index < Math.max(expected.entities.length, actual.entities.length); index++) { const left = expected.entities[index], right = actual.entities[index]; if (!left || !right || left.entityKey !== right.entityKey || left.galleryKey !== right.galleryKey) { issues.push(`entity_order:${index}`); continue; } if (left.imageIds.length !== right.imageIds.length || left.imageIds.some((id, imageIndex) => id !== right.imageIds[imageIndex])) issues.push(`image_order:${left.entityKey}`); const lg = left.groups || [], rg = right.groups || []; if (lg.length !== rg.length) issues.push(`group_membership:${left.entityKey}`); for (let g = 0; g < Math.max(lg.length, rg.length); g++) { const a = lg[g], b = rg[g]; if (!a || !b) continue; if (!a.key || !b.key) issues.push(`unverified_group_identity:${left.entityKey}:${g}`); else if (a.key !== b.key) issues.push(`group_order:${left.entityKey}:${g}`); if (a.imageIds.length !== b.imageIds.length || a.imageIds.some((id, i) => id !== b.imageIds[i])) issues.push(`group_image_order:${left.entityKey}:${g}`); } }

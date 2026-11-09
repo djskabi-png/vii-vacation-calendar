@@ -109,3 +109,12 @@ test("SPA package identity prefers MainPageID and keeps pack_picture as one imag
   assert.deepEqual(contract.entities.map((entity) => entity.entityKey), ["spa:55:package:7", "spa:55:package:9"]);
   assert.deepEqual(contract.entities.map((entity) => entity.imageIds), [["package-7.jpg"], ["package-9.jpg"]]);
 });
+
+test("a reviewed provider 404 stays unverified while surviving package identities and order remain enforceable", async () => {
+  const raw = { packages: [{ MainPageID: 6860, pack_picture: "https://www.spaplus.co.il/gallery/1773307880052130.jpeg" }] };
+  const contract = await buildApiGalleryContract("spa", 532, raw);
+  assert.deepEqual(contract.excludedImageIds, ["1773307880052130.jpeg"]);
+  assert.deepEqual(contract.entities[0].imageIds, []);
+  assert.equal(compareGalleryContracts(contract, contract).equal, false);
+  assert.ok(compareGalleryContracts(contract, contract).issues.some(issue => issue.includes("quarantined")));
+});

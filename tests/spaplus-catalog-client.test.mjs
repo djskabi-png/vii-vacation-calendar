@@ -32,6 +32,18 @@ test("normalizes a real-shaped spa site and package without inventing a dated of
   assert.equal(Object.hasOwn(entry.summary, "availability"), false);
 });
 
+test("quarantines the verified provider 404 without borrowing the venue image or losing package facts", () => {
+  const source = structuredClone(payload);
+  source.sites[42].packages.a.pack_picture = "https://www.spaplus.co.il/gallery/1773307880052130.jpeg";
+  const [entry] = normalizeSpaPlusCatalog(source);
+  const pack = entry.summary.packages[0];
+  assert.equal(pack.image, null);
+  assert.equal(pack.id, 7);
+  assert.equal(pack.price, 399.5);
+  assert.equal(pack.title, "חבילה זוגית");
+  assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
+});
+
 test("accepts the previous supplier image field as a compatibility fallback", () => {
   const legacy = structuredClone(payload);
   legacy.sites[42][imageField] = legacy.sites[42].spa_picture;

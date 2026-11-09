@@ -53,6 +53,8 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, job }, { headers });
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : "gallery_audit_unavailable";
+    console.error("VII gallery audit unavailable", { action: body.action,
+      reason: /^[a-z_0-9:.-]{3,150}$/.test(message) ? message : "audit_runtime_failure" });
     const status = message === "audit_step_in_progress" ? 409 : message === "gallery_audit_job_not_found" ? 404 : 503;
     return Response.json({ error: status === 503 ? "gallery_audit_unavailable" : message }, { status, headers });
   }

@@ -12,6 +12,10 @@ export function isQuarantinedGalleryMedia(value: unknown) {
   if (typeof value !== "string") return false;
   try {
     const url = new URL(value, LEGACY_GALLERY_ROOT);
+    // SPA532/package6860: the API-declared package image returned 404 during
+    // the complete official-provider byte audit on 9 November 2026.
+    if (url.protocol === "https:" && url.hostname === "www.spaplus.co.il"
+      && url.pathname === "/gallery/1773307880052130.jpeg") return true;
     const legacy = ["vii.co.il", "www.vii.co.il"].includes(url.hostname) && url.pathname.startsWith("/gallery/");
     const local = value.startsWith(LOCAL_MEDIA_ROOT) || (["vii.spaplus.co", "vii-vacation-calendar.adir-naor-7510.chatgpt.site"].includes(url.hostname) && url.pathname.startsWith(LOCAL_MEDIA_ROOT));
     if (!legacy && !local) return false;

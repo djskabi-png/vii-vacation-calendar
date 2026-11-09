@@ -4,6 +4,7 @@ import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SpaEditorialReviewError, catalogDiagnosticLimit,
   type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import { isBannedPublicMedia } from "./public-media-policy.ts";
+import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
 import officialFacilityEvidence from "../data/spaplus-official-facility-evidence.json" with { type: "json" };
 
 function text(value: unknown) {
@@ -12,13 +13,14 @@ function text(value: unknown) {
 
 function withCanonicalSpaImage(site: SpaPlusSite): SpaPlusSite {
   const gallery = Array.isArray(site.gallery)
-    ? site.gallery.filter((image) => Boolean(image) && !isBannedPublicMedia(image))
+    ? site.gallery.filter((image) => Boolean(image) && !isBannedPublicMedia(image) && !isQuarantinedGalleryMedia(image))
     : [];
-  const image = site.image && !isBannedPublicMedia(site.image)
+  const image = site.image && !isBannedPublicMedia(site.image) && !isQuarantinedGalleryMedia(site.image)
     && (gallery.length === 0 || gallery.includes(site.image))
     ? site.image
     : gallery[0];
-  return { ...site, image, gallery };
+  return { ...site, image, gallery, packages: Array.isArray(site.packages) ? site.packages.map(pack =>
+    isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" } : pack) : [] };
 }
 
 type SpaFacilityEvidence = {

@@ -25,6 +25,16 @@ test("commercial-only and already-projected updates remain accepted", async () =
   await validateSpaEditorialCandidate([]);
 });
 
+test("public SPA projection removes the known 404 package image while preserving that package and its facts", async () => {
+  const site = structuredClone(catalog.sites.find(site => site.packages.length));
+  site.packages[0].image = "https://www.spaplus.co.il/gallery/1773307880052130.jpeg";
+  const before = structuredClone(site.packages[0]);
+  const projected = await projectSpaViiSite(site);
+  assert.equal(projected.packages[0].image, "");
+  assert.deepEqual({ ...projected.packages[0], image: before.image }, before);
+  assert.equal(site.packages[0].image, before.image);
+});
+
 test("an orphan supplier cover is replaced by the first approved gallery image", async () => {
   const site = structuredClone(catalog.sites[0]);
   const gallery = ["https://www.spaplus.co.il/gallery/working-cover.jpeg", ...(site.gallery || [])];

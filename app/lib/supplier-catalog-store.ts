@@ -428,7 +428,7 @@ export async function readSupplierCatalogSummaries(db: D1Database, world: Suppli
  */
 export async function readSupplierCatalogInventory(db: D1Database, world: SupplierCatalogWorld) {
   if (!validWorld(world)) return null;
-  const state = await db.prepare(`SELECT active_run_id AS activeRunId, activeCount, accepted_at AS acceptedAt
+  const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount, accepted_at AS acceptedAt
     FROM supplier_catalog_state WHERE world = ?`).bind(world).first<StateRow & { activeCount?: number }>();
   if (!state?.activeRunId) return null;
   const rows = await db.prepare(`SELECT supplier_id AS supplierId,

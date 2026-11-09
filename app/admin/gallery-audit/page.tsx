@@ -13,6 +13,7 @@ export default function GalleryAuditPage() {
   const canEdit = useAdminCanEdit();
   const [job, setJob] = useState<GalleryAuditJobSummary | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [jobMissing, setJobMissing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -29,8 +30,10 @@ export default function GalleryAuditPage() {
     });
     const body = await response.json() as { ok?: boolean; job?: GalleryAuditJobSummary; error?: string };
     if (!response.ok || !body.ok || !body.job || body.job.jobId !== id) {
+      if (response.status === 404) setJobMissing(true);
       throw new Error(response.status === 403 ? "אין הרשאה לפעולה הזאת. יש להיכנס כמנהל עם הרשאת קטלוגים." : response.status === 404 ? "הבדיקה עדיין לא נשמרה בשרת. אפשר להתחיל בדיקה חדשה." : "לא התקבל מצב בדיקה תקין. הפעולה נעצרה כדי למנוע הרצה כפולה.");
     }
+    setJobMissing(false);
     setJob(body.job);
     return body.job;
   }
@@ -59,6 +62,7 @@ export default function GalleryAuditPage() {
       localStorage.setItem(savedJobKey, id);
       setSavedId(id);
       setJob(null);
+      setJobMissing(false);
     }
     const deadline = Date.now() + 60 * 60_000;
     try {
@@ -120,7 +124,7 @@ export default function GalleryAuditPage() {
     <p>השוואת התמונות, הסדר והשיוך למקום, ליחידה ולחבילה מול נתוני הספק. הבדיקה שומרת תיעוד פרטי ואינה משנה את הגלריות באתר.</p>
     <section aria-label="הרצת בדיקה" style={{ padding: 20, marginBlock: 24, border: "1px solid #cde0e2", borderRadius: 18, background: "#fff" }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        {canEdit && !busy && !applying && (!savedId || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
+        {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
         {canEdit && savedId && !busy && job && !terminal(job) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(false)}>המשך הבדיקה השמורה</button> : null}
         {busy ? <button type="button" style={buttonStyle} onClick={() => { runRef.current?.abort(); setNotice("ההרצה נעצרה בדפדפן. הצעד שכבר נשלח עשוי להסתיים בשרת; יש לרענן את המצב לפני המשך."); }}>עצירה ושמירת התקדמות</button> : null}
         {savedId && !busy ? <button type="button" style={buttonStyle} onClick={() => { setError(""); void request(savedId).catch((cause) => setError(cause instanceof Error ? cause.message : "לא ניתן לרענן כעת.")); }}>רענון מצב</button> : null}

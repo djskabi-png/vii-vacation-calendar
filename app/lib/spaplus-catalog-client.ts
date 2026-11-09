@@ -2,6 +2,7 @@ import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError, SpaCatalogJsonError } from "./supplier-catalog-diagnostics.ts";
 import { assertGallerySourceProjection, orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
+import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
 
 type ParseNode = { nodeName: string; value?: string; childNodes?: ParseNode[] };
 
@@ -30,6 +31,7 @@ function safeUrl(value: unknown) {
   if (typeof value !== "string") throw new Error("invalid_spa_url");
   const url = new URL(value);
   if (url.protocol !== "https:" || url.hostname !== "www.spaplus.co.il") throw new Error("invalid_spa_url");
+  if (isQuarantinedGalleryMedia(url.href)) return null;
   return url.href;
 }
 
