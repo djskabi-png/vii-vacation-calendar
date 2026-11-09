@@ -6,8 +6,9 @@ import { NearbyRouteActivation } from "../../components/nearby-route-activation"
 import { hourlyPlacesFromCatalog } from "../../data/world-data";
 import { publicCatalogSummaries } from "../../lib/public-catalog-read";
 import { nearbyPageContent, nearbyPageFaq } from "../../lib/nearby-page-content";
+import { nearbyPageMetadata } from "../../lib/nearby-page-metadata";
 const page = nearbyPageContent.hourly;
-export const metadata: Metadata = { title: page.title, description: page.description, alternates: { canonical: page.path }, openGraph: { type:"website",url:page.path,title:page.title,description:page.description } };
+export async function generateMetadata(): Promise<Metadata> { return nearbyPageMetadata(page.path, page.title, page.description); }
 export default async function NearbyHourlyPage() {
  type Place = Parameters<typeof hourlyPlacesFromCatalog>[0][number];
  const items=hourlyPlacesFromCatalog(await publicCatalogSummaries<Place>("rooms"));

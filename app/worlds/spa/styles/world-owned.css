@@ -48,3 +48,9 @@
  .spa-results__view-actions .modern-select__label { display:none; }
  .spa-results__view-actions .spa-results__filter-toggle { flex-shrink:0; }
 }
+
+/* The shared SPA desktop rule previously hid the only filter trigger. */
+.spa-results__filter-toggle { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.spa-results__advanced-features label { min-height:44px; font-size:.88rem; cursor:pointer; }
+.spa-results__advanced-features input { width:18px; height:18px; flex-shrink:0; }
+.spa-results__filters h3 { margin:0; font-size:1.1rem; }

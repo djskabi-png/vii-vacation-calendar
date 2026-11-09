@@ -1285,6 +1285,31 @@
         "app/components/recommended-place-banner.css",
         "drizzle/0012_promotion_membership_flags.sql"
       ]
+    },
+    {
+      "id": "nearby-routes",
+      "ownerBox": "search",
+      "match": [
+        "app/components/nearby-route-activation.tsx",
+        "app/components/nearby-search-notice.tsx",
+        "app/lib/homepage-search-href.ts",
+        "app/lib/nearby-page-content.ts",
+        "app/lib/world-popular-search-defaults.ts",
+        "app/lib/nearby-page-metadata.ts",
+        "app/vacations/near-me/",
+        "app/spas/near-me/",
+        "app/events/near-me/",
+        "app/hourly/near-me/",
+        "app/trails/near-me/",
+        "app/attractions/near-me/"
+      ]
+    },
+    {
+      "id": "spa-owned-styles",
+      "ownerBox": "spa",
+      "match": [
+        "app/worlds/spa/styles/world-owned.css"
+      ]
     }
   ]
 }
