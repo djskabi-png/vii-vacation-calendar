@@ -4,7 +4,7 @@ import { buildAcceptedGalleryContract, compareGalleryContracts, parseOrderedJson
 import { patchGalleryMedia } from "./gallery-media-patch.ts";
 import { proveSupplierMediaDetail } from "./supplier-detail-contract.ts";
 import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
-import { readSupplierCatalogEntry, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
+import { readSupplierCatalog, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
 
 type ApplyReceipt = { world: AuditWorld; jobId: string; runId: string; state: "reserved" | "accepted" | "not_accepted"; changed: number; skipped: number; verified: number; verificationIssues: Array<{ supplierId: number; issues: string[] }>; finishedAt?: string; errorCode?: string };
@@ -29,16 +29,19 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
   try {
     const outcome = await runSupplierCatalogSync(db, { id: runId, world, source: "manual", baseline: [],
       fetchCandidate: async previous => {
-        const evidence = new Map<number, Awaited<ReturnType<typeof readGalleryAuditItem>>>();
-        for (let offset = 0; offset < targets.length; offset += 8) {
-          const group = targets.slice(offset, offset + 8);
-          const results = await Promise.allSettled(group.map(target => readGalleryAuditItem(bucket, jobId, world, target.supplierId)));
-          results.forEach((result, index) => { if (result.status === "fulfilled") evidence.set(group[index].supplierId, result.value); });
-          if (results.some(result => result.status === "rejected")) throw new Error("gallery_evidence_unavailable");
+        const wanted = new Set(targets.map(target => target.supplierId));
+        const listingById = new Map<number, unknown>();
+        if (world === "vacations" || world === "events") {
+          const listObject = await bucket.get(`${GALLERY_AUDIT_PREFIX}${jobId}/context/${world}.json`);
+          if (!listObject) throw new Error("gallery_source_snapshot_missing");
+          const list = row(parseOrderedJson(await listObject.text()));
+          for (const value of Array.isArray(list.places) ? list.places : []) listingById.set(Number(row(value).siteID), value);
         }
         const entries: SupplierCatalogEntry[] = [];
         for (const current of previous) {
-          const source = evidence.get(current.supplierId);
+          // Keep one source record in memory, rather than holding accepted,
+          // normalized and API copies for all 545 vacation places at once.
+          const source = wanted.has(current.supplierId) ? await readGalleryAuditItem(bucket, jobId, world, current.supplierId) : null;
           if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || !compareGalleryContracts(source.api, source.normalizedContract).equal) { receipt.skipped++; entries.push(current); continue; }
           const contract = await buildAcceptedGalleryContract(world, current);
           if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) throw new Error("gallery_baseline_changed");
@@ -48,13 +51,11 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           await archiveGalleryCandidate({ previous: current, candidate: next, bucket });
           if (world === "vacations" || world === "events") {
             const rawObject = await bucket.get(String(source.rawKey));
-            const listObject = await bucket.get(`${GALLERY_AUDIT_PREFIX}${jobId}/context/${world}.json`);
-            if (!rawObject || !listObject) throw new Error("gallery_source_snapshot_missing");
+            if (!rawObject) throw new Error("gallery_source_snapshot_missing");
             const wire = await rawObject.text();
             const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(wire)))].map(x => x.toString(16).padStart(2, "0")).join("");
             if (sha !== source.finding?.sha256) throw new Error("gallery_source_checksum_changed");
-            const list = row(parseOrderedJson(await listObject.text()));
-            const listing = Array.isArray(list.places) ? list.places.find(value => Number(row(value).siteID) === current.supplierId) : null;
+            const listing = listingById.get(current.supplierId);
             const proof = await proveSupplierMediaDetail(parseOrderedJson(wire), listing, next, current, new Date());
             if (!proof) { receipt.skipped++; entries.push(current); continue; }
             next.detailProof = proof;
@@ -68,9 +69,13 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
     receipt.state = outcome.status === "accepted" ? "accepted" : "not_accepted";
     if (outcome.status !== "accepted") receipt.errorCode = "errorCode" in outcome ? String(outcome.errorCode) : "catalog_lock_busy";
     else {
+      // The catalog reader uses eight-row keyset pages. A query per checked
+      // place would add 545 queries after an already staged full generation.
+      const active = await readSupplierCatalog(db, world);
+      const acceptedById = new Map(active?.entries.map(entry => [entry.supplierId, entry]));
       for (let offset = 0; offset < checked.length; offset += 8) {
         const results = await Promise.allSettled(checked.slice(offset, offset + 8).map(async item => {
-          const accepted = await readSupplierCatalogEntry(db, world, item.supplierId);
+          const accepted = acceptedById.get(item.supplierId);
           const comparison = accepted ? compareGalleryContracts(item.api, await buildAcceptedGalleryContract(world, accepted)) : { equal: false, issues: ["accepted_entry_missing"] };
           if (comparison.equal) receipt.verified++; else receipt.verificationIssues.push({ supplierId: item.supplierId, issues: comparison.issues });
         }));

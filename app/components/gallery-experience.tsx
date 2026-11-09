@@ -69,8 +69,10 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     const roomIds = new Map<number, number>();
     for (const room of property.roomOptions || []) { const id = room.supplierRoomID; if (typeof id === "number" && Number.isSafeInteger(id) && id > 0) roomIds.set(id, (roomIds.get(id) || 0) + 1); }
     const unitItems = (property.roomOptions || []).flatMap((room, roomIndex) => { const id = room.supplierRoomID; const topicKey = typeof id === "number" && Number.isSafeInteger(id) && id > 0 && roomIds.get(id) === 1 ? `unit:${id}` : `unit:index:${roomIndex}`; return (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: galleryItemLabel(room.name, property.name, index), category: "units" as const, topic: room.name, topicKey })); });
+    const groupIds = new Map<string, number>();
+    for (const group of property.galleryGroups || []) if (group.id) groupIds.set(group.id, (groupIds.get(group.id) || 0) + 1);
     const groupedPlaceItems = property.galleryGroups?.length
-      ? property.galleryGroups.flatMap((group, groupIndex) => group.images.map((src, index) => ({ src, label: galleryItemLabel(group.title, property.name, index), category: "place" as const, topic: group.title, topicKey: `place:${groupIndex}:${group.title}` })))
+      ? property.galleryGroups.flatMap((group, groupIndex) => group.images.map((src, index) => ({ src, label: galleryItemLabel(group.title, property.name, index), category: "place" as const, topic: group.title, topicKey: group.id && groupIds.get(group.id) === 1 ? `place:${group.id}` : `place:${groupIndex}:${group.title}` })))
       : property.images.map((src, index) => ({ src, label: galleryItemLabel("המקום והמתקנים", property.name, index), category: "place" as const, topic: "המקום והמתקנים", topicKey: "place:default" }));
     const groupedSources = new Set(groupedPlaceItems.map((item) => item.src));
     const ungroupedPlaceItems = property.galleryGroups?.length

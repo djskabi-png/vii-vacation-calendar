@@ -3,7 +3,7 @@ import { legacyGalleryFilename } from "./legacy-gallery-media.ts";
 import { PUBLIC_GALLERY_OBJECT_PREFIX, storedGalleryContentType } from "./gallery-media-identity.ts";
 import { sourceImageMagic } from "./catalog-media-origin-recovery.ts";
 
-const MAX = 12_000_000, CAP = 256, CONCURRENCY = 4, BUDGET = 30_000;
+const MAX = 12_000_000, CAP = 256, CONCURRENCY = 2, BUDGET = 30_000;
 type Entry = { summary?: unknown; detail?: unknown };
 type Receipt = { archived: Array<{ filename: string; bytes?: number; sha256?: string }>; skipped: string[]; complete: boolean };
 const mediaFields = new Set(["image", "images", "gallery"]);
