@@ -21,6 +21,19 @@ function bucket(){
 }
 const image=()=>new Response(photo,{headers:{'Content-Type':'image/jpeg','Content-Length':String(photo.length)}});
 
+test('recovery diagnostics distinguish catalog, source status and conditional storage without logging raw errors',async t=>{
+ const logs=[];t.mock.method(console,'error',(...args)=>logs.push(args));
+ const db=database();
+ await assert.rejects(()=>recoverCatalogMedia(request(),'new.jpg',{DB:{prepare(){throw Error('secret-token=never-log')}},UPLOADS:bucket()},async()=>image()));
+ await assert.rejects(()=>recoverCatalogMedia(request(),'new.jpg',{DB:db,UPLOADS:bucket()},async()=>new Response('blocked',{status:403})));
+ const b=bucket();b.put=async()=>{throw Error('private-password=never-log')};
+ await assert.rejects(()=>recoverCatalogMedia(request(),'new.jpg',{DB:db,UPLOADS:b},async()=>image()));
+ assert.deepEqual(logs.map(x=>x[1].stage),['catalog','source-fetch','r2-conditional-write']);
+ assert.deepEqual(logs.map(x=>x[1].code),['operation_failed','source_http_403','operation_failed']);
+ assert.ok(logs.every(x=>x[0]==='[VII_MEDIA_RECOVERY_FAILURE]'));
+ assert.doesNotMatch(JSON.stringify(logs),/secret-token|private-password|never-log/);
+});
+
 test('public Worker GET and HEAD import an accepted missing image through the shared authority',async t=>{
  const b=bucket(),db=database();let reads=0;
  t.mock.method(globalThis,'fetch',async(url,options)=>{reads++;assert.equal(url,'https://www.vii.co.il/gallery/new.jpg');assert.equal(options.headers.Cookie,undefined);return image()});

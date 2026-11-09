@@ -106,10 +106,12 @@ export async function recoverCatalogMedia(request: Request, filename: string,
     operation = (async (): Promise<Image | null> => {
       const deadline = AbortSignal.timeout(8_000);
       const release = await acquire(deadline);
+      let stage = "catalog";
       try {
       if (!await catalogReferencesGallery(db, filename)) return null;
       const key = `${PUBLIC_GALLERY_OBJECT_PREFIX}${filename}`;
       // Re-read before writing, including after an earlier uncertain PUT.
+      stage = "r2-read";
       const existing = await bucket.get(key);
       if (existing) {
         const type = storedGalleryContentType(existing.httpMetadata?.contentType);
@@ -118,19 +120,23 @@ export async function recoverCatalogMedia(request: Request, filename: string,
         return { bytes: await boundedImage(new Response(existing.body as unknown as ReadableStream, { headers: { "Content-Length": String(existing.size) } })), type, etag: existing.httpEtag };
       }
       const sourceUrl = `https://www.vii.co.il/gallery/${encodeURIComponent(filename)}`;
+      stage = "source-fetch";
       const upstream = await fetcher(sourceUrl, { redirect: "error", cache: "no-store",
         headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" }, signal: deadline });
       if (upstream.status === 404 || upstream.status === 410) { await upstream.body?.cancel(); return null; }
-      if (!upstream.ok) { await upstream.body?.cancel(); throw Error("source_image_unavailable"); }
+      if (!upstream.ok) { await upstream.body?.cancel(); throw Error(`source_http_${upstream.status}`); }
       const type = storedGalleryContentType(upstream.headers.get("Content-Type"));
       if (!type) { await upstream.body?.cancel(); throw Error("source_image_type_invalid"); }
+      stage = "source-body";
       const bytes = await boundedImage(upstream);
       if (!sourceImageMagic(bytes, type)) throw Error("source_image_magic_invalid");
       const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(b => b.toString(16).padStart(2,"0")).join("");
+      stage = "r2-conditional-write";
       const stored = await bucket.put(key, bytes, { onlyIf: new Headers({ "If-None-Match": "*" }) as unknown as WriteOptions["onlyIf"],
         httpMetadata: { contentType: type, cacheControl: "public, max-age=31536000, immutable" },
         customMetadata: { source: "accepted-supplier-gallery", sourceUrl, sha256: digest } });
       if (!stored) {
+        stage = "r2-winner-read";
         const winner = await bucket.get(key);
         if (!winner || winner.size > MAX_BYTES || storedGalleryContentType(winner.httpMetadata?.contentType) !== type) throw Error("conditional_media_write_unresolved");
         const winning = await boundedImage(new Response(winner.body as unknown as ReadableStream, { headers: { "Content-Length": String(winner.size) } }));
@@ -138,6 +144,12 @@ export async function recoverCatalogMedia(request: Request, filename: string,
         return { bytes: winning, type, etag: winner.httpEtag };
       }
       return { bytes, type, etag: stored.httpEtag };
+      } catch (error) {
+        const name = error instanceof Error ? error.name : "UnknownError";
+        const candidate = error instanceof Error ? error.message.split(/[:\s]/, 1)[0] : "";
+        const code = /^(?:source_(?:http_\d{3}|image_[a-z_]+)|stored_image_invalid|conditional_media_[a-z_]+|media_[a-z_]+|D1_ERROR|R2_ERROR)$/.test(candidate) ? candidate : "operation_failed";
+        console.error("[VII_MEDIA_RECOVERY_FAILURE]", { filename, stage, name, code });
+        throw error;
       } finally { release(); }
     })().finally(() => { pending!.delete(filename); });
     pending.set(filename, operation);
