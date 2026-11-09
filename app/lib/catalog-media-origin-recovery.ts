@@ -3,6 +3,7 @@ import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { PUBLIC_GALLERY_OBJECT_PREFIX, storedGalleryContentType, validGalleryFilename } from "./gallery-media-identity.ts";
 
 const MAX_BYTES = 8_000_000;
+type WriteOptions = NonNullable<Parameters<R2Bucket["put"]>[2]>;
 const authorization = new WeakMap<D1Database, Map<string, { until: number; allowed: boolean }>>();
 type Image = { bytes: Uint8Array; type: string; etag?: string };
 const operations = new WeakMap<R2Bucket, Map<string, Promise<Image | null>>>();
@@ -113,7 +114,8 @@ export async function recoverCatalogMedia(request: Request, filename: string,
       if (existing) {
         const type = storedGalleryContentType(existing.httpMetadata?.contentType);
         if (!type || existing.size > MAX_BYTES) throw Error("stored_image_invalid");
-        return { bytes: await boundedImage(new Response(existing.body, { headers: { "Content-Length": String(existing.size) } })), type, etag: existing.httpEtag };
+        // DOM and Workers declarations describe the same runtime web stream.
+        return { bytes: await boundedImage(new Response(existing.body as unknown as ReadableStream, { headers: { "Content-Length": String(existing.size) } })), type, etag: existing.httpEtag };
       }
       const sourceUrl = `https://www.vii.co.il/gallery/${encodeURIComponent(filename)}`;
       const upstream = await fetcher(sourceUrl, { redirect: "error", cache: "no-store",
@@ -125,13 +127,13 @@ export async function recoverCatalogMedia(request: Request, filename: string,
       const bytes = await boundedImage(upstream);
       if (!sourceImageMagic(bytes, type)) throw Error("source_image_magic_invalid");
       const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(b => b.toString(16).padStart(2,"0")).join("");
-      const stored = await bucket.put(key, bytes, { onlyIf: new Headers({ "If-None-Match": "*" }),
+      const stored = await bucket.put(key, bytes, { onlyIf: new Headers({ "If-None-Match": "*" }) as unknown as WriteOptions["onlyIf"],
         httpMetadata: { contentType: type, cacheControl: "public, max-age=31536000, immutable" },
         customMetadata: { source: "accepted-supplier-gallery", sourceUrl, sha256: digest } });
       if (!stored) {
         const winner = await bucket.get(key);
         if (!winner || winner.size > MAX_BYTES || storedGalleryContentType(winner.httpMetadata?.contentType) !== type) throw Error("conditional_media_write_unresolved");
-        const winning = await boundedImage(new Response(winner.body, { headers: { "Content-Length": String(winner.size) } }));
+        const winning = await boundedImage(new Response(winner.body as unknown as ReadableStream, { headers: { "Content-Length": String(winner.size) } }));
         if (!sourceImageMagic(winning, type)) throw Error("conditional_media_write_invalid");
         return { bytes: winning, type, etag: winner.httpEtag };
       }

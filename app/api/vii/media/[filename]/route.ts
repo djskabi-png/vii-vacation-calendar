@@ -1,5 +1,6 @@
 import { legacyGalleryBucket } from "../../../../lib/legacy-gallery-storage";
 import { PUBLIC_GALLERY_OBJECT_PREFIX, validGalleryFilename, storedGalleryContentType } from "../../../../lib/gallery-media-identity.ts";
+import type { D1Database } from "../../../../../types/cloudflare-runtime";
 
 const prefix = PUBLIC_GALLERY_OBJECT_PREFIX;
 // Only accepted catalog references can import an absent supplier image.
@@ -36,7 +37,7 @@ async function recovery(request: Request, filename: string) {
 async function recoverFromLegacyOrigin(request: Request, filename: string, bucket: Awaited<ReturnType<typeof legacyGalleryBucket>>) {
   const { env } = await import("cloudflare:workers");
   const { recoverCatalogMedia } = await import("../../../../lib/catalog-media-origin-recovery.ts");
-  return recoverCatalogMedia(request, filename, { DB: (env as { DB?: import("../../../../types/cloudflare-runtime").D1Database }).DB, UPLOADS: bucket });
+  return recoverCatalogMedia(request, filename, { DB: (env as { DB?: D1Database }).DB, UPLOADS: bucket });
 }
 
 async function storedObject(filename: string) {
