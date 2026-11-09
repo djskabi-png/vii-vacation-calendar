@@ -60,6 +60,6 @@ test("feature rows support mouse drag, native touch swipe and keyboard scrolling
   assert.match(horizontalRail, /event\.stopPropagation\(\)/);
   assert.match(horizontalRail, /event\.currentTarget\.scrollBy/);
   assert.match(css, /\.horizontal-chip-rail \{[^}]*overflow-x: auto;[^}]*-webkit-overflow-scrolling: touch;[^}]*touch-action: pan-x pan-y;/);
-  assert.match(viewportGuard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
-  assert.doesNotMatch(viewportGuard, /const reset = \(\) => \{[^}]*resetHorizontalCollections\(\)/);
+  assert.match(viewportGuard, /window\.addEventListener\("touchend", lockHorizontalScroll, \{ passive: true \}\)/);
+  assert.doesNotMatch(viewportGuard, /resetHorizontalCollections\(\)/);
 });

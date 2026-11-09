@@ -53,14 +53,14 @@ test("mobile horizontal collections contain their overflow without disabling sli
 test("the viewport guard continuously returns only the root viewport to its horizontal origin", () => {
   assert.match(guard, /window\.addEventListener\("scroll", lockHorizontalScroll, \{ passive: true \}\)/);
   assert.match(guard, /if \(!scrollingElement\?\.scrollLeft/);
-  assert.match(guard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
+  assert.match(guard, /window\.addEventListener\("touchend", lockHorizontalScroll, \{ passive: true \}\)/);
   const resetCollections = guard.slice(guard.indexOf("function resetHorizontalCollections()"), guard.indexOf("function releaseStaleViewportLocks()"));
-  assert.doesNotMatch(resetCollections, /querySelectorAll<HTMLElement>\("(?!\[data-horizontal-rail\])/);
+  assert.doesNotMatch(resetCollections, /querySelectorAll<HTMLElement>\("\[data-horizontal-rail\]"\)/);
 });
 
-test("restored mobile tabs reset only declared horizontal rails", () => {
-  assert.match(guard, /querySelectorAll<HTMLElement>\("\[data-horizontal-rail\]"\)/);
-  assert.match(guard, /rail\.scrollLeft = 0/);
+test("restored mobile tabs reset only the document viewport", () => {
+  assert.doesNotMatch(guard, /querySelectorAll<HTMLElement>\("\[data-horizontal-rail\]"\)/);
+  assert.match(guard, /function resetHorizontalViewport/);
   assert.match(showcase, /data-horizontal-rail/);
 });
 

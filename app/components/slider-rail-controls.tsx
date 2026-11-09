@@ -17,6 +17,45 @@ export function boundedSliderIndex(current: number, direction: -1 | 1, length: n
   return Math.max(0, Math.min(Math.max(0, length - 1), current + direction));
 }
 
+// Read actual card anchors instead of accumulating relative smooth-scroll
+// deltas. This also handles fractional mobile widths, RTL rubber-banding and
+// variable-width cards without asking the browser to scroll any ancestor.
+function sliderRailGeometry(rail: HTMLElement, itemSelector: string) {
+  const items = [...rail.querySelectorAll<HTMLElement>(itemSelector)];
+  const rtl = getComputedStyle(rail).direction === "rtl";
+  const first = items[0]?.getBoundingClientRect();
+  const max = Math.max(0, rail.scrollWidth - rail.clientWidth);
+  const progress = Math.max(0, Math.min(max, rail.scrollLeft * (rtl ? -1 : 1)));
+  const anchors = first ? items.map(item => {
+    const rect = item.getBoundingClientRect();
+    return Math.max(0, Math.min(max, rtl ? first.right - rect.right : rect.left - first.left));
+  }) : [];
+  return { rtl, max, progress, anchors };
+}
+
+function scrollSliderRail(rail: HTMLElement, target: number, rtl: boolean) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  rail.scrollTo({ left: target * (rtl ? -1 : 1), behavior: reducedMotion ? "instant" : "smooth" });
+}
+
+export function moveSliderRailByCard(rail: HTMLElement, direction: -1 | 1, itemSelector = ":scope > *") {
+  const { rtl, max, progress, anchors } = sliderRailGeometry(rail, itemSelector);
+  if (!anchors.length) return;
+  // Snap padding and fractional pixels can leave the settled position a few
+  // pixels short of an anchor. Treat it as the same card, not another advance.
+  const target = direction === 1
+    ? anchors.find(anchor => anchor > progress + 4) ?? max
+    : anchors.slice().reverse().find(anchor => anchor < progress - 4) ?? 0;
+  scrollSliderRail(rail, target, rtl);
+}
+
+export function scrollSliderRailToCard(rail: HTMLElement, index: number, itemSelector = ":scope > *") {
+  const { rtl, anchors } = sliderRailGeometry(rail, itemSelector);
+  if (!anchors.length) return;
+  const targetIndex = Math.max(0, Math.min(anchors.length - 1, index));
+  scrollSliderRail(rail, anchors[targetIndex], rtl);
+}
+
 export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scope > *", disabled = false }: SliderRailTarget) {
   const [state, setState] = useState<SliderRailState>({ previous: false, next: true });
   const boundaryFrame = useRef<number | null>(null);
@@ -87,11 +126,7 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
     const allowed = direction === -1 ? state.previous : state.next;
     const rail = resolveRail();
     if (!allowed || !rail) return;
-    const item = rail.querySelector<HTMLElement>(itemSelector);
-    const style = getComputedStyle(rail);
-    const gap = Number.parseFloat(style.columnGap || style.gap) || 0;
-    const step = (item?.getBoundingClientRect().width || rail.clientWidth) + gap;
-    rail.scrollBy({ left: direction * step * (style.direction === "rtl" ? -1 : 1), behavior: "smooth" });
+    moveSliderRailByCard(rail, direction, itemSelector);
   }, [itemSelector, resolveRail, state.next, state.previous]);
 
   return { ...state, move, update };

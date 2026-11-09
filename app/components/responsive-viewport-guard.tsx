@@ -10,12 +10,6 @@ function resetHorizontalViewport() {
   if (document.body.scrollLeft) document.body.scrollLeft = 0;
 }
 
-function resetHorizontalCollections() {
-  document.querySelectorAll<HTMLElement>("[data-horizontal-rail]").forEach((rail) => {
-    if (rail.scrollLeft !== 0) rail.scrollLeft = 0;
-  });
-}
-
 function releaseStaleViewportLocks() {
   // Maps retain their full-screen overlay through tablet and phone landscape.
   if (!window.matchMedia("(min-width: 1101px)").matches) return;
@@ -104,13 +98,15 @@ export function ResponsiveViewportGuard() {
     };
 
     resetHorizontalViewport();
-    resetHorizontalCollections();
+    // This guard owns the document viewport, never nested carousels. A query
+    // update in one section must not rewind every other rail on the page.
+    // Each rail initializes its own position when its collection changes.
     window.addEventListener("pageshow", reset);
     window.addEventListener("popstate", reset);
     window.addEventListener("scroll", lockHorizontalScroll, { passive: true });
     window.addEventListener("resize", reset);
     window.addEventListener("orientationchange", reset);
-    window.addEventListener("touchend", reset, { passive: true });
+    window.addEventListener("touchend", lockHorizontalScroll, { passive: true });
     window.visualViewport?.addEventListener("resize", reset);
 
     return () => {
@@ -121,7 +117,7 @@ export function ResponsiveViewportGuard() {
       window.removeEventListener("scroll", lockHorizontalScroll);
       window.removeEventListener("resize", reset);
       window.removeEventListener("orientationchange", reset);
-      window.removeEventListener("touchend", reset);
+      window.removeEventListener("touchend", lockHorizontalScroll);
       window.visualViewport?.removeEventListener("resize", reset);
     };
   }, [pathname, searchKey]);

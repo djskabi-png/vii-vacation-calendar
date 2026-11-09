@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import carouselTranslations from "../data/event-region-carousel-translations.json";
-import { useSliderRailBoundaries } from "./slider-rail-controls";
+import { scrollSliderRailToCard, useSliderRailBoundaries } from "./slider-rail-controls";
 
 export type EventRegionCarouselItem = {
   label: string;
@@ -92,7 +92,7 @@ export function EventRegionCarousel({ items }: { items: EventRegionCarouselItem[
 
   const goTo = (index: number) => {
     const nextIndex = Math.max(0, Math.min(items.length - 1, index));
-    itemRefs.current[nextIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    if (railRef.current) scrollSliderRailToCard(railRef.current, nextIndex, ".event-region-carousel__card");
     setActiveIndex(nextIndex);
   };
 

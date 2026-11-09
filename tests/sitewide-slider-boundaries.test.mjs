@@ -21,8 +21,8 @@ test("every arrow-bearing content rail uses the shared geometry boundary model",
     assert.match(sources[name], /SliderRailControls/, `${name} must use shared controls`);
   }
   assert.match(sources["event-region-carousel"], /useSliderRailBoundaries/);
-  assert.match(sources["slider-rail-controls"], /const style = getComputedStyle\(rail\)/);
-  assert.match(sources["slider-rail-controls"], /style\.direction === "rtl"/);
+  assert.match(sources["slider-rail-controls"], /function sliderRailGeometry\(rail/);
+  assert.match(sources["slider-rail-controls"], /scrollSliderRail\(rail, target, rtl\)/);
   assert.match(sources["slider-rail-controls"], /ResizeObserver/);
   assert.match(sources["slider-rail-controls"], /MutationObserver/);
   assert.match(sources["slider-rail-controls"], /rail\.addEventListener\("scroll", update/);
