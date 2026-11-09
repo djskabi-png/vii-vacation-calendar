@@ -31,7 +31,7 @@ export async function executeCatalogMediaCheck(check: Check, origin: string, fet
   const fail = (observed: string) => ({ status: 'failed' as const, statusCode: null, durationMs: Date.now() - started, observed, url });
   const request = (target: string | URL, init: RequestInit = {}) => {
     deadline.throwIfAborted();
-    return fetcher(String(target), { ...init, redirect: 'error', headers: { accept: init.method === 'HEAD' ? 'image/avif,image/webp,image/png,image/jpeg' : 'application/json', 'user-agent': 'VII-Quality-Monitor/2.0' }, signal: deadline });
+    return fetcher(String(target), { ...init, redirect: 'manual', headers: { accept: init.method === 'HEAD' ? 'image/avif,image/webp,image/png,image/jpeg' : 'application/json', 'user-agent': 'VII-Quality-Monitor/2.0' }, signal: deadline });
   };
   const json = async (response: Response) => {
     if (!response.ok || !/^application\/(?:[a-z0-9.+-]+\+)?json(?:\s*;|$)/i.test(response.headers.get('content-type') || '')) throw Error('invalid_json_response:' + response.status);

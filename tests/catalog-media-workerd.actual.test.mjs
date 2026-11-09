@@ -51,3 +51,28 @@ test('actual public Worker imports accepted media into real D1/R2 runtime and re
     assert.equal(redirect.status,503);assert.equal(redirect.headers.get('Cache-Control'),'no-store');assert.equal(await bucket.get('legacy-gallery/v1/redirect.jpg'),null);
   }finally{await mf.dispose()}
 });
+
+test('all four catalog media monitors execute in Workers and reject a redirected catalog',async()=>{
+  const {outputFiles}=buildSync({stdin:{contents:`
+    import {executeCatalogMediaCheck} from './app/lib/quality-catalog-media.ts';
+    export default {async fetch(input){
+      const mode=new URL(input.url).searchParams;const world=mode.get('world');let calls=0;
+      const result=await executeCatalogMediaCheck({catalogMediaWorld:world,route:'/api/catalog?world='+world,timeoutMs:5000},'https://vii.spaplus.co',async(url,options)=>{
+        const request=new Request(url,options);calls++;
+        if(mode.has('redirect'))return new Response(null,{status:302,headers:{Location:'https://foreign.invalid/catalog'}});
+        if(request.method==='HEAD')return new Response(null,{headers:{'Content-Type':'image/jpeg','Content-Length':'64'}});
+        const detail={images:['/api/vii/media/general.jpg'],rooms:[{images:['/api/vii/media/unit.jpg']}]};
+        return new URL(request.url).searchParams.has('id')?Response.json({entry:{supplierId:1,summary:detail,detail}}):Response.json({entries:[{supplierId:1}]});
+      });return Response.json({result,calls});
+    }};
+  `,resolveDir:process.cwd(),sourcefile:'catalog-monitor-runtime.ts'},bundle:true,format:'esm',platform:'browser',target:'es2022',write:false});
+  const mf=new Miniflare({modules:true,script:outputFiles[0].text,compatibilityDate:'2026-05-15'});
+  try{
+    for(const world of ['vacations','events','rooms','spa']){
+      const result=await(await mf.dispatchFetch('https://test.local/?world='+world)).json();
+      assert.equal(result.result.status,'passed',JSON.stringify(result));assert.equal(result.calls,4);
+    }
+    const redirected=await(await mf.dispatchFetch('https://test.local/?world=rooms&redirect=1')).json();
+    assert.equal(redirected.result.status,'failed');assert.equal(redirected.calls,1);assert.match(redirected.result.observed,/302/);
+  }finally{await mf.dispose()}
+});
