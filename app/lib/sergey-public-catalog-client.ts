@@ -251,7 +251,14 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       const existingIndexes = ids.map((id, index) => previous.has(id) ? index : -1).filter((index) => index >= 0);
       if(options.inspectionSupplierId!==undefined&&(!Number.isSafeInteger(options.inspectionSupplierId)||options.retainUnprovedDetails!==false||!previous.has(options.inspectionSupplierId)||!ids.includes(options.inspectionSupplierId)))throw new Error('invalid_supplier_inspection');
       if(options.onlyInspectedDetail&&options.inspectionSupplierId===undefined)throw new Error('invalid_supplier_inspection');
-      const refreshIds=new Set(options.inspectionSupplierId!==undefined?[options.inspectionSupplierId]:selectDetailRefreshIds(previousEntries,existingIndexes.map(index=>ids[index]),detailRefreshLimit,now(),{force:options.forceDetailRefresh===true}));
+      const changedRoomIds = existingIndexes.filter(index => {
+        const incoming = active[index].rooms, accepted = record(previous.get(ids[index])?.detail).rooms;
+        if (!Array.isArray(incoming) || !Array.isArray(accepted)) return false;
+        const nextIds = incoming.map(room => positive(record(room).roomID)), oldIds = accepted.map(room => positive(record(room).id));
+        return nextIds.every(Boolean) && new Set(nextIds).size === nextIds.length && (nextIds.length !== oldIds.length || nextIds.some(id => !oldIds.includes(id)));
+      }).map(index => ids[index]);
+      const priorityIds = selectDetailRefreshIds(previousEntries, changedRoomIds, detailRefreshLimit, now(), { force: true });
+      const refreshIds=new Set(options.inspectionSupplierId!==undefined?[options.inspectionSupplierId]:[...priorityIds,...selectDetailRefreshIds(previousEntries,existingIndexes.map(index=>ids[index]).filter(id=>!priorityIds.includes(id)),detailRefreshLimit-priorityIds.length,now(),{force:options.forceDetailRefresh===true})]);
       const refreshIndexes = new Set(existingIndexes.filter(index=>refreshIds.has(ids[index])));
       const detailIndexes = active.map((_place, index) => index)
         .filter((index) => options.onlyInspectedDetail ? ids[index]===options.inspectionSupplierId : !previous.has(ids[index]) || !previous.get(ids[index])?.detail || refreshIndexes.has(index));
