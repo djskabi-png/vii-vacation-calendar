@@ -3,7 +3,7 @@ import { readSupplierCatalogEntry, readSupplierCatalogInventory, type SupplierCa
 import { createSergeyPublicCatalogClient } from "./sergey-public-catalog-client.ts";
 import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts";
 import { normalizeSpaPlusCatalog } from "./spaplus-catalog-client.ts";
-import { buildAcceptedGalleryContract, buildApiGalleryContract, compareGalleryContracts, parseOrderedJson, type GalleryContract } from "./supplier-gallery-contract.ts";
+import { buildAcceptedGalleryContract, buildApiGalleryContract, compareGalleryContracts, parseOrderedJson, stringifyOrderedJson, type GalleryContract } from "./supplier-gallery-contract.ts";
 
 export type AuditWorld = GalleryContract["world"];
 export type GalleryAuditJobSummary = {
@@ -107,9 +107,18 @@ async function provider(path: string, env: ProviderEnv, fetchImpl: typeof fetch)
   if (!env.SERGEY_VII_API_TOKEN?.trim()) throw new Error("supplier_key_missing");
   return fetchGalleryAuditSource(root + path, { Accept: "application/json", Authorization: `Bearer ${env.SERGEY_VII_API_TOKEN}` }, fetchImpl);
 }
-async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchImpl: typeof fetch) {
+async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchImpl: typeof fetch, requiredWorlds: AuditWorld[] = worlds) {
+  // The first pass freezes the complete provider inventory. Resumed passes only
+  // need the worlds represented by their current batch.
+  const required = new Set(job.contextsReady ? requiredWorlds : worlds);
+  const requiredPaths = new Set<string>();
+  for (const world of required) {
+    if (world === "spa") requiredPaths.add("spa");
+    else if (world === "rooms") ["/rooms", "/rooms/locations", "/rooms/types"].forEach(path => requiredPaths.add(path));
+    else ["/locations", `/${world}`, `/${world}/types`].forEach(path => requiredPaths.add(path));
+  }
   const texts = new Map<string, string>();
-  for (const path of paths) {
+  for (const path of paths.filter(path => requiredPaths.has(path))) {
     const fetched = await Promise.allSettled([ (async () => {
       const name = contextKey(job.jobId, path); const old = await bucket.get(name);
       if (old) { texts.set(path, await old.text()); return; }
@@ -130,8 +139,10 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     if (failure) throw failure.reason;
   }
   const active = new Map<AuditWorld, Set<number>>();
-  for (const world of worlds) {
-    const body = record(parseOrderedJson(texts.get(world === "spa" ? "spa" : `/${world}`)!));
+  const parsed = new Map<string, Record<string, unknown>>();
+  for (const [path, text] of texts) parsed.set(path, record(parseOrderedJson(text)));
+  for (const world of required) {
+    const body = parsed.get(world === "spa" ? "spa" : `/${world}`)!;
     const ids = world === "spa" ? Object.entries(record(body.sites)).map(([key, value]) => {
       if (body.status !== "ok" || idNumber(record(value).siteid) !== idNumber(key)) throw new Error("invalid_spa_source_inventory"); return idNumber(key);
     }) : (Array.isArray(body.places) ? body.places : []).filter(x => record(x).active === true).map(x => idNumber(record(x).siteID));
@@ -147,7 +158,7 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     }
     job.total = job.inventory.length; job.contextsReady = true;
   }
-  return { texts, active };
+  return { texts, parsed, active };
 }
 async function auditTarget(target: Target, job: Job, options: Options & { env: ProviderEnv; fetchImpl: typeof fetch }, contexts: Awaited<ReturnType<typeof loadContexts>>) {
   const { db, bucket, env, fetchImpl } = options; const { world, supplierId } = target;
@@ -168,10 +179,13 @@ async function auditTarget(target: Target, job: Job, options: Options & { env: P
     }
     const parsed = record(parseOrderedJson(wire)); const raw = world === "spa" ? record(record(parsed.sites)[String(supplierId)]) : parsed;
     if (world === "spa" ? idNumber(raw.siteid) !== supplierId : idNumber(raw.id) !== supplierId || raw.active !== true || !Object.hasOwn(raw, "galleries") || !Array.isArray(raw.rooms)) throw new Error("incomplete_or_foreign_gallery_source");
-    const sourceList = world === "vacations" || world === "events" ? record(parseOrderedJson(contexts.texts.get(`/${world}`)!)) : null;
+    const sourceList = world === "vacations" || world === "events" ? contexts.parsed.get(`/${world}`) || null : null;
     const listPlace = Array.isArray(sourceList?.places) ? sourceList.places.find(value => idNumber(record(value).siteID) === supplierId) : null;
     const api = await buildApiGalleryContract(world, supplierId, listPlace ? { ...raw, representative_galleries: record(listPlace).galleries } : raw, wire); let normalized: SupplierCatalogEntry | undefined;
-    if (world === "spa") normalized = normalizeSpaPlusCatalog(parsed).find(x => x.supplierId === supplierId);
+    if (world === "spa") {
+      const site = record(record(parsed).sites)?.[String(supplierId)];
+      normalized = normalizeSpaPlusCatalog({ status: record(parsed).status, sites: { [String(supplierId)]: site } }).find(x => x.supplierId === supplierId);
+    }
     else {
       const cachedFetch: typeof fetch = async input => {
         const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
@@ -179,8 +193,8 @@ async function auditTarget(target: Target, job: Job, options: Options & { env: P
         if (url.origin !== new URL(root).origin) throw new Error("foreign_normalizer_request");
         let body = path === `/${world}/${supplierId}` ? wire : contexts.texts.get(path);
         if (!body) throw new Error("unexpected_normalizer_request");
-        if (world === "rooms" && path === "/rooms") { const list = record(parseOrderedJson(body));
-          body = JSON.stringify({ ...list, places: (list.places as unknown[]).filter(x => idNumber(record(x).siteID) === supplierId) }); }
+        if (path === `/${world}`) { const list = contexts.parsed.get(path) || record(parseOrderedJson(body));
+          body = stringifyOrderedJson({ ...list, places: (list.places as unknown[]).filter(x => idNumber(record(x).siteID) === supplierId) }); }
         return new Response(body, { headers: { "Content-Type": "application/json" } });
       };
       normalized = world === "rooms" ? (await createSergeyRoomsCatalogClient({ apiKey: "private-audit-context", fetchImpl: cachedFetch }).fetchCandidate()).entries[0]
@@ -215,9 +229,15 @@ export async function stepGalleryAuditJob(options: Options & { jobId: string; en
   try {
     if (now() >= Date.parse(job.deadline)) job.state = "deadline";
     else {
-      const contexts = await loadContexts(job, bucket, options.env, fetchImpl); job.state = "running"; await checkpoint();
-      const count = Math.max(1, Math.min(4, Math.floor(options.batchSize || 2)));
+      const initialPass = !job.contextsReady;
+      const initialContexts = initialPass ? await loadContexts(job, bucket, options.env, fetchImpl, worlds) : null;
+      const firstTarget = job.inventory[job.cursor];
+      const count = options.batchSize === undefined
+        ? (firstTarget?.world === "spa" ? 2 : 4)
+        : Math.max(1, Math.min(4, Math.floor(options.batchSize)));
       const targets = job.inventory.slice(job.cursor, job.cursor + count);
+      const contexts = initialContexts || await loadContexts(job, bucket, options.env, fetchImpl, [...new Set(targets.map(target => target.world))]);
+      job.state = "running"; await checkpoint();
       const findings = await Promise.allSettled(targets.map(target => auditTarget(target, job, { ...options, fetchImpl }, contexts)));
       const failure = findings.find((item): item is PromiseRejectedResult => item.status === "rejected");
       if (failure) throw failure.reason;

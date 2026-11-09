@@ -80,6 +80,13 @@ export function parseOrderedJson(source: string, maxBytes = 16_000_000, maxDepth
 }
 export function orderedObjectEntries(value: unknown): Array<[string, unknown]> { return ordered(value); }
 
+/** Serialize a narrowed API context without sorting its numeric gallery keys. */
+export function stringifyOrderedJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stringifyOrderedJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${orderedObjectEntries(value).map(([key, child]) => `${JSON.stringify(key)}:${stringifyOrderedJson(child)}`).join(",")}}`;
+  return JSON.stringify(value) ?? "null";
+}
+
 function galleryRows(value: unknown) {
   const values = Array.isArray(value) ? value.map((item, index) => [`position:${index}`, item] as [string, unknown]) : ordered(value);
   return values.map(([key, item]) => { const row = object(item); return { key: first(row, ["id", "galleryID", "galleryId"]) || key, images: images(row.pictures ?? row.images ?? row.photos) }; }).filter((row) => row.images.length);
