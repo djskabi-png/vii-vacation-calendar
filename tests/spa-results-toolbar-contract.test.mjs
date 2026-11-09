@@ -6,13 +6,13 @@ import assert from "node:assert/strict";
 const component = readFileSync(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
 const styles = readEffectiveWorldCss();
 
-test("spa result actions sit in a clean toolbar immediately above the results", () => {
+test("spa result actions lead the collapsed advanced bank and results", () => {
   const filterStrip = component.indexOf('className="spa-results__filter-strip"');
   const resultsHeading = component.indexOf('className="spa-results__heading"');
   const resultCards = component.indexOf("resultItems.length > 0 ? mapOpen");
 
   assert.ok(filterStrip > -1, "spa filter strip is present");
-  assert.ok(resultsHeading > filterStrip, "result actions are outside and after the filter strip");
+  assert.ok(resultsHeading > -1 && resultsHeading < filterStrip, "result actions lead the advanced filter strip");
   assert.ok(resultCards > resultsHeading, "result actions remain directly above the result cards");
   assert.doesNotMatch(component, /spa-results__toolbar/);
   assert.match(component, /spa-results__view-actions[\s\S]*ResultsViewToggle[\s\S]*mobile-map-fab/);
