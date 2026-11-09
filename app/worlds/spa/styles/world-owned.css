@@ -54,3 +54,11 @@
 .spa-results__advanced-features label { min-height:44px; font-size:.88rem; cursor:pointer; }
 .spa-results__advanced-features input { width:18px; height:18px; flex-shrink:0; }
 .spa-results__filters h3 { margin:0; font-size:1.1rem; }
+
+/* Match the accommodation filter control on desktop as well as mobile. */
+.spa-results__filter-toggle { appearance:none; border:1px solid #cce1e7; border-radius:999px; background:#fff; color:#143d48; font-family:inherit; font-weight:800; box-shadow:0 2px 8px #173d4908; cursor:pointer; }
+.spa-results__filter-toggle svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; }
+.spa-results__filter-toggle:hover { border-color:#087f8c; }
+.spa-results__filter-toggle:focus-visible { outline:3px solid #139eae; outline-offset:3px; }
+.world-map-results--spa .discovery-card__meta { justify-content:flex-start; gap:6px; }
+.world-map-results--spa .discovery-card__meta small { margin-inline-start:0; }
