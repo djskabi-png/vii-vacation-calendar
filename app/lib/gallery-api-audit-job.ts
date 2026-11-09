@@ -12,6 +12,8 @@ export type GalleryAuditJobSummary = {
   cursor: number; deadline: string; errors: number; sourceIssues: string[];
   worldCounts: Record<AuditWorld, number>;
   sourceRetryUsed?: boolean;
+  continuationUsed?: boolean;
+  previousDeadline?: string;
 };
 type Target = { world: AuditWorld; supplierId: number };
 type Finding = Target & { status: "match" | "mismatch" | "unverified"; issues: string[]; recordKey: string; sha256?: string };
@@ -50,7 +52,7 @@ function summary(j: Job): GalleryAuditJobSummary {
     mismatched: rows.filter(x => x.status === "mismatch").length,
     unverified: rows.filter(x => x.status === "unverified").length,
     errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts,
-    ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}) };
+    ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}), ...(j.continuationUsed ? { continuationUsed: true, previousDeadline: j.previousDeadline } : {}) };
 }
 export async function readGalleryAuditJob(bucket: R2Bucket, id: string) {
   const stored = await read(bucket, id); return stored ? summary(stored.value) : null;
@@ -118,16 +120,27 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     else ["/locations", `/${world}`, `/${world}/types`].forEach(path => requiredPaths.add(path));
   }
   const texts = new Map<string, string>();
+  const capturedAt = new Map<string, string>();
   for (const path of paths.filter(path => requiredPaths.has(path))) {
     const fetched = await Promise.allSettled([ (async () => {
       const name = contextKey(job.jobId, path); const old = await bucket.get(name);
-      if (old) { texts.set(path, await old.text()); return; }
+      if (old) {
+        texts.set(path, await old.text());
+        if (old.uploaded instanceof Date && Number.isFinite(old.uploaded.getTime())) capturedAt.set(path, old.uploaded.toISOString());
+        else if (path === "spa") {
+          const attempt = await bucket.get(name + (job.sourceRetryUsed ? ".attempt-2" : ".attempt"));
+          const at = attempt ? record(JSON.parse(await attempt.text())).at : null;
+          if (typeof at === "string" && Number.isFinite(Date.parse(at))) capturedAt.set(path, at);
+          else throw new Error("gallery_source_time_missing");
+        }
+        return;
+      }
       // Reserve a single attempt. A killed worker cannot silently restart an
       // uncertain provider operation; the job then needs an explicit review.
       const retry = path === "spa" && job.sourceRetryUsed;
       if (!await immutable(bucket, name + (retry ? ".attempt-2" : ".attempt"), JSON.stringify({ at: new Date().toISOString() }))) throw new Error("context_fetch_uncertain");
       try {
-        const wire = await provider(path, env, fetchImpl); await immutable(bucket, name, wire); texts.set(path, wire);
+        const wire = await provider(path, env, fetchImpl); await immutable(bucket, name, wire); texts.set(path, wire); capturedAt.set(path, new Date().toISOString());
       } catch (cause) {
         const context = path === "spa" ? "spa" : path.slice(1).replaceAll("/", "_");
         const code = message(cause);
@@ -158,7 +171,7 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     }
     job.total = job.inventory.length; job.contextsReady = true;
   }
-  return { texts, parsed, active };
+  return { texts, parsed, active, capturedAt };
 }
 async function auditTarget(target: Target, job: Job, options: Options & { env: ProviderEnv; fetchImpl: typeof fetch }, contexts: Awaited<ReturnType<typeof loadContexts>>) {
   const { db, bucket, env, fetchImpl } = options; const { world, supplierId } = target;
@@ -208,7 +221,7 @@ async function auditTarget(target: Target, job: Job, options: Options & { env: P
     const issues = [...comparison.issues, ...projection.issues.map(code => `normalization:${code}`), ...(api.excludedImageIds || []).map(filename => `unverified_quarantined_api_media:${filename}`)];
     finding = { ...finding, sha256: await digest(wire), status: !accepted || !api.entities.length || !acceptedContract?.entities.length || !projection.equal || issues.some(x => x.includes("unverified")) ? "unverified" : comparison.equal ? "match" : "mismatch", issues };
     evidence = { rawKey, endpoint: world === "spa" ? "https://www.spaplus.co.il/vii/?action=sites" : `${root}/${world}/${supplierId}`,
-      fetchedAt: new Date().toISOString(), api, normalizedContract, acceptedContract, normalized, accepted };
+      fetchedAt: world === "spa" ? contexts.capturedAt.get("spa") : new Date().toISOString(), processedAt: new Date().toISOString(), api, normalizedContract, acceptedContract, normalized, accepted };
   } catch (cause) { finding.issues = [message(cause)]; }
   await immutable(bucket, recordKey, JSON.stringify({ schemaVersion: 1, finding, ...evidence }));
   const saved = await bucket.get(recordKey); if (!saved) throw new Error("audit_item_save_unresolved"); return JSON.parse(await saved.text()).finding as Finding;
@@ -281,6 +294,24 @@ export async function retryGalleryAuditSources({ bucket, jobId, now = Date.now }
   job.sourceIssues = job.sourceIssues.filter(code => code !== "provider_context:spa:provider_timeout"); delete job.lease;
   const saved = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
   if (!saved) { const current = await read(bucket, jobId); if (current?.value.sourceRetryUsed) return summary(current.value); throw new Error("audit_step_in_progress"); }
+  return summary(job);
+}
+
+export async function continueGalleryAuditJob({ bucket, jobId, now = Date.now }: Options & { jobId: string }) {
+  const stored = await read(bucket, jobId); if (!stored) throw new Error("gallery_audit_job_not_found");
+  const job = stored.value; const current = now(); const originalDeadline = Date.parse(job.deadline);
+  if (job.continuationUsed) return summary(job);
+  if (!Number.isFinite(originalDeadline) || !Number.isFinite(Date.parse(job.createdAt))) throw new Error("gallery_audit_continuation_invalid_time");
+  if (current < originalDeadline) throw new Error("gallery_audit_continuation_too_early");
+  if (job.state === "complete" || job.state === "error") throw new Error("gallery_audit_continuation_terminal");
+  if (job.lease && Date.parse(job.lease.until) > current) throw new Error("audit_step_in_progress");
+  if (!job.contextsReady || !job.results.length || job.results.length !== job.cursor || job.cursor >= job.total || job.inventory.length !== job.total) throw new Error("gallery_audit_continuation_not_ready");
+  const hardDeadline = Date.parse(job.createdAt) + 120 * 60_000;
+  if (current >= hardDeadline) throw new Error("gallery_audit_continuation_deadline");
+  job.continuationUsed = true; job.previousDeadline = job.deadline; job.deadline = new Date(Math.min(current + 60 * 60_000, hardDeadline)).toISOString();
+  job.state = "running"; delete job.lease;
+  const saved = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
+  if (!saved) { const latest = await read(bucket, jobId); if (latest?.value.continuationUsed) return summary(latest.value); throw new Error("audit_step_in_progress"); }
   return summary(job);
 }
 export async function readGalleryAuditDiagnostics(bucket: R2Bucket, id: string) {

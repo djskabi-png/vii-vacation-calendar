@@ -1,6 +1,6 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
-import { createGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
+import { createGalleryAuditJob, continueGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
 import { applyGalleryAuditWorld, readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   let body: { jobId?: unknown; action?: unknown; world?: unknown };
   try { const text = await request.text(); if (text.length > 1024) throw new Error("body_size"); body = JSON.parse(text); }
   catch { return Response.json({ error: "malformed_json" }, { status: 400, headers }); }
-  if (!body || !valid(body.jobId) || !["start", "step", "apply", "retry"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  if (!body || !valid(body.jobId) || !["start", "step", "apply", "retry", "continue"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
     const { db, bucket, env } = await environment();
     if (body.action === "apply") {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       return Response.json({ ok: true, apply: await applyGalleryAuditWorld({ db, bucket, jobId: body.jobId, world: body.world as "vacations" | "events" | "rooms" | "spa" }) }, { headers });
     }
     const job = body.action === "start" ? await createGalleryAuditJob({ db, bucket, jobId: body.jobId })
-      : body.action === "retry" ? await retryGalleryAuditSources({ db, bucket, jobId: body.jobId }) : await stepGalleryAuditJob({ db, bucket, jobId: body.jobId, env });
+      : body.action === "retry" ? await retryGalleryAuditSources({ db, bucket, jobId: body.jobId }) : body.action === "continue" ? await continueGalleryAuditJob({ db, bucket, jobId: body.jobId }) : await stepGalleryAuditJob({ db, bucket, jobId: body.jobId, env });
     return Response.json({ ok: true, job }, { headers });
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : "gallery_audit_unavailable";

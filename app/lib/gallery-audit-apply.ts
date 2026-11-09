@@ -9,6 +9,9 @@ import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
 
 type ApplyReceipt = { world: AuditWorld; jobId: string; runId: string; state: "reserved" | "accepted" | "not_accepted"; changed: number; skipped: number; verified: number; verificationIssues: Array<{ supplierId: number; issues: string[] }>; finishedAt?: string; errorCode?: string };
 const row = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+// Gallery-only evidence follows the same 24-hour limit as Sergey media proofs.
+// Prices, facilities and availability are never patched by this operation.
+const MEDIA_EVIDENCE_MAX_AGE = 86_400_000;
 const path = (id: string, world: AuditWorld) => `${GALLERY_AUDIT_PREFIX}${id}/apply/${world}.json`;
 export async function readGalleryAuditApply(bucket: R2Bucket, jobId: string, world: AuditWorld) {
   const object = await bucket.get(path(jobId, world)); return object ? JSON.parse(await object.text()) as ApplyReceipt : null;
@@ -38,30 +41,45 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           for (const value of Array.isArray(list.places) ? list.places : []) listingById.set(Number(row(value).siteID), value);
         }
         const entries: SupplierCatalogEntry[] = [];
-        for (const current of previous) {
+        for (let offset = 0; offset < previous.length; offset += 4) {
+          const window = previous.slice(offset, offset + 4);
+          const sourcePairs = await Promise.all(window.map(async current => [current, wanted.has(current.supplierId) ? await readGalleryAuditItem(bucket, jobId, world, current.supplierId) : null] as const));
+          const sourceById = new Map(sourcePairs.map(([current, source]) => [current.supplierId, source]));
+          const rawById = new Map<number, string>();
+          if (world === "vacations" || world === "events") {
+            await Promise.all(sourcePairs.map(async ([current, source]) => {
+              if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || !compareGalleryContracts(source.api, source.normalizedContract).equal) return;
+              const expectedRawKey = `${GALLERY_AUDIT_PREFIX}${jobId}/raw/${world}-${current.supplierId}.json`;
+              if (source.rawKey !== expectedRawKey) throw new Error("invalid_gallery_source_reference");
+              const rawObject = await bucket.get(String(source.rawKey));
+              if (!rawObject) throw new Error("gallery_source_snapshot_missing");
+              rawById.set(current.supplierId, await rawObject.text());
+            }));
+          }
+          for (const current of window) {
           // Keep one source record in memory, rather than holding accepted,
           // normalized and API copies for all 545 vacation places at once.
-          const source = wanted.has(current.supplierId) ? await readGalleryAuditItem(bucket, jobId, world, current.supplierId) : null;
+          const source = sourceById.get(current.supplierId);
           if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || !compareGalleryContracts(source.api, source.normalizedContract).equal) { receipt.skipped++; entries.push(current); continue; }
           const contract = await buildAcceptedGalleryContract(world, current);
           if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) throw new Error("gallery_baseline_changed");
           const next = patchGalleryMedia(world, current, source.normalized);
           const patched = await buildAcceptedGalleryContract(world, next);
           if (!compareGalleryContracts(source.api, patched).equal) { receipt.skipped++; entries.push(current); continue; }
-          await archiveGalleryCandidate({ previous: current, candidate: next, bucket });
           if (world === "vacations" || world === "events") {
-            const rawObject = await bucket.get(String(source.rawKey));
-            if (!rawObject) throw new Error("gallery_source_snapshot_missing");
-            const wire = await rawObject.text();
+            const wire = rawById.get(current.supplierId);
+            if (!wire) throw new Error("gallery_source_snapshot_missing");
             const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(wire)))].map(x => x.toString(16).padStart(2, "0")).join("");
             if (sha !== source.finding?.sha256) throw new Error("gallery_source_checksum_changed");
             const listing = listingById.get(current.supplierId);
             const proof = await proveSupplierMediaDetail(parseOrderedJson(wire), listing, next, current, new Date());
             if (!proof) { receipt.skipped++; entries.push(current); continue; }
             next.detailProof = proof;
-          } else if (Date.now() - Date.parse(String(source.fetchedAt)) > 3_600_000 || !Number.isFinite(Date.parse(String(source.fetchedAt)))) throw new Error("gallery_evidence_expired");
+          } else if (Date.now() - Date.parse(String(source.fetchedAt)) > MEDIA_EVIDENCE_MAX_AGE || Date.parse(String(source.fetchedAt)) > Date.now() + 300_000 || !Number.isFinite(Date.parse(String(source.fetchedAt)))) throw new Error("gallery_evidence_expired");
+          await archiveGalleryCandidate({ previous: current, candidate: next, bucket });
           entries.push(next); checked.push({ supplierId: current.supplierId, api: source.api });
           if (JSON.stringify(current.summary) !== JSON.stringify(next.summary) || JSON.stringify(current.detail) !== JSON.stringify(next.detail)) receipt.changed++;
+        }
         }
         return { entries, fetchedAt: new Date().toISOString() };
       },

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createGalleryAuditJob, stepGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource } from '../app/lib/gallery-api-audit-job.ts';
 import { createSergeyPublicCatalogClient } from '../app/lib/sergey-public-catalog-client.ts';
+import { normalizeSpaPlusCatalog } from '../app/lib/spaplus-catalog-client.ts';
 
 class Bucket { objects = new Map(); revision = 0; reads = []; async get(key) { if (key.includes('/context/')) this.reads.push(key); const v = this.objects.get(key); return v ? { etag: v.etag, text: async () => v.text } : null; } async put(key, text, options = {}) { const old = this.objects.get(key); if (options.onlyIf?.etagDoesNotMatch === '*' && old) return null; if (options.onlyIf?.etagMatches && old?.etag !== options.onlyIf.etagMatches) return null; const v = { text: String(text), etag: String(++this.revision) }; this.objects.set(key, v); return { etag: v.etag }; } }
 const ids = { vacations: 17, events: 18, rooms: 19, spa: 20 };
@@ -35,4 +36,11 @@ test('actual two-step audit scopes resumed reads and preserves provider gallery 
   bucket.objects.set(item.rawKey, rawObject);
   const itemObjectKey = `vii-gallery-audit/v1/${jobId}/items/events-18.json`; const itemObject = bucket.objects.get(itemObjectKey); const forged = JSON.parse(itemObject.text); forged.rawKey = `vii-gallery-audit/v1/other-job/raw/events-18.json`; bucket.objects.set(itemObjectKey, { ...itemObject, text: JSON.stringify(forged) });
   await assert.rejects(() => readGalleryAuditSource(bucket, jobId, 'events', 18), /invalid_audit_source_reference/);
+});
+test('resumed SPA evidence retains the original capture time instead of processing time',async()=>{
+ const bucket=new Bucket(),jobId='22222222-2222-4222-8222-222222222222',p='vii-gallery-audit/v1/'+jobId+'/',captured=new Date(Date.now()-600000).toISOString();
+ const payload={status:'ok',sites:{'20':{siteid:20,title:'ספא בחיפה',city:'חיפה',spa_picture:'https://www.spaplus.co.il/gallery/site.jpg',gallery:['https://www.spaplus.co.il/gallery/site.jpg'],packages:{'7':{MainPageID:7,idPack:8,price:200,MainPageTitle:'חבילה',pack_picture:'https://www.spaplus.co.il/gallery/pack.jpg'}}}}};const entry=normalizeSpaPlusCatalog(payload)[0];
+ await bucket.put(p+'context/spa.json',JSON.stringify(payload));await bucket.put(p+'context/spa.json.attempt-2',JSON.stringify({at:captured}));await bucket.put(p+'job.json',JSON.stringify({jobId,state:'running',total:1,cursor:0,deadline:new Date(Date.now()+3600000).toISOString(),createdAt:captured,contextsReady:true,sourceRetryUsed:true,sourceIssues:[],inventory:[{world:'spa',supplierId:20}],results:[],worldCounts:{vacations:0,events:0,rooms:0,spa:1}}));
+ const db={prepare(){return{bind(){return{first:async()=>({summaryJson:JSON.stringify(entry.summary),detailJson:JSON.stringify(entry.detail??null),acceptedAt:captured})};}};}};
+ let calls=0;await stepGalleryAuditJob({db,bucket,jobId,env:{},fetchImpl:async()=>{calls++;throw Error('unexpected_network');}});const item=await readGalleryAuditItem(bucket,jobId,'spa',20);assert.equal(calls,0);assert.equal(item.fetchedAt,captured);assert.ok(Date.parse(item.processedAt)>Date.parse(captured));assert.ok(item.api.entities.length>0);
 });
