@@ -11,6 +11,11 @@ test('existing regional and exact feature routes are classified without approvin
  assert.equal(approvedExistingPath('vacation','/vacations/north',{location:'דרום'},'he'),null);
  assert.equal(approvedExistingPath('events','/events/search/north',{},'he'),'/events/search/north');
  assert.equal(approvedExistingPath('vacation','/en/vacations/north',{},'en'),'/en/vacations/north');
+ assert.equal(approvedExistingPath('vacation','/vacations/near-me',{sort:'nearest',date:'2026-11-10'},'he'),'/vacations/near-me');
+ assert.equal(approvedExistingPath('spa','/spas/near-me',{sort:'nearest',from:'2026-11-10'},'he'),'/spas/near-me');
+ assert.equal(approvedExistingPath('events','/events/near-me',{sort:'nearest',guests:4},'he'),'/events/near-me');
+ assert.equal(approvedExistingPath('hourly','/hourly/near-me',{sort:'nearest',date:'2026-11-10'},'he'),'/hourly/near-me');
+ assert.equal(approvedExistingPath('events','/events/search',{sort:'nearest'},'he'),null);
  assert.equal(searchPageDefinitions.find(page=>page.path==='/vacations/north')?.world,'vacation');
 });
 test('actual dashboard preserves editorial states and excludes only existing pending demand from work queue',async()=>{const f=fixture();try{seed(f,'north');seed(f,'review','/vacations/north',{},'review');seed(f,'unknown','/vacations/north?accessible=1',{accessible:true});const view=await readOpportunityDashboard(f.db,30),north=view.opportunities.find(p=>p.id==='north');assert.equal(north.status,'pending');assert.equal(north.existingApprovedPath,'/vacations/north');assert.equal(view.metrics.pending,2);assert.ok(view.metrics.published>0);assert.equal(view.opportunities.find(p=>p.id==='review').status,'review');}finally{f.sql.close();}});

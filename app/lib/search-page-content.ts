@@ -7,12 +7,14 @@ import { spaLandings, spaLandingHref } from "../data/spa-landings.ts";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { eventSearchHref, eventCombinationHref, eventTypeSlugs, hourlySearchHref } from "../data/world-search-landings.ts";
 import { canonicalLegacyEventSearchPath } from './legacy-event-intent-index.ts';
+import { nearbyPageContent } from './nearby-page-content.ts';
 
 export type SearchPageDefinition = { path: string; world: "vacation" | "spa" | "events" | "hourly"; title: string; description: string };
 export type SearchPageStatus = "draft" | "published" | "scheduled";
 export type SearchPageContent = { path: string; title: string; description: string; status: SearchPageStatus; scheduledAt: string | null; version: number; updatedAt: string; updatedBy: string };
 
 const allSearchPageDefinitions: SearchPageDefinition[] = [
+  ...(["vacation", "spa", "events", "hourly"] as const).map((world) => ({ path: nearbyPageContent[world].path, world, title: nearbyPageContent[world].title, description: nearbyPageContent[world].description })),
   ...vacationRegions.map(region => ({ path: `/vacations/${region.slug}`, world: "vacation" as const, title: `נופש ב${region.label}`, description: `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.` })),
   ...['כל הארץ', ...searchLocationOptions('events').filter(location => !['כל הארץ', 'הכל'].includes(location))].flatMap(location => Object.keys(eventTypeSlugs).filter(type => !canonicalLegacyEventSearchPath({ location, type })).map(type => ({ path: eventCombinationHref(location, type), world: 'events' as const, title: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}`, description: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}, עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.` }))),
   { path: "/spas", world: "spa", title: "בתי ספא בישראל", description: "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם." },

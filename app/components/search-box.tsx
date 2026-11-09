@@ -42,6 +42,7 @@ import { destinationPickerCopy } from "../i18n/destination-picker-copy";
 import { requestNearbyOrigin } from "./use-nearby-sort";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { useWorldAvailability } from "./world-availability-provider";
+import { semanticNearbyPath } from "../lib/homepage-search-href";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
@@ -567,6 +568,14 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     }
     if (nearbySelectionRef.current) {
       const nearbyDestination = new URL(destination, window.location.origin);
+      nearbyDestination.pathname = semanticNearbyPath(nearbyDestination.pathname, mode);
+      // Clean category paths encode these selections in the pathname. Carry
+      // them explicitly when moving to the permanent nearby landing page.
+      if (mode === "vacation" && vacationType) nearbyDestination.searchParams.set("type", vacationType);
+      if (mode === "spa") {
+        if (selectedSpaAudience) nearbyDestination.searchParams.set("spaFor", selectedSpaAudience);
+        if (initialSpaFeatures.length) nearbyDestination.searchParams.set("features", initialSpaFeatures.join(","));
+      }
       nearbyDestination.searchParams.set("sort", "nearest");
       destination = `${nearbyDestination.pathname}${nearbyDestination.search}`;
     }

@@ -10,15 +10,32 @@ export function normalizeHomepageSearchHref(href: string): string {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
+const nearbyRoutes: Record<string, string> = { "/search": "/vacations/near-me", "/spas": "/spas/near-me", "/events/search": "/events/near-me", "/hourly": "/hourly/near-me", "/trails": "/trails/near-me", "/attractions": "/attractions/near-me", "/providers": "/providers/near-me" };
+
+export function semanticNearbyDestination(href: string): string {
+  const url = new URL(href, "https://vii.invalid");
+  const locale = url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
+  const path = url.pathname.slice(locale.length).replace(/\/$/, "");
+  return nearbyRoutes[path] ? `${locale}${nearbyRoutes[path]}${url.search}${url.hash}` : href;
+}
+
+export function semanticNearbyPath(pathname: string, mode?: "vacation" | "spa" | "events" | "hourly"): string {
+  if (mode) return { vacation: "/vacations/near-me", spa: "/spas/near-me", events: "/events/near-me", hourly: "/hourly/near-me" }[mode];
+  const url = new URL(pathname, "https://vii.invalid");
+  const locale = url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
+  const path = url.pathname.slice(locale.length).replace(/\/$/, "");
+  return nearbyRoutes[path] ? `${locale}${nearbyRoutes[path]}` : url.pathname;
+}
+
 export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
-  const nearbyRoutes:Record<string,string>={"/search":"/vacations/near-me","/spas":"/spas/near-me","/events/search":"/events/near-me","/hourly":"/hourly/near-me","/trails":"/trails/near-me","/attractions":"/attractions/near-me","/providers":"/providers/near-me"};
   return items.map((item) => {
     let href=normalizeHomepageSearchHref(item.href);
     if ((item as T & {action?:string}).action === "nearby") {
-      const url=new URL(href,"https://vii.invalid");
-      const locale=url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
-      const path=url.pathname.slice(locale.length).replace(/\/$/,"");
-      if(nearbyRoutes[path] && [...url.searchParams.keys()].every(key=>key==="sort") && url.searchParams.get("sort")==="nearest") href=`${locale}${nearbyRoutes[path]}${url.hash}`;
+      // A managed nearby tile is a semantic landing-page entry, not a generic
+      // search with a nearest-sort query. Preserve the world-specific SEO path
+      // even when older CMS data omitted the sort parameter or carried stale
+      // query keys.
+      href = semanticNearbyDestination(href);
     }
     return {...item,href};
   });
