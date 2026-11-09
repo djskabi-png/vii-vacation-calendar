@@ -99,6 +99,7 @@
         "tests/gallery-candidate-archive.test.mjs",
         "tests/gallery-audit-apply.actual.test.mjs",
         "tests/gallery-archive-runtime.actual.test.mjs"
+        ,"tests/catalog-snapshot.test.mjs"
       ]
     },
     "global-shell": {
@@ -843,6 +844,7 @@
         "app/lib/business-amenities-cache.ts",
         "app/lib/sergey-amenities.ts",
         "app/lib/gallery-api-audit-job.ts",
+        "app/lib/catalog-snapshot.ts",
         "app/lib/gallery-api-audit.ts",
         "app/lib/supplier-gallery-contract.ts",
         "app/lib/gallery-media-patch.ts",
