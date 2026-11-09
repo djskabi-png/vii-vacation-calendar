@@ -7,11 +7,16 @@ import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
 import { readSupplierCatalog, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
 
-type ApplyReceipt = { world: AuditWorld; jobId: string; runId: string; state: "reserved" | "accepted" | "not_accepted"; changed: number; skipped: number; verified: number; verificationIssues: Array<{ supplierId: number; issues: string[] }>; finishedAt?: string; errorCode?: string };
+type ApplyReceipt = { world: AuditWorld; jobId: string; runId: string; state: "reserved" | "accepted" | "not_accepted"; changed: number; skipped: number; verified: number; sourceWarnings?: Array<{ supplierId: number; issues: string[] }>; verificationIssues: Array<{ supplierId: number; issues: string[] }>; finishedAt?: string; errorCode?: string };
 const row = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 // Gallery-only evidence follows the same 24-hour limit as Sergey media proofs.
 // Prices, facilities and availability are never patched by this operation.
 const MEDIA_EVIDENCE_MAX_AGE = 86_400_000;
+// Empty source owners remain explicit audit warnings. They can accompany a
+// healthy-owner update only when that owner is already empty in the baseline.
+function projectionIssues(api: GalleryContract, actual: GalleryContract) {
+  return compareGalleryContracts(api, actual).issues.filter(issue => !issue.startsWith("unverified_empty_owner_media:") && !issue.startsWith("unverified_quarantined_api_media:"));
+}
 const path = (id: string, world: AuditWorld) => `${GALLERY_AUDIT_PREFIX}${id}/apply/${world}.json`;
 export async function readGalleryAuditApply(bucket: R2Bucket, jobId: string, world: AuditWorld) {
   const object = await bucket.get(path(jobId, world)); return object ? JSON.parse(await object.text()) as ApplyReceipt : null;
@@ -48,7 +53,7 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           const rawById = new Map<number, string>();
           if (world === "vacations" || world === "events") {
             await Promise.all(sourcePairs.map(async ([current, source]) => {
-              if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || !compareGalleryContracts(source.api, source.normalizedContract).equal) return;
+              if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || projectionIssues(source.api, source.normalizedContract).length) return;
               const expectedRawKey = `${GALLERY_AUDIT_PREFIX}${jobId}/raw/${world}-${current.supplierId}.json`;
               if (source.rawKey !== expectedRawKey) throw new Error("invalid_gallery_source_reference");
               const rawObject = await bucket.get(String(source.rawKey));
@@ -60,12 +65,15 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           // Keep one source record in memory, rather than holding accepted,
           // normalized and API copies for all 545 vacation places at once.
           const source = sourceById.get(current.supplierId);
-          if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || !compareGalleryContracts(source.api, source.normalizedContract).equal) { receipt.skipped++; entries.push(current); continue; }
+          if (!source?.api || !source.normalized || !source.acceptedContract || !source.normalizedContract || projectionIssues(source.api, source.normalizedContract).length) { receipt.skipped++; entries.push(current); continue; }
           const contract = await buildAcceptedGalleryContract(world, current);
           if (JSON.stringify([contract.entities, contract.previewImageIds]) !== JSON.stringify([source.acceptedContract.entities, source.acceptedContract.previewImageIds])) throw new Error("gallery_baseline_changed");
+          if ((source.api as GalleryContract).entities.some(owner => !owner.imageIds.length && contract.entities.some(previous => previous.entityKey === owner.entityKey && previous.imageIds.length > 0))) { receipt.skipped++; entries.push(current); continue; }
           const next = patchGalleryMedia(world, current, source.normalized);
           const patched = await buildAcceptedGalleryContract(world, next);
-          if (!compareGalleryContracts(source.api, patched).equal) { receipt.skipped++; entries.push(current); continue; }
+          if (projectionIssues(source.api, patched).length) { receipt.skipped++; entries.push(current); continue; }
+          const warnings = compareGalleryContracts(source.api, patched).issues.filter(issue => issue.startsWith("unverified_"));
+          if (warnings.length) (receipt.sourceWarnings ||= []).push({ supplierId: current.supplierId, issues: [...new Set(warnings)] });
           if (world === "vacations" || world === "events") {
             const wire = rawById.get(current.supplierId);
             if (!wire) throw new Error("gallery_source_snapshot_missing");
@@ -94,7 +102,8 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
       for (let offset = 0; offset < checked.length; offset += 8) {
         const results = await Promise.allSettled(checked.slice(offset, offset + 8).map(async item => {
           const accepted = acceptedById.get(item.supplierId);
-          const comparison = accepted ? compareGalleryContracts(item.api, await buildAcceptedGalleryContract(world, accepted)) : { equal: false, issues: ["accepted_entry_missing"] };
+          const issues = accepted ? projectionIssues(item.api, await buildAcceptedGalleryContract(world, accepted)) : ["accepted_entry_missing"];
+          const comparison = { equal: issues.length === 0, issues };
           if (comparison.equal) receipt.verified++; else receipt.verificationIssues.push({ supplierId: item.supplierId, issues: comparison.issues });
         }));
         if (results.some(value => value.status === "rejected")) receipt.errorCode = "post_apply_verification_incomplete";

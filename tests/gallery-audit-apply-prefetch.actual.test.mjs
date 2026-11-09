@@ -41,13 +41,14 @@ async function runPrefetchCase(tamper=''){
  const hash=async wire=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(wire)))].map(x=>x.toString(16).padStart(2,'0')).join('');
  for(let i=1;i<=9;i++){
   const old={supplierId:i,summary:{name:'Place '+i,price:420,features:['Pool'],images:['/gallery/same.jpg']},detail:{price:420,features:['Pool'],images:['/gallery/same.jpg'],galleryGroups:[{id:'old',images:['/gallery/same.jpg']}],rooms:[{id:i*100,name:'Unit '+i,images:['/gallery/same.jpg'],galleryGroups:[{id:'old-room',images:['/gallery/same.jpg']}]}]}};
+  if(tamper==='empty'||tamper==='emptyErase')old.detail.rooms.push({id:i*100+1,name:'Empty owner',images:tamper==='emptyErase'?['/gallery/same.jpg']:[],galleryGroups:[]});
   const next=structuredClone(old);next.detail.galleryGroups[0].id='9';next.detail.rooms[0].galleryGroups[0].id='2';baseline.push(old);normalized.push(next);
-  const raw={api_version:1.1,created:now.toISOString(),id:i,active:true,galleries:{9:{galleryID:9,title:String(123),pictures:['/gallery/same.jpg']}},rooms:[{roomID:i*100,galleries:[{galleryID:2,title:String(456),pictures:['/gallery/same.jpg']}]}]},wire=JSON.stringify(raw);
+  const raw={api_version:1.1,created:now.toISOString(),id:i,active:true,galleries:{9:{galleryID:9,title:String(123),pictures:['/gallery/same.jpg']}},rooms:[{roomID:i*100,galleries:[{galleryID:2,title:String(456),pictures:['/gallery/same.jpg']}]}]};if(tamper==='empty'||tamper==='emptyErase'){raw.rooms.push({roomID:i*100+1,galleries:[]});next.detail.rooms[1].images=[];}const wire=JSON.stringify(raw);
   const finding={world:'vacations',supplierId:i,status:'mismatch',issues:[],recordKey:prefix+'items/vacations-'+i+'.json',sha256:await hash(wire)};findings.push(finding);
   objects[prefix+'raw/vacations-'+i+'.json']=wire;
   objects[finding.recordKey]=JSON.stringify({finding,api:await buildApiGalleryContract('vacations',i,raw,wire),normalized:next,acceptedContract:await buildAcceptedGalleryContract('vacations',old),normalizedContract:await buildAcceptedGalleryContract('vacations',next),fetchedAt:now.toISOString(),rawKey:prefix+'raw/vacations-'+i+'.json'});
  }
- objects[prefix+'context/vacations.json']=JSON.stringify({places:baseline.map(x=>({siteID:x.supplierId,active:true,rooms:[{roomID:x.supplierId*100}]}))});
+ objects[prefix+'context/vacations.json']=JSON.stringify({places:baseline.map(x=>({siteID:x.supplierId,active:true,rooms:x.detail.rooms.map(room=>({roomID:room.id}))}))});
  objects[prefix+'job.json']=JSON.stringify({jobId,state:'complete',total:9,cursor:9,results:findings,deadline:new Date(now.getTime()+3600000).toISOString(),sourceIssues:[],worldCounts:{vacations:9,events:0,rooms:0,spa:0}});
  if(tamper==='hash')objects[prefix+'raw/vacations-1.json']+=' ';
  if(tamper==='foreign'){const item=JSON.parse(objects[prefix+'items/vacations-1.json']);item.rawKey='another-job/private.json';objects[prefix+'items/vacations-1.json']=JSON.stringify(item);}
@@ -55,7 +56,9 @@ async function runPrefetchCase(tamper=''){
  try{
   assert.equal((await runSupplierCatalogSync(db,{id:'prefetch-seed',world:'vacations',source:'test',baseline,now:()=>now,fetchCandidate:async()=>({fetchedAt:now.toISOString(),entries:baseline})})).status,'accepted');
   const receipt=await applyGalleryAuditWorld({db,bucket,jobId,world:'vacations'});
-  if(tamper){assert.equal(receipt.state,'not_accepted',JSON.stringify(receipt));assert.equal(receipt.verified,0);assert.ok(!readKeys.includes('another-job/private.json'));const current=await db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world = ?').bind('vacations').first();assert.equal(current.active_run_id,'prefetch-seed');return;}
+  if(tamper==='hash'||tamper==='foreign'){assert.equal(receipt.state,'not_accepted',JSON.stringify(receipt));assert.equal(receipt.verified,0);assert.ok(!readKeys.includes('another-job/private.json'));const current=await db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world = ?').bind('vacations').first();assert.equal(current.active_run_id,'prefetch-seed');return;}
+  if(tamper==='emptyErase'){assert.equal(receipt.verified,0);assert.equal(receipt.skipped,9);const rows=(await db.prepare('SELECT detail_json FROM supplier_catalog_entries WHERE run_id = ?').bind(receipt.runId).all()).results;assert.equal(rows.length,9);for(const row of rows)assert.deepEqual(JSON.parse(row.detail_json).rooms[1].images,['/gallery/same.jpg']);return;}
+  if(tamper==='empty')assert.equal(receipt.sourceWarnings.length,9);
   assert.equal(receipt.state,'accepted',JSON.stringify(receipt));assert.equal(receipt.verified,9);assert.equal(receipt.changed,9);assert.equal(receipt.skipped,0);assert.equal(max,4);
   const rows=(await db.prepare('SELECT summary_json,detail_json FROM supplier_catalog_entries WHERE run_id = ?').bind(receipt.runId).all()).results;assert.equal(rows.length,9);for(const row of rows){const d=JSON.parse(row.detail_json),s=JSON.parse(row.summary_json);assert.equal(d.price,420);assert.deepEqual(d.features,['Pool']);assert.match(d.rooms[0].name,/^Unit /);assert.equal(d.galleryGroups[0].id,'9');assert.equal(s.price,420);}
   const writes=bucket.writes.length;assert.deepEqual(await applyGalleryAuditWorld({db,bucket,jobId,world:'vacations'}),receipt);assert.equal(bucket.writes.length,writes);
@@ -64,3 +67,5 @@ async function runPrefetchCase(tamper=''){
 test('actual nine-entry apply prefetches at most four sources and preserves every nonmedia fact',()=>runPrefetchCase());
 test('prefetched corrupt source bytes keep the previous public generation',()=>runPrefetchCase('hash'));
 test('prefetch rejects a foreign raw key before reading it or changing the generation',()=>runPrefetchCase('foreign'));
+test('already empty API owners remain warnings while healthy gallery order is repaired',()=>runPrefetchCase('empty'));
+test('an empty API owner cannot erase last-good accepted photos',()=>runPrefetchCase('emptyErase'));
