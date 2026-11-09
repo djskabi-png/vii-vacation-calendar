@@ -73,7 +73,8 @@ test("contextual discovery preserves filters while changing only the selected de
   assert.match(component, /inventory\.filter/);
   assert.match(component, /matchesSearchLocation\(item, location\)/);
   assert.match(component, /SliderRailControls/);
-  assert.match(sliderControls, /rail\.scrollBy/);
+  assert.match(sliderControls, /moveSliderRailByCard/);
+  assert.match(sliderControls, /rail\.scrollTo/);
 });
 
 test("spa discovery cards lead to unique canonical landing pages", () => {

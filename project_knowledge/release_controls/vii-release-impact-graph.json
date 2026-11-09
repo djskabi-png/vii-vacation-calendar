@@ -103,6 +103,8 @@
         "tests/holiday-cold-recovery-actual.test.mjs",
         "tests/cookie-consent-cls.test.mjs",
         "tests/slider-settle-layout-actual.test.mjs",
+        "tests/slider-interaction-isolation.actual.test.mjs",
+        "tests/slider-viewport-events.actual.test.mjs",
         "tests/cross-release-client-reference-actual.test.mjs",
         "tests/public-critical-css.actual.test.mjs",
         "tests/navigation-first-paint.actual.test.mjs",
@@ -928,6 +930,7 @@
         "app/lib/public-event-search.ts",
         "app/lib/event-last-minute-props.ts",
         "app/components/event-last-minute.tsx",
+        "app/components/event-region-carousel.tsx",
         "app/components/event-result-card.tsx"
       ]
     },
