@@ -1,5 +1,8 @@
 {
   "החל מ": {"en":"From","fr":"À partir de","ru":"От"},
+  "שעה החל מ ₪": {"en":"Per hour from ₪","fr":"L’heure à partir de ₪","ru":"Час от ₪"},
+  "החל מ ₪ 340": {"en":"From ₪ 340","fr":"À partir de ₪ 340","ru":"От ₪ 340"},
+  "החל מ ₪": {"en":"From ₪","fr":"À partir de ₪","ru":"От ₪"},
   "ספא עם בריכה מקורה": {"en":"Spa with an indoor pool","fr":"Spa avec piscine intérieure","ru":"Спа с крытым бассейном"},
   "בתי ספא עם בריכה מקורה וחבילות טיפול לפי אזור.": {"en":"Spas with indoor pools and treatment packages by region.","fr":"Spas avec piscine intérieure et formules de soins par région.","ru":"Спа с крытым бассейном и пакетами процедур по регионам."},
   "בריכה פנימית": {"en":"Indoor pool","fr":"Piscine intérieure","ru":"Крытый бассейн"},
