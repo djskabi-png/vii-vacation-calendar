@@ -8,6 +8,7 @@ const savedJobKey = "vii.gallery-audit.job.v1";
 const validId = (value: string | null) => !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const terminal = (job: GalleryAuditJobSummary) => ["complete", "deadline", "error"].includes(job.state);
 const labels = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" } as const;
+type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;verificationIssues:unknown[]};
 
 export default function GalleryAuditPage() {
   const canEdit = useAdminCanEdit();
@@ -18,7 +19,7 @@ export default function GalleryAuditPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [applying, setApplying] = useState<string | null>(null);
-  const [applyResults, setApplyResults] = useState<Record<string, { state: string; changed: number; skipped: number; verified: number; errorCode?: string; verificationIssues: unknown[] }>>({});
+  const [applyResults, setApplyResults] = useState<Record<string, ApplyResult>>({});
   const runRef = useRef<AbortController | null>(null);
 
   async function request(id: string, action?: "start" | "step" | "retry" | "continue", signal?: AbortSignal) {
@@ -98,22 +99,33 @@ export default function GalleryAuditPage() {
 
   async function applyWorld(world: keyof typeof labels) {
     if (!canEdit || !job || applying || busy || job.state !== "complete") return;
-    setApplying(world); setError("");
+    const controller=new AbortController();runRef.current=controller;
+    setApplying(world); setError("");setNotice("");
     const url = `/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&applyWorld=${world}`;
+    const read=async(action?:'apply'|'apply-step',recovery=false):Promise<ApplyResult|null>=>{
+      const response=await fetch(action?'/api/admin/gallery-audit':url,{method:action?'POST':'GET',cache:'no-store',credentials:'same-origin',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(90_000)]),...(action?{headers:{'Content-Type':'application/json'},body:JSON.stringify({action,world,jobId:job.jobId,recovery})}:{})});
+      let result:{ok?:boolean;apply?:ApplyResult|null};try{result=await response.json();}catch{throw Error('השרת לא החזיר אישור תקין. התקדמות שנשמרה לא תישלח מחדש.');}
+      if(!response.ok||!result.ok)throw Error('לא התקבל אישור לצעד. יש לרענן את המצב לפני המשך.');
+      if(result.apply)setApplyResults(current=>({...current,[world]:result.apply!}));return result.apply||null;
+    };
     try {
-      const prior = await fetch(url, { cache: "no-store", credentials: "same-origin", signal: AbortSignal.timeout(20_000) }).then(response => response.json());
-      if (!prior.ok) throw new Error("לא ניתן לאמת את מצב התיקון לפני ההפעלה.");
-      const value = prior.apply || await fetch("/api/admin/gallery-audit", { method: "POST", credentials: "same-origin", cache: "no-store",
-        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "apply", world, jobId: job.jobId }), signal: AbortSignal.timeout(120_000) }).then(async response => {
-          const result = await response.json(); if (!response.ok || !result.ok || !result.apply) throw new Error("לא התקבל אישור להשלמת התיקון."); return result.apply;
-        });
-      setApplyResults(current => ({ ...current, [world]: value }));
+      let value=await read();
+      if(!value||value.state==='reserved'&&value.version!==1)value=await read('apply',!!value);
+      const deadline=Date.now()+55*60_000;
+      for(let step=0;value?.state==='reserved'&&step<2400;step++){
+        if(controller.signal.aborted||Date.now()>=deadline){setNotice('ההתקדמות נשמרה. אפשר להמשיך מהצעד האחרון.');break;}
+        if(value.lease&&Date.parse(value.lease.until)>Date.now()){setNotice('צעד קודם עדיין רשום כפעיל. יש לרענן מצב לפני המשך; הפעולה לא נשלחה שוב.');break;}
+        const before=JSON.stringify([value.phase,value.cursor,value.verifyCursor]);
+        value=await read('apply-step');
+        if(!value)throw Error('מצב התיקון חסר.');
+        if(value.errorCode||value.state==='reserved'&&before===JSON.stringify([value.phase,value.cursor,value.verifyCursor])){setNotice('ההרצה נעצרה לבדיקה. התוצאות שנשמרו נשארו במערכת.');break;}
+      }
     } catch (cause) {
       try { const result = await fetch(url, { cache: "no-store", credentials: "same-origin", signal: AbortSignal.timeout(20_000) }).then(response => response.json());
         if (result.ok && result.apply) setApplyResults(current => ({ ...current, [world]: result.apply }));
       } catch { /* An uncertain write is never repeated automatically. */ }
       setError(cause instanceof Error ? cause.message : "לא ניתן לאמת כעת את מצב התיקון. הפעולה לא נשלחה שוב.");
-    } finally { setApplying(null); }
+    } finally {if(runRef.current===controller)runRef.current=null;setApplying(null);}
   }
 
   const passed = job?.state === "complete" && job.total > 0 && job.completed === job.total && job.matched === job.total && job.unverified === 0 && job.mismatched === 0 && job.sourceIssues.length === 0;
@@ -147,8 +159,9 @@ export default function GalleryAuditPage() {
         {canEdit && job.state === "complete" ? <section aria-label="תיקון גלריות מאומתות" style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #cde0e2" }}>
           <h2 style={{ fontSize: "1.25rem" }}>תיקון גלריות מאומתות</h2>
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `תיקון ${labels[world]}`}</button>)}</div>
-          {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{value.state === "accepted" ? `${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.` : value.state === "reserved" ? "הפעולה נרשמה, אך השלמתה עדיין לא אומתה. אין לשלוח אותה מחדש." : "העדכון לא אושר. הגרסה הקודמת נשמרה."}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
+          {applying?<button type="button" style={{...buttonStyle,marginTop:12}} onClick={()=>{runRef.current?.abort();setNotice('ההרצה נעצרה בדפדפן. יש לקרוא מצב שמור לפני המשך.');}}>עצירה ושמירת התקדמות</button>:null}
+          {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{value.state === "accepted" ? `${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.` : value.state === "reserved"&&value.version===1 ? value.phase==='verify'?`בודקים את הדור שפורסם: ${value.verifyCursor} מתוך ${value.total}.`:`מכינים עדכון: ${value.cursor} מתוך ${value.total}. הגרסה הפעילה תוחלף רק בסיום ההכנה.` : value.state==='reserved' ? 'הפעולה הקודמת דורשת בדיקת מצב לפני המשך.' : "העדכון לא אושר. יש לבדוק את הדוח; המידע הפעיל לא מוחלף במקרה של הכנה שנכשלה."}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
         </section> : null}
       </> : null}
     </section>

@@ -36,5 +36,7 @@ test("incomplete audit job is rejected before applying catalog changes", async (
 test("admin route validates apply world against the four supported worlds", () => {
   const source = fs.readFileSync(new URL("../app/api/admin/gallery-audit/route.ts", import.meta.url), "utf8");
   assert.match(source, /\["vacations", "events", "rooms", "spa"\]\.includes\(String\(body\.world\)\)/);
-  assert.match(source, /applyGalleryAuditWorld\(\{ db, bucket, jobId: body\.jobId, world: body\.world/);
+  assert.match(source, /stepBoundedGalleryApply\(input\)/);
+  assert.match(source, /startBoundedGalleryApply\(/);
+  assert.doesNotMatch(source, /applyGalleryAuditWorld\(/, "the public admin route must never invoke a full-world in-memory apply");
 });

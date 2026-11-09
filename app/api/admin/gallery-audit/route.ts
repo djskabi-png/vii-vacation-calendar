@@ -2,7 +2,8 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
 import { createGalleryAuditJob, continueGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
-import { applyGalleryAuditWorld, readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
+import { readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
+import { readBoundedGalleryApply, startBoundedGalleryApply, stepBoundedGalleryApply } from "../../../lib/gallery-audit-bounded-apply.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const valid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 async function environment() {
@@ -23,7 +24,8 @@ export async function GET(request: Request) {
     const applyWorld = query.get("applyWorld");
     if (applyWorld) {
       if (!["vacations", "events", "rooms", "spa"].includes(applyWorld)) return Response.json({ error: "invalid_world" }, { status: 400, headers });
-      return Response.json({ ok: true, apply: await readGalleryAuditApply(bucket, id, applyWorld as "vacations" | "events" | "rooms" | "spa") }, { headers });
+      const world=applyWorld as "vacations" | "events" | "rooms" | "spa";
+      return Response.json({ ok: true, apply: await readBoundedGalleryApply(bucket,id,world) || await readGalleryAuditApply(bucket,id,world) }, { headers });
     }
     if (query.get("download") === "1") return new Response(await downloadGalleryAuditJob(bucket, id), { headers: { ...headers, "Content-Type": "application/x-ndjson", "Content-Disposition": 'attachment; filename="gallery-audit.ndjson"' } });
     const target = query.get("item");
@@ -44,15 +46,17 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!await allowed(request, true)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (Number(request.headers.get("content-length")) > 1024) return Response.json({ error: "request_too_large" }, { status: 413, headers });
-  let body: { jobId?: unknown; action?: unknown; world?: unknown };
+  let body: { jobId?: unknown; action?: unknown; world?: unknown; recovery?: unknown };
   try { const text = await request.text(); if (text.length > 1024) throw new Error("body_size"); body = JSON.parse(text); }
   catch { return Response.json({ error: "malformed_json" }, { status: 400, headers }); }
-  if (!body || !valid(body.jobId) || !["start", "step", "apply", "retry", "continue"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  if (!body || !valid(body.jobId) || !["start", "step", "apply", "apply-step", "retry", "continue"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
     const { db, bucket, env } = await environment();
-    if (body.action === "apply") {
+    if (body.action === "apply" || body.action === "apply-step") {
       if (!["vacations", "events", "rooms", "spa"].includes(String(body.world))) return Response.json({ error: "invalid_world" }, { status: 400, headers });
-      return Response.json({ ok: true, apply: await applyGalleryAuditWorld({ db, bucket, jobId: body.jobId, world: body.world as "vacations" | "events" | "rooms" | "spa" }) }, { headers });
+      const input={db,bucket,jobId:body.jobId,world:body.world as "vacations"|"events"|"rooms"|"spa"};
+      const apply=body.action==='apply-step'?await stepBoundedGalleryApply(input):await startBoundedGalleryApply({...input,recovery:body.recovery===true});
+      return Response.json({ok:true,apply},{headers});
     }
     const job = body.action === "start" ? await createGalleryAuditJob({ db, bucket, jobId: body.jobId })
       : body.action === "retry" ? await retryGalleryAuditSources({ db, bucket, jobId: body.jobId }) : body.action === "continue" ? await continueGalleryAuditJob({ db, bucket, jobId: body.jobId }) : await stepGalleryAuditJob({ db, bucket, jobId: body.jobId, env });
@@ -61,7 +65,7 @@ export async function POST(request: Request) {
     const message = cause instanceof Error ? cause.message : "gallery_audit_unavailable";
     console.error("VII gallery audit unavailable", { action: body.action,
       reason: /^[a-z_0-9:.-]{3,150}$/.test(message) ? message : "audit_runtime_failure" });
-    const status = message === "audit_step_in_progress" ? 409 : message === "gallery_audit_job_not_found" ? 404 : 503;
+    const status = message === "audit_step_in_progress" || message === "gallery_apply_step_in_progress" ? 409 : message === "gallery_audit_job_not_found" ? 404 : 503;
     return Response.json({ error: status === 503 ? "gallery_audit_unavailable" : message }, { status, headers });
   }
 }

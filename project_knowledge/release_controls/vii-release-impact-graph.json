@@ -94,6 +94,7 @@
         "tests/gallery-api-audit-scope-performance.actual.test.mjs",
         "tests/gallery-audit-continuation.actual.test.mjs",
         "tests/gallery-audit-apply-prefetch.actual.test.mjs",
+        "tests/gallery-audit-bounded.actual.test.mjs",
         "tests/gallery-regular-sync-retention.actual.test.mjs",
         "tests/gallery-candidate-archive.test.mjs",
         "tests/gallery-audit-apply.actual.test.mjs",
@@ -846,6 +847,8 @@
         "app/lib/supplier-gallery-contract.ts",
         "app/lib/gallery-media-patch.ts",
         "app/lib/gallery-audit-apply.ts",
+        "app/lib/gallery-audit-bounded-apply.ts",
+        "app/lib/gallery-audit-generation-store.ts",
         "app/lib/gallery-candidate-archive.ts",
         "app/lib/supplier-catalog-runtime.ts"
       ]
