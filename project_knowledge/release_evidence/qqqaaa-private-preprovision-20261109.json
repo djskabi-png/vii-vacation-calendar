@@ -1,0 +1,61 @@
+{
+  "observedAt": "2026-11-09T00:52:55Z",
+  "accountId": "45b2f6dcf2cfe44204d2c470cbe682d9",
+  "sourceVersion": "9d13b0487421806fe2465f4bac0802a663939eca",
+  "buildId": "ac225036-df12-a5f5-1670-b0ae3c320126",
+  "engineDefinitionSha256": "ece54116bf80f5fd6572856bfd234810a3047cc22c460a6b41beaf752f71aa5b",
+  "gitHead": "9d13b0487421806fe2465f4bac0802a663939eca",
+  "gitStatus": "clean",
+  "workers": {
+    "browser": {
+      "name": "vii-quality-browser",
+      "versionId": "3fed5923-3cbb-4050-9167-6b3cdff61770",
+      "publicRoutes": false,
+      "flags": { "execution": false, "schedule": false, "browser": false },
+      "rollbackVersionId": "02d871db-6586-4fc0-81e5-5c2d29847f34"
+    },
+    "control": {
+      "name": "vii-quality-control",
+      "versionId": "951800e8-fdec-4c83-b7d4-a99f14b7f6c8",
+      "publicRoutes": false,
+      "flags": {
+        "releaseAuthority": false,
+        "experience": false,
+        "authority": false,
+        "execution": false,
+        "schedule": false,
+        "browser": false
+      },
+      "rollbackVersionId": "dc5e378d-4117-4cc6-95fd-b9a35395f8de"
+    }
+  },
+  "bindings": {
+    "d1": {
+      "name": "vii-quality-control",
+      "id": "9c96d3dd-e8d1-400f-9b17-2df4509b1095",
+      "schemaApplied": true,
+      "createOnlyStatements": 18,
+      "tables": 12,
+      "indexes": 6,
+      "schemaSha256": "4a3dc82a55fd675ff5b1a6f87ea9d9d06a3044d23c68f28319f129a3d2db365a"
+    },
+    "r2": { "binding": "EVIDENCE", "bucket": "vii-quality-evidence", "verified": true },
+    "queues": {
+      "release": "vii-quality-release",
+      "monitor": "vii-quality-monitor",
+      "deadLetter": "vii-quality-deadletter",
+      "verified": true
+    },
+    "serviceBinding": { "binding": "QUALITY_BROWSER", "service": "vii-quality-browser", "verified": true }
+  },
+  "activation": {
+    "provisioningRequired": false,
+    "activationRequired": true,
+    "authorityEnabled": false,
+    "executionEnabled": false,
+    "scheduleEnabled": false,
+    "browserEnabled": false
+  },
+  "mainSiteTouched": false,
+  "nativeLeadWorkerTouched": false
+}

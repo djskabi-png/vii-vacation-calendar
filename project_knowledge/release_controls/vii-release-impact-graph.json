@@ -16,12 +16,16 @@
     },
     "quality-browser": {
       "source": "services/vii-quality-browser/wrangler.toml",
-      "provisioningRequired": true,
+      "provisioningRequired": false,
+      "activationRequired": true,
+      "provisioningEvidence": "project_knowledge/release_evidence/qqqaaa-private-preprovision-20261109.json",
       "publicRoute": false
     },
     "quality-controller": {
       "source": "services/vii-quality-control/wrangler.toml",
-      "provisioningRequired": true,
+      "provisioningRequired": false,
+      "activationRequired": true,
+      "provisioningEvidence": "project_knowledge/release_evidence/qqqaaa-private-preprovision-20261109.json",
       "publicRoute": false
     }
   },
