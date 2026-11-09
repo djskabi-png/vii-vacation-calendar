@@ -76,6 +76,7 @@
 .tableWrap td strong, .tableWrap td small { display: block; }
 .tableWrap td small { margin-top: 3px; color: #5b7479; }
 .tableWrap td[dir="ltr"] { text-align: right; overflow-wrap: anywhere; }
+.periodValue { display: inline-block; min-width: 0; overflow-wrap: anywhere; }
 .actions { gap: 7px; }
 .error, .notice { padding: 12px 15px; border-radius: 5px; }
 .error { color: #8f2828; background: #fff0ef; }
@@ -95,5 +96,17 @@
   .editor { padding: 18px; }
   .fieldRow { flex-wrap: wrap; }
   .fieldRow label { flex-basis: 100%; }
-  .tableWrap table { min-width: 640px; }
+  .tableWrap { overflow: visible; }
+  .tableWrap table, .tableWrap tbody { display: block; width: 100%; }
+  .tableWrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tableWrap tr { display: block; padding: 12px 13px; border-bottom: 1px solid #d9e4e5; }
+  .tableWrap tr:last-child { border-bottom: 0; }
+  .tableWrap td { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: 10px; align-items: start; padding: 9px 0; border-bottom: 0; text-align: right; }
+  .tableWrap td::before { content: attr(data-label); color: #557077; font-weight: 700; }
+  .tableWrap td[data-label="מקום"] { display: block; padding-top: 2px; }
+  .tableWrap td[data-label="מקום"]::before { display: block; margin-bottom: 3px; }
+  .tableWrap td[data-label="פעולות"] { display: block; padding-top: 10px; border-top: 1px solid #e7eeee; }
+  .tableWrap td[data-label="פעולות"]::before { display: block; margin-bottom: 7px; }
+  .tableWrap td[data-label="פעולות"] .actions { justify-content: flex-start; flex-wrap: wrap; }
+  .tableWrap td[dir="ltr"] { min-width: 0; overflow-wrap: anywhere; }
 }

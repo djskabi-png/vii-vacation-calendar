@@ -4,6 +4,195 @@
   "scope": "Exact verified supplier bytes for absent public immutable gallery objects; existing records preserved",
   "files": [
     {
+      "filename": "706adf1547ef90e.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/706adf1547ef90e.jpg",
+      "path": "/media-recovery/706adf1547ef90e.jpg",
+      "sha256": "f5ca758a7f9b0be547c84cae496a1eedafadb7eb0a4f30784ac34961c055cba9",
+      "bytes": 168659,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "26adf15551198e.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/26adf15551198e.jpg",
+      "path": "/media-recovery/26adf15551198e.jpg",
+      "sha256": "03d653c70fd39c3c6f835098797c4cc00ee9134f64b0979680e11b7e02e049b4",
+      "bytes": 184982,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "116adf1555020e3.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/116adf1555020e3.jpg",
+      "path": "/media-recovery/116adf1555020e3.jpg",
+      "sha256": "2ae10bd2ca7dbe3b6a4876c6e43d919e6ba452689cadb8b82263cb805ae785f9",
+      "bytes": 131816,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "16adf1554eb1ec.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/16adf1554eb1ec.jpg",
+      "path": "/media-recovery/16adf1554eb1ec.jpg",
+      "sha256": "bc344af2cdcb2145bea50a8339d297c7e863fe14d14d073acfa3b986ca7f5171",
+      "bytes": 157025,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "176adf155507302.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/176adf155507302.jpg",
+      "path": "/media-recovery/176adf155507302.jpg",
+      "sha256": "14326720331939a7a6ed34862f2f85ebee21728dc8a0e0bf30cc1f3ff9575ffb",
+      "bytes": 151806,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "236adf154817329.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/236adf154817329.jpg",
+      "path": "/media-recovery/236adf154817329.jpg",
+      "sha256": "78da207c7d4e5a854d8d4bc32bc114700323d958e4b39ab5e579740f6a3212e9",
+      "bytes": 164239,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "466adf1548003d9.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/466adf1548003d9.jpg",
+      "path": "/media-recovery/466adf1548003d9.jpg",
+      "sha256": "5943a20e85815a1408ec99e7a127116729364231804482ebd448bd381769c4bc",
+      "bytes": 164466,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "46adf154727811.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/46adf154727811.jpg",
+      "path": "/media-recovery/46adf154727811.jpg",
+      "sha256": "bc9cc91e268eb4450263c20816043b1ac814edcf01fb9fa26cb4a3f50ad381d0",
+      "bytes": 156994,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "486adf15481236f.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/486adf15481236f.jpg",
+      "path": "/media-recovery/486adf15481236f.jpg",
+      "sha256": "21e16539e5d1e6330be0f05fd22f06d6abe2f63513ef97afd5033b4c59a268a6",
+      "bytes": 185057,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "496adf15550c7cd.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/496adf15550c7cd.jpg",
+      "path": "/media-recovery/496adf15550c7cd.jpg",
+      "sha256": "ad919513edaba2d77f550b0a5cb9aa8dbbfd72201ce76d95d2600f5d971ec598",
+      "bytes": 146857,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "526adf154804c40.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/526adf154804c40.jpg",
+      "path": "/media-recovery/526adf154804c40.jpg",
+      "sha256": "d201af76f2565c5d000659655cc50b79064a1238029fcae888306e9cb16a21a1",
+      "bytes": 159208,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "556adf1554f07d1.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/556adf1554f07d1.jpg",
+      "path": "/media-recovery/556adf1554f07d1.jpg",
+      "sha256": "3b10ab33396544b5613d3d0c8b911e52c4572548006eb322c130c008d5116077",
+      "bytes": 185080,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "656adf1547e7020.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/656adf1547e7020.jpg",
+      "path": "/media-recovery/656adf1547e7020.jpg",
+      "sha256": "e884cdfcf8d0fe241d99f8bc05c91d5397daf25dc1863443896a3b31cf54b1cc",
+      "bytes": 131457,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "676adf15480d739.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/676adf15480d739.jpg",
+      "path": "/media-recovery/676adf15480d739.jpg",
+      "sha256": "eb090c85a8e3d5772e491a75e96d86c1fcc5bc53acf81e8a2ee1916696f58240",
+      "bytes": 146455,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "776adf1547eb1c8.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/776adf1547eb1c8.jpg",
+      "path": "/media-recovery/776adf1547eb1c8.jpg",
+      "sha256": "158755339328f7740fe57f4549425f188ec772bd28e6ac976730785d72fdb2b3",
+      "bytes": 159857,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "786adf1547d9bb9.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/786adf1547d9bb9.jpg",
+      "path": "/media-recovery/786adf1547d9bb9.jpg",
+      "sha256": "ad7ee31d87d0f9dcd05831a00fdeb467dacdaaac9419ed80f7882e1f6b752288",
+      "bytes": 159752,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "86adf1547e2985.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/86adf1547e2985.jpg",
+      "path": "/media-recovery/86adf1547e2985.jpg",
+      "sha256": "f9ce6723e710819c6ee5797502b99ce92f07507b69a2354e8cec2db578112380",
+      "bytes": 165003,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "876adf1547de4be.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/876adf1547de4be.jpg",
+      "path": "/media-recovery/876adf1547de4be.jpg",
+      "sha256": "ff53cce034e93ae3e67265a99e2ffd8610e437f130733ae1d80bfe769337a204",
+      "bytes": 135175,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "886adf1547d474d.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/886adf1547d474d.jpg",
+      "path": "/media-recovery/886adf1547d474d.jpg",
+      "sha256": "c2eef82cf04437c27fb6aa9565364a5552b959f63051f9ae16fb652056a8e837",
+      "bytes": 160495,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "886adf1554e17c5.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/886adf1554e17c5.jpg",
+      "path": "/media-recovery/886adf1554e17c5.jpg",
+      "sha256": "ad6f16ba786a5988eb31fd4d34b85d6d9636028b44a6f9cc522f3722ee928a6b",
+      "bytes": 166863,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
+      "filename": "996adf154809123.jpg",
+      "sourceUrl": "https://www.vii.co.il/gallery/996adf154809123.jpg",
+      "path": "/media-recovery/996adf154809123.jpg",
+      "sha256": "54756922c9d407ed8acc230bdaa74d4a377e8d96fa0a811471957a38334879ba",
+      "bytes": 151655,
+      "contentType": "image/jpeg",
+      "supplierId": 472
+    },
+    {
       "filename": "216878a794a3e18.JPG",
       "sourceUrl": "https://www.vii.co.il/gallery/216878a794a3e18.JPG",
       "path": "/media-recovery/216878a794a3e18.JPG",

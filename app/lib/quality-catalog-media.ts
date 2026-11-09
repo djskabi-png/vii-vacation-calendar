@@ -58,7 +58,11 @@ export async function executeCatalogMediaCheck(check: Check, origin: string, fet
         // have a separate, required supplier detail object.
         const detail = record(body.entry.detail) ? body.entry.detail : (world === 'rooms' || world === 'spa') && record(body.entry.summary) ? body.entry.summary : null;
         if (!detail) { observations.push(id + ':detail:identity_or_shape'); continue; }
-        const general = sources(detail.images);
+        // Spa Plus exposes its authoritative gallery under `summary.gallery`,
+        // while the other catalog worlds use `images`. Keep the worlds
+        // separate, but do not report a false no-media failure for a valid
+        // spa gallery simply because it uses the provider's field name.
+        const general = sources(detail.images).length ? sources(detail.images) : world === 'spa' ? sources(detail.gallery) : [];
         const rooms = Array.isArray(detail.rooms) ? detail.rooms.filter(record) : [];
         const unitImages = rooms.flatMap(room => sources(room.images));
         if ((!general.length && !unitImages.length) || (rooms.length > 0 && !unitImages.length)) { observations.push(id + ':no_media' + (rooms.length ? ':units' : '')); continue; }

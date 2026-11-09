@@ -29,6 +29,17 @@ test("catalog-media checks pass only with strict raster image MIME", async () =>
   assert.equal(result.status, "passed");
 });
 
+test("catalog-media accepts the authoritative Spa Plus summary gallery", async () => {
+  const spa = checks.find((check) => check.catalogMediaWorld === "spa");
+  assert.ok(spa);
+  const result = await executeQualityCheck(spa, "https://example.test", async (url, init = {}) => {
+    if (init.method === "HEAD") return new Response(null, { status: 200, headers: { "content-type": "image/jpeg" } });
+    if (String(url).includes("&id=")) return response({ entry: { supplierId: Number(new URL(url).searchParams.get("id")), summary: { gallery: ["https://www.spaplus.co.il/gallery/a.jpg"] } } });
+    return response({ entries: [{ supplierId: 1 }, { supplierId: 2 }, { supplierId: 3 }] });
+  });
+  assert.equal(result.status, "passed");
+});
+
 test("catalog-media fails wrong detail identity and invalid mixed IDs", async () => {
   const wrong = await executeQualityCheck(checks[0], "https://example.test", async (url) => {
     if (String(url).includes("&id=")) return response(detail(999));

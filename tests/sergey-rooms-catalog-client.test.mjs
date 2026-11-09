@@ -62,6 +62,15 @@ test("hourly mapping keeps official shared amenities, room amenities and party f
   assert.ok(place.rooms[0].features.includes("סאונה"));
 });
 
+test("hourly mapping preserves unit galleries supplied as arrays and string IDs", async () => {
+  const subject = client({
+    galleries: [{ roomID: "71", pictures: ["/gallery/string-id-unit.jpg"] }],
+    rooms: [{ roomID: "71", roomName: "סוויטה", roomCount: 1, basePrices: {} }],
+  });
+  const place = (await subject.client.fetchCandidate()).entries[0].summary;
+  assert.deepEqual(place.rooms[0].images, ["/api/vii/media/string-id-unit.jpg"]);
+});
+
 test("rejects mismatched supplier identity and malformed room inventory", async () => {
   await assert.rejects(() => client({ id: 18 }).client.fetchCandidate(), /invalid_room_identity/);
   await assert.rejects(() => client({ rooms: [{ roomID: null, roomName: "חדר" }] }).client.fetchCandidate(), /invalid_room_inventory/);

@@ -173,10 +173,10 @@ export default function DiscoveryPromotionsPage() {
         <section aria-labelledby="promotion-list-title"><div className={styles.sectionHeading}><h2 id="promotion-list-title">קידומים וטיוטות</h2><span>{dashboard.drafts.length}</span></div>
           {dashboard.drafts.length ? <div className={styles.tableWrap}><table><thead><tr><th>מקום</th><th>סיבה</th><th>תקופה</th><th>משקל</th><th>מצב</th><th>פעולות</th></tr></thead>
             <tbody>{dashboard.drafts.map((draft) => <tr key={draft.campaignId}>
-              <td><strong>{draft.placeName}</strong><small>{worlds[draft.world]} · {draft.supplierId}</small></td>
-              <td>{kinds[draft.kind]}</td><td><span dir="ltr">{draft.startsOn}</span> עד <span dir="ltr">{draft.endsOn}</span></td>
-              <td>{draft.weight}/5</td><td>{statusLabel(draft)}</td>
-              <td><div className={styles.actions}><button type="button" title="עריכת טיוטה" aria-label={`עריכת ${draft.placeName}`}
+              <td data-label="מקום"><strong>{draft.placeName}</strong><small>{worlds[draft.world]} · {draft.supplierId}</small></td>
+              <td data-label="סיבה">{kinds[draft.kind]}</td><td data-label="תקופה"><span className={styles.periodValue} dir="ltr">{draft.startsOn} עד {draft.endsOn}</span></td>
+              <td data-label="משקל">{draft.weight}/5</td><td data-label="מצב">{statusLabel(draft)}</td>
+              <td data-label="פעולות"><div className={styles.actions}><button type="button" title="עריכת טיוטה" aria-label={`עריכת ${draft.placeName}`}
                 onClick={() => edit(draft)} disabled={busy}><Pencil size={17} /></button>
                 {draft.status === "draft" ? <button type="button" title="פרסום" aria-label={`פרסום ${draft.placeName}`}
                   onClick={() => void save("published", { campaignId: draft.campaignId, expectedVersion: draft.version,
@@ -200,9 +200,9 @@ export default function DiscoveryPromotionsPage() {
         </section>
         <section aria-labelledby="promotion-log-title"><div className={styles.sectionHeading}><h2 id="promotion-log-title">יומן שינויים</h2></div>
           {dashboard.activity.length ? <div className={styles.tableWrap}><table><thead><tr><th>זמן</th><th>מקום</th><th>שינוי</th><th>עודכן על ידי</th></tr></thead>
-            <tbody>{dashboard.activity.map((entry) => <tr key={entry.eventId}><td>{date(entry.savedAt)}</td>
-              <td>{entry.placeName}</td><td>גרסה {entry.version} · {statusLabel(entry)}</td>
-              <td dir="ltr">{entry.actorEmail}</td></tr>)}</tbody></table></div> : <p className={styles.empty}>אין פעולות מתועדות.</p>}
+            <tbody>{dashboard.activity.map((entry) => <tr key={entry.eventId}><td data-label="זמן">{date(entry.savedAt)}</td>
+              <td data-label="מקום">{entry.placeName}</td><td data-label="שינוי">גרסה {entry.version} · {statusLabel(entry)}</td>
+              <td data-label="עודכן על ידי" dir="ltr">{entry.actorEmail}</td></tr>)}</tbody></table></div> : <p className={styles.empty}>אין פעולות מתועדות.</p>}
         </section>
       </div>
     </div> : null}

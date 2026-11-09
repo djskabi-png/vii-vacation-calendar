@@ -3,6 +3,7 @@ import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "./sergey-amenities.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
+import { sergeyRoomImages } from "./sergey-gallery.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -11,7 +12,8 @@ function record(value: unknown): Record<string, unknown> {
 }
 
 function positive(value: unknown) {
-  return Number.isSafeInteger(value) && (value as number) > 0 ? value as number : null;
+  const number = typeof value === "number" ? value : typeof value === "string" && /^\d+$/.test(value.trim()) ? Number(value) : NaN;
+  return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
 function plainText(value: unknown) {
@@ -30,12 +32,7 @@ function pictures(galleries: unknown) {
 }
 
 function roomPictures(room: Record<string, unknown>, siteGalleries: unknown) {
-  const own = room.galleries;
-  if (own && typeof own === "object" && !Array.isArray(own) && Object.keys(own as object).length) return pictures(own);
-  const roomID = positive(room.roomID);
-  const groups = (Array.isArray(siteGalleries) ? siteGalleries : Object.values(record(siteGalleries)))
-    .filter((gallery) => positive(record(gallery).roomID) === roomID);
-  return pictures(groups);
+  return sergeyRoomImages(room, siteGalleries);
 }
 
 function rates(value: unknown) {

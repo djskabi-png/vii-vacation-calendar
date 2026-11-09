@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { parseFragment } from "parse5";
+import { sergeyRoomImages } from "../app/lib/sergey-gallery.ts";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -24,21 +25,21 @@ function plainText(value) {
 }
 
 function pictures(galleries) {
-  return [...new Set(Object.values(galleries || {}).flatMap((gallery) =>
+  const values = Array.isArray(galleries) ? galleries : Object.values(galleries || {});
+  return [...new Set(values.flatMap((gallery) =>
     Array.isArray(gallery?.pictures) ? gallery.pictures : []))]
     .filter((path) => typeof path === "string" && /^\/gallery\/[\w.-]+$/.test(path))
     .map((path) => new URL(path, "https://www.vii.co.il").href);
 }
 
 function roomPictures(room, siteGalleries) {
-  const roomId = positive(room?.roomID);
-  const own = room?.galleries && typeof room.galleries === "object" ? room.galleries : null;
-  const groups = own ? Object.values(own) : Object.values(siteGalleries || {}).filter((gallery) => positive(gallery?.roomID) === roomId);
-  return pictures(Object.fromEntries(groups.map((gallery, index) => [String(index), gallery])));
+  return sergeyRoomImages(room, siteGalleries).map((src) =>
+    new URL(src.replace(/^\/api\/vii\/media\//, "/gallery/"), "https://www.vii.co.il").href);
 }
 
 function positive(value) {
-  return Number.isSafeInteger(value) && value > 0 ? value : null;
+  const number = typeof value === "number" ? value : typeof value === "string" && /^\d+$/.test(value.trim()) ? Number(value) : NaN;
+  return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
 function rates(basePrices) {
