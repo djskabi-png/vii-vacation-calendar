@@ -16,7 +16,8 @@ test("all supported spa feature controls are crawlable clean links", () => {
   assert.match(results, /<Link key=\{filter\.id\} href=\{spaLandingContext\(filter\.id\)\}/);
   assert.match(results, /href=\{spaLandingContext\(filter\.id\)\} scroll=\{false\}/);
   assert.match(results, /params\.delete\("features"\)/);
-  assert.doesNotMatch(results, /spaFilters\.map\(\(filter\) => <label/);
+  assert.match(results, /spa-results__advanced-features/);
+  assert.match(results, /spaFilters\.map\(\(filter\) => <label/);
 });
 
 test("spa landing template has unique metadata, breadcrumbs and filtered collection data", () => {

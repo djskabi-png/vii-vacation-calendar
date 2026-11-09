@@ -1372,7 +1372,7 @@ test("spa results expose working place and amenity filters before the result lis
   const response = await render("/spas?location=כל%20הארץ");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.match(html, /aria-label="סינון תוצאות ספא"/);
+  assert.match(html, /aria-label="סינון מתקדם לספא"/);
   for (const label of ["ספא בבית מלון", "ספא בוטיק או פרטי", "בריכה", "ג׳קוזי", "סאונה", "חדר כושר", "חבילה זוגית", "יום כיף", "חבילה עם ארוחה"]) {
     assert.match(html, new RegExp(label));
   }
@@ -1383,6 +1383,7 @@ test("spa results expose working place and amenity filters before the result lis
   assert.match(source, /<DeferredDiscoveryMap(?: focusKey=\{(?:location|area)\})? items=\{resultItems\} initialItems=\{resultItems\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
+  assert.match(source, /spa-results__advanced-features/);
 
   const worldData = await Promise.resolve(readWorldDataSource());
   assert.match(worldData, /const coordinates = verifiedCoordinates \|\| spaAreaCoordinates\[site\.city\]/);
