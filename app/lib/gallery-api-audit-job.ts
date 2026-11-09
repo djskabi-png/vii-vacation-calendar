@@ -11,6 +11,7 @@ export type GalleryAuditJobSummary = {
   total: number; completed: number; matched: number; mismatched: number; unverified: number;
   cursor: number; deadline: string; errors: number; sourceIssues: string[];
   worldCounts: Record<AuditWorld, number>;
+  sourceRetryUsed?: boolean;
 };
 type Target = { world: AuditWorld; supplierId: number };
 type Finding = Target & { status: "match" | "mismatch" | "unverified"; issues: string[]; recordKey: string; sha256?: string };
@@ -48,7 +49,8 @@ function summary(j: Job): GalleryAuditJobSummary {
     completed: rows.length, matched: rows.filter(x => x.status === "match").length,
     mismatched: rows.filter(x => x.status === "mismatch").length,
     unverified: rows.filter(x => x.status === "unverified").length,
-    errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts };
+    errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts,
+    ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}) };
 }
 export async function readGalleryAuditJob(bucket: R2Bucket, id: string) {
   const stored = await read(bucket, id); return stored ? summary(stored.value) : null;
@@ -74,8 +76,9 @@ export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomU
   return summary(saved.value);
 }
 
-export async function fetchGalleryAuditSource(url: string, headers: Record<string, string>, fetchImpl: typeof fetch = fetch) {
-  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 15_000);
+export async function fetchGalleryAuditSource(url: string, headers: Record<string, string>, fetchImpl: typeof fetch = fetch, timeoutMs = 15_000) {
+  if (timeoutMs !== 15_000 && timeoutMs !== 30_000) throw new Error("provider_timeout_limit");
+  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), timeoutMs);
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   try {
     const response = await fetchImpl(url, { headers, signal: controller.signal, redirect: "manual", cache: "no-store" });
@@ -96,8 +99,10 @@ export async function fetchGalleryAuditSource(url: string, headers: Record<strin
 async function provider(path: string, env: ProviderEnv, fetchImpl: typeof fetch) {
   if (path === "spa") {
     if (!env.SPAPLUS_VII_API_KEY?.trim()) throw new Error("spa_key_missing");
-    const url = new URL("https://www.spaplus.co.il/vii/?action=sites"); url.searchParams.set("key", env.SPAPLUS_VII_API_KEY);
-    return fetchGalleryAuditSource(url.href, { Accept: "application/json" }, fetchImpl);
+    const url = new URL("https://www.spaplus.co.il/vii/"); url.searchParams.set("key", env.SPAPLUS_VII_API_KEY); url.searchParams.set("action", "sites");
+    // Match the existing SPA catalog client: this full provider response has
+    // taken 21 seconds in production. Other provider reads retain 15 seconds.
+    return fetchGalleryAuditSource(url.href, { Accept: "application/json" }, fetchImpl, 30_000);
   }
   if (!env.SERGEY_VII_API_TOKEN?.trim()) throw new Error("supplier_key_missing");
   return fetchGalleryAuditSource(root + path, { Accept: "application/json", Authorization: `Bearer ${env.SERGEY_VII_API_TOKEN}` }, fetchImpl);
@@ -110,13 +115,14 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
       if (old) { texts.set(path, await old.text()); return; }
       // Reserve a single attempt. A killed worker cannot silently restart an
       // uncertain provider operation; the job then needs an explicit review.
-      if (!await immutable(bucket, name + ".attempt", JSON.stringify({ at: new Date().toISOString() }))) throw new Error("context_fetch_uncertain");
+      const retry = path === "spa" && job.sourceRetryUsed;
+      if (!await immutable(bucket, name + (retry ? ".attempt-2" : ".attempt"), JSON.stringify({ at: new Date().toISOString() }))) throw new Error("context_fetch_uncertain");
       try {
         const wire = await provider(path, env, fetchImpl); await immutable(bucket, name, wire); texts.set(path, wire);
       } catch (cause) {
         const context = path === "spa" ? "spa" : path.slice(1).replaceAll("/", "_");
         const code = message(cause);
-        await immutable(bucket, name + ".error", JSON.stringify({ context, code, at: new Date().toISOString() }));
+        await immutable(bucket, name + (retry ? ".error-2" : ".error"), JSON.stringify({ context, code, at: new Date().toISOString() }));
         throw new Error(`provider_context:${context}:${code}`);
       }
     })() ]);
@@ -228,16 +234,35 @@ export async function downloadGalleryAuditJob(bucket: R2Bucket, id: string) {
 export async function readGalleryAuditItem(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
   const item = await bucket.get(key(id, `items/${world}-${supplierId}.json`)); return item ? JSON.parse(await item.text()) : null;
 }
+/** Explicit operator recovery after the documented SPA deadline changed.
+ * Preserves successful contexts and the original deadline; never repeats an
+ * uncertain fetch, deletes evidence, or permits a third supplier attempt. */
+export async function retryGalleryAuditSources({ bucket, jobId, now = Date.now }: Options & { jobId: string }) {
+  const stored = await read(bucket, jobId); if (!stored) throw new Error("gallery_audit_job_not_found");
+  const job = stored.value;
+  if (job.sourceRetryUsed) return summary(job);
+  if (now() >= Date.parse(job.deadline)) throw new Error("gallery_audit_deadline");
+  if (job.lease && Date.parse(job.lease.until) > now()) throw new Error("audit_step_in_progress");
+  if (job.state !== "error" || job.cursor !== 0 || job.results.length || job.contextsReady
+    || !job.sourceIssues.includes("provider_context:spa:provider_timeout")) throw new Error("gallery_source_retry_not_allowed");
+  const failure = await bucket.get(contextKey(jobId, "spa") + ".error");
+  if (!failure || record(JSON.parse(await failure.text())).code !== "provider_timeout") throw new Error("gallery_source_retry_not_allowed");
+  job.sourceRetryUsed = true; job.state = "starting";
+  job.sourceIssues = job.sourceIssues.filter(code => code !== "provider_context:spa:provider_timeout"); delete job.lease;
+  const saved = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
+  if (!saved) { const current = await read(bucket, jobId); if (current?.value.sourceRetryUsed) return summary(current.value); throw new Error("audit_step_in_progress"); }
+  return summary(job);
+}
 export async function readGalleryAuditDiagnostics(bucket: R2Bucket, id: string) {
   const allowed = paths.map(path => path === "spa" ? "spa" : path.slice(1).replaceAll("/", "-"));
   const contexts = [];
   for (const name of allowed) {
     const object = await bucket.get(key(id, `context/${name}.json`));
-    const error = await bucket.get(key(id, `context/${name}.json.error`));
+    const error = await bucket.get(key(id, `context/${name}.json.error-2`)) || await bucket.get(key(id, `context/${name}.json.error`));
     const failure = error ? record(JSON.parse(await error.text())) : null;
     contexts.push({ context: name, state: object ? "stored" : error ? "error" : "not_fetched", bytes: object?.size,
       sha256: object?.customMetadata?.sha256,
-      errorCode: failure && typeof failure.code === "string" && /^[a-z_0-9:.-]{3,150}$/.test(failure.code) ? failure.code : undefined });
+      ...(!object && failure && typeof failure.code === "string" && /^[a-z_0-9:.-]{3,150}$/.test(failure.code) ? { errorCode: failure.code } : {}) });
   }
   return contexts;
 }

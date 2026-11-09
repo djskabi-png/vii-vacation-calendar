@@ -21,7 +21,7 @@ export default function GalleryAuditPage() {
   const [applyResults, setApplyResults] = useState<Record<string, { state: string; changed: number; skipped: number; verified: number; errorCode?: string; verificationIssues: unknown[] }>>({});
   const runRef = useRef<AbortController | null>(null);
 
-  async function request(id: string, action?: "start" | "step", signal?: AbortSignal) {
+  async function request(id: string, action?: "start" | "step" | "retry", signal?: AbortSignal) {
     const timeout = AbortSignal.timeout(90_000);
     const response = await fetch(`/api/admin/gallery-audit${action ? "" : `?jobId=${encodeURIComponent(id)}`}`, {
       method: action ? "POST" : "GET", cache: "no-store", credentials: "same-origin",
@@ -50,7 +50,7 @@ export default function GalleryAuditPage() {
     return () => { controller.abort(); runRef.current?.abort(); runRef.current = null; };
   }, []);
 
-  async function run(start: boolean) {
+  async function run(start: boolean, retrySource = false) {
     if (!canEdit || runRef.current) return;
     const controller = new AbortController();
     runRef.current = controller;
@@ -66,7 +66,7 @@ export default function GalleryAuditPage() {
     }
     const deadline = Date.now() + 60 * 60_000;
     try {
-      let current = await request(id, start ? "start" : undefined, controller.signal);
+      let current = await request(id, retrySource ? "retry" : start ? "start" : undefined, controller.signal);
       for (let step = 0; step < 1024 && !terminal(current); step++) {
         if (controller.signal.aborted) break;
         if (Date.now() >= deadline || Date.now() >= Date.parse(current.deadline)) {
@@ -125,6 +125,7 @@ export default function GalleryAuditPage() {
     <section aria-label="הרצת בדיקה" style={{ padding: 20, marginBlock: 24, border: "1px solid #cde0e2", borderRadius: 18, background: "#fff" }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
+        {canEdit && !busy && !applying && job?.state === "error" && !job.sourceRetryUsed && job.sourceIssues.includes("provider_context:spa:provider_timeout") ? <button type="button" style={buttonStyle} onClick={() => void run(false, true)}>ניסיון נוסף למקור הספא</button> : null}
         {canEdit && savedId && !busy && job && !terminal(job) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(false)}>המשך הבדיקה השמורה</button> : null}
         {busy ? <button type="button" style={buttonStyle} onClick={() => { runRef.current?.abort(); setNotice("ההרצה נעצרה בדפדפן. הצעד שכבר נשלח עשוי להסתיים בשרת; יש לרענן את המצב לפני המשך."); }}>עצירה ושמירת התקדמות</button> : null}
         {savedId && !busy ? <button type="button" style={buttonStyle} onClick={() => { setError(""); void request(savedId).catch((cause) => setError(cause instanceof Error ? cause.message : "לא ניתן לרענן כעת.")); }}>רענון מצב</button> : null}
