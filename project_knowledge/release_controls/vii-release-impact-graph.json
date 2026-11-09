@@ -868,7 +868,8 @@
         "app/components/collapsible-feature-list.tsx",
         "app/components/search-after-results.tsx",
         "app/home-mobile.css",
-        "app/mobile-polish.css"
+        "app/mobile-polish.css",
+        "app/slider-card-compact.css"
       ]
     },
     {
@@ -988,7 +989,8 @@
       "id": "providers",
       "ownerBox": "providers",
       "match": [
-        "app/providers/"
+        "app/providers/",
+        "app/components/provider-results.tsx"
       ]
     },
     {
