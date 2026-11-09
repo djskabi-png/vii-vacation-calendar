@@ -254,6 +254,16 @@ export async function downloadGalleryAuditJob(bucket: R2Bucket, id: string) {
 export async function readGalleryAuditItem(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
   const item = await bucket.get(key(id, `items/${world}-${supplierId}.json`)); return item ? JSON.parse(await item.text()) : null;
 }
+/** Private, hash-checked source export. Uses the captured API response only. */
+export async function readGalleryAuditSource(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
+  const item = await readGalleryAuditItem(bucket, id, world, supplierId);
+  if (!item) return null;
+  const expectedKey = world === "spa" ? contextKey(id, "spa") : key(id, `raw/${world}-${supplierId}.json`);
+  if (item.rawKey !== expectedKey || !item.finding?.sha256) throw new Error("invalid_audit_source_reference");
+  const object = await bucket.get(expectedKey); if (!object) throw new Error("audit_source_missing");
+  const wire = await object.text(); if (await digest(wire) !== item.finding.sha256) throw new Error("audit_source_hash_mismatch");
+  return wire;
+}
 /** Explicit operator recovery after the documented SPA deadline changed.
  * Preserves successful contexts and the original deadline; never repeats an
  * uncertain fetch, deletes evidence, or permits a third supplier attempt. */

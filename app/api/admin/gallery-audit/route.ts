@@ -1,6 +1,6 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { cloudflareDatabaseForEnv } from "../../../lib/runtime-database.ts";
-import { createGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
+import { createGalleryAuditJob, downloadGalleryAuditJob, readGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource, readGalleryAuditDiagnostics, retryGalleryAuditSources, stepGalleryAuditJob } from "../../../lib/gallery-api-audit-job.ts";
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
 import { applyGalleryAuditWorld, readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
@@ -30,6 +30,10 @@ export async function GET(request: Request) {
     if (target) {
       const parts = target.match(/^(vacations|events|rooms|spa):([1-9]\d{0,9})$/);
       if (!parts) return Response.json({ error: "invalid_item" }, { status: 400, headers });
+      if (query.get("source") === "1") {
+        const wire = await readGalleryAuditSource(bucket, id, parts[1] as "vacations" | "events" | "rooms" | "spa", Number(parts[2]));
+        return wire ? new Response(wire, { headers: { ...headers, "Content-Type": "application/json" } }) : Response.json({ error: "item_not_found" }, { status: 404, headers });
+      }
       const item = await readGalleryAuditItem(bucket, id, parts[1] as "vacations" | "events" | "rooms" | "spa", Number(parts[2]));
       return Response.json(item ? { ok: true, item } : { error: "item_not_found" }, { status: item ? 200 : 404, headers });
     }

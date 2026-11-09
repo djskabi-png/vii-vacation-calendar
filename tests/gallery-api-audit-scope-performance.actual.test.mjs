@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createGalleryAuditJob, stepGalleryAuditJob, readGalleryAuditItem } from '../app/lib/gallery-api-audit-job.ts';
+import { createGalleryAuditJob, stepGalleryAuditJob, readGalleryAuditItem, readGalleryAuditSource } from '../app/lib/gallery-api-audit-job.ts';
 import { createSergeyPublicCatalogClient } from '../app/lib/sergey-public-catalog-client.ts';
 
 class Bucket { objects = new Map(); revision = 0; reads = []; async get(key) { if (key.includes('/context/')) this.reads.push(key); const v = this.objects.get(key); return v ? { etag: v.etag, text: async () => v.text } : null; } async put(key, text, options = {}) { const old = this.objects.get(key); if (options.onlyIf?.etagDoesNotMatch === '*' && old) return null; if (options.onlyIf?.etagMatches && old?.etag !== options.onlyIf.etagMatches) return null; const v = { text: String(text), etag: String(++this.revision) }; this.objects.set(key, v); return { etag: v.etag }; } }
@@ -29,4 +29,10 @@ test('actual two-step audit scopes resumed reads and preserves provider gallery 
   const first = await stepGalleryAuditJob({ db, bucket, jobId, batchSize: 1, env, fetchImpl }); assert.equal(first.completed, 1); const firstContextCalls = calls.filter(x => !x.endsWith('/vacations/17')); assert.equal(firstContextCalls.length, 9); assert.ok(firstContextCalls.some(x => x.startsWith('www.spaplus.co.il')));
   const before = calls.length; bucket.reads.length = 0; const second = await stepGalleryAuditJob({ db, bucket, jobId, batchSize: 1, env, fetchImpl }); assert.equal(second.completed, 2); assert.ok(calls.slice(before).some(x => x.endsWith('/events/18'))); assert.ok(!calls.slice(before).some(x => x.includes('/vacations/'))); assert.deepEqual(new Set(bucket.reads.map(x => x.split('/context/')[1])), new Set(['locations.json', 'events.json', 'events-types.json']));
   const item = await readGalleryAuditItem(bucket, jobId, 'events', 18); assert.equal(item.finding.status, 'match', JSON.stringify(item.finding.issues)); assert.deepEqual(item.api.entities.map(x => x.imageIds), [['place.jpg', 'second.jpg'], ['unit.jpg']]);
+  assert.equal(await readGalleryAuditSource(bucket, jobId, 'events', 18), bodies.events);
+  const rawObject = bucket.objects.get(item.rawKey); bucket.objects.set(item.rawKey, { ...rawObject, text: rawObject.text + ' ' });
+  await assert.rejects(() => readGalleryAuditSource(bucket, jobId, 'events', 18), /audit_source_hash_mismatch/);
+  bucket.objects.set(item.rawKey, rawObject);
+  const itemObjectKey = `vii-gallery-audit/v1/${jobId}/items/events-18.json`; const itemObject = bucket.objects.get(itemObjectKey); const forged = JSON.parse(itemObject.text); forged.rawKey = `vii-gallery-audit/v1/other-job/raw/events-18.json`; bucket.objects.set(itemObjectKey, { ...itemObject, text: JSON.stringify(forged) });
+  await assert.rejects(() => readGalleryAuditSource(bucket, jobId, 'events', 18), /invalid_audit_source_reference/);
 });
