@@ -215,3 +215,13 @@ test('diagnostic mode rejects arbitrary query strings',async()=>{
   }
  } finally { f.sqlite.close(); }
 });
+
+test('private inline backup preserves the exact verified stream without file download or executable content',async()=>{
+ const f=fixture();try{
+  const normal=await(await catalogSnapshotResponse(new Request(endpoint),deps(f.db))).text();
+  const inline=await catalogSnapshotResponse(new Request(endpoint+'?format=inline'),deps(f.db));assert.equal(inline.status,200);assert.match(inline.headers.get('content-type'),/^text\/plain/);assert.equal(inline.headers.get('content-disposition'),'inline');assert.match(inline.headers.get('content-security-policy'),/frame-ancestors 'none'/);assert.equal(inline.headers.get('x-frame-options'),'DENY');assert.equal(inline.headers.get('cache-control'),'private, no-store');
+  const text=await inline.text();assert.equal(text,normal);assert.equal(verifyActiveCatalogSnapshot(text).proof.integrityVerified,true);
+  assert.equal((await catalogSnapshotResponse(new Request(endpoint+'?format=inline'),{...deps(f.db),authorized:async()=>false})).status,403);
+  for(const query of ['?format=html','?format=inline&sql=SELECT','?format=inline&diagnostics=1'])assert.equal((await catalogSnapshotResponse(new Request(endpoint+query),deps(f.db))).status,400);
+ }finally{f.sqlite.close();}
+});

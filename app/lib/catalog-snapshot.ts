@@ -143,7 +143,8 @@ export async function catalogSnapshotResponse(request: Request, dependencies: De
   const url = new URL(request.url), origin = request.headers.get("origin");
   if (origin && origin !== url.origin) return Response.json({ error: "forbidden" }, { status: 403, headers });
   const diagnostics = url.searchParams.get("diagnostics");
-  if (url.search && !(url.search === "?diagnostics=1" && diagnostics === "1")) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  const inline=url.search==='?format=inline';
+  if (url.search && !(url.search === "?diagnostics=1" && diagnostics === "1") && !inline) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
     if (diagnostics === "1") {
       const result = await dependencies.database().then(db => db.prepare(CATALOG_SNAPSHOT_DIAGNOSTIC_SQL).all<Record<string, unknown>>());
@@ -152,6 +153,7 @@ export async function catalogSnapshotResponse(request: Request, dependencies: De
       return Response.json({ ...value, ok: Boolean(value.states_ok && value.active_runs_ok && value.state_integrity_ok && value.entry_integrity_ok && value.row_limit_ok && value.byte_limit_ok && value.row_size_ok) }, { headers });
     }
     const body = await activeCatalogSnapshot(await dependencies.database());
+    if(inline)return new Response(body,{headers:{...headers,'Content-Type':'text/plain; charset=utf-8','Content-Disposition':'inline','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'; sandbox",'X-Frame-Options':'DENY'}});
     return new Response(body, { headers: { ...headers, "Content-Type": "application/x-ndjson; charset=utf-8",
       "Content-Disposition": 'attachment; filename="vii-active-catalog.ndjson"' } });
   } catch {

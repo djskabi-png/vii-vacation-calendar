@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 import { runSupplierCatalogSync } from "../app/lib/supplier-catalog-sync.ts";
-import { startBoundedGalleryApply, stepBoundedGalleryApply, readBoundedGalleryApply, recoverBoundedGalleryApply, galleryNonMediaFactsMatch } from "../app/lib/gallery-audit-bounded-apply.ts";
+import { startBoundedGalleryApply, stepBoundedGalleryApply, readBoundedGalleryApply, recoverBoundedGalleryApply, continueBoundedGalleryApply, galleryNonMediaFactsMatch } from "../app/lib/gallery-audit-bounded-apply.ts";
 import { finishSupplierCatalogRun } from "../app/lib/supplier-catalog-store.ts";
 import { reviewableGallerySourceFailure } from "../app/lib/gallery-source-media-failure.ts";
 import { buildAcceptedGalleryContract, buildApiGalleryContract, parseOrderedJson, compareGalleryContracts } from "../app/lib/supplier-gallery-contract.ts";
@@ -169,6 +169,31 @@ async function singleFixture(){
  assert.equal((await runSupplierCatalogSync(db,{id:'bounded-baseline',world,source:'test',baseline:[current],fetchCandidate:async()=>({fetchedAt:new Date().toISOString(),entries:[current]})})).status,'accepted');
  return {db,bucket,jobId,world,current,runId:`gallery-${jobId}-${world}`,stateKey:prefix+'apply/vacations.bounded.json'};
 }
+
+test('actual SQLite bounded writer paces native revision metadata across lease and progress commits',async()=>{
+ const f=await singleFixture();try{
+  const put=f.bucket.put.bind(f.bucket),get=f.bucket.get.bind(f.bucket),times=new Map();let rejected=0;
+  f.bucket.put=async(key,value,options)=>{if(key===f.stateKey&&times.has(key)&&Date.now()-times.get(key)<1000){rejected++;throw Error('native_rate_limited');}const result=await put(key,value,options);if(result&&key===f.stateKey){times.set(key,Date.now());result.uploaded=new Date(times.get(key));}return result;};
+  f.bucket.get=async key=>{const value=await get(key);return value&&key===f.stateKey&&times.has(key)?{...value,uploaded:new Date(times.get(key))}:value;};
+  const result=await applyGalleryAuditWorld(f);assert.equal(result.state,'accepted');assert.equal(result.verified,1);assert.equal(rejected,0);
+ }finally{f.db.close();}
+});
+
+async function continuationFixture(){
+ const f=await singleFixture();await startBoundedGalleryApply(f);await stepBoundedGalleryApply(f);await stepBoundedGalleryApply(f);
+ const state=await readBoundedGalleryApply(f.bucket,f.jobId,f.world);assert.equal(state.phase,'accept');state.createdAt=new Date(Date.now()-56*60000).toISOString();state.deadline=new Date(Date.now()+4*60000).toISOString();await f.bucket.put(f.stateKey,JSON.stringify(state));return f;
+}
+test('one explicit large-apply continuation preserves the exact staged prefix and fixed hard deadline',async()=>{
+ const f=await continuationFixture();try{const before=await readBoundedGalleryApply(f.bucket,f.jobId,f.world),state=await continueBoundedGalleryApply(f);assert.equal(state.deadline,new Date(Date.parse(before.createdAt)+120*60000).toISOString());assert.equal(state.cursor,1);assert.equal(state.recoveryWindowUsed,true);
+  const writes=f.bucket.writes.length;assert.deepEqual(await continueBoundedGalleryApply(f),state);assert.equal(f.bucket.writes.length,writes);assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,'bounded-baseline');assert.equal((await applyGalleryAuditWorld(f)).state,'accepted');
+ }finally{f.db.close();}
+});
+test('early, expired, leased and mismatched-prefix continuations refuse without progress writes',async()=>{
+ for(const change of ['early','expired','lease','prefix','duplicate','foreign']){const f=await continuationFixture();try{const state=await readBoundedGalleryApply(f.bucket,f.jobId,f.world);
+  if(change==='early')state.deadline=new Date(Date.now()+60*60000).toISOString();if(change==='expired'){state.createdAt=new Date(Date.now()-121*60000).toISOString();state.deadline=new Date(Date.now()-61*60000).toISOString();}if(change==='lease')state.lease={owner:'other',until:new Date(Date.now()+60000).toISOString()};if(change==='duplicate'){state.ids=[1,1];state.total=2;}if(change==='foreign'){state.jobId='other';state.recoveryWindowUsed=true;}
+  await f.bucket.put(f.stateKey,JSON.stringify(state));if(change==='prefix')await f.db.prepare('DELETE FROM supplier_catalog_entries WHERE run_id=?').bind(f.runId).run();const writes=f.bucket.writes.length;await assert.rejects(continueBoundedGalleryApply(f));assert.equal(f.bucket.writes.length,writes,change);
+ }finally{f.db.close();}}
+});
 test('real concurrent steps yield one initialized generation and one CAS loser',async()=>{
  const f=await singleFixture();try{
   await startBoundedGalleryApply(f);

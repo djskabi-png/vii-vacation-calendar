@@ -216,7 +216,7 @@ export default function CatalogSyncPage() {
       <section aria-labelledby="catalog-backup-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
         <h2 id="catalog-backup-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>גיבויים להורדה</h2>
         <p>כל קובץ נוצר בקריאה עקבית, כולל ספירות וחתימת שלמות בסופו. הקבצים נשמרים רק במחשב שמוריד אותם.</p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}><a href="/api/admin/catalog-snapshot" download>הורדת ארבעת הקטלוגים הפעילים</a><a href="/api/admin/public-cms-snapshot" download>הורדת התוכן הציבורי הפעיל</a></div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}><a href="/api/admin/catalog-snapshot" download>הורדת ארבעת הקטלוגים הפעילים</a><a href="/api/admin/public-cms-snapshot" download>הורדת התוכן הציבורי הפעיל</a><a href="/api/admin/catalog-snapshot?format=inline" target="_blank" rel="noopener noreferrer">הצגת גיבוי הקטלוגים כטקסט</a></div>
         <small>הגיבויים האלה אינם כוללים חשבונות, הזמנות, פניות, הודעות או קובצי מדיה.</small>
       </section>
       <section aria-label="מצב התחומים" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 16, marginBlock: 24 }}>

@@ -1,3 +1,4 @@
+import { putPacedR2Json } from "./r2-json-cas.ts";
 import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
 import { GALLERY_AUDIT_PREFIX, downloadGalleryAuditJob, readGalleryAuditItem, readGalleryAuditJob, type AuditWorld } from "./gallery-api-audit-job.ts";
 import { prepareGalleryAuditEntry, readGalleryAuditApply } from "./gallery-audit-apply.ts";
@@ -35,13 +36,14 @@ function sourceFallback(current:SupplierCatalogEntry,normalized:unknown,code:str
 }
 export async function recoverBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Database;bucket:R2Bucket;jobId:string;world:AuditWorld}) {
   const object=await bucket.get(key(jobId,world));if(!object)throw Error('gallery_apply_not_started');const state=JSON.parse(await object.text()) as GalleryApplyState;
+  if(state.version!==1||state.jobId!==jobId||state.world!==world)throw Error('gallery_apply_identity_mismatch');
   const code=state.errorCode,sourceFailure=reviewableGallerySourceFailure(code),hardDeadline=Date.parse(state.createdAt)+120*60_000;
   if(state.jobId!==jobId||state.world!==world||state.phase!=='error'||state.state!=='not_accepted'||(!sourceFailure&&code!=='gallery_nonmedia_facts_changed')||(sourceFailure?state.sourceRecoveryUsed:state.factsRecoveryUsed)||!state.baselineRunId||state.verifyCursor!==0||state.cursor>=state.total||!Number.isFinite(hardDeadline)||hardDeadline<=Date.now()||Date.parse(state.deadline)<=Date.now()&&state.recoveryWindowUsed)throw Error('gallery_facts_recovery_requires_review');
   if(state.lease&&Date.parse(state.lease.until)>Date.now())throw Error('gallery_apply_step_in_progress');
   const reconcileRunning=!!state.recoveryIntent&&state.recoveryIntent.errorCode===code&&state.recoveryIntent.cursor===state.cursor&&state.recoveryIntent.baselineRunId===state.baselineRunId;
   state.recoveryIntent={errorCode:code!,cursor:state.cursor,baselineRunId:state.baselineRunId};
   state.lease={owner:crypto.randomUUID(),until:new Date(Date.now()+120_000).toISOString()};
-  const lease=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata});if(!lease)throw Error('gallery_apply_step_in_progress');
+  const lease=await putPacedR2Json(bucket,key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata},object);if(!lease)throw Error('gallery_apply_step_in_progress');
   try{
     await recoverGalleryPreparation(db,{world,runId:state.runId,baseline:state.baselineRunId,expectedIds:state.ids,expectedStagedIds:state.ids.slice(0,state.cursor),expectedError:code,reconcileRunning});
     if(sourceFailure){const id=state.ids[state.cursor],current=await galleryGenerationEntry(db,world,state.baselineRunId,id);if(!current)throw Error('gallery_baseline_entry_missing');
@@ -53,10 +55,26 @@ export async function recoverBoundedGalleryApply({db,bucket,jobId,world}:{db:D1D
     if(!state.recoveryWindowUsed){state.deadline=new Date(hardDeadline).toISOString();state.recoveryWindowUsed=true;}
     state.phase='prepare';state.state='reserved';delete state.recoveryIntent;delete state.errorCode;delete state.finishedAt;
   }
-  finally{delete state.lease;const saved=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata});if(!saved)throw Error('gallery_apply_progress_uncertain');}
+  finally{delete state.lease;const saved=await putPacedR2Json(bucket,key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata},lease);if(!saved)throw Error('gallery_apply_progress_uncertain');}
   return state;
 }
 export async function readBoundedGalleryApply(bucket:R2Bucket,jobId:string,world:AuditWorld):Promise<GalleryApplyState|null>{const object=await bucket.get(key(jobId,world));return object?JSON.parse(await object.text()):null;}
+
+/** One explicit fixed continuation for a progressing large generation. */
+export async function continueBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Database;bucket:R2Bucket;jobId:string;world:AuditWorld}) {
+  const object=await bucket.get(key(jobId,world));if(!object)throw Error('gallery_apply_not_started');const state=JSON.parse(await object.text()) as GalleryApplyState;
+  if(state.version!==1||state.jobId!==jobId||state.world!==world)throw Error('gallery_apply_identity_mismatch');
+  if(state.recoveryWindowUsed)return state;
+  const now=Date.now(),deadline=Date.parse(state.deadline),hard=Date.parse(state.createdAt)+120*60_000;
+  if(state.state!=='reserved'||!['prepare','accept','verify'].includes(state.phase)||!state.baselineRunId||state.cursor<1||state.cursor>state.total||state.ids.length!==state.total||new Set(state.ids).size!==state.total||!Number.isFinite(deadline)||!Number.isFinite(hard)||deadline>hard||Date.parse(state.createdAt)>now+300_000||now<deadline-5*60_000||now>=hard||state.errorCode)throw Error('gallery_apply_continuation_requires_review');
+  if(state.lease&&Date.parse(state.lease.until)>now)throw Error('gallery_apply_step_in_progress');
+  const live=await galleryGenerationState(db,world),staged=await galleryGenerationIds(db,world,state.runId);
+  if(state.phase==='verify'){if(live?.activeRunId!==state.runId||JSON.stringify(staged)!==JSON.stringify(state.ids))throw Error('gallery_apply_continuation_generation_changed');}
+  else{if(live?.activeRunId!==state.baselineRunId||JSON.stringify(staged)!==JSON.stringify(state.ids.slice(0,state.cursor)))throw Error('gallery_apply_continuation_generation_changed');await renewGalleryGeneration(db,world,state.runId,state.baselineRunId);}
+  state.deadline=new Date(hard).toISOString();state.recoveryWindowUsed=true;
+  const saved=await putPacedR2Json(bucket,key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata},object);
+  if(!saved){const current=await readBoundedGalleryApply(bucket,jobId,world);if(current?.recoveryWindowUsed)return current;throw Error('gallery_apply_progress_uncertain');}return state;
+}
 
 export async function startBoundedGalleryApply({db,bucket,jobId,world,recovery=false}:{db:D1Database;bucket:R2Bucket;jobId:string;world:AuditWorld;recovery?:boolean}) {
   const existing=await readBoundedGalleryApply(bucket,jobId,world);if(existing)return existing;
@@ -80,7 +98,7 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
   if(state.lease&&Date.parse(state.lease.until)>Date.now())throw Error('gallery_apply_step_in_progress');
   if(Date.parse(state.deadline)<=Date.now())throw Error('gallery_apply_deadline');
   state.lease={owner:crypto.randomUUID(),until:new Date(Date.now()+120_000).toISOString()};
-  const lease=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata});if(!lease)throw Error('gallery_apply_step_in_progress');
+  const lease=await putPacedR2Json(bucket,key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata},object);if(!lease)throw Error('gallery_apply_step_in_progress');
   delete state.errorCode;
   try {
     if(state.phase==='initialize') {
@@ -153,6 +171,6 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
     }else{state.phase='error';state.state='not_accepted';if(state.baselineRunId)await finishSupplierCatalogRun(db,{id:state.runId,world,status:'failed',errorCode:message,finishedAt:new Date().toISOString()});}
   }
   delete state.lease;
-  const saved=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata});if(!saved)throw Error('gallery_apply_progress_uncertain');
+  const saved=await putPacedR2Json(bucket,key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata},lease);if(!saved)throw Error('gallery_apply_progress_uncertain');
   return state;
 }

@@ -4,6 +4,7 @@ import { createSergeyPublicCatalogClient } from "./sergey-public-catalog-client.
 import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts";
 import { normalizeSpaPlusCatalog } from "./spaplus-catalog-client.ts";
 import { buildAcceptedGalleryContract, buildApiGalleryContract, compareGalleryContracts, parseOrderedJson, stringifyOrderedJson, type GalleryContract } from "./supplier-gallery-contract.ts";
+import { putPacedR2Json } from './r2-json-cas.ts';
 
 export type AuditWorld = GalleryContract["world"];
 export type GalleryAuditJobSummary = {
@@ -15,6 +16,9 @@ export type GalleryAuditJobSummary = {
   continuationUsed?: boolean;
   previousDeadline?: string;
   scopeWorld?: AuditWorld;
+  storageRecoveryUsed?: boolean;
+  storageRecovery?: {cursor:number;code:string;reviewedAt:string};
+  failure?: {stage:string;kind:string;code:string;targets:number[]};
 };
 type Target = { world: AuditWorld; supplierId: number };
 type Finding = Target & { status: "match" | "mismatch" | "unverified"; issues: string[]; recordKey: string; sha256?: string };
@@ -45,7 +49,7 @@ async function immutable(bucket: R2Bucket, name: string, value: string) {
 }
 async function read(bucket: R2Bucket, id: string) {
   const object = await bucket.get(key(id));
-  return object ? { value: JSON.parse(await object.text()) as Job, etag: object.etag } : null;
+  return object ? { value: JSON.parse(await object.text()) as Job, etag: object.etag, uploaded: object.uploaded } : null;
 }
 function summary(j: Job): GalleryAuditJobSummary {
   const rows = j.results;
@@ -55,6 +59,7 @@ function summary(j: Job): GalleryAuditJobSummary {
     unverified: rows.filter(x => x.status === "unverified").length,
     errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts,
     ...(j.scopeWorld ? { scopeWorld: j.scopeWorld } : {}),
+    ...(j.storageRecoveryUsed ? {storageRecoveryUsed:true,storageRecovery:j.storageRecovery} : {}), ...(j.failure ? {failure:j.failure} : {}),
     ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}), ...(j.continuationUsed ? { continuationUsed: true, previousDeadline: j.previousDeadline } : {}) };
 }
 function selectedWorlds(job: Pick<Job, 'scopeWorld'>): AuditWorld[] {
@@ -249,12 +254,13 @@ export async function stepGalleryAuditJob(options: Options & { jobId: string; en
   if (["complete", "deadline", "error"].includes(job.state)) return summary(job);
   if (job.lease && Date.parse(job.lease.until) > now()) throw new Error("audit_step_in_progress");
   job.lease = { owner: crypto.randomUUID(), until: new Date(now() + 120_000).toISOString() };
-  let revision = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
+  let revision = await putPacedR2Json(bucket,key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata },stored);
   if (!revision) throw new Error("audit_step_in_progress");
   async function checkpoint() {
-    const next = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: revision!.etag }, httpMetadata: metadata });
+    const next = await putPacedR2Json(bucket,key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: revision!.etag }, httpMetadata: metadata },revision);
     if (!next) throw new Error("audit_checkpoint_conflict"); revision = next;
   }
+  let stage='contexts';let pendingIds:number[]=[];
   try {
     if (now() >= Date.parse(job.deadline)) job.state = "deadline";
     else {
@@ -266,15 +272,21 @@ export async function stepGalleryAuditJob(options: Options & { jobId: string; en
       // jobs preserve their original initial-inventory behavior in loadContexts.
       const targets = job.inventory.slice(job.cursor, job.cursor + count).filter(target => target.world === firstTarget?.world);
       if (!targets.length) throw new Error('gallery_audit_inventory_incomplete');
+      pendingIds=targets.map(target=>target.supplierId);
       const contexts = await loadContexts(job, bucket, options.env, fetchImpl, [firstTarget.world]);
       job.state = "running"; await checkpoint();
+      stage='items';
       const findings = await Promise.allSettled(targets.map(target => auditTarget(target, job, { ...options, fetchImpl }, contexts)));
       const failure = findings.find((item): item is PromiseRejectedResult => item.status === "rejected");
       if (failure) throw failure.reason;
       for (const finding of findings) if (finding.status === "fulfilled") { job.results.push(finding.value); job.cursor++; }
+      stage='checkpoint';
       if (job.cursor === job.total) job.state = "complete"; else if (now() >= Date.parse(job.deadline)) job.state = "deadline";
     }
-  } catch (cause) { if (message(cause) === "audit_checkpoint_conflict") throw cause; job.state = "error"; job.sourceIssues.push(message(cause)); }
+  } catch (cause) { if (message(cause) === "audit_checkpoint_conflict") throw cause; job.state = "error"; const code=message(cause);job.sourceIssues.push(code);
+    const kind=cause instanceof TypeError?'TypeError':cause instanceof RangeError?'RangeError':cause instanceof Error?'Error':'Unknown';
+    job.failure={stage,kind,code,targets:pendingIds};console.error('VII gallery audit step failed',{jobId,...job.failure});
+  }
   delete job.lease; await checkpoint(); return summary(job);
 }
 export async function downloadGalleryAuditJob(bucket: R2Bucket, id: string) {
@@ -283,6 +295,49 @@ export async function downloadGalleryAuditJob(bucket: R2Bucket, id: string) {
 }
 export async function readGalleryAuditItem(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
   const item = await bucket.get(key(id, `items/${world}-${supplierId}.json`)); return item ? JSON.parse(await item.text()) : null;
+}
+
+/** Read-only metadata for the exact failed batch, never caller-controlled keys. */
+export async function readGalleryAuditPendingDiagnostics(bucket:R2Bucket,jobId:string) {
+  const stored=await read(bucket,jobId);if(!stored)throw Error('gallery_audit_job_not_found');const job=stored.value;
+  if(job.state!=='error'||job.cursor<0||job.cursor>=job.total)throw Error('audit_pending_diagnostic_not_available');
+  const first=job.inventory[job.cursor],targets=job.inventory.slice(job.cursor,job.cursor+4).filter(x=>x.world===first.world),rows=[];
+  for(const target of targets){const root=`${target.world}-${target.supplierId}.json`,raw=await bucket.head(key(jobId,'raw/'+root)),item=await bucket.head(key(jobId,'items/'+root)),attempt=await bucket.head(key(jobId,'attempts/'+root));
+    rows.push({...target,itemStored:!!item,itemBytes:item?.size,rawStored:!!raw,rawBytes:raw?.size,rawSha256:raw?.customMetadata?.sha256,sourceAttemptReserved:!!attempt});}
+  return {jobId,state:job.state,cursor:job.cursor,total:job.total,sourceIssues:job.sourceIssues,failure:job.failure,targets:rows};
+}
+
+/** One reviewed recovery only when the entire failed batch is already local.
+ * Successful source requests are never reissued to fill an uncertain gap. */
+export async function reconcileGalleryAuditJob({bucket,jobId,now=Date.now}:Options&{jobId:string}) {
+  const stored=await read(bucket,jobId);if(!stored)throw Error('gallery_audit_job_not_found');const job=stored.value;
+  if(job.jobId!==jobId)throw Error('gallery_audit_identity_mismatch');
+  if(job.storageRecoveryUsed)return summary(job);
+  const originalDeadline=Date.parse(job.deadline),created=Date.parse(job.createdAt),hard=created+120*60_000,expired=originalDeadline<=now();
+  if(job.state!=='error'||job.contextMode!=='per-world'||!job.contextsReady||job.sourceIssues.length!==1||job.sourceIssues[0]!=='audit_operation_failed'||job.cursor<1||job.cursor>=job.total||job.results.length!==job.cursor||job.inventory.length!==job.total||!Number.isFinite(hard)||!Number.isFinite(originalDeadline)||originalDeadline>hard||created>now()+300_000||now()>=hard||expired&&job.continuationUsed)throw Error('audit_storage_recovery_requires_review');
+  if(job.lease&&Date.parse(job.lease.until)>now())throw Error('audit_step_in_progress');
+  const identities=new Set<string>();
+  for(const target of job.inventory){const id=`${target.world}:${target.supplierId}`;if(!selectedWorlds(job).includes(target.world)||!idNumber(target.supplierId)||identities.has(id))throw Error('audit_storage_prefix_changed');identities.add(id);}
+  for(let offset=0;offset<job.cursor;offset+=2){
+    const rows=await Promise.all(job.results.slice(offset,offset+2).map(async(finding,index)=>{const target=job.inventory[offset+index],path=key(jobId,`items/${target.world}-${target.supplierId}.json`);
+      if(finding.world!==target.world||finding.supplierId!==target.supplierId||finding.recordKey!==path)throw Error('audit_storage_prefix_changed');
+      const object=await bucket.get(path);if(!object||object.size>4_000_000)throw Error('audit_storage_prefix_changed');
+      const text=await object.text();if(!object.customMetadata?.sha256||await digest(text)!==object.customMetadata.sha256)throw Error('audit_storage_prefix_changed');
+      return JSON.stringify(JSON.parse(text).finding)===JSON.stringify(finding);
+    }));if(rows.some(x=>!x))throw Error('audit_storage_prefix_changed');
+  }
+  const first=job.inventory[job.cursor],targets=job.inventory.slice(job.cursor,job.cursor+4).filter(x=>x.world===first.world);
+  for(const target of targets){const path=key(jobId,`items/${target.world}-${target.supplierId}.json`),item=await bucket.get(path);
+    if(item){if(item.size>4_000_000)throw Error('audit_storage_item_too_large');const text=await item.text(),value=JSON.parse(text),finding=value.finding as Finding;if(!item.customMetadata?.sha256||await digest(text)!==item.customMetadata.sha256||finding.world!==target.world||finding.supplierId!==target.supplierId||finding.recordKey!==path)throw Error('audit_storage_prefix_changed');
+      if(finding.sha256){const sourcePath=target.world==='spa'?contextKey(jobId,'spa'):key(jobId,`raw/${target.world}-${target.supplierId}.json`),source=await bucket.head(sourcePath);if(value.rawKey!==sourcePath||source?.customMetadata?.sha256!==finding.sha256)throw Error('audit_storage_source_not_confirmed');}continue;}
+    const raw=await bucket.get(key(jobId,`raw/${target.world}-${target.supplierId}.json`));
+    if(target.world==='spa'||!raw||raw.size>PROVIDER_BODY_MAX||!raw.customMetadata?.sha256||await digest(await raw.text())!==raw.customMetadata.sha256)throw Error('audit_storage_source_not_confirmed');
+  }
+  job.storageRecoveryUsed=true;job.storageRecovery={cursor:job.cursor,code:'audit_operation_failed',reviewedAt:new Date(now()).toISOString()};job.state='running';job.sourceIssues=[];delete job.failure;delete job.lease;
+  if(expired){job.continuationUsed=true;job.previousDeadline=job.deadline;job.deadline=new Date(hard).toISOString();}
+  const saved=await putPacedR2Json(bucket,key(jobId),JSON.stringify(job),{onlyIf:{etagMatches:stored.etag},httpMetadata:metadata},stored);
+  if(!saved){const current=await read(bucket,jobId);if(current?.value.storageRecoveryUsed)return summary(current.value);throw Error('audit_step_in_progress');}
+  return summary(job);
 }
 /** Private, hash-checked source export. Uses the captured API response only. */
 export async function readGalleryAuditSource(bucket: R2Bucket, id: string, world: AuditWorld, supplierId: number) {
@@ -311,7 +366,7 @@ export async function retryGalleryAuditSources({ bucket, jobId, now = Date.now }
   if (!failure || record(JSON.parse(await failure.text())).code !== "provider_timeout") throw new Error("gallery_source_retry_not_allowed");
   job.sourceRetryUsed = true; job.state = "starting";
   job.sourceIssues = job.sourceIssues.filter(code => code !== "provider_context:spa:provider_timeout"); delete job.lease;
-  const saved = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
+  const saved = await putPacedR2Json(bucket,key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata },stored);
   if (!saved) { const current = await read(bucket, jobId); if (current?.value.sourceRetryUsed) return summary(current.value); throw new Error("audit_step_in_progress"); }
   return summary(job);
 }
@@ -329,7 +384,7 @@ export async function continueGalleryAuditJob({ bucket, jobId, now = Date.now }:
   if (current >= hardDeadline) throw new Error("gallery_audit_continuation_deadline");
   job.continuationUsed = true; job.previousDeadline = job.deadline; job.deadline = new Date(Math.min(current + 60 * 60_000, hardDeadline)).toISOString();
   job.state = "running"; delete job.lease;
-  const saved = await bucket.put(key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata });
+  const saved = await putPacedR2Json(bucket,key(jobId), JSON.stringify(job), { onlyIf: { etagMatches: stored.etag }, httpMetadata: metadata },stored);
   if (!saved) { const latest = await read(bucket, jobId); if (latest?.value.continuationUsed) return summary(latest.value); throw new Error("audit_step_in_progress"); }
   return summary(job);
 }

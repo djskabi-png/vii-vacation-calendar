@@ -9,7 +9,7 @@ const savedJobKey = "vii.gallery-audit.job.v1";
 const validId = (value: string | null) => !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const terminal = (job: GalleryAuditJobSummary) => ["complete", "deadline", "error"].includes(job.state);
 const labels = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" } as const;
-type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;verificationIssues:unknown[]};
+type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;deadline?:string;recoveryWindowUsed?:boolean;verificationIssues:unknown[]};
 const recoverableApply=(value?:ApplyResult)=>value?.version===1&&value.state==='not_accepted'&&(value.errorCode==='gallery_nonmedia_facts_changed'||reviewableGallerySourceFailure(value.errorCode));
 
 export default function GalleryAuditPage() {
@@ -24,7 +24,7 @@ export default function GalleryAuditPage() {
   const [applyResults, setApplyResults] = useState<Record<string, ApplyResult>>({});
   const runRef = useRef<AbortController | null>(null);
 
-  async function request(id: string, action?: "start" | "step" | "retry" | "continue", signal?: AbortSignal, scopeWorld?: keyof typeof labels) {
+  async function request(id: string, action?: "start" | "step" | "retry" | "continue" | 'reconcile', signal?: AbortSignal, scopeWorld?: keyof typeof labels) {
     const timeout = AbortSignal.timeout(90_000);
     const response = await fetch(`/api/admin/gallery-audit${action ? "" : `?jobId=${encodeURIComponent(id)}`}`, {
       method: action ? "POST" : "GET", cache: "no-store", credentials: "same-origin",
@@ -53,7 +53,7 @@ export default function GalleryAuditPage() {
     return () => { controller.abort(); runRef.current?.abort(); runRef.current = null; };
   }, []);
 
-  async function run(start: boolean, retrySource = false, continueWindow = false, scopeWorld?: keyof typeof labels) {
+  async function run(start: boolean, retrySource = false, continueWindow = false, scopeWorld?: keyof typeof labels, reconcileStored = false) {
     if (!canEdit || runRef.current) return;
     const controller = new AbortController();
     runRef.current = controller;
@@ -70,7 +70,7 @@ export default function GalleryAuditPage() {
     }
     const deadline = Date.now() + 60 * 60_000;
     try {
-      let current = await request(id, continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal, start ? scopeWorld : undefined);
+      let current = await request(id, reconcileStored ? 'reconcile' : continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal, start ? scopeWorld : undefined);
       for (let step = 0; step < 1024 && !terminal(current); step++) {
         if (controller.signal.aborted) break;
         if (Date.now() >= deadline || Date.now() >= Date.parse(current.deadline)) {
@@ -105,7 +105,7 @@ export default function GalleryAuditPage() {
     const controller=new AbortController();runRef.current=controller;
     setApplying(world); setError("");setNotice("");
     const url = `/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&applyWorld=${world}`;
-    const read=async(action?:'apply'|'apply-step'|'apply-recover',recovery=false):Promise<ApplyResult|null>=>{
+    const read=async(action?:'apply'|'apply-step'|'apply-recover'|'apply-continue',recovery=false):Promise<ApplyResult|null>=>{
       const response=await fetch(action?'/api/admin/gallery-audit':url,{method:action?'POST':'GET',cache:'no-store',credentials:'same-origin',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(90_000)]),...(action?{headers:{'Content-Type':'application/json'},body:JSON.stringify({action,world,jobId:job.jobId,recovery})}:{})});
       let result:{ok?:boolean;apply?:ApplyResult|null};try{result=await response.json();}catch{throw Error('השרת לא החזיר אישור תקין. התקדמות שנשמרה לא תישלח מחדש.');}
       if(!response.ok||!result.ok)throw Error('לא התקבל אישור לצעד. יש לרענן את המצב לפני המשך.');
@@ -115,6 +115,7 @@ export default function GalleryAuditPage() {
       let value=await read();
       if(!value||value.state==='reserved'&&value.version!==1)value=await read('apply',!!value);
       if(recoverableApply(value||undefined))value=await read('apply-recover');
+      if(value?.version===1&&value.state==='reserved'&&!value.recoveryWindowUsed&&value.deadline&&Date.now()>=Date.parse(value.deadline)-5*60_000)value=await read('apply-continue');
       const deadline=Date.now()+55*60_000;
       for(let step=0;value?.state==='reserved'&&step<2400;step++){
         if(controller.signal.aborted||Date.now()>=deadline){setNotice('ההתקדמות נשמרה. אפשר להמשיך מהצעד האחרון.');break;}
@@ -143,6 +144,7 @@ export default function GalleryAuditPage() {
         {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
         {canEdit && !busy && !applying ? (Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} onClick={() => void run(true, false, false, world)}>בדיקת {labels[world]} בלבד</button>) : null}
         {canEdit && !busy && !applying && job?.state === "error" && !job.sourceRetryUsed && job.sourceIssues.includes("provider_context:spa:provider_timeout") ? <button type="button" style={buttonStyle} onClick={() => void run(false, true)}>ניסיון נוסף למקור הספא</button> : null}
+        {canEdit && !busy && !applying && job?.state==='error' && !job.storageRecoveryUsed && job.sourceIssues.length===1 && job.sourceIssues[0]==='audit_operation_failed' ? <button type="button" style={buttonStyle} onClick={()=>void run(false,false,false,undefined,true)}>המשך מהקבצים השמורים</button> : null}
         {canEdit && !busy && !applying && job && job.state !== "complete" && job.state !== "error" && !job.continuationUsed && job.cursor > 0 && Date.now() >= Date.parse(job.deadline) ? <button type="button" style={buttonStyle} onClick={() => void run(false, false, true)}>המשך מהתוצאות השמורות בחלון נוסף</button> : null}
         {canEdit && savedId && !busy && job && !terminal(job) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(false)}>המשך הבדיקה השמורה</button> : null}
         {busy ? <button type="button" style={buttonStyle} onClick={() => { runRef.current?.abort(); setNotice("ההרצה נעצרה בדפדפן. הצעד שכבר נשלח עשוי להסתיים בשרת; יש לרענן את המצב לפני המשך."); }}>עצירה ושמירת התקדמות</button> : null}
@@ -160,7 +162,7 @@ export default function GalleryAuditPage() {
         </div>
         <p>{Object.entries(job.worldCounts).filter(([,count]) => count > 0).map(([world, count]) => `${labels[world as keyof typeof labels]}: ${count.toLocaleString("he-IL")}`).join(" · ")}</p>
         {passed ? <p role="status">כל המקומות בבדיקה הזאת תואמים לנתוני הספק שנמשכו. בדיקת קובצי התמונות והעותקים השמורים נפרדת מהשוואת הסדר.</p> : job.state === "complete" ? <p role="alert">ההשוואה הסתיימה ויש תוצאות שדורשות טיפול. אין עדיין אישור שכל הגלריות תואמות.</p> : terminal(job) ? <p role="alert">הבדיקה לא הושלמה. אין אישור לכלל הגלריות.</p> : null}
-        <details style={{ marginTop: 20 }}><summary>תיעוד הבדיקה</summary><p>הדוח כולל שיוך תמונות ותוצאות השוואה. הגישה מוגנת בהרשאות הניהול.</p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&download=1`} download>הורדת דוח מפורט</a><p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&diagnostics=1`}>אבחון מקורות</a></p></details>
+        <details style={{ marginTop: 20 }}><summary>תיעוד הבדיקה</summary><p>הדוח כולל שיוך תמונות ותוצאות השוואה. הגישה מוגנת בהרשאות הניהול.</p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&download=1`} download>הורדת דוח מפורט</a><p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&diagnostics=1`}>אבחון מקורות</a></p>{job.state==='error'?<p><a href={`/api/admin/gallery-audit?jobId=${encodeURIComponent(job.jobId)}&pending=1`}>אבחון הצעד שנעצר</a></p>:null}</details>
         {canEdit && job.state === "complete" ? <section aria-label="תיקון גלריות מאומתות" style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #cde0e2" }}>
           <h2 style={{ fontSize: "1.25rem" }}>תיקון גלריות מאומתות</h2>
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>
