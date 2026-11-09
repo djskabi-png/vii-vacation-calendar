@@ -373,12 +373,13 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       const streetTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
       const streetTiles = L.tileLayer(streetTileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        detectRetina: true,
         maxZoom: 20,
         maxNativeZoom: 19,
       });
       const aerialTiles = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        { attribution: "Tiles &copy; Esri", maxZoom: 19 },
+        { attribution: "Tiles &copy; Esri", maxZoom: 19, detectRetina: true },
       );
       let streetFallbackUsed = false;
       streetTiles.on("tileerror", () => {

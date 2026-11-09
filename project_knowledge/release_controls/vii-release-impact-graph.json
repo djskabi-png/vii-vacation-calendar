@@ -78,7 +78,9 @@
         "tests/cached-public-vacation-search.actual.test.mjs",
         "tests/public-catalog-api.test.mjs",
         "tests/vacation-online-first.test.mjs",
-        "tests/vii-unified-19-regression.test.mjs"
+        "tests/vii-unified-19-regression.test.mjs",
+        "tests/amenity-identities.actual.test.mjs",
+        "tests/legacy-place-feature-groups-2728.test.mjs"
       ]
     },
     "global-shell": {
@@ -181,7 +183,8 @@
         "tests/landing-payload-budget.test.mjs",
         "tests/vacation-sleeping-fallback.test.mjs",
         "tests/vacation-verified-sleeping-details.test.mjs",
-        "tests/vacation-2210-legacy-parity.test.mjs"
+        "tests/vacation-2210-legacy-parity.test.mjs",
+        "tests/supplier-availability-resolution.test.mjs"
       ]
     },
     "events": {
@@ -204,7 +207,8 @@
         "tests/event-last-minute-props.test.mjs",
         "tests/event-filter-identity-actual.test.mjs",
         "tests/place-open-critical-path-actual.test.mjs",
-        "tests/public-font-delivery.test.mjs"
+        "tests/public-font-delivery.test.mjs",
+        "tests/event-card-spacing-contract.test.mjs"
       ]
     },
     "spa": {
@@ -429,7 +433,9 @@
       "buildUnits": [
         "managed-site"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/agent-resource-discovery.test.mjs"
+      ]
     },
     "edge-cache": {
       "dependsOn": [
@@ -635,7 +641,8 @@
         "tests/catalog-media-workerd.actual.test.mjs",
         "tests/verified-supplier-videos.actual.test.mjs",
         "tests/unit-preview-gallery.actual.test.mjs",
-        "tests/gallery-editorial-unit-scope.test.mjs"
+        "tests/gallery-editorial-unit-scope.test.mjs",
+        "tests/unit-preview-gallery-counter-contract.test.mjs"
       ]
     },
     "experience-contract": {
@@ -782,7 +789,8 @@
         "app/components/map-provider-boundary.tsx",
         "app/components/map-provider-boundary.css",
         "app/lib/map-snapshot-candidates.ts",
-        "app/lib/map-snapshot-catalog.ts"
+        "app/lib/map-snapshot-catalog.ts",
+        "app/lib/map-price.ts"
       ]
     },
     {
@@ -812,7 +820,9 @@
         "app/lib/cached-public-vacation-search.ts",
         "app/lib/vacation-online-first.ts",
         "db/schema.ts",
-        "drizzle/meta/_journal.json"
+        "drizzle/meta/_journal.json",
+        "app/lib/business-amenities-cache.ts",
+        "app/lib/sergey-amenities.ts"
       ]
     },
     {
@@ -910,7 +920,8 @@
         "app/lib/discovery-result-sort.ts",
         "app/components/world-map-results.tsx",
         "app/lib/public-search-page-snapshot.ts",
-        "app/lib/search-page-approval.ts"
+        "app/lib/search-page-approval.ts",
+        "app/components/catalog-starting-price.tsx"
       ]
     },
     {
@@ -925,7 +936,8 @@
         "app/components/room-sleeping-preview.tsx",
         "app/worlds/vacations/",
         "app/components/viewport-resilient-image.tsx",
-        "app/components/accommodation-landing-route.tsx"
+        "app/components/accommodation-landing-route.tsx",
+        "app/lib/resolve-supplier-availability.ts"
       ]
     },
     {
@@ -1065,7 +1077,8 @@
         "app/lib/search-page-content.ts",
         "app/lib/sitemap-inventory.ts",
         "app/lib/seo.ts",
-        "app/lib/public-url.ts"
+        "app/lib/public-url.ts",
+        "worker/agent-discovery.ts"
       ]
     },
     {
@@ -1220,7 +1233,8 @@
         "app/components/unit-preview-gallery.tsx",
         "app/lib/gallery-media-identity.ts",
         "app/data/verified-media-recovery.json",
-        "app/components/gallery-selection.ts"
+        "app/components/gallery-selection.ts",
+        "app/components/property-gallery.tsx"
       ]
     },
     {

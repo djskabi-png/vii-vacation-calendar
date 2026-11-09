@@ -29,7 +29,7 @@ export async function cachedBusinessAmenities(options: {
 }) {
   const credential = await credentialScope(options.token);
   return cachedDiscovery<AmenityCacheValue>({
-    key: ["business-amenities", 5, fetchScope(options.fetchImpl ?? fetch), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he", options.supplierId],
+    key: ["business-amenities", 6, fetchScope(options.fetchImpl ?? fetch), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he", options.supplierId],
     db: options.db,
     policy, now: options.now,
     load: async () => {
@@ -44,7 +44,7 @@ export async function cachedAmenityTaxonomy(options: { token: string; db?: D1Dat
   const fetchImpl = options.fetchImpl ?? fetch;
   const credential = await credentialScope(options.token);
   return cachedDiscovery<unknown>({
-    key: ["business-amenity-taxonomy", 4, fetchScope(fetchImpl), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he"], db: options.db, policy, now: options.now,
+    key: ["business-amenity-taxonomy", 5, fetchScope(fetchImpl), credential, options.sourceRevision || "unknown", "bizonline", "vacations", "he"], db: options.db, policy, now: options.now,
     load: async () => {
       const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/types", { headers: { Authorization: `Bearer ${options.token}`, Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(8_000) });
       if (!response.ok) throw new Error("supplier_amenities_unavailable");
@@ -56,11 +56,12 @@ export async function cachedAmenityTaxonomy(options: { token: string; db?: D1Dat
       const pick = (value: unknown, fields: string[], identity: string, label: string) => {
         if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid_amenity_taxonomy");
         const row = value as Record<string, unknown>;
-        if (!Number.isSafeInteger(row[identity]) || Number(row[identity]) <= 0 || typeof row[label] !== "string" || !row[label]) throw new Error("invalid_amenity_taxonomy");
+        const identityValue = typeof row[identity] === "string" && /^\d+$/.test(row[identity] as string) ? Number(row[identity]) : row[identity];
+        if (!Number.isSafeInteger(identityValue) || Number(identityValue) <= 0 || typeof row[label] !== "string" || !row[label]) throw new Error("invalid_amenity_taxonomy");
         for (const field of fields) if (row[field] !== undefined && row[field] !== null
           && (typeof row[field] !== "string" && typeof row[field] !== "number" && typeof row[field] !== "boolean"
           || typeof row[field] === "string" && row[field].length > 4096)) throw new Error("invalid_amenity_taxonomy");
-        return Object.fromEntries(fields.filter(field => row[field] !== undefined).map(field => [field, row[field]]));
+        return Object.fromEntries(fields.filter(field => row[field] !== undefined).map(field => [field, field === identity ? identityValue : row[field]]));
       };
       return { amenities: source.amenities.map(value => pick(value, ["id", "parentID", "title", "filterTitle", "categoryID", "orderInCategory"], "id", "title")), amenity_categories: source.amenity_categories.map(value => pick(value, ["categoryID", "categoryName", "order"], "categoryID", "categoryName")), roomTypes: Array.isArray(source.roomTypes) ? source.roomTypes.map(value => pick(value, ["id", "title"], "id", "title")) : [] };
     },
@@ -72,7 +73,7 @@ export async function cachedSharedAmenityList(options: { token: string; db?: D1D
   const fetchImpl = options.fetchImpl ?? fetch;
   const credential = await credentialScope(options.token);
   return cachedDiscovery<Record<string, unknown>>({
-    key: ["business-shared-amenity-list", 1, fetchScope(fetchImpl), credential, options.sourceRevision || "unknown", "bizonline", "vacations"], db: options.db, policy, now: options.now,
+    key: ["business-shared-amenity-list", 2, fetchScope(fetchImpl), credential, options.sourceRevision || "unknown", "bizonline", "vacations"], db: options.db, policy, now: options.now,
     load: async () => {
       const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations", { headers: { Authorization: `Bearer ${options.token}`, Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(8_000) });
       if (!response.ok) throw new Error("supplier_amenities_unavailable");
@@ -84,7 +85,7 @@ export async function cachedSharedAmenityList(options: { token: string; db?: D1D
       for (const item of places) {
         if (!item || typeof item !== "object") continue;
         const row = item as Record<string, unknown>; const id = Number(row.siteID ?? row.id);
-        if (Number.isSafeInteger(id) && id > 0 && Array.isArray(row.shared_amenities)) { if (row.shared_amenities.length > 512) throw new Error("amenity_list_too_large"); normalized[String(id)] = row.shared_amenities.map(value => typeof value === "number" ? value : pickAmenity(value)).filter(Boolean); }
+        if (Number.isSafeInteger(id) && id > 0 && Array.isArray(row.shared_amenities)) { if (row.shared_amenities.length > 512) throw new Error("amenity_list_too_large"); normalized[String(id)] = row.shared_amenities.map(value => typeof value === "number" || typeof value === "string" ? value : pickAmenity(value)).filter(Boolean); }
       }
       return normalized;
     },
@@ -92,4 +93,9 @@ export async function cachedSharedAmenityList(options: { token: string; db?: D1D
   });
 }
 
-function pickAmenity(value: unknown) { if (!value || typeof value !== "object" || Array.isArray(value)) return null; const row = value as Record<string, unknown>; return Object.fromEntries(["id", "description", "shown"].filter(field => row[field] !== undefined).map(field => [field, row[field]])); }
+function pickAmenity(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  const id = row.id ?? row.amenityID ?? row.amenityId;
+  return Object.fromEntries([["id", id], ["description", row.description], ["shown", row.shown]].filter(([, field]) => field !== undefined));
+}

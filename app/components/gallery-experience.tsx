@@ -120,7 +120,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     });
     return [...groups.entries()];
   }, [visibleItems]);
-  const topicTabs = useMemo(() => galleryTopicTabs(allItems, topicScope), [allItems, topicScope]);
+  const topicTabs = useMemo(() => galleryTopicTabs(allItems, initialTab === "all" ? "all" : topicScope), [allItems, initialTab, topicScope]);
   const move = useCallback((direction: -1 | 1) => {
     if (!visibleItems.length) return;
     setSelected((value) => boundedSliderIndex(value, direction, visibleItems.length));

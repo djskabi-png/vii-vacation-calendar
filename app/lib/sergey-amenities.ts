@@ -21,17 +21,13 @@ function text(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-const canonicalAmenityLabels = new Map([
-  ["בריכת שחיה מרעננת", "בריכת שחיה מחוממת"],
-]);
-
 export function canonicalSergeyAmenityLabel(value: unknown) {
-  const label = text(value);
-  return canonicalAmenityLabels.get(label) || label;
+  return text(value);
 }
 
 function id(value: unknown) {
-  return Number.isSafeInteger(value) && Number(value) > 0 ? Number(value) : 0;
+  const parsed = typeof value === "string" && /^\d+$/.test(value) ? Number(value) : value;
+  return Number.isSafeInteger(parsed) && Number(parsed) > 0 ? Number(parsed) : 0;
 }
 
 export function buildSergeyAmenityIndex(value: unknown): SergeyAmenityIndex {
@@ -73,7 +69,7 @@ export function buildSergeyAmenityIndex(value: unknown): SergeyAmenityIndex {
 
 function normalizedAmenity(value: unknown, index: SergeyAmenityIndex, sourceOrder = 0) {
   const item = record(value);
-  const amenityId = id(typeof value === "number" ? value : item.id);
+  const amenityId = id(typeof value === "number" || typeof value === "string" ? value : item.id ?? item.amenityID ?? item.amenityId);
   const definition = index.amenities.get(amenityId);
   return {
     id: amenityId,

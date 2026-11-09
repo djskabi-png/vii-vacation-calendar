@@ -26,7 +26,8 @@ test('cards stretch but mixed heading and toolbar rows are not forced to card he
  assert.match(views,/\.event-list\.results-view--grid \{[^}]*align-items: stretch/);
  assert.match(views,/\.result-cards\.results-view--grid \{[^}]*align-items: stretch/);
  assert.doesNotMatch(css+views,/grid-auto-rows:\s*1fr/);
- assert.match(css,/event-card__actions \{ margin-top: auto/);
+ // N01: actions follow their content rather than stretching a blank price band.
+ assert.match(css,/event-card__actions \{ margin-top: 4px; min-block-size: 0/);
  assert.doesNotMatch(css,/stay-card__date-status[^}]*overflow:\s*hidden/s);
 });
 test('event interactions and selected detail context remain intact',()=>{

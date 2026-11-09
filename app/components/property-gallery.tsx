@@ -75,6 +75,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
         </div>
         <small aria-live="polite">{selected + 1} / {galleryImages.length}</small>
       </div>
+      <button className="property-gallery__open-full" type="button" onClick={() => onOpen(selected)} aria-label={copy.full}>{copy.full}</button>
     </> : null}
   </section>;
 }

@@ -26,6 +26,12 @@ test('legacy all/topic unit links still work without importing other unit photos
  assert.deepEqual(visibleGalleryItems(media,'all','יחידה אחרת').map(x=>x.src),['other.jpg']);
  assert.equal(gallerySelectionScope(media,'all','סוויטה'),'place');
 });
+test('all gallery mode exposes each unit topic after the general groups',()=>{
+ assert.deepEqual(galleryTopicTabs(media,'all'),[
+  {title:'כללי',count:1},{title:'בריכה',count:1},{title:'סוויטה',count:4},
+  {title:'יחידה אחרת',count:1},{title:'חדרי השינה',count:1}
+ ]);
+});
 test('guest, bedroom and video modes retain independent identities',()=>{
  assert.deepEqual(visibleGalleryItems(media,'bedrooms',null).map(x=>x.src),['bed.jpg']);
  assert.deepEqual(visibleGalleryItems(media,'guests',null).map(x=>x.src),['guest.jpg']);

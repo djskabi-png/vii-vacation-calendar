@@ -204,6 +204,12 @@ const worker = {
     // Public verification keys must remain addressable independently of the
     // framework's route discovery for dot-prefixed directories. The private
     // quality service verifies delegated admin requests against this endpoint.
+    // Dot-directory discovery must not depend on app-router filesystem traversal.
+    if (url.pathname === "/.well-known/ard.json" || url.pathname === "/agent-guide.md") {
+      const { serveAgentDiscovery } = await import("./agent-discovery.ts");
+      return serveAgentDiscovery(request, primary ? primaryOrigin : temporaryOrigin, publicCacheBuild)!;
+    }
+
     if (url.pathname === "/.well-known/vii-quality-jwks.json") {
       if (request.method !== "GET" && request.method !== "HEAD") {
         return new Response(null, { status: 405, headers: { Allow: "GET, HEAD", "Cache-Control": "no-store" } });

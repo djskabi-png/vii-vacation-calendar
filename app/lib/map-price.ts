@@ -15,7 +15,7 @@ const localeByLanguage: Record<SiteLanguage, string> = {
 };
 
 const prefixByLanguage: Record<SiteLanguage, Record<MapPriceMode, string>> = {
-  he: { from: "החל מ־", nightly: "ללילה ", stay_total: "לשהייה " },
+  he: { from: "החל מ", nightly: "ללילה ", stay_total: "לשהייה " },
   en: { from: "From ", nightly: "Night ", stay_total: "Stay " },
   ru: { from: "От ", nightly: "Ночь ", stay_total: "За проживание " },
   fr: { from: "Dès ", nightly: "Nuit ", stay_total: "Séjour " },

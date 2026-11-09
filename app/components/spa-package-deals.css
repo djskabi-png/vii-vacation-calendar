@@ -8,6 +8,7 @@
 .spa-package-deals__days button { display:grid; flex:1; gap:2px; min-width:76px; min-height:62px; padding:8px 14px; }
 .spa-package-deals__days small { font-size:.8rem; opacity:.9; }
 .spa-package-deals__days button[aria-pressed=true] { background:var(--spa-deal-accent); border-color:var(--spa-deal-accent); color:#fff; }
+.spa-package-deals__days button[aria-pressed=true] small { color:#fff; opacity:1; }
 .spa-package-deals__audiences { align-items:center; color:#526f7c; font-size:.82rem; }
 .spa-package-deals__audiences-label { font-weight:700; white-space:nowrap; }
 .spa-package-deals__audience-options { display:flex; align-items:center; gap:6px; }

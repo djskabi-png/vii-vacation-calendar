@@ -16,10 +16,11 @@ export function gallerySelectionScope<T extends GallerySelectionItem>(items: T[]
   return "place";
 }
 
-export function galleryTopicTabs<T extends GallerySelectionItem>(items: T[], category: GallerySelectionItem["category"]) {
+export function galleryTopicTabs<T extends GallerySelectionItem>(items: T[], category: GallerySelectionItem["category"] | "all") {
   const counts = new Map<string, number>();
   for (const item of items) {
-    if (item.category !== category) continue;
+    if (category !== "all" && item.category !== category) continue;
+    if (category === "all" && item.category === "guests") continue;
     counts.set(item.topic, (counts.get(item.topic) || 0) + 1);
   }
   return [...counts].map(([title, count]) => ({ title, count }));

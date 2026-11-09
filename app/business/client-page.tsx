@@ -14,7 +14,7 @@ import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { PageShell } from "../components/page-shell";
-import { PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
+import { PropertyCard, resolveAvailabilityForStay, type ResolvedAvailability } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
@@ -45,6 +45,7 @@ import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { useViiUnitQuotes } from "../components/use-vii-unit-quotes";
 import { useViiStayCalendar } from "../components/use-vii-stay-calendar";
 import { assessCalendarStay, stayCalendarDay } from "../lib/vii-stay-calendar";
+import { resolveSupplierAvailability } from "../lib/resolve-supplier-availability";
 import { vacationPartyForGuestCount } from "../lib/vacation-party";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
@@ -310,7 +311,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const verifiedLastMinuteDeal = activeWorld === "vacation" && selectedStay
     ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: Number(selectedPrice) || 0 })
     : null;
-  const resolvedAvailability = supplierSiteID ? supplierQuote.quote : verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
+  const resolvedAvailability = supplierSiteID
+    ? resolveSupplierAvailability(supplierQuote.quote, supplierCalendarStay, dateRange.from, dateRange.till)
+    : verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
   const hasVerifiedSupplierQuote = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.quote !== null);
   const supplierQuoteUnsettled = Boolean(supplierSiteID && hasSelectedDates && (supplierQuote.status === "loading" || supplierQuote.status === "error"));
