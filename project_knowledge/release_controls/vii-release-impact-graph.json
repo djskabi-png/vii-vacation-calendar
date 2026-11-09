@@ -849,6 +849,7 @@
         "app/lib/gallery-audit-apply.ts",
         "app/lib/gallery-audit-bounded-apply.ts",
         "app/lib/gallery-audit-generation-store.ts",
+        "app/lib/gallery-source-media-failure.ts",
         "app/lib/gallery-candidate-archive.ts",
         "app/lib/supplier-catalog-runtime.ts"
       ]

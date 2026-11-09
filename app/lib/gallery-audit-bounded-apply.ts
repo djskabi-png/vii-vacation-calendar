@@ -2,14 +2,15 @@ import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
 import { GALLERY_AUDIT_PREFIX, downloadGalleryAuditJob, readGalleryAuditItem, readGalleryAuditJob, type AuditWorld } from "./gallery-api-audit-job.ts";
 import { prepareGalleryAuditEntry, readGalleryAuditApply } from "./gallery-audit-apply.ts";
 import { buildAcceptedGalleryContract, compareGalleryContracts, parseOrderedJson, type GalleryContract } from "./supplier-gallery-contract.ts";
-import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
+import { isQuarantinedGalleryMedia,legacyGalleryFilename } from "./legacy-gallery-media.ts";
+import { reviewableGallerySourceFailure } from "./gallery-source-media-failure.ts";
 import { catalogContentIntegrityIssues } from "./supplier-catalog-sync.ts";
 import { validSupplierDetailProof } from "./supplier-detail-contract.ts";
 import { spaMediaWithinGuard, finishSupplierCatalogRun, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { acceptGalleryGeneration, galleryGenerationEntry, galleryGenerationIds, galleryGenerationState, renewGalleryGeneration, stageGalleryEntry, startGalleryGeneration, recoverGalleryPreparation } from "./gallery-audit-generation-store.ts";
 
 type Warning={supplierId:number;issues:string[]};
-export type GalleryApplyState={version:1;jobId:string;world:AuditWorld;runId:string;state:'reserved'|'accepted'|'not_accepted';phase:'initialize'|'prepare'|'accept'|'verify'|'complete'|'error';cursor:number;verifyCursor:number;total:number;ids:number[];baselineRunId?:string;recovery:boolean;factsRecoveryUsed?:boolean;changed:number;skipped:number;verified:number;sourceWarnings:Warning[];verificationIssues:Warning[];lease?:{owner:string;until:string};errorCode?:string;createdAt:string;deadline:string;finishedAt?:string};
+export type GalleryApplyState={version:1;jobId:string;world:AuditWorld;runId:string;state:'reserved'|'accepted'|'not_accepted';phase:'initialize'|'prepare'|'accept'|'verify'|'complete'|'error';cursor:number;verifyCursor:number;total:number;ids:number[];baselineRunId?:string;recovery:boolean;factsRecoveryUsed?:boolean;sourceRecoveryUsed?:boolean;recoveryWindowUsed?:boolean;recoveryIntent?:{errorCode:string;cursor:number;baselineRunId:string};changed:number;skipped:number;verified:number;sourceWarnings:Warning[];verificationIssues:Warning[];lease?:{owner:string;until:string};errorCode?:string;createdAt:string;deadline:string;finishedAt?:string};
 type Prepared=Awaited<ReturnType<typeof prepareGalleryAuditEntry>>&{jobId:string;world:AuditWorld;baselineRunId:string;baselineFingerprint:string};
 const key=(id:string,world:AuditWorld)=>`${GALLERY_AUDIT_PREFIX}${id}/apply/${world}.bounded.json`;
 const preparedKey=(state:GalleryApplyState,id:number)=>`${GALLERY_AUDIT_PREFIX}${state.jobId}/apply/prepared/${state.world}-${id}.json`;
@@ -27,13 +28,31 @@ function quarantineFree(entry:SupplierCatalogEntry):SupplierCatalogEntry {
   const clean=(value:unknown):unknown=>typeof value==='string'&&isQuarantinedGalleryMedia(value)?'':Array.isArray(value)?value.filter(x=>!isQuarantinedGalleryMedia(x)).map(clean):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).map(([k,v])=>[k,clean(v)])):value;
   return clean(entry) as SupplierCatalogEntry;
 }
+function sourceFallback(current:SupplierCatalogEntry,normalized:unknown,code:string):Awaited<ReturnType<typeof prepareGalleryAuditEntry>> {
+  const collect=(value:unknown,out:Set<string>)=>{if(typeof value==='string'){const name=legacyGalleryFilename(value);if(name)out.add(name);}else if(Array.isArray(value))value.forEach(x=>collect(x,out));else if(value&&typeof value==='object')for(const [name,child]of Object.entries(value))if(['image','images','gallery','galleryGroups','rooms','packages','summary','detail','pictures'].includes(name))collect(child,out);};
+  const before=new Set<string>(),after=new Set<string>();collect(current,before);collect(normalized,after);
+  return {entry:current,api:undefined,changed:0,skipped:1,sourceWarnings:[{supplierId:current.supplierId,issues:[`unverified_source_media:${code}`,...[...after].filter(name=>!before.has(name)).map(name=>`unverified_candidate_media:${name}`)]}]};
+}
 export async function recoverBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Database;bucket:R2Bucket;jobId:string;world:AuditWorld}) {
   const object=await bucket.get(key(jobId,world));if(!object)throw Error('gallery_apply_not_started');const state=JSON.parse(await object.text()) as GalleryApplyState;
-  if(state.jobId!==jobId||state.world!==world||state.phase!=='error'||state.state!=='not_accepted'||state.errorCode!=='gallery_nonmedia_facts_changed'||state.factsRecoveryUsed||!state.baselineRunId||state.verifyCursor!==0||state.cursor>=state.total||Date.parse(state.deadline)<=Date.now())throw Error('gallery_facts_recovery_requires_review');
+  const code=state.errorCode,sourceFailure=reviewableGallerySourceFailure(code),hardDeadline=Date.parse(state.createdAt)+120*60_000;
+  if(state.jobId!==jobId||state.world!==world||state.phase!=='error'||state.state!=='not_accepted'||(!sourceFailure&&code!=='gallery_nonmedia_facts_changed')||(sourceFailure?state.sourceRecoveryUsed:state.factsRecoveryUsed)||!state.baselineRunId||state.verifyCursor!==0||state.cursor>=state.total||!Number.isFinite(hardDeadline)||hardDeadline<=Date.now()||Date.parse(state.deadline)<=Date.now()&&state.recoveryWindowUsed)throw Error('gallery_facts_recovery_requires_review');
   if(state.lease&&Date.parse(state.lease.until)>Date.now())throw Error('gallery_apply_step_in_progress');
+  const reconcileRunning=!!state.recoveryIntent&&state.recoveryIntent.errorCode===code&&state.recoveryIntent.cursor===state.cursor&&state.recoveryIntent.baselineRunId===state.baselineRunId;
+  state.recoveryIntent={errorCode:code!,cursor:state.cursor,baselineRunId:state.baselineRunId};
   state.lease={owner:crypto.randomUUID(),until:new Date(Date.now()+120_000).toISOString()};
   const lease=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:object.etag},httpMetadata:metadata});if(!lease)throw Error('gallery_apply_step_in_progress');
-  try{await recoverGalleryPreparation(db,{world,runId:state.runId,baseline:state.baselineRunId,expectedIds:state.ids,expectedStagedIds:state.ids.slice(0,state.cursor)});state.phase='prepare';state.state='reserved';state.factsRecoveryUsed=true;delete state.errorCode;delete state.finishedAt;}
+  try{
+    await recoverGalleryPreparation(db,{world,runId:state.runId,baseline:state.baselineRunId,expectedIds:state.ids,expectedStagedIds:state.ids.slice(0,state.cursor),expectedError:code,reconcileRunning});
+    if(sourceFailure){const id=state.ids[state.cursor],current=await galleryGenerationEntry(db,world,state.baselineRunId,id);if(!current)throw Error('gallery_baseline_entry_missing');
+      const source=await readGalleryAuditItem(bucket,jobId,world,id),fallback:Prepared={...sourceFallback(current,source?.normalized,code!),jobId,world,baselineRunId:state.baselineRunId,baselineFingerprint:await hash(JSON.stringify(current))};
+      const old=await bucket.get(preparedKey(state,id));if(old){if(await old.text()!==JSON.stringify(fallback))throw Error('gallery_recovery_prepared_changed');}
+      else if(!await bucket.put(preparedKey(state,id),JSON.stringify(fallback),{onlyIf:{etagDoesNotMatch:'*'},httpMetadata:metadata}))throw Error('gallery_prepared_write_uncertain');
+      state.sourceRecoveryUsed=true;
+    }else state.factsRecoveryUsed=true;
+    if(!state.recoveryWindowUsed){state.deadline=new Date(hardDeadline).toISOString();state.recoveryWindowUsed=true;}
+    state.phase='prepare';state.state='reserved';delete state.recoveryIntent;delete state.errorCode;delete state.finishedAt;
+  }
   finally{delete state.lease;const saved=await bucket.put(key(jobId,world),JSON.stringify(state),{onlyIf:{etagMatches:lease.etag},httpMetadata:metadata});if(!saved)throw Error('gallery_apply_progress_uncertain');}
   return state;
 }
@@ -91,7 +110,9 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
             const list=parseOrderedJson(await listObject.text()) as {places?:Array<{siteID:number}>};listing=list.places?.find(x=>Number(x.siteID)===id);
           }
         }
-        const result=await prepareGalleryAuditEntry({current,source,wire,listing,bucket,world,jobId});
+        let result:Awaited<ReturnType<typeof prepareGalleryAuditEntry>>;
+        try{result=await prepareGalleryAuditEntry({current,source,wire,listing,bucket,world,jobId});}
+        catch(cause){const code=cause instanceof Error?cause.message:'';if(!reviewableGallerySourceFailure(code))throw cause;result=sourceFallback(current,source?.normalized,code);}
         if(!result.entry||!galleryNonMediaFactsMatch(world,result.entry,current))throw Error('gallery_nonmedia_facts_changed');
         const issues=catalogContentIntegrityIssues(world,[current],[result.entry]);
         if(issues.length&&!await validSupplierDetailProof(result.entry.detailProof,result.entry,new Date(),current))throw Error('catalog_content_requires_review');
@@ -122,7 +143,7 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
     }
   } catch(cause) {
     const live=await galleryGenerationState(db,world);
-    const message=cause instanceof Error&&/^[a-z_]{3,100}$/.test(cause.message)?cause.message:'gallery_apply_step_failed';
+    const message=cause instanceof Error&&/^[a-z_0-9]{3,100}$/.test(cause.message)?cause.message:'gallery_apply_step_failed';
     state.errorCode=message;
     if(live?.activeRunId===state.runId){state.phase='verify';}
     else if(!state.baselineRunId&&message==='gallery_catalog_lock_busy'){

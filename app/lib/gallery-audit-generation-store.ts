@@ -1,5 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { beginSupplierCatalogRun, type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { reviewableGallerySourceFailure } from "./gallery-source-media-failure.ts";
 
 export type GalleryGenerationState = { activeRunId: string; activeCount: number; lockRunId: string | null; lockUntil: string | null };
 export async function galleryGenerationState(db: D1Database, world: SupplierCatalogWorld) {
@@ -36,12 +37,15 @@ export async function renewGalleryGeneration(db:D1Database,world:SupplierCatalog
   const update=await db.prepare(`UPDATE supplier_catalog_state SET lock_until=? WHERE world=? AND lock_run_id=? AND active_run_id=? AND EXISTS(SELECT 1 FROM supplier_catalog_runs WHERE id=? AND world=? AND status='running')`).bind(new Date(Date.now()+120_000).toISOString(),world,runId,baseline,runId,world).run();
   if(update.meta.changes!==1)throw Error("gallery_generation_lock_lost");
 }
-export async function recoverGalleryPreparation(db:D1Database,input:{world:SupplierCatalogWorld;runId:string;baseline:string;expectedIds:number[];expectedStagedIds:number[]}) {
+export async function recoverGalleryPreparation(db:D1Database,input:{world:SupplierCatalogWorld;runId:string;baseline:string;expectedIds:number[];expectedStagedIds:number[];expectedError?:string;reconcileRunning?:boolean}) {
   const state=await galleryGenerationState(db,input.world),run=await galleryRun(db,input.world,input.runId),ids=await galleryGenerationIds(db,input.world,input.runId),baselineIds=await galleryGenerationIds(db,input.world,input.baseline),now=new Date();
-  if(!state||state.activeRunId!==input.baseline||run?.status!=='failed'||run.errorCode!=='gallery_nonmedia_facts_changed'||JSON.stringify(ids)!==JSON.stringify(input.expectedStagedIds)||JSON.stringify(baselineIds)!==JSON.stringify(input.expectedIds)||state.activeCount!==input.expectedIds.length||state.lockRunId&&state.lockUntil&&Date.parse(state.lockUntil)>now.getTime())throw Error('gallery_facts_recovery_requires_review');
+  const expectedError=input.expectedError||'gallery_nonmedia_facts_changed';
+  if(expectedError!=='gallery_nonmedia_facts_changed'&&!reviewableGallerySourceFailure(expectedError)||!state||state.activeRunId!==input.baseline||JSON.stringify(ids)!==JSON.stringify(input.expectedStagedIds)||JSON.stringify(baselineIds)!==JSON.stringify(input.expectedIds)||state.activeCount!==input.expectedIds.length)throw Error('gallery_facts_recovery_requires_review');
+  if(input.reconcileRunning&&run?.status==='running'&&state.lockRunId===input.runId){await renewGalleryGeneration(db,input.world,input.runId,input.baseline);return;}
+  if(run?.status!=='failed'||run.errorCode!==expectedError||state.lockRunId&&state.lockUntil&&Date.parse(state.lockUntil)>now.getTime())throw Error('gallery_facts_recovery_requires_review');
   const results=await db.batch([
-    db.prepare(`UPDATE supplier_catalog_state SET lock_run_id=?,lock_until=? WHERE world=? AND active_run_id=? AND (lock_run_id IS NULL OR lock_until<=?) AND EXISTS(SELECT 1 FROM supplier_catalog_runs WHERE id=? AND world=? AND status='failed' AND error_code='gallery_nonmedia_facts_changed')`).bind(input.runId,new Date(now.getTime()+120_000).toISOString(),input.world,input.baseline,now.toISOString(),input.runId,input.world),
-    db.prepare(`UPDATE supplier_catalog_runs SET status='running',finished_at=NULL,error_code=NULL WHERE id=? AND world=? AND status='failed' AND error_code='gallery_nonmedia_facts_changed' AND EXISTS(SELECT 1 FROM supplier_catalog_state WHERE world=? AND active_run_id=? AND lock_run_id=?)`).bind(input.runId,input.world,input.world,input.baseline,input.runId),
+    db.prepare(`UPDATE supplier_catalog_state SET lock_run_id=?,lock_until=? WHERE world=? AND active_run_id=? AND (lock_run_id IS NULL OR lock_until<=?) AND EXISTS(SELECT 1 FROM supplier_catalog_runs WHERE id=? AND world=? AND status='failed' AND error_code=?)`).bind(input.runId,new Date(now.getTime()+120_000).toISOString(),input.world,input.baseline,now.toISOString(),input.runId,input.world,expectedError),
+    db.prepare(`UPDATE supplier_catalog_runs SET status='running',finished_at=NULL,error_code=NULL WHERE id=? AND world=? AND status='failed' AND error_code=? AND EXISTS(SELECT 1 FROM supplier_catalog_state WHERE world=? AND active_run_id=? AND lock_run_id=?)`).bind(input.runId,input.world,expectedError,input.world,input.baseline,input.runId),
   ]);
   if(results.some(x=>x.meta.changes!==1))throw Error('gallery_facts_recovery_race');
 }

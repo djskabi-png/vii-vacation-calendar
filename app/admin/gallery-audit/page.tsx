@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useAdminCanEdit } from "../admin-access-context.tsx";
 import type { GalleryAuditJobSummary } from "../../lib/gallery-api-audit-job.ts";
+import { reviewableGallerySourceFailure } from "../../lib/gallery-source-media-failure.ts";
 
 const savedJobKey = "vii.gallery-audit.job.v1";
 const validId = (value: string | null) => !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const terminal = (job: GalleryAuditJobSummary) => ["complete", "deadline", "error"].includes(job.state);
 const labels = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" } as const;
 type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;verificationIssues:unknown[]};
-const recoverableApply=(value?:ApplyResult)=>value?.version===1&&value.state==='not_accepted'&&value.errorCode==='gallery_nonmedia_facts_changed';
+const recoverableApply=(value?:ApplyResult)=>value?.version===1&&value.state==='not_accepted'&&(value.errorCode==='gallery_nonmedia_facts_changed'||reviewableGallerySourceFailure(value.errorCode));
 
 export default function GalleryAuditPage() {
   const canEdit = useAdminCanEdit();

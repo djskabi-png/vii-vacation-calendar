@@ -5,6 +5,7 @@ import test from "node:test";
 import { runSupplierCatalogSync } from "../app/lib/supplier-catalog-sync.ts";
 import { startBoundedGalleryApply, stepBoundedGalleryApply, readBoundedGalleryApply, recoverBoundedGalleryApply, galleryNonMediaFactsMatch } from "../app/lib/gallery-audit-bounded-apply.ts";
 import { finishSupplierCatalogRun } from "../app/lib/supplier-catalog-store.ts";
+import { reviewableGallerySourceFailure } from "../app/lib/gallery-source-media-failure.ts";
 import { buildAcceptedGalleryContract, buildApiGalleryContract, parseOrderedJson, compareGalleryContracts } from "../app/lib/supplier-gallery-contract.ts";
 import { normalizeSpaPlusCatalog } from "../app/lib/spaplus-catalog-client.ts";
 import { proveSupplierMediaDetail } from "../app/lib/supplier-detail-contract.ts";
@@ -54,15 +55,17 @@ async function database() {
 
 
 async function runPrefetchCase(tamper=''){
- const db=await database(), baseline=[], normalized=[], findings=[], objects={};
+ const db=await database(), baseline=[], normalized=[], findings=[], objects={};const savedFetch=globalThis.fetch;let failedSourceReads=0;
+ if(tamper==='badSourceType')globalThis.fetch=async url=>{assert.equal(String(url),'https://www.vii.co.il/gallery/new-source.jpg');failedSourceReads++;return new Response('<html>missing supplier image</html>',{headers:{'Content-Type':'text/html'}});};
  const hash=async wire=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(wire)))].map(x=>x.toString(16).padStart(2,'0')).join('');
  for(let i=1;i<=9;i++){
   const old={supplierId:i,summary:{name:'Place '+i,price:420,features:['Pool'],images:['/gallery/same.jpg']},detail:{price:420,features:['Pool'],images:['/gallery/same.jpg'],galleryGroups:[{id:'old',images:['/gallery/same.jpg']}],rooms:[{id:i*100,name:'Unit '+i,images:['/gallery/same.jpg'],galleryGroups:[{id:'old-room',images:['/gallery/same.jpg']}]}]}};
   if(tamper==='empty'||tamper==='emptyErase')old.detail.rooms.push({id:i*100+1,name:'Empty owner',images:tamper==='emptyErase'?['/gallery/same.jpg']:[],galleryGroups:[]});
   const next=structuredClone(old);next.detail.galleryGroups[0].id='9';next.detail.rooms[0].galleryGroups[0].id='2';baseline.push(old);normalized.push(next);
+  const apiUnitImage=tamper==='badSourceType'&&i===1?'/gallery/new-source.jpg':'/gallery/same.jpg';next.detail.rooms[0].images=[apiUnitImage];next.detail.rooms[0].galleryGroups[0].images=[apiUnitImage];
   if(tamper==='emptyPlace'){old.summary.images=[];old.detail.images=[];old.detail.galleryGroups=[];}
   if(tamper==='extraEmpty'||tamper==='extraNonempty')next.detail.rooms.push({id:i*100+1,name:'Unaccepted API owner',images:tamper==='extraNonempty'?['/gallery/same.jpg']:[],galleryGroups:tamper==='extraNonempty'?[{id:'3',images:['/gallery/same.jpg']}]:[]});
-  const raw={api_version:1.1,created:now.toISOString(),id:i,active:true,galleries:{9:{galleryID:9,title:String(123),pictures:['/gallery/same.jpg']}},rooms:[{roomID:i*100,galleries:[{galleryID:2,title:String(456),pictures:['/gallery/same.jpg']}]}]};if(tamper==='empty'||tamper==='emptyErase'){raw.rooms.push({roomID:i*100+1,galleries:[]});next.detail.rooms[1].images=[];}if(tamper==='extraEmpty'||tamper==='extraNonempty')raw.rooms.push({roomID:i*100+1,galleries:tamper==='extraNonempty'?[{galleryID:3,title:'New',pictures:['/gallery/same.jpg']}]:[]});const wire=JSON.stringify(raw);
+  const raw={api_version:1.1,created:now.toISOString(),id:i,active:true,galleries:{9:{galleryID:9,title:String(123),pictures:['/gallery/same.jpg']}},rooms:[{roomID:i*100,galleries:[{galleryID:2,title:String(456),pictures:[apiUnitImage]}]}]};if(tamper==='empty'||tamper==='emptyErase'){raw.rooms.push({roomID:i*100+1,galleries:[]});next.detail.rooms[1].images=[];}if(tamper==='extraEmpty'||tamper==='extraNonempty')raw.rooms.push({roomID:i*100+1,galleries:tamper==='extraNonempty'?[{galleryID:3,title:'New',pictures:['/gallery/same.jpg']}]:[]});const wire=JSON.stringify(raw);
   const finding={world:'vacations',supplierId:i,status:'mismatch',issues:[],recordKey:prefix+'items/vacations-'+i+'.json',sha256:await hash(wire)};findings.push(finding);
   objects[prefix+'raw/vacations-'+i+'.json']=wire;
   objects[finding.recordKey]=JSON.stringify({finding,api:await buildApiGalleryContract('vacations',i,raw,wire),normalized:next,acceptedContract:await buildAcceptedGalleryContract('vacations',old),normalizedContract:await buildAcceptedGalleryContract('vacations',next),fetchedAt:now.toISOString(),rawKey:prefix+'raw/vacations-'+i+'.json'});
@@ -85,6 +88,7 @@ async function runPrefetchCase(tamper=''){
    state=await recoverBoundedGalleryApply(input);assert.equal(state.cursor,1);assert.equal(state.changed,1);assert.equal(state.phase,'prepare');await assert.rejects(recoverBoundedGalleryApply(input),/gallery_facts_recovery_requires_review/);
   }
   const receipt=await applyGalleryAuditWorld({db,bucket,jobId,world:'vacations'});
+  if(tamper==='badSourceType'){assert.equal(receipt.state,'accepted');assert.equal(receipt.changed,8);assert.equal(receipt.verified,8);assert.equal(receipt.skipped,1);assert.equal(failedSourceReads,1);assert.ok(receipt.sourceWarnings[0].issues.includes('unverified_source_media:archive_image_type_invalid'));assert.ok(receipt.sourceWarnings[0].issues.includes('unverified_candidate_media:new-source.jpg'));assert.ok(!bucket.writes.some(x=>x.key==='legacy-gallery/v1/new-source.jpg'));const rows=(await db.prepare('SELECT supplier_id,detail_json FROM supplier_catalog_entries WHERE run_id=? ORDER BY supplier_id').bind(receipt.runId).all()).results;assert.equal(JSON.parse(rows[0].detail_json).galleryGroups[0].id,'old');assert.equal(JSON.parse(rows[1].detail_json).galleryGroups[0].id,'9');return;}
   if(tamper==='hash'||tamper==='foreign'){assert.equal(receipt.state,'not_accepted',JSON.stringify(receipt));assert.equal(receipt.verified,0);assert.ok(!readKeys.includes('another-job/private.json'));const current=await db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world = ?').bind('vacations').first();assert.equal(current.active_run_id,'prefetch-seed');return;}
   if(tamper==='emptyErase'){assert.equal(receipt.verified,0);assert.equal(receipt.skipped,9);const rows=(await db.prepare('SELECT detail_json FROM supplier_catalog_entries WHERE run_id = ?').bind(receipt.runId).all()).results;assert.equal(rows.length,9);for(const row of rows)assert.deepEqual(JSON.parse(row.detail_json).rooms[1].images,['/gallery/same.jpg']);return;}
   if(tamper==='extraNonempty'){assert.equal(receipt.verified,0);assert.equal(receipt.skipped,9);return;}
@@ -95,7 +99,7 @@ async function runPrefetchCase(tamper=''){
   assert.equal(receipt.state,'accepted',JSON.stringify(receipt));assert.equal(receipt.verified,9);assert.equal(receipt.changed,9);assert.equal(receipt.skipped,0);assert.equal(max,1);
   const rows=(await db.prepare('SELECT summary_json,detail_json FROM supplier_catalog_entries WHERE run_id = ?').bind(receipt.runId).all()).results;assert.equal(rows.length,9);for(const row of rows){const d=JSON.parse(row.detail_json),s=JSON.parse(row.summary_json);assert.equal(d.price,420);assert.deepEqual(d.features,['Pool']);assert.match(d.rooms[0].name,/^Unit /);assert.equal(d.galleryGroups[0].id,'9');assert.equal(s.price,420);}
   const writes=bucket.writes.length;assert.deepEqual(await applyGalleryAuditWorld({db,bucket,jobId,world:'vacations'}),receipt);assert.equal(bucket.writes.length,writes);
- }finally{db.close();}
+ }finally{globalThis.fetch=savedFetch;db.close();}
 }
 test('actual resumable nine-entry apply advances one supplier and preserves every nonmedia fact',()=>runPrefetchCase());
 test('prefetched corrupt source bytes keep the previous public generation',()=>runPrefetchCase('hash'));
@@ -109,6 +113,11 @@ test('a concurrent sync which already matches the API keeps all newer accepted f
 test('a different concurrent media change remains untouched and explicitly unverified',()=>runPrefetchCase('changedBaseline'));
 test('a known false-positive facts failure resumes after its exact staged prefix without repeating counters',()=>runPrefetchCase('recoverFacts'));
 test('facts recovery cannot accept an unverified staged-prefix cursor',()=>runPrefetchCase('recoverWrongPrefix'));
+test('one API image returning HTML preserves that supplier and still repairs eight healthy suppliers',()=>runPrefetchCase('badSourceType'));
+test('only upstream file failures can preserve last-good data; internal archive and ownership corruption still block',()=>{
+ for(const code of ['archive_image_type_invalid','archive_image_magic_invalid','archive_source_http_404','archive_source_http_410'])assert.equal(reviewableGallerySourceFailure(code),true,code);
+ for(const code of ['archive_existing_invalid','archive_existing_checksum_mismatch','archive_conditional_race_invalid','gallery_source_checksum_changed','foreign_gallery_supplier','gallery_nonmedia_facts_changed','archive_source_http_500','gallery_apply_step_failed'])assert.equal(reviewableGallerySourceFailure(code),false,code);
+});
 
 test('actual hourly summary galleries change while names, prices, features and room identities remain intact',async()=>{
  const db=await database(),world='rooms',current={supplierId:1,summary:{name:'Hourly owner',price:200,features:['Pool'],image:'/gallery/same.jpg',images:['/gallery/same.jpg'],galleryGroups:[{id:'old',images:['/gallery/same.jpg']}],rooms:[{id:100,name:'Private room',price:220,features:['Bath'],image:'/gallery/same.jpg',images:['/gallery/same.jpg'],galleryGroups:[{id:'old-room',images:['/gallery/same.jpg']}]}]}};
@@ -204,5 +213,29 @@ test('legacy partially staged operation remains untouched pending reconciliation
  const f=await singleFixture();try{await seedLegacy(f,{staged:true});await startBoundedGalleryApply({...f,recovery:true});const state=await stepBoundedGalleryApply(f);assert.equal(state.state,'not_accepted');assert.equal(state.errorCode,'gallery_legacy_recovery_requires_review');
   assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,'bounded-baseline');assert.equal((await f.db.prepare('SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id=?').bind(f.runId).first()).n,1);
   assert.equal((await f.db.prepare('SELECT status FROM supplier_catalog_runs WHERE id=?').bind(f.runId).first()).status,'running');
+ }finally{f.db.close();}
+});
+async function simulateStoppedPreparation(f,code){
+ await startBoundedGalleryApply(f);let state=await stepBoundedGalleryApply(f);
+ await finishSupplierCatalogRun(f.db,{id:f.runId,world:f.world,status:'failed',errorCode:code,finishedAt:new Date().toISOString()});
+ Object.assign(state,{phase:'error',state:'not_accepted',errorCode:code});await f.bucket.put(f.stateKey,JSON.stringify(state));return state;
+}
+test('reviewed source-file recovery keeps the supplier, never refetches the failed image and gets one fixed continuation window',async()=>{
+ const f=await singleFixture(),savedFetch=globalThis.fetch;try{
+  let state=await simulateStoppedPreparation(f,'archive_image_type_invalid');state.createdAt=new Date(Date.now()-70*60000).toISOString();state.deadline=new Date(Date.now()-10*60000).toISOString();await f.bucket.put(f.stateKey,JSON.stringify(state));
+  let network=0;globalThis.fetch=async()=>{network++;throw Error('image_must_not_be_retried');};
+  state=await recoverBoundedGalleryApply(f);assert.equal(state.phase,'prepare');assert.equal(state.cursor,0);assert.equal(state.sourceRecoveryUsed,true);assert.equal(state.deadline,new Date(Date.parse(state.createdAt)+120*60000).toISOString());assert.equal(state.recoveryWindowUsed,true);
+  const result=await applyGalleryAuditWorld(f);assert.equal(result.state,'accepted');assert.equal(result.changed,0);assert.equal(result.verified,0);assert.equal(result.skipped,1);assert.equal(network,0);assert.equal(result.sourceWarnings[0].issues[0],'unverified_source_media:archive_image_type_invalid');
+  const row=JSON.parse((await f.db.prepare('SELECT detail_json FROM supplier_catalog_entries WHERE run_id=?').bind(f.runId).first()).detail_json);assert.equal(row.galleryGroups[0].id,'old');assert.equal(row.price,420);await assert.rejects(recoverBoundedGalleryApply(f),/requires_review/);
+ }finally{globalThis.fetch=savedFetch;f.db.close();}
+});
+test('internal archive corruption cannot enter reviewed source-file recovery',async()=>{
+ const f=await singleFixture();try{await simulateStoppedPreparation(f,'archive_existing_checksum_mismatch');const writes=f.bucket.writes.length;await assert.rejects(recoverBoundedGalleryApply(f),/requires_review/);assert.equal(f.bucket.writes.length,writes);assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,'bounded-baseline');}finally{f.db.close();}
+});
+test('a lost recovery acknowledgement reconciles its reserved native transition instead of failing or restoring it twice',async()=>{
+ const f=await singleFixture();try{await simulateStoppedPreparation(f,'gallery_nonmedia_facts_changed');const put=f.bucket.put.bind(f.bucket);let lost=false;
+  f.bucket.put=async(k,v,o)=>{if(!lost&&k===f.stateKey&&JSON.parse(v).phase==='prepare'){lost=true;throw Error('lost_recovery_ack');}return put(k,v,o);};
+  await assert.rejects(recoverBoundedGalleryApply(f),/lost_recovery_ack/);let state=await readBoundedGalleryApply(f.bucket,jobId,f.world);assert.equal(state.phase,'error');assert.ok(state.recoveryIntent);assert.equal((await f.db.prepare('SELECT status FROM supplier_catalog_runs WHERE id=?').bind(f.runId).first()).status,'running');
+  state.lease.until=new Date(Date.now()-1).toISOString();await put(f.stateKey,JSON.stringify(state));state=await recoverBoundedGalleryApply(f);assert.equal(state.phase,'prepare');assert.equal(state.factsRecoveryUsed,true);assert.equal(state.cursor,0);assert.equal((await applyGalleryAuditWorld(f)).verified,1);assert.equal((await f.db.prepare('SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id=?').bind(f.runId).first()).n,1);
  }finally{f.db.close();}
 });
