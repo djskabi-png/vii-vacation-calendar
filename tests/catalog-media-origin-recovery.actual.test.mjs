@@ -77,7 +77,7 @@ test('an unreferenced filename makes no source request or storage write',async()
 });
 test('imports exact bytes from the fixed origin with SHA and conditional create',async()=>{
  const b=bucket();const response=await recoverCatalogMedia(request(),'new.jpg',{DB:database(),UPLOADS:b},async(url,options)=>{
-  assert.equal(url,'https://www.vii.co.il/gallery/new.jpg');assert.equal(options.redirect,'error');assert.equal(options.cache,'no-store');assert.ok(options.signal);return image();
+  assert.equal(url,'https://www.vii.co.il/gallery/new.jpg');assert.equal(options.redirect,'manual');assert.equal(options.cache,'no-store');assert.ok(options.signal);return image();
  });
  assert.deepEqual(new Uint8Array(await response.arrayBuffer()),photo);assert.equal(response.headers.get('X-VII-Media'),'catalog-imported');
  assert.match(b.puts[0].options.customMetadata.sha256,/^[a-f0-9]{64}$/);assert.equal(b.puts[0].key,'legacy-gallery/v1/new.jpg');

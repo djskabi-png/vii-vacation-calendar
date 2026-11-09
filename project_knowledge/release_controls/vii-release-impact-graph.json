@@ -625,6 +625,7 @@
         "tests/media-route-authority.actual.test.mjs",
         "tests/verified-media-recovery.test.mjs",
         "tests/catalog-media-origin-recovery.actual.test.mjs",
+        "tests/catalog-media-workerd.actual.test.mjs",
         "tests/verified-supplier-videos.actual.test.mjs",
         "tests/unit-preview-gallery.actual.test.mjs",
         "tests/gallery-editorial-unit-scope.test.mjs"

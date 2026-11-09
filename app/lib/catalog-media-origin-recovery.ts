@@ -121,7 +121,8 @@ export async function recoverCatalogMedia(request: Request, filename: string,
       }
       const sourceUrl = `https://www.vii.co.il/gallery/${encodeURIComponent(filename)}`;
       stage = "source-fetch";
-      const upstream = await fetcher(sourceUrl, { redirect: "error", cache: "no-store",
+      // Workers implements manual/follow only. Inspect 3xx without following it.
+      const upstream = await fetcher(sourceUrl, { redirect: "manual", cache: "no-store",
         headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif" }, signal: deadline });
       if (upstream.status === 404 || upstream.status === 410) { await upstream.body?.cancel(); return null; }
       if (!upstream.ok) { await upstream.body?.cancel(); throw Error(`source_http_${upstream.status}`); }
