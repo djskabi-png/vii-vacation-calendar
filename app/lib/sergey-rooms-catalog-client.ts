@@ -4,7 +4,7 @@ import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts"
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "./sergey-amenities.ts";
 import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { sergeyPlaceGalleryGroups, sergeyRoomImages } from "./sergey-gallery.ts";
-import { orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
+import { assertGallerySourceProjection, orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -136,6 +136,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
             reviewCount: positive(record(detail.reviews).count) || 0,
             rooms,
           } };
+          if (typeof detail.api_version === "number" && detail.api_version >= 1.1) await assertGallerySourceProjection("rooms", supplierId, detail, entries[index]);
         }
       }
       await Promise.all(Array.from({ length: Math.min(6, active.length) }, worker));

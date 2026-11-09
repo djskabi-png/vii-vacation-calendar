@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildApiGalleryContract, buildAcceptedGalleryContract, compareGalleryContracts, orderedObjectEntries, parseOrderedJson } from "../app/lib/supplier-gallery-contract.ts";
+import { localGalleryMediaUrl, isQuarantinedGalleryMedia } from "../app/lib/legacy-gallery-media.ts";
 import { sergeyPlaceGalleryGroups, sergeyRoomImages } from "../app/lib/sergey-gallery.ts";
 
 test("actual API string-picture payload is retained as a non-empty ordered contract", async () => {
@@ -11,6 +12,14 @@ test("actual API string-picture payload is retained as a non-empty ordered contr
   assert.equal(api.entities.length, 2);
   assert.deepEqual(api.entities[0].imageIds, ["first.jpg", "second.jpg"]);
   assert.deepEqual(api.entities[1].imageIds, ["unit.jpg"]);
+});
+
+test("the proven source 404 is excluded at the shared boundary and remains visible as an API finding", async () => {
+  assert.equal(localGalleryMediaUrl('/api/vii/media/16670505013701.jpg'),null);
+  assert.equal(isQuarantinedGalleryMedia('https://www.spaplus.co.il/gallery/16670505013701.jpg'),false);
+  const contract=await buildApiGalleryContract('rooms',2417,{galleries:{main:{galleryID:1,pictures:['/gallery/a.jpg','/gallery/16670505013701.jpg','/gallery/b.jpg']}}});
+  assert.deepEqual(contract.entities[0].imageIds,['a.jpg','b.jpg']);
+  assert.deepEqual(contract.excludedImageIds,['16670505013701.jpg']);
 });
 
 test("accepted snapshot detail gallery groups compare equal to the same API generation", async () => {

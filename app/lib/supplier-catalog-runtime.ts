@@ -1,4 +1,4 @@
-import type { D1Database } from "../../types/cloudflare-runtime";
+import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
 import { createSergeyPublicCatalogClient } from "./sergey-public-catalog-client.ts";
 import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts";
 import { createSpaPlusCatalogClient } from "./spaplus-catalog-client.ts";
@@ -9,6 +9,7 @@ import { catalogInventoryDiagnostics, sanitizeCatalogDiagnostics } from "./suppl
 import { legacyGalleryFilename } from "./legacy-gallery-media.ts";
 import {validSupplierDetailProof} from './supplier-detail-contract.ts';
 import { compareSupplierCatalogEntries, catalogContentIntegrityIssues, catalogRemovalWithinGuard } from "./supplier-catalog-sync.ts";
+import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 
@@ -39,7 +40,7 @@ async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
 }
 
 export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCatalogWorld,
-  source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string; detailSupplierId?:number }) {
+  source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string; detailSupplierId?:number; mediaArchive?: { bucket: R2Bucket; fetchImpl?: typeof fetch } }) {
   const target=options?.detailSupplierId;
   if(target!==undefined&&(source!=='manual'||(world!=='vacations'&&world!=='events')||!Number.isSafeInteger(target)||target<1))throw new Error('invalid_supplier_refresh');
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
@@ -50,11 +51,26 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
       : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl,
         detailRefreshLimit: supplierDetailRefreshLimit(world, source),forceDetailRefresh:source==='manual',
         ...(target!==undefined?{inspectionSupplierId:target,retainUnprovedDetails:false,onlyInspectedDetail:true}:{}),now:options?.now });
+  let archivePrevious: SupplierCatalogEntry[] = [];
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline: [], loadBaseline: () => bundledCatalogBaseline(world),
-    validateCandidate: world === "spa" ? validateSpaEditorialCandidate : undefined,
+    validateCandidate: async entries => {
+      if (world === "spa") await validateSpaEditorialCandidate(entries);
+      let archive = options?.mediaArchive;
+      if (!archive) try {
+        const runtime = await import("cloudflare:workers");
+        const bucket = (runtime.env as unknown as { UPLOADS?: R2Bucket }).UPLOADS;
+        if (bucket) archive = { bucket };
+      } catch { /* Explicit fetch fixtures have no production bindings. */ }
+      if (!archive) {
+        if (!options?.fetchImpl) throw new Error("gallery_archive_storage_unavailable");
+        return;
+      }
+      await archiveGalleryCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl });
+    },
     fetchCandidate: async (previous) => {
+      archivePrevious = previous;
       if(world!=="vacations"&&world!=="events")return (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate();
       const candidate=await (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world,previous);
       if(target===undefined)return candidate;

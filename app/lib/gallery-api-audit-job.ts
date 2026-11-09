@@ -177,7 +177,7 @@ async function auditTarget(target: Target, job: Job, options: Options & { env: P
     const normalizedContract = await buildAcceptedGalleryContract(world, normalized); const projection = compareGalleryContracts(api, normalizedContract);
     const acceptedContract = accepted ? await buildAcceptedGalleryContract(world, accepted) : null;
     const comparison = acceptedContract ? compareGalleryContracts(api, acceptedContract) : { equal: false, issues: ["accepted_entry_missing"] };
-    const issues = [...comparison.issues, ...projection.issues.map(code => `normalization:${code}`)];
+    const issues = [...comparison.issues, ...projection.issues.map(code => `normalization:${code}`), ...(api.excludedImageIds || []).map(filename => `unverified_quarantined_api_media:${filename}`)];
     finding = { ...finding, sha256: await digest(wire), status: !accepted || !api.entities.length || !acceptedContract?.entities.length || !projection.equal || issues.some(x => x.includes("unverified")) ? "unverified" : comparison.equal ? "match" : "mismatch", issues };
     evidence = { rawKey, endpoint: world === "spa" ? "https://www.spaplus.co.il/vii/?action=sites" : `${root}/${world}/${supplierId}`,
       fetchedAt: new Date().toISOString(), api, normalizedContract, acceptedContract, normalized, accepted };

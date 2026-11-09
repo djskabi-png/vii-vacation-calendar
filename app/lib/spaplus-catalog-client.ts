@@ -1,7 +1,7 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError, SpaCatalogJsonError } from "./supplier-catalog-diagnostics.ts";
-import { orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
+import { assertGallerySourceProjection, orderedObjectEntries, parseOrderedJson } from "./supplier-gallery-contract.ts";
 
 type ParseNode = { nodeName: string; value?: string; childNodes?: ParseNode[] };
 
@@ -154,7 +154,9 @@ export function createSpaPlusCatalogClient(options: { apiKey: string; fetchImpl?
           firstCharacterKind: first === "{" || first === "[" ? "json-like" : first === "<" ? "html-like" : "other",
           parseErrorKind: error instanceof SyntaxError || error instanceof Error && error.message === "gallery_invalid_json" ? "syntax_error" : "other" });
       }
-      return { fetchedAt: new Date().toISOString(), entries: normalizeSpaPlusCatalog(body) };
+      const entries = normalizeSpaPlusCatalog(body);
+      for (const entry of entries) await assertGallerySourceProjection("spa", entry.supplierId, record(record(body).sites)[String(entry.supplierId)], entry);
+      return { fetchedAt: new Date().toISOString(), entries };
     },
   };
 }

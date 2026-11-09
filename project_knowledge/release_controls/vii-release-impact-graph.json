@@ -87,7 +87,10 @@
         "tests/gallery-api-audit-job.test.mjs",
         "tests/gallery-media-patch.test.mjs",
         "tests/gallery-audit-apply.test.mjs",
-        "tests/gallery-api-audit-source-flow.test.mjs"
+        "tests/gallery-api-audit-source-flow.test.mjs",
+        "tests/gallery-candidate-archive.test.mjs",
+        "tests/gallery-audit-apply.actual.test.mjs",
+        "tests/gallery-archive-runtime.actual.test.mjs"
       ]
     },
     "global-shell": {
@@ -835,7 +838,9 @@
         "app/lib/gallery-api-audit.ts",
         "app/lib/supplier-gallery-contract.ts",
         "app/lib/gallery-media-patch.ts",
-        "app/lib/gallery-audit-apply.ts"
+        "app/lib/gallery-audit-apply.ts",
+        "app/lib/gallery-candidate-archive.ts",
+        "app/lib/supplier-catalog-runtime.ts"
       ]
     },
     {
@@ -1247,7 +1252,8 @@
         "app/lib/gallery-media-identity.ts",
         "app/data/verified-media-recovery.json",
         "app/components/gallery-selection.ts",
-        "app/components/property-gallery.tsx"
+        "app/components/property-gallery.tsx",
+        "app/lib/legacy-gallery-media.ts"
       ]
     },
     {

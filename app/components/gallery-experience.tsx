@@ -206,7 +206,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     </header>
 
     <nav className="story-gallery__tabs" aria-label="נושאים בגלריה">
-      {topicTabs.map((item) => { const key = ("key" in item ? item.key : undefined) || item.title; return <button key={key} type="button" aria-pressed={topic === key} onClick={() => selectTopic(key)}>{item.title}<small>{item.count}</small></button>; })}
+      {topicTabs.map((item) => { const key = ("key" in item ? item.key : undefined) || item.title; const ambiguous = topicTabs.filter(candidate => candidate.title === item.title).length > 1; const category = allItems.find(candidate => (candidate.topicKey || candidate.topic) === key)?.category; return <button key={key} type="button" aria-pressed={topic === key} onClick={() => selectTopic(key)}>{item.title}{ambiguous ? ` (${translate(category === "units" ? "יחידה" : "המקום")})` : null}<small>{item.count}</small></button>; })}
       {topicScope === "place" ? <button type="button" aria-pressed={tab === "guests"} onClick={() => selectTab("guests")}>{tabLabels.guests}<small>{guestPhotos.length}</small></button> : null}
       {topicScope === "place" && property.videos?.length ? <button type="button" aria-pressed={tab === "videos"} onClick={() => selectTab("videos")}>{tabLabels.videos}<small>{property.videos.length}</small></button> : null}
     </nav>

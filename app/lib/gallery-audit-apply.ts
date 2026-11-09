@@ -5,6 +5,7 @@ import { patchGalleryMedia } from "./gallery-media-patch.ts";
 import { proveSupplierMediaDetail } from "./supplier-detail-contract.ts";
 import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
 import { readSupplierCatalogEntry, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
+import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
 
 type ApplyReceipt = { world: AuditWorld; jobId: string; runId: string; state: "reserved" | "accepted" | "not_accepted"; changed: number; skipped: number; verified: number; verificationIssues: Array<{ supplierId: number; issues: string[] }>; finishedAt?: string; errorCode?: string };
 const row = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -44,6 +45,7 @@ export async function applyGalleryAuditWorld({ db, bucket, jobId, world }: { db:
           const next = patchGalleryMedia(world, current, source.normalized);
           const patched = await buildAcceptedGalleryContract(world, next);
           if (!compareGalleryContracts(source.api, patched).equal) { receipt.skipped++; entries.push(current); continue; }
+          await archiveGalleryCandidate({ previous: current, candidate: next, bucket });
           if (world === "vacations" || world === "events") {
             const rawObject = await bucket.get(String(source.rawKey));
             const listObject = await bucket.get(`${GALLERY_AUDIT_PREFIX}${jobId}/context/${world}.json`);

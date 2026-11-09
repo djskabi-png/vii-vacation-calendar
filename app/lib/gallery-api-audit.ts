@@ -26,8 +26,9 @@ export async function auditGalleryItem(input: {
     : await buildAcceptedGalleryContract(input.world, input.acceptedEntry); }
   catch { accepted = { world: input.world, supplierId: String(input.supplierId), entities: [], source: "accepted" }; }
   const comparison = compareGalleryContracts(api, accepted);
-  const status = !api.entities.length || !accepted.entities.length || comparison.issues.some(issue => issue.includes("unverified")) ? "unverified" : comparison.equal ? "match" : "mismatch";
-  return { world: input.world, supplierId: String(input.supplierId), status, issues: comparison.issues, api, accepted };
+  const issues = [...comparison.issues, ...(api.excludedImageIds || []).map(filename => `unverified_quarantined_api_media:${filename}`)];
+  const status = !api.entities.length || !accepted.entities.length || issues.some(issue => issue.includes("unverified")) ? "unverified" : comparison.equal ? "match" : "mismatch";
+  return { world: input.world, supplierId: String(input.supplierId), status, issues, api, accepted };
 }
 
 export async function auditGalleryBatch(items: Array<Parameters<typeof auditGalleryItem>[0]>): Promise<GalleryAuditItem[]> {

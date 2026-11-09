@@ -1,3 +1,4 @@
+import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
 /** Provider-owned gallery identity and wire-order contract. */
 export type GalleryGroup = { key?: string; title?: string; imageIds: string[] };
 export type GalleryEntity = { entityKey: string; galleryKey: "media"; imageIds: string[]; groups?: GalleryGroup[] };
@@ -8,6 +9,7 @@ export type GalleryContract = {
   apiCreatedAt?: string;
   fingerprint?: string;
   previewImageIds?: string[];
+  excludedImageIds?: string[];
   entities: GalleryEntity[];
   source: "api" | "accepted";
 };
@@ -19,6 +21,7 @@ const string = (value: unknown) => typeof value === "string" && value.trim() ? v
 const canonicalImage = (value: unknown) => {
   const raw = string(value);
   if (!raw) return typeof value === "number" && Number.isSafeInteger(value) ? String(value) : null;
+  if (isQuarantinedGalleryMedia(raw)) return null;
   return raw.split(/[?#]/)[0].replace(/\\/g, "/").match(/(?:\/gallery\/|\/media\/)([^/]+)$/i)?.[1] || raw;
 };
 const first = (value: unknown, keys: string[]) => { const row = object(value); for (const key of keys) { const found = canonicalImage(row[key]); if (found) return found; } return null; };
@@ -51,6 +54,16 @@ function unique(values: string[]) { return [...new Set(values)]; }
 
 export async function buildApiGalleryContract(world: GalleryContract["world"], supplierId: string | number, rawValue: unknown, wireText?: string): Promise<GalleryContract> {
   const raw = object(rawValue); const entities: GalleryEntity[] = []; const placeId = `${world}:${supplierId}:place`;
+  const excluded = new Set<string>();
+  const inspect = (value: unknown): void => {
+    if (typeof value === "string") { if (isQuarantinedGalleryMedia(value)) excluded.add(value.split(/[?#]/)[0].split("/").at(-1)!); }
+    else if (Array.isArray(value)) value.forEach(inspect);
+    else if (value && typeof value === "object") for (const [key, child] of Object.entries(value)) {
+      if ((key === "galleries" || key === "packages") && child && typeof child === "object" && !Array.isArray(child)) Object.values(child).forEach(inspect);
+      else if (["galleries", "gallery", "galleryGroups", "pictures", "images", "image", "rooms", "packages", "pack_picture", "spa_picture"].includes(key)) inspect(child);
+    }
+  };
+  inspect(raw);
   const placeGroups = Array.isArray(raw.galleryGroups) ? raw.galleryGroups.map((group, index) => ({ key: first(group, ["id", "galleryID", "galleryId"]) || `position:${index}`, images: images(object(group).images) })).filter((group) => group.images.length) : [];
   const rawPlaceGroups = placeGroups.length ? placeGroups : (Array.isArray(raw.gallery) && raw.gallery.every((item) => typeof item === "string")
     ? [{ key: "gallery", images: images(raw.gallery) }]
@@ -77,14 +90,26 @@ export async function buildApiGalleryContract(world: GalleryContract["world"], s
   const fingerprint = wireText ? `sha256:${Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(wireText))), (byte) => byte.toString(16).padStart(2, "0")).join("")}` : undefined;
   const previewImageIds = world === "spa" ? [first(raw, ["spa_picture", "CONCAT('https://www.spaplus.co.il/gallery/',picture)", "image"])].filter((value): value is string => !!value)
     : Object.hasOwn(raw, "representative_galleries") ? unique([...galleryRows(raw.representative_galleries).flatMap(group => group.images), ...rawGalleryImages]) : undefined;
-  return { world, supplierId: String(supplierId), fetchedAt: string(raw.fetchedAt) || undefined, apiCreatedAt: string(raw.created ?? raw.createdAt) || undefined, fingerprint, entities, source: "api", ...(previewImageIds ? { previewImageIds } : {}) };
+  return { world, supplierId: String(supplierId), fetchedAt: string(raw.fetchedAt) || undefined, apiCreatedAt: string(raw.created ?? raw.createdAt) || undefined, fingerprint, entities, source: "api", ...(previewImageIds ? { previewImageIds } : {}), ...(excluded.size ? { excludedImageIds: [...excluded] } : {}) };
 }
 
 export async function buildAcceptedGalleryContract(world: GalleryContract["world"], entry: unknown): Promise<GalleryContract> {
   const row = object(entry); const summary = object(row.summary); const detail = object(row.detail); const source = Object.keys(detail).length ? detail : summary;
+  if (row.supplierId !== undefined && summary.supplierId !== undefined && String(row.supplierId) !== String(summary.supplierId)) throw new Error("foreign_gallery_supplier");
+  if (world === "spa" && row.supplierId !== undefined && summary.id !== undefined && String(row.supplierId) !== String(summary.id)) throw new Error("foreign_gallery_supplier");
   const contract = await buildApiGalleryContract(world, first(row, ["supplierId", "siteID", "id"]) || first(source, ["supplierId", "siteID", "id"]) || "unknown", source);
   const previewImageIds = world === "spa" ? [canonicalImage(summary.image)].filter((value): value is string => !!value) : images(summary.images);
   return { ...contract, ...(previewImageIds.length ? { previewImageIds } : {}), source: "accepted", fetchedAt: string(row.fetchedAt) || undefined };
+}
+
+/** Reject owner/order corruption before a complete API candidate receives a proof.
+ * Source owners without photos stay explicit audit findings, never borrowed media. */
+export async function assertGallerySourceProjection(world: GalleryContract["world"], supplierId: number, raw: unknown, entry: unknown, listPlace?: unknown) {
+  const source = listPlace ? { ...object(raw), representative_galleries: object(listPlace).galleries } : raw;
+  const expected = await buildApiGalleryContract(world, supplierId, source);
+  const actual = await buildAcceptedGalleryContract(world, entry);
+  const issues = compareGalleryContracts(expected, actual).issues.filter(issue => !issue.startsWith("unverified_empty_owner_media:"));
+  if (issues.length) throw new Error("supplier_gallery_projection_mismatch");
 }
 
 export function compareGalleryContracts(expected: GalleryContract, actual: GalleryContract) {

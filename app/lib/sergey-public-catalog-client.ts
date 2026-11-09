@@ -11,7 +11,7 @@ import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.
 import { filterIdsFromSupplierAmenityIds } from "./supplier-amenity-filters.ts";
 import { proveSupplierDetail, proveSupplierMediaDetail, supplierEntryFingerprint, supplierDetailProofIssue } from "./supplier-detail-contract.ts";
 import {selectDetailRefreshIds,stampDetailRefresh} from './supplier-detail-refresh.ts';
-import { parseOrderedJson } from './supplier-gallery-contract.ts';
+import { assertGallerySourceProjection, parseOrderedJson } from './supplier-gallery-contract.ts';
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -306,6 +306,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
               has_availability: active[index].has_availability,
               ...startingPriceFields(active[index]),
             }, cities, areas, amenityIndex);
+            if (typeof detail.api_version === "number" && detail.api_version >= 1.1) await assertGallerySourceProjection(world, id, detail, entries[index], active[index]);
             const detailProof = await proveSupplierDetail(detail, active[index], entries[index], now());
             if (detailProof) {
               const stamped=stampDetailRefresh(entries[index]!,now(),{verified:true});

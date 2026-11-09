@@ -3,7 +3,9 @@ const LOCAL_MEDIA_ROOT = "/api/vii/media/";
 // A supplier file was published with an embedded "not available" notice.
 // Keep the quarantine at the shared normalization boundary so every public
 // surface drops it without ever substituting another business's media.
-const QUARANTINED_GALLERY_FILENAMES = new Set(["796a2fc6bf52100.png"]);
+// The second file was still declared for hourly2417, but both the public
+// media route and the declared supplier asset returned 404 on 9 Nov 2026.
+const QUARANTINED_GALLERY_FILENAMES = new Set(["796a2fc6bf52100.png", "16670505013701.jpg"]);
 
 /** Exact approved quarantine on trusted supplier or local media paths only. */
 export function isQuarantinedGalleryMedia(value: unknown) {
