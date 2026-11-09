@@ -82,9 +82,9 @@ test("the immutable R2 media route validates safe image identities and exposes s
   assert.match(route, /legacyGalleryBucket/);
   assert.match(route, /export async function HEAD/);
   assert.match(route, /X-VII-Media/);
-  assert.match(route, /contentType\.startsWith\("image\/"\)/);
-  assert.match(route, /20_000_000/);
-  assert.match(route, /const ALLOW_LEGACY_ORIGIN_FETCH = false/);
+  assert.match(route, /storedGalleryContentType/);
+  assert.match(route, /recoverCatalogMedia/);
+  assert.doesNotMatch(route, /await fetch\(/, "network recovery must use the catalog-authorized, bounded helper");
 });
 
 test("availability and facility rendering no longer request the retiring site", async () => {
