@@ -334,6 +334,8 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     let createdMap: import("leaflet").Map | null = null;
     let resizeObserver: ResizeObserver | undefined;
     let resizeFrame: number | undefined;
+    let visibilityObserver: IntersectionObserver | undefined;
+    let layoutSyncFrames: number[] = [];
     let programmaticViewportTimer: number | undefined;
     let layoutReady = false;
     let tilesReady = false;
@@ -370,6 +372,24 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       });
       createdMap = map;
       mapInstance.current = map;
+      // Leaflet measures its host during construction. Search maps are often
+      // mounted inside a hidden tab/drawer and then promoted to a fixed mobile
+      // canvas; in that case the first measurement can be zero or stale. A
+      // bounded post-layout sync keeps the tile pane and marker pane aligned
+      // without refitting the user's camera.
+      const syncMapLayout = () => {
+        if (cancelled || mapInstance.current !== map || !container.isConnected) return;
+        map.invalidateSize({ animate: false, pan: false });
+      };
+      const scheduleLayoutSync = () => {
+        layoutSyncFrames.forEach((frame) => window.cancelAnimationFrame(frame));
+        layoutSyncFrames = [
+          window.requestAnimationFrame(syncMapLayout),
+          window.requestAnimationFrame(() => window.requestAnimationFrame(syncMapLayout)),
+        ];
+        window.setTimeout(syncMapLayout, 160);
+      };
+      scheduleLayoutSync();
       const streetTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
       const streetTiles = L.tileLayer(streetTileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -694,7 +714,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
         resizeFrame = window.requestAnimationFrame(() => {
           if (cancelled || mapInstance.current !== map || !container.isConnected) return;
-          map.invalidateSize({ animate: false, pan: false });
+          syncMapLayout();
           const ids = visiblePlaceIds();
           setPendingVisibleIds(ids);
           if (!initialViewportReported && ids.length > 0) {
@@ -705,6 +725,15 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         });
       });
       resizeObserver.observe(container);
+      // ResizeObserver does not fire merely because a fixed map becomes
+      // visible after being mounted in a hidden panel. Re-sync on visibility
+      // changes as well, which is the common Android/mobile failure mode.
+      if (typeof IntersectionObserver !== "undefined") {
+        visibilityObserver = new IntersectionObserver((entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) scheduleLayoutSync();
+        }, { threshold: 0.01 });
+        visibilityObserver.observe(container);
+      }
       map.on("click", () => {
         selectedIdRef.current = "";
         setSelectedId("");
@@ -713,7 +742,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
 
       layoutTimer = window.setTimeout(() => {
         if (cancelled || mapInstance.current !== map || !container.isConnected) return;
-        map.invalidateSize({ animate: false });
+        syncMapLayout();
         focusInitialPlaces();
         renderMarkers();
         reportVisiblePlaces();
@@ -733,6 +762,9 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
       if (settleFrame) window.cancelAnimationFrame(settleFrame);
       resizeObserver?.disconnect();
+      visibilityObserver?.disconnect();
+      layoutSyncFrames.forEach((frame) => window.cancelAnimationFrame(frame));
+      layoutSyncFrames = [];
       if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
       suppressViewportPrompt.current = false;
       activePreviewMarker.current?.remove();
