@@ -47,7 +47,10 @@
         "tests/map-provider-host.test.mjs",
         "tests/map-place-adapters.test.mjs",
         "tests/map-snapshot-pipeline.test.mjs",
-        "tests/map-stream-identity-actual.test.mjs"
+        "tests/map-stream-identity-actual.test.mjs",
+        "tests/map-mobile-layout-regression.test.mjs",
+        "tests/map-responsive-selection-regression.test.mjs",
+        "tests/map-tile-health.actual.test.mjs"
       ]
     },
     "catalog-source": {

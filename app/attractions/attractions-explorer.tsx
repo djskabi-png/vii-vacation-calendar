@@ -34,7 +34,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
   const nearby = useNearbySort();
   const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image ? 0 : 1 }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
-  const requestedSort = searchParams.get("sort") || "recommended";
+  const requestedSort = nearby.defaultSort;
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
@@ -71,7 +71,7 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
   function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
   function changeArea(value: string) { setArea(value); updateUrl({ area: value }); }
   function changeType(value: string) { setType(value); updateUrl({ type: value }); }
-  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" ? "" : next }); }
+  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && !window.location.pathname.replace(/\/$/, "").endsWith("/near-me") ? "" : next }); }
 
   function resetFilters() {
     setQuery("");
@@ -111,11 +111,11 @@ export function AttractionsExplorer({ items = paidAttractions, initialArea, init
       setArea(areas.includes(nextArea) ? nextArea : "הכל");
       setType(types.includes(nextType) ? nextType : "הכל");
       setQuery(params.get("q") || "");
-      const nextSort = params.get("sort") || "recommended";
+      const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery, initialArea, initialType, sortOptions]);
+  }, [nearby.defaultSort, searchQuery, initialArea, initialType, sortOptions]);
 
   return <><NearbySortStatus state={nearby} />
     <form className="trail-filters attraction-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון אטרקציות בתשלום">

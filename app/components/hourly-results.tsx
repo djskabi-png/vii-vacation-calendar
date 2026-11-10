@@ -1,8 +1,9 @@
 "use client";
+import { nearbyDefaultSort } from "../lib/nearby-page-content";
 import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
 import { DeferredDiscoveryMap, preloadListingMap } from "./deferred-listing-map";
@@ -47,7 +48,7 @@ export function HourlyResults({ items, initialLocation, initialFilters }: { item
   const requestedLocation = searchParams.get("location") || String(initialFilters?.location || initialLocation || "כל הארץ");
   const requestedPrice = Number(searchParams.get("maxPrice") || initialFilters?.maxPrice || 0);
   const requestedFeatures = (searchParams.get("features") || String(initialFilters?.features || "")).split(",").filter((id) => featureFilters.some((filter) => filter.id === id));
-  const requestedSort = searchParams.get("sort") || String(initialFilters?.sort || "recommended");
+  const requestedSort = nearbyDefaultSort(usePathname(), searchParams.get("sort") || String(initialFilters?.sort || ""));
   return <HourlyResultsPanel key={`${requestedLocation}-${requestedPrice}-${requestedFeatures.join(",")}-${requestedSort}`} items={items} requestedLocation={requestedLocation} requestedPrice={requestedPrice} requestedFeatures={requestedFeatures} requestedSort={requestedSort} initialFilters={initialFilters} />;
 }
 
@@ -127,6 +128,11 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     const params = managedSearchParams(window.location.search, initialFilters);
     Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" && value !== "0" ? params.set(key, value) : params.delete(key));
     const requestedLocation = updates.location === undefined ? location : updates.location || "כל הארץ";
+    if (window.location.pathname.replace(/\/$/, "").endsWith("/near-me")) {
+      if (requestedLocation === "כל הארץ") params.delete("location"); else params.set("location", requestedLocation);
+      router.push(`${window.location.pathname}${params.size ? `?${params}` : ""}`);
+      return;
+    }
     params.delete("location");
     const path = hourlySearchHref(requestedLocation);
     router.push(localizedPath(mergeSearchHref(path, params), language));
@@ -134,7 +140,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
 
   function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }
   function changePrice(value: string) { setMaximumPrice(Number(value)); updateUrl({ maxPrice: value }); }
-  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" ? "" : next }); }
+  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && !window.location.pathname.replace(/\/$/, "").endsWith("/near-me") ? "" : next }); }
 
   function toggleFeature(id: string) {
     setFeatures((current) => {

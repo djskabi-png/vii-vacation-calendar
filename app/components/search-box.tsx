@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
 // Date pickers are interaction-only. Keep the initial search shell small and
 // load the relevant picker when the user opens dates, without changing its API.
@@ -42,6 +42,7 @@ import { destinationPickerCopy } from "../i18n/destination-picker-copy";
 import { requestNearbyOrigin } from "./use-nearby-sort";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { useWorldAvailability } from "./world-availability-provider";
+import { nearbyDefaultSort, nearbyPageContent } from "../lib/nearby-page-content";
 import { semanticNearbyPath } from "../lib/homepage-search-href";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
@@ -190,8 +191,9 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
   const router = useRouter();
   const { enabled } = useWorldAvailability();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const searchParamsKey = searchParams.toString();
-  const [nearbySelection, setNearbySelection] = useState(searchParams.get("sort") === "nearest");
+  const [nearbySelection, setNearbySelection] = useState(nearbyDefaultSort(pathname, searchParams.get("sort")) === "nearest");
   const nearbySelectionRef = useRef(nearbySelection);
   const { language, translate } = useSiteLanguage();
   const dateDisplayLanguage = language;
@@ -332,7 +334,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     const committedEventRange = { from: committedParams.get("from"), to: committedParams.get("to") };
     const committedSpaDate = { date: committedParams.get("date"), withoutDate: committedParams.get("withoutDate") === "1" };
     const committedParty = initialVacationParty(committedParams, Number(committedParams.get("guests")) || initialGuests || 2);
-    nearbySelectionRef.current = committedParams.get("sort") === "nearest";
+    nearbySelectionRef.current = nearbyDefaultSort(pathname, committedParams.get("sort")) === "nearest";
     setNearbySelection(nearbySelectionRef.current);
     locationValueRef.current = committedLocation;
     vacationDateRangeRef.current = committedVacationRange;
@@ -681,7 +683,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
     : mode === "spa"
       ? (SPA_AUDIENCES.find((option) => option.id === spaAudience)?.label ?? "לא חובה")
       : `${vacationGuestCount} אורחים · ${vacationRoomLabel}`;
-  const displayedLocation = nearbySelection ? "קרוב אליי" : locationValue;
+  const nearbyLabel = mode in nearbyPageContent ? nearbyPageContent[mode as keyof typeof nearbyPageContent].title : "קרוב אליי";
+  const displayedLocation = nearbySelection ? nearbyLabel : locationValue;
   const mobileSummary = [displayedLocation, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
@@ -741,7 +744,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
               <div className="location-discovery">
                 <button type="button" className="location-nearby" onClick={chooseNearbyLocation} disabled={locating}>
                   <span className="location-nearby__icon"><PinIcon /></span>
-                  <span><strong>{translate("מקומות בסביבה הקרובה")}</strong><small>{translate("נמצא את האזור הקרוב לפי המיקום שלכם")}</small></span>
+                  <span><strong>{translate(nearbyLabel)}</strong><small>{translate("נמצא את האזור הקרוב לפי המיקום שלכם")}</small></span>
                   <b aria-hidden="true">←</b>
                 </button>
                 {locationStatus ? <p className="location-status" role="status">{translate(locationStatus)}</p> : null}

@@ -13,6 +13,7 @@ import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib
 import { mapResultSummary } from "../../lib/map-result-summary.ts";
 import { keepMapFocusInViewport } from "../../lib/map-focus-policy.ts";
 import { createMapLayoutSynchronizer } from "../../lib/map/map-layout-sync";
+import { createMapTileHealth } from "../../lib/map/map-tile-health";
 import { MapProviderBoundary } from "../map-provider-boundary";
 import "leaflet/dist/leaflet.css";
 
@@ -329,7 +330,6 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     const container = mapElement.current;
     const markerRegistry = markerInstances.current;
     let cancelled = false;
-    let readyTimer: number | undefined;
     let layoutTimer: number | undefined;
     let settleFrame: number | undefined;
     let createdMap: import("leaflet").Map | null = null;
@@ -339,6 +339,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     let layoutSync: ReturnType<typeof createMapLayoutSynchronizer> | undefined;
     let programmaticViewportTimer: number | undefined;
     let layoutReady = false;
+    let tileHealth: ReturnType<typeof createMapTileHealth> | undefined;
     let tilesReady = false;
     let initialViewportReported = false;
     suppressViewportPrompt.current = true;
@@ -392,12 +393,21 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         { attribution: "Tiles &copy; Esri", maxZoom: 19, detectRetina: true },
       );
       let streetFallbackUsed = false;
+      tileHealth = createMapTileHealth(
+        () => { tilesReady = true; if (!cancelled && layoutReady) setMapReady(true); },
+        (error) => { if (!cancelled) setProviderError(error); },
+      );
       streetTiles.on("tileerror", () => {
         if (streetFallbackUsed || !map.hasLayer(streetTiles)) return;
         streetFallbackUsed = true;
+        tileHealth?.markFailed("street");
         map.removeLayer(streetTiles);
         aerialTiles.addTo(map);
       });
+      streetTiles.on("tileload", () => tileHealth?.markLoaded("street"));
+      aerialTiles.on("tileload", () => tileHealth?.markLoaded("aerial"));
+      streetTiles.on("load", () => tileHealth?.complete("street"));
+      aerialTiles.on("load", () => tileHealth?.complete("aerial"));
       streetTiles.addTo(map);
       const layerNames = language === "he"
         ? { street: "מפה בעברית", aerial: "תצלום אוויר", layers: "בחירת סוג מפה" }
@@ -428,12 +438,6 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         layersToggle?.setAttribute("aria-label", layerNames.layers);
       }
 
-      const showMap = () => {
-        tilesReady = true;
-        if (!cancelled && layoutReady) setMapReady(true);
-      };
-      streetTiles.once("load", showMap);
-      readyTimer = window.setTimeout(showMap, 2200);
 
       const markerLayer = L.layerGroup().addTo(map);
       let expandedPlaceIds = new Set<string>();
@@ -747,7 +751,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
 
     return () => {
       cancelled = true;
-      if (readyTimer) window.clearTimeout(readyTimer);
+      tileHealth?.dispose();
       if (layoutTimer) window.clearTimeout(layoutTimer);
       if (programmaticViewportTimer) window.clearTimeout(programmaticViewportTimer);
       if (settleFrame) window.cancelAnimationFrame(settleFrame);

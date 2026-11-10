@@ -7,16 +7,16 @@ import {localizedPath} from '../app/i18n/locale-routing.ts';
 import {popularSearchesForWorld} from '../app/lib/world-popular-search-defaults.ts';
 function harness(){const cells=[];let index=0,resolve,reject,requests=0;const destinations=[];const jsx=(type,props)=>({type,props});
  const react={useRef:v=>{const i=index++;return cells[i]??(cells[i]={current:v})},useState:v=>{const i=index++;if(!(i in cells))cells[i]=typeof v==='function'?v():v;return[cells[i],v=>cells[i]=typeof v==='function'?v(cells[i]):v]},useEffect:()=>{}};
- const deps={'react':react,'react/jsx-runtime':{jsx,jsxs:jsx},'next/link':{default:'a'},'lucide-react':{Search:'search',MapPin:'pin'},'../i18n/locale-provider':{useSiteLanguage:()=>({language:'he',translate:v=>v})},'../i18n/locale-routing':{localizedPath},'next/navigation':{useRouter:()=>({push:value=>destinations.push(value)})},'./use-nearby-sort':{requestNearbyOrigin:()=>{requests++;return new Promise((a,b)=>{resolve=a;reject=b})}},'../lib/homepage-presentation':{parseHomepagePresentation}};
+ const deps={'react':react,'react/jsx-runtime':{jsx,jsxs:jsx},'next/link':{default:'a'},'lucide-react':{Search:'search',MapPin:'pin'},'../i18n/locale-provider':{useSiteLanguage:()=>({language:'he',translate:v=>v})},'../i18n/locale-routing':{localizedPath},'../lib/nearby-page-content':{nearbyPageContent:{vacation:{title:'נופש קרוב אליי'}},nearbyPageForPath:()=>null},'next/navigation':{useRouter:()=>({push:value=>destinations.push(value)})},'./use-nearby-sort':{requestNearbyOrigin:()=>{requests++;return new Promise((a,b)=>{resolve=a;reject=b})}},'../lib/homepage-presentation':{parseHomepagePresentation}};
  const code=ts.transpileModule(readFileSync(new URL('../app/components/home-discovery-sections.tsx',import.meta.url),'utf8')+'\nexport {PopularSearchLink};',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
  const exports={};new Function('require','exports','window',code)(id=>deps[id]||{},exports,{location:{origin:'https://vii.invalid'}});
- return{render:item=>{index=0;return exports.PopularSearchLink({item})},resolve:()=>resolve({lat:32.2,lng:34.8}),reject:()=>reject(new Error('denied')),destinations,get requests(){return requests}};
+ return{render:(item,props={})=>{index=0;return exports.PopularSearchLink({item,...props})},resolve:()=>resolve({lat:32.2,lng:34.8}),reject:()=>reject(new Error('denied')),destinations,get requests(){return requests}};
 }
 const click=()=>({button:0,preventDefault(){this.prevented=true}});
 const settle=async()=>{for(let i=0;i<4;i++)await Promise.resolve()};
 test('canonical near-me links navigate normally without requesting GPS',async()=>{
  for(const world of ['vacation','spa','events','hourly','trails','attractions','providers']){
- const h=harness();const item=popularSearchesForWorld(world).find(candidate=>candidate.href.split('?')[0].endsWith('/near-me'));assert.ok(item);const event=click();const tree=h.render(item);const action=tree.props.children[0].props.onClick;action(event);assert.equal(h.requests,0);assert.equal(h.destinations.length,0);assert.equal(event.prevented,undefined);
+ const h=harness();const item=popularSearchesForWorld(world).find(candidate=>candidate.href.split('?')[0].endsWith('/near-me'));assert.ok(item);const event=click();const tree=h.render({...item},{world});const action=tree.props.children[0].props.onClick;action(event);assert.equal(h.requests,0);assert.equal(h.destinations.length,0);assert.equal(event.prevented,undefined);
  assert.equal(item.href.split('?')[0].endsWith('/near-me'),true);assert.equal(tree.props.children[0].props.href,localizedPath(item.href,'he'));
  }
 });

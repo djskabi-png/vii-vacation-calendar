@@ -2,7 +2,8 @@
 import { nearbySortCopy, nearbySortRegionalCopy } from "../i18n/nearby-sort-copy";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { nearbyDefaultSort } from "../lib/nearby-page-content";
 import { proximityDistance, validProximityPoint, type ProximityPoint } from "../lib/proximity-sort";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
@@ -50,7 +51,8 @@ export function requestNearbyOrigin(): Promise<ProximityPoint> {
 
 export function useNearbySort() {
   const params = useSearchParams();
-  const active = params.get("sort") === "nearest";
+  const defaultSort = nearbyDefaultSort(usePathname(), params.get("sort"));
+  const active = defaultSort === "nearest";
   const [origin, setOrigin] = useState<ProximityPoint | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [retry, setRetry] = useState(0);
@@ -64,7 +66,7 @@ export function useNearbySort() {
     return () => { alive = false; };
   }, [active, retry]);
   const distance = useCallback((item: unknown) => proximityDistance(origin, item), [origin]);
-  return { active, origin, status, distance, retry: () => setRetry(value => value + 1) };
+  return { active, defaultSort, origin, status, distance, retry: () => setRetry(value => value + 1) };
 }
 
 export function NearbySortStatus({ state, regionalOnly = false }: { state: ReturnType<typeof useNearbySort>; regionalOnly?: boolean }) {
@@ -72,6 +74,7 @@ export function NearbySortStatus({ state, regionalOnly = false }: { state: Retur
   if (!state.active) return null;
   const copy = nearbySortCopy[language];
   const regional = nearbySortRegionalCopy[language];
+  if (state.status === "ready" && !regionalOnly) return null;
   return <div className="shell nearby-sort-status" role="status" aria-busy={state.status === "loading"}>
     <p>{state.status === "ready" ? regionalOnly ? regional : copy.ready : state.status === "error" ? copy.error : copy.loading}</p>
     {state.status === "error" && <button type="button" className="button secondary" onClick={state.retry}>{copy.retry}</button>}

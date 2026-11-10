@@ -17,14 +17,10 @@ const click = () => ({ preventDefault() {} });
 const settle = async () => { for (let i = 0; i < 4; i++) await Promise.resolve(); };
 const findRole = (node, role) => node && (node.props?.role === role ? node : (Array.isArray(node.props?.children) ? node.props.children.map(child => findRole(child, role)).find(Boolean) : findRole(node.props?.children, role)));
 
-test("nearby CTA does not request on mount, guards duplicate clicks, and preserves query state", async () => {
-  const h = harness(); let tree = h.render({}); assert.equal(h.requests, 0);
-  const button = tree.props.children[1]; button.props.onClick(click()); tree = h.render({}); tree.props.children[1].props.onClick(click()); assert.equal(h.requests, 1);
-  h.resolve(); await settle(); assert.equal(h.replaces.length, 1); assert.equal(h.replaces[0].href, "/spas/near-me?features=pool&date=2026-11-20&sort=nearest"); assert.deepEqual(h.replaces[0].options, { scroll: false });
+test("nearby route activation is intentionally empty after the route owns GPS activation", async () => {
+  const h = harness(); assert.equal(h.render({}), null); assert.equal(h.requests, 0); assert.equal(h.replaces.length, 0);
 });
 
-test("nearby CTA exposes denial and allows a clean retry", async () => {
-  const h = harness(); let tree = h.render({}); tree.props.children[1].props.onClick(click()); h.reject(); await settle();
-  tree = h.render({}); assert.ok(findRole(tree, "status")); assert.equal(h.requests, 1);
-  tree.props.children[1].props.onClick(click()); assert.equal(h.requests, 2); h.resolve(); await settle(); assert.equal(h.replaces.length, 1);
+test("nearby route activation does not render a duplicate denial/retry CTA", async () => {
+  const h = harness(); assert.equal(h.render({}), null); assert.equal(h.requests, 0);
 });

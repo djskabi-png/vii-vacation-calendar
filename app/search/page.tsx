@@ -409,7 +409,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   const landingType = normalizedLandingType(landing);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
   const initialArea = initialParams.get("location");
-  const [sort, setSort] = useState(vacationSortOptions.some((option) => option.value === initialParams.get("sort")) ? initialParams.get("sort")! : "recommended");
+  const [sort, setSort] = useState(vacationSortOptions.some((option) => option.value === (initialParams.get("sort") || nearby.defaultSort)) ? (initialParams.get("sort") || nearby.defaultSort) : "recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [priceFieldEditing, setPriceFieldEditing] = useState(false);
   const [filterSection, setFilterSection] = useState<"types" | "more">(supplierTypeFilterAvailable ? "types" : "more");
@@ -464,6 +464,15 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
+    if (pathname.replace(/\/$/, "").endsWith("/near-me")) {
+      const params = new URLSearchParams(initialParams.toString());
+      params.delete("dates"); params.delete("type");
+      Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
+      if (nextArea === "הכל" || nextArea === "כל הארץ") params.delete("location"); else params.set("location", nextArea);
+      if (nextTypes.length) params.set("types", nextTypes.join(",")); else params.delete("types");
+      router.push(localizedPath(`${pathname}${params.size ? `?${params}` : ""}`, language), { scroll: false });
+      return;
+    }
     const presentationHref = managedPresentationHref(landing?.initialFilters ? landing.path : undefined, searchQuery, updates);
     if (presentationHref) {
       router.push(localizedPath(presentationHref, language), { scroll: false });
@@ -594,7 +603,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       return;
     }
     setSort(nextSort);
-    updateSearchContext({ sort: nextSort === "recommended" ? null : nextSort });
+    updateSearchContext({ sort: nextSort === "recommended" && !pathname.replace(/\/$/, "").endsWith("/near-me") ? null : nextSort });
   }
 
   useEffect(() => {
@@ -637,10 +646,10 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       setSpa(params.get("spa") === "1");
       setAccessibleOnly(vacationFeatureSelection(params).accessibleOnly);
       setSelectedExtras(vacationFeatureSelection(params).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
-      setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
+      setSort(VACATION_SORT_VALUES.includes((params.get("sort") || nearby.defaultSort) as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || nearby.defaultSort : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [VACATION_PRICE_MAX, landing, landingType, language, properties, router, searchQuery, supplierTypeFilterAvailable]);
+  }, [nearby.defaultSort, VACATION_PRICE_MAX, landing, landingType, language, properties, router, searchQuery, supplierTypeFilterAvailable]);
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -1074,7 +1083,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       accessible: draftFilters.accessibleOnly ? "1" : null,
       online: draftFilters.onlineOnly ? "1" : null,
       features: draftFilters.selectedExtras.length ? draftFilters.selectedExtras.join(",") : null,
-      sort: draftFilters.sort === "recommended" ? null : draftFilters.sort,
+      sort: draftFilters.sort === "recommended" && !pathname.replace(/\/$/, "").endsWith("/near-me") ? null : draftFilters.sort,
     }, draftFilters.selectedTypes, draftFilters.area);
     closeFiltersPanel();
   }

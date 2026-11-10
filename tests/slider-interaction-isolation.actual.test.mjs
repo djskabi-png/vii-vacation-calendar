@@ -55,6 +55,31 @@ function withRailGlobals(fn) {
   try { return fn(); } finally { globalThis.getComputedStyle = oldComputed; globalThis.window = oldWindow; }
 }
 
+test("actual motion advances through every padded snap in both directions and after a swipe", () => {
+  const { moveSliderRailByCard } = loadRailMotion();
+  const oldComputed = globalThis.getComputedStyle, oldWindow = globalThis.window;
+  globalThis.window = { matchMedia: () => ({ matches: false }) };
+  globalThis.getComputedStyle = rail => ({ direction: rail.direction, scrollPaddingInlineStart: "10px", scrollPaddingInlineEnd: "10px" });
+  try {
+    for (const width of [315, 330.5, 352, 1180]) for (const direction of ["rtl", "ltr"]) {
+      const stride = 230.25, max = stride * 10 + 220.25 - width;
+      let progress = 0;
+      const rail = { direction, clientWidth: width, scrollWidth: width + max,
+        get scrollLeft() { return progress * (direction === "rtl" ? -1 : 1); },
+        querySelectorAll() { return Array.from({length:11}, (_, index) => ({getBoundingClientRect() { const start = index * stride - progress; return direction === "rtl" ? {right:width-start,left:width-start-220.25} : {left:start,right:start+220.25}; }})); },
+        scrollTo({left}) { const requested = Math.abs(left); progress = requested === max ? max : requested === 0 ? 0 : Math.max(0, requested - 10.35); },
+      };
+      for (let index = 0; index < 12 && progress < max; index++) { const before = progress; moveSliderRailByCard(rail, 1); assert.ok(progress > before, `${direction}/${width} stalled at ${progress}`); }
+      assert.equal(progress, max);
+      for (let index = 0; index < 12 && progress > 0; index++) { const before = progress; moveSliderRailByCard(rail, -1); assert.ok(progress < before, `${direction}/${width} reverse stalled at ${progress}`); }
+      assert.equal(progress, 0);
+      progress = max * 0.63; const swiped = progress;
+      moveSliderRailByCard(rail, -1); assert.ok(progress < swiped);
+      moveSliderRailByCard(rail, 1); assert.ok(progress > swiped - stride);
+    }
+  } finally { globalThis.getComputedStyle = oldComputed; globalThis.window = oldWindow; }
+});
+
 function loadGuard() {
   const source = readFileSync(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
   const code = ts.transpileModule(source, {

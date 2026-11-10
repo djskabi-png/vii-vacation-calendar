@@ -12,7 +12,8 @@ import { HomeSliderControls } from "./home-slider-controls";
 import { normalizeHomepageItems } from "../lib/homepage-search-href";
 import { type PopularSearchWorld } from "../lib/world-popular-search-defaults";
 import { requestNearbyOrigin } from "./use-nearby-sort";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { nearbyPageContent, nearbyPageForPath } from "../lib/nearby-page-content";
 import { DiscoveryThumbnail } from "./discovery-thumbnail";
 
 type Presentation = {
@@ -48,13 +49,14 @@ function usePresentation(world: PopularSearchWorld = "vacation") {
   return scoped?.key === key ? scoped.value : parseHomepagePresentation(undefined, world);
 }
 
-function PopularSearchLink({ item }: { item: HomeDiscoveryItem }) {
+function PopularSearchLink({ item, world = "vacation" }: { item: HomeDiscoveryItem; world?: PopularSearchWorld }) {
   const { language, translate } = useSiteLanguage();
   const router = useRouter();
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
-  const label = translate(item.label);
+  const nearbyPage = world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent] : undefined;
+  const label = translate(item.action === "nearby" && item.label === "קרוב אליי" ? nearbyPage?.title || "מקומות לאירוע חברה קרובים אליי" : item.label);
   const imageAlt = item.imageAlt?.endsWith(", תמונת אווירה") ? `${translate(item.imageAlt.slice(0, -", תמונת אווירה".length))}, ${translate("תמונת אווירה")}` : translate(item.imageAlt || item.label);
   return <div className="home-popular-search-item">
     <Link href={localizedPath(item.href, language)} prefetch={false} aria-busy={busy || undefined} aria-disabled={busy || undefined} onClick={event => {
@@ -87,14 +89,15 @@ function DiscoveryRail({ id, title, items }: { id: string; title: string; items:
 export function HomeQuickSearches({ world = "vacation" }: { world?: PopularSearchWorld }) {
   const { language, translate } = useSiteLanguage();
   const presentation = usePresentation(world);
+  const nearbyPage = nearbyPageForPath(usePathname());
   const id = world === "vacation" ? "home-popular-searches" : `popular-searches-${world}`;
-  if (!presentation.popular.length) return null;
+  if (nearbyPage || !presentation.popular.length) return null;
   return <section className="home-visual-searches" aria-labelledby={`${id}-title`}>
     <div className="home-visual-searches__head">
       <div className="home-visual-searches__title"><Search aria-hidden="true" /><h2 id={`${id}-title`}>{translate("חיפושים פופולריים")}</h2></div>
       <HomeSliderControls railId={`${id}-track`} label={translate("חיפושים פופולריים")} itemSelector=":scope > .home-popular-search-item" />
     </div>
-    <nav id={`${id}-track`} className="home-visual-searches__track" dir={language === "he" ? "rtl" : "ltr"} data-horizontal-rail aria-label={translate("חיפושים פופולריים")} tabIndex={0}>{presentation.popular.map(item => <PopularSearchLink key={item.id} item={item} />)}</nav>
+    <nav id={`${id}-track`} className="home-visual-searches__track" dir={language === "he" ? "rtl" : "ltr"} data-horizontal-rail aria-label={translate("חיפושים פופולריים")} tabIndex={0}>{presentation.popular.map(item => <PopularSearchLink key={item.id} item={item} world={world} />)}</nav>
   </section>;
 }
 

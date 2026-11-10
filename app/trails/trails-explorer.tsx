@@ -59,7 +59,7 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
   const generalSortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const trailSortCopy = language === "he" ? { distance: "המסלולים הקצרים", difficulty: "הקלים קודם" } : language === "en" ? { distance: "Shortest distance", difficulty: "Easiest first" } : language === "ru" ? { distance: "Короткие маршруты", difficulty: "Сначала лёгкие" } : { distance: "Les plus courts", difficulty: "Les plus faciles" };
   const sortOptions = useMemo(() => [generalSortOptions[0], { value: "distance-asc", label: trailSortCopy.distance }, { value: "difficulty-asc", label: trailSortCopy.difficulty }, ...generalSortOptions.slice(1)], [generalSortOptions, trailSortCopy.difficulty, trailSortCopy.distance]);
-  const requestedSort = searchParams.get("sort") || "recommended";
+  const requestedSort = nearby.defaultSort;
   const [sort, setSort] = useState<TrailSortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as TrailSortKey : "recommended");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
@@ -117,7 +117,7 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
     updateUrl({ [key]: next.join(",") });
   }
   function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
-  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as TrailSortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" ? "" : next }); }
+  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as TrailSortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && !window.location.pathname.replace(/\/$/, "").endsWith("/near-me") ? "" : next }); }
   function resetFilters() { setSelectedRegions([]); setSelectedNatures([]); setSelectedDifficulties([]); setQuery(""); setSort("recommended"); updateUrl({ area: "", nature: "", difficulty: "", q: "", sort: "" }); }
 
   useEffect(() => {
@@ -132,11 +132,11 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
       setSelectedNatures(selectedValues(params.get("nature") || initialFilters?.nature || null, natureOptions));
       setSelectedDifficulties(selectedValues(params.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
       setQuery(params.get("q") || "");
-      const nextSort = params.get("sort") || "recommended";
+      const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as TrailSortKey : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery, initialFilters, sortOptions]);
+  }, [nearby.defaultSort, searchQuery, initialFilters, sortOptions]);
 
   return <><NearbySortStatus state={nearby} regionalOnly />
     <form className="trail-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון מסלולי טיול">

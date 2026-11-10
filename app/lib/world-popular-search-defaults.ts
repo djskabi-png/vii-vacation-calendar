@@ -29,6 +29,6 @@ export function popularSearchesForWorld(world: PopularSearchWorld): HomeDiscover
  const definition=popularSearchWorlds.find(entry=>entry.id===world)!;
  const nearbyUrl=new URL(definition.href,"https://vii.invalid");nearbyUrl.searchParams.set("sort","nearest");
  const rows: HomeDiscoveryItem[] = groups[world].map(([label,href],index)=>({id:`${world}-${index+1}`,label,note:"",href,image:images[world],imageAlt:`${definition.label}, תמונת אווירה`,visible:true}));
- return [{id:`${world}-nearby`,label:"קרוב אליי",note:"",href:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].path : `${nearbyUrl.pathname}${nearbyUrl.search}`,image:images[world],visible:true,action:"nearby"},...rows];
+ return [{id:`${world}-nearby`,label:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].title : "מקומות לאירוע חברה קרובים אליי",note:"",href:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].path : `${nearbyUrl.pathname}${nearbyUrl.search}`,image:images[world],visible:true,action:"nearby"},...rows];
 }
 export const worldPopularSearchDefaults = popularSearchWorlds.flatMap(world=>popularSearchesForWorld(world.id).map(item=>({...item,world:world.id})));

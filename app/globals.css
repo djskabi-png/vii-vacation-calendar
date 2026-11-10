@@ -10689,6 +10689,7 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .home-popular-search-error { display:block; padding:6px; color:#9b3030; font-size:.75rem; }
 .home-popular-search-item a[aria-busy="true"] { opacity:.65; cursor:progress; }
 .world-popular-searches { margin-block:18px 24px; min-width:0; }
+.world-popular-searches:empty { display:none; }
 .world-popular-searches .home-visual-searches { margin-block:0; }
 @media(max-width:600px) { .world-popular-searches .home-visual-searches { padding:12px; } }
 

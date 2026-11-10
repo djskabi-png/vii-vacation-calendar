@@ -68,6 +68,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nearby = useNearbySort();
   const { language } = useSiteLanguage();
   const breadcrumbNames = language === "he"
     ? { home: "ראשי", events: "אירועים", results: "מקומות לאירועים" }
@@ -95,7 +96,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const [accessibleOnly, setAccessibleOnly] = useState(initialParams.get("accessible") === "1");
   const { mapOpen, mapInteractive, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("events");
-  const [sort, setSort] = useState<EventSortKey>(EVENT_SORT_VALUES.includes((initialParams.get("sort") || "recommended") as EventSortKey) ? (initialParams.get("sort") || "recommended") as EventSortKey : "recommended");
+  const [sort, setSort] = useState<EventSortKey>(EVENT_SORT_VALUES.includes((initialParams.get("sort") || nearby.defaultSort) as EventSortKey) ? (initialParams.get("sort") || nearby.defaultSort) as EventSortKey : "recommended");
   const [slot, setSlot] = useState<EventSlot | undefined>(initialParams.get("slot") === "morning" ? "morning" : initialParams.get("slot") === "evening" ? "evening" : undefined);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
@@ -108,6 +109,11 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     const params = managedSearchParams(window.location.search, initialSearchParams);
     Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
     const requestedArea = updates.location === undefined ? area : updates.location || "הכל";
+    if (window.location.pathname.replace(/\/$/, "").endsWith("/near-me")) {
+      if (requestedArea === "הכל" || requestedArea === "כל הארץ") params.delete("location"); else params.set("location", requestedArea);
+      router.push(`${window.location.pathname}${params.size ? `?${params}` : ""}`);
+      return;
+    }
     params.delete("location");
     const requestedType = normalizeEventVenueType(params.get('type'));
     const path = requestedType !== 'הכל' ? eventCombinationHref(requestedArea, requestedType) : eventSearchHref(requestedArea);
@@ -125,7 +131,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     if (key === "accessible") setAccessibleOnly(Boolean(value));
     if (key === "sort") setSort(EVENT_SORT_VALUES.includes(String(value) as EventSortKey) ? String(value) as EventSortKey : "recommended");
     if (key === "slot") setSlot(value === "morning" || value === "evening" ? value : undefined);
-    const isDefault = value === false || value === 0 || value === "" || value === "הכל" || value === "recommended";
+    const isDefault = value === false || value === 0 || value === "" || value === "הכל" || (value === "recommended" && !window.location.pathname.replace(/\/$/, "").endsWith("/near-me"));
     updateUrl({ [key]: isDefault ? null : String(value === true ? 1 : value) });
   }
 
@@ -141,11 +147,11 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       setFacility(params.get("features") || "הכל");
       setNoNoiseLimit(params.get("noise") === "1");
       setAccessibleOnly(params.get("accessible") === "1");
-      setSort(EVENT_SORT_VALUES.includes((params.get("sort") || "recommended") as EventSortKey) ? (params.get("sort") || "recommended") as EventSortKey : "recommended");
+      setSort(EVENT_SORT_VALUES.includes((params.get("sort") || nearby.defaultSort) as EventSortKey) ? (params.get("sort") || nearby.defaultSort) as EventSortKey : "recommended");
       setSlot(params.get("slot") === "morning" ? "morning" : params.get("slot") === "evening" ? "evening" : undefined);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [initialArea, searchQuery, initialSearchParams]);
+  }, [nearby.defaultSort, initialArea, searchQuery, initialSearchParams]);
 
   const areas = useMemo(() => ["הכל", ...uniqueSearchLocations([
     ...searchLocationOptions("events").filter((value) => value !== "כל הארץ"),
@@ -155,7 +161,6 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const eventFrom = searchParams.get("from");
   const undatedSearch = !hasSearchDate(searchParams);
   const startingPrices = useStartingPrices("events", undatedSearch);
-  const nearby = useNearbySort();
   const sortModel = useMemo(() => ({
     distance: nearby.distance,
     id: (place: EventPlace) => place.slug,

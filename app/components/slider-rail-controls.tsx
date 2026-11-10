@@ -47,7 +47,7 @@ function sliderRailGeometry(rail: HTMLElement, itemSelector: string) {
   const computed = typeof getComputedStyle === "function" ? getComputedStyle(rail) : null;
   const paddingStart = Number.parseFloat(computed?.scrollPaddingInlineStart || "0");
   const paddingEnd = Number.parseFloat(computed?.scrollPaddingInlineEnd || "0");
-  return { rtl, max, progress, anchors, snapEpsilon: Math.max(4, Number.isFinite(paddingStart) ? paddingStart : 0, Number.isFinite(paddingEnd) ? paddingEnd : 0) };
+  return { rtl, max, progress, anchors, snapEpsilon: Math.max(4, Number.isFinite(paddingStart) ? paddingStart + 2 : 0, Number.isFinite(paddingEnd) ? paddingEnd + 2 : 0) };
 }
 
 function scrollSliderRail(rail: HTMLElement, target: number, rtl: boolean) {

@@ -8,7 +8,14 @@ export const nearbyPageContent = {
   providers: { path: "/providers/near-me", title: "ספקים קרובים אליי", description: "שפים, מוזיקה, צילום, עיצוב ושירותים שמגיעים לאזור שלכם. בחרו אזור כדי למצוא ספקים לפי אזורי השירות שלהם.", body: "ספקי האירוח והאירועים עובדים לפי אזורי שירות ולא תמיד מחזיקים כתובת קבועה. בחרו אזור ברשימת הסינון, בדקו אילו ספקים מציינים שהם מגיעים אליו, ופנו אליהם לקבלת הצעה ותיאום.", question: "איך מוצאים ספק שמגיע לאזור שלי?", answer: "בחרו אזור ברשימת הסינון. התוצאות מבוססות על אזורי השירות שהספקים פרסמו, ולא על מרחק GPS מדויק או זמן נסיעה." },
 } as const;
 export type NearbyPageWorld = keyof typeof nearbyPageContent;
+export function nearbyPageForPath(pathname: string) {
+  const path = pathname.replace(/^\/(en|fr|ru)(?=\/)/, "").replace(/\/$/, "");
+  return Object.values(nearbyPageContent).find(page => page.path === path);
+}
+export function nearbyDefaultSort(pathname: string, requested: string | null | undefined) {
+  return requested || (nearbyPageForPath(pathname) && !pathname.includes("/providers/") ? "nearest" : "recommended");
+}
 export function nearbyPageFaq(world: NearbyPageWorld) {
   const page = nearbyPageContent[world];
-  return [{ question: page.question, answer: page.answer }, { question: "מתי מתבקש אישור למיקום?", answer: "רק כשתבחרו לחפש או למיין לפי המיקום שלכם. אפשר לבחור אזור ידנית גם בלי לאשר מיקום." }];
+  return [{ question: page.question, answer: page.answer }, { question: "מתי מתבקש אישור למיקום?", answer: "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום." }];
 }

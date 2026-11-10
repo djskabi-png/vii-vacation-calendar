@@ -90,7 +90,7 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
   const nearby = useNearbySort();
   const sortModel = useMemo(() => ({ promotionWeight:(item:DiscoveryItem)=>promotionWeight(item.id), distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), [nearby.origin,promotionWeight]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
-  const requestedSort = searchParams.get("sort") || "recommended";
+  const requestedSort = nearby.defaultSort;
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [pendingFilterId, setPendingFilterId] = useState<string | null>(null);
@@ -185,6 +185,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[], nextSort: DiscoverySortKey = sort,clearPrice=false) {
     const params = new URLSearchParams(window.location.search);
+    if (window.location.pathname.replace(/\/$/, "").endsWith("/near-me")) {
+      for (const [key, value] of Object.entries({ location: nextLocation === "כל הארץ" ? "" : nextLocation, spaFor: nextAudience, features: nextFilters.join(","), sort: nextSort })) value ? params.set(key, value) : params.delete(key);
+      if (clearPrice) { params.delete("minPrice"); params.delete("maxPrice"); }
+      router.push(`${window.location.pathname}${params.size ? `?${params}` : ""}`);
+      return;
+    }
     params.delete("location");
     params.delete("spaFor");
     params.delete("features");
@@ -278,12 +284,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
       setSpaAudience(nextAudience && nextAudience in spaAudiences ? nextAudience as SpaAudienceId : "");
       const requestedFilters = (params.get("features") || "").split(",").filter(Boolean);
       setSelectedFilters((requestedFilters.length ? requestedFilters : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id)));
-      const nextSort = params.get("sort") || "recommended";
+      const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
       setPendingFilterId(null);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery, sortOptions]);
+  }, [nearby.defaultSort, initialLocation, initialSpaAudience, initialSpaFilters, searchQuery, sortOptions]);
   const expandedResultLabel = { he: `${displayed.length} בתי ספא באזור ובסביבה`, en: `${displayed.length} spas in the area and nearby`, ru: `${displayed.length} спа в выбранном районе и окрестностях`, fr: `${displayed.length} spas dans le secteur et aux alentours` }[language];
   const resultLabel = !mapOpen && resultItems.length > filtered.length ? expandedResultLabel : mapOpen
     ? `${visibleMapCount} בתי ספא באזור המוצג במפה`

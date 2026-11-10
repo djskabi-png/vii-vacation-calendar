@@ -55,7 +55,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   const nearby = useNearbySort();
   const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
-  const requestedSort = searchParams.get("sort") || "recommended";
+  const requestedSort = nearby.defaultSort;
   const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const regions = useMemo(() => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => providerGeographicServiceAreas(item.serviceAreas?.length ? item.serviceAreas : [item.area])).filter((area) => area !== "כל הארץ" && area !== "בכל הארץ")))], [items]);
   const filtered = useMemo(() => {
@@ -87,11 +87,11 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       const params = new URLSearchParams(searchQuery);
       setQuery(params.get("q") || "");
       setRegion(params.get("region") || "כל הארץ");
-      const nextSort = params.get("sort") || "recommended";
+      const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery, sortOptions]);
+  }, [nearby.defaultSort, searchQuery, sortOptions]);
 
   useEffect(() => {
     const rail = categoryNavRef.current;
