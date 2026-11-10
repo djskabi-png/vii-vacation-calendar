@@ -8117,7 +8117,9 @@
     "V, חזרה לאתר": "V, back to the site",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, מניעת שליחה כפולה ותור בטוח בזמן תקלה.": "Instant webhook for change, cyclical completion synchronization, version number, checksum, duplicate sending prevention and fail safe queue.",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, upsert שאינו יוצר כפילות, היסטוריית שינויים ומטמון.": "Instant change webhook, cyclic completion sync, version number, checksum, non-duplicate upsert, change history and cache.",
-    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Instant webhook, plus periodic completion sync."
+    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Instant webhook, plus periodic completion sync.",
+    "מקומות לאירוע חברה קרובים אליי": "Corporate event venues near me",
+    "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "When you open a nearby page, your browser asks for location access if it has not already been granted. You can also select an area manually."
   },
   "ru": {
     "תצוגת המקום": "Вид места",
@@ -16209,7 +16211,9 @@
     "V, חזרה לאתר": "V, вернемся на сайт",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, מניעת שליחה כפולה ותור בטוח בזמן תקלה.": "Мгновенный веб-перехватчик для изменений, синхронизация циклического завершения, номер версии, контрольная сумма, предотвращение дублирования отправки и отказоустойчивая очередь.",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, upsert שאינו יוצר כפילות, היסטוריית שינויים ומטמון.": "Веб-перехватчик для мгновенных изменений, синхронизация циклического завершения, номер версии, контрольная сумма, неповторяющееся обновление, история изменений и кеш.",
-    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Мгновенный вебхук и периодическая синхронизация завершения."
+    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Мгновенный вебхук и периодическая синхронизация завершения.",
+    "מקומות לאירוע חברה קרובים אליי": "Площадки для корпоративных мероприятий рядом со мной",
+    "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "При открытии страницы поблизости браузер запрашивает доступ к местоположению, если разрешение ещё не получено. Можно также выбрать район вручную."
   },
   "fr": {
     "תצוגת המקום": "Aperçu du lieu",
@@ -24301,6 +24305,8 @@
     "V, חזרה לאתר": "V, retour au site",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, מניעת שליחה כפולה ותור בטוח בזמן תקלה.": "Webhook instantané pour les modifications, la synchronisation d'achèvement cyclique, le numéro de version, la somme de contrôle, la prévention des envois en double et la file d'attente de sécurité.",
     "Webhook מיידי לשינוי, סנכרון השלמה מחזורי, מספר גרסה, checksum, upsert שאינו יוצר כפילות, היסטוריית שינויים ומטמון.": "Webhook de changement instantané, synchronisation d'achèvement cyclique, numéro de version, somme de contrôle, upsert non dupliqué, historique des modifications et cache.",
-    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Webhook instantané et synchronisation d'achèvement périodique."
+    "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Webhook instantané et synchronisation d'achèvement périodique.",
+    "מקומות לאירוע חברה קרובים אליי": "Lieux pour événements professionnels près de moi",
+    "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "À l’ouverture d’une page à proximité, le navigateur demande l’accès à votre position si vous ne l’avez pas encore autorisé. Vous pouvez aussi choisir une zone manuellement."
   }
 }

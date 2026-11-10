@@ -227,6 +227,12 @@ function SpaResults({ items: initialItems, activeSpaFilter, initialLocation, ini
     event.preventDefault();
     const query=spaPriceQuery(new URLSearchParams(window.location.search),minimumPrice,maximumPrice);
     if(!query){setPriceError(true);return;}
+    if(window.location.pathname?.replace(/\/$/, "").endsWith("/near-me")){
+      for(const [key,value] of Object.entries({location:location==="כל הארץ"?"":location,spaFor:spaAudience,features:selectedFilters.join(",")})) value?query.set(key,value):query.delete(key);
+      setPriceError(false);
+      router.push(`${window.location.pathname}${query.size?'?'+query:''}`);
+      return;
+    }
     query.delete('location');query.delete('spaFor');query.delete('features');
     setPriceError(false);
     router.push(localizedPath(`${spaSearchHref(spaSearchStateFromValues(location,spaAudience,selectedFilters))}${query.size?'?'+query:''}`,language));
