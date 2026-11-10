@@ -13,8 +13,27 @@ export async function galleryGenerationIds(db:D1Database,world:SupplierCatalogWo
   return (await db.prepare(`SELECT supplier_id AS supplierId FROM supplier_catalog_entries WHERE run_id=? AND world=? ORDER BY supplier_id`).bind(runId,world).all<{supplierId:number}>()).results.map(x=>x.supplierId);
 }
 export async function galleryGenerationEntry(db:D1Database,world:SupplierCatalogWorld,runId:string,supplierId:number):Promise<SupplierCatalogEntry|null> {
-  const value=await db.prepare(`SELECT summary_json AS summaryJson,detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id=?`).bind(runId,world,supplierId).first<{summaryJson:string;detailJson:string|null}>();
+  const value=await galleryGenerationEntryWire(db,world,runId,supplierId);
   return value?{supplierId,summary:JSON.parse(value.summaryJson),detail:value.detailJson?JSON.parse(value.detailJson):undefined}:null;
+}
+export async function galleryGenerationEntryWire(db:D1Database,world:SupplierCatalogWorld,runId:string,supplierId:number) {
+  return db.prepare(`SELECT summary_json AS summaryJson,detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id=?`).bind(runId,world,supplierId).first<{summaryJson:string;detailJson:string|null}>();
+}
+type ScopedCopy={runId:string;world:SupplierCatalogWorld;baseline:string;supplierId:number;expectedIds:number[]};
+/** Only a single audited owner changes. Sibling SQL payloads remain byte exact. */
+export async function verifyGalleryBaselineSiblings(db:D1Database,input:ScopedCopy,requireTarget:boolean) {
+  if(!Number.isSafeInteger(input.supplierId)||input.supplierId<1||input.expectedIds.filter(id=>id===input.supplierId).length!==1||new Set(input.expectedIds).size!==input.expectedIds.length)throw Error('gallery_scoped_identity_invalid');
+  const state=await galleryGenerationState(db,input.world),run=await galleryRun(db,input.world,input.runId),baselineIds=await galleryGenerationIds(db,input.world,input.baseline);
+  if(!state||state.activeRunId!==input.baseline||state.lockRunId!==input.runId||!state.lockUntil||Date.parse(state.lockUntil)<=Date.now()||state.activeCount!==input.expectedIds.length||run?.status!=='running'||JSON.stringify(baselineIds)!==JSON.stringify(input.expectedIds))throw Error('gallery_scoped_baseline_changed');
+  const ids=await galleryGenerationIds(db,input.world,input.runId),wanted=input.expectedIds.filter(id=>requireTarget||id!==input.supplierId);
+  if(JSON.stringify(ids)!==JSON.stringify(wanted))throw Error('gallery_scoped_clone_incomplete');
+  const changed=await db.prepare(`SELECT COUNT(*) AS count FROM (SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id<>? EXCEPT SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id<>?)`).bind(input.baseline,input.world,input.supplierId,input.runId,input.world,input.supplierId).first<{count:number}>();
+  if(changed?.count!==0)throw Error('gallery_scoped_sibling_changed');
+}
+export async function cloneGalleryBaselineSiblings(db:D1Database,input:ScopedCopy) {
+  if(!Number.isSafeInteger(input.supplierId)||input.supplierId<1||input.expectedIds.filter(id=>id===input.supplierId).length!==1||new Set(input.expectedIds).size!==input.expectedIds.length)throw Error('gallery_scoped_identity_invalid');
+  await db.prepare(`INSERT OR IGNORE INTO supplier_catalog_entries(id,run_id,world,supplier_id,summary_json,detail_json) SELECT ? || ':' || world || ':' || supplier_id,?,world,supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id<>? AND EXISTS(SELECT 1 FROM supplier_catalog_state WHERE world=? AND active_run_id=? AND lock_run_id=? AND lock_until>?) AND EXISTS(SELECT 1 FROM supplier_catalog_runs WHERE id=? AND world=? AND status='running')`).bind(input.runId,input.runId,input.baseline,input.world,input.supplierId,input.world,input.baseline,input.runId,new Date().toISOString(),input.runId,input.world).run();
+  await verifyGalleryBaselineSiblings(db,input,false);
 }
 export async function startGalleryGeneration(db:D1Database,world:SupplierCatalogWorld,runId:string,recovery:boolean) {
   const now=new Date(), existing=await galleryRun(db,world,runId), state=await galleryGenerationState(db,world);

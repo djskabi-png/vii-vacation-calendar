@@ -9,7 +9,12 @@ const savedJobKey = "vii.gallery-audit.job.v1";
 const validId = (value: string | null) => !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 const terminal = (job: GalleryAuditJobSummary) => ["complete", "deadline", "error"].includes(job.state);
 const labels = { vacations: "נופש", events: "אירועים", rooms: "חדרים לפי שעה", spa: "ספא" } as const;
-type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;deadline?:string;recoveryWindowUsed?:boolean;verificationIssues:unknown[]};
+type ApplyResult={version?:number;state:string;phase?:string;cursor?:number;verifyCursor?:number;total?:number;scopeSupplierId?:number;preservedVerified?:number;changed:number;skipped:number;verified:number;lease?:{until:string};errorCode?:string;deadline?:string;recoveryWindowUsed?:boolean;verificationIssues:unknown[]};
+function applyStatus(value:ApplyResult) {
+  if(value.state==='accepted')return value.scopeSupplierId!==undefined?`המקום נבדק מול המקור. ${value.preservedVerified||0} מקומות נשמרו ללא שינוי ונבדקו מול הגרסה הקודמת.`:`${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.`;
+  if(value.state==='reserved'&&value.version===1){if(value.phase==='verify')return `בודקים את הדור שפורסם: ${value.verifyCursor} מתוך ${value.total}.`;if(value.scopeSupplierId!==undefined)return `מכינים תיקון ממוקד למקום ${value.scopeSupplierId}. שאר המקומות נשמרים ללא שינוי.`;return `מכינים עדכון: ${value.cursor} מתוך ${value.total}. הגרסה הפעילה תוחלף רק בסיום ההכנה.`;}
+  return value.state==='reserved'?'הפעולה הקודמת דורשת בדיקת מצב לפני המשך.':'העדכון לא אושר. יש לבדוק את הדוח; המידע הפעיל לא מוחלף במקרה של הכנה שנכשלה.';
+}
 const recoverableApply=(value?:ApplyResult)=>value?.version===1&&value.state==='not_accepted'&&(value.errorCode==='gallery_nonmedia_facts_changed'||reviewableGallerySourceFailure(value.errorCode));
 
 export default function GalleryAuditPage() {
@@ -21,15 +26,16 @@ export default function GalleryAuditPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [applying, setApplying] = useState<string | null>(null);
+  const [scopeSupplierId, setScopeSupplierId] = useState("");
   const [applyResults, setApplyResults] = useState<Record<string, ApplyResult>>({});
   const runRef = useRef<AbortController | null>(null);
 
-  async function request(id: string, action?: "start" | "step" | "retry" | "continue" | 'reconcile', signal?: AbortSignal, scopeWorld?: keyof typeof labels) {
+  async function request(id: string, action?: "start" | "step" | "retry" | "continue" | 'reconcile', signal?: AbortSignal, scopeWorld?: keyof typeof labels, supplierId?: number) {
     const timeout = AbortSignal.timeout(90_000);
     const response = await fetch(`/api/admin/gallery-audit${action ? "" : `?jobId=${encodeURIComponent(id)}`}`, {
       method: action ? "POST" : "GET", cache: "no-store", credentials: "same-origin",
       signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-      ...(action ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, jobId: id, ...(scopeWorld ? {scopeWorld} : {}) }) } : {}),
+      ...(action ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, jobId: id, ...(scopeWorld ? {scopeWorld} : {}), ...(supplierId !== undefined ? {scopeSupplierId:supplierId} : {}) }) } : {}),
     });
     const body = await response.json() as { ok?: boolean; job?: GalleryAuditJobSummary; error?: string };
     if (!response.ok || !body.ok || !body.job || body.job.jobId !== id) {
@@ -53,8 +59,9 @@ export default function GalleryAuditPage() {
     return () => { controller.abort(); runRef.current?.abort(); runRef.current = null; };
   }, []);
 
-  async function run(start: boolean, retrySource = false, continueWindow = false, scopeWorld?: keyof typeof labels, reconcileStored = false) {
+  async function run(start: boolean, retrySource = false, continueWindow = false, scopeWorld?: keyof typeof labels, reconcileStored = false, supplierId?: number) {
     if (!canEdit || runRef.current) return;
+    if(supplierId!==undefined&&(!scopeWorld||!Number.isSafeInteger(supplierId)||supplierId<1||supplierId>9_999_999_999)){setError('יש להזין מספר מקום תקין ולבחור את העולם שלו.');return;}
     const controller = new AbortController();
     runRef.current = controller;
     setBusy(true); setError(""); setNotice("");
@@ -70,7 +77,7 @@ export default function GalleryAuditPage() {
     }
     const deadline = Date.now() + 60 * 60_000;
     try {
-      let current = await request(id, reconcileStored ? 'reconcile' : continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal, start ? scopeWorld : undefined);
+      let current = await request(id, reconcileStored ? 'reconcile' : continueWindow ? "continue" : retrySource ? "retry" : start ? "start" : undefined, controller.signal, start ? scopeWorld : undefined, start ? supplierId : undefined);
       for (let step = 0; step < 1024 && !terminal(current); step++) {
         if (controller.signal.aborted) break;
         if (Date.now() >= deadline || Date.now() >= Date.parse(current.deadline)) {
@@ -140,9 +147,13 @@ export default function GalleryAuditPage() {
     <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.3rem)", marginBottom: 8 }}>גלריות מול המקור</h1>
     <p>השוואת התמונות, הסדר והשיוך למקום, ליחידה ולחבילה מול נתוני הספק. הבדיקה שומרת תיעוד פרטי ואינה משנה את הגלריות באתר.</p>
     <section aria-label="הרצת בדיקה" style={{ padding: 20, marginBlock: 24, border: "1px solid #cde0e2", borderRadius: 18, background: "#fff" }}>
+      <label style={{ display: "inline-flex", gap: 8, alignItems: "center", marginBottom: 14 }}>מספר מקום לבדיקה ממוקדת
+        <input inputMode="numeric" value={scopeSupplierId} disabled={busy||!!applying} onChange={event => setScopeSupplierId(event.target.value.replace(/\D/g, "").slice(0, 10))} aria-label="מספר מקום לבדיקה ממוקדת" style={{ minHeight: 40, width: 150, padding: 8, border: "1px solid #9dbabd", borderRadius: 8, font: "inherit" }} />
+      </label>
+      <p style={{marginTop:0,fontSize:14}}>לבדיקת מקום בודד, הזינו מספר ובחרו את העולם שלו. ללא מספר ייבדק העולם כולו.</p>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
-        {canEdit && !busy && !applying ? (Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} onClick={() => void run(true, false, false, world)}>בדיקת {labels[world]} בלבד</button>) : null}
+        {canEdit && !busy && !applying && (!savedId || jobMissing || !!job && terminal(job)) ? <button type="button" disabled={!!scopeSupplierId} style={{ ...buttonStyle, background: "#147c7f", color: "#fff" }} onClick={() => void run(true)}>התחלת בדיקה מלאה</button> : null}
+        {canEdit && !busy && !applying ? (Object.keys(labels) as Array<keyof typeof labels>).map(world => <button key={world} type="button" style={buttonStyle} onClick={() => void run(true, false, false, world, false, scopeSupplierId?Number(scopeSupplierId):undefined)}>{scopeSupplierId?`בדיקה ממוקדת: ${labels[world]} ${scopeSupplierId}`:`בדיקת ${labels[world]} בלבד`}</button>) : null}
         {canEdit && !busy && !applying && job?.state === "error" && !job.sourceRetryUsed && job.sourceIssues.includes("provider_context:spa:provider_timeout") ? <button type="button" style={buttonStyle} onClick={() => void run(false, true)}>ניסיון נוסף למקור הספא</button> : null}
         {canEdit && !busy && !applying && job?.state==='error' && !job.storageRecoveryUsed && job.sourceIssues.length===1 && job.sourceIssues[0]==='audit_operation_failed' ? <button type="button" style={buttonStyle} onClick={()=>void run(false,false,false,undefined,true)}>המשך מהקבצים השמורים</button> : null}
         {canEdit && !busy && !applying && job && job.state !== "complete" && job.state !== "error" && !job.continuationUsed && job.cursor > 0 && Date.now() >= Date.parse(job.deadline) ? <button type="button" style={buttonStyle} onClick={() => void run(false, false, true)}>המשך מהתוצאות השמורות בחלון נוסף</button> : null}
@@ -168,7 +179,7 @@ export default function GalleryAuditPage() {
           <p>יעודכנו רק תמונות וקבוצות תמונות שניתן לאמת מול הספק. מידע חסר או שיוך לא ודאי יישמרו לבדיקה, בלי למחוק את המידע הקיים.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{(Object.keys(labels) as Array<keyof typeof labels>).filter(world => job.worldCounts[world] > 0).map(world => <button key={world} type="button" style={buttonStyle} disabled={!!applying || !!applyResults[world]&&applyResults[world].state!=='reserved'&&!recoverableApply(applyResults[world])} onClick={() => void applyWorld(world)}>{applying === world ? "מעדכנים..." : `${applyResults[world]?.state==='reserved'||recoverableApply(applyResults[world])?'המשך תיקון':'תיקון'} ${labels[world]}`}</button>)}</div>
           {applying?<button type="button" style={{...buttonStyle,marginTop:12}} onClick={()=>{runRef.current?.abort();setNotice('ההרצה נעצרה בדפדפן. יש לקרוא מצב שמור לפני המשך.');}}>עצירה ושמירת התקדמות</button>:null}
-          {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{value.state === "accepted" ? `${value.changed} מקומות עודכנו; ${value.verified} אומתו לאחר העדכון; ${value.skipped} נשמרו לבדיקה נוספת.` : value.state === "reserved"&&value.version===1 ? value.phase==='verify'?`בודקים את הדור שפורסם: ${value.verifyCursor} מתוך ${value.total}.`:`מכינים עדכון: ${value.cursor} מתוך ${value.total}. הגרסה הפעילה תוחלף רק בסיום ההכנה.` : value.state==='reserved' ? 'הפעולה הקודמת דורשת בדיקת מצב לפני המשך.' : "העדכון לא אושר. יש לבדוק את הדוח; המידע הפעיל לא מוחלף במקרה של הכנה שנכשלה."}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
+          {Object.entries(applyResults).map(([world, value]) => <p key={world} role="status"><strong>{labels[world as keyof typeof labels]}: </strong>{applyStatus(value)}{value.verificationIssues?.length || value.errorCode ? " נדרש לבדוק את הדוח לפני אישור הגלריות." : ""}</p>)}
         </section> : null}
       </> : null}
     </section>

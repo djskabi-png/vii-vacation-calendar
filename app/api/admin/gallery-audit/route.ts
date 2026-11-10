@@ -47,11 +47,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!await allowed(request, true)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (Number(request.headers.get("content-length")) > 1024) return Response.json({ error: "request_too_large" }, { status: 413, headers });
-  let body: { jobId?: unknown; action?: unknown; world?: unknown; scopeWorld?: unknown; recovery?: unknown };
+  let body: { jobId?: unknown; action?: unknown; world?: unknown; scopeWorld?: unknown; scopeSupplierId?: unknown; recovery?: unknown };
   try { const text = await request.text(); if (text.length > 1024) throw new Error("body_size"); body = JSON.parse(text); }
   catch { return Response.json({ error: "malformed_json" }, { status: 400, headers }); }
   if (!body || !valid(body.jobId) || !["start", "step", "apply", "apply-step", "apply-recover", "apply-continue", "retry", "continue", "reconcile"].includes(String(body.action))) return Response.json({ error: "invalid_request" }, { status: 400, headers });
   if (body.scopeWorld !== undefined && (body.action !== 'start' || !['vacations','events','rooms','spa'].includes(String(body.scopeWorld)))) return Response.json({error:'invalid_audit_scope'}, {status:400,headers});
+  if (body.scopeSupplierId !== undefined && (body.action !== 'start' || body.scopeWorld === undefined || !Number.isSafeInteger(body.scopeSupplierId) || Number(body.scopeSupplierId) < 1 || Number(body.scopeSupplierId) > 9_999_999_999)) return Response.json({error:'invalid_audit_scope'}, {status:400,headers});
   try {
     const { db, bucket, env } = await environment();
     if (body.action === "apply" || body.action === "apply-step" || body.action === "apply-recover" || body.action === 'apply-continue') {
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
       const apply=body.action==='apply-step'?await stepBoundedGalleryApply(input):body.action==='apply-recover'?await recoverBoundedGalleryApply(input):body.action==='apply-continue'?await continueBoundedGalleryApply(input):await startBoundedGalleryApply({...input,recovery:body.recovery===true});
       return Response.json({ok:true,apply},{headers});
     }
-    const job = body.action === "start" ? await createGalleryAuditJob({ db, bucket, jobId: body.jobId, scopeWorld: body.scopeWorld as 'vacations'|'events'|'rooms'|'spa'|undefined })
+    const job = body.action === "start" ? await createGalleryAuditJob({ db, bucket, jobId: body.jobId, scopeWorld: body.scopeWorld as 'vacations'|'events'|'rooms'|'spa'|undefined, scopeSupplierId: body.scopeSupplierId as number|undefined })
       : body.action === 'reconcile' ? await reconcileGalleryAuditJob({db,bucket,jobId:body.jobId})
       : body.action === "retry" ? await retryGalleryAuditSources({ db, bucket, jobId: body.jobId }) : body.action === "continue" ? await continueGalleryAuditJob({ db, bucket, jobId: body.jobId }) : await stepGalleryAuditJob({ db, bucket, jobId: body.jobId, env });
     return Response.json({ ok: true, job }, { headers });

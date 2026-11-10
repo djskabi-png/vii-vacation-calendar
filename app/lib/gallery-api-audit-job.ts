@@ -16,6 +16,7 @@ export type GalleryAuditJobSummary = {
   continuationUsed?: boolean;
   previousDeadline?: string;
   scopeWorld?: AuditWorld;
+  scopeSupplierId?: number;
   storageRecoveryUsed?: boolean;
   storageRecovery?: {cursor:number;code:string;reviewedAt:string};
   failure?: {stage:string;kind:string;code:string;targets:number[]};
@@ -58,7 +59,7 @@ function summary(j: Job): GalleryAuditJobSummary {
     mismatched: rows.filter(x => x.status === "mismatch").length,
     unverified: rows.filter(x => x.status === "unverified").length,
     errors: rows.filter(x => x.status === "unverified").length, sourceIssues: j.sourceIssues, worldCounts: j.worldCounts,
-    ...(j.scopeWorld ? { scopeWorld: j.scopeWorld } : {}),
+    ...(j.scopeWorld ? { scopeWorld: j.scopeWorld } : {}), ...(j.scopeSupplierId ? { scopeSupplierId: j.scopeSupplierId } : {}),
     ...(j.storageRecoveryUsed ? {storageRecoveryUsed:true,storageRecovery:j.storageRecovery} : {}), ...(j.failure ? {failure:j.failure} : {}),
     ...(j.sourceRetryUsed ? { sourceRetryUsed: true } : {}), ...(j.continuationUsed ? { continuationUsed: true, previousDeadline: j.previousDeadline } : {}) };
 }
@@ -69,10 +70,11 @@ function selectedWorlds(job: Pick<Job, 'scopeWorld'>): AuditWorld[] {
 export async function readGalleryAuditJob(bucket: R2Bucket, id: string) {
   const stored = await read(bucket, id); return stored ? summary(stored.value) : null;
 }
-export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomUUID(), now = Date.now, scopeWorld }: Options & { jobId?: string; scopeWorld?: AuditWorld }) {
+export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomUUID(), now = Date.now, scopeWorld, scopeSupplierId }: Options & { jobId?: string; scopeWorld?: AuditWorld; scopeSupplierId?: number }) {
+  if (scopeSupplierId !== undefined && (!scopeWorld || !Number.isSafeInteger(scopeSupplierId) || scopeSupplierId < 1 || scopeSupplierId > 9_999_999_999)) throw new Error("invalid_audit_scope");
   const chosen = selectedWorlds({scopeWorld});
   const previous = await read(bucket, jobId); if (previous) {
-    if (previous.value.scopeWorld !== scopeWorld) throw new Error('gallery_audit_scope_changed');
+    if (previous.value.scopeWorld !== scopeWorld || previous.value.scopeSupplierId !== scopeSupplierId) throw new Error('gallery_audit_scope_changed');
     return summary(previous.value);
   }
   const inventory: Target[] = [];
@@ -84,11 +86,16 @@ export async function createGalleryAuditJob({ db, bucket, jobId = crypto.randomU
     if (ids.some(x => !x) || new Set(ids).size !== ids.length) throw new Error(`invalid_world_inventory:${world}`);
     for (const id of ids) inventory.push({ world, supplierId: id! });
     worldCounts[world] = ids.length;
+    if (scopeWorld === world && scopeSupplierId !== undefined) {
+      if (!ids.includes(scopeSupplierId)) throw new Error("audit_scope_supplier_not_found");
+      inventory.splice(0, inventory.length, { world, supplierId: scopeSupplierId });
+      worldCounts[world] = 1;
+    }
   }
   const time = now();
   const job: Job = { jobId, state: "starting", total: inventory.length, cursor: 0, deadline: new Date(time + 3_600_000).toISOString(),
     sourceIssues: [], worldCounts, inventory, results: [], createdAt: new Date(time).toISOString(), contextsReady: false,
-    contextMode:'per-world', contextWorlds:[], ...(scopeWorld ? {scopeWorld} : {}) };
+    contextMode:'per-world', contextWorlds:[], ...(scopeWorld ? {scopeWorld} : {}), ...(scopeSupplierId !== undefined ? {scopeSupplierId} : {}) };
   await immutable(bucket, key(jobId), JSON.stringify(job));
   const saved = await read(bucket, jobId);
   if (!saved) throw new Error("audit_reservation_unresolved");
@@ -185,6 +192,7 @@ async function loadContexts(job: Job, bucket: R2Bucket, env: ProviderEnv, fetchI
     const frozen = new Set(job.contextWorlds || []);
     for (const target of job.inventory) if (required.has(target.world) && !frozen.has(target.world) && !active.get(target.world)!.has(target.supplierId)) job.sourceIssues.push(`accepted_not_active:${target.world}:${target.supplierId}`);
     for (const world of required) if (!frozen.has(world)) for (const supplierId of active.get(world)!) {
+      if (job.scopeSupplierId !== undefined && (world !== job.scopeWorld || supplierId !== job.scopeSupplierId)) continue;
       if (!job.inventory.some(x => x.world === world && x.supplierId === supplierId)) {
         job.inventory.push({ world, supplierId }); job.worldCounts[world]++; job.sourceIssues.push(`api_not_accepted:${world}:${supplierId}`);
       }

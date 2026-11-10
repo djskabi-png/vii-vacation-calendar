@@ -170,6 +170,51 @@ async function singleFixture(){
  return {db,bucket,jobId,world,current,runId:`gallery-${jobId}-${world}`,stateKey:prefix+'apply/vacations.bounded.json'};
 }
 
+async function scopedFixture(extraEmpty=false){
+ const f=await singleFixture();
+ const statements=[];
+ for(let id=2;id<=545;id++)statements.push(f.db.prepare('INSERT INTO supplier_catalog_entries(id,run_id,world,supplier_id,summary_json,detail_json) VALUES(?,?,?,?,?,?)').bind(`bounded-baseline:vacations:${id}`,'bounded-baseline',f.world,id,` { "name" : "Sibling ${id}", "price" : ${id+100} } `,`{\n "note" : "keep raw bytes ${id}", "rooms" : []\n}`));
+ await f.db.batch(statements);await f.db.prepare('UPDATE supplier_catalog_state SET active_count=545 WHERE world=?').bind(f.world).run();
+ const object=await f.bucket.get(prefix+'job.json'),job=JSON.parse(await object.text());job.scopeWorld=f.world;job.scopeSupplierId=1;await f.bucket.put(prefix+'job.json',JSON.stringify(job));
+ if(extraEmpty){const path=prefix+'items/vacations-1.json',item=JSON.parse(await(await f.bucket.get(path)).text()),raw=JSON.parse(await(await f.bucket.get(prefix+'raw/vacations-1.json')).text());raw.rooms.push({roomID:101,galleries:[]});const wire=JSON.stringify(raw);item.finding.sha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(wire)))].map(x=>x.toString(16).padStart(2,'0')).join('');item.normalized.detail.rooms.push({id:101,name:'Unpublished empty API owner',images:[],galleryGroups:[]});item.api=await buildApiGalleryContract(f.world,1,raw,wire);item.normalizedContract=await buildAcceptedGalleryContract(f.world,item.normalized);await f.bucket.put(prefix+'raw/vacations-1.json',wire);await f.bucket.put(path,JSON.stringify(item));await f.bucket.put(prefix+'context/vacations.json',JSON.stringify({places:[{siteID:1,active:true,rooms:[{roomID:100},{roomID:101}]}]}));}
+ return f;
+}
+test('single-owner repair clones 544 raw sibling payloads, retains an unpublished empty API owner, and postverifies the complete generation',async()=>{
+ const f=await scopedFixture(true);try{
+  let state=await startBoundedGalleryApply(f);assert.equal(state.scopeSupplierId,1);state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'prepare');assert.equal(state.total,545);assert.equal((await f.db.prepare('SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id=?').bind(f.runId).first()).n,544);
+  state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'accept');assert.equal(state.cursor,545);assert.equal(state.changed,1);assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,'bounded-baseline');
+  state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'verify');let loops=0;while(state.phase==='verify'&&!state.errorCode&&loops++<140)state=await stepBoundedGalleryApply(f);assert.equal(state.state,'accepted',JSON.stringify(state));assert.equal(state.verified,1);assert.equal(state.preservedVerified,544);assert.equal(state.verifyCursor,545);assert.equal(state.verificationIssues.length,0);assert.ok(state.sourceWarnings.some(x=>x.issues.includes('unverified_unpublished_empty_api_owner:vacations:1:room:101')));
+  const a=(await f.db.prepare('SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND supplier_id<>1 ORDER BY supplier_id').bind('bounded-baseline').all()).results,b=(await f.db.prepare('SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND supplier_id<>1 ORDER BY supplier_id').bind(f.runId).all()).results;assert.deepEqual(b,a);
+  const target=JSON.parse((await f.db.prepare('SELECT detail_json FROM supplier_catalog_entries WHERE run_id=? AND supplier_id=1').bind(f.runId).first()).detail_json);assert.equal(target.price,420);assert.equal(target.rooms.length,1);assert.equal(target.galleryGroups[0].id,'9');const writes=f.bucket.writes.length;assert.deepEqual(await startBoundedGalleryApply(f),state);assert.equal(f.bucket.writes.length,writes);
+ }finally{f.db.close();}
+});
+test('targeted clone refuses missing target, partial clone, changed sibling, and changed baseline before acceptance',async()=>{
+ for(const change of ['missing','partial','sibling','baseline','duplicate']){const f=await scopedFixture();try{
+  await startBoundedGalleryApply(f);
+  if(change==='missing')await f.db.prepare('DELETE FROM supplier_catalog_entries WHERE run_id=? AND supplier_id=1').bind('bounded-baseline').run();
+  let state=await stepBoundedGalleryApply(f);
+  if(change==='missing'){assert.equal(state.state,'not_accepted');assert.equal(state.errorCode,'gallery_active_generation_incomplete');continue;}
+  state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'accept');
+  if(change==='partial')await f.db.prepare('DELETE FROM supplier_catalog_entries WHERE run_id=? AND supplier_id=2').bind(f.runId).run();
+  if(change==='sibling')await f.db.prepare('UPDATE supplier_catalog_entries SET summary_json=? WHERE run_id=? AND supplier_id=2').bind('{"name":"tampered"}',f.runId).run();
+  if(change==='baseline'){await f.db.prepare("INSERT INTO supplier_catalog_runs(id,world,source,status,started_at) VALUES(?,?,?,'accepted',?)").bind('newer-run',f.world,'test-native',new Date().toISOString()).run();await f.db.prepare('INSERT INTO supplier_catalog_entries(id,run_id,world,supplier_id,summary_json,detail_json) SELECT ? || supplier_id,?,world,supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=?').bind('newer:', 'newer-run','bounded-baseline').run();await f.db.prepare('UPDATE supplier_catalog_state SET active_run_id=? WHERE world=?').bind('newer-run',f.world).run();}
+  if(change==='duplicate'){state.ids.push(2);await f.bucket.put(f.stateKey,JSON.stringify(state));}
+  state=await stepBoundedGalleryApply(f);assert.equal(state.state,'not_accepted',change+JSON.stringify(state));assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,change==='baseline'?'newer-run':'bounded-baseline');
+ }finally{f.db.close();}}
+});
+test('targeted postverify detects changed raw sibling bytes after activation and cannot report completion',async()=>{
+ const f=await scopedFixture();try{await startBoundedGalleryApply(f);await stepBoundedGalleryApply(f);await stepBoundedGalleryApply(f);let state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'verify');await f.db.prepare('UPDATE supplier_catalog_entries SET detail_json=? WHERE run_id=? AND supplier_id=2').bind('{ "note" : "out-of-band mutation" }',f.runId).run();state=await stepBoundedGalleryApply(f);assert.equal(state.phase,'verify');assert.notEqual(state.state,'accepted');assert.equal(state.errorCode,'gallery_scoped_sibling_changed');assert.ok(state.verifyCursor<545);}finally{f.db.close();}
+});
+test('targeted audit identity cannot be widened or silently accepted without source proof',async()=>{
+ for(const change of ['world','id','source']){const f=await scopedFixture();try{
+  if(change!=='source'){const job=JSON.parse(await(await f.bucket.get(prefix+'job.json')).text());if(change==='world')job.scopeWorld='events';else job.scopeSupplierId=999;await f.bucket.put(prefix+'job.json',JSON.stringify(job));}
+  if(change==='world'){await assert.rejects(startBoundedGalleryApply(f),/scoped_identity/);continue;}
+  await startBoundedGalleryApply(f);let state=await stepBoundedGalleryApply(f);
+  if(change==='id'){assert.equal(state.state,'not_accepted');assert.equal(state.errorCode,'gallery_audit_baseline_inventory_changed');continue;}
+  const path=prefix+'items/vacations-1.json',item=JSON.parse(await(await f.bucket.get(path)).text());delete item.normalized;await f.bucket.put(path,JSON.stringify(item));state=await stepBoundedGalleryApply(f);assert.equal(state.state,'not_accepted');assert.equal(state.errorCode,'gallery_scoped_source_not_proven');assert.equal((await f.db.prepare('SELECT active_run_id FROM supplier_catalog_state WHERE world=?').bind(f.world).first()).active_run_id,'bounded-baseline');
+ }finally{f.db.close();}}
+});
+
 test('actual SQLite bounded writer paces native revision metadata across lease and progress commits',async()=>{
  const f=await singleFixture();try{
   const put=f.bucket.put.bind(f.bucket),get=f.bucket.get.bind(f.bucket),times=new Map();let rejected=0;

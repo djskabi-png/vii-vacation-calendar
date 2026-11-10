@@ -44,3 +44,20 @@ test('resumed SPA evidence retains the original capture time instead of processi
  const db={prepare(){return{bind(){return{first:async()=>({summaryJson:JSON.stringify(entry.summary),detailJson:JSON.stringify(entry.detail??null),acceptedAt:captured})};}};}};
  let calls=0;await stepGalleryAuditJob({db,bucket,jobId,env:{},fetchImpl:async()=>{calls++;throw Error('unexpected_network');}});const item=await readGalleryAuditItem(bucket,jobId,'spa',20);assert.equal(calls,0);assert.equal(item.fetchedAt,captured);assert.ok(Date.parse(item.processedAt)>Date.parse(captured));assert.ok(item.api.entities.length>0);
 });
+
+test('actual targeted audit keeps one accepted ID and does not expand provider discovery', async () => {
+  const calls = [], body = rawText(17), accepted = { supplierId: 17, summary: {}, detail: {} };
+  const db = { prepare(sql) { return { bind(...args) { return {
+    first: async () => sql.includes('JOIN supplier_catalog_entries') ? { summaryJson: JSON.stringify(accepted.summary), detailJson: JSON.stringify(accepted.detail), acceptedAt: new Date().toISOString() } : { activeRunId: 'run-vacations', activeCount: 2 },
+    all: async () => ({ results: [{ supplierId: 17 }, { supplierId: 18 }] }),
+  }; } }; } };
+  const bucket = new Bucket(), jobId = '33333333-3333-4333-8333-333333333333';
+  const fetchImpl = async input => { const url = new URL(input); const path = url.pathname.replace('/api/ai/vii', ''); calls.push(path); if (path === '/locations') return response(locations); if (path.endsWith('/types')) return response(types); if (path === '/vacations') return response(listing(17)); if (path === '/vacations/17') return response(body); throw Error(`unexpected_targeted_endpoint:${path}`); };
+  const created = await createGalleryAuditJob({ db, bucket, jobId, scopeWorld: 'vacations', scopeSupplierId: 17, now: () => 1000 });
+  assert.equal(created.total, 1); assert.equal(created.scopeWorld, 'vacations'); assert.equal(created.scopeSupplierId, 17);
+  const done = await stepGalleryAuditJob({ db, bucket, jobId, env: { SERGEY_VII_API_TOKEN: 'fixture' }, fetchImpl, now: () => 2000 });
+  assert.equal(done.total, 1); assert.equal(done.completed, 1); assert.equal(calls.filter(path => path === '/vacations/17').length, 1); assert.equal(calls.some(path => path === '/vacations/18'), false);
+  await assert.rejects(() => createGalleryAuditJob({ db, bucket, jobId, scopeWorld: 'events', scopeSupplierId: 17 }), /gallery_audit_scope_changed/);
+  await assert.rejects(() => createGalleryAuditJob({ db, bucket, jobId: '44444444-4444-4444-8444-444444444444', scopeWorld: 'vacations', scopeSupplierId: 999 }), /audit_scope_supplier_not_found/);
+  await assert.rejects(() => createGalleryAuditJob({ db, bucket, jobId: '55555555-5555-4555-8555-555555555555', scopeSupplierId: 17 }), /invalid_audit_scope/);
+});
