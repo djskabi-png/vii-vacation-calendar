@@ -107,7 +107,7 @@ export async function WorldLanding({
         ? `${items.length} ספקים ושירותים`
         : `${items.length} ${worldLabel}`);
 
-  const requestedLocale = world === "hourly" ? (await headers()).get("x-vii-locale") : null;
+  const requestedLocale = (await headers()).get("x-vii-locale");
   const presentationLocale = requestedLocale === "en" || requestedLocale === "fr" || requestedLocale === "ru" ? requestedLocale : "he";
   const managedPresentation = world === "spa" || world === "hourly" || world === "providers"
     ? await readWorldLandingPresentation(world, presentationLocale)

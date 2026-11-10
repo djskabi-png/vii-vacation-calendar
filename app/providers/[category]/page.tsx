@@ -36,6 +36,6 @@ export default async function ProviderCategoryPage({ params }: ProviderCategoryP
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "ספקים", path: "/providers" }, { name: category.label, path }])} />
     <StructuredData data={collectionSchema(category.title, category.description, path, items.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
-    <WorldLanding world="providers" title={category.title} description={category.description} items={items} providerCategory={category.id} breadcrumbItems={breadcrumbs} />
+    <WorldLanding world="providers" title={category.title} managedTitle={category.title} description={category.description} items={items} providerCategory={category.id} breadcrumbItems={breadcrumbs} />
   </>;
 }

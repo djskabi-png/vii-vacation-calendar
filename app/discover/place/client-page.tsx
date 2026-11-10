@@ -48,6 +48,7 @@ import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from
 import { hourlyBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../../data/spa-search-landings";
 import { discoveryBreadcrumbsForLocation } from "../../lib/place-breadcrumb-locations";
+import { providerSearchBreadcrumbs } from "../../lib/provider-search-state";
 import { filterSpaSourceAbout } from "../../lib/spa-about-source";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
@@ -368,6 +369,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
     { key: (entry) => entry.id, exclude: item.id }).items;
   const spaDetails = item.world === "spa" ? initialSpaDetails || getSpaDetails(item.id) : undefined;
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
+  const providerBreadcrumbs = item.world === "providers" ? providerSearchBreadcrumbs(item) : null;
   const hourlyDetails = item.world === "hourly" ? initialHourlyDetails || getHourlyDetails(item) : undefined;
   const activityDetails = item.world === "activities" ? getActivityDetails(item) : undefined;
   const galleryImages = [...new Set(item.images?.length ? item.images : item.image ? [item.image] : [])];
@@ -419,7 +421,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
           ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...localizedBreadcrumbs(spaBreadcrumbsForLocation(item.area, item.location), breadcrumbPrefix.spa), { name: localizedItemName }]
           : item.world === "activities"
             ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...localizedBreadcrumbs(discoveryBreadcrumbsForLocation("activities", item.area, item.location), breadcrumbPrefix.activities), { name: localizedItemName }]
-            : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...localizedBreadcrumbs(discoveryBreadcrumbsForLocation("providers", undefined, item.location), breadcrumbPrefix.providers), { name: localizedItemName }]} />
+            : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...(providerBreadcrumbs?.category ? [{ ...providerBreadcrumbs.category, name: translate(providerBreadcrumbs.category.name) }] : []), ...localizedBreadcrumbs(providerBreadcrumbs?.regions || [], breadcrumbPrefix.providers), { name: localizedItemName }]} />
       <section className="shell discovery-detail__hero">
         <div className="discovery-detail__copy"><span className="eyebrow">{translate(world.label)}</span><h1>{localizedItemName}</h1><p className="discovery-detail__location"><PinIcon />{localizedLocation}, {localizedArea}</p>{(item.world === "spa" || item.world === "hourly") ? <ListingAccessibility slug={item.id} features={item.features} compact /> : null}<ExpandableDescription text={localizedDescription} />{item.world !== "hourly" && <div className="discovery-card__chips">{localizedFeatures.map((feature) => <span key={feature}><FeatureIcon label={feature} className="discovery-card__chip-icon" /><span>{feature}</span></span>)}</div>}<div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">{translate("לבחירת חבילה")}</a> : providerDetails ? <a className="button primary" href="#provider-services">{translate("לבחירת שירות")}</a> : hourlyDetails ? <DirectPhoneLink phone={item.phone} placeName={localizedItemName} className="button primary" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_title" }} /> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">{translate("איך מזמינים")}</a> : activityDetails ? <a className="button primary" href="#activity-plan">{translate("לתכנון המלא")}</a> : <Link className="button primary" href={world.href}>{translate("לכל האפשרויות")}</Link>} {item.world === "spa" ? <ShareButton title={item.name} image={item.image} /> : null}</div></div>
         <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}><FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} className="discovery-detail__favorite" />{item.image ? <><button className="discovery-detail__gallery-media" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${localizedItemName}`}><img src={item.image} alt={localizedItemName} title={localizedItemName} /></button><button className="discovery-detail__gallery-launch" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>

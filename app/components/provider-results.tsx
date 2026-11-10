@@ -3,9 +3,12 @@ import { useNearbySort, NearbySortStatus } from "./use-nearby-sort";
 
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
-import { providerCategories, providerCategoryHref, type ProviderCategoryId } from "../data/provider-categories";
+import { providerCategories, type ProviderCategoryId } from "../data/provider-categories";
+import { localizedPath } from "../i18n/locale-routing";
+import { providerCategorySearchHref, providerSearchHref } from "../lib/provider-search-state";
+import { nearbyDefaultSort } from "../lib/nearby-page-content";
 import { DiscoveryCard } from "./discovery-card";
 import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
@@ -45,13 +48,18 @@ function ProviderJoinCard() {
 
 export function ProviderResults({ items, category = "all" }: { items: DiscoveryItem[]; category?: ProviderCategoryId }) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const searchQuery = searchParams.toString();
   const categoryNavRef = useRef<HTMLElement>(null);
   const categoryRailId = useId();
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
   const [query, setQuery] = useState(searchParams.get("q") || "");
-  const [region, setRegion] = useState(searchParams.get("region") || "כל הארץ");
+  const [region, setRegion] = useState(searchParams.get("region") || searchParams.get("location") || "כל הארץ");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filterPanelId = useId();
+  const [pendingCategory, setPendingCategory] = useState<ProviderCategoryId | null>(null);
+  const [navigationDelayed, setNavigationDelayed] = useState(false);
   const nearby = useNearbySort();
   const sortModel = useMemo(() => ({ distance: nearby.distance, id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating }), [nearby.origin]);
   const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
@@ -69,24 +77,41 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
     return orderDiscoveryResults(matches, sort, `${documentSeed}:provider-search:${category}`, { ...sortModel, priority: item => (normalized && !item.name.toLocaleLowerCase("he").includes(normalized) ? 2 : 0) + (item.image ? 0 : 1) });
   }, [category, documentSeed, items, query, region, sort, sortModel]);
 
-  function updateUrl(updates: Record<string, string>) {
-    const params = new URLSearchParams(window.location.search);
-    Object.entries(updates).forEach(([key, value]) => value && value !== "all" && value !== "כל הארץ" ? params.set(key, value) : params.delete(key));
-    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+  function updateUrl(updates: Record<string, string>, replace = false) {
+    const href = providerSearchHref(window.location.pathname, window.location.search, updates) + window.location.hash;
+    // Preserve the framework's current navigation state. Text editing replaces
+    // one search entry; discrete filter choices remain navigable with Back.
+    window.history[replace ? "replaceState" : "pushState"](window.history.state, "", href);
   }
 
   function resetFilters() {
     setQuery("");
     setRegion("כל הארץ");
-    setSort("recommended");
+    setSort(nearbyDefaultSort(pathname, null) as DiscoverySortKey);
     updateUrl({ q: "", region: "", sort: "" });
   }
+
+  useEffect(() => { setPendingCategory(null); setNavigationDelayed(false); }, [category, pathname]);
+  useEffect(() => {
+    if (!pendingCategory) return;
+    const timer = window.setTimeout(() => { setPendingCategory(null); setNavigationDelayed(true); }, 10_000);
+    return () => window.clearTimeout(timer);
+  }, [pendingCategory]);
+
+  const labels = ({
+    he: { filters: 'סינון', close: 'סגירת סינון', clear: 'ניקוי סינונים', loading: 'טוענים ספקים בתחום שנבחר', delayed: 'המעבר מתעכב. אפשר לבחור שוב את התחום.', empty: 'לא מצאנו התאמה לסינונים שבחרתם', hint: 'אפשר להסיר סינון או לבחור תחום אחר.' },
+    en: { filters: 'Filters', close: 'Close filters', clear: 'Clear filters', loading: 'Loading the selected provider category', delayed: 'Navigation is taking longer. You can select the category again.', empty: 'No providers match these filters', hint: 'Remove a filter or choose another category.' },
+    fr: { filters: 'Filtres', close: 'Fermer les filtres', clear: 'Effacer les filtres', loading: 'Chargement des prestataires sélectionnés', delayed: 'La navigation prend plus de temps. Vous pouvez sélectionner à nouveau la catégorie.', empty: 'Aucun prestataire ne correspond aux filtres', hint: 'Supprimez un filtre ou choisissez une autre catégorie.' },
+    ru: { filters: 'Фильтры', close: 'Закрыть фильтры', clear: 'Сбросить фильтры', loading: 'Загружаем выбранную категорию', delayed: 'Переход занимает больше времени. Можно выбрать категорию ещё раз.', empty: 'Нет поставщиков по выбранным фильтрам', hint: 'Уберите фильтр или выберите другую категорию.' },
+  } as const)[language];
+  const activeFilterCount = Number(Boolean(query.trim())) + Number(region !== 'כל הארץ') + Number(sort !== nearbyDefaultSort(pathname, null));
+  const categoryHref = (id: ProviderCategoryId) => localizedPath(providerCategorySearchHref(id, searchQuery, { query, region, sort }), language);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchQuery);
       setQuery(params.get("q") || "");
-      setRegion(params.get("region") || "כל הארץ");
+      setRegion(params.get("region") || params.get("location") || "כל הארץ");
       const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
     }, 0);
@@ -100,22 +125,32 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
     if (selectedIndex >= 0) scrollSliderRailToCard(rail, selectedIndex, ":scope > *");
   }, [category]);
 
-  return <div className="provider-results"><NearbySortStatus state={nearby} />
-    <div className="provider-toolbar">
-      <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }); }} placeholder="שם, שירות או תחום" /></label>
-      <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
-      <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" ? "" : next }); }} options={sortOptions} />
+  return <div className="provider-results" aria-busy={pendingCategory !== null}><NearbySortStatus state={nearby} regionalOnly />
+    <div className="provider-results-toolbar">
+      <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
+      <div className="provider-results-actions">
+      <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && nearbyDefaultSort(pathname, null) === "recommended" ? "" : next }); }} options={sortOptions} />
+      <button type="button" className="provider-filter-toggle" aria-expanded={filtersOpen} aria-controls={filterPanelId} onClick={() => setFiltersOpen(value => !value)}>{filtersOpen ? labels.close : labels.filters}{activeFilterCount ? <span>{activeFilterCount}</span> : null}</button>
+      </div>
+    </div>
+    <div id={filterPanelId} className={`provider-toolbar${filtersOpen ? ' is-open' : ''}`}>
+      <label className="provider-search"><span>{translate('חיפוש ספק')}</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }, true); }} placeholder={translate('שם, שירות או תחום')} /></label>
+      <ModernSelect retainSelectedOption label={translate('אזור שירות')} value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: translate(option) }))} />
+      {activeFilterCount ? <button type="button" className="provider-reset" onClick={resetFilters}>{labels.clear}</button> : null}
+    </div>
       <div className="provider-filter-options">
         <div className="provider-categories-shell">
           <nav id={categoryRailId} ref={categoryNavRef} className="provider-categories" aria-label="עמודי ספקים לפי תחום" data-horizontal-rail>
-            {providerCategories.map((entry) => <Link key={entry.id} href={providerCategoryHref(entry)} aria-current={category === entry.id ? "page" : undefined}>{entry.label}</Link>)}
+            {providerCategories.map((entry) => <Link key={entry.id} href={categoryHref(entry.id)} scroll={false} aria-current={category === entry.id ? "page" : undefined} aria-busy={pendingCategory === entry.id || undefined} onClick={(event) => { if (entry.id !== category && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { setNavigationDelayed(false); setPendingCategory(entry.id); } }}>{translate(entry.label)}{pendingCategory === entry.id ? <span className="provider-category-spinner" aria-hidden="true" /> : null}</Link>)}
           </nav>
           <SliderRailControls railId={categoryRailId} railRef={categoryNavRef} label="עמודי ספקים לפי תחום" className="provider-categories-controls" />
         </div>
-        {(query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
       </div>
-    </div>
-    <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
-    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}|${sort}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p><Link href="/join/providers#provider-pricing">לפרטי הצטרפות כספק</Link></div>}
+    {query || region !== 'כל הארץ' ? <div className="provider-active-filters" aria-label={labels.filters}>
+      {query ? <button type="button" onClick={() => { setQuery(''); updateUrl({ q: '' }); }}>{query} ×</button> : null}
+      {region !== 'כל הארץ' ? <button type="button" onClick={() => { setRegion('כל הארץ'); updateUrl({ region: '' }); }}>{region} ×</button> : null}
+    </div> : null}
+    {pendingCategory || navigationDelayed ? <p className="provider-navigation-status" role="status">{pendingCategory ? labels.loading : labels.delayed}</p> : null}
+    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}|${sort}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>{labels.empty}</h3><p>{labels.hint}</p>{activeFilterCount ? <button type="button" className="button primary" onClick={resetFilters}>{labels.clear}</button> : <Link href={categoryHref('all')}>{providerCategories[0].label}</Link>}</div>}
   </div>;
 }

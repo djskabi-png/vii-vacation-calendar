@@ -346,7 +346,10 @@
       ],
       "requiredLocalTests": [
         "tests/provider-category-rail-actual.test.mjs",
-        "tests/provider-service-areas-contract.test.mjs"
+        "tests/provider-service-areas-contract.test.mjs",
+        "tests/provider-results-state.actual.test.mjs",
+        "tests/provider-search-state.test.mjs",
+        "tests/provider-topic-pages-contract.test.mjs"
       ]
     },
     "home-sliders": {
@@ -1057,7 +1060,10 @@
       "ownerBox": "providers",
       "match": [
         "app/providers/",
-        "app/components/provider-results.tsx"
+        "app/components/provider-results.tsx",
+        "app/lib/provider-search-state.ts",
+        "tests/provider-results-state.actual.test.mjs",
+        "tests/provider-search-state.test.mjs"
       ]
     },
     {

@@ -18,7 +18,8 @@ test("provider topics use dedicated routed pages", () => {
   assert.match(route, /providerMatchesCategory/);
   assert.match(categories, /providerCategoryAssignments/);
   assert.match(categories, /"argaman-events": \["photo", "design"\]/);
-  assert.match(results, /<Link key=\{entry\.id\} href=\{providerCategoryHref\(entry\)\}/);
+  assert.match(results, /<Link key=\{entry\.id\} href=\{categoryHref\(entry\.id\)\}/);
+  assert.match(route, /managedTitle=\{category\.title\}/);
   assert.doesNotMatch(results, /pushState\([^)]*category/);
   assert.match(landing, /world !== "providers"/);
 });

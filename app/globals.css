@@ -3864,6 +3864,39 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .provider-categories a[aria-current="page"] { border-color: #18846f; color: white; background: #18846f; box-shadow: 0 8px 20px rgba(24,132,111,.2); }
 .provider-reset { flex: 0 0 auto; min-height: 40px; padding-inline: 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--teal-dark); background: white; font: 750 .78rem/1 var(--font-sans); cursor: pointer; }
 .provider-results-count { margin: 0; color: var(--ink-soft); font-weight: 700; }
+.provider-results-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; min-width:0; }
+.provider-results-actions { display:flex; align-items:center; gap:8px; min-width:0; }
+.provider-results .provider-toolbar { grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; box-shadow:none; background:var(--surface); border-radius:18px; padding:16px; }
+.provider-filter-toggle { display:none; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 14px; border:1px solid var(--line); border-radius:14px; color:var(--teal-dark); background:white; font:inherit; font-weight:750; cursor:pointer; }
+.provider-filter-toggle[aria-expanded="true"] { color:white; background:var(--teal-dark); }
+.provider-filter-toggle span { min-width:20px; border-radius:50%; background:var(--surface); color:var(--ink); }
+.provider-results .provider-categories-shell { display:flex; align-items:center; gap:10px; width:100%; }
+.provider-results .provider-categories { flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; padding:3px; scroll-padding-inline:3px; scroll-snap-type:inline proximity; scrollbar-width:none; }
+.provider-results .provider-categories a { flex:0 0 auto; min-height:44px; white-space:nowrap; scroll-snap-align:start; }
+.provider-results .provider-categories-controls { display:flex; flex:0 0 auto; gap:6px; margin:0; }
+.provider-categories-controls button { width:38px; height:38px; display:grid; place-items:center; border:1px solid var(--line); border-radius:50%; color:var(--teal-dark); background:white; cursor:pointer; }
+.provider-categories-controls button:disabled { opacity:.4; cursor:default; }
+.provider-categories-controls svg { width:18px; height:18px; }
+.provider-active-filters { display:flex; flex-wrap:wrap; gap:7px; }
+.provider-active-filters button { min-height:36px; padding:6px 12px; border:1px solid var(--line); border-radius:999px; color:var(--teal-dark); background:var(--surface); font:inherit; cursor:pointer; }
+.provider-navigation-status { margin:0; color:var(--ink-soft); }
+.provider-category-spinner { width:14px; height:14px; margin-inline-start:7px; border:2px solid currentColor; border-inline-end-color:transparent; border-radius:50%; animation:provider-loading-spin .7s linear infinite; }
+@keyframes provider-loading-spin { to { transform:rotate(360deg); } }
+@media(max-width:760px) {
+  .provider-results { gap:14px; }
+  .provider-results-toolbar { align-items:center; gap:8px; }
+  .provider-results-count { flex:1; font-size:.85rem; }
+  .provider-results-actions { flex:0 1 auto; }
+  .provider-results-actions .modern-select { min-width:0; max-width:190px; }
+  .provider-filter-toggle { display:inline-flex; padding-inline:10px; }
+  .provider-results .provider-toolbar { display:none; grid-template-columns:minmax(0,1fr); gap:12px; padding:14px; }
+  .provider-results .provider-toolbar.is-open { display:grid; }
+  .provider-results .provider-filter-options { flex-direction:row; }
+  .provider-results .provider-categories-shell { gap:6px; }
+  .provider-results .provider-categories-controls { margin:0; gap:4px; }
+  .provider-categories-controls button { width:32px; height:36px; }
+}
+@media(prefers-reduced-motion:reduce) { .provider-category-spinner { animation:none; } }
 .provider-join-card { min-width: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px dashed #91aea8; border-radius: 8px; background: #f7faf9; }
 .provider-join-card__visual { flex: 1 1 180px; min-height: 180px; display: grid; place-items: center; margin: 10px; border: 1px dashed #aac0bb; border-radius: 4px; background: #edf4f1; color: #247a69; }
 .provider-join-card__visual span { width: 60px; height: 60px; display: grid; place-items: center; border: 1px solid #9fbab3; border-radius: 50%; background: #fff; font-size: 2rem; font-weight: 400; line-height: 1; }
