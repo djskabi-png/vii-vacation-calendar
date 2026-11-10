@@ -560,5 +560,10 @@
   "מתי מתבקש אישור למיקום?": {"en":"When is location permission requested?","fr":"Quand l’autorisation de localisation est-elle demandée ?","ru":"Когда запрашивается разрешение на геолокацию?"},
   "רק כשתבחרו לחפש או למיין לפי המיקום שלכם. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": {"en":"Only when you choose to search or sort by your location. You can choose an area manually without allowing location.","fr":"Uniquement lorsque vous choisissez de rechercher ou trier selon votre position. Vous pouvez choisir une zone manuellement sans autoriser la position.","ru":"Только когда вы выбираете поиск или сортировку по своему местоположению. Район можно выбрать вручную без разрешения геолокации."},
   "בתי ספא לבחירה": {"en":"Spas to choose from","fr":"Spas au choix","ru":"Спа на выбор"},
-  "חופשה קרובה שמתאימה לכם": {"en":"A nearby getaway that fits you","fr":"Une escapade proche qui vous ressemble","ru":"Отдых поблизости для вас"}
+  "חופשה קרובה שמתאימה לכם": {"en":"A nearby getaway that fits you","fr":"Une escapade proche qui vous ressemble","ru":"Отдых поблизости для вас"},
+  "טוענים ספקים בתחום שנבחר": {"en":"Loading the selected provider category","fr":"Chargement des prestataires sélectionnés","ru":"Загружаем выбранную категорию"},
+  "המעבר מתעכב. אפשר לבחור שוב את התחום.": {"en":"Navigation is taking longer. You can select the category again.","fr":"La navigation prend plus de temps. Vous pouvez sélectionner à nouveau la catégorie.","ru":"Переход занимает больше времени. Можно выбрать категорию ещё раз."},
+  "לא מצאנו התאמה לסינונים שבחרתם": {"en":"No providers match these filters","fr":"Aucun prestataire ne correspond aux filtres","ru":"Нет поставщиков по выбранным фильтрам"},
+  "אפשר להסיר סינון או לבחור תחום אחר.": {"en":"Remove a filter or choose another category.","fr":"Supprimez un filtre ou choisissez une autre catégorie.","ru":"Уберите фильтр или выберите другую категорию."},
+  "ספק אחד": {"en":"1 provider","fr":"1 prestataire","ru":"1 поставщик"}
 }

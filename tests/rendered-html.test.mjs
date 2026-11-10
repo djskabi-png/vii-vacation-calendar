@@ -969,7 +969,7 @@ test("keeps the footer foundation fixed while adapting discovery links to each w
   assert.match(footer, /AccessibilityWidget/);
   assert.match(shell, /<SiteFooter variant=\{variant\} topic=\{footerTopic\} \/>/);
   assert.match(search, /footerTopicForPropertyType\(selectedTypes\[0\] \|\| "הכל"\)/);
-  assert.match(providers, /providerCategoryHref/);
+  assert.match(providers, /providerCategorySearchHref/);
   assert.match(trails, /searchParams\.get\("area"\)/);
 });
 

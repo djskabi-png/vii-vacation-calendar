@@ -26,10 +26,10 @@ const joinCopy: Record<SiteLanguage, { slot: string; title: string; description:
 };
 
 const resultCountCopy: Record<SiteLanguage, { one: string; many: (count: number) => string }> = {
-  he: { one: "ספק אחד מתאים", many: (count) => `${count} ספקים מתאימים` },
-  en: { one: "1 matching provider", many: (count) => `${count} matching providers` },
-  ru: { one: "1 подходящий поставщик", many: (count) => `${count} подходящих поставщиков` },
-  fr: { one: "1 prestataire correspondant", many: (count) => `${count} prestataires correspondants` },
+  he: { one: "ספק אחד", many: (count) => `${count} ספקים` },
+  en: { one: "1 provider", many: (count) => `${count} providers` },
+  ru: { one: "1 поставщик", many: (count) => `${count} поставщиков` },
+  fr: { one: "1 prestataire", many: (count) => `${count} prestataires` },
 };
 
 function ProviderJoinCard() {
@@ -91,7 +91,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
     updateUrl({ q: "", region: "", sort: "" });
   }
 
-  useEffect(() => { setPendingCategory(null); setNavigationDelayed(false); }, [category, pathname]);
+  useEffect(() => { setPendingCategory(null); setNavigationDelayed(false); setFiltersOpen(false); }, [category, pathname]);
   useEffect(() => {
     if (!pendingCategory) return;
     const timer = window.setTimeout(() => { setPendingCategory(null); setNavigationDelayed(true); }, 10_000);
@@ -130,7 +130,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
       <div className="provider-results-actions">
       <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && nearbyDefaultSort(pathname, null) === "recommended" ? "" : next }); }} options={sortOptions} />
-      <button type="button" className="provider-filter-toggle" aria-expanded={filtersOpen} aria-controls={filterPanelId} onClick={() => setFiltersOpen(value => !value)}>{filtersOpen ? labels.close : labels.filters}{activeFilterCount ? <span>{activeFilterCount}</span> : null}</button>
+      <button type="button" className="provider-filter-toggle" aria-label={filtersOpen ? labels.close : labels.filters} aria-expanded={filtersOpen} aria-controls={filterPanelId} onClick={() => setFiltersOpen(value => !value)}>{filtersOpen ? <span aria-hidden="true">×</span> : null}{labels.filters}{activeFilterCount ? <span>{activeFilterCount}</span> : null}</button>
       </div>
     </div>
     <div id={filterPanelId} className={`provider-toolbar${filtersOpen ? ' is-open' : ''}`}>
