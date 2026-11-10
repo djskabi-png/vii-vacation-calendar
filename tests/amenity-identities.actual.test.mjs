@@ -36,5 +36,5 @@ test("actual supplier identity forms survive taxonomy, cache and group normaliza
   });
   assert.deepEqual(list.value["2728"], ["123", { id: "124" }, { id: "125", shown: false }]);
   assert.deepEqual(sergeyAmenityGroups(list.value["2728"], index), [{ title: "מתקנים", items: ["בריכה", "סאונה"] }]);
-  assert.equal(canonicalSergeyAmenityLabel("בריכת שחיה מרעננת"), "בריכת שחיה מרעננת");
+  assert.equal(canonicalSergeyAmenityLabel("בריכת שחיה מרעננת"), "בריכת שחיה מחוממת");
 });

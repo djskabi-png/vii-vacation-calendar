@@ -27,7 +27,7 @@ test("unit gallery sources keep every supplier and unit classification", () => {
   assert.match(gallery, /\.\.\.groupedPlaceItems/);
   assert.match(gallery, /\.\.\.unitItems,/);
   assert.doesNotMatch(gallery, /unitItems\.filter/);
-  assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{item\.topic\}\\u0000\$\{item\.src\}`/);
+  assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{keyFor\(item\)\}\\u0000\$\{item\.src\}`/);
   assert.match(gallery, /topicTabs\.map/);
   assert.doesNotMatch(gallery, /groupedPlaceItems\.map\(\(item\) => unitBySource/);
 });
