@@ -59,6 +59,13 @@ function plain(value: unknown) {
   return typeof value === "string" ? value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
 }
 
+export function normalizeReviewSummary(value: { count?: unknown; score?: unknown; list?: unknown[] }) {
+  const list = Array.isArray(value.list) ? value.list : [];
+  const count = typeof value.count === "number" && Number.isInteger(value.count) && value.count >= 0 ? value.count : list.length;
+  const score = typeof value.score === "number" && Number.isFinite(value.score) && value.score >= 0 && value.score <= 10 && (count > 0 || list.length > 0) ? value.score : undefined;
+  return { count: Math.max(count, list.length), score };
+}
+
 export function supplierVideos(value: unknown, poster: string) {
   if (!Array.isArray(value) || !poster) return [];
   return value.flatMap((entry) => {
@@ -106,6 +113,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const reviews = record(detail.reviews);
     const rooms = Array.isArray(detail.rooms) ? detail.rooms : [];
     const reviewList = Array.isArray(reviews.list) ? reviews.list : [];
+    const reviewSummary = normalizeReviewSummary(reviews);
     const locations = locationResponse?.ok ? record(await locationResponse.json().catch(() => ({}))) : {};
     const cities = Array.isArray(locations.cities) ? locations.cities : [];
     const areas = Array.isArray(locations.areas) ? locations.areas : [];
@@ -204,8 +212,8 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         }];
       }),
       sourceUrl: typeof detail.page_url === "string" ? detail.page_url : fallback.sourceUrl,
-      reviewCount: typeof reviews.count === "number" ? reviews.count : reviewList.length,
-      reviewScore: typeof reviews.score === "number" ? reviews.score : undefined,
+      reviewCount: reviewSummary.count,
+      reviewScore: reviewSummary.score,
     };
   } catch {
     return fallback;
