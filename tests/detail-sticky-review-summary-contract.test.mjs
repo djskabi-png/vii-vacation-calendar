@@ -26,8 +26,8 @@ test("review summary is rendered only from a real rating and a positive review c
 });
 
 test("business and event pages use the same verified values as their review section", () => {
-  assert.match(business, /rating=\{supplierDetail\?\.reviewScore \?\? property\.score\}/);
-  assert.match(business, /reviewCount=\{supplierDetail\?\.reviewCount \?\? property\.reviews\}/);
+  assert.equal((business.match(/rating=\{visibleReviewSummary\.score\}/g) || []).length, 3);
+  assert.equal((business.match(/reviewCount=\{visibleReviewSummary\.count\}/g) || []).length, 3);
   assert.match(events, /rating=\{supplierDetail\?\.reviewScore \?\? place\.score\}/);
   assert.match(events, /reviewCount=\{supplierDetail\?\.reviewCount \?\? place\.reviews\}/);
 });

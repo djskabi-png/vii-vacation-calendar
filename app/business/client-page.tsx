@@ -41,6 +41,7 @@ import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { OnlineBookingBadge } from "../components/online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
+import { normalizeReviewSummary } from "../lib/review-summary";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { useViiUnitQuotes } from "../components/use-vii-unit-quotes";
@@ -180,6 +181,11 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
       featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : legacyPlaceFeatureGroups(base.slug) || base.featureGroups,
       features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features])] } : base;
   }, [initialProperty, supplierDetail]);
+  const visibleReviewSummary = useMemo(() => normalizeReviewSummary({
+    count: supplierDetail?.reviewCount ?? property.reviews,
+    score: supplierDetail?.reviewScore ?? property.score,
+    list: supplierDetail?.reviews?.length ? supplierDetail.reviews : property.reviewHighlights,
+  }), [property.reviewHighlights, property.reviews, property.score, supplierDetail]);
   const businessCopy = {
     he: { name: "מקום אירוח מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מקום אירוח ב${location}. בעמוד תוכלו לראות תמונות, מתקנים, יחידות, זמינות ודרכי הזמנה.`, unit: "יחידת אירוח", feature: "מתקן במקום", faqQuestion: "מידע חשוב על המקום", faqAnswer: "הפרטים העדכניים, הזמינות ותנאי ההזמנה מאושרים מול המקום.", policy: "תנאי הביטול והשינויים נמסרים לפני אישור ההזמנה והתשלום.", cancellationTitle: (name: string) => `מדיניות הביטול של ${name}`, originalPolicy: "המדיניות המקורית של המקום", checkIn: "כניסה", checkOut: "עזיבה", checkOutSat: "עזיבה בשבת", confirmHours: "יש לאשר את השעות מול המקום.", locationTitle: (name: string, location: string, area: string) => `המיקום של ${name} ב${location}, ${area}`, endcap: "אפשר להשוות מקומות נוספים באזור, לבחור מסלול לטיול או למצוא שירות שמגיע עד מקום האירוח.", moreArea: "עוד מקומות באזור" },
     en: { name: "Verified stay", location: "Israel", description: (name: string, location: string) => `${name} is a verified stay in ${location}. Explore its photos, amenities, units, availability and booking options on this page.`, unit: "Accommodation unit", feature: "Property amenity", faqQuestion: "Important property information", faqAnswer: "Current details, availability and booking terms are confirmed directly with the property.", policy: "Cancellation and change terms are provided before the booking and payment are confirmed.", cancellationTitle: (name: string) => `${name} cancellation policy`, originalPolicy: "The property policy is shown below in its original Hebrew", checkIn: "Check-in", checkOut: "Check-out", checkOutSat: "Saturday check-out", confirmHours: "Please confirm the hours with the property.", locationTitle: (name: string, location: string, area: string) => `Location of ${name} in ${location}, ${area}`, endcap: "Compare more stays nearby, choose a walking route or find a service that comes directly to your accommodation.", moreArea: "More stays in" },
@@ -449,8 +455,8 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
         </div>
         <DetailReviewSummary
           className="shell detail-mobile-review-summary"
-          rating={supplierDetail?.reviewScore ?? property.score}
-          reviewCount={supplierDetail?.reviewCount ?? property.reviews}
+          rating={visibleReviewSummary.score}
+          reviewCount={visibleReviewSummary.count}
           outOfTenLabel={translate("מתוך 10")}
           reviewsLabel={translate("חוות דעת")}
           numberLocale={numberLocale}
@@ -471,8 +477,8 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
           onOnlineAction={activeWorld === "vacation" ? () => setCalendarOpen(true) : undefined}
           onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : activeWorld === "vacation" ? "בדיקת תאריך והזמנה" : "הזמנה אונליין"}
           phone={phoneBooking ? property.contact?.phone : undefined}
-          rating={supplierDetail?.reviewScore ?? property.score}
-          reviewCount={supplierDetail?.reviewCount ?? property.reviews}
+          rating={visibleReviewSummary.score}
+          reviewCount={visibleReviewSummary.count}
           outOfTenLabel={translate("מתוך 10")}
           reviewsLabel={translate("חוות דעת")}
           numberLocale={numberLocale}
@@ -616,7 +622,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
 
             {verifiedSleepingRooms.length ? <VerifiedSleepingDetails placeName={localizedPropertyName} rooms={verifiedSleepingRooms} /> : property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. לפרטים על סוגי המיטות, בדקו מול המקום.`}</p></section> : null}
 
-            <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => openGallery("guests", 0)} />
+            <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={visibleReviewSummary.score} reviewCount={visibleReviewSummary.count} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => openGallery("guests", 0)} />
 
             <ListingAccessibility slug={property.slug} features={property.features} filterIds={property.searchFilterIds} featureGroups={featureGroups} />
 

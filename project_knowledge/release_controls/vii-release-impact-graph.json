@@ -1017,7 +1017,8 @@
         "app/components/viewport-resilient-image.tsx",
         "app/components/accommodation-landing-route.tsx",
         "app/lib/resolve-supplier-availability.ts",
-        "app/lib/booking-selection.ts"
+        "app/lib/booking-selection.ts",
+        "app/lib/review-summary.ts"
       ]
     },
     {
