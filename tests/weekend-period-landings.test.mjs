@@ -24,7 +24,7 @@ test("home links, real pages, metadata, sitemap and structured content stay conn
     read("app/lib/sitemap-inventory.ts"),
   ]);
   assert.match(home, /permanentHomePeriodLandings\[period\]/);
-  assert.match(home, /function choose\(value: HomeDealPeriod\) \{\s*\/\/[^]*displaySettingsApplied\.current = true;/);
+  assert.match(home, /function choose\(value: HomeDealPeriod\) \{[^}]*displaySettingsApplied\.current = true;/);
   assert.match(page, /generateStaticParams/);
   assert.match(page, /alternates: \{ canonical \}/);
   assert.match(page, /breadcrumbSchema/);
