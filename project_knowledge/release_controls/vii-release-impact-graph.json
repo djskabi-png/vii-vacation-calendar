@@ -50,7 +50,8 @@
         "tests/map-stream-identity-actual.test.mjs",
         "tests/map-mobile-layout-regression.test.mjs",
         "tests/map-responsive-selection-regression.test.mjs",
-        "tests/map-tile-health.actual.test.mjs"
+        "tests/map-tile-health.actual.test.mjs",
+        "tests/map-retina-tiles.actual.test.mjs"
       ]
     },
     "catalog-source": {

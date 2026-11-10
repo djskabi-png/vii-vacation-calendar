@@ -5183,7 +5183,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .map-search-area small { color: #5a6c71; font-size: .68rem; font-weight: 700; }
 .map-search-area:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(0,35,44,.24); }
 .map-search-area:focus-visible { outline: 3px solid rgba(8,126,139,.3); outline-offset: 3px; }
-.listing-map-shell .leaflet-tile { width: 256px !important; max-width: none !important; }
+.listing-map-shell .leaflet-tile { max-width: none !important; }
 .listing-map-shell .leaflet-tile-pane { filter: saturate(.76) contrast(.94) brightness(1.06); }
 .listing-map-shell .leaflet-container { width: 100%; height: 100%; min-height: inherit; }
 .map-loading-preview { position: absolute; inset: 0; z-index: 10; min-height: 100%; border: 0; border-radius: 0; }

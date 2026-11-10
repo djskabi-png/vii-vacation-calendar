@@ -46,3 +46,11 @@ test('hidden-to-visible map geometry triggers a real Leaflet size invalidation',
   sync.dispose();
   dom.window.close();
 });
+
+test('late visibility notifications cannot revive a disposed map synchronizer', () => {
+  const dom = new JSDOM('<div id="map"></div>'), pending = new Map(); let id=0, invalidations=0;
+  const view={requestAnimationFrame(fn){pending.set(++id,fn);return id},cancelAnimationFrame:key=>pending.delete(key),setTimeout(fn){pending.set(++id,fn);return id},clearTimeout:key=>pending.delete(key)};
+  const sync=createMapLayoutSynchronizer({invalidateSize(){invalidations++}},dom.window.document.querySelector('#map'),view);
+  sync.schedule(); assert.ok(pending.size>0);sync.dispose();assert.equal(pending.size,0);
+  sync.schedule();sync.sync();assert.equal(pending.size,0);assert.equal(invalidations,0);dom.window.close();
+});

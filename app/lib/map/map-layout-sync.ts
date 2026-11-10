@@ -9,11 +9,13 @@ export function createMapLayoutSynchronizer(
 ) {
   let frames: number[] = [];
   let timer: number | undefined;
+  let disposed = false;
   const sync = () => {
-    if (!container.isConnected) return;
+    if (disposed || !container.isConnected) return;
     map.invalidateSize({ animate: false, pan: false });
   };
   const schedule = () => {
+    if (disposed) return;
     frames.forEach((frame) => view.cancelAnimationFrame(frame));
     if (timer) view.clearTimeout(timer);
     frames = [
@@ -23,6 +25,7 @@ export function createMapLayoutSynchronizer(
     timer = view.setTimeout(sync, 160);
   };
   const dispose = () => {
+    disposed = true;
     frames.forEach((frame) => view.cancelAnimationFrame(frame));
     frames = [];
     if (timer) view.clearTimeout(timer);
