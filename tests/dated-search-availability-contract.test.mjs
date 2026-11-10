@@ -43,14 +43,16 @@ test("event dated eligibility rejects unknown, unavailable and zero-price offers
   assert.equal(hasConfirmedEventAvailability({ available: false, total: 900, from: "2026-11-10" }), false);
 });
 
-test("all dated result families fail closed instead of falling back to the ordinary catalog", async () => {
+test("dated result families preserve their approved truthful inclusion policy", async () => {
   const vacation = await read("app/search/page.tsx");
   assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
   assert.match(vacation, /if \(selectedStay\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
   assert.match(vacation, /selectedStay && !onlineOnly/);
 
   const events = await read("app/events/search/page.tsx");
-  assert.match(events, /matchesHardFilters\(place\) && confirmedEventPlace\(place\)/);
+  assert.match(events, /matchesEventSearchLocation\(place, area\) && matchesHardFilters\(place\)/);
+  assert.match(events, /orderEventResults\(baseOrdered/);
+  assert.doesNotMatch(events, /matchesHardFilters\(place\) && confirmedEventPlace\(place\)/);
   assert.match(events, /datedEventSearch && \(eventAvailabilityPending \|\| eventAvailabilityError/);
 
   const spa = await read("app/components/world-map-results.tsx");

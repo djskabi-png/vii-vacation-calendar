@@ -262,9 +262,9 @@ test("vacation search keeps a complete Airbnb-style party breakdown", async () =
 
 test("search result bars preserve the submitted criteria", async () => {
   const [vacationResponse, eventResponse, spaResponse, hourlyResponse] = await Promise.all([
-    render("/vacations/eilat?from=2026-08-10&till=2026-08-12&guests=4"),
-    render("/events/search/center?guests=80&from=2026-08-15&to=2026-08-15"),
-    render("/spas/search/tel-aviv?guests=2&spaFor=couple&date=2026-08-18&withoutDate=0"),
+    render("/vacations/eilat?from=2027-08-10&till=2027-08-12&guests=4"),
+    render("/events/search/center?guests=80&from=2027-08-15&to=2027-08-15"),
+    render("/spas/search/tel-aviv?guests=2&spaFor=couple&date=2027-08-18&withoutDate=0"),
     render("/hourly/search/haifa"),
   ]);
   const [vacationHtml, eventHtml, spaHtml, hourlyHtml] = await Promise.all([
@@ -275,13 +275,13 @@ test("search result bars preserve the submitted criteria", async () => {
   ]);
 
   assert.match(vacationHtml, /אילת/);
-  assert.match(vacationHtml, /10 באוג׳ עד 12 באוג׳/);
+  assert.match(vacationHtml, /10\.08\.2027 עד 12\.08\.2027/);
   assert.match(vacationHtml, /4 אורחים/);
   assert.match(eventHtml, /מרכז/);
-  assert.match(eventHtml, /15 באוג׳/);
+  assert.match(eventHtml, /15\.08\.2027/);
   assert.match(eventHtml, /80 משתתפים/);
   assert.match(spaHtml, /תל אביב/);
-  assert.match(spaHtml, /18 באוג׳/);
+  assert.match(spaHtml, /18\.08\.2027/);
   assert.match(spaHtml, /זוגי/);
   assert.match(hourlyHtml, /hourly\/search\/haifa/);
 });

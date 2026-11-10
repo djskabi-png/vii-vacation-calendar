@@ -15,8 +15,13 @@ export function uniqueEventVenueItems<T>(items: readonly T[], identity: (item: T
 /** Keep every event venue and put the commercially useful states first. */
 export function orderEventResults<T>(items: readonly T[], read: (item: T) => { available?: boolean | null; price?: number | null; id: string | number }) {
   const tier = (row: ReturnType<typeof read>) => row.available === true && typeof row.price === "number" && row.price > 0 ? 0
-    : row.available === true ? 1 : typeof row.price === "number" && row.price > 0 ? 2 : row.available === false ? 3 : 4;
-  return [...items].sort((a, b) => tier(read(a)) - tier(read(b)) || String(read(a).id).localeCompare(String(read(b).id), "en", { numeric: true }));
+    : row.available === true ? 1 : row.available !== false && typeof row.price === "number" && row.price > 0 ? 2 : row.available !== false ? 3 : 4;
+  // Preserve the configured weighted/editorial order inside each truth tier.
+  // Re-sorting by id here would silently undo the fair exposure rotation.
+  return items
+    .map((item, index) => ({ item, index, row: read(item) }))
+    .sort((a, b) => tier(a.row) - tier(b.row) || a.index - b.index)
+    .map(({ item }) => item);
 }
 
 export type EventDealPresetId = "lastminute" | "thursday" | "friday";

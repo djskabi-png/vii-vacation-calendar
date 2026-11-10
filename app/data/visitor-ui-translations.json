@@ -1,4 +1,7 @@
 {
+  "הפחתת משתתפים": {"en":"Decrease participants","fr":"Réduire le nombre de participants","ru":"Уменьшить число участников"},
+  "הוספת משתתפים": {"en":"Increase participants","fr":"Augmenter le nombre de participants","ru":"Увеличить число участников"},
+  "הקלדת כמות משתתפים": {"en":"Enter the number of participants","fr":"Saisir le nombre de participants","ru":"Введите число участников"},
   "המקום": {"en":"Place","fr":"Lieu","ru":"Место"},
   "החל מ": {"en":"From","fr":"À partir de","ru":"От"},
   "שעה החל מ ₪": {"en":"Per hour from ₪","fr":"L’heure à partir de ₪","ru":"Час от ₪"},

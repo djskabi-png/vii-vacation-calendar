@@ -29,7 +29,9 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   assert.match(providerBlock[0],/\.provider-results \.provider-toolbar\.is-open/);
   for(const addition of unitAdditions)assert.equal(normalized.split(addition).length,2);
   const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
-  const expected='a896a6c7de1f1da670de1dd3816337621e774f34fe2282f906fdb823b49d6d3c';
+  // v864 intentionally adds the shared event participant number controls.
+  // Freeze that reviewed cumulative cascade so later unrelated drift still fails.
+  const expected='420e641647271eae8d04544a3694b86cbb184e1d9e9f2c6bc898175ea567308c';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

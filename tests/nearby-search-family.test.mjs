@@ -43,12 +43,15 @@ test("SSR and managed place-search surfaces use the same minimum-eighteen invent
   assert.doesNotMatch(managed, /minimum: PLACE_SEARCH_MINIMUM_RESULTS/);
 });
 
-test("event fallback reuses all hard predicates and updates on every filter", async () => {
+test("event fallback reuses all hard predicates and keeps every truth state", async () => {
   const source = await read("app/events/search/page.tsx");
-  assert.match(source, /eventPlaces\.filter\(\(place\) => matchesHardFilters\(place\) && confirmedEventPlace\(place\)\)/);
+  assert.match(source, /eventPlaces\.filter\(\(place\) => matchesEventSearchLocation\(place, area\) && matchesHardFilters\(place\)\)/);
+  assert.match(source, /eventPlaces\.filter\(\(place\) => matchesHardFilters\(place\)\)/);
   const predicate = source.slice(source.indexOf("const matchesHardFilters"), source.indexOf("const filtered"));
   for (const field of ["eventType", "guests", "noNoiseLimit", "accessibleOnly", "type"]) assert.ok(predicate.includes(field), field);
-  assert.match(source, /hasConfirmedEventAvailability/);
+  assert.match(source, /orderEventResults\(baseOrdered/);
+  assert.doesNotMatch(source, /hasConfirmedEventAvailability/);
+  assert.doesNotMatch(source, /confirmedEventPlace/);
   assert.match(source, /NearbySearchNotice dated=\{Boolean\(eventFrom\)\}/);
 });
 

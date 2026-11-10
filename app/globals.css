@@ -3211,6 +3211,10 @@ h3 { font-size: 1.18rem; }
 .search-price-list button.selected { background: var(--teal); color: white; }
 .guest-picker > div { display: flex; align-items: center; justify-content: space-between; margin: 16px 0; }
 .guest-picker > div button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: white; }
+.guest-picker__number { display: grid; place-items: center; margin: 0 10px; }
+.guest-picker__number input { width: 92px; min-height: 42px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-align: center; font: inherit; font-weight: 800; color: var(--ink); }
+.event-capacity-filter { display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; align-items: center; }
+.event-capacity-filter input[type="number"] { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 12px; padding: 8px; background: #fff; text-align: center; font: inherit; }
 /* VII_WORLD_STYLE_VACATIONS_008 */
 /* VII_WORLD_STYLE_VACATIONS_009 */
 /* VII_WORLD_STYLE_VACATIONS_010 */

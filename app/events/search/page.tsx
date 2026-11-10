@@ -43,7 +43,7 @@ import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
 import { matchesEventVenueType, matchesEventOccasion, matchesEventSearchLocation, eventVenueTypes, normalizeEventVenueType, normalizeEventOccasion, eventFacilityOrder, eventOccasionOrder, eventVenueTypeOrder, orderedEventFacetValues } from "../../lib/event-search-taxonomy";
-import { hasConfirmedEventAvailability } from "../../lib/dated-availability-eligibility";
+import { orderEventResults } from "../../lib/event-discovery-contract";
 import {usePublicPromotionWeights} from "../../components/use-public-promotion-weights";
 import { RecommendedPlacesBanner } from "../../components/recommended-place-banner";
 import { usePublicPromotionFlags } from "../../components/use-public-promotion-weights";
@@ -187,12 +187,6 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, undefined, undefined, slot, liveRetry, false, undefined, datedEventSearch);
   const eventAvailabilityPending = datedEventSearch && supplierSearch.status === "loading";
   const eventAvailabilityError = datedEventSearch && supplierSearch.status === "error";
-  const confirmedEventPlace = (place: EventPlace) => {
-    if (!datedEventSearch) return true;
-    const match = /^event-(\d+)$/.exec(place.slug);
-    const result = supplierSearch.results[Number(match?.[1] || -1)];
-    return hasConfirmedEventAvailability(result) && result?.from === eventFrom;
-  };
 
   useEffect(() => {
     if (!eventFrom || searchParams.get("guests")) return;
@@ -231,19 +225,20 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
     && (!accessibleOnly || matchesVacationSearchFilter(place, "accessible"));
   const filtered = useMemo(() => {
-    return eventPlaces.filter((place) => matchesEventSearchLocation(place, area) && matchesHardFilters(place) && confirmedEventPlace(place));
+    return eventPlaces.filter((place) => matchesEventSearchLocation(place, area) && matchesHardFilters(place));
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, guests, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || area === "הכל" || area === "כל הארץ") return [];
-    // Broaden geography only; a supplier-confirmed unavailable venue remains excluded.
-    const eligible = eventPlaces.filter((place) => matchesHardFilters(place) && confirmedEventPlace(place));
+    // Broaden geography only. Availability affects truthful ordering, never catalog inclusion.
+    const eligible = eventPlaces.filter((place) => matchesHardFilters(place));
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (place) => place.slug });
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, filtered.length, guests, managedGeography, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
   const resultSet = useMemo(() => {
     const complete = completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug);
     if (sort === "capacity") return [...complete].sort((first, second) => second.guests - first.guests || first.name.localeCompare(second.name, "he"));
-    const ordered = sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:event-search`,sortModel,place=>place.slug):orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
+    const baseOrdered = sort==='recommended'?orderGroupedDiscoveryResults(filtered,nearbyRecovery,sort,`${documentSeed}:event-search`,sortModel,place=>place.slug):orderDiscoveryResults(complete, sort, `${documentSeed}:event-search`, sortModel);
+    const ordered = datedEventSearch ? orderEventResults(baseOrdered, (place) => { const result = supplierSearch.results[Number(place.slug.slice(6))]; return { id: place.slug, available: result?.available, price: result?.total }; }) : baseOrdered;
     const exact = new Set(filtered.map(place=>place.slug));
     return turboOrder(ordered,"events",ordered.flatMap(place=>{const value=promotionFlags(place.slug);return value?[value]:[];}),!eventFrom&&sort==="recommended",place=>place.slug,place=>exact.has(place.slug)?0:1);
   }, [documentSeed, filtered, nearbyRecovery, sort, sortModel, eventFrom, promotionWeight, promotionFlags]);
@@ -312,6 +307,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     ...(!noNoiseLimit ? [{ label: "ללא הגבלת רעש", params: { noise: "1" } as Record<string, string | null> }] : []),
     ...(!accessibleOnly ? [{ label: "מקומות נגישים", params: { accessible: "1" } as Record<string, string | null> }] : []),
   ];
+  const hasTransactionalSearch = Boolean(eventFrom || guests || type !== "הכל" || eventType !== "הכל" || facility !== "הכל" || noNoiseLimit || accessibleOnly || slot);
 
   return (
     <PageShell variant="events"><NearbySortStatus state={nearby} />
@@ -338,7 +334,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
               <ModernSelect retainSelectedOption label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
               <ModernSelect label="מתקנים ושירותים" value={facility} onChange={(value) => changeFilter("features", value)} options={[...facilities.map((item) => ({ value: item, label: item })), ...(facility !== "הכל" && !facilities.includes(facility) ? [{ value: facility, label: eventFeatureSelectionLabel(facility) }] : [])]} />
               <ModernSelect label={slotCopy.label} value={slot || "both"} onChange={(value) => changeFilter("slot", value === "both" ? "" : value)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} />
-              {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}
+              {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><div className="event-capacity-filter"><input type="range" min="0" max="1000" step="5" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /><input type="number" inputMode="numeric" min="0" max="1000" step="5" value={guests || ""} placeholder="0" aria-label="הקלדת כמות משתתפים" onChange={(event) => changeFilter("guests", Math.min(1000, Math.max(0, Number(event.target.value) || 0)))} /></div></fieldset>}
               <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => changeFilter("noise", event.target.checked)} /> ללא הגבלת רעש</label>
               <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => changeFilter("accessible", event.target.checked)} /> נגישות לנכים</label>
               <div className="filter-panel__mobile-sort">
@@ -363,7 +359,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             {!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && facility === "הכל" && !noNoiseLimit && !accessibleOnly ? <RegionalAvailability world="events" region={area} guests={guests || 20} embedded /> : null}
           </section>
         </div>
-        {!catalogLoading && !catalogError ? <SearchAfterResults world="events" location={area} inventory={eventPlaces} searchSuggestions={contextualSearchSuggestions} /> : null}
+        {!catalogLoading && !catalogError && !hasTransactionalSearch ? <SearchAfterResults world="events" location={area} inventory={eventPlaces} searchSuggestions={contextualSearchSuggestions} /> : null}
         {managedBody ? <section className="section shell managed-search-editorial" aria-labelledby="managed-event-content"><h2 id="managed-event-content">מה חשוב לדעת</h2>{managedBody.split(/\n{2,}/).filter(Boolean).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</section> : null}
         {managedFaq?.length ? <section className="section shell managed-search-faq" aria-labelledby="managed-event-faq"><h2 id="managed-event-faq">שאלות נפוצות</h2>{managedFaq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}
