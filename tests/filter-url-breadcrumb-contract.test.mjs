@@ -61,9 +61,9 @@ test("provider topic routes and in-topic filters restore and reset their complet
   const topicPage = read("app/providers/[category]/page.tsx");
   ["q", "region"].forEach((key) => assert.match(providers, new RegExp(`searchParams\\.get\\(\"${key}\"\\)`)));
   assert.doesNotMatch(providers, /searchParams\.get\("category"\)/);
-  assert.match(providers, /new URLSearchParams\(window\.location\.search\)/);
-  assert.match(providers, /window\.history\.pushState/);
-  assert.match(providers, /<Link key=\{entry\.id\} href=\{providerCategoryHref\(entry\)\}/);
+  assert.match(providers, /new URLSearchParams\(searchQuery\)/);
+  assert.match(providers, /window\.history\[replace \? "replaceState" : "pushState"\]/);
+  assert.match(providers, /providerCategorySearchHref\(id, searchQuery/);
   assert.match(providers, /function resetFilters/);
   assert.match(categories, /return id === "all" \? "\/providers" : `\/providers\/\$\{id\}`/);
   assert.match(topicPage, /generateMetadata/);

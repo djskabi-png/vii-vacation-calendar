@@ -22,7 +22,7 @@ const items = count => Array.from({ length: count }, (_, i) => React.createEleme
 
 test('actual disclosure preserves all items through expand, collapse and short/empty lists', () => {
   let expanded = false;
-  const Component = load({ useId: () => 'feature-list-fixture', useState: () => [expanded, update => { expanded = update(expanded); }] });
+  const Component = load({ useId: () => 'feature-list-fixture', useState: () => [expanded, update => { expanded = update(expanded); }], useEffect: () => undefined });
   for (const count of [0, 1, 8, 9, 16]) {
     expanded = false;
     const children = items(count);

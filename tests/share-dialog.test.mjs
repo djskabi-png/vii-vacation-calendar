@@ -6,12 +6,13 @@ import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("sharing uses one branded accessible dialog instead of the operating system sheet", async () => {
-  const [dialog, business, events, article, css] = await Promise.all([
+  const [dialog, business, events, article, css, shareUrl] = await Promise.all([
     read("app/components/share-dialog.tsx"),
     read("app/business/client-page.tsx"),
     read("app/events/place/client-page.tsx"),
     read("app/guides/article/client-page.tsx"),
     readEffectiveWorldCss(),
+    read("app/lib/share-url.ts"),
   ]);
 
   assert.doesNotMatch(`${business}\n${events}\n${article}`, /navigator\.share/);
@@ -24,10 +25,10 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.match(dialog, /event\.key === "Escape"/);
   assert.match(dialog, /triggerRef\.current\?\.focus/);
   assert.match(dialog, /navigator\.clipboard\.writeText/);
-  assert.match(dialog, /cleanShareUrl/);
-  assert.match(dialog, /if \(id\) essential\.set\("id", id\)/);
-  assert.match(dialog, /current\.hash = ""/);
-  assert.match(dialog, /מצאתי ב־V מקום שיכול להתאים לנו/);
+  assert.match(dialog, /canonicalShareUrl/);
+  assert.match(shareUrl, /if \(id\) essential\.set\("id", id\)/);
+  assert.match(shareUrl, /current\.hash = ""/);
+  assert.match(dialog, /מצאתי ב־V מקום שיכול להתאים לנו|מצאתי ב־V מקום לאירוע שיכול להתאים לנו/);
   assert.doesNotMatch(dialog, /<bdi>/);
   assert.match(dialog, /https:\/\/wa\.me\/\?text=/);
   assert.match(dialog, /facebook\.com\/sharer\/sharer\.php/);
