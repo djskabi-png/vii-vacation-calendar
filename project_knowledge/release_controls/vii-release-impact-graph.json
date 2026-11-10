@@ -578,6 +578,8 @@
         "managed-site"
       ],
       "requiredLocalTests": [
+        "tests/holiday-world.test.mjs",
+        "tests/holiday-card-media.actual.test.mjs",
         "tests/hourly-world-faq-cms.test.mjs",
         "tests/world-landing-management.test.mjs",
         "tests/world-popular-editor.actual.test.mjs"
@@ -660,6 +662,10 @@
         "managed-site"
       ],
       "requiredLocalTests": [
+        "tests/image-metadata-contract.actual.test.mjs",
+        "tests/image-metadata-ast.test.mjs",
+        "tests/holiday-card-media.actual.test.mjs",
+        "tests/holiday-world.test.mjs",
         "tests/gallery-first-topic-default.test.mjs",
         "tests/property-detail-mobile-gallery-controls.test.mjs",
         "tests/legacy-gallery-media-independence.test.mjs",
@@ -1262,10 +1268,13 @@
         "app/components/place-preview-card.tsx",
         "app/components/preview-card-gallery.tsx",
         "app/components/responsive-card-image.tsx",
+        "app/components/resilient-image.tsx",
+        "app/components/trail-nearby-worlds.tsx",
         "app/components/spa-package-deals.tsx",
         "app/components/use-preview-gallery.tsx",
         "app/lib/preview-image-loader.ts",
         "app/lib/responsive-media.ts",
+        "app/lib/image-metadata.ts",
         "app/lib/sergey-gallery.ts",
         "app/lib/verified-media-recovery.ts",
         "app/lib/catalog-media-origin-recovery.ts",
@@ -1376,6 +1385,16 @@
         "app/attractions/near-me/",
         "app/providers/near-me/",
         "app/lib/provider-service-areas.ts"
+      ]
+    },
+    {
+      "id": "holiday-and-period-editorial",
+      "ownerBox": "content",
+      "match": [
+        "app/holidays/",
+        "app/lib/holiday-world.ts",
+        "app/last-minute/page.tsx",
+        "app/weekend/[period]/page.tsx"
       ]
     },
     {

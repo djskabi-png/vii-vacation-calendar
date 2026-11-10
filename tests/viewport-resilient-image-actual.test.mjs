@@ -5,9 +5,10 @@ import ts from 'typescript';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {observeSectionActivation} from '../app/lib/section-activation.ts';
+import {imageTitle} from '../app/lib/image-metadata.ts';
 const source=fs.readFileSync('app/components/viewport-resilient-image.tsx','utf8');
 const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
-function load(react,jsx,observe,Original){const exports={};new Function('require','exports',code)(name=>name==='react'?react:name==='react/jsx-runtime'?jsx:name.endsWith('resilient-image')?{ResilientImage:Original}:{observeSectionActivation:observe},exports);return exports.ViewportResilientImage;}
+function load(react,jsx,observe,Original){const exports={};new Function('require','exports',code)(name=>name==='react'?react:name==='react/jsx-runtime'?jsx:name.endsWith('resilient-image')?{ResilientImage:Original}:name.endsWith('image-metadata')?{imageTitle}:{observeSectionActivation:observe},exports);return exports.ViewportResilientImage;}
 const props={src:'/api/vii/media/99619cd26c2d850.JPG',alt:'Original room identity',width:'960',height:'640',loading:'lazy',onFailure(){}};
 test('SSR keeps dimensions without an early image request and preserves the real no-JS source',()=>{
  return import('react/jsx-runtime').then(runtime=>{const Actual=load(React,runtime,observeSectionActivation,()=>null);const html=renderToStaticMarkup(React.createElement(Actual,props));const [placeholder,noscript]=html.split('<noscript>');assert.ok(noscript);assert.doesNotMatch(placeholder,/\ssrc(?:set)?=/i);assert.match(placeholder,/width="960" height="640"/);assert.match(noscript,/src="\/api\/vii\/media\/99619cd26c2d850.JPG"/);assert.match(noscript,/data-vii-room-placeholder/);assert.match(noscript,/Original room identity/);});

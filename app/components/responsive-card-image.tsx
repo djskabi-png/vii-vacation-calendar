@@ -4,7 +4,9 @@
 
 import { useState, type ImgHTMLAttributes } from "react";
 import { defaultCardImageSizes, isOptimizableCardMedia, responsiveCardMedia } from "../lib/responsive-media";
+import { imageTitle } from "../lib/image-metadata";
 
+type ImageMetadataProps = { alt: string; title?: string; "data-image-role"?: "decorative" | "content" };
 
 
 export function ResponsiveCardImage({
@@ -14,7 +16,7 @@ export function ResponsiveCardImage({
   quality = 82,
   onOriginalFailure,
   ...props
-}: Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
+}: Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "alt" | "title"> & ImageMetadataProps & {
   src: string;
   imageWidths?: readonly number[];
   quality?: number;
@@ -31,6 +33,7 @@ export function ResponsiveCardImage({
     srcSet={useOriginal ? undefined : responsive.srcSet}
     sizes={!useOriginal && optimizable ? sizes : undefined}
     alt={props.alt ?? ""}
+    title={imageTitle(props.alt, props.title, props["data-image-role"] === "decorative")}
     onError={() => {
       if (optimizable && !useOriginal) {
         setFailedOptimizedSource(src);

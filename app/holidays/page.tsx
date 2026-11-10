@@ -6,10 +6,11 @@ import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { getHomeHolidays } from "../lib/vii-home-holidays";
-import { holidayWorldPath } from "../lib/holiday-world";
+import { holidayWorldPath, readHolidayCardMedia } from "../lib/holiday-world";
 import { supplierToken } from "../lib/vii-supplier-token";
 import { serverPublicCopy } from "../i18n/server-public-copy";
 import { localizedPath } from "../i18n/locale-routing";
+import { runtimeDatabase } from "../lib/runtime-database";
 import "./holiday-world.css";
 
 const copy = {
@@ -32,7 +33,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HolidaysPage() {
   const { language, translate } = await serverPublicCopy();
   const text = copy[language];
-  const holidays = await supplierToken().then((token) => getHomeHolidays({ token })).catch(() => []);
+  const [holidays, db] = await Promise.all([
+    supplierToken().then((token) => getHomeHolidays({ token })).catch(() => []),
+    runtimeDatabase().catch(() => null),
+  ]);
+  const media = await readHolidayCardMedia(holidays, db, language);
   const format = new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
   const date = (value: string) => format.format(new Date(`${value}T00:00:00Z`));
   const items = holidays.map((holiday) => ({ name: translate(holiday.name), path: holidayWorldPath(holiday.name, holiday.id) }));
@@ -49,10 +54,20 @@ export default async function HolidaysPage() {
         <div className="holiday-section-head"><span className="eyebrow">{text.upcoming}</span><h2 id="upcoming-holidays-title">{text.planTitle}</h2></div>
         {holidays.length ? <div className="holiday-hub__grid">{holidays.map((holiday, index) => {
           const href = localizedPath(holidayWorldPath(holiday.name, holiday.id), language);
+          const image = media[index];
+          const headingId = `holiday-card-${holiday.id}-${index}`;
           return <article key={holiday.id} className={`holiday-hub__card holiday-hub__card--${index % 4}`}>
-            <div className="holiday-hub__date"><CalendarDays aria-hidden="true" /><span><time dateTime={holiday.from}>{date(holiday.from)}</time><i aria-hidden="true">/</i><time dateTime={holiday.till}>{date(holiday.till)}</time></span></div>
-            <h3>{translate(holiday.name)}</h3><p>{holiday.nights} {translate("לילות")} · {translate("לזוגות, משפחות וקבוצות")}</p>
-            <Link href={href}>{text.open}<ArrowLeft aria-hidden="true" /></Link>
+            <Link href={href} className="holiday-hub__card-link" aria-labelledby={headingId}>
+              <picture className="holiday-hub__media">
+                <source media="(max-width: 700px)" srcSet={image.mobileSrc} />
+                <img src={image.src} alt={translate(image.alt)} title={translate(image.title)} width={800} height={600} loading={index < 2 ? "eager" : "lazy"} decoding="async" />
+              </picture>
+              <div className="holiday-hub__card-content">
+                <div className="holiday-hub__date"><CalendarDays aria-hidden="true" /><span><time dateTime={holiday.from}>{date(holiday.from)}</time><i aria-hidden="true">/</i><time dateTime={holiday.till}>{date(holiday.till)}</time></span></div>
+                <h3 id={headingId}>{translate(holiday.name)}</h3><p>{holiday.nights} {translate("לילות")} · {translate("לזוגות, משפחות וקבוצות")}</p>
+                <span className="holiday-hub__card-action">{text.open}<ArrowLeft aria-hidden="true" /></span>
+              </div>
+            </Link>
           </article>;
         })}</div> : <div className="holiday-hub__empty"><p>{text.empty}</p><Link className="button primary" href={localizedPath("/search", language)}>{text.search}</Link></div>}
       </section>

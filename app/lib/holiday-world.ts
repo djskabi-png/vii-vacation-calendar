@@ -1,6 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import type { ContentLocale, ContentSource, EditorialContent } from "./content-studio.ts";
-import { contentItemId, readContentItem, readPublishedContent } from "./content-studio.ts";
+import { contentItemId, readContentItem, readPublishedContent, readPublishedContentBatch } from "./content-studio.ts";
 import type { HomeHoliday } from "./vii-home-holidays.ts";
 
 export type HolidaySearchCard = {
@@ -29,6 +29,7 @@ export type HolidayWorld = {
   indexable: boolean;
   heroImage: string;
   heroImageAlt: string;
+  heroImageTitle: string;
   proof: [string, string, string];
   searches: HolidaySearchCard[];
 };
@@ -125,6 +126,11 @@ export function holidayHeroImage(slug: string) {
   return holidayImages[slug] || "/images/holidays/holiday-default.webp";
 }
 
+export function holidayImageSources(src: string) {
+  const hasMobileVariant = src === holidayHeroImage("holiday-default") || Object.values(holidayImages).includes(src);
+  return { src, mobileSrc: hasMobileVariant ? src.replace(/\.webp$/, "-mobile.webp") : src };
+}
+
 function searchCards(holiday: HomeHoliday): HolidaySearchCard[] {
   const duration = daysBetween(holiday.from, holiday.till);
   const middleOffset = Math.max(1, Math.floor(duration / 2) - 1);
@@ -170,7 +176,7 @@ export function defaultHolidayWorld(holiday: HomeHoliday): HolidayWorld {
     proof: [`${dateLabel(holiday.from)} עד ${dateLabel(holiday.till)}`, "חיפוש לפי הרכב", "זמינות נבדקת בזמן אמת"] as [string, string, string],
   };
   return { id: holiday.id, slug, name: planningHoliday.name, year, from: planningHoliday.from, till: planningHoliday.till,
-    ...special, indexable: true, searches: searchCards(planningHoliday) };
+    ...special, heroImageTitle: planningHoliday.name, indexable: true, searches: searchCards(planningHoliday) };
 }
 
 function applyContent(world: HolidayWorld, content?: EditorialContent | null): HolidayWorld {
@@ -180,14 +186,16 @@ function applyContent(world: HolidayWorld, content?: EditorialContent | null): H
   return { ...world, title: content.title || world.title, summary: content.summary || world.summary, body: content.body || world.body,
     metaTitle: content.metaTitle || world.metaTitle, metaDescription: content.metaDescription || world.metaDescription,
     indexable: content.indexable, eyebrow: attributes.holidayEyebrow?.trim() || world.eyebrow,
-    heroImage: attributes.holidayHeroImage?.trim() || world.heroImage, heroImageAlt: content.imageAlt || world.heroImageAlt, proof };
+    heroImage: attributes.holidayHeroImage?.trim() || world.heroImage,
+    heroImageAlt: content.imageAlt?.trim() || world.heroImageAlt,
+    heroImageTitle: attributes.holidayHeroImageTitle?.trim() || content.imageAlt?.trim() || world.heroImageTitle, proof };
 }
 
 export function holidayContentSource(holiday: HomeHoliday, locale: ContentLocale = "he"): ContentSource {
   const world = defaultHolidayWorld(holiday);
   return { type: "holiday", key: world.slug, world: "vacation", locale, sourceLabel: "V holiday calendar",
     title: world.title, summary: world.summary, body: world.body, slug: world.slug, imageAlt: world.heroImageAlt,
-    indexable: world.indexable, attributes: { holidayEyebrow: world.eyebrow, holidayHeroImage: world.heroImage,
+    indexable: world.indexable, attributes: { holidayEyebrow: world.eyebrow, holidayHeroImage: world.heroImage, holidayHeroImageTitle: world.heroImageTitle,
       holidayProof1: world.proof[0], holidayProof2: world.proof[1], holidayProof3: world.proof[2], holidayId: String(world.id), holidayFrom: world.from, holidayTill: world.till } };
 }
 
@@ -198,6 +206,16 @@ export async function readHolidayWorld(holiday: HomeHoliday, db?: D1Database | n
   if (item?.status === "archived") return { ...world, indexable: false };
   const published = await readPublishedContent(db, "holiday", world.slug, locale).catch(() => null);
   return applyContent(world, published?.content);
+}
+
+export async function readHolidayCardMedia(holidays: readonly HomeHoliday[], db?: D1Database | null, locale: ContentLocale = "he") {
+  const worlds = holidays.map(defaultHolidayWorld);
+  // One published-content query for the hub, using the same overrides as the detail page.
+  const published = db ? await readPublishedContentBatch(db, "holiday", worlds.map((world) => world.slug), locale).catch(() => new Map<string, EditorialContent>()) : new Map<string, EditorialContent>();
+  return worlds.map((world) => {
+    const resolved = applyContent(world, published.get(world.slug));
+    return { ...holidayImageSources(resolved.heroImage), alt: resolved.heroImageAlt, title: resolved.heroImageTitle };
+  });
 }
 
 export function holidaySearchHref(card: HolidaySearchCard) {

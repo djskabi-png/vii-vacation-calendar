@@ -32,7 +32,7 @@ export function TrailNearbyWorlds({ area, vacations, spas, attractions, provider
     <div className="trail-nearby-worlds__grid">{groups.map((group) => <section className={`trail-nearby-group trail-nearby-group--${group.id}`} key={group.id} aria-labelledby={`trail-nearby-${group.id}`}>
       <header><div><span>{group.eyebrow}</span><h3 id={`trail-nearby-${group.id}`}>{group.title}</h3></div><Link href={group.href}>לכל האפשרויות</Link></header>
       <div className="trail-nearby-group__items">{group.items.slice(0, 3).map((item, index) => <Link className={index === 0 ? "trail-nearby-card trail-nearby-card--featured" : "trail-nearby-card"} href={item.href} key={item.id}>
-        <img src={item.image} alt="" loading="lazy" decoding="async" /><span><small>{item.location}</small><strong>{item.name}</strong><em>{item.meta}</em></span><b aria-hidden="true">←</b>
+        <img src={item.image} alt={item.name} title={item.name} loading="lazy" decoding="async" /><span><small>{item.location}</small><strong>{item.name}</strong><em>{item.meta}</em></span><b aria-hidden="true">←</b>
       </Link>)}</div>
     </section>)}</div>
   </div></section>;

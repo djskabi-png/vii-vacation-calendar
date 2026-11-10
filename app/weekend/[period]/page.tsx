@@ -47,7 +47,7 @@ export default async function WeekendLandingPage({ params }: { params: Promise<{
       <StructuredData data={faqSchema(faqs)} />
       <section className="holiday-hero last-minute-hero"><div className="shell holiday-hero__frame">
         <div className="holiday-hero__content"><BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: text.title }]} /><span className="eyebrow">נופש לסוף השבוע הקרוב</span><h1>{text.title}</h1><p>{text.intro}</p><div className="holiday-hero__proof"><span>זמינות לתאריכים המדויקים</span><span>מחיר לכל השהייה</span><span>בדיקה נוספת לפני הזמנה</span></div></div>
-        <div className="holiday-hero__media"><img src="/images/last-minute/last-minute-escape.webp" alt="מקום נופש פנוי לסוף השבוע הקרוב" width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" /></div>
+        <div className="holiday-hero__media"><img src="/images/last-minute/last-minute-escape.webp" alt="מקום נופש פנוי לסוף השבוע הקרוב" title="מקום נופש פנוי לסוף השבוע הקרוב" width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" /></div>
       </div></section>
       <HomeLiveDeals fixedPeriod={weekendLandingPeriods[period]} sectionTitle={text.results} allLinkLabel="לכל התוצאות לתאריכים האלה" layout="grid" />
       <section className="section section-tint holiday-faq last-minute-faq"><div className="shell"><div className="holiday-section-head"><h2>שאלות על נופש בסוף השבוע הקרוב</h2></div><div className="holiday-faq__list">{faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></div></section>

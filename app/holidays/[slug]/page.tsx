@@ -7,7 +7,7 @@ import { BreadcrumbTrail } from "../../components/breadcrumb-trail.tsx";
 import { StructuredData } from "../../components/structured-data.tsx";
 import { HolidayLiveDeals } from "../../components/holiday-live-deals.tsx";
 import { breadcrumbSchema, faqSchema } from "../../lib/seo.ts";
-import { fallbackHolidayForSlug, holidaySlug, readHolidayWorld } from "../../lib/holiday-world.ts";
+import { fallbackHolidayForSlug, holidaySlug, holidayImageSources, readHolidayWorld } from "../../lib/holiday-world.ts";
 import { holidaySelection } from "../../lib/holiday-deal-selection.ts";
 import { getHomeHolidays } from "../../lib/vii-home-holidays.ts";
 import { supplierToken } from "../../lib/vii-supplier-token.ts";
@@ -48,7 +48,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
   const { language, translate } = await serverPublicCopy();
   const source = await readHolidayWorld(holiday, await database(), language);
   const world = { ...source, name: translate(source.name), title: translate(source.title), summary: translate(source.summary), body: translate(source.body), proof: source.proof.map(translate) };
-  const heroMobileImage = world.heroImage.startsWith("/images/holidays/") ? world.heroImage.replace(/\.webp$/, "-mobile.webp") : world.heroImage;
+  const heroMobileImage = holidayImageSources(world.heroImage).mobileSrc;
   const query = await searchParams;
   const selection = holidaySelection({ get: (name) => typeof query?.[name] === "string" ? query[name] as string : null }, holiday);
   const faqs = [
@@ -71,7 +71,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
           <div className="holiday-hero__media">
             <picture>
               <source media="(max-width: 760px)" srcSet={heroMobileImage} />
-              <img src={world.heroImage} alt={translate(world.heroImageAlt)} width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" />
+              <img src={world.heroImage} alt={translate(world.heroImageAlt)} title={translate(world.heroImageTitle)} width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" />
             </picture>
           </div>
         </div>
