@@ -5,7 +5,7 @@ const LOCAL_MEDIA_ROOT = "/api/vii/media/";
 // surface drops it without ever substituting another business's media.
 // The second file was still declared for hourly2417, but both the public
 // media route and the declared supplier asset returned 404 on 9 Nov 2026.
-const QUARANTINED_GALLERY_FILENAMES = new Set(["796a2fc6bf52100.png", "16670505013701.jpg"]);
+const QUARANTINED_GALLERY_FILENAMES = new Set(["796a2fc6bf52100.png", "16670505013701.jpg", "16635036794342.jpeg"]);
 
 /** Exact approved quarantine on trusted supplier or local media paths only. */
 export function isQuarantinedGalleryMedia(value: unknown) {

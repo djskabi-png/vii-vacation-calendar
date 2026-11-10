@@ -8,7 +8,7 @@ import { reviewableGallerySourceFailure } from "./gallery-source-media-failure.t
 import { catalogContentIntegrityIssues } from "./supplier-catalog-sync.ts";
 import { validSupplierDetailProof } from "./supplier-detail-contract.ts";
 import { spaMediaWithinGuard, finishSupplierCatalogRun, type SupplierCatalogEntry } from "./supplier-catalog-store.ts";
-import { acceptGalleryGeneration, galleryGenerationEntry, galleryGenerationEntryWire, galleryGenerationIds, galleryGenerationState, renewGalleryGeneration, stageGalleryEntry, startGalleryGeneration, recoverGalleryPreparation, cloneGalleryBaselineSiblings, verifyGalleryBaselineSiblings } from "./gallery-audit-generation-store.ts";
+import { acceptGalleryGeneration, galleryGenerationEntry, galleryGenerationIds, galleryGenerationState, renewGalleryGeneration, stageGalleryEntry, startGalleryGeneration, recoverGalleryPreparation, cloneGalleryBaselineSiblings, verifyGalleryBaselineSiblings } from "./gallery-audit-generation-store.ts";
 
 type Warning={supplierId:number;issues:string[]};
 export type GalleryApplyState={version:1;jobId:string;world:AuditWorld;runId:string;state:'reserved'|'accepted'|'not_accepted';phase:'initialize'|'prepare'|'accept'|'verify'|'complete'|'error';cursor:number;verifyCursor:number;total:number;ids:number[];scopeSupplierId?:number;preservedVerified?:number;baselineRunId?:string;recovery:boolean;factsRecoveryUsed?:boolean;sourceRecoveryUsed?:boolean;recoveryWindowUsed?:boolean;recoveryIntent?:{errorCode:string;cursor:number;baselineRunId:string};changed:number;skipped:number;verified:number;sourceWarnings:Warning[];verificationIssues:Warning[];lease?:{owner:string;until:string};errorCode?:string;createdAt:string;deadline:string;finishedAt?:string};
@@ -156,12 +156,20 @@ export async function stepBoundedGalleryApply({db,bucket,jobId,world}:{db:D1Data
       state.phase='verify';
     } else if(state.phase==='verify') {
       const live=await galleryGenerationState(db,world);if(live?.activeRunId!==state.runId)throw Error('gallery_postverify_generation_changed');
+      if(state.scopeSupplierId!==undefined){
+        // The database compares every immutable sibling payload in one bounded
+        // SQL query. No complete catalog payload is materialized in the Worker.
+        await verifyGalleryBaselineSiblings(db,{runId:state.runId,world,baseline:state.baselineRunId!,supplierId:state.scopeSupplierId,expectedIds:state.ids},true,true);
+        const object=await bucket.get(preparedKey(state,state.scopeSupplierId));if(!object)throw Error('gallery_prepared_missing');
+        const prepared=JSON.parse(await object.text()) as Prepared;checkPrepared(state,prepared,state.scopeSupplierId);
+        const accepted=await galleryGenerationEntry(db,world,state.runId,state.scopeSupplierId);
+        if(!prepared.api||!accepted||JSON.stringify([accepted.summary,accepted.detail])!==JSON.stringify([prepared.entry.summary,prepared.entry.detail]))throw Error('gallery_postverify_staged_changed');
+        const comparison=compareGalleryContracts(prepared.api,await buildAcceptedGalleryContract(world,accepted));
+        if(comparison.issues.some(x=>!x.startsWith('unverified_empty_owner_media:')&&!x.startsWith('unverified_quarantined_api_media:')))throw Error('gallery_scoped_api_verification_failed');
+        const finalState=await galleryGenerationState(db,world);if(finalState?.activeRunId!==state.runId||finalState.activeCount!==state.total)throw Error('gallery_postverify_generation_changed');
+        state.verified=1;state.preservedVerified=state.total-1;state.verifyCursor=state.total;
+      }
       for(const id of state.ids.slice(state.verifyCursor,state.verifyCursor+4)) {
-        if(state.scopeSupplierId!==undefined&&id!==state.scopeSupplierId){
-          const baseline=await galleryGenerationEntryWire(db,world,state.baselineRunId!,id),active=await galleryGenerationEntryWire(db,world,state.runId,id);
-          if(!baseline||!active||baseline.summaryJson!==active.summaryJson||baseline.detailJson!==active.detailJson)throw Error('gallery_scoped_sibling_changed');
-          state.preservedVerified=(state.preservedVerified||0)+1;state.verifyCursor++;continue;
-        }
         const object=await bucket.get(preparedKey(state,id));if(!object)throw Error('gallery_prepared_missing');
         const prepared=JSON.parse(await object.text()) as Prepared;checkPrepared(state,prepared,id);
         const accepted=await galleryGenerationEntry(db,world,state.runId,id);

@@ -102,7 +102,9 @@
         "tests/gallery-audit-apply.actual.test.mjs",
         "tests/gallery-archive-runtime.actual.test.mjs",
         "tests/catalog-snapshot.test.mjs",
-        "tests/gallery-api-audit-targeted-scope.test.mjs"
+        "tests/gallery-api-audit-targeted-scope.test.mjs",
+        "tests/supplier-media-quarantine-proof.actual.test.mjs",
+        "tests/supplier-media-detail-proof.test.mjs"
       ]
     },
     "global-shell": {

@@ -21,10 +21,11 @@ export async function galleryGenerationEntryWire(db:D1Database,world:SupplierCat
 }
 type ScopedCopy={runId:string;world:SupplierCatalogWorld;baseline:string;supplierId:number;expectedIds:number[]};
 /** Only a single audited owner changes. Sibling SQL payloads remain byte exact. */
-export async function verifyGalleryBaselineSiblings(db:D1Database,input:ScopedCopy,requireTarget:boolean) {
+export async function verifyGalleryBaselineSiblings(db:D1Database,input:ScopedCopy,requireTarget:boolean,afterActivation=false) {
   if(!Number.isSafeInteger(input.supplierId)||input.supplierId<1||input.expectedIds.filter(id=>id===input.supplierId).length!==1||new Set(input.expectedIds).size!==input.expectedIds.length)throw Error('gallery_scoped_identity_invalid');
   const state=await galleryGenerationState(db,input.world),run=await galleryRun(db,input.world,input.runId),baselineIds=await galleryGenerationIds(db,input.world,input.baseline);
-  if(!state||state.activeRunId!==input.baseline||state.lockRunId!==input.runId||!state.lockUntil||Date.parse(state.lockUntil)<=Date.now()||state.activeCount!==input.expectedIds.length||run?.status!=='running'||JSON.stringify(baselineIds)!==JSON.stringify(input.expectedIds))throw Error('gallery_scoped_baseline_changed');
+  const validPhase=afterActivation?state?.activeRunId===input.runId&&run?.status==='accepted':state?.activeRunId===input.baseline&&state?.lockRunId===input.runId&&!!state.lockUntil&&Date.parse(state.lockUntil)>Date.now()&&run?.status==='running';
+  if(!state||!validPhase||state.activeCount!==input.expectedIds.length||JSON.stringify(baselineIds)!==JSON.stringify(input.expectedIds))throw Error('gallery_scoped_baseline_changed');
   const ids=await galleryGenerationIds(db,input.world,input.runId),wanted=input.expectedIds.filter(id=>requireTarget||id!==input.supplierId);
   if(JSON.stringify(ids)!==JSON.stringify(wanted))throw Error('gallery_scoped_clone_incomplete');
   const changed=await db.prepare(`SELECT COUNT(*) AS count FROM (SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id<>? EXCEPT SELECT supplier_id,summary_json,detail_json FROM supplier_catalog_entries WHERE run_id=? AND world=? AND supplier_id<>?)`).bind(input.baseline,input.world,input.supplierId,input.runId,input.world,input.supplierId).first<{count:number}>();
