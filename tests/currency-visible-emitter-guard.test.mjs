@@ -91,6 +91,6 @@ test('indirect booking and search surfaces keep money inside the shared boundary
   assert.match(booking, /<CurrencyText\s+text=\{props\.offerName\}/);
   assert.match(booking, /<CurrencyText\s+text=\{props\.cancellationTerms\}/);
   const searchAfter = read('components/search-after-results.tsx');
-  assert.match(searchAfter, /<CurrencyText\s+text=\{item\.label\}/);
+  assert.equal((searchAfter.match(/<CurrencyText\s+text=\{item\.label\}/g) || []).length, 2, 'both SearchAfterResults rails must isolate item.label');
   assert.match(searchAfter, /<CurrencyText\s+text=\{item\.meta\}/);
 });

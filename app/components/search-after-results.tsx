@@ -270,7 +270,7 @@ function DiscoveryRail({ title, links }: {
     <nav id={railId} ref={railRef} className="search-depth__rail" data-horizontal-rail aria-label={title}>
       {links.map((item) => <Link className="search-depth__discovery-card" key={`${item.href}-${item.label}`} href={item.href}>
         <DepthTopicIcon topic={item.topic || "compass"} />
-        <strong>{item.label}</strong>
+        <strong><CurrencyText text={item.label} /></strong>
         <small>{item.meta}</small>
         <span className="search-depth__discovery-arrow" aria-hidden="true">←</span>
       </Link>)}

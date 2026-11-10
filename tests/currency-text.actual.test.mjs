@@ -89,3 +89,30 @@ test('CurrencyText mounted DOM preserves token boundaries and LTR isolation', as
     }
   }
 });
+
+test('CurrencyText remains an inline horizontal atom under hostile search-field span CSS', async () => {
+  const page = new JSDOM('<style>.search-field span{display:block;text-align:right;direction:rtl}</style><div id="root" class="search-field"></div>', { url: 'https://vii.test/' });
+  const previous = new Map();
+  for (const [key, value] of Object.entries({ window: page.window, document: page.window.document, HTMLElement: page.window.HTMLElement, Node: page.window.Node, IS_REACT_ACT_ENVIRONMENT: true })) {
+    previous.set(key, Object.getOwnPropertyDescriptor(globalThis, key));
+    Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
+  }
+  const root = createRoot(document.getElementById('root'));
+  try {
+    const CurrencyText = component();
+    await act(async () => root.render(React.createElement(CurrencyText, { text: 'עד ₪400' })));
+    const amount = document.querySelector('bdi.currency-amount');
+    assert.ok(amount);
+    assert.equal(amount.style.display, 'inline-flex');
+    assert.equal(amount.style.flexDirection, 'row');
+    assert.equal(amount.style.direction, 'ltr');
+    assert.equal(amount.querySelector('[data-currency-symbol]')?.textContent, '₪');
+    assert.equal(amount.querySelector('[data-currency-number]')?.textContent, '400');
+  } finally {
+    await act(async () => root.unmount());
+    page.window.close();
+    for (const [key, descriptor] of previous) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];
+    }
+  }
+});
