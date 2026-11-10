@@ -104,7 +104,8 @@
         "tests/catalog-snapshot.test.mjs",
         "tests/gallery-api-audit-targeted-scope.test.mjs",
         "tests/supplier-media-quarantine-proof.actual.test.mjs",
-        "tests/supplier-media-detail-proof.test.mjs"
+        "tests/supplier-media-detail-proof.test.mjs",
+        "tests/gallery-apply-integrity.actual.test.mjs"
       ]
     },
     "global-shell": {
@@ -861,7 +862,8 @@
         "app/lib/gallery-audit-generation-store.ts",
         "app/lib/gallery-source-media-failure.ts",
         "app/lib/gallery-candidate-archive.ts",
-        "app/lib/supplier-catalog-runtime.ts"
+        "app/lib/supplier-catalog-runtime.ts",
+        "app/lib/gallery-apply-integrity.ts"
       ]
     },
     {

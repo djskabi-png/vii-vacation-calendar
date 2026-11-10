@@ -4,8 +4,10 @@ import { createGalleryAuditJob, continueGalleryAuditJob, downloadGalleryAuditJob
 import type { D1Database, R2Bucket } from "../../../../types/cloudflare-runtime";
 import { readGalleryAuditApply } from "../../../lib/gallery-audit-apply.ts";
 import { readBoundedGalleryApply, startBoundedGalleryApply, stepBoundedGalleryApply, recoverBoundedGalleryApply, continueBoundedGalleryApply } from "../../../lib/gallery-audit-bounded-apply.ts";
+import { readGalleryApplyIntegrity } from "../../../lib/gallery-apply-integrity.ts";
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const valid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+const validSupplier = (v: string | null) => v !== null && /^[1-9]\d{0,9}$/.test(v);
 async function environment() {
   const module = await import(/* @vite-ignore */"cloudflare:workers");
   const env = module.env as unknown as { DB?: D1Database; UPLOADS?: R2Bucket; SERGEY_VII_API_TOKEN?: string; SPAPLUS_VII_API_KEY?: string };
@@ -19,7 +21,16 @@ export async function GET(request: Request) {
   const query = new URL(request.url).searchParams; const id = query.get("jobId");
   if (!valid(id)) return Response.json({ error: "invalid_job_id" }, { status: 400, headers });
   try {
-    const { bucket } = await environment();
+    const { db, bucket } = await environment();
+    const integrityId = query.get("integritySupplierId");
+    if (integrityId !== null) {
+      const applyWorld = query.get("applyWorld");
+      if (!applyWorld || !["vacations", "events", "rooms", "spa"].includes(applyWorld) || !validSupplier(integrityId) || [...query.keys()].some(key => !["jobId", "applyWorld", "integritySupplierId"].includes(key))) return Response.json({ error: "invalid_integrity_request" }, { status: 400, headers });
+      const world = applyWorld as "vacations" | "events" | "rooms" | "spa";
+      const state = await readBoundedGalleryApply(bucket, id, world);
+      if (!state) throw new Error("gallery_integrity_state_unavailable");
+      return Response.json(await readGalleryApplyIntegrity({db,bucket,state,jobId:id,world,supplierId:Number(integrityId)}), { headers });
+    }
     if (query.get("diagnostics") === "1") return Response.json({ ok: true, contexts: await readGalleryAuditDiagnostics(bucket, id) }, { headers });
     if (query.get('pending') === '1') return Response.json({ok:true,pending:await readGalleryAuditPendingDiagnostics(bucket,id)},{headers});
     const applyWorld = query.get("applyWorld");
