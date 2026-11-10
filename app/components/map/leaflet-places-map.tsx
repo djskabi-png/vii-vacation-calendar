@@ -13,6 +13,7 @@ import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib
 import { mapResultSummary } from "../../lib/map-result-summary.ts";
 import { keepMapFocusInViewport } from "../../lib/map-focus-policy.ts";
 import { createMapLayoutSynchronizer } from "../../lib/map/map-layout-sync";
+import { openPlaceInSameTabOnMobile } from "../../lib/mobile-place-navigation";
 import { createMapTileHealth } from "../../lib/map/map-tile-health";
 import { MapProviderBoundary } from "../map-provider-boundary";
 import "leaflet/dist/leaflet.css";
@@ -841,7 +842,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         </div>}
         <span className="map-selection-card__meta">{selected.meta}</span>
         {selected.precision === "area" && <span className="map-selection-card__precision">{precisionCopy}</span>}
-        <Link href={localizedPath(selected.href, language)} target="_blank" rel="noopener noreferrer">{cardCopy.details}</Link>
+        <Link href={localizedPath(selected.href, language)} target="_blank" rel="noopener noreferrer" onClick={(event) => openPlaceInSameTabOnMobile(event, localizedPath(selected.href, language))}>{cardCopy.details}</Link>
       </div>
       <button className="map-selection-card__close" type="button" onClick={closeSelectedPlace} aria-label={cardCopy.close}>×</button>
     </article>}

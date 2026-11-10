@@ -23,6 +23,7 @@ import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 import { ResponsiveCardImage } from "./responsive-card-image";
 import { OnlineBookingBadge } from "./online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 import { hasSearchDate, supplierStartingPrice, type SeasonalStartingPrices } from "../lib/supplier-starting-price";
 import { CatalogStartingPrice } from "./catalog-starting-price";
 import { quotedPriceGuestLabel, priceBasisGuestLabel } from "../lib/quoted-price-guests";
@@ -375,9 +376,9 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
 
   return (
     <article ref={cardRef} className={`stay-card stay-card--${cardMode}${mapActive ? " is-map-active" : ""}`} data-map-place-id={property.slug} aria-busy={pending || undefined} onTouchStartCapture={warmImages} onPointerEnter={() => { warmImages(); onActiveChange?.(true); }} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => { warmImages(); onActiveChange?.(true); }} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
-      <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} onClick={(event) => { if (window.matchMedia("(max-width: 760px)").matches) { event.preventDefault(); window.location.assign(propertyHref); } }} />
+      <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} onClick={(event) => openPlaceInSameTabOnMobile(event, propertyHref)} />
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => boundedSliderIndex(current, distance > 0 ? -1 : 1, galleryImages.length)); } touchStart.current = null; }}>
-        <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current && window.matchMedia("(max-width: 760px)").matches) { event.preventDefault(); window.location.assign(propertyHref); return; } if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
+        <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current && openPlaceInSameTabOnMobile(event, propertyHref)) return; if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
       <ResponsiveCardImage src={galleryImages[imageIndex]} alt={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} title={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" onLoad={warmImages} />
         </Link>
         <PreviewGalleryStatus pending={pending} error={error} />
@@ -391,7 +392,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         {property.demoOperations?.fictional ? <SampleListingDisclosure variant="card" /> : null}
         <div className="stay-card__title">
           <div>
-            <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
+            <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer" onClick={(event) => openPlaceInSameTabOnMobile(event, propertyHref)}>{localizedName}<span className="sr-only"></span></Link></h3>
             <p><PinIcon />{localizedLocation}, {localizedArea}</p>
           </div>
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
@@ -420,7 +421,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
             {datedUnknownStartingPrice ? <CatalogStartingPrice amount={datedUnknownStartingPrice} /> : resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} /></b><small>{priceUnit}</small>{basisGuestLabel || quotedGuestLabel ? <em>{basisGuestLabel || quotedGuestLabel}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
-            {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref} target="_blank" rel="noopener noreferrer">{copy.quickBook}</Link> : null}
+            {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref} target="_blank" rel="noopener noreferrer" onClick={(event) => openPlaceInSameTabOnMobile(event, quickBookingHref)}>{copy.quickBook}</Link> : null}
             {!quickBookingReady && !promotional && phone ? <DirectPhoneLink phone={property.contact?.phone} placeName={property.name} className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" tracking={{ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }} /> : null}
             {!quickBookingReady && !promotional && whatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={whatsapp} serviceName={property.type} includeServiceInMessage={false} initialDate={selectedStay?.from} initialTill={selectedStay?.till} initialGuests={selectedStay?.guests} buttonLabel={copy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
             {!quickBookingReady && !promotional && property.demoOperations?.fictional ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--card" /> : null}

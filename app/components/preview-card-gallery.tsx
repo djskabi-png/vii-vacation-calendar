@@ -7,6 +7,7 @@ import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode }
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 import { ResponsiveCardImage } from "./responsive-card-image";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 
 const galleryCopy: Record<SiteLanguage, { previous: string; next: string; image: string }> = {
   he: { previous: "התמונה הקודמת", next: "התמונה הבאה", image: "תמונה" },
@@ -102,11 +103,7 @@ export function PreviewCardGallery({
       rel="noopener noreferrer"
       aria-label={linkLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`}
       onClick={(event) => {
-        if (!didSwipe.current && window.matchMedia("(max-width: 760px)").matches) {
-          event.preventDefault();
-          window.location.assign(href);
-          return;
-        }
+        if (!didSwipe.current && openPlaceInSameTabOnMobile(event, href)) return;
         if (!didSwipe.current) return;
         event.preventDefault();
         event.stopPropagation();

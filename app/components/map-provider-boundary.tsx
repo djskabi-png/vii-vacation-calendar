@@ -3,6 +3,7 @@
 import { Component, type ReactNode } from "react";
 import Link from "next/link";
 import type { MapPlace, MapTone } from "../lib/map/map-place";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 import "./map-provider-boundary.css";
 
 type Props = { places: MapPlace[]; tone: MapTone; language: "he" | "en" | "ru" | "fr"; children: ReactNode; providerError?: unknown; onRetry?: () => void; onClose?: () => void };
@@ -19,7 +20,7 @@ export class MapProviderBoundary extends Component<Props, State> {
       <strong>{copy.title}</strong><span>{copy.text}</span>
       <button type="button" onClick={() => { this.setState({ failed: false }); this.props.onRetry?.(); }}>{copy.retry}</button>
       {this.props.onClose && <button type="button" onClick={this.props.onClose}>{copy.list}</button>}
-      <ul aria-label={copy.list}>{this.props.places.slice(0, this.state.visibleCount).map((place) => <li key={place.id}><Link href={place.href} target="_blank" rel="noopener noreferrer">{place.name}</Link></li>)}</ul>
+      <ul aria-label={copy.list}>{this.props.places.slice(0, this.state.visibleCount).map((place) => <li key={place.id}><Link href={place.href} target="_blank" rel="noopener noreferrer" onClick={(event) => openPlaceInSameTabOnMobile(event, place.href)}>{place.name}</Link></li>)}</ul>
       {this.state.visibleCount < this.props.places.length && <button type="button" onClick={() => this.setState(state => ({ visibleCount: state.visibleCount + 25 }))}>{copy.more}</button>}
     </section>;
   }

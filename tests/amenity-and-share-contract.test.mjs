@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { amenityPresentation } from "../app/lib/amenity-presentation.ts";
-import { canonicalShareUrl } from "../app/components/share-dialog.tsx";
+import { canonicalShareUrl } from "../app/lib/share-url.ts";
 
 test("amenity presentation keeps the full verified list and mobile/desktop limits", () => {
   const items = Array.from({ length: 15 }, (_, i) => `מאפיין ${i}`);

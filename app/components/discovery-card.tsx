@@ -14,6 +14,7 @@ import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-bus
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { CardContactActions } from "./card-contact-actions";
 import { HorizontalChipRail } from "./horizontal-chip-rail";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 
 const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: { "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "נהריה": "Nahariya", "חיפה": "Haifa", "רגבה": "Regba", "כמון": "Kamon", "רמת גן": "Ramat Gan", "אילת": "Eilat", "הרצליה": "Herzliya", "אשדוד": "Ashdod", "אשקלון": "Ashkelon", "טבריה": "Tiberias", "נתניה": "Netanya", "פתח תקווה": "Petah Tikva", "ראשון לציון": "Rishon LeZion", "רחובות": "Rehovot", "באר שבע": "Beersheba", "ים המלח": "Dead Sea", "מרכז": "Central Israel", "צפון": "Northern Israel", "דרום ונגב": "Southern Israel and the Negev", "ירושלים והסביבה": "Jerusalem area", "אילת והערבה": "Eilat and the Arava", "גליל מערבי": "Western Galilee", "חיפה והקריות": "Haifa area" },
@@ -108,7 +109,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link className="discovery-card__stretched-link" href={detailsHref} target="_blank" rel="noopener noreferrer" onClick={(event) => { if (window.matchMedia("(max-width: 760px)").matches) { event.preventDefault(); window.location.assign(detailsHref); } }}>{localizedName}<span className="sr-only"></span></Link></h3>
+      <h3><Link className="discovery-card__stretched-link" href={detailsHref} target="_blank" rel="noopener noreferrer" onClick={(event) => openPlaceInSameTabOnMobile(event, detailsHref)}>{localizedName}<span className="sr-only"></span></Link></h3>
       <p><CurrencyText text={description} /></p>
       <HorizontalChipRail className="discovery-card__chips" labels={features} ariaLabel={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]} />
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>

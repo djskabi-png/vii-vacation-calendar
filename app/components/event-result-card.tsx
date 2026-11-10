@@ -9,6 +9,7 @@ import { PreviewCardGallery } from "./preview-card-gallery";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { CatalogStartingPrice } from "./catalog-starting-price";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 
 const photoCountCopy: Record<SiteLanguage, string> = {
   he: "תמונות",
@@ -51,7 +52,7 @@ export function EventResultCard({ place, href, supplierStatus, startingPrice, ma
     </PreviewCardGallery>
     <div className="event-result-card__body">
       <small className="event-result-card__type">{type}</small>
-      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} target="_blank" rel="noopener noreferrer" title={name} onClick={(event) => { if (window.matchMedia("(max-width: 760px)").matches) { event.preventDefault(); window.location.assign(href); } }}>{name}</Link></h3>
+      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} target="_blank" rel="noopener noreferrer" title={name} onClick={(event) => openPlaceInSameTabOnMobile(event, href)}>{name}</Link></h3>
       <p className="event-result-card__location"><PinIcon /><span>{location}, {area}</span></p>
       {place.guests > 0 && <div className="event-capacity">{language === "he" ? "עד" : language === "en" ? "Up to" : language === "ru" ? "До" : "Jusqu’à"} {place.guests} {copy.guests}</div>}
       <div className="event-result-card__offer">{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}</div>

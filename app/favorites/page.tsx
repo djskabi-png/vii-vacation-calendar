@@ -12,6 +12,7 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { readSavedItems, savedItemKey, SAVED_ITEMS_EVENT, type SavedItem, type SavedWorld, writeSavedItems } from "../lib/saved-items";
 import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem } from "../lib/viewed-items";
 import { PreviewCardGallery } from "../components/preview-card-gallery";
+import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 
 type LibraryMode = "saved" | "viewed";
 type LibraryItem = SavedItem | ViewedItem;
@@ -204,9 +205,9 @@ export default function FavoritesPage() {
               const imageTitle = localizeName(item.name, translate);
               const imageAlt = trail ? `${imageTitle}: ${trail.highlights.slice(0, 2).map((highlight) => translate(highlight)).join(language === "he" ? " ו" : " · ")}.` : imageTitle;
               return <article key={item.key} className="favorite-card">
-              {image ? <PreviewCardGallery className="favorite-card__media" name={imageAlt} imageLabel={imageTitle} images={[image, ...(cardGalleries[item.key] || [])]} href={item.href} /> : <Link className="favorite-card__media" href={item.href} target="_blank" rel="noopener noreferrer"><span>{localizeName(item.name, translate).slice(0, 1)}</span></Link>}
+              {image ? <PreviewCardGallery className="favorite-card__media" name={imageAlt} imageLabel={imageTitle} images={[image, ...(cardGalleries[item.key] || [])]} href={item.href} /> : <Link className="favorite-card__media" href={item.href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,item.href)}><span>{localizeName(item.name, translate).slice(0, 1)}</span></Link>}
               <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
-              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href} target="_blank" rel="noopener noreferrer">{localizeName(item.name, translate)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}{mode === "viewed" && "viewedAt" in item ? <time dateTime={item.viewedAt}>{copy.viewedAt} {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(item.viewedAt))}</time> : null}<Link className="button secondary" href={item.href} target="_blank" rel="noopener noreferrer">{copy.details}</Link></div>
+              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,item.href)}>{localizeName(item.name, translate)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}{mode === "viewed" && "viewedAt" in item ? <time dateTime={item.viewedAt}>{copy.viewedAt} {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(item.viewedAt))}</time> : null}<Link className="button secondary" href={item.href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,item.href)}>{copy.details}</Link></div>
             </article>; })}
           </div>
           {totalPages > 1 ? <nav className="favorites-pagination" aria-label={`${copy.page} ${page}`}>
