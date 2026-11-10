@@ -83,3 +83,14 @@ test('known dynamic price sinks have an explicit visual currency boundary', () =
     assert.ok(lines.every(line => /CurrencyText|<bdi[^>]+dir=["']ltr/.test(line)), `${file} has a dynamic price without a boundary`);
   }
 });
+
+test('indirect booking and search surfaces keep money inside the shared boundary', () => {
+  const account = read('account/page.tsx');
+  assert.match(account, /<CurrencyText\s+text=\{booking\.offerName\}/);
+  const booking = read('booking/client-page.tsx');
+  assert.match(booking, /<CurrencyText\s+text=\{props\.offerName\}/);
+  assert.match(booking, /<CurrencyText\s+text=\{props\.cancellationTerms\}/);
+  const searchAfter = read('components/search-after-results.tsx');
+  assert.match(searchAfter, /<CurrencyText\s+text=\{item\.label\}/);
+  assert.match(searchAfter, /<CurrencyText\s+text=\{item\.meta\}/);
+});

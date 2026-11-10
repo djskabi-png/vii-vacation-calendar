@@ -194,7 +194,7 @@ export default function BookingPageClient(props: Props) {
     <span>{labels.total}</span>
     <strong><bdi dir="ltr">₪&nbsp;{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)}</bdi></strong>
     <small><bdi dir="ltr">₪&nbsp;{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })}</bdi> {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
-    <small>{pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""}{guests} {labels.guests}</small>
+    <small><CurrencyText text={pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""} />{guests} {labels.guests}</small>
     {props.includedGuests && props.includedGuests > 0 ? <small>{language === "he" ? `המחיר כולל עד ${props.includedGuests} אורחים` : `${props.includedGuests} guests included in the price`}</small> : null}
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
   </div> : null;
@@ -470,7 +470,7 @@ export default function BookingPageClient(props: Props) {
       <aside className="booking-summary">
         <CalendarIcon />
         <small>מה מזמינים</small>
-        <h2>{props.offerName}</h2>
+        <h2><CurrencyText text={props.offerName} /></h2>
         <strong>{props.placeName}</strong>
         {vacationPriceSummary || <p><CurrencyText text={props.price} /></p>}
         {props.world === "spa" ? <dl className="booking-summary__package">
@@ -509,7 +509,7 @@ export default function BookingPageClient(props: Props) {
           <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
           {!isManage && props.cancellationTerms ? <details className="booking-place-policy form-wide">
             <summary>מדיניות הביטול של {props.placeName}</summary>
-            <div><p>{props.cancellationTerms}</p></div>
+            <div><p><CurrencyText text={props.cancellationTerms} /></p></div>
           </details> : null}
           <label className="consent legal-consent form-wide"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי {props.cancellationTerms ? <>למדיניות הביטול של המקום, </> : null}ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בהזמנה.</span></label>
           <div className="booking-form__actions form-wide"><button className="button secondary" type="button" onClick={() => setStep(1)}>חזרה</button><button className="button primary" type="button" onClick={() => nextStep(2)}>המשך לסיכום</button></div>
@@ -518,7 +518,7 @@ export default function BookingPageClient(props: Props) {
         <section data-booking-step="3" hidden={step !== 3} aria-labelledby="booking-step-three-title">
           <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">{usesSpaPayment ? "סיכום ואופן התשלום" : "סיכום ושליחת הבקשה"}</h2></header>
           <div className="booking-review form-wide">
-            <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
+            <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small><CurrencyText text={props.offerName + (props.offerDuration ? " · " + props.offerDuration : "")} /></small></article>
             <article><span>מועד והרכב</span><strong>{formatBookingDate(arrival) || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + formatBookingDate(departure) : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
             <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong><CurrencyText text={props.price} /></strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>

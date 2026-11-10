@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useId, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { StructuredData } from "./structured-data";
+import { CurrencyText } from "./currency-text";
 import { faqSchema } from "../lib/seo";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
@@ -289,7 +290,7 @@ function VisualDiscoveryRail({ title, links }: { title: string; links: VisualDis
     <nav id={railId} ref={railRef} className="search-depth__rail search-depth__visual-rail" data-horizontal-rail aria-label={title}>
       {links.map((item) => <Link className="search-depth__visual-card" key={`${item.href}-${item.label}`} href={item.href}>
         <span className="search-depth__visual-media"><Image src={item.image} alt={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} title={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} width={560} height={360} loading="lazy" unoptimized /></span>
-        <span className="search-depth__visual-body"><strong>{item.label}</strong><small>{item.meta}</small><span aria-hidden="true">←</span></span>
+        <span className="search-depth__visual-body"><strong><CurrencyText text={item.label} /></strong><small><CurrencyText text={item.meta} /></small><span aria-hidden="true">←</span></span>
       </Link>)}
     </nav>
   </div>;
