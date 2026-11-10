@@ -134,6 +134,9 @@
         "tests/holiday-cold-recovery-actual.test.mjs",
         "tests/cookie-consent-cls.test.mjs",
         "tests/slider-settle-layout-actual.test.mjs",
+        "tests/home-deals-tab-reconciliation.actual.test.mjs",
+        "tests/home-deals-loading.actual.test.mjs",
+        "tests/paced-rail-hook-actual.test.mjs",
         "tests/slider-interaction-isolation.actual.test.mjs",
         "tests/slider-viewport-events.actual.test.mjs",
         "tests/cross-release-client-reference-actual.test.mjs",
@@ -1063,6 +1066,8 @@
       "match": [
         "app/api/vii/home-deals/",
         "app/components/home-live-deals.tsx",
+        "tests/home-deals-tab-reconciliation.actual.test.mjs",
+        "tests/home-deals-loading.actual.test.mjs",
         "app/components/home-live-sections-seeded.tsx",
         "app/components/use-paced-rail-render.ts",
         "app/lib/paced-rail-render.ts",

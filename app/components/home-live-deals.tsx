@@ -163,7 +163,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         setHolidayId(previous => visibleHolidays.some(item => item.id === previous) ? previous : visibleHolidays[0]?.id ?? null);
         setHolidayState("ready");
       })
-      .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
+      .catch(() => { if (!controller.signal.aborted) setHolidayState("error"); });
     return () => controller.abort();
   }, [active, language, mode, holidayListRetry, clock?.key]);
 
@@ -256,25 +256,25 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         setState("ready");
         armExpiry(result);
       })
-      .catch((error) => { if (error?.name !== "AbortError") recover(false); });
+      .catch(() => { if (!controller.signal.aborted) recover(false); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
+    if (value === period) return;
     // A deliberate visitor choice always wins over a late homepage-settings
     // response from the initial tab. Without this boundary, the first API
     // completion could silently reset the selected tab to the CMS default.
     displaySettingsApplied.current = true;
     setSeedEnabled(false);
-    if (value !== period) setState("loading");
+    setState("loading");
     setPeriod(value);
-    track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
   function chooseHoliday(value: number) {
-    if (value !== holidayId) setState("loading");
+    if (value === holidayId) return;
+    setState("loading");
     setHolidayId(value);
-    track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
   const eligibleDeals = useMemo(() => data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [data?.deals, clock?.key]);
@@ -294,19 +294,20 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     fr: `${displayedDealCount} séjours disponibles`,
   } as const)[language];
 
-  // Stable element identities let React retain already-mounted cards while
-  // the paced window grows; each batch mounts only its new cards.
-  const dealCards = useMemo(() => displayedDeals.map((deal) => {
+  // Reserve every snap area at once. Appending RTL flex items while Safari is
+  // settling a snap changes the rail's extent and can sweep through the list.
+  // Only the expensive card content is paced; rail geometry stays unchanged.
+  const dealCards = useMemo(() => displayedDeals.map((deal, index) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
-              <PropertyCard
+              {index < renderedCount ? <PropertyCard
                 property={dealProperty(deal)}
                 selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
                 liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
                 detailHref={href}
-              />
+              /> : <div className="home-live-deals__deferred-card" aria-hidden="true"><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>}
             </div>;
-          }), [displayedDeals, mode, currentHoliday?.id, period]);
+          }), [displayedDeals, renderedCount, mode, currentHoliday?.id, period]);
 
   return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
@@ -340,8 +341,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
         }}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
-        {data?.deals.length ? <div id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
-          {dealCards.slice(0, renderedCount)}
+        {/* A different search owns a new scroll container. Reusing a snapped
+            rail lets the browser follow a retained card to its new index
+            while React replaces/reorders the results. Never scroll the old
+            search on a tab click; keep its momentum and snap anchor isolated. */}
+        {data?.deals.length ? <div key={selectionKey} id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
+          {dealCards}
         </div> : null}
       </div>
     </div>
