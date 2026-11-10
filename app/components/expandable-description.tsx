@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { CurrencyText } from "./currency-text";
 
 export function ExpandableDescription({ text }: { text: string }) {
   const { language } = useSiteLanguage();
@@ -20,7 +21,7 @@ export function ExpandableDescription({ text }: { text: string }) {
   }, [text, expanded]);
   const copy = { he: ["קרא עוד", "סגירה"], en: ["Read more", "Show less"], ru: ["Читать далее", "Свернуть"], fr: ["Lire la suite", "Réduire"] }[language];
   return <div className="expandable-description">
-    <p ref={paragraph} id={id} className={expanded ? "" : "expandable-description__collapsed"}>{text}</p>
+    <p ref={paragraph} id={id} className={expanded ? "" : "expandable-description__collapsed"}><CurrencyText text={text} /></p>
     {(overflows || expanded) && <button className="expandable-description__toggle" type="button" aria-expanded={expanded} aria-controls={id} onClick={() => setExpanded(value => !value)}>{copy[expanded ? 1 : 0]}</button>}
   </div>;
 }

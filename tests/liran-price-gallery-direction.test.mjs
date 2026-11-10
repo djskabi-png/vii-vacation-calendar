@@ -8,7 +8,7 @@ test('supplier currency labels preserve copy but isolate shekel before the amoun
  const parts=currencyLabelParts(text);assert.equal(parts.filter(p=>p.amount).length,1);assert.equal(parts.find(p=>p.amount).text,'₪\u00a0750');
  }
  assert.deepEqual(currencyLabelParts('למחיר פנו למקום'),[{text:'למחיר פנו למקום'}]);
- const source=readFileSync(new URL('../app/components/discovery-card.tsx',import.meta.url),'utf8');assert.match(source,/<bdi dir="ltr" key=\{index\}>\{part\.text\}<\/bdi>/);
+ const source=readFileSync(new URL('../app/components/discovery-card.tsx',import.meta.url),'utf8');assert.match(source,/<CurrencyText text=\{price\} \/>/);
 });
 test('gallery chevrons cannot mirror twice in RTL desktop or mobile',()=>{
  const css=readEffectiveWorldCss();

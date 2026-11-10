@@ -1,4 +1,5 @@
 "use client";
+import { CurrencyText } from "./currency-text";
 
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent } from "react";
 
@@ -87,5 +88,5 @@ export function HorizontalChipRail({ className, labels, ariaLabel }: { className
     onPointerCancel={finishDrag}
     onClickCapture={suppressDraggedClick}
     onKeyDown={moveWithKeyboard}
-  >{labels.map((label) => <span key={label}>{label}</span>)}</div>;
+  >{labels.map((label) => <span key={label}><CurrencyText text={label} /></span>)}</div>;
 }

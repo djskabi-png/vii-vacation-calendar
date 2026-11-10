@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CurrencyText } from "./currency-text";
 import type { SearchMode } from "../data/search-taxonomy";
 import { hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
@@ -30,6 +31,6 @@ export function WorldQuickSearches({ mode, initialLocation, initialSpaAudience }
 
   return <nav className="quick-links world-quick-links" aria-label="חיפושים מהירים">
     <span>חיפושים מהירים:</span>
-    {contextualLinks.map((link) => <Link key={link.href} href={link.href} data-global-feedback="true" data-loading-label={`פותחים ${link.label}...`}>{link.label}</Link>)}
+    {contextualLinks.map((link) => <Link key={link.href} href={link.href} data-global-feedback="true" data-loading-label={`פותחים ${link.label}...`}><CurrencyText text={link.label} /></Link>)}
   </nav>;
 }

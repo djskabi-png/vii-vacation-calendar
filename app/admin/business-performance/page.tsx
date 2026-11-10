@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { ModernDateInput } from "../../components/modern-date-input";
+import { CurrencyText } from "../../components/currency-text";
 import { ArrowDown, ArrowDownToLine, ArrowUp, BarChart3, CheckCircle2, Clock3, Eye, MessageCircle, MousePointerClick, Phone, PhoneCall, RefreshCw, Search, ShoppingBag, Star, Users, XCircle } from "lucide-react";
 import { businessReportScopes, canonicalBusinessReportScope } from "../../lib/business-report-scopes";
 import { businessPerformanceView, reportPage, type BusinessPerformanceView } from "../../lib/business-performance-view";
@@ -23,7 +24,7 @@ const worldLabels: Record<string, string> = { vacation: "נופש", vacations: "
 const scopeLabels: Record<(typeof businessReportScopes)[number], string> = { all: "כל העסקים", vacations: "כל הנופש", events: "כל האירועים", spa: "כל הספא", rooms: "כל החדרים לפי שעה", activities: "כל האטרקציות", trails: "כל הטיולים", providers: "כל הספקים" };
 const sourceLabels = { whatsapp: "WhatsApp", maskyoo: "שיחות מסקיו", form: "טופס באתר" } as const;
 const num = (value: number) => value.toLocaleString("he-IL");
-const money = (value: number) => `₪ ${num(value)}`;
+const money = (value: number) => <CurrencyText text={`₪ ${num(value)}`} />;
 const percent = (part: number, whole: number) => whole ? Math.round(part / whole * 100) : 0;
 const actions = (row: Row) => row.phoneClicks + row.whatsappHandoffs + row.bookingRequests;
 const isoDay = (date: Date) => date.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" });

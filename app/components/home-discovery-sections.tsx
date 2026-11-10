@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { CurrencyText } from "./currency-text";
 import { useEffect, useRef, useState } from "react";
 import { Search, MapPin } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -67,7 +68,7 @@ function PopularSearchLink({ item, world = "vacation" }: { item: HomeDiscoveryIt
         const target = new URL(item.href, window.location.origin); target.searchParams.set("sort", "nearest");
         router.push(localizedPath(`${target.pathname}${target.search}${target.hash}`, language));
       }).catch(() => setError(true)).finally(() => { pending.current = false; setBusy(false); });
-    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="lazy" decoding="async" />}<span><strong>{label}</strong>{item.note ? <small>{translate(item.note)}</small> : null}</span></Link>
+    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="lazy" decoding="async" />}<span><strong><CurrencyText text={label} /></strong>{item.note ? <small><CurrencyText text={translate(item.note)} /></small> : null}</span></Link>
     {error ? <small className="home-popular-search-error" role="status">{translate("לא התקבל מיקום. לחצו שוב כדי לנסות מחדש.")}</small> : null}
   </div>;
 }
@@ -79,7 +80,7 @@ function DiscoveryRail({ id, title, items }: { id: string; title: string; items:
     <div className="home-managed-discovery__head"><div><h3 id={`${id}-title`}>{title}</h3></div><HomeSliderControls railId={`${id}-track`} label={title} itemSelector=":scope > a" /></div>
     <nav id={`${id}-track`} className="home-managed-discovery__track search-depth__rail" data-horizontal-rail aria-label={title}>{items.map((item) => <Link className="search-depth__discovery-card" key={item.id} href={localizedPath(item.href, language)} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}>
       <span className="search-depth__discovery-icon home-managed-discovery__visual"><DiscoveryThumbnail src={item.image} alt={item.imageAlt || item.label} title={item.imageAlt || item.label} loading="lazy" decoding="async" /></span>
-      <strong>{item.label}</strong>
+      <strong><CurrencyText text={item.label} /></strong>
       {item.note ? <small>{item.note}</small> : <small>לצפייה בתוצאות</small>}
       <span className="search-depth__discovery-arrow" aria-hidden="true">←</span>
     </Link>)}</nav>

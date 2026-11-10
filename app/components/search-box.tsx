@@ -1,4 +1,5 @@
 "use client";
+import { CurrencyText } from "./currency-text";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -758,8 +759,8 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
           </div>}
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">
-          <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `₪ ${maximumPrice}` : "ללא הגבלת מחיר"}</strong></span></button>
-          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); if (isDesktopSearchViewport()) search({ maximumPrice: price }); else { setMobileStep("overview"); setMobileExpanded(true); } }}>{price ? `עד ₪ ${price} לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
+          <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong><CurrencyText text={maximumPrice ? `₪ ${maximumPrice}` : "ללא הגבלת מחיר"} /></strong></span></button>
+          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); if (isDesktopSearchViewport()) search({ maximumPrice: price }); else { setMobileStep("overview"); setMobileExpanded(true); } }}><CurrencyText text={price ? `עד ₪ ${price} לשעתיים` : "ללא הגבלת מחיר"} /></button>)}</div>}
         </div>}
         {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{visibleDates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>

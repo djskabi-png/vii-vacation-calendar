@@ -6,7 +6,7 @@ import Link from "next/link";
 import { localizedPath } from "../i18n/locale-routing";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { currencyLabelParts } from "../lib/currency-label";
+import { CurrencyText } from "./currency-text";
 import { PinIcon } from "../site-header";
 import { FavoriteButton } from "./favorite-button";
 import { resolvePublicSliderMedia } from "../lib/public-media-policy";
@@ -73,7 +73,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const price = item.world === "hourly" && !item.priceLabel
     ? translate("למחיר, פנו למקום")
     : language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
-  const visiblePrice = currencyLabelParts(price).map((part, index) => part.amount ? <bdi dir="ltr" key={index}>{part.text}</bdi> : part.text);
+  const visiblePrice = <CurrencyText text={price} />;
 
   if (!item.image && item.world !== "hourly") return null;
 
@@ -109,7 +109,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
       <h3><Link className="discovery-card__stretched-link" href={detailsHref} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
-      <p>{description}</p>
+      <p><CurrencyText text={description} /></p>
       <HorizontalChipRail className="discovery-card__chips" labels={features} ariaLabel={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]} />
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
         {item.world === "hourly" ? <>

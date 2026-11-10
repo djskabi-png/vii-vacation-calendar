@@ -5,6 +5,8 @@ import {ProfessorBusinessTable} from './business-table';
 import type {ProfessorBusinessRow} from '../../lib/professor-business-breakdown';
 import { ArrowDownRight, ArrowLeft, ArrowUpRight, BarChart3, BrainCircuit, Clock3, Database, Minus, Send, Sparkles, TriangleAlert } from "lucide-react";
 import styles from "../admin.module.css";
+import { CurrencyText } from "../../components/currency-text";
+import { currencyLabelParts } from "../../lib/currency-label";
 
 type MetricKey = "impressions" | "pageViews" | "phone" | "whatsapp" | "viiBookings" | "bizCalls" | "bizWhatsapp" | "bizOrders" | "bizRevenue";
 type Insight = { kind: "up" | "down" | "neutral" | "conversion" | "warning"; title: string; detail: string };
@@ -19,9 +21,11 @@ const LTR_RUN = /(https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|₪\s*\d[\d,.:/%
 const IS_LTR_RUN = /^(?:https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|₪\s*\d[\d,.:/%+-]*|\d[\d,.:/%+-]*|[A-Za-z][A-Za-z0-9._/@+-]*)$/;
 
 function bidiParts(text: string): ReactNode[] {
-  return text.split(LTR_RUN).filter(Boolean).map((part, index) => IS_LTR_RUN.test(part)
-    ? <bdi className={styles.professorLtrRun} dir="ltr" key={`${part}-${index}`}>{part}</bdi>
-    : <Fragment key={`${part}-${index}`}>{part}</Fragment>);
+  return currencyLabelParts(text).flatMap((token, tokenIndex) => token.amount !== undefined
+    ? [<CurrencyText key={`money-${tokenIndex}`} text={token.text} />]
+    : token.text.split(LTR_RUN).filter(Boolean).map((part, index) => IS_LTR_RUN.test(part)
+      ? <bdi className={styles.professorLtrRun} dir="ltr" key={`${tokenIndex}-${part}-${index}`}>{part}</bdi>
+      : <Fragment key={`${tokenIndex}-${part}-${index}`}>{part}</Fragment>));
 }
 
 function ProfessorBidiText({ text, multiline = false }: { text: string; multiline?: boolean }) {

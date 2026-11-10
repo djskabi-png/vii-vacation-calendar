@@ -19,6 +19,7 @@ import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
 import { supplierPhoneLink } from "../lib/supplier-contact";
 import { bookingReturnHref } from "../lib/booking-return-href";
+import { CurrencyText } from "../components/currency-text";
 
 type Props = {
   world: string;
@@ -400,7 +401,7 @@ export default function BookingPageClient(props: Props) {
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
       <h1 id="booking-phone-title">{supplierPhoneOnly ? "התאריכים פנויים, ההזמנה בטלפון" : supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
-      <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ₪ ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
+      <p>{supplierPhoneOnly ? <CurrencyText text={`המחיר שנבדק כעת הוא ₪ ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.`} /> : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
       {supplierPhoneLink(props.phone) ? <DirectPhoneLink phone={props.phone} placeName={props.placeName} className="phone-reveal phone-reveal--visible" tracking={{ placeId: props.placeId, placeName: props.placeName, world: props.world, placement: "booking_phone_fallback" }} /> : <p role="status">{translate("מספר טלפון אינו זמין כרגע")}</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnUrl}>{returnCopy.business}</Link></span>
     </section>
@@ -420,7 +421,7 @@ export default function BookingPageClient(props: Props) {
           <span>{arrival}{departure ? " עד " + departure : ""}</span>
           <span>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים"}</span>
           {usesSpaPayment ? <span>{paymentMethodLabel}</span> : null}
-          <b>{supplierSiteID && currentTotal ? `₪ ${currentTotal.toLocaleString("he-IL")}` : props.price}</b>
+          <b>{supplierSiteID && currentTotal ? <CurrencyText text={`₪ ${currentTotal.toLocaleString("he-IL")} `} /> : <CurrencyText text={props.price} />}</b>
           {reference ? <code dir="ltr">{reference}</code> : null}
         </div>
         <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>
@@ -447,7 +448,7 @@ export default function BookingPageClient(props: Props) {
         <small>סיכום הזמנה</small>
         <h2 id={paymentTitleId}>הבקשה נשמרה בהצלחה</h2>
         <p>{paymentMethod === "pay_now" ? "בחרתם לשלם בכרטיס עכשיו. בשלב ההמחשה לא בוצע חיוב, ופרטי כרטיס לא נאספו." : "בחרתם לשלם במקום ולהעמיד כרטיס לביטחון. בשלב ההמחשה לא נשמר כרטיס ולא בוצע חיוב."}</p>
-        <div className="booking-payment-dialog__summary"><span>{props.placeName}</span><strong>{props.price}</strong><small>{paymentMethodLabel}</small></div>
+        <div className="booking-payment-dialog__summary"><span>{props.placeName}</span><strong><CurrencyText text={props.price} /></strong><small>{paymentMethodLabel}</small></div>
         <button className="button primary wide" type="button" onClick={() => setSuccessExplanationOpen(false)}>הבנתי, לסיכום ההזמנה</button>
       </section>
     </div> : null}
@@ -471,7 +472,7 @@ export default function BookingPageClient(props: Props) {
         <small>מה מזמינים</small>
         <h2>{props.offerName}</h2>
         <strong>{props.placeName}</strong>
-        {vacationPriceSummary || <p>{props.price}</p>}
+        {vacationPriceSummary || <p><CurrencyText text={props.price} /></p>}
         {props.world === "spa" ? <dl className="booking-summary__package">
           {props.offerAudience ? <div><dt>מתאים ל</dt><dd>{props.offerAudience}</dd></div> : null}
           {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
@@ -520,7 +521,7 @@ export default function BookingPageClient(props: Props) {
             <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
             <article><span>מועד והרכב</span><strong>{formatBookingDate(arrival) || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + formatBookingDate(departure) : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
-            <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong>{props.price}</strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
+            <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong><CurrencyText text={props.price} /></strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
           </div>
           {usesSpaPayment ? <fieldset className="booking-payment-choice form-wide">
             <legend>איך תרצו לשלם?</legend>
@@ -547,7 +548,7 @@ export default function BookingPageClient(props: Props) {
           <span>V SECURE</span><b dir="ltr">•••• •••• •••• ••••</b><div><small>MM/YY</small><small>CVC</small></div>
         </div>
         <div className="booking-payment-dialog__notice" role="note"><strong>המחשה בלבד</strong><span>לא מתבצע תשלום ולא נאספים פרטי כרטיס אמיתי.</span></div>
-        <div className="booking-payment-dialog__summary"><span>{paymentMethodLabel}</span><strong>{props.price}</strong><small>{props.placeName}</small></div>
+        <div className="booking-payment-dialog__summary"><span>{paymentMethodLabel}</span><strong><CurrencyText text={props.price} /></strong><small>{props.placeName}</small></div>
         <footer><button className="button secondary" type="button" onClick={closePayment}>חזרה</button><button className="button primary" type="button" aria-busy={state === "submitting"} disabled={state === "submitting"} onClick={() => formRef.current?.requestSubmit()}>{state === "submitting" ? "משלימים את ההזמנה..." : paymentMethod === "pay_now" ? "אישור תשלום והמשך" : "אישור כרטיס לביטחון והמשך"}</button></footer>
         {state === "error" ? <p className="form-error" role="alert">ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.</p> : null}
       </section>

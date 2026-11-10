@@ -154,7 +154,10 @@
         "tests/guest-review-count-contract.test.mjs",
         "tests/world-switcher-events.actual.test.mjs",
         "tests/slider-frame-boundaries-actual.test.mjs",
-        "tests/popular-nearby-tile-layout-contract.test.mjs"
+        "tests/popular-nearby-tile-layout-contract.test.mjs",
+        "tests/currency-text.actual.test.mjs",
+        "tests/currency-visible-emitter-guard.test.mjs",
+        "tests/shekel-symbol-position.test.mjs"
       ]
     },
     "search": {
@@ -937,7 +940,13 @@
         "app/components/search-after-results.tsx",
         "app/home-mobile.css",
         "app/mobile-polish.css",
-        "app/slider-card-compact.css"
+        "app/slider-card-compact.css",
+        "app/components/currency-text.tsx",
+        "app/lib/currency-label.ts",
+        "app/components/expandable-description.tsx",
+        "app/components/horizontal-chip-rail.tsx",
+        "app/components/world-quick-searches.tsx",
+        "app/join/partner-onboarding.tsx"
       ]
     },
     {
@@ -1129,7 +1138,8 @@
         "app/booking/client-page.tsx",
         "app/components/detail-sticky-dock.tsx",
         "app/lib/quoted-price-guests.ts",
-        "app/lib/event-whatsapp-inquiry.ts"
+        "app/lib/event-whatsapp-inquiry.ts",
+        "app/gift-card/"
       ]
     },
     {

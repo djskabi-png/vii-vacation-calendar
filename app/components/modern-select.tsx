@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { CurrencyText } from "./currency-text";
 
 export type ModernSelectOption = {
   value: string;
@@ -82,7 +83,7 @@ export function ModernSelect({
         disabled={disabled}
         onClick={() => setOpen((current) => !current)}
       >
-        <strong id={`${generatedId}-value`}>{selected?.label ?? "בחרו"}</strong>
+        <strong id={`${generatedId}-value`}><CurrencyText text={selected?.label ?? "בחרו"} /></strong>
         <span className="modern-select__chevron" aria-hidden="true" />
       </button>
       {open ? (
@@ -96,7 +97,7 @@ export function ModernSelect({
               key={option.value}
               onClick={() => choose(option.value)}
             >
-              <span>{option.label}</span>
+              <span><CurrencyText text={option.label} /></span>
               {option.value === selectedValue ? <span className="modern-select__check" aria-hidden="true">✓</span> : null}
             </button>
           ))}

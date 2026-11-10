@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import ts from 'typescript';
+import {currencyLabelParts} from '../app/lib/currency-label.ts';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import catalog from '../app/data/sergey-public-catalog.json' with {type:'json'};
@@ -36,27 +37,36 @@ test('north and south loft membership survives supplier singular/plural refresh'
 function selectHarness(){
  let open=false;const source=ts.transpileModule(readFileSync(new URL('../app/components/modern-select.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  let cursor=0;const state=[];const react={useId:()=> 'test',useRef:()=>({current:null}),useEffect:()=>{},useState:initial=>{const i=cursor++;if(!(i in state))state[i]=initial;return[state[i],v=>state[i]=typeof v==='function'?v(state[i]):v]}};
- const exports={};new Function('require','exports',source)(id=>id==='react'?react:require(id),exports);
+ const currency={};const currencySource=ts.transpileModule(readFileSync(new URL('../app/components/currency-text.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ new Function('require','exports',currencySource)(id=>id==='../lib/currency-label'?{currencyLabelParts}:require(id),currency);
+ const exports={};new Function('require','exports',source)(id=>id==='react'?react:id==='./currency-text'?currency:require(id),exports);
  const render=props=>{cursor=0;return exports.ModernSelect(props)};return{render};
 }
 function nodes(tree){return !tree||typeof tree!=='object'?[]:[tree,...[tree.props?.children].flat(Infinity).flatMap(nodes)]}
+function visibleText(tree){if(tree==null||typeof tree==='boolean')return '';if(typeof tree==='string'||typeof tree==='number')return String(tree);if(Array.isArray(tree))return tree.map(visibleText).join('');return typeof tree.type==='function'?visibleText(tree.type(tree.props)):visibleText(tree.props?.children);}
 test('actual shared select retains a route identity through empty, populated and partial catalog batches, with selected menu and form value',()=>{
  const h=selectHarness();let chosen;const props={label:'אזור',name:'location',value:'דרום ונגב',retainSelectedOption:true,options:[{value:'הכל',label:'הכל'}],onChange:v=>chosen=v};
  for(const options of [props.options,[],[...props.options,{value:'דרום ונגב',label:'דרום ונגב'}],props.options]){
- let tree=h.render({...props,options});assert.ok(nodes(tree).some(n=>n.type==='strong'&&n.props.children==='דרום ונגב'));
+ let tree=h.render({...props,options});assert.ok(nodes(tree).some(n=>n.type==='strong'&&visibleText(n)==='דרום ונגב'));
  assert.equal(nodes(tree).find(n=>n.type==='input').props.value,'דרום ונגב');
  const trigger=nodes(tree).find(n=>n.props?.['aria-haspopup']==='listbox');if(!trigger.props['aria-expanded'])trigger.props.onClick();tree=h.render({...props,options});
- const selected=nodes(tree).filter(n=>n.props?.role==='option'&&n.props['aria-selected']);assert.equal(selected.length,1);assert.equal(selected[0].props.children[0].props.children,'דרום ונגב');
+ const selected=nodes(tree).filter(n=>n.props?.role==='option'&&n.props['aria-selected']);assert.equal(selected.length,1);assert.equal(visibleText(selected[0].props.children[0]),'דרום ונגב');
  }
- let tree=h.render(props);nodes(tree).find(n=>n.props?.role==='option'&&n.props.children[0].props.children==='הכל').props.onClick();assert.equal(chosen,'הכל');
- tree=h.render({...props,value:'הכל'});assert.ok(nodes(tree).some(n=>n.type==='strong'&&n.props.children==='הכל'));
+ let tree=h.render(props);nodes(tree).find(n=>n.props?.role==='option'&&visibleText(n.props.children[0])==='הכל').props.onClick();assert.equal(chosen,'הכל');
+ tree=h.render({...props,value:'הכל'});assert.ok(nodes(tree).some(n=>n.type==='strong'&&visibleText(n)==='הכל'));
 });
 test('retention is opt in: opaque unrelated select identities never become raw labels',()=>{
- const tree=selectHarness().render({label:'Sort',value:'opaque-id',options:[{value:'default',label:'Recommended'}]});assert.ok(nodes(tree).some(n=>n.type==='strong'&&n.props.children==='Recommended'));
+ const tree=selectHarness().render({label:'Sort',value:'opaque-id',options:[{value:'default',label:'Recommended'}]});assert.ok(nodes(tree).some(n=>n.type==='strong'&&visibleText(n)==='Recommended'));
 });
 
 test('retained human-readable identities use their translated label',()=>{
- const tree=selectHarness().render({label:'Region',value:'דרום ונגב',retainSelectedOption:true,retainedSelectionLabel:'South and Negev',options:[]});assert.ok(nodes(tree).some(n=>n.type==='strong'&&n.props.children==='South and Negev'));
+ const tree=selectHarness().render({label:'Region',value:'דרום ונגב',retainSelectedOption:true,retainedSelectionLabel:'South and Negev',options:[]});assert.ok(nodes(tree).some(n=>n.type==='strong'&&visibleText(n)==='South and Negev'));
+});
+
+test('actual select preserves monetary label text through the shared isolated renderer',()=>{
+ const tree=selectHarness().render({label:'מחיר',value:'limit',options:[{value:'limit',label:'עד 1\u202f250 ₪ לשעתיים'}]});
+ const selected=nodes(tree).find(n=>n.type==='strong');
+ assert.equal(visibleText(selected),'עד ₪\u00a01\u202f250 לשעתיים');
 });
 
 test('every event region remains selectable when live geography and catalog are temporarily empty',()=>{

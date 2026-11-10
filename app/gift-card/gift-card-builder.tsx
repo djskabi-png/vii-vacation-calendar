@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { saveBooking } from "../lib/account";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { CurrencyText } from "../components/currency-text";
 
 const amounts = [300, 500, 750, 1000];
 const occasions = ["יום הולדת", "תודה", "חתונה", "חג", "מתנה לעובדים", "פשוט לפנק"];
@@ -200,7 +201,7 @@ export function GiftCardBuilder() {
         <div className="gift-payment-summary"><span>לתשומת לבכם</span><p>הבקשה תישלח לאימות לפני חיוב. לאחר האישור תקבלו קישור מאובטח לתשלום ולהפקת השובר.</p></div>
         <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
         <label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת את שליחת בקשת הרכישה.</span></label>
-        <div className="gift-payment-actions"><button className="button secondary" type="button" onClick={() => setStep("details")}>חזרה לעריכה</button><button className="button primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שולחים את הבקשה..." : `שליחת בקשה בסך ₪ ${finalAmount.toLocaleString("he-IL")}`}</button></div>
+        <div className="gift-payment-actions"><button className="button secondary" type="button" onClick={() => setStep("details")}>חזרה לעריכה</button><button className="button primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שולחים את הבקשה..." : <CurrencyText text={`שליחת בקשה בסך ₪ ${finalAmount.toLocaleString("he-IL")}`} />}</button></div>
         {state === "error" ? <p className="form-error" role="alert">הפעולה לא הושלמה. הפרטים נשמרו במסך ואפשר לנסות שוב.</p> : null}
       </form>}
     </div>}
