@@ -754,6 +754,17 @@ function readVerifiedCount(value: string, pattern: RegExp) {
   return match ? Number(match[1]) : undefined;
 }
 
+/**
+ * The verified catalog stores a compact location label for some legacy rows
+ * and does not expose a separate unit count for every record.  A standalone
+ * villa or suite is still one bookable unit, even when its label contains a
+ * room count.  Never leave the public unit total undefined because a parser
+ * happened not to find the plural label.
+ */
+function readVerifiedUnitCount(value: string) {
+  return readVerifiedCount(value, /(\d+)\s*(?:יחידות|וילות|סוויטות|צימרים|בקתות)/) ?? 1;
+}
+
 const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => {
   const legacyProfile = legacyVacationProfiles[item.id];
   return ({
@@ -762,7 +773,7 @@ const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => {
   location: item.location,
   area: item.area,
   type: "מתחם נופש",
-  units: readVerifiedCount(item.location, /(\d+)\s*(?:יחידות|וילות|סוויטות)/),
+  units: readVerifiedUnitCount(item.location),
   guests: item.guests,
   bedrooms: readVerifiedCount(item.location, /(\d+)\s*חדרים/),
   image: item.image,
@@ -799,6 +810,10 @@ export const properties: Property[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "vacations")
   .map((place) => ({
     ...withVacationAccommodationTypes(place),
+    // A missing or zero catalog value must not erase the physical-unit count.
+    // Standalone accommodation is one bookable unit; multi-unit places carry
+    // their verified quantity from the supplier catalog.
+    units: Number.isInteger(place.units) && place.units > 0 ? place.units : 1,
     description: supplierDisplayDescription(place),
     features: publicFeatureLabels(place.features, { maxGuests: place.guests }),
   })) as unknown as Property[];
