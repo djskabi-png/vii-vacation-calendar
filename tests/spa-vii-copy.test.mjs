@@ -13,6 +13,7 @@ import { spaEditorialSummary } from "../app/data/spa-editorial.ts";
 import { spaViiCopyOrNull } from "../app/data/spa-vii-copy.ts";
 import { spaPlacesFromSites } from "../app/lib/spa-discovery-card.ts";
 import { spaSearchStateFromValues, spaItemMatchesSearch } from "../app/data/spa-search-landings.ts";
+import { isQuarantinedGalleryMedia } from "../app/lib/legacy-gallery-media.ts";
 
 test("all 159 active Spa sources are pinned, individually rewritten and fact-mapped", async () => {
   assert.equal(copies.length, 159);
@@ -39,7 +40,8 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
     }
     const projected=await projectSpaViiSite(site);
     assert.deepEqual(projected.about, copy.paragraphs);
-    assert.deepEqual(projected.packages, site.packages);
+    assert.deepEqual(projected.packages, site.packages.map((pack) =>
+      isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" } : pack));
     assert.deepEqual(projected.opening, site.opening);
     const excluded=review.excludedSourceArtifacts.map(x=>x.text).join(" ");
     const text=copy.paragraphs.join(" ");
@@ -144,7 +146,9 @@ test("public catalog, card and both read-more paths expose VII without mutating 
 
 test("production sync gates source changes before staging and UI never falls back to provider text", async () => {
   const runtime=await readFile(new URL("../app/lib/supplier-catalog-runtime.ts",import.meta.url),"utf8");
-  assert.match(runtime,/validateCandidate: world === "spa" \? validateSpaEditorialCandidate/);
+  assert.match(runtime,/validateCandidate: async entries => \{/);
+  assert.match(runtime,/if \(world === "spa"\) await validateSpaEditorialCandidate\(entries\)/);
+  assert.match(runtime,/await archiveGalleryCandidate/);
   const sync=await readFile(new URL("../app/lib/supplier-catalog-sync.ts",import.meta.url),"utf8");
   assert.ok(sync.indexOf("await input.validateCandidate")<sync.indexOf("await stageSupplierCatalogEntries"));
   const ui=await readFile(new URL("../app/discover/place/client-page.tsx",import.meta.url),"utf8");

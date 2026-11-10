@@ -27,7 +27,8 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   assert.match(search, /chooseLocation\(place\)/);
   assert.match(search, /pickerCopy\.browse/);
   assert.match(search, /translate\(place\)/);
-  assert.match(search, /translate\("מקומות בסביבה הקרובה"\)/);
+  assert.match(search, /const nearbyLabel = mode in nearbyPageContent/);
+  assert.match(search, /translate\(nearbyLabel\)/);
   assert.match(css, /\.location-group--primary > div\s*\{[^}]*repeat\(4/s);
   assert.match(css, /mobile-expanded \.location-group--primary > div\s*\{[^}]*repeat\(2/s);
   assert.match(css, /mobile-expanded \.location-group--regions > div\s*\{[^}]*repeat\(2/s);

@@ -8,6 +8,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 
 test("map viewport changes results only after an explicit search-this-area action", () => {
   const map = readMapImplementation();
+  const layoutSync = read("app/lib/map/map-layout-sync.ts");
   assert.match(map, /searchArea: "חיפוש באזור הזה"/);
   assert.match(map, /onVisiblePlaceIdsChange\?: \(ids: string\[\]\) => void/);
   assert.match(map, /visiblePlaceIdsCallback\.current\?\.\(pendingVisibleIds\)/);
@@ -15,7 +16,9 @@ test("map viewport changes results only after an explicit search-this-area actio
   assert.match(map, /map\.on\("zoomend", \(\) => \{[\s\S]*?renderMarkers\(\);[\s\S]*?reportVisiblePlaces\(true\);[\s\S]*?\}\)/);
   assert.match(map, /onClick=\{applyVisibleArea\}/);
   assert.match(map, /suppressViewportPrompt\.current = true/);
-  assert.match(map, /map\.invalidateSize\(\{ animate: false \}\)/);
+  assert.match(map, /createMapLayoutSynchronizer\(map, container\)/);
+  assert.match(map, /layoutSync\?\.sync\(\)/);
+  assert.match(layoutSync, /map\.invalidateSize\(\{ animate: false, pan: false \}\)/);
   assert.match(map, /focusInitialPlaces\(\)/);
   assert.match(map, /suppressViewportPrompt\.current = false/);
   assert.match(map, /marker\.on\("mouseover", \(\) => activePlaceCallback\.current\?\.\(id\)\)/);
@@ -99,8 +102,14 @@ test("filter changes create restorable history entries", () => {
   ];
   for (const path of nativePaths) {
     const source = read(path);
-    assert.match(source, /history\.pushState/);
-    assert.doesNotMatch(source, /history\.replaceState/);
+    if (path === "app/components/provider-results.tsx") {
+      assert.match(source, /window\.history\[replace \? "replaceState" : "pushState"\]/);
+      assert.match(source, /updateUrl\(\{ q: value\.trim\(\) \}, true\)/);
+      assert.match(source, /updateUrl\(\{ region: value \}\)/);
+    } else {
+      assert.match(source, /history\.pushState/);
+      assert.doesNotMatch(source, /history\.replaceState/);
+    }
   }
   assert.match(read("app/search/page.tsx"), /router\.push\(/);
 });

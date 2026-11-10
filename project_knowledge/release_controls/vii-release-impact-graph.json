@@ -857,6 +857,8 @@
         "app/lib/online-booking-capability.ts",
         "app/lib/supplier-starting-price.ts",
         "app/lib/catalog-status-mcp.ts",
+        "app/lib/live-business-amenities.ts",
+        "app/lib/vacation-search-filter-index.ts",
         "app/mcp/route.ts",
         "app/lib/provider-catalog-inspection.ts",
         "app/lib/use-published-catalog.ts",
@@ -921,6 +923,9 @@
         "app/components/global-action-feedback.tsx",
         "app/components/guest-review-studio.tsx",
         "app/components/modern-date-input.tsx",
+        "app/components/event-date-picker.tsx",
+        "app/components/spa-date-picker.tsx",
+        "app/components/share-dialog.tsx",
         "app/components/modern-date-input.css",
         "app/components/modern-date-time-input.tsx",
         "app/lib/modern-date-model.ts",
@@ -947,6 +952,9 @@
         "app/components/expandable-description.tsx",
         "app/components/horizontal-chip-rail.tsx",
         "app/components/world-quick-searches.tsx",
+        "app/lib/amenity-presentation.ts",
+        "app/lib/mobile-place-navigation.ts",
+        "app/lib/share-url.ts",
         "app/join/partner-onboarding.tsx",
         "app/account/page.tsx"
       ]
@@ -987,6 +995,7 @@
         "app/components/deferred-search-content.tsx",
         "app/components/regional-search-loading.tsx",
         "app/lib/discovery-result-sort.ts",
+        "app/lib/event-discovery-contract.ts",
         "app/components/world-map-results.tsx",
         "app/lib/public-search-page-snapshot.ts",
         "app/lib/search-page-approval.ts",
@@ -1007,7 +1016,8 @@
         "app/worlds/vacations/",
         "app/components/viewport-resilient-image.tsx",
         "app/components/accommodation-landing-route.tsx",
-        "app/lib/resolve-supplier-availability.ts"
+        "app/lib/resolve-supplier-availability.ts",
+        "app/lib/booking-selection.ts"
       ]
     },
     {

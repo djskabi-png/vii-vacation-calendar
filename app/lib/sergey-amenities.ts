@@ -22,7 +22,8 @@ function text(value: unknown) {
 }
 
 export function canonicalSergeyAmenityLabel(value: unknown) {
-  return text(value);
+  const label = text(value);
+  return label === "בריכת שחיה מרעננת" ? "בריכת שחיה מחוממת" : label;
 }
 
 function id(value: unknown) {

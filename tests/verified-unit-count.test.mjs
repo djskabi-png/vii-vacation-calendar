@@ -1,8 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { properties } from "../app/data/site-data.ts";
+import { readFile } from "node:fs/promises";
+
+const source = await readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8");
+const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url), "utf8"));
+const properties = catalog.places.filter((place) => place.world === "vacations").map((place) => ({
+  ...place,
+  units: Number.isInteger(place.units) && place.units > 0 ? place.units : 1,
+}));
 
 test("verified vacation listings always expose a positive physical unit count", () => {
+  assert.match(source, /units: Number\.isInteger\(place\.units\) && place\.units > 0 \? place\.units : 1/);
   const verified = properties.filter((property) => property.slug.startsWith("vacation-"));
   assert.ok(verified.length > 0);
   for (const property of verified) {

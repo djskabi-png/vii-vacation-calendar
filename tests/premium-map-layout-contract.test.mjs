@@ -37,12 +37,13 @@ test("place cards open only after marker activation and use a quiet modern basem
 });
 
 test("failed street tiles switch the whole layer once without touching markers", () => {
-  const body=component.match(/streetTiles\.on\("tileerror", \(\) => \{([\s\S]*?)\n      \}\);/)?.[1];
+  const body=component.match(/streetTiles\.on\("tileerror", \(\) => \{([\s\S]*?)\r?\n      \}\);/)?.[1];
   assert.ok(body);
   const marker={};const layers=new Set([marker]);const street={};let adds=0,removes=0;
   const map={hasLayer:layer=>layers.has(layer),removeLayer:layer=>{removes++;layers.delete(layer);}};
   const aerial={addTo:()=>{adds++;layers.add(aerial);}};
-  const fail=new Function("map","streetTiles","aerialTiles",`let streetFallbackUsed=false;return ()=>{${body}};`)(map,street,aerial);
+  const tileHealth={markFailed:()=>{}};
+  const fail=new Function("map","streetTiles","aerialTiles","tileHealth",`let streetFallbackUsed=false;return ()=>{${body}};`)(map,street,aerial,tileHealth);
   fail();assert.equal(adds,0);layers.add(street);fail();fail();assert.equal(adds,1);assert.equal(removes,1);assert.ok(layers.has(marker));assert.ok(layers.has(aerial));assert.ok(!layers.has(street));
   layers.add(street);fail();assert.equal(adds,1);
 });

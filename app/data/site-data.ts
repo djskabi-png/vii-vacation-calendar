@@ -1,4 +1,4 @@
-import { supplierDisplayDescription } from "./supplier-display-text";
+import { supplierDisplayDescription } from "./supplier-display-text.ts";
 import verifiedCatalog from "./verified-catalog.json";
 import sergeyPublicCatalog from "./sergey-public-catalog.json";
 import { publicFeatureLabels } from "../lib/public-feature-policy";

@@ -18,14 +18,15 @@ test('popular searches stay in one horizontally scrollable row on desktop and mo
  const globalCss=readEffectiveWorldCss();
  const mobileCss=read('app/home-mobile.css');
  assert.match(globalCss,/\.home-visual-searches__track\s*\{[^}]*grid-auto-flow:\s*column;[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*inline mandatory/s);
- assert.match(globalCss,/\.home-visual-searches__track\s*>\s*a\s*\{[^}]*scroll-snap-align:\s*start/);
+ assert.match(globalCss,/\.home-popular-search-item\s*\{[^}]*scroll-snap-align:\s*start/);
+ assert.match(globalCss,/\.home-visual-searches__track\s*>\s*\.home-popular-search-item\s*>\s*a\s*\{/);
  assert.match(mobileCss,/\.home-page \.home-visual-searches__track\s*\{[^}]*grid-auto-flow:column;[^}]*overflow-x:auto;[^}]*overflow-y:hidden/s);
  assert.doesNotMatch(mobileCss,/\.home-page \.home-visual-searches\s*>\s*div:last-child\s*\{[^}]*grid-template-columns:repeat\(2/);
 });
 test('world openings retain H1, intro, search, breadcrumbs and truthful imagery without slogan stacking',()=>{
  const hero=read('app/components/discovery-world-hero.tsx');
  assert.doesNotMatch(hero,/className="discovery-world-hero__eyebrow"/);
- for(const text of ['<h1>{presentation.title}</h1>','{presentation.description}','<BreadcrumbTrail','<WorldTopicImage','{children}'])assert.ok(hero.includes(text),text);
+ for(const text of ['<h1>{translate(presentation.title)}</h1>','{translate(presentation.description)}','<BreadcrumbTrail','<WorldTopicImage','{children}'])assert.ok(hero.includes(text),text);
  assert.doesNotMatch(read('app/components/world-landing.tsx'),/>הפסקה טובה מתחילה כאן</);
  assert.doesNotMatch(read('app/events/page.tsx'),/className="events-hero__eyebrow"/);
  assert.match(read('app/events/page.tsx'),/<SearchBox mode="events"/);

@@ -28,7 +28,8 @@ test("property page preserves description, highlights and full feature groups as
   assert.match(page, /aria-label="הדברים הבולטים במקום"/);
   assert.match(page, /property-feature-groups/);
   assert.match(page, /modal-feature-groups/);
-  assert.match(page, /property\.featureGroups\?\.length/);
+  assert.match(page, /resolvedBusinessFeatureGroups\(liveFeatureGroups, property\.featureGroups\)/);
+  assert.match(page, /featureGroups\.length/);
   assert.match(css, /\.property-about__description \{[^}]*-webkit-line-clamp: 3/);
   assert.match(css, /\.property-about\.is-expanded \.property-about__description \{[^}]*overflow: visible/);
   assert.match(css, /\.property-about__toggle \{[^}]*display: inline-flex/);

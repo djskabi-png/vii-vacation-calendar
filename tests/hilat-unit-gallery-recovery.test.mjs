@@ -50,7 +50,8 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(gallery, /mobileGroups\.map/);
   assert.match(gallery, /property\.galleryGroups\?\.length/);
   assert.match(gallery, /topicTabs\.map/);
-  assert.match(gallery, /resolvedInitialTopic/);
+  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, initialTopic, initialTab\)/);
+  assert.match(gallery, /resolvedTopic \?\? \(initialTab === "all" \? defaultTopic : null\)/);
   assert.match(gallery, /const \[mobileViewer, setMobileViewer\] = useState\(false\)/);
   assert.doesNotMatch(gallery, /useState\(initialIndex > 0 \|\| initialTab !== "all"\)/);
   assert.match(gallery, /setMobileViewer\(true\)/);
