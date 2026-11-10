@@ -6,12 +6,16 @@ import {parseHomepagePresentation,worldPopularSearchItems,readHomepagePresentati
 import {validManagedSearchList} from '../app/lib/homepage-search-href.ts';
 import {spaHasLodging,spaHasHourlyRoom,spaSourceServiceTerms} from '../app/data/spa-landings.ts';
 import {normalizeEventVenueType,eventVenueTypeOrder} from '../app/lib/event-search-taxonomy.ts';
+const worldLandingSource=readFileSync(new URL('../app/components/world-landing.tsx',import.meta.url),'utf8');
+const spasPageSource=readFileSync(new URL('../app/spas/page.tsx',import.meta.url),'utf8');
 test('canonical nearby worlds keep direct links while legacy nearby actions retain nearest sorting',()=>{
  assert.equal(popularSearchWorlds.length,8);
  for(const world of popularSearchWorlds){
  const rows=parseHomepagePresentation(undefined,world.id).popular;
  assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);if(['corporate'].includes(world.id)) assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest'); else assert.match(nearby.href,/\/near-me$/);
  for(const row of rows)assert.ok(existsSync(new URL('../public'+row.image,import.meta.url)),row.image);
+ const visualRows=rows.filter(row=>row.action!=='nearby');
+ assert.equal(new Set(visualRows.map(row=>row.image)).size,visualRows.length,`${world.id} must not reuse one image for every popular search`);
  }
 });
 test('world overrides retain order and explicit hidden/empty states without contaminating other worlds',()=>{
@@ -43,4 +47,10 @@ test('popular event links use actual plural facets and corporate occasion rather
  for(const row of popularSearchesForWorld('events')){const value=new URL(row.href,'https://vii.invalid').searchParams.get('type');if(value)assert.ok(eventVenueTypeOrder.includes(value),value);}
  assert.equal(normalizeEventVenueType('לופט'),'לופטים');assert.equal(normalizeEventVenueType('וילה'),'וילות');
  assert.equal(new URL(popularSearchesForWorld('corporate')[0].href,'https://vii.invalid').searchParams.get('eventType'),'אירועי חברה');
+});
+test('transactional and nearby world pages suppress the editorial popular-search rail',()=>{
+ assert.match(worldLandingSource,/hidePopularSearches = false/);
+ assert.match(worldLandingSource,/hasTransactionalLandingState/);
+ assert.match(worldLandingSource,/!hasTransactionalLandingState \? <div className="shell world-popular-searches"/);
+ assert.match(spasPageSource,/hidePopularSearches=\{hasTransactionalSearch\}/);
 });

@@ -26,6 +26,10 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     // Do not treat a sticky booking card as a blocker: on desktop it can stay
     // visible for the whole page and used to suppress the dock permanently.
     const targets = [...document.querySelectorAll<HTMLElement>(".property-title__actions--contact, .discovery-detail__actions, #event-booking, #booking, #booking-summary, #hourly-contact, .provider-final-cta, .depth-final-cta")];
+    if (onlineHref?.startsWith("#")) {
+      const destination = document.getElementById(onlineHref.slice(1));
+      if (destination && !targets.includes(destination)) targets.push(destination);
+    }
     const intersections = new Set<Element>();
     const update = () => {
       const blocked = intersections.size > 0;
@@ -40,7 +44,7 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update, { passive: true });
     return () => { observer.disconnect(); window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
-  }, []);
+  }, [onlineHref]);
   const callable = phone?.replace(/[^\d+]/g, "");
   if ((!callable && !whatsapp && !onlineHref) || !visible) return null;
 

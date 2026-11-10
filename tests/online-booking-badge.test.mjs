@@ -21,7 +21,7 @@ test('shared stamp is noninteractive, localized and has no network requests', ()
   assert.match(card,/const onlineBookingEligible = canShowOnlineBookingBadge\(\{/);
   assert.doesNotMatch(card,/undatedSearch[^;\n]*onlineCapability[^;\n]*\|\| canShowOnlineBookingBadge/);
   const detail = readFileSync(new URL('../app/business/client-page.tsx',import.meta.url),'utf8');
-  assert.match(detail,/bookingSupported: vacationOnlineReady/);
+  assert.doesNotMatch(detail,/OnlineBookingBadge|property-title__trust-signals/);
   const css=readEffectiveWorldCss();
   assert.match(css,/\.stay-card__media > \.stay-card__booking-stamp \{[^}]*right: 14px; left: auto;/);
   assert.match(css,/\.stay-card__media > \.stay-card__booking-stamp \{[^}]*z-index: 6;/);

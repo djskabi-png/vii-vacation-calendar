@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
 }
 
-export async function HourlyLanding({ initialLocation }: { initialLocation?: string }) {
+export async function HourlyLanding({ initialLocation, initialFilters }: { initialLocation?: string; initialFilters?: Record<string, string | number | boolean> }) {
   const hourlyPlaces = hourlyPlacesFromCatalog(await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"));
   const title = initialLocation ? `חדרים לפי שעה ב${initialLocation}` : "חדרים לפי שעה";
   const description = initialLocation
@@ -58,6 +58,7 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
       items={hourlyPlaces}
       searchMode="hourly"
       initialSearchLocation={initialLocation}
+      initialFilters={initialFilters}
       collectionTitle={initialLocation ? `חדרים וסוויטות לפי שעה ב${initialLocation}` : "חדרים וסוויטות לפי שעה בישראל"}
     />
   </>;
@@ -78,5 +79,6 @@ export default async function HourlyPage({ searchParams }: { searchParams?: Prom
       permanentRedirect(`${approved.path}${query.size ? `?${query}` : ""}`);
     }
   }
-  return <HourlyLanding />;
+  const initialFilters = Object.fromEntries(Object.entries(params || {}).flatMap(([key, value]) => value === undefined ? [] : [[key, Array.isArray(value) ? value.join(",") : value]]));
+  return <HourlyLanding initialFilters={initialFilters} />;
 }

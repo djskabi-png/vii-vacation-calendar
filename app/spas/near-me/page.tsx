@@ -12,5 +12,5 @@ const page = nearbyPageContent.spa;
 export async function generateMetadata(): Promise<Metadata> { return nearbyPageMetadata(page.path, page.title, page.description); }
 export default async function NearbySpaPage() {
  const items = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
- return <><StructuredData data={breadcrumbSchema([{name:"ראשי",path:"/"},{name:"בתי ספא",path:"/spas"},{name:page.title,path:page.path}])} /><WorldLanding world="spa" title={page.title} managedTitle={page.title} description={page.description} items={items} searchMode="spa" breadcrumbItems={[{ name:"ראשי",path:"/" },{ name:"בתי ספא",path:"/spas" },{ name:page.title,path:page.path }]} collectionTitle="בתי ספא לבחירה" beforeResults={<NearbyRouteActivation />} managedBody={page.body} managedFaq={nearbyPageFaq("spa")} /></>;
+ return <><StructuredData data={breadcrumbSchema([{name:"ראשי",path:"/"},{name:"בתי ספא",path:"/spas"},{name:page.title,path:page.path}])} /><WorldLanding world="spa" title={page.title} managedTitle={page.title} description={page.description} items={items} searchMode="spa" breadcrumbItems={[{ name:"ראשי",path:"/" },{ name:"בתי ספא",path:"/spas" },{ name:page.title,path:page.path }]} collectionTitle="בתי ספא לבחירה" beforeResults={<NearbyRouteActivation />} managedBody={page.body} managedFaq={nearbyPageFaq("spa")} hidePopularSearches /></>;
 }

@@ -75,6 +75,7 @@ export async function WorldLanding({
   managedBody,
   managedFaq,
   managedTitle,
+  hidePopularSearches = false,
 }: {
   world: WorldId;
   title: string;
@@ -94,6 +95,7 @@ export async function WorldLanding({
   managedBody?: string;
   managedFaq?: Array<{ question: string; answer: string }>;
   managedTitle?: string;
+  hidePopularSearches?: boolean;
 }) {
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
@@ -118,6 +120,10 @@ export async function WorldLanding({
     title: managedTitle || (world === "hourly" && initialSearchLocation ? title : managedPresentation.title),
     description: managedTitle ? description : (world === "hourly" && initialSearchLocation ? description : managedPresentation.description),
   } : null;
+  const hasTransactionalLandingState = hidePopularSearches
+    || Boolean(initialSpaAudience)
+    || Boolean(initialSpaFilters?.length)
+    || Object.entries(initialFilters || {}).some(([key, value]) => key !== "location" && key !== "area" && key !== "region" && value !== "" && value !== false && value !== 0);
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}${crossSell ? " world-page--with-cross-sell" : ""}`}>
@@ -154,7 +160,7 @@ export async function WorldLanding({
           {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
         </section>
       </>}
-      <div className="shell world-popular-searches"><HomeQuickSearches world={world === "activities" ? "attractions" : world} /></div>
+      {!hasTransactionalLandingState ? <div className="shell world-popular-searches"><HomeQuickSearches world={world === "activities" ? "attractions" : world} /></div> : null}
       {beforeResults}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}

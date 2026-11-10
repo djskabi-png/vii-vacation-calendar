@@ -9,7 +9,7 @@ test('built world APIs isolate every configured default and reject unsupported w
 });
 test('new spa semantic pages render real source matches and no fabricated whole-country city path',async()=>{
  for(const [path,title] of [['/spas/spa-with-lodging','ספא עם לינה'],['/spas/spa-hourly-room','ספא עם חדר לפי שעה']]){
- const response=await render(path);assert.equal(response.status,200);const html=await response.text();assert.ok(html.includes(title));assert.ok(html.includes('popular-searches-spa-track'));assert.ok(!html.includes('city-kl-harz'),path);assert.match(html,/discover\/place\/spa-\d+/);
+ const response=await render(path);assert.equal(response.status,200);const html=await response.text();assert.ok(html.includes(title));assert.ok(!html.includes('popular-searches-spa-track'));assert.ok(!html.includes('city-kl-harz'),path);assert.match(html,/discover\/place\/spa-\d+/);
  }
 });
 

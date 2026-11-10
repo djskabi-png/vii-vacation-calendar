@@ -16,7 +16,7 @@ import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
 import { approvedWorldLocation } from "../../../lib/world-location-pages.ts";
 import { matchesSearchLocation } from "../../../data/search-taxonomy.ts";
 
-type Props = { params: Promise<{ segments: string[] }> };
+type Props = { params: Promise<{ segments: string[] }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const segments = (await params).segments;
@@ -40,8 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SpaSearchLandingPage({ params }: Props) {
+export default async function SpaSearchLandingPage({ params, searchParams }: Props) {
   const segments = (await params).segments;
+  const query = await searchParams;
   const city = !spaSearchStateFromSegments(segments) && segments.length > 1 ? await approvedWorldLocation("spa", segments[0]) : null;
   const state = spaSearchStateFromSegments(segments, city || undefined);
   const locationPage = !state && segments.length === 1 ? await approvedWorldLocation("spa", segments[0]) : null;
@@ -71,6 +72,7 @@ export default async function SpaSearchLandingPage({ params }: Props) {
       initialSpaFilters={state?.features.map((entry) => entry.id)}
       breadcrumbItems={breadcrumbs}
       collectionTitle={`${items.length} בתי ספא מתאימים לחיפוש`}
+      hidePopularSearches={Boolean(state?.audience || state?.features.length) || Object.entries(query || {}).some(([key, value]) => key !== "location" && value !== undefined && value !== "" && (!Array.isArray(value) || value.length > 0))}
     />
   </>;
 }

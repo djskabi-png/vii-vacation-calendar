@@ -942,6 +942,7 @@
         "app/lib/catalog-navigation-fetch.ts",
         "app/lib/use-catalog-navigation-recovery.ts",
         "app/components/card-contact-actions.tsx",
+        "app/components/floating-contact-actions.tsx",
         "app/components/collapsible-feature-list.tsx",
         "app/components/search-after-results.tsx",
         "app/home-mobile.css",
@@ -1010,6 +1011,7 @@
         "app/vacations/",
         "app/business/",
         "app/components/property-card.tsx",
+        "app/components/vacation-geography-nav.tsx",
         "app/lib/public-vacation-search.ts",
         "app/lib/verified-sleeping-rooms.ts",
         "app/components/room-sleeping-preview.tsx",
@@ -1359,21 +1361,7 @@
       "match": [
         "app/components/discovery-thumbnail.tsx",
         "scripts/generate-discovery-thumbnails.mjs",
-        "public/assets/vii-thumbnail-4f8e0a96abe9d7506a48.webp",
-        "public/assets/vii-thumbnail-dadd3a91bf5aab967080.webp",
-        "public/assets/vii-thumbnail-3cc02e47a70642bee0f3.webp",
-        "public/assets/vii-thumbnail-25ed9f1451fe36f8a86c.webp",
-        "public/assets/vii-thumbnail-afe2a960adc54b933fbb.webp",
-        "public/assets/vii-thumbnail-6276e0e349507efb2adb.webp",
-        "public/assets/vii-thumbnail-7b2ccc1948b2d2172e02.webp",
-        "public/assets/vii-thumbnail-49f84a48ab343724aceb.webp",
-        "public/assets/vii-thumbnail-ede53014c1658a4a5ff2.webp",
-        "public/assets/vii-thumbnail-4162cb95af98771416f8.webp",
-        "public/assets/vii-thumbnail-c42c2e94d262dacf5b55.webp",
-        "public/assets/vii-thumbnail-54bab038260178c7a154.webp",
-        "public/assets/vii-thumbnail-b72a65c1afd4f425c42f.webp",
-        "public/assets/vii-thumbnail-8b82698e852bc41e50c2.webp",
-        "public/assets/vii-thumbnail-c16802e63f3b46e25cc4.webp"
+        "public/assets/"
       ]
     },
     {

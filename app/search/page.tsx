@@ -1035,7 +1035,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
 
   function resetFilters() {
     if (filtersOpen) {
-      setDraftFilters({ area, selectedTypes: [], guests, bedrooms: 0, minPrice: VACATION_PRICE_MIN, maxPrice: VACATION_PRICE_MAX, pool: false, spa: false, whole: false, accessibleOnly: false, onlineOnly: false, selectedExtras: [], sort: "recommended" });
+      setDraftFilters({ area: "הכל", selectedTypes: [], guests: 2, bedrooms: 0, minPrice: VACATION_PRICE_MIN, maxPrice: VACATION_PRICE_MAX, pool: false, spa: false, whole: false, accessibleOnly: false, onlineOnly: false, selectedExtras: [], sort: "recommended" });
       return;
     }
     setArea("הכל");

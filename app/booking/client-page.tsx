@@ -193,7 +193,7 @@ export default function BookingPageClient(props: Props) {
   const vacationPriceSummary = pricing ? <div className="booking-price-breakdown" aria-label={labels.total}>
     <span>{labels.total}</span>
     <strong><bdi dir="ltr">₪&nbsp;{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)}</bdi></strong>
-    <small><bdi dir="ltr">₪&nbsp;{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })}</bdi> {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
+    <small><bdi dir="ltr">₪&nbsp;{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })}</bdi> {supplierSiteID && currentNights > 1 ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
     <small><CurrencyText text={pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""} />{guests} {labels.guests}</small>
     {props.includedGuests && props.includedGuests > 0 ? <small>{language === "he" ? `המחיר כולל עד ${props.includedGuests} אורחים` : `${props.includedGuests} guests included in the price`}</small> : null}
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>

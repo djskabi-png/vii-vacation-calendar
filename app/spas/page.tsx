@@ -42,12 +42,13 @@ export default async function SpasPage({ searchParams }: { searchParams?: Promis
   const page = await publishedSearchPage("/spas");
   const { translate } = await serverPublicCopy();
   const spaPlaces = spaPlacesFromSites(await bundledPublicCatalogSummaries<SpaPlusSite>("spa"));
+  const hasTransactionalSearch = Object.entries(params || {}).some(([key, value]) => key !== "location" && value !== undefined && value !== "" && (!Array.isArray(value) || value.length > 0));
   return <>
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "בתי ספא", path: "/spas/" },
     ])} />
     <StructuredData data={collectionSchema(page?.title || "בתי ספא בישראל", page?.description || "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
-    <PublishedCatalogSeed world="spa" entries={spaPlaces}><SpaCatalogProvider><WorldLanding world="spa" title={translate(page?.title || "בתי ספא בישראל")} description={translate(page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם.")} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} /></SpaCatalogProvider></PublishedCatalogSeed>
+    <PublishedCatalogSeed world="spa" entries={spaPlaces}><SpaCatalogProvider><WorldLanding world="spa" title={translate(page?.title || "בתי ספא בישראל")} description={translate(page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם.")} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} hidePopularSearches={hasTransactionalSearch} /></SpaCatalogProvider></PublishedCatalogSeed>
   </>;
 }

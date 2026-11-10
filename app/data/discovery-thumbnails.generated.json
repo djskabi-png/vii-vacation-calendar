@@ -78,6 +78,60 @@
       "sourceBytes": 185078,
       "bytes": 11828
     },
+    "/media/editorial/attractions-two-hour-escape.webp": {
+      "src": "/assets/vii-thumbnail-963cdea383fb4ea78b95.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "732bd440ca5d3c69db6448d2c9f6b60e9c104f45e7686088f025566223e1be28",
+      "sha256": "9608b89d0d311790159e3832c33714552fac8f1bce2f85ed13592064c57c761b",
+      "sourceBytes": 128208,
+      "bytes": 10148
+    },
+    "/media/editorial/attractions-water-safety.webp": {
+      "src": "/assets/vii-thumbnail-8866859b77f9fc4bdb1b.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "ae3bf75981a30dd1cc27c5afa80a102c09e97e08dca359bc567d680bb3747949",
+      "sha256": "fa355324154094e86e21b206caa4d7a662543b31a1fa76ca51ddd477b374bd1f",
+      "sourceBytes": 119930,
+      "bytes": 8424
+    },
+    "/media/editorial/build-a-day-around-your-stay.webp": {
+      "src": "/assets/vii-thumbnail-eb805cf703c45ebc38ad.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "af9f58d09a6653423b32f86f09097fee0acc66c31910768e95cbbf06c430b934",
+      "sha256": "a807816bacc366b32a01a8409e5d4b7444da49c47ac29044e8720682fc284a61",
+      "sourceBytes": 215164,
+      "bytes": 11408
+    },
+    "/media/editorial/calm-family-vacation.webp": {
+      "src": "/assets/vii-thumbnail-b221db5228353940affe.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "96562cf14d0c0254eda35379521a40e08854a09e5949632a59e9eaec00efb825",
+      "sha256": "741d2da1da5fba720b12417cb9628a30794f0b85957a818a0d4c69813dc37891",
+      "sourceBytes": 191478,
+      "bytes": 11532
+    },
+    "/media/editorial/choose-the-right-place.webp": {
+      "src": "/assets/vii-thumbnail-3c464c4daea5e57bde9a.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "771933551e93e70a3840ea8a61304a3a4e4166a79c2076ed1fe8e9405551d0d0",
+      "sha256": "852c9a1571e008497f0a1cf845e475551431227c37de6312864d29094c5a6066",
+      "sourceBytes": 247534,
+      "bytes": 9492
+    },
+    "/media/editorial/corporate-gift-choice.webp": {
+      "src": "/assets/vii-thumbnail-10d6c142ae4ff609734c.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "978d0caf49ee30229a32f724f82bed52a79b094e5a07c2a888821e6e46e753ca",
+      "sha256": "3feb029c7cdc0ea6ca88be45bb8a513422514c9a377e23593273390add109df0",
+      "sourceBytes": 108386,
+      "bytes": 7934
+    },
     "/media/editorial/corporate-team-day.webp": {
       "src": "/assets/vii-thumbnail-ede53014c1658a4a5ff2.webp",
       "width": 192,
@@ -86,6 +140,87 @@
       "sha256": "4a1c9fd18f3d9ba86c0c134d0351f4d73702ae97fd37d82a4c96e4c502665904",
       "sourceBytes": 184660,
       "bytes": 11084
+    },
+    "/media/editorial/corporate-wellbeing-brief.webp": {
+      "src": "/assets/vii-thumbnail-fd0d0548a6666820e97a.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "41bab40be3fa12de63d1cc650b9860077591273e887bef947a218fb1a83e5efe",
+      "sha256": "e21798cf9136bc69a0f02ec481dd9e963baa08069b6a10be863b78fcd0afb103",
+      "sourceBytes": 137230,
+      "bytes": 9412
+    },
+    "/media/editorial/couples-reset.webp": {
+      "src": "/assets/vii-thumbnail-303a30dabad69e611553.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "da0de2a37d661161409b8cedb7cf1b57a25b867b0c0b9d9b5b5780dea34eb771",
+      "sha256": "bb28d18d776f9335ec6b6e78be02f95904af66f1639f7c263c4cd068e96ebc4d",
+      "sourceBytes": 124288,
+      "bytes": 7704
+    },
+    "/media/editorial/eilat-slow-weekend.webp": {
+      "src": "/assets/vii-thumbnail-94865b2f82e479b7717e.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "fe4ec4273571304d5983003142408037bd2a907d8208c0987188a9a11ea9baae",
+      "sha256": "191f903238c6743a33c150cd6a440311916b27864608ef5b666a94553ed62d82",
+      "sourceBytes": 151800,
+      "bytes": 6680
+    },
+    "/media/editorial/events-build-brief.webp": {
+      "src": "/assets/vii-thumbnail-674ff725249a961f70d3.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "d8282c2c11b908604f4e2173e6b824c007c8756ff14de7801b85edcd037fb3df",
+      "sha256": "3bf0c403b13c7964dee234a5639cab5714ebc415a0c353f430666f13be6d2d02",
+      "sourceBytes": 129982,
+      "bytes": 9866
+    },
+    "/media/editorial/events-small-gathering.webp": {
+      "src": "/assets/vii-thumbnail-1ed5ace8ea22394bfbac.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "bffec34e03e1e95ad98ea9f833e69ddd02d433230d49ec636c3a538f685d5dbe",
+      "sha256": "28d0758365fb85b197d8dc379d9cb80369c509e8f4df51dc79cbd7a81397f332",
+      "sourceBytes": 191302,
+      "bytes": 10170
+    },
+    "/media/editorial/events-weather-plan.webp": {
+      "src": "/assets/vii-thumbnail-9bcca11bed0015aaa528.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "80543f0ffefdcd965b4f845619785e075f2fcc85ec8eb82bb0a31972f68aa08e",
+      "sha256": "5081f55a815d04632a078a126660fdcb4c87d111411e0358194ddaaa657046a4",
+      "sourceBytes": 237970,
+      "bytes": 11096
+    },
+    "/media/editorial/hourly-between-trips.webp": {
+      "src": "/assets/vii-thumbnail-d259827cf31b431717a3.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "292c94983fff22455798940a895bfdf97f3398fe6e9284fed1e709c2f80cbd3f",
+      "sha256": "d776e7e55476d9a6e2732d90364f22fab612b8a81df9b1ea911a0274fad33a51",
+      "sourceBytes": 128328,
+      "bytes": 8102
+    },
+    "/media/editorial/hourly-privacy.webp": {
+      "src": "/assets/vii-thumbnail-b1b615314412f5a6c729.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "1cbf118906aa1461a19d72d132b6cf638676087466c2e1cd91fa49df77e86a91",
+      "sha256": "1501eff7972725597405afa39fa02847835a2c9aa206a1ed47dfe42227aa5639",
+      "sourceBytes": 66086,
+      "bytes": 5154
+    },
+    "/media/editorial/hourly-room-guide.webp": {
+      "src": "/assets/vii-thumbnail-c8f9708466b01f8249cf.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "0a0c2035a26f4af22a3e1bccc506986d54bcc1e89f6479007a86641f1331e399",
+      "sha256": "a72bd3a4056450382a6811482fdde7c744f030b5601043e71dbf133d39165d90",
+      "sourceBytes": 112306,
+      "bytes": 6094
     },
     "/media/editorial/hourly-stay-what-to-check.webp": {
       "src": "/assets/vii-thumbnail-4162cb95af98771416f8.webp",
@@ -96,14 +231,59 @@
       "sourceBytes": 141844,
       "bytes": 6918
     },
-    "/media/editorial/north-regions-guide.webp": {
-      "src": "/assets/vii-thumbnail-c42c2e94d262dacf5b55.webp",
+    "/media/editorial/one-villa-or-several-units.webp": {
+      "src": "/assets/vii-thumbnail-0233ebb4b26c3f8b1231.webp",
       "width": 192,
       "height": 128,
-      "sourceSha256": "fdefe03d8c84ca4724682fedf372aa037fa1e7c77be16e97163f0bcb382ff430",
-      "sha256": "fbe14096e76fc4966aa7881f3356085c6ae620767acf09a0b94304e38456f333",
-      "sourceBytes": 246958,
-      "bytes": 8574
+      "sourceSha256": "65223392504aa91e56f14d7fe8859dff9058c562c8b006d51a97e0b6c5af424d",
+      "sha256": "f73ef77ceac86a584e4ca55eb31ecc198694b48c5118c8fda5f5a6d681dfd264",
+      "sourceBytes": 314560,
+      "bytes": 12498
+    },
+    "/media/editorial/private-event-checklist.webp": {
+      "src": "/assets/vii-thumbnail-b19f21d46147e2f9182b.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "a937320251df07f644baa9ed609cf194071dc772c059e8c676597f96468e21e8",
+      "sha256": "99df8673e88e580987fa13270273e8dbcfb77e95dfffbe94447d85b0496d2a34",
+      "sourceBytes": 238736,
+      "bytes": 10286
+    },
+    "/media/editorial/providers-compare-offers.webp": {
+      "src": "/assets/vii-thumbnail-fe2aa93b022dbe5af65c.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "3b96957949aa717c0fb622cd68d4dac8cb943c7ca903b4aeb601b3042e8526a9",
+      "sha256": "fca0c98bb01351797776a11922ba88b25434e7d6934e4e8d02eac1dca7de30f5",
+      "sourceBytes": 85802,
+      "bytes": 6688
+    },
+    "/media/editorial/providers-reliable-coordination.webp": {
+      "src": "/assets/vii-thumbnail-0d363fc5a6f5fcf3dc4b.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "c0b380572967ddb4b268697cdbdd0ffd63c4b9cde5a28f8eda5cb690f28e8e9b",
+      "sha256": "29e3c5847bdc2b79a585498ab29879d61573334295f3c96232844a96ddc7eb71",
+      "sourceBytes": 156824,
+      "bytes": 10156
+    },
+    "/media/editorial/providers-service-at-home.webp": {
+      "src": "/assets/vii-thumbnail-6d1fa551db5596352e9d.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "230d3d9a5c22932f4768c808c182ca5c664a4139e57ff47575b408269712a326",
+      "sha256": "5a7bcdeec33dd523495003786bd182e4a6372db763315513d55a376b24ff1fb2",
+      "sourceBytes": 136480,
+      "bytes": 9906
+    },
+    "/media/editorial/spa-choose-treatment.webp": {
+      "src": "/assets/vii-thumbnail-8842cba8e95ac788447b.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "8dff260dae8985e04655b2cc9d4273271657c4b5a788d7fa346bedd81d03f9a2",
+      "sha256": "3c9669d41ade5129f8b681cb4f9cba65ebd6169b11c50b869de710ecc68c494e",
+      "sourceBytes": 119808,
+      "bytes": 7888
     },
     "/media/editorial/spa-couple-experience.webp": {
       "src": "/assets/vii-thumbnail-54bab038260178c7a154.webp",
@@ -113,6 +293,78 @@
       "sha256": "40d61bc9ffd771fd9b987dcaf4ca6a1eb6b68ab5be7db35076f8793fb2a132f9",
       "sourceBytes": 171720,
       "bytes": 7008
+    },
+    "/media/editorial/spa-day-plan.webp": {
+      "src": "/assets/vii-thumbnail-019aa349541c9e90d9cc.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "a81f1285355c1484713f7e087348a453c6a9f8049403f2d501f880f4e8be06cd",
+      "sha256": "907b3a2b0da73ad55ff77fe5464ba96237834c660a2529fa090629daa0e04c80",
+      "sourceBytes": 201184,
+      "bytes": 10312
+    },
+    "/media/editorial/spa-day-with-vacation.webp": {
+      "src": "/assets/vii-thumbnail-f8cc474f69b3a2779944.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "b2b4283879dc816ecb0484958ecfc4c92ae2fda8c9192c003471b02c469ee280",
+      "sha256": "2307c17bb6b2636d3e213c8a1a572bbeaa01694041c0a6e1e3d03e1995228150",
+      "sourceBytes": 123726,
+      "bytes": 7982
+    },
+    "/media/editorial/trails-choose-level.webp": {
+      "src": "/assets/vii-thumbnail-4921945db1a330cf75e4.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "2167cbfc5403e78f7f72da4086df3800eb04d37e081d1efc7c9af4fafd4219a3",
+      "sha256": "3e64746b7976bfeb7e4fe843a8fc1cd307e4bdb11c1ac39f3b7d4928fc8bf858",
+      "sourceBytes": 296812,
+      "bytes": 12346
+    },
+    "/media/editorial/trails-day-plan.webp": {
+      "src": "/assets/vii-thumbnail-b6e8203681f23331e3e2.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "a9681d690713f710ad6cf850570fd3cc294a78a7f1b046d39db009321a9fcece",
+      "sha256": "7c221dd243f47515a8c9d84c2477afb0631e8594c8a1983e5b7b5a311548592a",
+      "sourceBytes": 286036,
+      "bytes": 10516
+    },
+    "/media/editorial/trails-family-packing.webp": {
+      "src": "/assets/vii-thumbnail-5594b01d933a323756c3.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "3906187de59726836330330dcf77c61b30de6e08d5becf7c19e68a6a9c9e1617",
+      "sha256": "ec943f33c5f6a34868bffda664fc7555993c38b77360a7191ca87b8956fc4161",
+      "sourceBytes": 264722,
+      "bytes": 12250
+    },
+    "/media/editorial/vacations-choose-region.webp": {
+      "src": "/assets/vii-thumbnail-8ee4810ea1c22cddec6c.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "55e3311e3d73974c612e285f8df8e96921019b883a497c7df346882f44ec6279",
+      "sha256": "266769e48e3e6aef1222250ecae3e1b51e900ce495575d81ab2c767b1ca2c5a9",
+      "sourceBytes": 189084,
+      "bytes": 9934
+    },
+    "/media/editorial/vacations-family-planning.webp": {
+      "src": "/assets/vii-thumbnail-a40ce181756dd5b9aec8.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "344c75b3d8bb41659ce3f7e1e3a562565a070f37d87d55aa6c20c1e9ae182b2e",
+      "sha256": "10fe609652d7f0996f6ca835e7e1b0c14b0d16c6de7c55ff14ca8e27dbd66c06",
+      "sourceBytes": 150686,
+      "bytes": 10442
+    },
+    "/media/editorial/vacations-last-minute-without-compromise.webp": {
+      "src": "/assets/vii-thumbnail-ce8a9b119683d457d0c2.webp",
+      "width": 192,
+      "height": 128,
+      "sourceSha256": "2ca41c21071b8e1a5e963df0223d242630742b991869445b7edce36279a3f2cd",
+      "sha256": "c61da0e3f9a1f2c95b92a7e3411fc2820dc3e33f7c06b8c7a0e1c923625b7424",
+      "sourceBytes": 151448,
+      "bytes": 9710
     },
     "/media/f18d7c0469633ca0.jpeg": {
       "src": "/assets/vii-thumbnail-b72a65c1afd4f425c42f.webp",

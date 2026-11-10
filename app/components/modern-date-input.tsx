@@ -6,6 +6,8 @@ import { parseCalendarDate as parse, calendarDateKey as iso, calendarDateValidit
 import "./modern-date-input.css";
 
 function monthDays(month: Date) { return new Date(month.getFullYear(), month.getMonth()+1, 0).getDate(); }
+function displayDate(value: string) { const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value); return match ? `${match[3]}.${match[2]}.${match[1]}` : value; }
+function canonicalDate(value: string) { const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value); return match ? `${match[3]}-${match[2]}-${match[1]}` : null; }
 
 export type ModernDateInputProps = InputHTMLAttributes<HTMLInputElement> & { label?: ReactNode; labelClassName?: string; openRequest?: number };
 export function ModernDateInput({ value, defaultValue, onChange, name, min, max, required, disabled, id, className, label, labelClassName, openRequest = 0, ...props }: ModernDateInputProps) {
@@ -19,33 +21,38 @@ export function ModernDateInput({ value, defaultValue, onChange, name, min, max,
   const controlled = value !== undefined;
   const [inner, setInner] = useState(defaultValue || "");
   const current = String(controlled ? value ?? "" : inner);
+  const [display, setDisplay] = useState(displayDate(current));
   const [open, setOpen] = useState(false);
   const selected = parse(current) || parse(lower || "") || new Date();
   const [month, setMonth] = useState(new Date(selected.getFullYear(), selected.getMonth(), 1));
   const days = useMemo(() => { const first = new Date(month.getFullYear(), month.getMonth(), 1).getDay(); return [...Array(first).fill(null), ...Array.from({ length: monthDays(month) }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1))]; }, [month]);
   const fieldRef = useRef<HTMLInputElement>(null);
+  const hiddenRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const suppressFocusOpen = useRef(false);
   const close = () => { setOpen(false); suppressFocusOpen.current = true; fieldRef.current?.focus(); };
-  useEffect(() => { fieldRef.current?.setCustomValidity(calendarDateValidity(current, lower, upper) === 'valid' ? '' : labels[5]); }, [current, lower, upper, language]);
-  useEffect(() => { const form = fieldRef.current?.form; const reset = () => { if (!controlled) setInner(defaultValue || ''); setOpen(false); }; form?.addEventListener('reset', reset); return () => form?.removeEventListener('reset', reset); }, [controlled, defaultValue]);
+  useEffect(() => { setDisplay(displayDate(current)); }, [current]);
+  useEffect(() => { const canonical = display === "" ? "" : canonicalDate(display); fieldRef.current?.setCustomValidity(canonical !== null && (canonical === "" || calendarDateValidity(canonical, lower, upper) === 'valid') ? '' : labels[5]); }, [display, lower, upper, language]);
+  useEffect(() => { const form = fieldRef.current?.form; const reset = () => { const next = String(defaultValue || ''); if (!controlled) setInner(next); setDisplay(displayDate(next)); setOpen(false); }; form?.addEventListener('reset', reset); return () => form?.removeEventListener('reset', reset); }, [controlled, defaultValue]);
   useEffect(() => { if (!open) return; const outside = (event: PointerEvent) => { if (!containerRef.current?.contains(event.target as Node)) setOpen(false); }; document.addEventListener('pointerdown', outside); return () => document.removeEventListener('pointerdown', outside); }, [open]);
   const choose = (next: string, event: MouseEvent<HTMLButtonElement>) => {
     // Clearing is an intentional form action and must not be rejected by the
     // date-range validator. A cleared required field remains invalid until the
     // visitor picks a valid date, while optional fields become genuinely empty.
     if (next !== "" && calendarDateValidity(next, lower, upper) !== 'valid') return;
-    if (!fieldRef.current) return;
-    fieldRef.current.value = next;
+    if (!hiddenRef.current) return;
+    hiddenRef.current.value = next;
     if (!controlled) setInner(next);
-    onChange?.({ ...event, type: 'change', target: fieldRef.current, currentTarget: fieldRef.current } as unknown as ChangeEvent<HTMLInputElement>);
+    setDisplay(displayDate(next));
+    onChange?.({ ...event, type: 'change', target: hiddenRef.current, currentTarget: hiddenRef.current } as unknown as ChangeEvent<HTMLInputElement>);
     close();
   };
   const show = () => { if (disabled || props.readOnly) return; const date = parse(current) || parse(lower || '') || parse(upper || '') || new Date(); setMonth(new Date(date.getFullYear(), date.getMonth(), 1)); setOpen(true); };
   useEffect(() => { if (openRequest > 0 && !disabled && !props.readOnly) { show(); fieldRef.current?.focus(); } }, [openRequest]);
   return <div ref={containerRef} className={`modern-date-input ${className || ""} ${labelClassName || ''}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }} onKeyDown={event => { if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); close(); } }}>
     {label ? <label htmlFor={fieldId}>{label}</label> : null}
-    <div className="modern-date-input__control"><input {...props} ref={fieldRef} type="text" id={fieldId} className={`modern-date-input__field ${className || ""}`} name={name} value={current} placeholder={props.placeholder || labels[0]} dir="ltr" inputMode="numeric" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required={required} disabled={disabled} aria-controls={popupId} aria-expanded={open} onChange={event => { const next = event.target.value; if (!controlled) setInner(next); onChange?.(event); }} onFocus={event => { props.onFocus?.(event); if (suppressFocusOpen.current) suppressFocusOpen.current = false; else show(); }} />
+    <input ref={hiddenRef} type="hidden" name={name} value={current} disabled={disabled} readOnly />
+    <div className="modern-date-input__control"><input {...props} ref={fieldRef} type="text" id={fieldId} className={`modern-date-input__field ${className || ""}`} value={display} placeholder={props.placeholder || "dd.mm.yyyy"} dir="ltr" inputMode="numeric" pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}" required={required} disabled={disabled} aria-controls={popupId} aria-expanded={open} onChange={event => { const nextDisplay = event.target.value; setDisplay(nextDisplay); const next = nextDisplay === "" ? "" : canonicalDate(nextDisplay); if (next !== null && (next === "" || calendarDateValidity(next, lower, upper) === 'valid')) { if (!controlled) setInner(next); if (hiddenRef.current) { hiddenRef.current.value = next; onChange?.({ ...event, target: hiddenRef.current, currentTarget: hiddenRef.current } as ChangeEvent<HTMLInputElement>); } } }} onFocus={event => { props.onFocus?.(event); if (suppressFocusOpen.current) suppressFocusOpen.current = false; else show(); }} />
     <button type="button" className="modern-date-input__toggle" aria-label={labels[0]} aria-haspopup="dialog" aria-expanded={open} disabled={disabled || props.readOnly} onClick={() => open ? close() : show()}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4m10-4v4M4 10h16M5 5h14v15H4V5Z" /></svg></button></div>
     {open ? <div id={popupId} className="modern-date-input__popup" role="dialog" aria-label={labels[0]} dir={language === 'he' ? 'rtl' : 'ltr'}>
       <div className="modern-date-input__nav"><button type="button" aria-label={labels[1]} disabled={!!lower && iso(month).slice(0, 7) <= lower.slice(0, 7)} onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth()-1, 1))}>{language === "he" ? "›" : "‹"}</button><strong>{month.toLocaleDateString(locale, { month: "long", year: "numeric" })}</strong><button type="button" aria-label={labels[2]} disabled={!!upper && iso(month).slice(0, 7) >= upper.slice(0, 7)} onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth()+1, 1))}>{language === "he" ? "‹" : "›"}</button></div>

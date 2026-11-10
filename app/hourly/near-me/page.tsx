@@ -12,5 +12,5 @@ export async function generateMetadata(): Promise<Metadata> { return nearbyPageM
 export default async function NearbyHourlyPage() {
  type Place = Parameters<typeof hourlyPlacesFromCatalog>[0][number];
  const items=hourlyPlacesFromCatalog(await publicCatalogSummaries<Place>("rooms"));
- return <><StructuredData data={breadcrumbSchema([{name:"ראשי",path:"/"},{name:"חדרים לפי שעה",path:"/hourly"},{name:page.title,path:page.path}])} /><WorldLanding world="hourly" title={page.title} managedTitle={page.title} description={page.description} items={items} searchMode="hourly" breadcrumbItems={[{ name:"ראשי",path:"/" },{ name:"חדרים לפי שעה",path:"/hourly" },{ name:page.title,path:page.path }]} beforeResults={<NearbyRouteActivation />} managedBody={page.body} managedFaq={nearbyPageFaq("hourly")} /></>;
+ return <><StructuredData data={breadcrumbSchema([{name:"ראשי",path:"/"},{name:"חדרים לפי שעה",path:"/hourly"},{name:page.title,path:page.path}])} /><WorldLanding world="hourly" title={page.title} managedTitle={page.title} description={page.description} items={items} searchMode="hourly" breadcrumbItems={[{ name:"ראשי",path:"/" },{ name:"חדרים לפי שעה",path:"/hourly" },{ name:page.title,path:page.path }]} beforeResults={<NearbyRouteActivation />} managedBody={page.body} managedFaq={nearbyPageFaq("hourly")} hidePopularSearches /></>;
 }

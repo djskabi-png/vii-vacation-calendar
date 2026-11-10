@@ -64,9 +64,12 @@ test("verified physical accessibility is recognized narrowly and shown before th
   assert.doesNotMatch(data, /includes\("נגיש"\)/);
   assert.match(listing, /if \(compact\) return <span className="place-accessibility-badge/);
   assert.doesNotMatch(listing, /href="#accessibility"/);
-  assert.match(business, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{property\.slug\}[\s\S]*compact/);
-  assert.match(event, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{place\.slug\}[\s\S]*compact/);
-  assert.match(discovery, /ListingAccessibility slug=\{item\.id\} features=\{item\.features\} compact/);
+  assert.doesNotMatch(business, /property-title__trust-signals|ListingAccessibility[^\n]*compact/);
+  assert.doesNotMatch(event, /property-title__trust-signals|ListingAccessibility[^\n]*compact/);
+  assert.doesNotMatch(discovery, /ListingAccessibility slug=\{item\.id\} features=\{item\.features\} compact/);
+  assert.match(business, /ListingAccessibility slug=\{property\.slug\} features=\{property\.features\}/);
+  assert.match(event, /ListingAccessibility slug=\{place\.slug\} features=\{place\.features\}/);
+  assert.match(discovery, /discovery-detail__accessibility[\s\S]*ListingAccessibility slug=\{item\.id\}/);
 });
 
 test("vacation price URL state survives supplier starting-price hydration", () => {

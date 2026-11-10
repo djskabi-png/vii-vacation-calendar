@@ -39,8 +39,6 @@ import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
-import { OnlineBookingBadge } from "../components/online-booking-badge";
-import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { normalizeReviewSummary } from "../lib/review-summary";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
@@ -337,13 +335,6 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const verifiedSupplierRoomID = supplierQuote.roomIDs.length === 1 && property.roomOptions?.some((room) => room.supplierRoomID === supplierQuote.roomIDs[0]) ? supplierQuote.roomIDs[0] : undefined;
   const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.onlineBooking && supplierQuote.roomIDs.length === 1 && Boolean(verifiedSupplierRoomID));
-  const onlineBookingEligible = canShowOnlineBookingBadge({
-    ready: supplierQuote.status === "ready", onlineBooking: supplierQuote.onlineBooking,
-    bookingSupported: vacationOnlineReady, availability: effectiveVacationAvailability?.availability,
-    price: Number(resolvedSelectedPrice), from: effectiveVacationAvailability?.from, till: effectiveVacationAvailability?.till,
-    selectedFrom: dateRange.from, selectedTill: dateRange.till,
-    illustrative: Boolean(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative),
-  });
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
@@ -430,7 +421,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
               : [...vacationBreadcrumbTrailForProperty(property, [property, ...(relatedProperties || [])]), { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1>{typeof property.lat === "number" && typeof property.lng === "number" ? <button className="property-location-action" type="button" onClick={openLocationMap} aria-label={`${translate("פתיחת מפת המקום")}: ${localizedLocation}, ${localizedArea}`}><PinIcon />{localizedLocation}, {localizedArea}</button> : <p><PinIcon />{localizedLocation}, {localizedArea}</p>}<div className="property-title__trust-signals"><OnlineBookingBadge eligible={onlineBookingEligible} /><ListingAccessibility slug={property.slug} features={property.features} filterIds={property.searchFilterIds} featureGroups={featureGroups} compact /></div>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
+          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1>{typeof property.lat === "number" && typeof property.lng === "number" ? <button className="property-location-action" type="button" onClick={openLocationMap} aria-label={`${translate("פתיחת מפת המקום")}: ${localizedLocation}, ${localizedArea}`}><PinIcon />{localizedLocation}, {localizedArea}</button> : <p><PinIcon />{localizedLocation}, {localizedArea}</p>}{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
           <div className="property-title__side">
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}

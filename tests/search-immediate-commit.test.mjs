@@ -17,13 +17,14 @@ test("desktop committed search choices navigate immediately with explicit fresh 
   assert.match(source, /function saveEventGuests\(\)[\s\S]*?if \(isDesktopSearchViewport\(\)\)[\s\S]*?search\(\{ eventGuests: guests \}\)/);
 });
 
-test("mobile dates advance to guests while desktop dates search with the newly confirmed values", () => {
+test("event and spa dates commit immediately while vacation dates always advance to room composition", () => {
   assert.match(source, /const selectedEventDateRange = overrides\.eventDateRange \|\| eventDateRangeRef\.current;/);
   assert.match(source, /const selectedVacationDateRange = overrides\.vacationDateRange \|\| vacationDateRangeRef\.current;/);
   assert.match(source, /eventDateRangeRef\.current = selection;/);
   assert.match(source, /vacationDateRangeRef\.current = selection;/);
   assert.match(source, /if \(isDesktopSearchViewport\(\)\) search\(\{ eventDateRange: selection \}\); else \{ setMobileStep\("guests"\); setGuestOpen\(true\); \}/);
-  assert.match(source, /if \(isDesktopSearchViewport\(\)\) search\(\{ vacationDateRange: selection, vacationFlexibleSearch: flexibleSelection \}\); else \{ setMobileStep\("guests"\); setGuestOpen\(true\); \}/);
+  assert.match(source, /setVacationFlexibleSearch\(flexibleSelection\); setCalendarOpen\(false\); setMobileStep\("guests"\); setGuestOpen\(true\);/);
+  assert.doesNotMatch(source, /search\(\{ vacationDateRange: selection, vacationFlexibleSearch: flexibleSelection \}\)/);
   assert.match(source, /params\.set\("from", selectedVacationDateRange\.from\)/);
   assert.match(source, /params\.set\("to", selectedEventDateRange\.to\)/);
 });

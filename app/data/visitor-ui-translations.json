@@ -266,6 +266,7 @@
   "המחיר עשוי להשתנות לפי התאריכים, מספר הלילות, האורחים, היחידה והתוספות. בדקו את ההצעה לבחירה שלכם לפני אישור ההזמנה.": { "en": "Prices may vary by dates, number of nights, guests, accommodation and extras. Check the offer for your selection before confirming the booking.", "ru": "Цена может зависеть от дат, числа ночей, состава гостей, номера и дополнительных услуг. Проверьте предложение для вашего выбора перед подтверждением бронирования.", "fr": "Le prix peut varier selon les dates, le nombre de nuits, les voyageurs, l’hébergement et les suppléments. Vérifiez l’offre correspondant à votre choix avant de confirmer." },
   "דירוג המקום": { "en": "Property rating", "ru": "Оценка объекта", "fr": "Note de l’établissement" },
   "בודקים זמינות ומחיר": { "en": "Checking availability and price", "ru": "Проверяем наличие и цену", "fr": "Vérification de la disponibilité et du prix" },
+  "האישור האונליין אינו זמין כרגע. אפשר לפנות למקום": { "en": "Online confirmation is unavailable right now. Contact the property", "ru": "Онлайн-подтверждение сейчас недоступно. Свяжитесь с объектом", "fr": "La confirmation en ligne est indisponible. Contactez l’établissement" },
   "ההצעות ל־20 משתתפים ול־3 שעות. כשמופיע ״לבירור״, יש לאשר זמינות ומחיר מול המקום.": {
     "en": "Offers are for 20 guests and 3 hours. Where an enquiry is required, confirm availability and price with the venue.",
     "ru": "Предложения рассчитаны на 20 гостей и 3 часа. Если требуется уточнение, согласуйте наличие и цену с площадкой.",

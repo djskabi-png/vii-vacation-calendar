@@ -24,6 +24,13 @@
 
 /* VII_FRAGMENT_BEGIN VACATIONS_007 */
 .vacation-geography-nav__links small { color: #557178; font-size: .72rem; }
+
+@media (max-width: 760px) {
+  .vacation-geography-nav details[open] > summary { cursor: default; }
+  .vacation-geography-nav details[open] > summary::marker { content: ""; }
+  .vacation-geography-nav__links { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; scrollbar-width: thin; padding-bottom: 12px; }
+  .vacation-geography-nav__links a { flex: 0 0 auto; scroll-snap-align: start; }
+}
 /* VII_FRAGMENT_END VACATIONS_007 */
 
 /* VII_FRAGMENT_BEGIN VACATIONS_008 */

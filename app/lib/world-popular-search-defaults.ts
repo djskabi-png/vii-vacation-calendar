@@ -13,7 +13,16 @@ export const popularSearchWorlds = [
 ] as const;
 export type PopularSearchWorld = typeof popularSearchWorlds[number]["id"];
 export function isPopularSearchWorld(value: unknown): value is PopularSearchWorld { return popularSearchWorlds.some(world => world.id === value); }
-const images = { vacation:"/media/322de460abbda5c6.jpg", spa:"/media/editorial/spa-couple-experience.webp", events:"/media/bc85b10f1d64d6db.jpeg", hourly:"/media/editorial/hourly-stay-what-to-check.webp", providers:"/media/editorial/corporate-team-day.webp", trails:"/media/editorial/north-regions-guide.webp", attractions:"/media/editorial/attractions-family-day.webp", corporate:"/media/bc85b10f1d64d6db.jpeg" };
+const images: Record<PopularSearchWorld, string[]> = {
+ vacation:["/media/editorial/vacations-choose-region.webp","/media/editorial/vacations-family-planning.webp","/media/editorial/vacations-last-minute-without-compromise.webp","/media/editorial/one-villa-or-several-units.webp","/media/editorial/calm-family-vacation.webp","/media/editorial/couples-reset.webp","/media/editorial/eilat-slow-weekend.webp"],
+ spa:["/media/editorial/spa-choose-treatment.webp","/media/editorial/spa-couple-experience.webp","/media/editorial/spa-day-plan.webp","/media/editorial/spa-day-with-vacation.webp","/media/editorial/couples-reset.webp","/media/editorial/calm-family-vacation.webp","/media/editorial/build-a-day-around-your-stay.webp","/media/editorial/choose-the-right-place.webp","/media/editorial/eilat-slow-weekend.webp"],
+ events:["/media/editorial/events-build-brief.webp","/media/editorial/events-small-gathering.webp","/media/editorial/events-weather-plan.webp","/media/editorial/private-event-checklist.webp","/media/editorial/corporate-team-day.webp","/media/editorial/corporate-wellbeing-brief.webp"],
+ hourly:["/media/editorial/hourly-between-trips.webp","/media/editorial/hourly-privacy.webp","/media/editorial/hourly-room-guide.webp","/media/editorial/hourly-stay-what-to-check.webp","/media/editorial/build-a-day-around-your-stay.webp","/media/editorial/couples-reset.webp"],
+ providers:["/media/editorial/providers-compare-offers.webp","/media/editorial/providers-reliable-coordination.webp","/media/editorial/providers-service-at-home.webp","/media/editorial/corporate-team-day.webp","/media/editorial/corporate-wellbeing-brief.webp"],
+ trails:["/media/editorial/trails-choose-level.webp","/media/editorial/trails-day-plan.webp","/media/editorial/trails-family-packing.webp"],
+ attractions:["/media/editorial/attractions-family-day.webp","/media/editorial/attractions-two-hour-escape.webp","/media/editorial/attractions-water-safety.webp"],
+ corporate:["/media/editorial/corporate-gift-choice.webp","/media/editorial/corporate-team-day.webp","/media/editorial/corporate-wellbeing-brief.webp","/media/editorial/events-build-brief.webp","/media/editorial/events-small-gathering.webp","/media/editorial/events-weather-plan.webp"],
+};
 const region = (base: string, slug: string) => `${base}/search/${slug}`;
 const groups: Record<PopularSearchWorld, Array<[string,string]>> = {
  vacation:[["וילות נופש","/villas"],["צימרים","/zimmers"],["נופש בצפון","/vacations/north"],["נופש במרכז","/vacations/center"],["נופש בדרום","/vacations/south-negev"],["נופש ברגע האחרון","/last-minute"],["דירות נופש","/vacation-apartments"]],
@@ -28,7 +37,7 @@ const groups: Record<PopularSearchWorld, Array<[string,string]>> = {
 export function popularSearchesForWorld(world: PopularSearchWorld): HomeDiscoveryItem[] {
  const definition=popularSearchWorlds.find(entry=>entry.id===world)!;
  const nearbyUrl=new URL(definition.href,"https://vii.invalid");nearbyUrl.searchParams.set("sort","nearest");
- const rows: HomeDiscoveryItem[] = groups[world].map(([label,href],index)=>({id:`${world}-${index+1}`,label,note:"",href,image:images[world],imageAlt:`${definition.label}, תמונת אווירה`,visible:true}));
- return [{id:`${world}-nearby`,label:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].title : "מקומות לאירוע חברה קרובים אליי",note:"",href:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].path : `${nearbyUrl.pathname}${nearbyUrl.search}`,image:images[world],visible:true,action:"nearby"},...rows];
+ const rows: HomeDiscoveryItem[] = groups[world].map(([label,href],index)=>({id:`${world}-${index+1}`,label,note:"",href,image:images[world][index % images[world].length],imageAlt:`${definition.label}, תמונת אווירה`,visible:true}));
+ return [{id:`${world}-nearby`,label:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].title : "מקומות לאירוע חברה קרובים אליי",note:"",href:world in nearbyPageContent ? nearbyPageContent[world as keyof typeof nearbyPageContent].path : `${nearbyUrl.pathname}${nearbyUrl.search}`,image:images[world][0],visible:true,action:"nearby"},...rows];
 }
 export const worldPopularSearchDefaults = popularSearchWorlds.flatMap(world=>popularSearchesForWorld(world.id).map(item=>({...item,world:world.id})));
