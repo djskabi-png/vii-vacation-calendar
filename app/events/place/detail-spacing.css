@@ -17,4 +17,14 @@
   .event-place-page > .section {
     padding-block: 18px;
   }
+
+  /* Event details are content dense on a phone. Keep the first useful block
+     close to the gallery and let the feature component own its expansion,
+     instead of reserving desktop-sized empty bands between sections. */
+  .event-place-page > .event-place-layout { padding-top: 12px; gap: 12px; }
+  .event-place-page > .event-place-layout > div > section { padding-block: 18px; }
+  .event-place-page #event-features { scroll-margin-top: 88px; }
+  .event-place-page #event-booking { scroll-margin-top: 88px; }
+  .event-place-page .event-gallery-wrap + .detail-mobile-review-summary { margin-top: 10px; }
+  .event-place-page .event-inquiry { margin-top: 0; }
 }

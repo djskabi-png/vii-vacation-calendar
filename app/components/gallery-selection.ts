@@ -46,7 +46,7 @@ export function uniqueGalleryItems<T extends GallerySelectionItem & { src: strin
     // The same supplier image may intentionally belong to the general gallery
     // and to one or more units. Gallery identity includes the category and
     // topic, so source-level de-duplication must never erase a unit gallery.
-    const identity = `${item.category}\u0000${keyFor(item)}\u0000${item.src}`;
+    const identity = `${item.category}\u0000${item.topic}\u0000${item.src}`;
     if (seen.has(identity)) return false;
     seen.add(identity);
     return true;

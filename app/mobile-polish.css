@@ -71,9 +71,23 @@
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) { grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; gap:16px; }
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) > * { flex-basis:100%; min-width:0; max-inline-size:100%; }
   .site-page .footer-grid { gap:26px 18px; padding-block:32px; }
+  .site-page .site-footer { padding:28px 0 12px; }
+  .site-page .site-footer .footer-about { margin:0; }
+  .site-page .site-footer .footer-bottom { margin-top:20px; padding:14px 0 64px; }
   .site-page .footer-grid nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 16px; }
   .site-page .footer-grid nav strong { grid-column:1/-1; margin-bottom:6px; }
   .site-page .footer-grid nav a { display:flex; align-items:center; min-height:44px; padding-block:6px; line-height:1.45; }
+  /* Keep the fixed contact/booking action from covering the section reached
+     by the spa package CTA, and give the filter sheet a keyboard-safe scroll
+     viewport on iOS/Android. */
+  .discovery-detail #spa-packages { scroll-margin-top: 92px; }
+  .site-page .filter-panel.open { max-height: calc(100svh - 76px); overflow:hidden; }
+  .site-page .filter-panel.open .filter-panel__scroll { min-height:0; max-height:calc(100svh - 140px); overflow-y:auto; overscroll-behavior:contain; padding-bottom:calc(24px + env(safe-area-inset-bottom,0px)); }
+  .site-page .vacation-price-filter__inputs { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; }
+  .site-page .vacation-price-filter__inputs > span { display:none; }
+  .site-page .event-place-page .event-place-layout { gap:18px; }
+  .site-page .event-place-page .event-place-layout > * { min-width:0; }
+  .site-page .event-place-page #event-map { scroll-margin-top:88px; }
   .site-page > .back-to-top { position:fixed; display:grid; margin:0; width:44px; height:44px; bottom:calc(96px + env(safe-area-inset-bottom,0px)); border:1px solid #c8dee0; border-radius:50%; box-shadow:0 8px 22px rgba(7,45,52,.12); background:#fff; color:var(--teal-dark); }
   .event-place-page .feature-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
   .event-place-page .feature-list span { min-width:0; padding:10px; font-size:.86rem; overflow-wrap:anywhere; }
