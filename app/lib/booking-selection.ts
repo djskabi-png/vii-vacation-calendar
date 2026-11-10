@@ -25,7 +25,15 @@ export function selectUnitCombination(units: AvailableUnit[], guests: number, ro
     for (let index = start; index <= candidates.length - (rooms - picked.length); index++) visit(index + 1, [...picked, candidates[index]]);
   };
   visit(0, []);
-  return best ? { units: best, capacity: best.reduce((sum, unit) => sum + unit.capacity, 0), total: best.every((unit) => typeof unit.total === "number") ? best.reduce((sum, unit) => sum + (unit.total || 0), 0) : undefined } : null;
+  const selected = best as AvailableUnit[] | null;
+  if (!selected) return null;
+  return {
+    units: selected,
+    capacity: selected.reduce((sum, unit) => sum + unit.capacity, 0),
+    total: selected.every((unit) => typeof unit.total === "number")
+      ? selected.reduce((sum, unit) => sum + (unit.total || 0), 0)
+      : undefined,
+  };
 }
 
 export function stayPriceLabel(total: number | null | undefined, nights: number, currency = "₪") {

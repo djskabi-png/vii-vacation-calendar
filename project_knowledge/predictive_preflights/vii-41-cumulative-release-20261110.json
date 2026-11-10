@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-41-cumulative-release-20261110",
+  "project": "VII",
+  "task_type": "cumulative public web product repair and release",
+  "requested_outcome": "Implement all 41 accepted defects as root fixes across every affected VII world, verify desktop and mobile behavior, and publish one cumulative version only after every critical gate passes.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local code, tests, packaging, production publication and post-public verification are authorized by the current request. Supplier facts, canonical database ownership, bindings, accounts, billing and unrelated production configuration must not be invented, migrated or changed.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request is explicitly cumulative and public.","acceptance_impact":"Every item and affected family needs exact-version natural-destination evidence; local tests alone cannot approve release."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Most reported defects were observed on phones.","acceptance_impact":"Require first viewport, low-height, keyboard, touch and responsive transition evidence."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Arrows, sliders, filters, calendars and sticky actions repeatedly failed.","acceptance_impact":"Inventory and exercise every visible control and expand one shared failure across its whole family."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"Availability, counts, filters and result ordering must remain one search contract.","acceptance_impact":"URL, query, chips, counts, cards, map and authoritative data must agree."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Vacations are the accepted reference for other worlds.","acceptance_impact":"Compare hierarchy, geometry and behavior across worlds on desktop and mobile."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"Broken, slow, duplicated and missing business media are in scope.","acceptance_impact":"Require approved identity, loading, crop, fallback and no-cross-owner substitution evidence."},
+    {"lesson_id":"ADIR-PREVIEW-001","reason":"Forty-four screenshots and the old VII product are approved failure/reference evidence.","acceptance_impact":"Create component and responsive parity checks instead of accepting a similar first screen."},
+    {"lesson_id":"ADIR-WEB-002","reason":"The changes are highly interactive and stateful.","acceptance_impact":"Test default, loading, success, error, reset, back, reload, low-height and mobile/desktop states."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"A reported example is fixed while the same shared defect remains in another world.","prevention":"Repair shared components and inventory all consumers before world-specific exceptions.","acceptance_check":"Affected-family matrix and desktop/mobile browser evidence pass for every consumer."},
+    {"rejection":"The UI looks repaired but availability, counts, reviews or amenities still disagree with the API.","prevention":"Define one canonical truth model and add API contract fixtures including negative controls.","acceptance_check":"Search card, detail page, map and source fixture agree for all golden records."},
+    {"rejection":"Emulated mobile passes while iPhone or Android interaction still overlaps, locks or jumps.","prevention":"Run real-browser touch, keyboard, low-height and responsive-transition checks and do not claim physical-device coverage without it.","acceptance_check":"390 and 430 pixel browser checks pass; real-device evidence is recorded or explicitly remains a release blocker for the affected issue."},
+    {"rejection":"A fast patch drops earlier gallery, nearby, holiday, currency, slider or accessibility work.","prevention":"Use the latest cumulative descendant and protected source gates; keep unrelated invariants explicit.","acceptance_check":"Protected ancestor/capability gates and targeted predecessor regression suites pass."},
+    {"rejection":"The candidate passes locally but the public version or retained older tab breaks.","prevention":"Freeze one source, preserve predecessor assets, verify rollback, deploy once and retest the exact public identity.","acceptance_check":"Public version/build/source identity, live journeys, old-tab navigation and rollback readiness are evidenced."}
+  ],
+  "affected_family": [
+    "vacations, spa, events, hourly, attractions, trails, providers and holidays",
+    "search pages, semantic landings, near-me pages and place mini-sites",
+    "search state, filters, counts, ranking, availability, price and room allocation",
+    "cards, images, galleries, rails, arrows, maps, calendars, reviews, sticky actions and footer",
+    "desktop, 390px mobile, 430px mobile, low-height, keyboard-open, orientation and breakpoint transitions",
+    "supplier API, D1 snapshots, edge/document cache, R2/media delivery and CMS metadata",
+    "warm/cold load, success, empty, failure, retry, reset, reload, back and retained-client states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII accepted product behavior","source":"project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"VII platform source and release invariants","source":"project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"User supplied failure evidence","source":"41 numbered requirements and 44 screenshots in the active Codex task"},
+      {"label":"Accepted vacation visual reference","source":"Current vacation search and detail family, subject to exact-version verification"},
+      {"label":"Legacy unit-count behavior","source":"https://www.vii.co.il/s/ and /s/North/15633"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After canonical data contracts and shared UI primitives are repaired but before all worlds are expanded.",
+    "checks": [
+      "Complete dated vacation search with guests and multiple rooms",
+      "Mobile vacation detail with gallery, map, amenities, reviews and booking action",
+      "Event search and event detail with complete inventory, date, gallery, review and sharing"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any query show contradictory URL, chip, count, card, map or availability state?",
+      "Can any visible image, arrow, calendar, filter, sticky action or share control fail in another world or viewport?",
+      "Can a supplier outage, stale cache, reset, reload or back navigation create a false availability or restore cleared state?",
+      "Can a prior-version tab or missing retained asset break after publication?",
+      "Can any one of the 41 requirements lack exact public evidence?"
+    ],
+    "natural_destination_evidence": "Exact public version opened and exercised on the narrowest affected URLs after deployment.",
+    "affected_family_evidence": "Requirement ledger maps all 41 items and shared-family consumers to passed checks, blockers or justified exclusions."
+  },
+  "effectiveness": {
+    "baseline": "The user reported 41 defects across 44 screenshots after repeated partial releases; exact repeated-correction count is not yet normalized.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "Zero known P0/P1 defects in the 41-item ledger at release, zero shared-family misses, and one cumulative publication with no rollback-triggering regression."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

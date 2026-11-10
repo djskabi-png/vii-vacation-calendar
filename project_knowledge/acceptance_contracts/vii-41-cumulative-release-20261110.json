@@ -1,0 +1,100 @@
+{
+  "goal": "Deliver one cumulative VII public release that repairs all 41 accepted defects at their shared roots and prevents the known failure families from passing release again.",
+  "intent_model": {
+    "literal_request": "Start immediately, complete all 41 items as fast as possible, keep the work correct and durable, verify it and publish one good version.",
+    "implied_outcome": "Adir can use and launch VII without discovering repeated mobile, media, search, availability, count, gallery, map, review, spacing or event-detail failures himself.",
+    "likely_rejections": ["A sample is fixed but another world remains broken","Local tests pass but the public surface disagrees","A speed shortcut removes an accepted capability","Mobile emulation passes but the interaction still fails on phone","A cache state presents false availability"],
+    "interpretation_rules": [
+      {"phrase":"complete all forty-one items","operational_meaning":"Every numbered requirement and its affected shared family remain in scope.","acceptance_impact":"A requirement ledger and family matrix are mandatory."},
+      {"phrase":"as fast as safely possible","operational_meaning":"Parallelize only independent ownership lanes and preserve all gates.","acceptance_impact":"No gate, evidence or rollback step may be skipped for speed."},
+      {"phrase":"locked for the future","operational_meaning":"Encode root contracts and regression checks instead of example-only patches.","acceptance_impact":"Each shared failure class needs an executable prevention check."},
+      {"phrase":"publish one cumulative public version","operational_meaning":"Conditional authority to deploy one frozen cumulative candidate after all critical gates pass.","acceptance_impact":"Exact public identity and post-deploy checks are required."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Repair shared truth and shared components before world-specific polish.",
+    "current_decision": "For each state, show one truthful next action and no competing duplicate controls.",
+    "next_action": "Verify the complete search or place journey in the natural public surface.",
+    "deferred_complexity": ["Advanced filters","Full galleries","Long amenity lists","Stale-source diagnostics","Administrative source detail"],
+    "preserved_depth": ["All verified inventory","Every booking/contact mode","Full amenity and media data","Recovery and rollback","CMS and supplier ownership"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-41-cumulative-release-20261110.json",
+    "lesson_bundle_ids": ["ADIR-QA-001","ADIR-MOBILE-001","ADIR-CONTROL-001","ADIR-SEARCH-001","ADIR-CONSISTENCY-001","ADIR-MEDIA-001","ADIR-PREVIEW-001","ADIR-WEB-002"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor","VII customer","VII supplier","VII content operator"],
+  "natural_destination": "https://vii.spaplus.co",
+  "facts": [
+    {"claim":"The current clean cumulative worktree is a descendant of the saved slider, holiday, nearby, gallery, currency and amenity candidates.","evidence":"HEAD bd79d38d; ea93a9ac is an ancestor; git status was clean at task start."},
+    {"claim":"The legacy VII product counts physical rentable accommodation units, not bedrooms or mounted cards.","evidence":"Legacy search examples show a cabin plus four suites as five units and a seven-bedroom villa as one rentable unit."}
+  ],
+  "assumptions": [
+    {"claim":"The supplier API and current D1 snapshots expose enough unit identity and capacity to compute multi-room combinations.","validation":"Inspect contracts and prove with the Shaked BaOfek scenario plus negative controls."},
+    {"claim":"Real physical iPhone and Android execution can be obtained through an existing authorized route.","validation":"Discover and record the route; otherwise do not claim physical-device coverage and keep the affected release gate blocked."}
+  ],
+  "in_scope": ["All 41 accepted requirements","All affected worlds and shared components","Local implementation and tests","One conditional production publication","Exact public post-deploy verification"],
+  "out_of_scope": ["Inventing supplier data","Migrating the canonical database or changing provider ownership","Unrelated administration redesign","Changing domains, billing, accounts or security settings"],
+  "invariants": ["Supplier identity and gallery ownership remain correct","Existing nearby, holiday, slider, currency, amenity, SEO and accessibility capabilities remain","Phone-only businesses never gain false online availability","Transactional dates and party state remain non-indexable","Original production environment and canonical DB/uploads remain unless separately evidenced and authorized"],
+  "affected_family": ["all public worlds","all search and semantic landing templates","all place-detail templates","all shared cards, media, rails, galleries, maps, calendars, reviews, filters and sticky controls","supplier API, snapshots, cache, media storage and managed content","desktop, mobile, low-height, keyboard, orientation and responsive transitions"],
+  "characteristics": {"stateful":true,"asynchronous":true,"responsive":true,"external_integration":true},
+  "requirements": [
+    {"id":"REQ-01","statement":"Images load promptly and never settle as unexplained blank cards across search, sliders, galleries and recommendations.","source":"User item 1"},
+    {"id":"REQ-02","statement":"Near-me labels never overlap their icon in any world or supported mobile width.","source":"User item 2"},
+    {"id":"REQ-03","statement":"External and internal rating presentation uses one canonical score and count.","source":"User item 3"},
+    {"id":"REQ-04","statement":"Place galleries expose one non-duplicated full-gallery action and correct navigation.","source":"User item 4"},
+    {"id":"REQ-05","statement":"All verified amenities are available; four show on mobile, twelve on desktop, with show-all/show-less only when needed.","source":"User item 5 and approved answer"},
+    {"id":"REQ-06","statement":"vacation-1296 score, review count, review list and pagination agree.","source":"User item 6"},
+    {"id":"REQ-07","statement":"Popular searches are hidden whenever any transactional criterion beyond region is active.","source":"User item 7"},
+    {"id":"REQ-08","statement":"Recommended-place cards load verified owner-matched representative images.","source":"User item 8"},
+    {"id":"REQ-09","statement":"Place maps render and remain usable on mobile without white overlays or missing tiles.","source":"User item 9"},
+    {"id":"REQ-10","statement":"Review calendars use correct RTL controls, allow eligible past dates and permit successful review submission.","source":"User item 10"},
+    {"id":"REQ-11","statement":"Region and locality labels are truthful; mobile region discovery uses one horizontal rail and hides during transactional searches.","source":"User item 11"},
+    {"id":"REQ-12","statement":"Complex counts and physical rentable-unit counts are correct for the full result inventory.","source":"User item 12 and legacy-site research"},
+    {"id":"REQ-13","statement":"The mobile accessibility icon is visually restrained while retaining an accessible target.","source":"User item 13"},
+    {"id":"REQ-14","statement":"Gallery arrows share consistent geometry, direction and enabled state.","source":"User item 14"},
+    {"id":"REQ-15","statement":"Place cards open in the same tab on mobile and preserve approved desktop behavior and search return state.","source":"User item 15"},
+    {"id":"REQ-16","statement":"Holiday and period hero images are hidden on mobile without leaving whitespace and remain on desktop.","source":"User item 16"},
+    {"id":"REQ-17","statement":"Online booking is shown inside a place page as a truthful mobile sticky action, not a duplicate title badge.","source":"User item 17"},
+    {"id":"REQ-18","statement":"Recommended-destination rails reach and return from both true ends after clicks and touch scroll.","source":"User item 18"},
+    {"id":"REQ-19","statement":"The spa package sticky action disappears while the package section is visible.","source":"User item 19"},
+    {"id":"REQ-20","statement":"Spa filters remain responsive, scrollable and usable while the mobile keyboard is open.","source":"User item 20"},
+    {"id":"REQ-21","statement":"The popular-search visibility rule is enforced consistently in every search world.","source":"User item 21"},
+    {"id":"REQ-22","statement":"Related searches render as a usable one-row mobile rail rather than a long vertical link list.","source":"User item 22"},
+    {"id":"REQ-23","statement":"The mobile footer contains no unexplained empty gap before its useful content.","source":"User item 23"},
+    {"id":"REQ-24","statement":"Place accessibility information appears once in a lower information section, not as a prominent duplicate under the name.","source":"User item 24"},
+    {"id":"REQ-25","statement":"Verified supplier videos are ingested and shown from a durable API or CMS contract without future legacy-site dependence.","source":"User item 25"},
+    {"id":"REQ-26","statement":"The pets filter excludes businesses that do not accept pets and does not treat unknown as accepted.","source":"User item 26"},
+    {"id":"REQ-27","statement":"Availability has truthful verified-available, verified-unavailable, confirmation-required and unmanaged states with fresh cache and live booking revalidation.","source":"User item 27 and approved cache decision"},
+    {"id":"REQ-28","statement":"Place and search templates contain no unexplained dead space and follow one measured spacing rhythm.","source":"User item 28"},
+    {"id":"REQ-29","statement":"Popular-search tiles use relevant intentional images without accidental same-page duplication.","source":"User item 29"},
+    {"id":"REQ-30","statement":"Desktop vacation date selection advances to room and party selection without prematurely closing search.","source":"User item 30"},
+    {"id":"REQ-31","statement":"Large-party vacation search can recommend a truthful combination of several available units and agrees with detail availability.","source":"User item 31 and approved Booking-like combination decision"},
+    {"id":"REQ-32","statement":"Average-per-night copy appears only for stays longer than one night.","source":"User item 32"},
+    {"id":"REQ-33","statement":"Slider images use the approved card crop and preserve the subject across viewports.","source":"User item 33"},
+    {"id":"REQ-34","statement":"Removing or clearing guest filters resets state, URL, results and persistence.","source":"User item 34"},
+    {"id":"REQ-35","statement":"Event participant controls support valid five-step buttons and direct exact numeric entry for large groups.","source":"User item 35"},
+    {"id":"REQ-36","statement":"Event search returns the complete relevant inventory ordered by truthful availability and price states.","source":"User item 36"},
+    {"id":"REQ-37","statement":"Event detail uses Israeli dotted dates, correct RTL arrows and source-ordered owner-matched galleries.","source":"User item 37 and approved date format"},
+    {"id":"REQ-38","statement":"Event detail uses the accepted amenity collapse, working reviews, compact spacing and a sticky contact bar triggered when original contacts leave view.","source":"User item 38"},
+    {"id":"REQ-39","statement":"Event place sharing produces natural place-specific copy and the canonical place URL.","source":"User item 39"},
+    {"id":"REQ-40","statement":"Event detail begins with useful place content and removes redundant venue text and dead space.","source":"User item 40"},
+    {"id":"REQ-41","statement":"All affected worlds and shared families pass functional, visual, data, responsive, cache, failure and public release regression gates.","source":"User item 41"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-MEDIA","requirement_ids":["REQ-01","REQ-04","REQ-08","REQ-14","REQ-25","REQ-29","REQ-33","REQ-37"],"kind":"success","setup":"Cold and warm media loads on representative search, rail and detail routes in each affected world.","action":"Load, scroll, change gallery image, open full gallery and reload.","observable_result":"Every visible asset loads with the correct owner, order, crop and controls; no blank, duplicate, borrowed or unstable media remains."},
+    {"id":"AC-SEARCH","requirement_ids":["REQ-07","REQ-11","REQ-12","REQ-21","REQ-26","REQ-30","REQ-31","REQ-32","REQ-34","REQ-35","REQ-36"],"kind":"persistence","setup":"Representative region-only and transactional searches including the reported Shaked scenario.","action":"Apply, remove and clear dates, party, rooms and filters; reload and navigate back.","observable_result":"URL, controls, counts, complete ordered results and restored state agree; cleared state does not return."},
+    {"id":"AC-TRUTH","requirement_ids":["REQ-03","REQ-05","REQ-06","REQ-12","REQ-25","REQ-26","REQ-27","REQ-31","REQ-36"],"kind":"failure","setup":"Golden supplier records plus stale, unavailable, unmanaged and dependency-failure fixtures.","action":"Compare API, snapshot, search card, detail page and booking revalidation.","observable_result":"All surfaces agree with the authoritative state; failures never become false available/unavailable, false amenities, false counts or false media."},
+    {"id":"AC-MOBILE","requirement_ids":["REQ-02","REQ-09","REQ-10","REQ-13","REQ-14","REQ-15","REQ-16","REQ-17","REQ-18","REQ-19","REQ-20","REQ-22","REQ-23","REQ-24","REQ-28","REQ-38","REQ-40"],"kind":"success","setup":"390px, 430px and low-height mobile states including keyboard, map, gallery, filters and sticky controls.","action":"Exercise touch, arrows, scroll, orientation, same-tab navigation and responsive transitions.","observable_result":"No overlap, dead space, white overlay, stale lock, wrong window behavior, unreachable control or contradictory sticky state remains."},
+    {"id":"AC-DATE","requirement_ids":["REQ-10","REQ-30","REQ-37"],"kind":"success","setup":"Public calendars and date summaries in vacation and event flows.","action":"Move backward and forward, choose dates and submit the containing flow.","observable_result":"Visible dates use DD.MM.YYYY, RTL controls are correct and internal ISO values remain valid."},
+    {"id":"AC-EVENT","requirement_ids":["REQ-35","REQ-36","REQ-37","REQ-38","REQ-39","REQ-40"],"kind":"success","setup":"Event search and detail with date, party, media, amenities, review and contact controls.","action":"Search, open place, change date, expand amenities, submit review, share and scroll through contacts.","observable_result":"Complete ranked results and the compact place-specific event flow behave correctly on desktop and mobile."},
+    {"id":"AC-RECOVERY","requirement_ids":["REQ-01","REQ-09","REQ-18","REQ-20","REQ-27","REQ-31","REQ-34","REQ-41"],"kind":"recovery","setup":"Interrupted media, supplier timeout, stale cache, resized viewport and retained previous-version tab.","action":"Allow bounded retry or recovery, then reload and continue.","observable_result":"Truthful last-known content remains where safe, stale promises are withheld, controls recover, state remains coherent and the old tab still navigates."},
+    {"id":"AC-RELEASE","requirement_ids":["REQ-01","REQ-02","REQ-03","REQ-04","REQ-05","REQ-06","REQ-07","REQ-08","REQ-09","REQ-10","REQ-11","REQ-12","REQ-13","REQ-14","REQ-15","REQ-16","REQ-17","REQ-18","REQ-19","REQ-20","REQ-21","REQ-22","REQ-23","REQ-24","REQ-25","REQ-26","REQ-27","REQ-28","REQ-29","REQ-30","REQ-31","REQ-32","REQ-33","REQ-34","REQ-35","REQ-36","REQ-37","REQ-38","REQ-39","REQ-40","REQ-41"],"kind":"rollback","setup":"Frozen clean candidate, qualified predecessor asset retention and known rollback.","action":"Run required gates, publish once, verify exact public identity and repeat representative journeys.","observable_result":"Every critical requirement passes on the exact public version; otherwise deployment is rolled back and not reported complete."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation and one conditional production publication are authorized. Publication starts only after the frozen candidate passes every critical gate; uncertain publication results are reconciled before any retry.",
+  "ready_for_implementation": true
+}
