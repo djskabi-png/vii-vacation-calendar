@@ -102,6 +102,11 @@ export function PreviewCardGallery({
       rel="noopener noreferrer"
       aria-label={linkLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`}
       onClick={(event) => {
+        if (!didSwipe.current && window.matchMedia("(max-width: 760px)").matches) {
+          event.preventDefault();
+          window.location.assign(href);
+          return;
+        }
         if (!didSwipe.current) return;
         event.preventDefault();
         event.stopPropagation();

@@ -77,7 +77,7 @@ function formatBookingDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const date = new Date(`${value}T12:00:00Z`);
   if (!Number.isFinite(date.getTime())) return value;
-  return new Intl.DateTimeFormat("he-IL", { day: "2-digit", month: "2-digit", year: "2-digit", timeZone: "UTC" }).format(date);
+  return new Intl.DateTimeFormat("he-IL", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
 export default function BookingPageClient(props: Props) {

@@ -131,7 +131,7 @@ function defaultDateLabel(mode: SearchMode) {
 function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: SiteLanguage) {
   const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const separator = { he: "עד", en: "to", ru: "по", fr: "au" }[language];
-  const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+  const formatter = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
   const parse = (value: string) => new Date(`${value}T12:00:00`);
   if (mode === "spa") {
     const date = searchParams.get("date");

@@ -141,7 +141,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
   }
 
-  const dates = new Intl.DateTimeFormat({ he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language], { day: "numeric", month: "short", timeZone: "UTC" });
+  const dates = new Intl.DateTimeFormat({ he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language], { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
   const formatDate = (value: string) => dates.format(new Date(`${value}T00:00:00Z`));
   return <section id="holiday-deals" className="holiday-deals section" aria-labelledby="holiday-live-title" data-audience={selection.audience} data-part={selection.part}>
     <div className="shell">

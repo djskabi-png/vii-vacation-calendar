@@ -30,7 +30,17 @@ export function ModernDateInput({ value, defaultValue, onChange, name, min, max,
   useEffect(() => { fieldRef.current?.setCustomValidity(calendarDateValidity(current, lower, upper) === 'valid' ? '' : labels[5]); }, [current, lower, upper, language]);
   useEffect(() => { const form = fieldRef.current?.form; const reset = () => { if (!controlled) setInner(defaultValue || ''); setOpen(false); }; form?.addEventListener('reset', reset); return () => form?.removeEventListener('reset', reset); }, [controlled, defaultValue]);
   useEffect(() => { if (!open) return; const outside = (event: PointerEvent) => { if (!containerRef.current?.contains(event.target as Node)) setOpen(false); }; document.addEventListener('pointerdown', outside); return () => document.removeEventListener('pointerdown', outside); }, [open]);
-  const choose = (next: string, event: MouseEvent<HTMLButtonElement>) => { if (calendarDateValidity(next, lower, upper) !== 'valid' || !fieldRef.current) return; fieldRef.current.value = next; if (!controlled) setInner(next); onChange?.({ ...event, type: 'change', target: fieldRef.current, currentTarget: fieldRef.current } as unknown as ChangeEvent<HTMLInputElement>); close(); };
+  const choose = (next: string, event: MouseEvent<HTMLButtonElement>) => {
+    // Clearing is an intentional form action and must not be rejected by the
+    // date-range validator. A cleared required field remains invalid until the
+    // visitor picks a valid date, while optional fields become genuinely empty.
+    if (next !== "" && calendarDateValidity(next, lower, upper) !== 'valid') return;
+    if (!fieldRef.current) return;
+    fieldRef.current.value = next;
+    if (!controlled) setInner(next);
+    onChange?.({ ...event, type: 'change', target: fieldRef.current, currentTarget: fieldRef.current } as unknown as ChangeEvent<HTMLInputElement>);
+    close();
+  };
   const show = () => { if (disabled || props.readOnly) return; const date = parse(current) || parse(lower || '') || parse(upper || '') || new Date(); setMonth(new Date(date.getFullYear(), date.getMonth(), 1)); setOpen(true); };
   useEffect(() => { if (openRequest > 0 && !disabled && !props.readOnly) { show(); fieldRef.current?.focus(); } }, [openRequest]);
   return <div ref={containerRef} className={`modern-date-input ${className || ""} ${labelClassName || ''}`} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }} onKeyDown={event => { if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); close(); } }}>

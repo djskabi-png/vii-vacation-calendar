@@ -826,7 +826,8 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={() => { trackMapInteraction({ action: "close", world: tone, resultCount: places.length }); onClose(); }} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
-    {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
+    {!mapReady && <div className="map-preview-card map-loading-preview">{previewContent}</div>}
+    {!mapReady && autoLoad && <span className="map-live-loading" role="status">{mapCopy.loading}</span>}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
       <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image]} href={localizedPath(selected.href, language)}>
         <small>{selected.category}</small>

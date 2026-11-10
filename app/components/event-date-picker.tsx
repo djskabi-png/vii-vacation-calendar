@@ -59,7 +59,7 @@ function monthLabel(date: Date) {
 }
 
 function dateLabel(key: string) {
-  return new Intl.DateTimeFormat("he-IL", { weekday: "short", day: "numeric", month: "long" }).format(dateFromKey(key));
+  return new Intl.DateTimeFormat("he-IL", { day: "2-digit", month: "2-digit", year: "numeric" }).format(dateFromKey(key));
 }
 
 function monthOnlyLabel(date: Date) {

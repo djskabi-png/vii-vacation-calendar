@@ -6,6 +6,33 @@
 .destination-directory__media figcaption { position:absolute; inset-inline-start:12px; bottom:12px; padding:4px 8px; border-radius:8px; color:#163c46; background:#fffffff0; font-size:.7rem; }
 
 @media (max-width:760px) {
+  /* The nearby shortcut is a compact single action on mobile. Keep the
+     label and location icon in separate tracks so long world-specific labels
+     cannot overlap the icon or the trailing affordance. */
+  .site-page .location-list .location-nearby {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    min-height: 68px;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .site-page .location-list .location-nearby > span:nth-child(2) {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .site-page .location-list .location-nearby__icon {
+    grid-column: 2;
+    grid-row: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+  .site-page .location-list .location-nearby > b { display: none; }
+  .site-page .location-list .location-nearby strong,
+  .site-page .location-list .location-nearby small {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   /* A count and an explanatory sentence must not become two narrow columns. */
   .site-page .results-heading__meta:has(> p + p) { display:grid; gap:4px; }
   body[data-public-footer-visible] :is(.mobile-map-fab,.floating-contact-actions) { visibility:hidden; pointer-events:none; }
@@ -27,6 +54,11 @@
   .site-page .search-depth__related .search-depth__discovery-icon { grid-row:auto; }
   .site-page .search-depth__related .search-depth__discovery-card :is(strong,small) { grid-column:1; align-self:start; }
   .site-page .search-depth__discovery-arrow { position:absolute; inset-inline-end:12px; top:20px; grid-row:auto; grid-column:auto; }
+  /* Related searches stay a real horizontal rail on small screens. Do not
+     let long SEO labels create a tall stack that pushes the actual results
+     far below the fold. */
+  .site-page .search-depth__rail { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(78%,1fr); overflow-x:auto; overflow-y:hidden; scroll-snap-type:inline mandatory; overscroll-behavior-inline:contain; }
+  .site-page .search-depth__rail > .search-depth__discovery-card { scroll-snap-align:start; }
   /* Home image cards have a different structure from stacked depth-topic cards.
      Keep text in its own flexible column, never in the thumbnail's fixed track. */
   .site-page .home-managed-discovery__track.search-depth__rail { grid-auto-columns:min(88%,320px); gap:12px; align-items:stretch; }

@@ -1088,6 +1088,15 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     closeFiltersPanel();
   }
 
+  // Popular/geographic discovery is useful on an undated landing page, but it
+  // competes with the user's active transactional search (dates, rooms or
+  // guests). Keep those suggestions out of result pages so the result flow
+  // stays focused and does not look like the query was discarded.
+  const hasTransactionalSearch = ["from", "till", "dates", "guests", "adults", "rooms", "bedrooms"].some((key) => {
+    const value = searchParams.get(key);
+    return value !== null && value.trim() !== "";
+  });
+
   const content = (
       <main id="main-content" className="results-page" style={embedded ? { minHeight: "calc(100svh - 76px)" } : undefined}><NearbySortStatus state={nearby} />
         {catalogLoading && properties.length === 0 ? <p className="shell" role="status">טוענים מקומות...</p> : null}
@@ -1097,9 +1106,9 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
         <UnavailablePlaceNotice world="vacations" />
         <div className="results-search shell"><SearchBox compact openDatesRequest={openDatesRequest} openLocationRequest={openLocationRequest} initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
         <BreadcrumbTrail items={breadcrumbItems} />
-        <div className="shell world-popular-searches"><HomeQuickSearches /></div>
+        {!hasTransactionalSearch ? <div className="shell world-popular-searches"><HomeQuickSearches /></div> : null}
         {beforeResults}
-        {vacationRegionByLabel(area) ? <div className="shell"><VacationGeographyNav region={vacationRegionByLabel(area)!} inventory={properties} /></div> : null}
+        {!hasTransactionalSearch && vacationRegionByLabel(area) ? <div className="shell"><VacationGeographyNav region={vacationRegionByLabel(area)!} inventory={properties} /></div> : null}
         <div className={`shell results-layout airbnb-results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות" role={filtersOpen ? "dialog" : undefined} aria-modal={filtersOpen || undefined}>
             <div className="filter-panel__scroll">
