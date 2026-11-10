@@ -3,7 +3,7 @@ export function currencyLabelParts(label: string) {
   // Keep the supplier's exact digits, grouping and decimal separators. Direction
   // controls from Intl/supplier strings are separators, never part of an amount.
   const amountPattern = String.raw`[+\-−]?(?:\d{1,3}(?:[ \u00a0\u202f]\d{3})+|\d+)(?:[.,]\d+)*`;
-  const currencyPattern = String.raw`(?:₪|ש["״]ח)`;
+  const currencyPattern = /(?:₪|ש["״]ח)/.source;
   const gap = String.raw`[\s\u200e\u200f\u061c]*`;
   const pattern = new RegExp(`(?<leadingSign>[+\\-−])?${currencyPattern}${gap}(?<prefix>${amountPattern})|(?<suffix>${amountPattern})${gap}${currencyPattern}`, "g");
   const parts: Array<{ text: string; amount?: string }> = [];
