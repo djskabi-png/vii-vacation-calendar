@@ -90,5 +90,5 @@ test('shared boundary model uses visible DOM overflow for both RTL scroll conven
   const check = (input, expected) => assert.deepEqual(JSON.parse(JSON.stringify(boundary(input))), expected);
   check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: -120, right: -20 }, { left: 10, right: 110 }, { left: 220, right: 320 }], fallbackProgress: 0, fallbackMax: 600 }, { previous: true, next: true });
   check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: 0, right: 100 }, { left: 110, right: 210 }, { left: 220, right: 320 }], fallbackProgress: 0, fallbackMax: 600 }, { previous: true, next: false });
-  check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: -320, right: -220 }, { left: -110, right: -10 }, { left: 10, right: 110 }], fallbackProgress: 600, fallbackMax: 600 }, { previous: true, next: false });
+  check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: -320, right: -220 }, { left: -110, right: -10 }, { left: 10, right: 110 }], fallbackProgress: 600, fallbackMax: 600 }, { previous: false, next: true });
 });
