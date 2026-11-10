@@ -7,6 +7,20 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 type ShareKind = "place" | "event" | "article";
 
+export function canonicalShareUrl(value: string, kind: ShareKind = "place") {
+  const current = new URL(value);
+  current.hash = "";
+  const essential = new URLSearchParams();
+  const id = current.searchParams.get("id");
+  const world = current.searchParams.get("world");
+  if (id) essential.set("id", id);
+  if (world && world !== "vacation") essential.set("world", world);
+  // Event details are path-canonical. Never reduce them to /events/search.
+  if (kind === "event" && /^\/events\/place\//.test(current.pathname)) current.search = "";
+  else current.search = essential.toString();
+  return current.toString();
+}
+
 type ShareCopy = {
   trigger: string;
   eyebrow: string;
@@ -126,18 +140,6 @@ export function ShareButton({ title, kind = "place", image, imageAlt, imageCapti
   const titleId = useId();
   const descriptionId = useId();
 
-  const cleanShareUrl = (value: string) => {
-    const current = new URL(value);
-    current.hash = "";
-    const essential = new URLSearchParams();
-    const id = current.searchParams.get("id");
-    const world = current.searchParams.get("world");
-    if (id) essential.set("id", id);
-    if (world && world !== "vacation") essential.set("world", world);
-    current.search = essential.toString();
-    return current.toString();
-  };
-
   useEffect(() => {
     const timer = window.setTimeout(() => setMounted(true), 0);
     return () => window.clearTimeout(timer);
@@ -182,7 +184,7 @@ export function ShareButton({ title, kind = "place", image, imageAlt, imageCapti
   };
 
   const show = () => {
-    setUrl(cleanShareUrl(window.location.href));
+    setUrl(canonicalShareUrl(window.location.href, kind));
     setCopied(false);
     setOpen(true);
   };
