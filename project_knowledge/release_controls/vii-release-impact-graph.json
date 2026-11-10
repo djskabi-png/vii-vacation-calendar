@@ -157,7 +157,8 @@
         "tests/popular-nearby-tile-layout-contract.test.mjs",
         "tests/currency-text.actual.test.mjs",
         "tests/currency-visible-emitter-guard.test.mjs",
-        "tests/shekel-symbol-position.test.mjs"
+        "tests/shekel-symbol-position.test.mjs",
+        "tests/account-frontend-contract.test.mjs"
       ]
     },
     "search": {
@@ -946,7 +947,8 @@
         "app/components/expandable-description.tsx",
         "app/components/horizontal-chip-rail.tsx",
         "app/components/world-quick-searches.tsx",
-        "app/join/partner-onboarding.tsx"
+        "app/join/partner-onboarding.tsx",
+        "app/account/page.tsx"
       ]
     },
     {
