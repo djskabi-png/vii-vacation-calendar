@@ -965,7 +965,8 @@
         "app/components/world-map-results.tsx",
         "app/lib/public-search-page-snapshot.ts",
         "app/lib/search-page-approval.ts",
-        "app/components/catalog-starting-price.tsx"
+        "app/components/catalog-starting-price.tsx",
+        "app/components/use-nearby-sort.tsx"
       ]
     },
     {
