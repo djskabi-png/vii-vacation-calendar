@@ -17,5 +17,6 @@ export function nearbyDefaultSort(pathname: string, requested: string | null | u
 }
 export function nearbyPageFaq(world: NearbyPageWorld) {
   const page = nearbyPageContent[world];
+  if (world === "providers") return [{ question: page.question, answer: page.answer }];
   return [{ question: page.question, answer: page.answer }, { question: "מתי מתבקש אישור למיקום?", answer: "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום." }];
 }
