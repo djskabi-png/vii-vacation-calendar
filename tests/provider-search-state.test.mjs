@@ -16,6 +16,13 @@ test('reset and service-area changes remove obsolete aliases without erasing unr
  assert.equal(href,'/providers/music');
  const url=new URL(providerSearchHref('/providers','?q=DJ&location=ישן',{region:'מרכז'}),'https://vii.test');assert.equal(url.searchParams.get('q'),'DJ');assert.equal(url.searchParams.get('region'),'מרכז');assert.equal(url.searchParams.get('location'),null);
 });
+test('a literal search query is preserved even when it equals an unfiltered region label',()=>{
+ for(const query of ['all','כל הארץ']) {
+  const href=providerSearchHref('/providers','',{q:query,region:'כל הארץ'});
+  const url=new URL(href,'https://vii.test');
+  assert.equal(url.searchParams.get('q'),query);assert.equal(url.searchParams.get('region'),null);
+ }
+});
 test('provider breadcrumbs lead to a real matching category and verified service area rather than its office location',()=>{
  const item={id:'dj-kfir-w',name:'DJ Kfir W',location:'קריית עקרון',area:'לא מסונן',description:'',features:[],serviceAreas:['מרכז']};
  const crumbs=providerSearchBreadcrumbs(item);assert.equal(crumbs.category.path,'/providers/music');const url=new URL(crumbs.regions[0].path,'https://vii.test');assert.equal(url.pathname,'/providers/music');assert.equal(url.searchParams.get('region'),'מרכז');assert.equal(providerServesRegion(item.serviceAreas,url.searchParams.get('region')),true);assert.doesNotMatch(crumbs.regions[0].name,/קריית עקרון/);

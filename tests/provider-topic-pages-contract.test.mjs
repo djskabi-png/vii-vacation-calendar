@@ -31,3 +31,13 @@ test("legacy provider category links were replaced with routed paths", () => {
   assert.match(footer, /\/providers\/food/);
   assert.match(related, /\/providers\/entertainment/);
 });
+
+test("visible and structured provider breadcrumbs share the same category and service-area resolver", () => {
+  for (const file of ["app/discover/place/client-page.tsx", "app/discover/place/[id]/page.tsx"]) {
+    const source = read(file);
+    assert.match(source, /providerSearchBreadcrumbs\(item\)/);
+    assert.doesNotMatch(source, /discoveryBreadcrumbsForLocation\("providers", undefined, item\.location\)/);
+    assert.match(source, /providerBreadcrumbs\??\.category/);
+    assert.match(source, /providerBreadcrumbs\??\.regions/);
+  }
+});

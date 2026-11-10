@@ -8,7 +8,7 @@ export type ProviderSearchState = { query: string; region: string; sort: string 
 export function providerSearchHref(path: string, currentSearch: string, updates: Record<string, string>) {
   const params = new URLSearchParams(currentSearch);
   for (const [key, value] of Object.entries(updates)) {
-    if (value && value !== 'all' && value !== 'כל הארץ') params.set(key, value);
+    if (value && !(key === 'region' && (value === 'all' || value === 'כל הארץ'))) params.set(key, value);
     else params.delete(key);
   }
   params.delete('page');

@@ -21,6 +21,7 @@ import { serverLocalePath, serverPublicCopy } from "../../../i18n/server-public-
 import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../../../data/spa-search-landings";
 import { discoveryBreadcrumbsForLocation } from "../../../lib/place-breadcrumb-locations";
+import { providerSearchBreadcrumbs } from "../../../lib/provider-search-state";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -92,13 +93,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const { item, items, spaSite, hourlyPlace } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
+  const providerBreadcrumbs = item.world === "providers" ? providerSearchBreadcrumbs(item) : null;
   const itemBreadcrumbs = item.world === "hourly"
     ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : item.world === "spa"
       ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...spaBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : item.world === "activities"
       ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...discoveryBreadcrumbsForLocation("activities", item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
-      : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...discoveryBreadcrumbsForLocation("providers", undefined, item.location), { name: item.name, path: `/discover/place/${item.id}` }];
+      : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...(providerBreadcrumbs?.category ? [providerBreadcrumbs.category] : []), ...(providerBreadcrumbs?.regions || []), { name: item.name, path: `/discover/place/${item.id}` }];
   return <>
     <ViewedItemBootstrap id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}
