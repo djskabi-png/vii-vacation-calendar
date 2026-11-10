@@ -82,3 +82,13 @@ test('actual hook handles streamed items and cancels pending work on cleanup', (
   f.resize[0].cb(); f.boundary.update(); f.flush();
   assert.equal(f.counts().reads, before, 'late observer callback after unmount cannot schedule a read');
 });
+
+test('shared boundary model uses visible DOM overflow for both RTL scroll conventions', () => {
+  const loaded = { exports: {} };
+  vm.runInNewContext(compiled, { module: loaded, exports: loaded.exports, require(name) { if (name === 'react') return {}; if (name === 'lucide-react' || name.includes('locale-provider') || name === 'react/jsx-runtime') return {}; throw Error(name); }, getComputedStyle: () => ({ direction: 'ltr' }) });
+  const boundary = loaded.exports.sliderRailBoundaryState;
+  const check = (input, expected) => assert.deepEqual(JSON.parse(JSON.stringify(boundary(input))), expected);
+  check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: -120, right: -20 }, { left: 10, right: 110 }, { left: 220, right: 320 }], fallbackProgress: 0, fallbackMax: 600 }, { previous: true, next: true });
+  check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: 0, right: 100 }, { left: 110, right: 210 }, { left: 220, right: 320 }], fallbackProgress: 0, fallbackMax: 600 }, { previous: false, next: true });
+  check({ rtl: true, railLeft: 0, railRight: 300, itemRects: [{ left: -320, right: -220 }, { left: -110, right: -10 }, { left: 10, right: 110 }], fallbackProgress: 600, fallbackMax: 600 }, { previous: true, next: false });
+});

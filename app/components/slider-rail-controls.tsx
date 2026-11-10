@@ -6,6 +6,20 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 
 export type SliderRailState = { previous: boolean; next: boolean };
 
+export function sliderRailBoundaryState({ rtl, railLeft, railRight, itemRects, fallbackProgress, fallbackMax }: {
+  rtl: boolean; railLeft?: number; railRight?: number; itemRects?: Array<{ left: number; right: number }>;
+  fallbackProgress: number; fallbackMax: number;
+}): SliderRailState {
+  if (typeof railLeft === "number" && typeof railRight === "number" && itemRects?.length) {
+    const left = itemRects.some((rect) => rect.left < railLeft - 3);
+    const right = itemRects.some((rect) => rect.right > railRight + 3);
+    return rtl ? { previous: right, next: left } : { previous: left, next: right };
+  }
+  return rtl
+    ? { previous: fallbackProgress > 2, next: fallbackProgress < fallbackMax - 2 }
+    : { previous: fallbackProgress > 2, next: fallbackProgress < fallbackMax - 2 };
+}
+
 type SliderRailTarget = {
   railId?: string;
   railRef?: RefObject<HTMLElement | null>;
@@ -75,7 +89,11 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
 
     const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
     const progress = Math.min(maxScroll, Math.abs(rail.scrollLeft));
-    const nextState = { previous: progress > 2, next: progress < maxScroll - 2 };
+    const style = typeof getComputedStyle === "function" ? getComputedStyle(rail) : { direction: "ltr" } as CSSStyleDeclaration;
+    const rtl = style.direction === "rtl";
+    const railRect = rail.getBoundingClientRect?.();
+    const itemRects = railRect ? [...rail.querySelectorAll<HTMLElement>(itemSelector)].map((node) => node.getBoundingClientRect()) : undefined;
+    const nextState = sliderRailBoundaryState({ rtl, railLeft: railRect?.left, railRight: railRect?.right, itemRects, fallbackProgress: progress, fallbackMax: maxScroll });
 
     setState((current) => current.previous === nextState.previous && current.next === nextState.next ? current : nextState);
   }, [disabled, itemSelector, resolveRail]);
