@@ -36,7 +36,7 @@ test("coincident clusters expand immediately while distinct locations retain str
 test("map canvas resizes without resetting the user's camera", () => {
   const map = `${readMapImplementation()}\n${read("app/lib/map/map-place.ts")}`;
   const resize = map.slice(map.indexOf("resizeObserver = new ResizeObserver"), map.indexOf("resizeObserver.observe(container)"));
-  assert.match(resize, /syncMapLayout\(\)/);
+  assert.match(resize, /layoutSync\?\.sync\(\)/);
   assert.doesNotMatch(resize, /fitBounds|focusInitialPlaces|setView/);
   assert.doesNotMatch(resize, /renderMarkers\(\)/);
   assert.match(map, /resizeObserver\?\.disconnect\(\)/);

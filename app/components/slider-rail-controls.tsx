@@ -44,7 +44,10 @@ function sliderRailGeometry(rail: HTMLElement, itemSelector: string) {
     const rect = item.getBoundingClientRect();
     return Math.max(0, Math.min(max, rtl ? first.right - rect.right : rect.left - first.left));
   }) : [];
-  return { rtl, max, progress, anchors };
+  const computed = typeof getComputedStyle === "function" ? getComputedStyle(rail) : null;
+  const paddingStart = Number.parseFloat(computed?.scrollPaddingInlineStart || "0");
+  const paddingEnd = Number.parseFloat(computed?.scrollPaddingInlineEnd || "0");
+  return { rtl, max, progress, anchors, snapEpsilon: Math.max(4, Number.isFinite(paddingStart) ? paddingStart : 0, Number.isFinite(paddingEnd) ? paddingEnd : 0) };
 }
 
 function scrollSliderRail(rail: HTMLElement, target: number, rtl: boolean) {
@@ -53,13 +56,13 @@ function scrollSliderRail(rail: HTMLElement, target: number, rtl: boolean) {
 }
 
 export function moveSliderRailByCard(rail: HTMLElement, direction: -1 | 1, itemSelector = ":scope > *") {
-  const { rtl, max, progress, anchors } = sliderRailGeometry(rail, itemSelector);
+  const { rtl, max, progress, anchors, snapEpsilon } = sliderRailGeometry(rail, itemSelector);
   if (!anchors.length) return;
   // Snap padding and fractional pixels can leave the settled position a few
   // pixels short of an anchor. Treat it as the same card, not another advance.
   const target = direction === 1
-    ? anchors.find(anchor => anchor > progress + 4) ?? max
-    : anchors.slice().reverse().find(anchor => anchor < progress - 4) ?? 0;
+    ? anchors.find(anchor => anchor > progress + snapEpsilon) ?? max
+    : anchors.slice().reverse().find(anchor => anchor < progress - snapEpsilon) ?? 0;
   scrollSliderRail(rail, target, rtl);
 }
 

@@ -12,6 +12,7 @@ import { signalExperienceStage } from '../../lib/experience-signals';
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib/map-marker-layout";
 import { mapResultSummary } from "../../lib/map-result-summary.ts";
 import { keepMapFocusInViewport } from "../../lib/map-focus-policy.ts";
+import { createMapLayoutSynchronizer } from "../../lib/map/map-layout-sync";
 import { MapProviderBoundary } from "../map-provider-boundary";
 import "leaflet/dist/leaflet.css";
 
@@ -335,7 +336,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     let resizeObserver: ResizeObserver | undefined;
     let resizeFrame: number | undefined;
     let visibilityObserver: IntersectionObserver | undefined;
-    let layoutSyncFrames: number[] = [];
+    let layoutSync: ReturnType<typeof createMapLayoutSynchronizer> | undefined;
     let programmaticViewportTimer: number | undefined;
     let layoutReady = false;
     let tilesReady = false;
@@ -377,19 +378,8 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       // canvas; in that case the first measurement can be zero or stale. A
       // bounded post-layout sync keeps the tile pane and marker pane aligned
       // without refitting the user's camera.
-      const syncMapLayout = () => {
-        if (cancelled || mapInstance.current !== map || !container.isConnected) return;
-        map.invalidateSize({ animate: false, pan: false });
-      };
-      const scheduleLayoutSync = () => {
-        layoutSyncFrames.forEach((frame) => window.cancelAnimationFrame(frame));
-        layoutSyncFrames = [
-          window.requestAnimationFrame(syncMapLayout),
-          window.requestAnimationFrame(() => window.requestAnimationFrame(syncMapLayout)),
-        ];
-        window.setTimeout(syncMapLayout, 160);
-      };
-      scheduleLayoutSync();
+      layoutSync = createMapLayoutSynchronizer(map, container);
+      layoutSync.schedule();
       const streetTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
       const streetTiles = L.tileLayer(streetTileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -714,7 +704,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
         if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
         resizeFrame = window.requestAnimationFrame(() => {
           if (cancelled || mapInstance.current !== map || !container.isConnected) return;
-          syncMapLayout();
+          layoutSync?.sync();
           const ids = visiblePlaceIds();
           setPendingVisibleIds(ids);
           if (!initialViewportReported && ids.length > 0) {
@@ -730,7 +720,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       // changes as well, which is the common Android/mobile failure mode.
       if (typeof IntersectionObserver !== "undefined") {
         visibilityObserver = new IntersectionObserver((entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) scheduleLayoutSync();
+          if (entries.some((entry) => entry.isIntersecting)) layoutSync?.schedule();
         }, { threshold: 0.01 });
         visibilityObserver.observe(container);
       }
@@ -742,7 +732,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
 
       layoutTimer = window.setTimeout(() => {
         if (cancelled || mapInstance.current !== map || !container.isConnected) return;
-        syncMapLayout();
+        layoutSync?.sync();
         focusInitialPlaces();
         renderMarkers();
         reportVisiblePlaces();
@@ -763,8 +753,8 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
       if (settleFrame) window.cancelAnimationFrame(settleFrame);
       resizeObserver?.disconnect();
       visibilityObserver?.disconnect();
-      layoutSyncFrames.forEach((frame) => window.cancelAnimationFrame(frame));
-      layoutSyncFrames = [];
+      layoutSync?.dispose();
+      layoutSync = undefined;
       if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
       suppressViewportPrompt.current = false;
       activePreviewMarker.current?.remove();
