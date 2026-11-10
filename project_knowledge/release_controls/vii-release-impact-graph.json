@@ -899,6 +899,7 @@
         "app/components/masu-experience.tsx",
         "app/components/new-tab-navigation.tsx",
         "app/components/world-landing.tsx",
+        "app/components/discovery-world-hero.tsx",
         "app/favorites/",
         "app/public-fonts.css",
         "public/fonts/rubik/",
