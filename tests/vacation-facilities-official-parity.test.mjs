@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { buildSergeyAmenityIndex, sergeyAmenityGroups } from "../app/lib/sergey-amenities.ts";
-import { fetchLiveBusinessAmenities } from "../app/lib/live-business-amenities.ts";
+import { fetchLiveBusinessAmenities, resolvedBusinessFeatureGroups } from "../app/lib/live-business-amenities.ts";
 import { businessAmenitiesResponse } from "../app/api/vii/business-amenities/route.ts";
 
 test("official category and item order wins over shuffled shared amenity input", () => {
@@ -118,9 +118,22 @@ test("public endpoint validates input and keeps generation-aware source caching 
 test("vacation pages hydrate official groups without inventing a general group or merging room features", async () => {
   const source = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
   assert.match(source, /\/api\/vii\/business-amenities\?id=/);
-  assert.match(source, /liveFeatureGroups \?\? \(property\.featureGroups\?\.length \? property\.featureGroups : \[\]\)/);
+  assert.match(source, /resolvedBusinessFeatureGroups\(liveFeatureGroups, property\.featureGroups\)/);
   assert.doesNotMatch(source, /title: "כללי"/);
   assert.doesNotMatch(source, /supplierDetail\.rooms\.flatMap\(\(room\) => room\.features\)/);
+});
+
+test("empty live enrichment never erases accepted amenity groups after slider navigation", () => {
+  const accepted = [
+    { title: "מתחם חיצוני", items: ["בריכת שחייה", "ג'קוזי"] },
+    { title: "מטבח מאובזר", items: ["מקרר", "מכונת אספרסו"] },
+  ];
+  assert.deepEqual(resolvedBusinessFeatureGroups([], accepted), accepted);
+  assert.deepEqual(resolvedBusinessFeatureGroups(null, accepted), accepted);
+  assert.deepEqual(resolvedBusinessFeatureGroups([{ title: "חי", items: [] }], accepted), accepted);
+
+  const live = [{ title: "מתחם חיצוני", items: ["בריכה מחוממת"] }];
+  assert.deepEqual(resolvedBusinessFeatureGroups(live, accepted), live);
 });
 
 test("QQQAAA permanently checks official vacation amenity groups", async () => {

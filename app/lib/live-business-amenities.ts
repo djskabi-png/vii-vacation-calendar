@@ -11,6 +11,14 @@ export type LiveBusinessAmenities = {
   source: "biz-shared-amenities" | "migrated-vii-place-amenities";
 };
 
+export function resolvedBusinessFeatureGroups(
+  liveGroups: LiveBusinessAmenityGroup[] | null,
+  acceptedGroups: LiveBusinessAmenityGroup[] | undefined,
+): LiveBusinessAmenityGroup[] {
+  const usableLiveGroups = liveGroups?.filter((group) => group.items.length) || [];
+  return usableLiveGroups.length ? usableLiveGroups : acceptedGroups?.filter((group) => group.items.length) || [];
+}
+
 function record(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }

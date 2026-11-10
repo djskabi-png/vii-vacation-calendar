@@ -7,6 +7,7 @@ import { ModernDateInput } from "../components/modern-date-input";
 import { Info } from "lucide-react";
 import Link from "next/link";
 import { CollapsibleFeatureList } from "../components/collapsible-feature-list";
+import { resolvedBusinessFeatureGroups } from "../lib/live-business-amenities";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation, vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
 import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
@@ -377,7 +378,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   // feature list is the completeness contract. Never hide an accepted feature
   // merely because its taxonomy group is absent or temporarily unavailable.
   const featureGroups = completeFeatureGroups(
-    liveFeatureGroups ?? (property.featureGroups?.length ? property.featureGroups : []),
+    resolvedBusinessFeatureGroups(liveFeatureGroups, property.featureGroups),
     property.features,
   );
   const localizedFeatureGroups = featureGroups.flatMap((group) => {
