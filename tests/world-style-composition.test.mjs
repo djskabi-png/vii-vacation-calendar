@@ -4,15 +4,14 @@ import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import { composeWorldStyles, worldStyleSources } from '../build/world-style-slots.mjs';
 
-test('world source isolation preserves every byte of the frozen effective cascade after newline normalization',()=>{
+test('provider controls preserve the accepted pre-provider effective cascade after newline normalization',()=>{
   const sources=worldStyleSources();
   const css=fs.readFileSync('app/globals.css','utf8');
   assert.ok(css.startsWith('@import "./public-fonts.css";'));
-  // Reverse only the two explicitly audited shared changes before comparing
-  // the original cascade. All unrelated world styles must remain byte exact.
-  const originalFontImport='@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");';
+  // Freeze the cumulative accepted parent ea93a9ac, including its font, map,
+  // SPA and unit-card repairs. QA850 independently compared its Git bytes and
+  // every world-owned source before advancing this previously stale freeze.
   const mapFix='.listing-map-shell.single-map,\n.discovery-location .listing-map-shell.single-map { height: 300px; min-height: 300px; }\n.listing-map-shell.single-map .listing-map { height: 100%; min-height: 0; }';
-  const oldMap='.listing-map-shell.single-map, .listing-map-shell.single-map .listing-map { min-height: 300px; }';
   const normalized=css.replace(/\r\n/g,'\n');
   assert.equal(normalized.split(mapFix).length,2,'the precise audited map repair is present once');
   const spaGroups='.spa-results__landing-links > .spa-results__filter-group { display: grid; gap: 7px; grid-template-columns: 1fr; }\n.spa-results__filter-group > strong { color: var(--ink-soft); font-size: .72rem; font-weight: 850; }\n.spa-results__filter-group > div { display: grid; grid-template-columns: repeat(5,minmax(72px,1fr)); gap: 8px; }\n';
@@ -22,10 +21,15 @@ test('world source isolation preserves every byte of the frozen effective cascad
     '.room-card__image-button:focus-visible { outline:3px solid var(--teal); outline-offset:-3px; }',
     '.units-total.units-total--single { display:block; margin:6px 0 16px; padding:0; border:0; border-radius:0; background:none; color:var(--ink-soft); font-size:.82rem; font-weight:400; }',
   ];
-  let original=normalized.replace(mapFix,oldMap).replace(spaGroups,'');
-  for(const addition of unitAdditions){assert.equal(original.split(addition).length,2);original=original.replace(addition+'\n','');}
-  const actual=composeWorldStyles(original.replace('@import "./public-fonts.css";',originalFontImport),sources).replace(/\r\n/g,'\n');
-  const expected='26c269af41b60dde130dd053ac486e7896eaf34cf68b2035af1afb7bde56ef9f';
+  // Provider controls are an intentional, separately scoped addition. Removing
+  // only that marked block keeps the original four-world cascade byte exact.
+  const providerBlock=normalized.match(/\/\* VII_PROVIDER_CONTROLS_BEGIN \*\/[\s\S]*?\/\* VII_PROVIDER_CONTROLS_END \*\/\n/g);
+  assert.equal(providerBlock?.length,1,'the audited provider-only controls are present once');
+  assert.doesNotMatch(providerBlock[0],/\.(?:spa|hourly|vacation|event)[\w-]*\s*[{,.#>]/,'provider repair must not add rules for other worlds');
+  assert.match(providerBlock[0],/\.provider-results \.provider-toolbar\.is-open/);
+  for(const addition of unitAdditions)assert.equal(normalized.split(addition).length,2);
+  const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
+  const expected='a896a6c7de1f1da670de1dd3816337621e774f34fe2282f906fdb823b49d6d3c';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

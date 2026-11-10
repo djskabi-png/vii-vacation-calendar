@@ -20,6 +20,9 @@ test("provider topics use dedicated routed pages", () => {
   assert.match(categories, /"argaman-events": \["photo", "design"\]/);
   assert.match(results, /<Link key=\{entry\.id\} href=\{categoryHref\(entry\.id\)\}/);
   assert.match(route, /managedTitle=\{category\.title\}/);
+  const hero = read("app/components/discovery-world-hero.tsx");
+  assert.match(hero, /await serverPublicCopy\(\)/);
+  assert.match(hero, /<h1>\{translate\(presentation\.title\)\}<\/h1>/);
   assert.doesNotMatch(results, /pushState\([^)]*category/);
   assert.match(landing, /world !== "providers"/);
 });

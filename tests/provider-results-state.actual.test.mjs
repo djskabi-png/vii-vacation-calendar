@@ -50,12 +50,17 @@ async function fixture(initialUrl = 'https://vii.test/providers?q=Liran&region=�
   const root = createRoot(document.getElementById('root'));
   await act(async () => root.render(React.createElement(module.exports.ProviderResults, { items, category: 'all' })));
   return {
+    async render(category = 'all') { await act(async () => root.render(React.createElement(module.exports.ProviderResults, { items, category }))); },
     async change(label, value) { await act(async () => { const select = document.querySelector(`select[aria-label="${label}"]`); select.value = value; select.dispatchEvent(new page.window.Event('change', { bubbles: true })); }); },
+    async clickCategory(label) { await act(async () => { document.querySelector(`.provider-categories a[href="/providers/${label}"]`)?.click(); }); },
     async close() { await act(async () => root.unmount()); page.window.close(); for (const [key, descriptor] of previous) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; } },
     links: () => [...document.querySelectorAll('.provider-categories a')],
     location: () => page.window.location.href,
     historyState: () => page.window.history.state,
     filterToggle: () => document.querySelector('.provider-filter-toggle'),
+    resetButton: () => document.querySelector('.provider-reset'),
+    status: () => document.querySelector('.provider-navigation-status')?.textContent || '',
+    sortSelect: () => document.querySelector('select[aria-label="מיון"]'),
   };
 }
 
@@ -94,5 +99,31 @@ test('mounted provider mobile filter toggle exposes its open state', async () =>
     assert.equal(toggle.getAttribute('aria-expanded'), 'true');
     await act(async () => toggle.click());
     assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+  } finally { await h.close(); }
+});
+
+test('category activation exposes loading feedback and a committed category closes the mobile filter panel', async () => {
+  const h = await fixture('https://vii.test/providers');
+  try {
+    await act(async () => h.filterToggle().click());
+    assert.equal(h.filterToggle().getAttribute('aria-expanded'), 'true');
+    await h.clickCategory('music');
+    assert.match(h.status(), /טוענים ספקים בתחום שנבחר/);
+    await h.render('music');
+    assert.equal(h.filterToggle().getAttribute('aria-expanded'), 'false');
+    assert.equal(h.status(), '');
+  } finally { await h.close(); }
+});
+
+test('clearing a sort-only filter returns the default URL and result order controls', async () => {
+  const h = await fixture('https://vii.test/providers');
+  try {
+    await h.change('מיון', 'price');
+    assert.equal(h.sortSelect().value, 'price');
+    assert.ok(h.resetButton(), 'a non-default sort exposes the reset action');
+    await act(async () => h.resetButton().click());
+    assert.doesNotMatch(h.location(), /sort=/);
+    assert.equal(h.sortSelect().value, 'recommended');
+    assert.equal(h.resetButton(), null);
   } finally { await h.close(); }
 });
