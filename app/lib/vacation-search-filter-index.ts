@@ -104,3 +104,9 @@ export function matchesVacationSearchFilter(property: Property, id: string) {
   const searchable = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
   return terms.some((term) => searchable.includes(term.toLocaleLowerCase("he")));
 }
+
+/** Pet search is opt-in and must be backed by an explicit supplier amenity. */
+export function acceptsPets(property: Property) {
+  if (Array.isArray(property.searchFilterIds)) return property.searchFilterIds.includes("pets");
+  return vacationSearchFilterIdsFromText([...(property.features || []), property.description || ""]).includes("pets");
+}
