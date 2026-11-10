@@ -12,6 +12,13 @@ export function uniqueEventVenueItems<T>(items: readonly T[], identity: (item: T
   });
 }
 
+/** Keep every event venue and put the commercially useful states first. */
+export function orderEventResults<T>(items: readonly T[], read: (item: T) => { available?: boolean | null; price?: number | null; id: string | number }) {
+  const tier = (row: ReturnType<typeof read>) => row.available === true && typeof row.price === "number" && row.price > 0 ? 0
+    : row.available === true ? 1 : typeof row.price === "number" && row.price > 0 ? 2 : row.available === false ? 3 : 4;
+  return [...items].sort((a, b) => tier(read(a)) - tier(read(b)) || String(read(a).id).localeCompare(String(read(b).id), "en", { numeric: true }));
+}
+
 export type EventDealPresetId = "lastminute" | "thursday" | "friday";
 export function eventDealPagePath(preset: EventDealPresetId) {
   return preset === "lastminute" ? "/events/last-minute" : `/events/${preset}`;
