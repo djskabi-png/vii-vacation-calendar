@@ -996,6 +996,7 @@
         "app/components/deferred-search-content.tsx",
         "app/components/regional-search-loading.tsx",
         "app/lib/discovery-result-sort.ts",
+        "app/lib/vacation-inventory.ts",
         "app/lib/event-discovery-contract.ts",
         "app/components/world-map-results.tsx",
         "app/lib/public-search-page-snapshot.ts",

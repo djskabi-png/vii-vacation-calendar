@@ -2,7 +2,9 @@ import type { Property } from "../data/site-data";
 import type { SiteLanguage } from "../i18n/locale-routing";
 
 export function propertyUnitCount(property: Property) {
-  if (property.units && property.units > 0) return property.units;
+  // An explicit zero is supplier truth, not a missing value. Counting such a
+  // property as one made the public total drift from the accepted API catalog.
+  if (typeof property.units === "number" && Number.isFinite(property.units) && property.units >= 0) return property.units;
   const detailedUnits = property.roomOptions?.reduce((total, option) => total + Math.max(1, option.quantity || 1), 0) || 0;
   return detailedUnits || 1;
 }

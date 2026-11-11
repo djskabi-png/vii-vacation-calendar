@@ -14,6 +14,7 @@ const { propertyUnitCount, vacationInventorySummary } = moduleShim.exports;
 
 test("vacation inventory prefers verified units and falls back safely", () => {
   assert.equal(propertyUnitCount({ units: 4, roomOptions: [{ quantity: 8 }] }), 4);
+  assert.equal(propertyUnitCount({ units: 0, roomOptions: [] }), 0);
   assert.equal(propertyUnitCount({ roomOptions: [{ quantity: 2 }, { quantity: 3 }] }), 5);
   assert.equal(propertyUnitCount({}), 1);
 });
