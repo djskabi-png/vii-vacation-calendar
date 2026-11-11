@@ -381,7 +381,7 @@
       "pid": 5556,
       "label": "vinext rebuilt server port 4391",
       "recordedAt": "2026-11-11T18:53:11.9671482+02:00",
-      "processCreatedAt": "2026-11-11T18:52:57.0338890+02:00",
+      "processCreatedAt": "2026-11-11T18:52:57.033889+02:00",
       "processName": "node.exe"
     },
     {
@@ -413,6 +413,27 @@
       "processName": "node.exe",
       "stoppedAt": "2026-11-11T19:48:00+02:00",
       "stopVerified": true
+    },
+    {
+      "pid": 25452,
+      "label": "built candidate holiday atomic verification server port 4392",
+      "recordedAt": "2026-11-11T20:03:29.5752675+02:00",
+      "processCreatedAt": "2026-11-11T19:58:58.899656+02:00",
+      "processName": "node.exe"
+    },
+    {
+      "pid": 5560,
+      "label": "rebuilt holiday atomic verification server port 4392",
+      "recordedAt": "2026-11-11T20:04:43.145569+02:00",
+      "processCreatedAt": "2026-11-11T20:04:28.800426+02:00",
+      "processName": "node.exe"
+    },
+    {
+      "pid": 28588,
+      "label": "v875 final candidate preview port 4392",
+      "recordedAt": "2026-11-11T20:17:36.1941214+02:00",
+      "processCreatedAt": "2026-11-11T20:17:14.4419580+02:00",
+      "processName": "node.exe"
     }
   ],
   "before": {

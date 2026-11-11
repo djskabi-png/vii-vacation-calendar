@@ -5,7 +5,6 @@ import type { EventSlot, LiveSearchResult, LiveSearchRoom, LiveSearchWorld } fro
 import type { EventDealPlace } from "../lib/event-deal-labels";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { EVENT_DISCOVERY_VERSION, EVENT_DISCOVERY_MAX_AGE_MS, eventDiscoveryResponseMatches } from "../lib/event-discovery-contract.ts";
-import { holidayForRequestedStay } from "../lib/holiday-deal-selection.ts";
 
 export type LiveSearchState = {
   status: "idle" | "loading" | "ready" | "error";
@@ -129,37 +128,36 @@ export function useViiHolidayLiveSearch(
   useEffect(() => {
     if (!key) return;
     const controller = new AbortController();
-    const resolveHoliday = id ? Promise.resolve({ id, name: undefined as string | undefined }) : discoveryJson(
-      "/api/vii/home-holidays?all=1",
-      "holiday-search-match",
-      { signal: controller.signal, freshMs: 15 * 60_000, staleMs: 24 * 60 * 60_000 },
-    ).then((payload: unknown) => {
-      const response = payload as { holidays?: Array<{ id: number; name: string; from: string; till: string }> };
-      const match = candidate ? holidayForRequestedStay(response.holidays ?? [], candidate) : null;
-      return match ? { id: match.id, name: match.name } : null;
+    let matchedHoliday: { id: number; name?: string } | null = id ? { id } : null;
+    const wait = (delay: number) => new Promise<void>((resolve, reject) => {
+      const timer = window.setTimeout(resolve, delay);
+      controller.signal.addEventListener("abort", () => { window.clearTimeout(timer); reject(controller.signal.reason); }, { once: true });
     });
-    resolveHoliday.then((holiday) => {
-      if (!holiday) {
-        if (!controller.signal.aborted) setValue({ key, state: { ...idle, status: "ready", holidayId: null, matched: false } });
-        return null;
-      }
-      const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part, proof: "verified-offers-v1" });
-      return discoveryJson(`/api/vii/home-holiday-deals?${params}`, key, { signal: controller.signal, cache: "no-store" as const })
-        .then((payload: unknown) => ({ payload, holiday }));
-    })
-      .then((payload: unknown) => {
-        if (!payload) return;
-        const { payload: responsePayload, holiday } = payload as { payload: unknown; holiday: { id: number; name?: string } };
-        const response = responsePayload as { availabilityStatus?: string; checkedAt?: string | null; stayPlan?: { minNights: number; maxNights: number }; deals?: Array<{ siteID: number; from: string; till: string; total: number | null; nights: number; priceGuests: number; onlineBooking?: boolean; roomID?: number }> };
+    const load = async () => {
+      const params = new URLSearchParams({ guests: String(guests), part, proof: "verified-offers-v1",
+        ...(id ? { id: String(id) } : candidate ? { matchFrom: candidate.from, matchTill: candidate.till } : {}) });
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        const response = await discoveryJson(`/api/vii/home-holiday-deals?${params}`, `${key}:attempt:${attempt}`, {
+          signal: controller.signal, cache: "no-store" as const, retries: 0, staleWhileRevalidate: false,
+        }) as { holiday?: { id: number; name?: string }; availabilityStatus?: string; checkedAt?: string | null; stayPlan?: { minNights: number; maxNights: number }; deals?: Array<{ siteID: number; from: string; till: string; total: number | null; nights: number; priceGuests: number; onlineBooking?: boolean; roomID?: number }> };
+        if (!response.holiday || !Number.isSafeInteger(response.holiday.id) || response.holiday.id <= 0) throw new Error("invalid_holiday");
+        matchedHoliday = response.holiday;
+        if (response.availabilityStatus === "refreshing" && attempt < 3) {
+          if (!controller.signal.aborted) setValue({ key, state: { ...idle, status: "loading", holidayId: response.holiday.id, holidayName: response.holiday.name, matched: true } });
+          await wait(700 * (attempt + 1));
+          continue;
+        }
         if (response.availabilityStatus !== "verified" || !Array.isArray(response.deals)) throw new Error("holiday_not_ready");
         const results: LiveSearchResult[] = response.deals.map((deal) => ({ siteID: deal.siteID, available: true,
           onlineBooking: deal.onlineBooking === true, total: deal.total, from: deal.from, till: deal.till, start: null, reason: null,
           roomCount: 1, priceGuests: deal.priceGuests, priceMode: deal.nights > 1 ? "nightly_average" : "stay_total",
           ...(deal.roomID ? { roomID: deal.roomID } : {}) }));
         if (!controller.signal.aborted) setValue({ key, state: { status: "ready", results: Object.fromEntries(results.map((item) => [item.siteID, item])), resultOrder: results.map((item) => item.siteID), checkedAt: response.checkedAt ?? null,
-          holidayId: holiday.id, holidayName: holiday.name, matched: true, ...(response.stayPlan ? { stayPlan: response.stayPlan } : {}) } });
-      })
-      .catch(() => { if (!controller.signal.aborted) setValue({ key, state: { ...idle, status: id ? "error" : "ready", holidayId: id, matched: Boolean(id) } }); });
+          holidayId: response.holiday.id, holidayName: response.holiday.name, matched: true, ...(response.stayPlan ? { stayPlan: response.stayPlan } : {}) } });
+        return;
+      }
+    };
+    load().catch(() => { if (!controller.signal.aborted) setValue({ key, state: { ...idle, status: matchedHoliday ? "error" : "ready", holidayId: matchedHoliday?.id ?? null, holidayName: matchedHoliday?.name, matched: Boolean(matchedHoliday) } }); });
     return () => controller.abort();
   }, [candidate?.from, candidate?.till, guests, id, key, part]);
 

@@ -162,11 +162,34 @@ test("holiday change-search handoff opens the real date editor after hydration w
   assert.doesNotMatch(search, /history\.replaceState/, "URL cleanup must not remount and immediately close the editor");
   assert.match(search, /useViiHolidayLiveSearch\(explicitHolidaySearchId, guests, holidayPart, onlineSearchRetry, inferredHolidayCandidate\)/);
   assert.match(search, /holidayDetectionPending/);
+  assert.match(search, /holidayTransitionPending/);
+  assert.match(search, /className="holiday-search-loading"/);
+  assert.match(search, /!holidayTransitionPending && resultSet\.length > filtered\.length/);
+  assert.match(search, /!holidayTransitionPending && !mapOpen && <ProgressiveResults/);
   assert.match(search, /מוצגת לכל מקום השהייה הקצרה ביותר שהספק אישר/);
-  assert.match(liveSearch, /home-holidays\?all=1/);
-  assert.match(liveSearch, /holidayForRequestedStay/);
   assert.match(liveSearch, /home-holiday-deals/);
+  assert.match(liveSearch, /matchFrom: candidate\.from, matchTill: candidate\.till/);
+  assert.match(liveSearch, /staleWhileRevalidate: false/);
+  assert.match(liveSearch, /response\.availabilityStatus === "refreshing"/);
+  assert.doesNotMatch(liveSearch, /home-holidays\?all=1/, "direct search must resolve the holiday and its offers atomically");
   assert.match(liveSearch, /deal\.nights > 1 \? "nightly_average" : "stay_total"/);
+});
+
+test("holiday transition loader is branded, responsive, and motion-safe", () => {
+  const source = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(source, /\.holiday-search-loading \{/);
+  assert.match(source, /@keyframes holiday-search-pulse/);
+  assert.match(source, /prefers-reduced-motion: reduce/);
+});
+
+test("direct holiday detection and the multi-night snapshot resolve atomically without a stale one-night phase", () => {
+  const route = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
+  const liveSearch = readFileSync(new URL("../app/components/use-vii-live-search.ts", import.meta.url), "utf8");
+  assert.match(route, /holidayForRequestedStay\(holidays, \{ from: matchFrom!, till: matchTill! \}\)/);
+  assert.match(route, /const id = holiday\.id/);
+  assert.match(liveSearch, /status: "loading", holidayId: response\.holiday\.id/);
+  assert.match(liveSearch, /matchedHoliday \? "error" : "ready"/);
+  assert.doesNotMatch(liveSearch, /holiday-search-match/, "a stale calendar cache must never release the ordinary one-night search");
 });
 
 test("a direct exact URL at a supplier holiday start is promoted to the flexible holiday search", () => {

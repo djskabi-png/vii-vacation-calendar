@@ -3,7 +3,7 @@ import { supplierToken } from "../../../lib/vii-supplier-token";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
-import { holidayParts, type HolidayPart } from "../../../lib/holiday-deal-selection.ts";
+import { holidayForRequestedStay, holidayParts, type HolidayPart } from "../../../lib/holiday-deal-selection.ts";
 import { cachedHolidayDiscovery, HOLIDAY_DISCOVERY_POLICY } from "../../../lib/warm-holiday-discovery-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
@@ -36,8 +36,12 @@ export async function GET(request: Request) {
   };
   const params = new URL(request.url).searchParams;
   const raw = params.get("id");
-  const id = raw && /^\d+$/.test(raw) ? Number(raw) : NaN;
-  if (!Number.isSafeInteger(id) || id <= 0) return Response.json({ error: "invalid_holiday" }, { status: 400, headers });
+  const requestedId = raw && /^\d+$/.test(raw) ? Number(raw) : NaN;
+  const matchFrom = params.get("matchFrom");
+  const matchTill = params.get("matchTill");
+  const validRequestedId = Number.isSafeInteger(requestedId) && requestedId > 0;
+  const validHolidayMatch = validDate(matchFrom) && validDate(matchTill);
+  if (!validRequestedId && !validHolidayMatch) return Response.json({ error: "invalid_holiday" }, { status: 400, headers });
   const guests = params.has("guests") ? Number(params.get("guests")) : 2;
   const part = params.get("part") ?? "all";
   if (![2, 6, 20].includes(guests) || !holidayParts.includes(part as HolidayPart)) return Response.json({ error: "invalid_selection" }, { status: 400, headers });
@@ -52,8 +56,14 @@ export async function GET(request: Request) {
     const { places: names, publishedIds: publicSiteIds } = index;
     const now = new Date();
     const holidays = await timing.measure("calendar", () => getDiscoveryHolidays(token, now));
-    const holiday = holidays.find(item => item.id === id);
+    // A direct dated search resolves the holiday and its discovery snapshot in
+    // one no-store request. This prevents a stale calendar response from
+    // briefly starting an ordinary one-night search before the holiday plan.
+    const holiday = validRequestedId
+      ? holidays.find(item => item.id === requestedId)
+      : holidayForRequestedStay(holidays, { from: matchFrom!, till: matchTill! });
     if (!holiday) throw new Error("invalid_holiday");
+    const id = holiday.id;
     if (params.has("from") && (params.get("from")! < holiday.from || params.get("till")! > holiday.till || Date.parse(params.get("till")!) - Date.parse(params.get("from")!) !== holiday.nights * 86_400_000)) throw new Error("invalid_stay");
     // Cache hits only require publication identities. Gallery/room enrichment
     // belongs to the lease-owned refresh, never to every visitor's cache read.

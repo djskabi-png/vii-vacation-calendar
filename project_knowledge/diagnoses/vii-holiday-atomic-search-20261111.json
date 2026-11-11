@@ -1,0 +1,79 @@
+{
+  "status": "fixed",
+  "symptom": "The direct New Year's search could first show 14 one-night results and later replace them with the complete holiday result set, omitting properties whose valid supplier stay required two or more nights during the first state.",
+  "expected_behavior": "A direct search that starts on a recognized holiday resolves the holiday and its 1-4 night supplier offers atomically, shows one stable loading state, and never exposes ordinary one-night results.",
+  "environment": "VII v874 public and the v875 built candidate on 2026-11-11; exact URL /search/?location=כל+הארץ&from=2026-12-31&till=2027-01-01&guests=2; mobile 390x844 and desktop 1440x900.",
+  "reproduction": {
+    "steps": [
+      "Open the exact New Year's search in a fresh desktop context.",
+      "Observe the result count and cards while holiday discovery settles.",
+      "Compare the initial one-night result family with the later holiday snapshot."
+    ],
+    "evidence": "The independent v874 reviewer observed a stable 14-result one-night phase on desktop while the same build later produced 49 holiday properties and 103 units; the first built-candidate audit also found six generic SSR cards during holiday detection."
+  },
+  "observations": [
+    {
+      "observation": "Holiday identity was fetched through the separately cached home-holidays route before the holiday offer request.",
+      "evidence": "Pre-fix use-vii-live-search.ts called /api/vii/home-holidays?all=1 and could release the ordinary selectedStay search while the cached calendar did not match."
+    },
+    {
+      "observation": "The ordinary result grid remained mounted during holiday detection.",
+      "evidence": "The first local built-candidate audit observed intermediate.cardCount=6 before the holiday response committed."
+    },
+    {
+      "observation": "The fixed candidate makes two bounded no-store attempts to one holiday-deals route and never calls ordinary live-search.",
+      "evidence": "C:/Users/Adir/AppData/Local/Temp/v875-holiday-race-audit/report.json records matchedAtomically=true, exactSearchCalls=[], intermediate.cardCount=0 and passed=true for both viewports."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "A stale independently cached holiday calendar temporarily reports no holiday, enabling the ordinary one-night search before the flexible holiday snapshot arrives.",
+      "prediction": "The page can expose ordinary live-search results on one viewport or timing path before the holiday request owns the state.",
+      "discriminating_test": "Resolve holiday identity and offers in one no-store API request and assert that no /api/vii/live-search request occurs.",
+      "result": "After the atomic route change, both viewports made only home-holiday-deals requests and no ordinary live-search request.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Supplier availability itself returns only 14 properties for the requested date.",
+      "prediction": "The holiday snapshot would remain at 14 after detection and multi-night offers would be absent.",
+      "discriminating_test": "Run the supplier holiday snapshot across 1-4 nights and inspect final identities and dates.",
+      "result": "The final public v874 holiday snapshot produced 49 properties and 103 units, and the fixture audit returned valid 1-, 2-, 3- and 4-night offers, rejecting a supplier-inventory ceiling.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "The home-holiday-deals no-store route now resolves matchFrom/matchTill and the supplier snapshot together; the client performs bounded refreshing retries without stale-while-revalidate, never falls back after a holiday match, and hides counts, cards, map and nearby notices behind one accessible branded loader until the holiday snapshot is ready.",
+    "evidence": "Focused tests passed 16/16; TypeScript and production build passed; the built-candidate browser audit passed on mobile and desktop with zero provisional cards, no fallback count, five loaded images, 1-4 night dates, no errors and no overflow."
+  },
+  "affected_family": [
+    "direct vacation searches beginning on a recognized holiday",
+    "holiday detail search handoff",
+    "holiday offer API refreshing and error states",
+    "vacation search loading, result grid, map and nearby notice surfaces"
+  ],
+  "regression_checks": [
+    {
+      "check": "Exact New Year's direct URL in mobile and desktop built candidate",
+      "status": "passed",
+      "evidence": "v875-holiday-race-audit/report.json passed both viewports with intermediate.cardCount=0, exactSearchCalls=[], loadedImages=5 and matchedAtomically=true."
+    },
+    {
+      "check": "Holiday 1-4 night offer selection and direct handoff contract",
+      "status": "passed",
+      "evidence": "tests/holiday-audience-deals.test.mjs passed 16/16."
+    },
+    {
+      "check": "Critical public, release baseline, accessibility and unified platform families",
+      "status": "passed",
+      "evidence": "qa:release-baseline 23/23, qa:critical-public-families 65/65, qa:accessibility-contract 21/21 and qa:vii-unified-19 95/95."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Production verification and simulated-Adir re-review remain required after publishing the frozen candidate."
+  ],
+  "authorization_boundary": "The user authorized repair, public publication and verification of the VII release; no supplier mutation, DNS change, purchase or unrelated production change is included."
+}

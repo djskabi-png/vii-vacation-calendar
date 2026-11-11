@@ -5,7 +5,7 @@
   "task_type": "public website repair and release",
   "goal": "Implement and publish the thirteen accepted Liran and Plumbo requirements, verify the public version, and obtain simulated-Adir approval",
   "created_at": "2026-11-11T16:33:29.277664Z",
-  "updated_at": "2026-11-11T16:47:02.466650Z",
+  "updated_at": "2026-11-11T18:06:23.932137Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -103,9 +103,12 @@
       "source": "predictive_preflight.midpoint_gate",
       "statement": "The first focused contract tests and one local mobile and desktop business-page render pass",
       "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Focused holiday contract 16/16 passed; built-candidate audit passed at 390x844 and 1440x900 with zero provisional cards, no ordinary live-search request, atomic holiday resolution, 1-4 night offers, five loaded images, no JavaScript errors and no overflow."
+      ],
+      "reason": null,
+      "updated_at": "2026-11-11T18:06:23.932137Z"
     },
     {
       "id": "preflight:adversarial",
@@ -307,5 +310,18 @@
     }
   ],
   "verification_status": "in_progress",
-  "verification_errors": []
+  "verification_errors": [],
+  "last_freshness_check_at": "2026-11-11T18:06:23.454379Z",
+  "last_freshness_check_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-11-11T18:06:23.931134Z",
+      "evidence": [
+        "Focused holiday contract 16/16 passed; built-candidate audit passed at 390x844 and 1440x900 with zero provisional cards, no ordinary live-search request, atomic holiday resolution, 1-4 night offers, five loaded images, no JavaScript errors and no overflow."
+      ],
+      "findings": [
+        "The prior candidate still exposed generic SSR cards during holiday detection; the result surface is now suppressed behind one branded accessible loader until the atomic holiday snapshot is verified."
+      ]
+    }
+  }
 }

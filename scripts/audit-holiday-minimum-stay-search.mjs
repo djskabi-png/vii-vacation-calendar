@@ -23,6 +23,7 @@ try {
     const context = await browser.newContext({ viewport, locale: "he-IL", serviceWorkers: "block" });
     const page = await context.newPage();
     const exactSearchCalls = [];
+    const holidayDealCalls = [];
     const relevantRequests = [];
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -30,9 +31,20 @@ try {
       if (request.url().includes("/api/vii/")) relevantRequests.push(request.url());
       if (request.url().includes("/api/vii/live-search")) exactSearchCalls.push(request.url());
     });
-    await page.route(/\/api\/vii\/home-holidays(?:\?|$)/, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ holidays }) }));
-    await page.route(/\/api\/vii\/home-holiday-deals(?:\?|$)/, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ holiday: holidays[0], deals, stayPlan: { minNights: 1, maxNights: 4 }, checkedAt: "2026-11-11T17:00:00.000Z", availabilityStatus: "verified" }) }));
+    await page.route(/\/api\/vii\/home-holiday-deals(?:\?|$)/, (route) => {
+      const requestUrl = new URL(route.request().url());
+      holidayDealCalls.push(requestUrl.toString());
+      const refreshing = holidayDealCalls.length === 1;
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ holiday: holidays[0], deals: refreshing ? [] : deals,
+        stayPlan: { minNights: 1, maxNights: 4 }, checkedAt: "2026-11-11T17:00:00.000Z", availabilityStatus: refreshing ? "refreshing" : "verified" }) });
+    });
     const response = await page.goto(`${base}${requestPath}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await page.waitForTimeout(250);
+    const intermediate = await page.evaluate(() => ({
+      cardCount: document.querySelectorAll(".stay-card").length,
+      text: document.body.innerText,
+    }));
+    await page.screenshot({ path: path.join(output, `${viewport.id}-loading.png`), fullPage: false });
     try {
       await page.locator(".availability-demo-summary--live").waitFor({ state: "visible", timeout: 30_000 });
     } catch (error) {
@@ -47,6 +59,12 @@ try {
       throw error;
     }
     await page.waitForFunction(() => document.querySelectorAll(".stay-card").length >= 5, undefined, { timeout: 30_000 });
+    const cardCount = await page.locator(".stay-card").count();
+    for (let index = 0; index < Math.min(5, cardCount); index += 1) {
+      await page.evaluate((targetIndex) => document.querySelectorAll(".stay-card")[targetIndex]?.scrollIntoView({ block: "center" }), index);
+      await page.waitForTimeout(60);
+    }
+    await page.waitForFunction(() => [...document.querySelectorAll(".stay-card img")].filter((image) => image.complete && image.naturalWidth > 0).length >= 5, undefined, { timeout: 30_000 });
     const state = await page.evaluate(() => ({
       heading: document.querySelector(".availability-demo-summary--live strong")?.textContent?.trim() || "",
       explanation: document.querySelector(".availability-demo-summary--live span")?.textContent?.trim() || "",
@@ -54,14 +72,20 @@ try {
       dates: [...document.querySelectorAll(".stay-card__selected-dates span")].slice(0, 5).map((node) => node.textContent?.trim()),
       overflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth,
       h1Count: document.querySelectorAll("h1").length,
+      loadedImages: [...document.querySelectorAll(".stay-card img")].filter((image) => image.complete && image.naturalWidth > 0).length,
     }));
     await page.screenshot({ path: path.join(output, `${viewport.id}.png`), fullPage: false });
+    const matchedAtomically = holidayDealCalls.length >= 2 && holidayDealCalls.every((value) => {
+      const url = new URL(value);
+      return url.searchParams.get("matchFrom") === "2026-12-31" && url.searchParams.get("matchTill") === "2027-01-01" && !url.searchParams.has("id");
+    });
     const passed = response?.status() === 200 && state.heading === "מקומות פנויים לחג"
       && state.explanation.includes("מינימום של שני לילות ומעלה") && state.cardCount >= 5
       && state.dates.some((value) => value?.includes("2 בינו׳"))
       && state.dates.some((value) => value?.includes("4 בינו׳"))
-      && state.overflow <= 1 && state.h1Count === 1 && exactSearchCalls.length === 0 && errors.length === 0;
-    results.push({ viewport: viewport.id, status: response?.status(), state, relevantRequests, exactSearchCalls, errors, passed });
+      && state.overflow <= 1 && state.h1Count === 1 && state.loadedImages >= 5 && exactSearchCalls.length === 0 && errors.length === 0
+      && intermediate.cardCount === 0 && !intermediate.text.includes("14 מתחמים") && matchedAtomically;
+    results.push({ viewport: viewport.id, status: response?.status(), state, intermediate: { cardCount: intermediate.cardCount, showedOneNightFallback: intermediate.text.includes("14 מתחמים") }, relevantRequests, exactSearchCalls, holidayDealCalls, matchedAtomically, errors, passed });
     await context.close();
   }
 } finally {
