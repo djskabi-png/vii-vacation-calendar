@@ -10,6 +10,9 @@ test('quick and legacy feature URLs normalize to one accessibility selection wit
   assert.deepEqual(vacationFeatureSelection(new URLSearchParams(query)),{accessibleOnly:true,extras:['wifi']});
  }
  assert.deepEqual(vacationFeatureSelection(new URLSearchParams('features=luxury')),{accessibleOnly:false,extras:['luxury']});
+ assert.deepEqual(vacationFeatureSelection(new URLSearchParams('pets=1')),{accessibleOnly:false,extras:['pets']});
+ assert.deepEqual(vacationFeatureSelection(new URLSearchParams('pets=2&features=wifi,pets')),{accessibleOnly:false,extras:['wifi','pets']});
+ assert.deepEqual(vacationFeatureSelection(new URLSearchParams('pets=0&features=wifi')),{accessibleOnly:false,extras:['wifi']});
 });
 
 const source=readFileSync(new URL('../app/search/page.tsx',import.meta.url),'utf8');
@@ -30,4 +33,10 @@ test('actual applied handler removes both URL forms and preserves unrelated filt
  const handler=factory(false,null,()=>{},()=>{},()=>{},()=>{},v=>{value=v;},v=>{updates=v;},['wifi']);
  handler('accessible',false);
  assert.equal(value,false);assert.deepEqual(updates,{accessible:null,features:'wifi'});
+});
+
+test('pet-party URLs are removable from the shared filter surface and reset clears their source field',()=>{
+ assert.match(source,/id === "pets" && !nextExtras\.includes\("pets"\) \? \{ pets: null \}/);
+ assert.match(source,/guests: null, bedrooms: null, pets: null/);
+ assert.match(source,/pets: draftFilters\.selectedExtras\.includes\("pets"\) \? initialParams\.get\("pets"\) : null/);
 });

@@ -594,7 +594,10 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     }
     const nextExtras = selectedExtras.includes(id) ? selectedExtras.filter((item) => item !== id) : [...selectedExtras, id];
     setSelectedExtras(nextExtras);
-    updateSearchContext({ features: nextExtras.length ? nextExtras.join(",") : null });
+    updateSearchContext({
+      features: nextExtras.length ? nextExtras.join(",") : null,
+      ...(id === "pets" && !nextExtras.includes("pets") ? { pets: null } : {}),
+    });
   }
 
   function changeSort(nextSort: string) {
@@ -1049,7 +1052,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     setWhole(false);
     setAccessibleOnly(false);
     setSelectedExtras([]);
-    updateSearchContext({ location: "כל הארץ", guests: null, bedrooms: null, type: null, types: null, minPrice: null, maxPrice: null, pool: null, spa: null, whole: null, accessible: null, online: null, features: null, sort: null }, [], "הכל");
+    updateSearchContext({ location: "כל הארץ", guests: null, bedrooms: null, pets: null, type: null, types: null, minPrice: null, maxPrice: null, pool: null, spa: null, whole: null, accessible: null, online: null, features: null, sort: null }, [], "הכל");
   }
 
   function applyFilters() {
@@ -1083,6 +1086,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       accessible: draftFilters.accessibleOnly ? "1" : null,
       online: draftFilters.onlineOnly ? "1" : null,
       features: draftFilters.selectedExtras.length ? draftFilters.selectedExtras.join(",") : null,
+      pets: draftFilters.selectedExtras.includes("pets") ? initialParams.get("pets") : null,
       sort: draftFilters.sort === "recommended" && !pathname.replace(/\/$/, "").endsWith("/near-me") ? null : draftFilters.sort,
     }, draftFilters.selectedTypes, draftFilters.area);
     closeFiltersPanel();

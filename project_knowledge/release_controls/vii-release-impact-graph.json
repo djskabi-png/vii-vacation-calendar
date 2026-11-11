@@ -1002,7 +1002,9 @@
         "app/lib/public-search-page-snapshot.ts",
         "app/lib/search-page-approval.ts",
         "app/components/catalog-starting-price.tsx",
-        "app/components/use-nearby-sort.tsx"
+        "app/components/use-nearby-sort.tsx",
+        "app/lib/vacation-feature-selection.ts",
+        "app/lib/vii-live-search.ts"
       ]
     },
     {

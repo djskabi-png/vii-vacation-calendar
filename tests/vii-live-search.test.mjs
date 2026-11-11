@@ -27,7 +27,7 @@ test("live vacation search keeps available, unavailable and unknown distinct", a
   assert.deepEqual(result.results.map(({ siteID, available, total }) => [siteID, available, total]), [[1, true, 1200], [2, false, null], [3, null, null]]);
   assert.equal(result.results[0].onlineBooking, false);
   assert.equal(result.results[0].priceGuests, 2);
-  assert.equal(result.results[0].priceMode, "stay_total");
+  assert.equal(result.results[0].priceMode, "nightly_average");
   assert.equal(result.results[0].roomID, 11);
 });
 
@@ -42,8 +42,19 @@ test("exact vacation search preserves confirmed availability when the supplier h
   assert.deepEqual(result.results[0], {
     siteID: 738, available: true, onlineBooking: false, total: null,
     from: "2026-11-12", till: "2026-11-15", start: null, reason: null,
-    roomCount: 1, priceGuests: null, priceMode: "stay_total",
+    roomCount: 1, priceGuests: null, priceMode: "nightly_average",
   });
+});
+
+test("one-night vacation search keeps a stay total instead of claiming a nightly average", async () => {
+  const result = await liveSupplierSearch({
+    world: "vacations", from: "2026-11-17", till: "2026-11-18", guests: 2,
+    token: "test-token", publishedIds: new Set([9]),
+    fetchImpl: async (url) => url.endsWith("/vacations")
+      ? Response.json({ places: [] })
+      : Response.json({ sites: [{ siteID: 9, available: true, minTotal: 950, cheapest: { from: "2026-11-17", till: "2026-11-18", total: 950 } }] }),
+  });
+  assert.equal(result.results[0].priceMode, "stay_total");
 });
 
 test('infants are preserved separately and provider receives kids, never children',async()=>{

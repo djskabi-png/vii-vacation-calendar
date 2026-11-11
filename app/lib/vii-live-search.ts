@@ -229,7 +229,8 @@ export async function liveSupplierSearch(options: {
       const roomID = Number(room.roomID);
       return sum + (roomBasis.get(Number(siteID))?.get(roomID) || 0);
     }, 0) || null : null;
-    const priceMode: LiveSearchResult["priceMode"] = requestedRooms.length > 1 ? "nightly_average" : "stay_total";
+    const stayNights = validDate(resultFrom) && validDate(resultTill) ? daysBetween(resultFrom, resultTill) : candidates.length ? candidateNights : days;
+    const priceMode: LiveSearchResult["priceMode"] = stayNights > 1 ? "nightly_average" : "stay_total";
     return [{
       siteID: siteID as number,
       available,
@@ -254,7 +255,7 @@ export async function liveSupplierSearch(options: {
     const reason = answers.find((item) => item?.reason)?.reason || "unknown";
     return { siteID, available: null, onlineBooking: false, total: null, from: null, till: null, start: null, reason,
       roomCount: requestedRooms.length, priceGuests: null,
-      priceMode: world === "events" ? "event_total" as const : requestedRooms.length > 1 ? "nightly_average" as const : "stay_total" as const };
+      priceMode: world === "events" ? "event_total" as const : (candidates.length ? candidateNights : days) > 1 ? "nightly_average" as const : "stay_total" as const };
   });
   return { checkedAt: typeof payloads[0].created === "string" ? payloads[0].created : null, world, results,
     ...(world === "events" && options.includeEventSlots ? { eventSlots: parsed.flat().filter(offer => offer.available === true) } : {}),
