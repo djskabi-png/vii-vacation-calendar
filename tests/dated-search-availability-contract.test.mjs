@@ -46,8 +46,8 @@ test("event dated eligibility rejects unknown, unavailable and zero-price offers
 test("dated result families preserve their approved truthful inclusion policy", async () => {
   const vacation = await read("app/search/page.tsx");
   assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
-  assert.match(vacation, /if \(selectedStay\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
-  assert.match(vacation, /selectedStay && !onlineOnly/);
+  assert.match(vacation, /if \(selectedStay \|\| holidaySearchId\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
+  assert.match(vacation, /const selectedStay = holidaySearchId \|\| holidayDetectionPending \? null : requestedStay/);
 
   const events = await read("app/events/search/page.tsx");
   assert.match(events, /matchesEventSearchLocation\(place, area\) && matchesHardFilters\(place\)/);

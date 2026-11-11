@@ -93,11 +93,10 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     });
   }));
   const searchableFeatures = unique([...sharedAmenities, ...roomAmenityFilters, ...roomFeatures]);
-  const visibleFeatures = unique([
-    ...sergeyAmenityLabels(raw.shared_amenities, amenityIndex),
-    ...rooms.flatMap((room) => sergeyAmenityLabels(room.amenities, amenityIndex)),
-    ...roomFeatures,
-  ]);
+  // Public property facts are scoped to the property. Room-only amenities
+  // remain attached to their room (and searchable via searchFilterIds), but
+  // must never be presented as if every unit at the property has them.
+  const visibleFeatures = unique(sergeyAmenityLabels(raw.shared_amenities, amenityIndex));
   const highlights = Array.isArray(raw.highlights) ? raw.highlights.filter((item): item is string => typeof item === "string") : [];
   const units = rooms.reduce((total, room) => total + (positive(room.roomCount) || 1), 0);
   const bedrooms = rooms.reduce((total, room) => total + positive(room.bedrooms) * (positive(room.roomCount) || 1), 0);

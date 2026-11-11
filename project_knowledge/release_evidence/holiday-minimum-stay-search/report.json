@@ -1,0 +1,93 @@
+{
+  "base": "http://127.0.0.1:4391",
+  "requestPath": "/search/?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-12-31&till=2027-01-01&guests=2",
+  "checkedAt": "2026-11-11T17:32:23.900Z",
+  "results": [
+    {
+      "viewport": "mobile",
+      "status": 200,
+      "state": {
+        "heading": "מקומות פנויים לחג",
+        "explanation": "מוצגת לכל מקום השהייה הקצרה ביותר שהספק אישר, כולל מקומות עם מינימום של שני לילות ומעלה.",
+        "cardCount": 5,
+        "dates": [
+          "31 בדצמ׳ עד 3 בינו׳",
+          "31 בדצמ׳ עד 4 בינו׳",
+          "31 בדצמ׳ עד 1 בינו׳",
+          "31 בדצמ׳ עד 2 בינו׳",
+          "31 בדצמ׳ עד 2 בינו׳"
+        ],
+        "overflow": 0,
+        "h1Count": 1
+      },
+      "relevantRequests": [
+        "http://127.0.0.1:4391/api/vii/geography",
+        "http://127.0.0.1:4391/api/vii/starting-prices?world=vacations",
+        "http://127.0.0.1:4391/api/vii/home-holidays?all=1",
+        "https://vii.spaplus.co/api/vii/media/1564117cefe05fc.jpeg",
+        "http://127.0.0.1:4391/api/vii/home-holiday-deals?id=116&guests=2&part=all&proof=verified-offers-v1",
+        "https://vii.spaplus.co/api/vii/media/956736033706edb.JPG",
+        "https://vii.spaplus.co/api/vii/media/746a6851a18f0cf.jpeg",
+        "https://vii.spaplus.co/api/vii/media/56a3cf6e88a5cd.jpeg",
+        "https://vii.spaplus.co/api/vii/media/316395871e9be65.jpg",
+        "https://vii.spaplus.co/api/vii/media/8764e72337be3e9.jpg",
+        "https://vii.spaplus.co/api/vii/media/8269faeba56d6a5.jpg",
+        "https://vii.spaplus.co/api/vii/media/6863c672c948e82.jpg",
+        "https://vii.spaplus.co/api/vii/media/46686f6045c9036.jpeg",
+        "https://vii.spaplus.co/api/vii/media/5960b4da6615590.jpeg",
+        "https://vii.spaplus.co/api/vii/media/175f900fe45dc6f.jpeg",
+        "https://vii.spaplus.co/api/vii/media/396863cca90701f.jpeg"
+      ],
+      "exactSearchCalls": [],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "status": 200,
+      "state": {
+        "heading": "מקומות פנויים לחג",
+        "explanation": "מוצגת לכל מקום השהייה הקצרה ביותר שהספק אישר, כולל מקומות עם מינימום של שני לילות ומעלה.",
+        "cardCount": 5,
+        "dates": [
+          "31 בדצמ׳ עד 3 בינו׳",
+          "31 בדצמ׳ עד 1 בינו׳",
+          "31 בדצמ׳ עד 2 בינו׳",
+          "31 בדצמ׳ עד 4 בינו׳",
+          "31 בדצמ׳ עד 2 בינו׳"
+        ],
+        "overflow": -15,
+        "h1Count": 1
+      },
+      "relevantRequests": [
+        "http://127.0.0.1:4391/api/vii/geography",
+        "http://127.0.0.1:4391/api/vii/starting-prices?world=vacations",
+        "http://127.0.0.1:4391/api/vii/home-holidays?all=1",
+        "https://vii.spaplus.co/api/vii/media/5960b4da6615590.jpeg",
+        "https://vii.spaplus.co/api/vii/media/175f900fe45dc6f.jpeg",
+        "http://127.0.0.1:4391/api/vii/home-holiday-deals?id=116&guests=2&part=all&proof=verified-offers-v1",
+        "https://vii.spaplus.co/api/vii/media/966885cd4db2776.jpeg",
+        "https://vii.spaplus.co/api/vii/media/46676d05e5319b6.jpeg",
+        "https://vii.spaplus.co/api/vii/media/4467751581e0c9e.jpeg",
+        "https://vii.spaplus.co/api/vii/media/99647d93d964d3b.jpeg",
+        "https://vii.spaplus.co/api/vii/media/7966c714bdd2248.JPG",
+        "https://vii.spaplus.co/api/vii/media/6161555888dbb93.jpeg",
+        "https://vii.spaplus.co/api/vii/media/68691afe918053b.JPG",
+        "https://vii.spaplus.co/api/vii/media/8269faeba56d6a5.jpg",
+        "https://vii.spaplus.co/api/vii/media/8764e72337be3e9.jpg",
+        "https://vii.spaplus.co/api/vii/media/786ac4d52deab7d.jpg",
+        "https://vii.spaplus.co/api/vii/media/636683f9ac90885.JPG",
+        "https://vii.spaplus.co/api/vii/media/6863c672c948e82.jpg",
+        "https://vii.spaplus.co/api/vii/media/46686f6045c9036.jpeg",
+        "https://vii.spaplus.co/api/vii/media/1564117cefe05fc.jpeg",
+        "https://vii.spaplus.co/api/vii/media/916a7064b6bea81.jpg",
+        "https://vii.spaplus.co/api/vii/media/5610bcc7165ffb.jpeg",
+        "https://vii.spaplus.co/api/vii/media/836ac4d52e06e78.jpg"
+      ],
+      "exactSearchCalls": [],
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -8,18 +8,13 @@ const css = readEffectiveWorldCss();
 
 test("mobile business details place bookable units before the long facilities inventory", () => {
   assert.ok(source.indexOf('id="rooms"') < source.indexOf('id="features"'));
-  assert.match(source, /feature-section__mobile-preview/);
-  assert.match(source, /className="feature-section__mobile-toggle"/);
-  assert.match(source, /aria-expanded=\{mobileFeaturesOpen\}/);
-  assert.match(source, /aria-controls="mobile-feature-groups"/);
-  assert.match(source, /hidden=\{!mobileFeaturesOpen\}/);
-  assert.match(source, /feature-section__mobile-groups[\s\S]*featureGroups\.map/);
+  assert.match(source, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
+  assert.doesNotMatch(source, /feature-section__mobile-preview|mobileFeaturesOpen|mobile-feature-groups/);
 });
 
-test("mobile facilities use progressive disclosure while desktop keeps the complete groups", () => {
-  assert.match(css, /\.feature-section__mobile-preview,\s*\.feature-section__mobile-details\s*\{\s*display:\s*none;/);
-  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*\.feature-section__mobile-preview\s*\{\s*display:\s*grid;/);
-  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*\.feature-section__mobile-details\s*\{\s*display:\s*block;/);
-  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*\.feature-section\s*>\s*\.property-feature-groups,[\s\S]*\.feature-section__desktop-more\s*\{\s*display:\s*none;/);
-  assert.match(css, /\.feature-section__mobile-toggle:focus-visible/);
+test("mobile facilities use one shared unboxed progressive disclosure", () => {
+  assert.match(css, /\.unified-amenities__list\s*\{[^}]*grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/s);
+  assert.match(css, /@media\s*\(max-width:\s*760px\)[\s\S]*\.unified-amenities__list\s*\{\s*grid-template-columns:\s*1fr;/s);
+  assert.match(css, /\.unified-amenities__toggle:focus-visible/);
+  assert.doesNotMatch(css, /\.unified-amenities__list li\s*\{[^}]*border:/s);
 });

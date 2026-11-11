@@ -105,7 +105,7 @@ test("resolves shared and room amenity IDs through the official types contract",
   const { summary, detail } = result.entries[0];
   assert.equal(summary.type, "סוויטה");
   assert.ok(summary.features.includes("חניה פרטית"));
-  assert.ok(summary.features.includes("מכונת כביסה"));
+  assert.equal(summary.features.includes("מכונת כביסה"), false);
   assert.deepEqual(detail.features, ["חניה פרטית"]);
   assert.equal(detail.rooms[0].basisGuests, 2);
   assert.equal(detail.rooms[0].maxAdults, 2);

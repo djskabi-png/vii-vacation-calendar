@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-liran-palumbo-release-20261111",
+  "project": "VII",
+  "task_type": "public website repair and release",
+  "requested_outcome": "Implement the thirteen accepted Liran and Plumbo requirements, verify the affected families, publish one cumulative production version, and obtain evidence-based simulated-Adir approval on the live version",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local code, tests, production publication and post-release verification are authorized by the current user request; no supplier-data mutation, DNS change, outbound messaging, purchase or unrelated production change is authorized",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The task must predict the likely rejection points before implementation",
+      "acceptance_impact": "Requires a complete family inventory, midpoint slice, adversarial close and measurable evidence"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The result must be public and complete rather than code-only",
+      "acceptance_impact": "Requires exact deployed identity, live functional and visual proof, and representative post-deploy scenarios"
+    },
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "reason": "The changes affect existing search, amenities and gallery capabilities",
+      "acceptance_impact": "Requires preservation checks for existing accepted behavior across every affected world"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "reason": "Search loading, show-all controls and media buttons are interactive stateful changes",
+      "acceptance_impact": "Requires desktop, mobile, reload, back, open, close and low-height checks"
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "reason": "The reported search defect is missing immediate stable loading feedback",
+      "acceptance_impact": "Requires one stable busy state, no provisional results, duplicate prevention and a clear final state"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "Several requirements are mobile-first and visual",
+      "acceptance_impact": "Requires inspected public mobile screenshots and live mobile interaction evidence"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "A full page still inherits the twenty-card rail cap",
+      "prevention": "Trace selection and rendering helpers separately for rails and grids and compare final identities with the supplier-backed result set",
+      "acceptance_check": "Vacation period and event filter pages render every eligible identity and rail components remain intentionally bounded"
+    },
+    {
+      "rejection": "Amenities look cleaner but unit-only facts are falsely promoted to the whole property or duplicated",
+      "prevention": "Preserve source scope while deduplicating stable feature identities and render five collapsed rows plus one show-all control",
+      "acceptance_check": "Collapsed and expanded public business pages show correct scoped facts with no duplicates and one accessible toggle"
+    },
+    {
+      "rejection": "Search still flashes temporary cards or counts before settling",
+      "prevention": "Keep prior verified results or a skeleton while one request owns the commit and replace results atomically",
+      "acceptance_check": "Cold-cache, throttled, filter and back journeys show no provisional card or count swap"
+    },
+    {
+      "rejection": "Video and gallery controls work only on one viewport or appear for invalid media",
+      "prevention": "Use one shared verified-media predicate and shared accessible controls for desktop and mobile",
+      "acceptance_check": "Valid, missing and broken-video cases plus duplicate gallery-title negative cases pass on both viewports"
+    },
+    {
+      "rejection": "The deployment claims completion without the exact public build and live inspection",
+      "prevention": "Freeze one clean source, publish once after gates, record deployment identity and run live actor journeys before simulated review",
+      "acceptance_check": "The public metadata, live routes, screenshots and actor ledger all bind to one exact deployed version"
+    }
+  ],
+  "affected_family": [
+    "vacation fixed-period and holiday result pages",
+    "event filter result pages and result counts",
+    "homepage and world banner rotations",
+    "shared search loading state and result commit path",
+    "vacation business amenities from property and unit sources",
+    "unit type labels and ownership",
+    "shared business gallery title and full-gallery control",
+    "verified business video controls on desktop and mobile",
+    "Hebrew accessibility names and keyboard states",
+    "cold cache, warm cache, reload, back and responsive transitions"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Accepted Liran and Plumbo execution list",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_LIRAN_PLUMBO_ACCEPTED_LIST_2026-11-11.md"
+      },
+      {
+        "label": "VII accepted feedback standard",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Airbnb-style five-amenity reference supplied by Adir",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-4132097c-d2cc-4a1a-b4f4-7ed1820fcf34.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first focused contract tests and one local mobile and desktop business-page render pass",
+    "checks": [
+      "Result grids remain uncapped while rails remain bounded",
+      "Amenities collapse to five plain icon-text rows and expand through one control",
+      "Video and gallery controls use verified media and accessible names",
+      "Search loading does not expose provisional results"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a dated or period page still stop at twenty while the API has more eligible identities?",
+      "Can a unit-only amenity appear as a property-wide fact or appear twice after expansion?",
+      "Can a slow request expose changing cards or counts before the final commit?",
+      "Can a missing or broken video still produce an actionable video button?",
+      "Can the public version differ from the source and screenshots inspected by the reviewer?"
+    ],
+    "natural_destination_evidence": "Exact public build identity plus live desktop and 390-pixel mobile journeys on vii.spaplus.co",
+    "affected_family_evidence": "Automated identity, interaction, accessibility and responsive tests plus public route and screenshot ledger"
+  },
+  "effectiveness": {
+    "baseline": "The user reported repeated regressions and two current loading and data-parity failures; a stable first-pass acceptance baseline is unavailable",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All thirteen requirements pass before publication, zero open simulated-review findings remain after the public correction loop, and no accepted predecessor capability regresses"
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const [resolver, vacation, events, discover, sleeping, verifiedSleeping, css] = await Promise.all([
+const [resolver, sharedAmenities, vacation, events, discover, sleeping, verifiedSleeping, css] = await Promise.all([
   readFile(new URL("../app/components/feature-icon.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../app/components/unified-amenity-list.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
@@ -24,10 +25,11 @@ test("feature icon resolver always renders a vector icon and protects the Hebrew
 });
 
 test("every place-detail feature family consumes the shared semantic icon", () => {
-  assert.match(vacation, /<FeatureIcon label=\{feature\} className="property-highlight-icon" \/>/);
-  assert.match(events, /<FeatureIcon label=\{feature\} className="event-feature-check" \/>/);
+  assert.match(sharedAmenities, /<FeatureIcon label=\{item\} className="unified-amenities__icon" \/>/);
+  assert.match(vacation, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
+  assert.match(events, /<UnifiedAmenityList items=\{localizedBusinessList\(eventFeatures, language, translate\)\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{facility\} className="spa-facility-icon" \/>/);
-  assert.match(discover, /<FeatureIcon label=\{entry\} className="hourly-feature-icon" \/>/);
+  assert.match(discover, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{feature\} className="discovery-card__chip-icon" \/>/);
   assert.match(sleeping, /<FeatureIcon label=\{amenity\} className="sleeping-amenity-icon" \/>/);
   assert.match(verifiedSleeping, /<FeatureIcon label=\{detail\} className="sleeping-amenity-icon" \/>/);

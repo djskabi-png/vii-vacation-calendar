@@ -19,10 +19,10 @@ test("general event venue rail exposes the complete loaded catalog", () => {
   assert.match(eventRail, /dir=\{language === "he" \? "rtl" : "ltr"\}/);
 });
 test("the unified event place feature card uses the shared centered semantic icon", () => {
-  assert.match(detail, /import \{ FeatureIcon \} from "\.\.\/\.\.\/components\/feature-icon"/);
-  assert.equal((detail.match(/<FeatureIcon label=\{feature\} className="event-feature-check" \/>/g) || []).length, 1);
+  assert.match(detail, /import \{ UnifiedAmenityList \} from "\.\.\/\.\.\/components\/unified-amenity-list"/);
+  assert.equal((detail.match(/<UnifiedAmenityList/g) || []).length, 1);
   assert.doesNotMatch(detail, /function EventFeatureCheck\(\)/);
   assert.doesNotMatch(detail, /<span key=\{feature\}>✓/);
-  assert.match(css, /\.event-feature-check \{[^}]*display:\s*grid;[^}]*place-items:\s*center;[^}]*line-height:\s*0;/s);
-  assert.match(css, /\.event-feature-check svg \{[^}]*width:\s*14px;[^}]*height:\s*14px;[^}]*display:\s*block;/s);
+  assert.match(css, /\.unified-amenities__icon \{[^}]*display:\s*grid;[^}]*place-items:\s*center;/s);
+  assert.match(css, /\.unified-amenities__icon svg \{[^}]*width:\s*21px;[^}]*height:\s*21px;/s);
 });

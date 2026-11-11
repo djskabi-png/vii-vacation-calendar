@@ -921,6 +921,7 @@
         "app/components/slider-rail-controls.tsx",
         "app/components/responsive-viewport-guard.tsx",
         "app/components/global-action-feedback.tsx",
+        "app/components/unified-amenity-list.tsx",
         "app/components/guest-review-studio.tsx",
         "app/components/modern-date-input.tsx",
         "app/components/event-date-picker.tsx",
@@ -1124,6 +1125,8 @@
         "app/components/holiday-live-deals.tsx",
         "app/lib/home-offer-freshness.ts",
         "app/lib/warm-holiday-discovery-cache.ts",
+        "app/lib/holiday-deal-selection.ts",
+        "app/lib/vii-home-holidays.ts",
         "app/lib/discovery-vacation-catalog.ts"
       ]
     },

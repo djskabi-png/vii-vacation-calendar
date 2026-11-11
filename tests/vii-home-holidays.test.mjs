@@ -28,9 +28,12 @@ test("holiday deals search a two-night stay across the full supplier holiday win
     if (url.endsWith("/holidays")) return Response.json(list);
     if (url.endsWith("/locations")) return Response.json({});
     if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 11, active: true, siteName: "מקום", galleries: [{ pictures: ["/a.jpg"] }] }] });
-    assert.deepEqual(JSON.parse(init.body), { window: { from: "2026-12-04", till: "2026-12-11" }, nights: 2, rooms: [{ adults: 2 }] });
+    const body = JSON.parse(init.body);
+    assert.deepEqual(body.window, { from: "2026-12-04", till: "2026-12-11" });
+    assert.ok([2, 3, 4].includes(body.nights));
+    const till = new Date(Date.parse("2026-12-08T00:00:00Z") + body.nights * 86_400_000).toISOString().slice(0, 10);
     return Response.json({ sites: [
-      { siteID: 11, available: true, minTotal: 1400, cheapest: { from: "2026-12-08", till: "2026-12-10", total: 1400 } },
+      { siteID: 11, available: true, minTotal: 700 * body.nights, cheapest: { from: "2026-12-08", till, total: 700 * body.nights } },
       { siteID: 12, available: true, minTotal: 100, cheapest: { from: "2026-12-04", till: "2026-12-11", total: 100 } },
     ] });
   };
@@ -40,7 +43,7 @@ test("holiday deals search a two-night stay across the full supplier holiday win
   assert.equal(result.deals[0].till, "2026-12-10");
   assert.equal(result.deals[0].nights, 2);
   assert.equal(result.deals[0].total, 1400);
-  assert.equal(calls.length, 4);
+  assert.deepEqual(calls.filter((call) => call.url.endsWith("/vacations/search")).map((call) => JSON.parse(call.init.body).nights).sort(), [2, 3, 4]);
 });
 
 test("a selected holiday stay is rechecked by its exact dates", async () => {

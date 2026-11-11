@@ -52,7 +52,7 @@ test('actual holiday page effect expires an open offer and cannot restore expire
  try{
   for(const failed of[false,true]){
    now=checked+(failed?61:59)*60_000;const timers=new Map();let id=0,retries=0,result={key:'k',status:'ready',cache:{checkedAt:new Date(checked).toISOString()},deals:[{siteID:1,priceGuests:2,from:'2099-01-01',till:'2099-01-03',total:100}]};
-   const deps={clock:{key:'clock'},key:'k',holiday:{id:114,till:'2099-01-10'},currentHoliday:{from:'2099-01-01'},guests:2,normalizedSelection:{part:'all'},window:{from:'2099-01-01',till:'2099-01-10'},generation:{current:0},automaticRetries:{current:new Map()},recoveryStartedAt:{current:new Map()},
+   const deps={clock:{key:'clock'},key:'k',holiday:{id:114,till:'2099-01-10'},currentHoliday:{from:'2099-01-01'},guests:2,normalizedSelection:{part:'all'},window:{from:'2099-01-01',till:'2099-01-10'},stayPlan:[{dates:{from:'2099-01-01',till:'2099-01-03',nights:2}}],holidayStayMatchesPlan:(plan,from,till)=>plan.some(entry=>entry.dates.from===from&&entry.dates.till===till),generation:{current:0},automaticRetries:{current:new Map()},recoveryStartedAt:{current:new Map()},
     setResult:value=>{result=typeof value==='function'?value(result):value},setRetry:fn=>{retries=fn(retries)},
     discoveryJson:()=>failed?Promise.reject(Error('offline')):Promise.resolve({holiday:{id:114},deals:result.deals,availabilityStatus:'verified',cache:result.cache}),
     HOME_OFFER_MAX_AGE_MS,homeOfferCheckedAt,isFreshHomeOffer,validHomeOfferResponse,DISCOVERY_RECOVERY_BUDGET_MS,discoveryRecoveryDelay,

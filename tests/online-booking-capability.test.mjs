@@ -129,7 +129,7 @@ test("catalog administration exposes bounded online capability freshness without
 });
 test("search list, nearby, map, draft and badge share capability without changing price semantics", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /const undatedSearch = !selectedStay && !hasSearchDate\(searchParams\);/);
+  assert.match(page, /const undatedSearch = !selectedStay && !periodSearch && !hasSearchDate\(searchParams\);/);
   assert.equal((page.match(/onlineCapability=\{undatedSearch && hasOnlineCapability/g) || []).length, 2);
   assert.match(page, /onlineOnly && !matchesOnline\(property\)/);
   assert.match(page, /shownFilters.onlineOnly[^\n]*!matchesOnline\(property\)/);

@@ -56,7 +56,7 @@ test("vacation search sorts the complete result set by the same displayed-price 
   assert.match(search, /vacationCatalogDisplayedPrice\(property, startingPrices\[property\.slug\], property\.price\)/);
   assert.match(search, /compareVacationDisplayedPrices\(displayedSearchPrice\(a\), displayedSearchPrice\(b\)/);
   assert.match(search, /orderVacationResultsByDisplayedPrice\([\s\S]*complete,[\s\S]*displayedSearchPrice/);
-  assert.ok(comparator.indexOf('if (sort === "price-asc" || sort === "price-desc")') < comparator.indexOf("if (selectedStay)"));
+  assert.ok(comparator.indexOf('if (sort === "price-asc" || sort === "price-desc")') < comparator.indexOf("if (selectedStay || holidaySearchId)"));
   assert.match(search, /propertyOrderBySlug, startingPrices, undatedSearch/);
   assert.match(search, /propertyOrderBySlug, sort, startingPrices, nearby\.origin/);
 });

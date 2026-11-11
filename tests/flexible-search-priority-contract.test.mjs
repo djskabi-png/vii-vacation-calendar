@@ -32,10 +32,10 @@ test("flexible supplier searches use the live provider and never fall into the i
   assert.match(hook, /candidates, discoverySearch: true/);
   assert.match(route, /candidates: world === "vacations" && candidates\.length \? candidates : undefined/);
   assert.match(search, /useViiFlexibleLiveSearch\(flexibleCandidates, supplierGuests, requestedRooms, onlineSearchRetry\)/);
-  assert.match(search, /!selectedStay && !flexibleSearch \? "בחרו תאריכים תקינים לבדיקת זמינות\."/);
+  assert.match(search, /!selectedStay && !periodSearch \? "בחרו תאריכים תקינים לבדיקת זמינות\."/);
   assert.match(search, /const stay = selectedStayFor\(slug\)/);
   assert.match(search, /source: "search", from: stay\.from, till: stay\.till/);
-  assert.match(search, /if \(selectedStay \|\| flexibleSearch\)/);
-  assert.match(search, /hasDate: Boolean\(selectedStay\?\.from \|\| flexibleSearch\)/);
-  assert.match(search, /Boolean\(selectedStay \|\| flexibleSearch\)/);
+  assert.match(search, /if \(selectedStay \|\| periodSearch\)/);
+  assert.match(search, /hasDate: Boolean\(selectedStay\?\.from \|\| periodSearch\)/);
+  assert.match(search, /Boolean\(selectedStay \|\| periodSearch\)/);
 });

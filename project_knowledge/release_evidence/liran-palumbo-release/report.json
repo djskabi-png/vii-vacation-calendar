@@ -1,0 +1,179 @@
+{
+  "base": "http://127.0.0.1:4391",
+  "checkedAt": "2026-11-11T17:33:39.471Z",
+  "results": [
+    {
+      "viewport": "mobile",
+      "route": "vacation",
+      "status": 200,
+      "initial": null,
+      "expanded": null,
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": 0,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": {
+        "titleIdCount": 1,
+        "videoTabCount": 0,
+        "closeLabel": "סגירת הגלריה"
+      },
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "route": "event",
+      "status": 200,
+      "initial": {
+        "itemCount": 5,
+        "toggleCount": 1,
+        "toggleText": "הצגת כל 11 המאפיינים",
+        "itemBorder": "none",
+        "itemBackground": "rgba(0, 0, 0, 0)"
+      },
+      "expanded": {
+        "itemCount": 11,
+        "expanded": "true",
+        "label": "סגירה"
+      },
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": 0,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": {
+        "titleIdCount": 1,
+        "videoTabCount": 0,
+        "closeLabel": "סגירת הגלריה"
+      },
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "route": "hourly",
+      "status": 200,
+      "initial": {
+        "itemCount": 5,
+        "toggleCount": 1,
+        "toggleText": "הצגת כל 12 המאפיינים",
+        "itemBorder": "none",
+        "itemBackground": "rgba(0, 0, 0, 0)"
+      },
+      "expanded": {
+        "itemCount": 12,
+        "expanded": "true",
+        "label": "סגירה"
+      },
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": 0,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": null,
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "mobile",
+      "route": "vacation-video",
+      "status": 200,
+      "initial": null,
+      "expanded": null,
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": 0,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": {
+        "titleIdCount": 1,
+        "videoTabCount": 1,
+        "closeLabel": "סגירת הגלריה"
+      },
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "route": "vacation",
+      "status": 200,
+      "initial": null,
+      "expanded": null,
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": -15,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": null,
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "route": "event",
+      "status": 200,
+      "initial": {
+        "itemCount": 5,
+        "toggleCount": 1,
+        "toggleText": "הצגת כל 11 המאפיינים",
+        "itemBorder": "none",
+        "itemBackground": "rgba(0, 0, 0, 0)"
+      },
+      "expanded": {
+        "itemCount": 11,
+        "expanded": "true",
+        "label": "סגירה"
+      },
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": -15,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": null,
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "route": "hourly",
+      "status": 200,
+      "initial": {
+        "itemCount": 5,
+        "toggleCount": 1,
+        "toggleText": "הצגת כל 12 המאפיינים",
+        "itemBorder": "none",
+        "itemBackground": "rgba(0, 0, 0, 0)"
+      },
+      "expanded": {
+        "itemCount": 12,
+        "expanded": "true",
+        "label": "סגירה"
+      },
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": -15,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": null,
+      "errors": [],
+      "passed": true
+    },
+    {
+      "viewport": "desktop",
+      "route": "vacation-video",
+      "status": 200,
+      "initial": null,
+      "expanded": null,
+      "pageGeometry": {
+        "h1Count": 1,
+        "overflow": -15,
+        "font": "Rubik, Heebo, Assistant, Arial, sans-serif"
+      },
+      "gallery": null,
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "passed": true
+}

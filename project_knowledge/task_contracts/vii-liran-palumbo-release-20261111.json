@@ -1,0 +1,311 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-liran-palumbo-release-20261111",
+  "project": "VII",
+  "task_type": "public website repair and release",
+  "goal": "Implement and publish the thirteen accepted Liran and Plumbo requirements, verify the public version, and obtain simulated-Adir approval",
+  "created_at": "2026-11-11T16:33:29.277664Z",
+  "updated_at": "2026-11-11T16:47:02.466650Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-liran-palumbo-release-20261111-preflight.json",
+      "sha256": "ff0a01693165702e24d6649009727cf72547ff436cb5d071676726fb7ad6583d"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-liran-palumbo-release-20261111-preflight.json",
+    "sha256": "ff0a01693165702e24d6649009727cf72547ff436cb5d071676726fb7ad6583d",
+    "predicted_rejection_count": 5,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 6,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "title": "כל משימה מפעילה את לולאת ההחלטה של אדיר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "title": "משוב מיידי לפעולה ממתינה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Implement and publish the thirteen accepted Liran and Plumbo requirements, verify the public version, and obtain simulated-Adir approval",
+      "acceptance_check": "All thirteen requirements pass locally and on one exact public version with no open simulated-Adir finding",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\project_knowledge\\task_contracts\\vii-liran-palumbo-release-20261111-preflight.json validated with sha256 ff0a01693165702e24d6649009727cf72547ff436cb5d071676726fb7ad6583d"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-11T16:33:29.277664Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "The first focused contract tests and one local mobile and desktop business-page render pass",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MIND-001",
+      "source": "lesson:ADIR-MIND-001",
+      "statement": "לפני עבודה מהותית המבצע מתרגם את הבקשה לתוצאה המלאה, חוזה מה אדיר צפוי לבדוק, מאמת אמת והרשאה, ובונה בדיקות קבלה וראיה גלויה במקום שבו התוצאה אמורה לעבוד.",
+      "acceptance_check": "A new representative version-two task contract cannot start without a valid matching predictive manifest, rejects a missing or oversized lesson bundle and private feedback storage, creates midpoint, adversarial and effectiveness requirements, detects manifest tampering and blocks completion while any predictive check is pending. A complete real contract must return VERIFIED, while an existing version-one contract must remain finishable.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-003",
+      "source": "lesson:ADIR-WEB-003",
+      "statement": "כל פעולה אסינכרונית שיוצרת הזמנה, אישור, תשלום, הודעה או שינוי משמעותי מציגה מיד לואדר והסבר מקומי, מונעת שליחה כפולה ומסתיימת בהצלחה או בשגיאה ברורה.",
+      "acceptance_check": "בפעולת הזמנה אמיתית הכפתור משתנה מיד, הלואדר וההסבר מוצגים במשך ההמתנה, aria-busy פעיל, לחיצה כפולה חסומה, הצלחה מחליפה את הטעינה ושגיאה מחזירה כפתור פעיל עם הסבר.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-01",
+      "source": "project_guidance",
+      "statement": "Full result pages are uncapped while rails remain bounded",
+      "acceptance_check": "Full result pages are uncapped while rails remain bounded",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-02",
+      "source": "project_guidance",
+      "statement": "Holiday and period inventory uses correct Israel dates and complete supplier identities",
+      "acceptance_check": "Holiday and period inventory uses correct Israel dates and complete supplier identities",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-03",
+      "source": "project_guidance",
+      "statement": "Event filters preserve all matching supplier identities",
+      "acceptance_check": "Event filters preserve all matching supplier identities",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-04",
+      "source": "project_guidance",
+      "statement": "Banner rotation is fair only within truthful equivalent tiers",
+      "acceptance_check": "Banner rotation is fair only within truthful equivalent tiers",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-05",
+      "source": "project_guidance",
+      "statement": "Search results commit atomically after one stable loading state",
+      "acceptance_check": "Search results commit atomically after one stable loading state",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-06",
+      "source": "project_guidance",
+      "statement": "Property and unit amenities are merged without scope loss or duplication",
+      "acceptance_check": "Property and unit amenities are merged without scope loss or duplication",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-07",
+      "source": "project_guidance",
+      "statement": "Amenities show five plain icon-text rows and one show-all control",
+      "acceptance_check": "Amenities show five plain icon-text rows and one show-all control",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-08",
+      "source": "project_guidance",
+      "statement": "Unit types match the supplier source",
+      "acceptance_check": "Unit types match the supplier source",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-09",
+      "source": "project_guidance",
+      "statement": "Mobile gallery title is not duplicated",
+      "acceptance_check": "Mobile gallery title is not duplicated",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-10",
+      "source": "project_guidance",
+      "statement": "Verified video controls work on desktop and mobile and hide for invalid media",
+      "acceptance_check": "Verified video controls work on desktop and mobile and hide for invalid media",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-11",
+      "source": "project_guidance",
+      "statement": "Full-gallery control is compact, clear and accessible",
+      "acceptance_check": "Full-gallery control is compact, clear and accessible",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-12",
+      "source": "project_guidance",
+      "statement": "Supplier API identities are the final truth source",
+      "acceptance_check": "Supplier API identities are the final truth source",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-13",
+      "source": "project_guidance",
+      "statement": "The affected family passes responsive, cache, reload, back and missing-data checks",
+      "acceptance_check": "The affected family passes responsive, cache, reload, back and missing-data checks",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "correction:holiday-minimum-stay",
+      "source": "user_correction",
+      "statement": "Holiday and period discovery must include every supplier-available property whose valid stay covering the selected holiday requires two or more nights, rather than testing only the shortest fixed stay.",
+      "acceptance_check": "For New Years Eve and representative multi-day holidays, supplier fixtures with minimum stays of 1, 2, 3 and 4 nights all appear once with their actual valid dates, duration and price; unavailable properties remain excluded; the holiday detail and its search handoff show the same complete identity set after reload.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

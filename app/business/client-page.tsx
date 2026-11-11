@@ -6,7 +6,7 @@ import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import { ModernDateInput } from "../components/modern-date-input";
 import { Info } from "lucide-react";
 import Link from "next/link";
-import { CollapsibleFeatureList } from "../components/collapsible-feature-list";
+import { UnifiedAmenityList } from "../components/unified-amenity-list";
 import { resolvedBusinessFeatureGroups } from "../lib/live-business-amenities";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation, vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
@@ -71,19 +71,6 @@ function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
 }
 
-type DisplayFeatureGroup = { title: string; items: string[] };
-
-function balanceFeatureGroups(groups: DisplayFeatureGroup[]): [DisplayFeatureGroup[], DisplayFeatureGroup[]] {
-  const columns: [DisplayFeatureGroup[], DisplayFeatureGroup[]] = [[], []];
-  const height = [0, 0];
-  for (const group of groups) {
-    const column = height[0] <= height[1] ? 0 : 1;
-    columns[column].push(group);
-    height[column] += 1 + Math.ceil(group.items.length / 2);
-  }
-  return columns;
-}
-
 function completeFeatureGroups(groups: ListingFeatureGroup[], features: string[]): ListingFeatureGroup[] {
   const normalized = new Set(groups.flatMap((group) => group.items).map((item) => item.trim().toLocaleLowerCase("he-IL")));
   const ungrouped = features.filter((feature) => {
@@ -145,7 +132,6 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const [selectedPrice, setSelectedPrice] = useState(initialPrice || "");
   const { galleryOpen, galleryStart, galleryTab, galleryTopic, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [aboutExpanded, setAboutExpanded] = useState(false);
   const [aboutCanExpand, setAboutCanExpand] = useState(false);
   const aboutDescriptionRef = useRef<HTMLParagraphElement>(null);
@@ -156,7 +142,6 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
     next.add(src);
     return next;
   }), []);
-  const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const [mapActivated, setMapActivated] = useState(false);
@@ -381,12 +366,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
     resolvedBusinessFeatureGroups(liveFeatureGroups, property.featureGroups),
     property.features,
   );
-  const localizedFeatureGroups = featureGroups.flatMap((group) => {
-    const items = localizedBusinessList(group.items, language, translate);
-    return items.length ? [{ title: safeBusinessText(group.title, businessCopy.feature), items }] : [];
-  });
-  const desktopFeatureColumns = balanceFeatureGroups(localizedFeatureGroups);
-  const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
+  const propertyAmenities = localizedBusinessList(featureGroups.flatMap((group) => group.items), language, translate);
   const placeGalleryImages = property.images;
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
   const unitCopy = {
@@ -603,15 +583,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
             <section id="features" className="feature-section">
               <span className="eyebrow">עיקרי המקום</span>
               <h2>מתקנים ושירותים</h2>
-              {featureGroups.length ? <><div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
-                {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}
-              </div>
-              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><CollapsibleFeatureList key={`${property.slug}:${group.title}`} className="feature-list">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</CollapsibleFeatureList></article>)}</div>)}</div>
-              <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
-                <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
-                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section> : null; })}</div>
-              </div>
-              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button></> : <p className="feature-section__loading" aria-live="polite">{translate(featureGroupsSettled ? "פרטי המתקנים המלאים יתעדכנו ברענון הבא." : "טוענים את מתקני המקום…")}</p>}
+              {featureGroups.length ? <UnifiedAmenityList items={propertyAmenities} /> : <p className="feature-section__loading" aria-live="polite">{translate(featureGroupsSettled ? "פרטי המתקנים המלאים יתעדכנו ברענון הבא." : "טוענים את מתקני המקום…")}</p>}
             </section>
 
             {verifiedSleepingRooms.length ? <VerifiedSleepingDetails placeName={localizedPropertyName} rooms={verifiedSleepingRooms} /> : property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. לפרטים על סוגי המיטות, בדקו מול המקום.`}</p></section> : null}
@@ -656,7 +628,6 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
       <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); closeUnitDetails(); window.setTimeout(() => openGallery("units", start, room.name), 0); }} />
 
-      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section>)}</div></section></div>}
     </PageShell>
   );
 }

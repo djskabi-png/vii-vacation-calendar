@@ -31,7 +31,7 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
   // v873 intentionally adds the reviewed mobile geography rail containment and
   // touch-scroll contract. Freeze the new cumulative cascade so later drift fails.
-  const expected='c4e1a266892ff7dffa4283fab4de6898586575b63998cdbe4451e7be7155feb1';
+  const expected='9467a5602c99e50640d0c04036960656275945d332310f2152abe7983291937a';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

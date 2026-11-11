@@ -36,10 +36,12 @@ test("hourly detail breadcrumbs include distinct area and city landings in UI an
 test("hourly detail groups rooms, verified rates and amenities into polished sections", async () => {
   const client = await read("app/discover/place/client-page.tsx");
   const styles = await readEffectiveWorldCss();
-  for (const marker of ["hourly-overview", "hourly-room-grid", "hourly-room-card", "hourly-contact-card", "hourly-feature-grid"]) {
+  for (const marker of ["hourly-overview", "hourly-room-grid", "hourly-room-card", "hourly-contact-card"]) {
     assert.match(client, new RegExp(marker));
     assert.match(styles, new RegExp(`\\.${marker}`));
   }
+  assert.match(client, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
+  assert.match(styles, /\.unified-amenities__list/);
   assert.match(client, /details\.rates\.filter\(\(rate\) => rate\.duration\.startsWith/);
   assert.doesNotMatch(client, /מה אומרים בשיחה\?/);
 });

@@ -3,10 +3,10 @@ import test from "node:test";
 import { amenityPresentation } from "../app/lib/amenity-presentation.ts";
 import { canonicalShareUrl } from "../app/lib/share-url.ts";
 
-test("amenity presentation keeps the full verified list and mobile/desktop limits", () => {
+test("amenity presentation keeps the full verified list and one five-item limit", () => {
   const items = Array.from({ length: 15 }, (_, i) => `מאפיין ${i}`);
-  assert.equal(amenityPresentation(items, "mobile").visible.length, 4);
-  assert.equal(amenityPresentation(items, "desktop").visible.length, 12);
+  assert.equal(amenityPresentation(items, "mobile").visible.length, 5);
+  assert.equal(amenityPresentation(items, "desktop").visible.length, 5);
   assert.equal(amenityPresentation(items, "mobile").all.length, 15);
   assert.equal(amenityPresentation(items, "mobile", true).visible.length, 15);
 });

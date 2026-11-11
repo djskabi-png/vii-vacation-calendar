@@ -8,7 +8,7 @@ import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { FormEvent, useMemo, useRef, useState, type ReactNode } from "react";
 import { eventWhatsAppDestination, startEventWhatsAppInquiry } from "../../lib/event-whatsapp-inquiry";
 import Link from "next/link";
-import { CollapsibleFeatureList } from "../../components/collapsible-feature-list";
+import { UnifiedAmenityList } from "../../components/unified-amenity-list";
 import { DeferredListingMap } from "../../components/deferred-listing-map";
 import { PageShell } from "../../components/page-shell";
 import { DiscoveryCard } from "../../components/discovery-card";
@@ -39,7 +39,6 @@ import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
 import type { EventSlot } from "../../lib/vii-live-search";
 import { DirectPhoneLink } from "../../components/direct-phone-link";
-import { FeatureIcon } from "../../components/feature-icon";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 import { projectEventPlaceDetail } from "../../lib/event-place-detail";
@@ -183,7 +182,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <div className="shell event-place-layout">
           <div>
             {place.description ? <section id="event-about"><h2>{translate("על המקום")}</h2><ExpandableDescription text={localizedDescription} /></section> : null}
-            {eventFeatures.length ? <section id="event-features"><h2>{translate("מאפייני המקום")}</h2><div className="event-feature-groups"><CollapsibleFeatureList key={place.slug} className="feature-list" initialCount={12} mobileInitialCount={8}>{localizedBusinessList(eventFeatures, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="event-feature-check" /><b>{feature}</b></span>)}</CollapsibleFeatureList></div></section> : null}
+            {eventFeatures.length ? <section id="event-features"><h2>{translate("מאפייני המקום")}</h2><UnifiedAmenityList items={localizedBusinessList(eventFeatures, language, translate)} /></section> : null}
             {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים במקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3>{room.quantity > 0 || room.guests > 0 || room.builtArea || room.area || room.totalArea ? <p>{room.quantity > 0 ? `${room.quantity} ${room.quantity === 1 ? "מתחם" : "מתחמים"}` : ""}{room.quantity > 0 && room.guests > 0 ? " · " : ""}{room.guests > 0 ? `עד ${room.guests} משתתפים ביחידה` : ""}{room.builtArea || room.area ? ` · שטח בנוי ${room.builtArea || room.area} מ״ר` : ""}{room.totalArea ? ` · שטח כללי ${room.totalArea} מ״ר` : ""}</p> : null}</article>)}</div></section> : null}
             <ListingAccessibility slug={place.slug} features={place.features} filterIds={place.searchFilterIds} featureGroups={featureGroups} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{localizedLocation}</h2><p>{localizedArea}</p>{typeof place.lat === "number" && typeof place.lng === "number" ? <span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span> : <span className="location-card__inline-note">המיקום המדויק טרם נמסר על ידי המקום.</span>}</div>{typeof place.lat === "number" && typeof place.lng === "number" ? <DeferredListingMap listings={[place]} mode="events" single /> : null}</section>

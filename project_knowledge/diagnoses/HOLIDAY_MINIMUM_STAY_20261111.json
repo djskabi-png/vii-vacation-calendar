@@ -1,0 +1,70 @@
+{
+  "status": "fixed",
+  "symptom": "A New Year's Eve search for two guests exposes only the one-night supplier inventory and omits otherwise available properties that require two or more nights.",
+  "expected_behavior": "Holiday discovery returns each published supplier property once when it has any valid stay covering the selected holiday period, using the shortest valid supplier stay and its real dates and price.",
+  "environment": "Public vii.spaplus.co on 2026-11-11, holiday 116 and search 2026-12-31 to 2027-01-01 for two guests.",
+  "reproduction": {
+    "steps": [
+      "Request /api/vii/home-holiday-deals?id=116&guests=2&part=all.",
+      "Compare live vacation searches beginning 2026-12-31 for one, two, three and four nights."
+    ],
+    "evidence": "The holiday endpoint returned 14 deals and declared nights=1. The live supplier-backed searches returned 15, 49, 50 and 50 available identities respectively; 35 identities appeared only for stays of two nights or longer."
+  },
+  "observations": [
+    {
+      "observation": "The holiday calendar defines New Year's Eve as 2026-12-31 through 2027-01-01 with nights=1.",
+      "evidence": "Public holiday response and app/lib/holiday-world.ts fallback both expose that one-night range."
+    },
+    {
+      "observation": "getHomeHolidayDeals sends exactly one supplier window request using holiday.nights and validates only that duration.",
+      "evidence": "app/lib/vii-home-holidays.ts calls getHomeDealsForDates once; app/lib/vii-home-deals.ts sends one vacations/search request with nights=dates.nights."
+    },
+    {
+      "observation": "Longer exact stays expose materially more supplier-available properties for the same holiday arrival.",
+      "evidence": "Public live-search counts were 15 for one night, 49 for two nights, 50 for three nights and 50 for four nights."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Holiday discovery fixes the supplier query to the calendar's shortest stay length, so supplier minimum-stay rules exclude longer-stay properties before identities are merged.",
+      "prediction": "The same arrival queried for two to four nights will return many identities absent from the one-night response.",
+      "discriminating_test": "Compare public supplier-backed live-search identity sets for one through four nights from 2026-12-31.",
+      "result": "Thirty-five published identities appeared only in the two-to-four-night sets.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The missing identities are caused primarily by publication filtering or card/catalog joins rather than minimum-stay querying.",
+      "prediction": "Longer stays would not materially increase the count because the same publication and catalog filters apply.",
+      "discriminating_test": "Use the same public live-search route, publication set, guest count and arrival while changing only stay duration.",
+      "result": "Available count rose from 15 to 49 when only duration changed, rejecting publication filtering as the primary mechanism.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Replace the single fixed-duration holiday query with a bounded supplier-backed stay plan covering one through four nights as applicable, merge by supplier identity and retain the shortest truthful available stay. Carry the actual stay dates and total into every card and handoff.",
+    "evidence": "Implemented in holidayStayPlan/getHomeHolidayDeals and direct exact-search holiday recognition. Thirty-three focused holiday/live-search tests passed, TypeScript and the production build passed, and the local desktop/mobile browser audit passed with mixed one-to-four-night supplier fixtures, actual dates and no competing exact live-search request. Public verification remains required."
+  },
+  "affected_family": [
+    "holiday live-deal endpoint",
+    "holiday and period pages",
+    "holiday audience and period tabs",
+    "holiday search handoff",
+    "holiday discovery cache and warm jobs",
+    "vacation card quote context"
+  ],
+  "regression_checks": [
+    {"check": "The exact New Year's Eve URL without a holiday parameter promotes to the matching holiday discovery flow.", "status": "passed", "evidence": "tests/holiday-audience-deals.test.mjs direct URL contract passed and the local browser audit rendered the holiday heading."},
+    {"check": "An exact search beginning in the middle of a holiday remains an ordinary exact search.", "status": "passed", "evidence": "tests/holiday-audience-deals.test.mjs middle-of-holiday exact-search contract passed."},
+    {"check": "A matched holiday search does not also issue the ordinary exact live-search request.", "status": "passed", "evidence": "project_knowledge/release_evidence/holiday-minimum-stay-search/report.json recorded zero ordinary exact live-search requests."},
+    {"check": "Supplier minimum stays of one, two, three and four nights appear once with their actual dates and price.", "status": "passed", "evidence": "The desktop and mobile browser audit rendered five unique fixtures containing one-, two-, three- and four-night actual stays."},
+    {"check": "Desktop 1440 and mobile 390 render without overflow, duplicate H1, page errors or console errors.", "status": "passed", "evidence": "project_knowledge/release_evidence/holiday-minimum-stay-search/report.json passed both viewports with one H1 and zero overflow or runtime errors."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The final public identity count may vary with supplier inventory before deployment; correctness is based on identity-set inclusion and truthful stay data, not a frozen count."
+  ],
+  "authorization_boundary": "Diagnose, repair, test and publish the already-authorized VII release; do not fabricate availability or prices."
+}

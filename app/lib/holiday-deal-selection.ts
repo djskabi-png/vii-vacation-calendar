@@ -9,6 +9,11 @@ export const holidayParts = ["all", "opening", "middle", "ending"] as const;
 export type HolidayAudience = typeof holidayAudiences[number]["id"];
 export type HolidayPart = typeof holidayParts[number];
 export type HolidaySelection = { audience: HolidayAudience; part: HolidayPart };
+export const HOLIDAY_FLEXIBLE_MAX_NIGHTS = 4;
+export type HolidayStayQuery = {
+  dates: { from: string; till: string; nights: number };
+  window?: { from: string; till: string };
+};
 
 export function availableHolidayParts(holiday: Pick<HomeHoliday, "from" | "till" | "nights">): HolidayPart[] {
   const parts: HolidayPart[] = ["all"];
@@ -43,9 +48,58 @@ export function holidayDealWindow(holiday: Pick<HomeHoliday, "from" | "till" | "
   return { from, till, nights };
 }
 
-export function holidayDealSearchHref(holiday: Pick<HomeHoliday, "from" | "till" | "nights">, selection: HolidaySelection) {
+function addDays(value: string, days: number) {
+  return new Date(Date.parse(`${value}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * A holiday is an anchor period, not a promise that every supplier sells the
+ * shortest calendar stay. Ask the supplier for every commercially common
+ * duration up to four nights and keep the actual stay it confirms. Short
+ * holidays stay anchored to their first night so a cheaper date after the
+ * holiday can never masquerade as a holiday offer.
+ */
+export function holidayStayPlan(holiday: Pick<HomeHoliday, "from" | "till" | "nights">, part: HolidayPart): HolidayStayQuery[] {
+  const base = holidayDealWindow(holiday, part);
+  const duration = Math.round((Date.parse(`${base.till}T00:00:00Z`) - Date.parse(`${base.from}T00:00:00Z`)) / 86_400_000);
+  const holidayDuration = Math.round((Date.parse(`${holiday.till}T00:00:00Z`) - Date.parse(`${holiday.from}T00:00:00Z`)) / 86_400_000);
+  const maximum = Math.max(base.nights, HOLIDAY_FLEXIBLE_MAX_NIGHTS);
+  const queries: HolidayStayQuery[] = [];
+  for (let nights = base.nights; nights <= maximum; nights++) {
+    if (part === "all" && duration >= maximum) {
+      queries.push({ dates: { from: base.from, till: addDays(base.from, nights), nights }, window: { from: base.from, till: base.till } });
+      continue;
+    }
+    if (part === "ending" && holidayDuration >= nights) {
+      const from = addDays(holiday.till, -nights);
+      queries.push({ dates: { from, till: holiday.till, nights } });
+      continue;
+    }
+    const from = base.from;
+    queries.push({ dates: { from, till: addDays(from, nights), nights } });
+  }
+  return queries;
+}
+
+export function holidayStayMatchesPlan(plan: readonly HolidayStayQuery[], from: string, till: string) {
+  const nights = Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
+  return plan.some((query) => query.dates.nights === nights && (query.window
+    ? from >= query.window.from && till <= query.window.till
+    : from === query.dates.from && till === query.dates.till));
+}
+
+export function holidayForRequestedStay<T extends Pick<HomeHoliday, "id" | "name" | "from" | "till">>(
+  holidays: readonly T[],
+  candidate: { from: string; till: string },
+) {
+  const nights = Math.round((Date.parse(`${candidate.till}T00:00:00Z`) - Date.parse(`${candidate.from}T00:00:00Z`)) / 86_400_000);
+  if (!Number.isFinite(nights) || nights < 1 || nights > HOLIDAY_FLEXIBLE_MAX_NIGHTS) return null;
+  return holidays.find((holiday) => holiday.from === candidate.from && candidate.till <= holiday.till) ?? null;
+}
+
+export function holidayDealSearchHref(holiday: Pick<HomeHoliday, "id" | "from" | "till" | "nights">, selection: HolidaySelection) {
   const window = holidayDealWindow(holiday, selection.part);
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
   const till = new Date(Date.parse(`${window.from}T00:00:00Z`) + window.nights * 86_400_000).toISOString().slice(0, 10);
-  return `/search?${new URLSearchParams({ from: window.from, till, guests: String(guests), editSearch: "dates" })}`;
+  return `/search?${new URLSearchParams({ from: window.from, till, guests: String(guests), holiday: String(holiday.id), holidayPart: selection.part, editSearch: "dates" })}`;
 }

@@ -1,5 +1,5 @@
 import { getHomeDealsForDates } from "./vii-home-deals.ts";
-import { availableHolidayParts, holidayDealWindow, holidayParts, type HolidayPart } from "./holiday-deal-selection.ts";
+import { availableHolidayParts, holidayDealWindow, holidayParts, holidayStayPlan, type HolidayPart } from "./holiday-deal-selection.ts";
 import { firstDealDate } from "./deal-clock.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
@@ -73,8 +73,19 @@ export async function getHomeHolidayDeals(options: {
     return { holiday, ...await getHomeDealsForDates({ ...options, dates: { from: options.from!, till: options.till!, nights: holiday.nights } }) };
   }
   const window = holidayDealWindow(holiday, options.part ?? "all");
-  const checkout = new Date(`${window.from}T00:00:00Z`);
-  checkout.setUTCDate(checkout.getUTCDate() + window.nights);
-  const dates = { from: window.from, till: checkout.toISOString().slice(0, 10), nights: window.nights };
-  return { holiday, ...await getHomeDealsForDates({ ...options, guests, dates, window: { from: window.from, till: window.till } }) };
+  const plan = holidayStayPlan(holiday, options.part ?? "all");
+  const results = await Promise.all(plan.map((query) => getHomeDealsForDates({
+    ...options,
+    guests,
+    dates: query.dates,
+    ...(query.window ? { window: query.window } : {}),
+  })));
+  const bySite = new Map<number, typeof results[number]["deals"][number]>();
+  for (const result of results) for (const deal of result.deals) {
+    const current = bySite.get(deal.siteID);
+    if (!current || deal.nights < current.nights || deal.nights === current.nights && (deal.total ?? Infinity) < (current.total ?? Infinity)) bySite.set(deal.siteID, deal);
+  }
+  const dates = { from: window.from, till: new Date(Date.parse(`${window.from}T00:00:00Z`) + window.nights * 86_400_000).toISOString().slice(0, 10), nights: window.nights };
+  return { holiday, dates, checkedAt: results.map((result) => result.checkedAt).find(Boolean) ?? null, deals: [...bySite.values()],
+    stayPlan: { minNights: plan[0]?.dates.nights ?? window.nights, maxNights: plan.at(-1)?.dates.nights ?? window.nights } };
 }

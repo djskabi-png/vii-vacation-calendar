@@ -22,7 +22,7 @@ test('price input controls remain editable while catalog prices have not arrived
 test('dated price eligibility waits for the dated quote rather than catalog advertising price',()=>{
  const map=findNode(n=>ts.isVariableDeclaration(n)&&n.name.getText(tree)==='mapCandidates');
  let expression;const walk=n=>{if(ts.isVariableDeclaration(n)&&n.name.getText(tree)==='matchesPrice')expression=n.initializer.getText(tree);ts.forEachChild(n,walk);};walk(map);assert.ok(expression);
- const run=new Function('priceFilterAvailable','priceFilterActive','catalogPrice','minPrice','maxPrice','selectedStay','flexibleSearch',`return ${expression}`);
+ const run=new Function('priceFilterAvailable','priceFilterActive','catalogPrice','minPrice','maxPrice','selectedStay','periodSearch',`return ${expression}`);
  assert.equal(run(true,true,undefined,1000,2000,{from:'2026-11-05'},null),true);
  assert.equal(run(false,true,undefined,1000,2000,null,null),false);
  assert.equal(run(true,true,1500,1000,2000,null,null),true);

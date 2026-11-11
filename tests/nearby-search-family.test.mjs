@@ -62,8 +62,8 @@ test("vacation fallback keeps amenities, live price and excludes explicit unavai
   assert.match(nearby, /liveAvailabilityFor\(property\.slug\)/);
   assert.match(nearby, /price < minPrice \|\| price > maxPrice/);
   assert.match(nearby, /eligibleForSelectedStay\(property\)/);
-  assert.match(nearby, /!selectedStay && !flexibleSearch/);
-  assert.match(source, /NearbySearchNotice dated=\{Boolean\(selectedStay \|\| flexibleSearch\)\}/);
+  assert.match(nearby, /!selectedStay && !periodSearch/);
+  assert.match(source, /NearbySearchNotice dated=\{Boolean\(selectedStay \|\| periodSearch\)\}/);
 });
 
 test("maps and lists use the same expanded inventory in all client worlds", async () => {

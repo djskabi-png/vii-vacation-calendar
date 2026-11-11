@@ -10,9 +10,9 @@ test("event details expose one feature disclosure and no redundant title action"
   const source = read("app/events/place/client-page.tsx");
   assert.match(source, /const eventFeatures = useMemo/);
   assert.match(source, /<h2>\{translate\("מאפייני המקום"\)\}<\/h2>/);
-  assert.equal((source.match(/<CollapsibleFeatureList/g) || []).length, 1);
+  assert.equal((source.match(/<UnifiedAmenityList/g) || []).length, 1);
   assert.doesNotMatch(source, /translate\("בדיקת אירוע"\)/);
-  assert.match(source, /mobileInitialCount=\{8\}/);
+  assert.doesNotMatch(source, /CollapsibleFeatureList|mobileInitialCount/);
 });
 
 test("event preset pages render results directly and hide stale cards while loading", () => {
@@ -42,7 +42,7 @@ test("hourly room projection preserves API room order, exact names and image ord
 test("hourly feature disclosure uses one compact mobile section", () => {
   const source = read("app/discover/place/client-page.tsx");
   assert.match(source, /<h2>\{translate\("מאפייני המקום"\)\}<\/h2>/);
-  assert.match(source, /className="hourly-feature-grid" initialCount=\{12\} mobileInitialCount=\{4\}/);
+  assert.match(source, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
 });
 
 test("vacation geography starts closed and supports direct touch panning", () => {
