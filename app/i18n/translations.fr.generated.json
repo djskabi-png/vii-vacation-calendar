@@ -8906,5 +8906,8 @@
   "בחרו אזור ברשימת הסינון. התוצאות מבוססות על אזורי השירות שהספקים פרסמו, ולא על מרחק GPS מדויק או זמן נסיעה.": "Choisissez une zone dans les filtres. Les résultats reposent sur les zones publiées par les prestataires, et non sur une distance GPS ou un temps de trajet précis.",
   "חיפה ועד אשדוד": "De Haïfa à Ashdod",
   "מקומות לאירוע חברה קרובים אליי": "Lieux pour événements professionnels près de moi",
-  "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "À l’ouverture d’une page à proximité, le navigateur demande l’accès à votre position si vous ne l’avez pas encore autorisé. Vous pouvez aussi choisir une zone manuellement."
+  "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "À l’ouverture d’une page à proximité, le navigateur demande l’accès à votre position si vous ne l’avez pas encore autorisé. Vous pouvez aussi choisir une zone manuellement.",
+  "שליחת בקשה למקום": "Envoyer une demande au lieu",
+  "מתחמים במקום": "Espaces du lieu",
+  "התאריך, הקיבולת והמחיר הסופי מאושרים ישירות מול המקום בבקשה אחת.": "La date, la capacité et le prix final sont confirmés directement avec le lieu dans une seule demande."
 }

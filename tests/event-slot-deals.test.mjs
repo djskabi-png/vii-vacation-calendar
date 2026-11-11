@@ -113,14 +113,14 @@ test("both discovery surfaces use real event deals, preserving slot and particip
   assert.match(route, /visiblePlaces/);
 });
 
-test("event rail keeps only quick date tabs while further event refinement stays in search", () => {
+test("event rail keeps quick date tabs and preset pages open directly on results", () => {
   const slider = readFileSync(new URL("../app/components/event-last-minute.tsx", import.meta.url), "utf8");
   assert.match(slider, /home-live-deals__tabs event-last-minute-tabs/);
   assert.match(slider, /role="tablist"/);
   assert.match(slider, /role="tab"/);
   assert.match(slider, /role="tabpanel"/);
   assert.match(slider, /event\.key === "Home"/);
-  assert.match(slider, /layout === "grid" \? <form/);
+  assert.match(slider, /layout === "grid" && !fixedPreset \? <form/);
   assert.doesNotMatch(slider, /type="date"/);
   assert.match(slider, /eventDealPagePath/);
   assert.match(slider, /additionalPlaces[\s\S]*20 - candidates\.length/);

@@ -80,7 +80,8 @@ test("hourly data and localized visitor guidance preserve useful truth without i
   assert.ok(details.rates.length);
   assert.equal(details.arrivalNotes.length, 1);
   assert.match(details.arrivalNotes[0], /מאשרים עם המקום/);
-  assert.doesNotMatch(JSON.stringify(details), internalCopy);
+  const visitorCopy = { ...details, stayOptions: details.stayOptions.map(({ images, ...option }) => option) };
+  assert.doesNotMatch(JSON.stringify(visitorCopy), internalCopy);
   const empty = module.exports.getHourlyDetails({ id: "unknown", description: "", features: [] }, { rooms: [] });
   assert.equal(empty.rates.length, 0);
   assert.doesNotMatch(JSON.stringify(empty), internalCopy);

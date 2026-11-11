@@ -24,6 +24,7 @@ export function eventInquiryWhatsAppUrl(input: EventInquiry) {
   if(!['http:','https:'].includes(url.protocol))return null;
   const placeUrl = new URL(input.placePath || (input.placeId.startsWith('vacation-') ? '/business?id=' + encodeURIComponent(input.placeId) + '&mode=events' : '/events/place/' + encodeURIComponent(input.placeId)), url.origin);
   if (placeUrl.origin !== url.origin) return null;
+  const formattedDate = `${input.date.slice(8, 10)}.${input.date.slice(5, 7)}.${input.date.slice(0, 4)}`;
   const copy={
     he:{intro:`שלום ${input.placeName}, אשמח לבדוק אפשרות לאירוע.`,name:'שם:',phone:'טלפון:',date:'תאריך:',guests:'מספר משתתפים:',slot:'מועד:',type:'סוג האירוע:'},
     en:{intro:`Hello ${input.placeName}, I would like to enquire about an event.`,name:'Name:',phone:'Phone:',date:'Date:',guests:'Guests:',slot:'Time:',type:'Event type:'},
@@ -33,7 +34,7 @@ export function eventInquiryWhatsAppUrl(input: EventInquiry) {
   const message = [
     copy.intro,
     `${copy.name} ${input.name.trim()}`, `${copy.phone} ${input.phone.trim()}`,
-    `${copy.date} ${input.date}`, `${copy.guests} ${input.guests}`,
+    `${copy.date} ${formattedDate}`, `${copy.guests} ${input.guests}`,
     input.slot ? `${copy.slot} ${input.slot}` : '', input.eventType ? `${copy.type} ${input.eventType}` : '',
     placeUrl.href,
   ].filter(Boolean).join('\n');

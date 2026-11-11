@@ -1,9 +1,9 @@
 /* VII_FRAGMENT_BEGIN VACATIONS_001 */
-.vacation-geography-nav { display: grid; gap: 10px; margin-block: 18px; direction: rtl; }
+.vacation-geography-nav { min-width: 0; display: grid; gap: 10px; margin-block: 18px; direction: rtl; }
 /* VII_FRAGMENT_END VACATIONS_001 */
 
 /* VII_FRAGMENT_BEGIN VACATIONS_002 */
-.vacation-geography-nav details { border: 1px solid rgba(8,92,105,.16); border-radius: 14px; background: rgba(255,255,255,.76); }
+.vacation-geography-nav details { min-width: 0; max-width: 100%; overflow: hidden; border: 1px solid rgba(8,92,105,.16); border-radius: 14px; background: rgba(255,255,255,.76); }
 /* VII_FRAGMENT_END VACATIONS_002 */
 
 /* VII_FRAGMENT_BEGIN VACATIONS_003 */
@@ -26,9 +26,8 @@
 .vacation-geography-nav__links small { color: #557178; font-size: .72rem; }
 
 @media (max-width: 760px) {
-  .vacation-geography-nav details[open] > summary { cursor: default; }
-  .vacation-geography-nav details[open] > summary::marker { content: ""; }
-  .vacation-geography-nav__links { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; scrollbar-width: thin; padding-bottom: 12px; }
+  .vacation-geography-nav details[open] > summary { cursor: pointer; }
+  .vacation-geography-nav__links { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; flex-wrap: nowrap; overflow-x: scroll; overflow-y: hidden; touch-action: pan-x; -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; scrollbar-width: thin; padding-bottom: 12px; }
   .vacation-geography-nav__links a { flex: 0 0 auto; scroll-snap-align: start; }
 }
 /* VII_FRAGMENT_END VACATIONS_007 */

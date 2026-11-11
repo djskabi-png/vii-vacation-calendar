@@ -13,6 +13,26 @@
   padding-block: 28px;
 }
 
+.event-place-page .event-feature-groups {
+  margin-block: 16px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface, #fff);
+}
+
+.event-place-page .event-feature-groups .feature-list {
+  margin-block: 0 14px;
+}
+
+.event-place-page .supplier-rooms {
+  margin-block: 0;
+}
+
+.event-place-page .supplier-rooms article:last-child {
+  padding-bottom: 0;
+}
+
 @media (max-width: 820px) {
   .event-place-page > .section {
     padding-block: 18px;
@@ -22,7 +42,9 @@
      close to the gallery and let the feature component own its expansion,
      instead of reserving desktop-sized empty bands between sections. */
   .event-place-page > .event-place-layout { padding-top: 12px; gap: 12px; }
-  .event-place-page > .event-place-layout > div > section { padding-block: 18px; }
+  .event-place-page > .event-place-layout > div > section { padding-block: 14px; }
+  .event-place-page .event-feature-groups { margin-top: 12px; padding: 14px; }
+  .event-place-page .supplier-rooms article { padding-block: 12px; }
   .event-place-page #event-features { scroll-margin-top: 88px; }
   .event-place-page #event-booking { scroll-margin-top: 88px; }
   .event-place-page .event-gallery-wrap + .detail-mobile-review-summary { margin-top: 10px; }

@@ -9,8 +9,8 @@ const details = await readFile(new URL("app/data/hourly-details.ts", root), "utf
 const card = await readFile(new URL("app/components/discovery-card.tsx", root), "utf8");
 
 test("hourly discovery uses every imported supplier place and no old local inventory", () => {
-  assert.equal(catalog.source, "sergey-vii-api/rooms");
-  assert.equal(catalog.places.length, 24);
+  assert.equal(catalog.source, "accepted-public-catalog/rooms");
+  assert.equal(catalog.places.length, 52);
   assert.equal(new Set(catalog.places.map((place) => place.id)).size, catalog.places.length);
   assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);
   assert.doesNotMatch(worldData, /curatedHourlyPlaces|verifiedDiscoveryItems\("hourly"\)/);
@@ -27,10 +27,12 @@ test("hourly prices retain duration and weekday/weekend source distinction", () 
   assert.doesNotMatch(details, /API/);
 });
 
-test("supplier places without photos or rooms remain visible without invented content", () => {
-  const incomplete = catalog.places.filter((place) => !place.images.length || !place.rooms.length);
-  assert.deepEqual(incomplete.map((place) => place.supplierId), [2716]);
-  assert.ok(incomplete.every((place) => !place.rooms.length && !place.images.length));
+test("a source room without its own gallery remains visible without invented room media", () => {
+  const incomplete = catalog.places.flatMap((place) => place.rooms
+    .filter((room) => !room.images.length)
+    .map((room) => ({ supplierId: place.supplierId, roomId: room.id, room })));
+  assert.deepEqual(incomplete.map(({ supplierId, roomId }) => ({ supplierId, roomId })), [{ supplierId: 1902, roomId: 3260 }]);
+  assert.equal(incomplete[0].room.images.length, 0);
   assert.match(card, /item\.world !== "hourly"/);
   assert.match(card, /תמונה אינה זמינה/);
   assert.match(worldData, /startingPrice \? .* : undefined/);

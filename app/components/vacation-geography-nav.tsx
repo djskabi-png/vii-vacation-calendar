@@ -10,13 +10,13 @@ export function VacationGeographyNav({ region, inventory }: { region: VacationRe
   const hierarchy = vacationRegionHierarchy(region, inventory);
   if (!hierarchy.subregions.length && !hierarchy.towns.length) return null;
   return <nav className="vacation-geography-nav" aria-label={translate("אזורים ויישובים בנופש")}>
-    {hierarchy.subregions.length ? <details open>
+    {hierarchy.subregions.length ? <details>
       <summary>{translate("אזורים")} · {translate(region.label)}</summary>
       <div className="vacation-geography-nav__links">
         {hierarchy.subregions.map((item) => <Link key={`area-${item.label}`} href={item.path}><span>{translate(item.label)}</span><small>{item.count}</small></Link>)}
       </div>
     </details> : null}
-    {hierarchy.towns.length ? <details open>
+    {hierarchy.towns.length ? <details>
       <summary>{translate("יישובים באזור")}</summary>
       <div className="vacation-geography-nav__links">
         {hierarchy.towns.map((item) => <Link key={`town-${item.label}`} href={item.path}><span>{translate(item.label)}</span><small>{item.count}</small></Link>)}

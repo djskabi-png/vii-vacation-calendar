@@ -8906,5 +8906,8 @@
   "בחרו אזור ברשימת הסינון. התוצאות מבוססות על אזורי השירות שהספקים פרסמו, ולא על מרחק GPS מדויק או זמן נסיעה.": "Choose an area in the filters. Results are based on the service areas providers publish, not exact GPS distance or travel time.",
   "חיפה ועד אשדוד": "Haifa to Ashdod",
   "מקומות לאירוע חברה קרובים אליי": "Corporate event venues near me",
-  "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "When you open a nearby page, your browser asks for location access if it has not already been granted. You can also select an area manually."
+  "בכניסה לעמוד קרוב אליי מתבקש אישור למיקום, אם עדיין לא אישרתם אותו. אפשר לבחור אזור ידנית גם בלי לאשר מיקום.": "When you open a nearby page, your browser asks for location access if it has not already been granted. You can also select an area manually.",
+  "שליחת בקשה למקום": "Send an inquiry to the venue",
+  "מתחמים במקום": "Spaces at the venue",
+  "התאריך, הקיבולת והמחיר הסופי מאושרים ישירות מול המקום בבקשה אחת.": "The date, capacity and final price are confirmed directly with the venue in a single request."
 }

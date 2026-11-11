@@ -29,9 +29,9 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   assert.match(providerBlock[0],/\.provider-results \.provider-toolbar\.is-open/);
   for(const addition of unitAdditions)assert.equal(normalized.split(addition).length,2);
   const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
-  // v864 intentionally adds the shared event participant number controls.
-  // Freeze that reviewed cumulative cascade so later unrelated drift still fails.
-  const expected='328858ccc490ce4d6016c2779b8d4445c1e3f80f353dc7f4e778ff099af4f0fd';
+  // v873 intentionally adds the reviewed mobile geography rail containment and
+  // touch-scroll contract. Freeze the new cumulative cascade so later drift fails.
+  const expected='c4e1a266892ff7dffa4283fab4de6898586575b63998cdbe4451e7be7155feb1';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

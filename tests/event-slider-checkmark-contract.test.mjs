@@ -18,9 +18,9 @@ test("general event venue rail exposes the complete loaded catalog", () => {
   assert.match(eventRail, /warmAheadImages[\s\S]*preloadDistance[\s\S]*new Image\(\)/);
   assert.match(eventRail, /dir=\{language === "he" \? "rtl" : "ltr"\}/);
 });
-test("event place feature cards use the shared centered semantic icon", () => {
+test("the unified event place feature card uses the shared centered semantic icon", () => {
   assert.match(detail, /import \{ FeatureIcon \} from "\.\.\/\.\.\/components\/feature-icon"/);
-  assert.equal((detail.match(/<FeatureIcon label=\{feature\} className="event-feature-check" \/>/g) || []).length, 3);
+  assert.equal((detail.match(/<FeatureIcon label=\{feature\} className="event-feature-check" \/>/g) || []).length, 1);
   assert.doesNotMatch(detail, /function EventFeatureCheck\(\)/);
   assert.doesNotMatch(detail, /<span key=\{feature\}>✓/);
   assert.match(css, /\.event-feature-check \{[^}]*display:\s*grid;[^}]*place-items:\s*center;[^}]*line-height:\s*0;/s);

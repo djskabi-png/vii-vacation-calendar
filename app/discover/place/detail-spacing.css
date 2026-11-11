@@ -13,8 +13,16 @@
   margin-block: 0;
 }
 
+.discovery-detail--hourly .hourly-practical,
+.discovery-detail--hourly .depth-faq,
+.discovery-detail--hourly .discovery-location {
+  margin-block: 0;
+}
+
 @media (max-width: 820px) {
   .discovery-detail > .section {
-    padding-block: 18px;
+    padding-block: 14px;
   }
+
+  .discovery-detail--hourly .hourly-practical { gap: 18px; }
 }

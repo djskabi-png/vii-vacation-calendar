@@ -3,7 +3,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
-export function CollapsibleFeatureList({ children, className, initialCount = 8, mobileInitialCount }: { children: ReactNode[]; className: string; initialCount?: number; mobileInitialCount?: number }) {
+export function CollapsibleFeatureList({ children, className, initialCount = 8, mobileInitialCount, expandLabel = "הצגת הכל", collapseLabel = "סגירה" }: { children: ReactNode[]; className: string; initialCount?: number; mobileInitialCount?: number; expandLabel?: string; collapseLabel?: string }) {
   const { translate } = useSiteLanguage();
   const [expanded, setExpanded] = useState(false);
   const id = useId();
@@ -18,6 +18,6 @@ export function CollapsibleFeatureList({ children, className, initialCount = 8, 
   const canExpand = children.length > limit;
   return <>
     <div id={id} className={className}>{expanded ? children : children.slice(0, limit)}</div>
-    {canExpand ? <button type="button" className="button subtle" aria-controls={id} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{translate(expanded ? "הצגת פחות" : "הצגת הכל")}</button> : null}
+    {canExpand ? <button type="button" className="button subtle" aria-controls={id} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{translate(expanded ? collapseLabel : expandLabel)}</button> : null}
   </>;
 }

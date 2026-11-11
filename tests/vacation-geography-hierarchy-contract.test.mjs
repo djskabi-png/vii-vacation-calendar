@@ -20,10 +20,10 @@ test("property breadcrumbs retain region, subregion and town when represented", 
   assert.doesNotMatch(source, /const (?:cities|subregions) = \[/);
 });
 
-test("region navigation uses native disclosure and catalog-derived links", async () => {
+test("region navigation uses closed-by-default native disclosure and catalog-derived links", async () => {
   const component = await readFile(new URL("../app/components/vacation-geography-nav.tsx", import.meta.url), "utf8");
-  assert.match(component, /<details open>/);
-  assert.equal((component.match(/<details open>/g) || []).length, 2);
+  assert.equal((component.match(/<details>/g) || []).length, 2);
+  assert.doesNotMatch(component, /<details open>/);
   assert.match(component, /translate\("אזורים"\)/);
   assert.doesNotMatch(component, /translate\("אזורים ויישובים"\)/);
   assert.match(component, /vacationRegionHierarchy\(region, inventory\)/);

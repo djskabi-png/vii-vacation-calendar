@@ -19,7 +19,8 @@ test("event projection preserves supplier gallery groups, grouped facilities and
   assert.match(projector, /roomOptions: roomOptions\.length \? roomOptions : base\.roomOptions/);
   assert.match(projector, /builtArea: room\.builtArea/);
   assert.match(projector, /totalArea: room\.totalArea/);
-  assert.match(client, /featureGroups\.map/);
+  assert.match(client, /featureGroups\.flatMap/);
+  assert.match(client, /eventFeatures\.length/);
   assert.match(client, /שטח בנוי/);
   assert.match(client, /שטח כללי/);
 });
@@ -58,7 +59,8 @@ test("accepted features remain visible when supplier taxonomy groups are incompl
   assert.match(client, /function completeFeatureGroups/);
   assert.match(client, /title: "מתקנים נוספים", items: ungrouped/);
   assert.match(client, /completeFeatureGroups\(place\.featureGroups, place\.features\)/);
-  assert.match(client, /featureGroups\.map/);
+  assert.match(client, /const eventFeatures = useMemo/);
+  assert.match(client, /seen\.has\(key\)/);
 });
 
 test("selected place summaries use the same official public database as the catalog API", () => {

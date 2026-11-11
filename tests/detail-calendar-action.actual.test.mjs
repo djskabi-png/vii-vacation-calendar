@@ -43,9 +43,9 @@ test('disabled and read-only date controls cannot be forced open by a CTA',()=>{
  for(const extra of [{disabled:true},{readOnly:true}]){const h=dateHarness(extra);try{assert.equal(nodes(h.request(1)).some(e=>e.props?.role==='dialog'),false);assert.equal(h.field.focusCount,0);}finally{h.dispose();}}
 });
 
-test('actual vacation callback opens calendar and event CTA is wired to the date input request',()=>{
+test('actual vacation callback opens its calendar and event detail keeps one non-title calendar entry point',()=>{
  const text=read('app/business/client-page.tsx'),ast=ts.createSourceFile('business.tsx',text,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let expression;
  function visit(n){if(ts.isJsxAttribute(n)&&n.name.getText(ast)==='onOnlineAction')expression=n.initializer.expression.getText(ast);ts.forEachChild(n,visit);}visit(ast);assert.ok(expression);
  let open=false;Function('activeWorld','setCalendarOpen','return '+expression)('vacation',value=>open=value)();assert.equal(open,true);assert.equal(Function('activeWorld','setCalendarOpen','return '+expression)('events',()=>{}),undefined);
- const events=read('app/events/place/client-page.tsx');assert.match(events,/onOnlineAction=\{openEventCalendar\}/);assert.match(events,/<ModernDateInput openRequest=\{dateOpenRequest\}/);assert.match(events,/onClick=\{openEventCalendar\}>\{translate\("בדיקת אירוע"\)\}/);
+ const events=read('app/events/place/client-page.tsx');assert.match(events,/onOnlineAction=\{openEventCalendar\}/);assert.match(events,/<ModernDateInput openRequest=\{dateOpenRequest\}/);assert.doesNotMatch(events,/onClick=\{openEventCalendar\}>\{translate\("בדיקת אירוע"\)\}/);
 });

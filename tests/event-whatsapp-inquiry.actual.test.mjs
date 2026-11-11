@@ -7,11 +7,12 @@ import {eventWhatsAppDestination,eventInquiryWhatsAppUrl,startEventWhatsAppInqui
 import {eventPlaceHref} from '../app/lib/event-place-href.ts';
 
 const input={submissionId:'fixture-id',placeId:'event-1331',placeName:'מקום לבדיקה',whatsapp:'0501234567',date:'2026-11-12',guests:'20',slot:'ערב',eventType:'יום הולדת',name:'מבקר לבדיקה',phone:'0507654321',sourcePage:'https://vii.spaplus.co/events/place/event-1331?from=2026-11-12',privacyAccepted:true};
+const displayedDate='12.11.2026';
 test('event inquiry uses the exact supplier WhatsApp and every chosen detail',()=>{
   const url=new URL(eventInquiryWhatsAppUrl(input));
   assert.equal(url.host,'wa.me');assert.equal(url.pathname,'/972501234567');
   const text=url.searchParams.get('text');
-  for(const value of [input.placeName,input.date,input.guests,input.slot,input.eventType,input.name,input.phone,'/events/place/event-1331'])assert.ok(text.includes(value));
+  for(const value of [input.placeName,displayedDate,input.guests,input.slot,input.eventType,input.name,input.phone,'/events/place/event-1331'])assert.ok(text.includes(value));
   assert.doesNotMatch(text,/mailto:|אימייל/);
 });
 test('invalid supplier contact or missing consent never opens or saves a request',()=>{
@@ -55,7 +56,7 @@ test('actual venue submit handler opens WhatsApp once and blocks duplicate submi
 test('event enquiry message labels follow the visitor locale',()=>{
  for(const language of ['en','ru','fr']){
   const url=eventInquiryWhatsAppUrl({...input,placeName:'Fixture venue',name:'Guest',slot:'Evening',eventType:'Birthday',language});
-  const message=new URL(url).searchParams.get('text');assert.doesNotMatch(message,/[א-ת]/);assert.ok(message.includes(input.date));
+  const message=new URL(url).searchParams.get('text');assert.doesNotMatch(message,/[א-ת]/);assert.ok(message.includes(displayedDate));
  }
 });
 
