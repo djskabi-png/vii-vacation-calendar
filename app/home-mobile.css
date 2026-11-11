@@ -46,6 +46,7 @@
   .home-page .home-visual-searches__track { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(220px,82vw); overflow-x:auto; overflow-y:hidden; gap:8px; }
   .home-page .home-visual-searches a { grid-template-columns:40px minmax(0,1fr); min-height:80px; gap:8px; padding:8px; }
   .home-page .home-visual-searches img { width:40px; height:48px; border-radius:10px; }
+  .home-page .home-visual-searches .home-popular-search-location { width:40px; height:48px; padding:11px; border-radius:10px; }
   .home-page .home-visual-searches a strong { font-size:.78rem; line-height:1.35; }
   .home-page .home-visual-searches a small { font-size:.66rem; }
   .home-page .home-managed-discovery-wrap { gap:28px; margin-top:28px; }
