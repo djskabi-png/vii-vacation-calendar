@@ -1,0 +1,20 @@
+{
+  "outcomes": [
+    {
+      "name": "VII v875 public New Year's holiday search",
+      "status": "completed",
+      "addressable": true,
+      "links": [
+        "https://vii.spaplus.co/search/?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-12-31&till=2027-01-01&guests=2"
+      ]
+    },
+    {
+      "name": "v875 public mobile and desktop audit evidence",
+      "status": "completed",
+      "addressable": false,
+      "links": [],
+      "no_link_reason": "The evidence is a local machine-readable report and two local screenshots, not a public artifact.",
+      "location": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v790-candidate\\.qa-output\\v875-public-holiday-audit"
+    }
+  ]
+}

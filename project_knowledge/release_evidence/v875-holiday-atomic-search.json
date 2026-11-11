@@ -1,0 +1,41 @@
+{
+  "verdict": "ready",
+  "release": "VII v875, source 1307541cf53052026eb7e1894ed7b837d3d3b9c1, tree 4575a99420473f35ef29852c643fbe4908cbeb89, build 611fc2ee-9f58-b423-fd4f-892cbd970684",
+  "target": "PUBLIC env32 at https://vii.spaplus.co/search/?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-12-31&till=2027-01-01&guests=2",
+  "baseline": "v874 build 5659ae93-b6ca-a85c-396e-8a45ce42e4a9 could briefly expose the ordinary one-night result state before the holiday result replaced it.",
+  "requested_outcome": "A New Year's Eve search commits one truthful holiday result set atomically, includes supplier-valid multi-night minimum stays, and never flashes the misleading 14-result ordinary search state.",
+  "changed_components": [
+    "app/api/vii/home-holiday-deals/route.ts",
+    "app/components/use-vii-live-search.ts",
+    "app/search/page.tsx",
+    "app/globals.css",
+    "app/data/visitor-ui-translations.json",
+    "tests/holiday-search-contract.test.mjs",
+    "tests/holiday-search-race.test.mjs",
+    "scripts/audit-holiday-minimum-stay-search.mjs"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Dated vacation searches that exactly match an approved holiday period"},
+    {"id": "FAM-2", "surface": "Atomic holiday match and availability API contract"},
+    {"id": "FAM-3", "surface": "Search loading, responsive result cards, images and selected stay dates"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2"], "state": "success", "status": "passed", "evidence": "Public API returned HTTP 200 on build 611fc2ee-9f58-b423-fd4f-892cbd970684 with holiday 116, availabilityStatus verified, 49 deals and actual stays of 1, 2 and 3 nights."},
+    {"id": "CHK-2", "family_ids": ["FAM-1", "FAM-3"], "state": "responsive", "status": "passed", "evidence": ".qa-output/v875-public-holiday-audit/report.json passed the exact public URL at 390x844 and 1440x900 with the holiday heading, multi-night explanation, real selected dates, loaded images, no broken images, no horizontal overflow and no JavaScript errors."},
+    {"id": "CHK-3", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "persistence", "status": "passed", "evidence": "Fresh public browser contexts in both viewports requested home-holiday-deals with matchFrom=2026-12-31 and matchTill=2027-01-01, made zero ordinary live-search requests and resolved to build 611fc2ee-9f58-b423-fd4f-892cbd970684."},
+    {"id": "CHK-4", "family_ids": ["FAM-1", "FAM-3"], "state": "reload", "status": "passed", "evidence": "Both isolated public contexts loaded from a fresh navigation with zero provisional cards at 250ms, never showed 14 מתחמים and then committed the same holiday surface."},
+    {"id": "CHK-5", "family_ids": ["FAM-2", "FAM-3"], "state": "retry", "status": "passed", "evidence": "The focused 21-test suite and the local two-viewport atomic audit passed the refreshing-to-verified retry path without ordinary-search fallback or stale result exposure."},
+    {"id": "CHK-6", "family_ids": ["FAM-2", "FAM-3"], "state": "failure", "status": "passed", "evidence": "Negative controls in the focused suite reject mismatched holidays, stale responses and invalid result payloads while retaining one bounded error/retry state."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2"], "state": "empty", "status": "passed", "evidence": "Focused contract tests preserve the verified empty holiday state and do not substitute ordinary search results after a holiday match."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "recovery", "status": "passed", "evidence": "v874 remains the exact rollback version and deployment; production settings, DB, R2, bindings, secrets, schedules, domains, sharing and CMS remained on environment revision 32."},
+    {"id": "CHK-9", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "rollback", "status": "passed", "evidence": "Rollback target verified as Version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_395d7864de008191a6387e7302f03aba and Deployment appgdep_6af4a8ff850c81919d7418dbb3b9382b."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Redeploy v874 Version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_395d7864de008191a6387e7302f03aba using its succeeded Deployment appgdep_6af4a8ff850c81919d7418dbb3b9382b as the known baseline.",
+    "verification": "Sites reconciliation reported v874 as the previous succeeded PUBLIC env32 release before the single v875 save and deployment."
+  },
+  "authorization_boundary": "Adir explicitly authorized the public VII publication. One SAVE and one PUBLIC DEPLOY were executed; no business transaction or unrelated production mutation was authorized or performed.",
+  "remaining_blockers": []
+}
