@@ -46,7 +46,7 @@ import { useViiUnitQuotes } from "../components/use-vii-unit-quotes";
 import { useViiStayCalendar } from "../components/use-vii-stay-calendar";
 import { assessCalendarStay, stayCalendarDay } from "../lib/vii-stay-calendar";
 import { resolveSupplierAvailability } from "../lib/resolve-supplier-availability";
-import { vacationPartyForGuestCount } from "../lib/vacation-party";
+import { collapseVacationPartyRooms, isWholePropertySupplierUnit, vacationPartyForGuestCount } from "../lib/vacation-party";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
@@ -296,7 +296,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const siteToday = currentSiteDay();
   const calendarFrom = `${siteToday.getFullYear()}-${String(siteToday.getMonth() + 1).padStart(2, "0")}-${String(siteToday.getDate()).padStart(2, "0")}`;
   const supplierCalendar = useViiStayCalendar(supplierSiteID ? Number(supplierSiteID) : null, (calendarOpen || hasSelectedDates) && activeWorld === "vacation", calendarFrom, guests);
-  const supplierRooms = useMemo(() => vacationPartyForGuestCount(guests, Number(initialChildren) || 0, Number(initialInfants) || 0, Number(initialRooms) || 1), [guests, initialChildren, initialInfants, initialRooms]);
+  const supplierRooms = useMemo(() => {
+    const party = vacationPartyForGuestCount(guests, Number(initialChildren) || 0, Number(initialInfants) || 0, Number(initialRooms) || 1);
+    return isWholePropertySupplierUnit(property) ? collapseVacationPartyRooms(party) : party;
+  }, [guests, initialChildren, initialInfants, initialRooms, property.scenario, property.units]);
   const highlightedSupplierRoomID = Number.isSafeInteger(Number(initialRoomID)) && Number(initialRoomID) > 0
     && property.roomOptions?.some((room) => room.supplierRoomID === Number(initialRoomID)) ? Number(initialRoomID) : undefined;
   // A deal card may identify the room that produced its snapshot, but the

@@ -56,7 +56,7 @@ import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { supplierAmenityFilters } from "../lib/supplier-amenity-filters.ts";
 import { vacationFeatureSelection } from "../lib/vacation-feature-selection.ts";
-import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
+import { collapseVacationPartyRooms, isWholePropertySupplierUnit, vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
 import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
@@ -442,8 +442,14 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   );
   const requestedRooms = useMemo(() => vacationRoomsFromSearchParams(searchParams), [searchParams]);
   const supplierGuests = vacationRoomGuests(requestedRooms);
+  const wholePropertyRooms = useMemo(() => collapseVacationPartyRooms(requestedRooms), [requestedRooms]);
   const supplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, supplierGuests, undefined, requestedRooms, undefined, onlineSearchRetry, false, undefined, Boolean(selectedStay));
+  const wholePropertySupplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, supplierGuests, undefined, wholePropertyRooms, undefined, onlineSearchRetry, false, undefined, Boolean(selectedStay));
   const flexibleSupplierSearch = useViiFlexibleLiveSearch(flexibleCandidates, supplierGuests, requestedRooms, onlineSearchRetry);
+  const flexibleWholePropertySupplierSearch = useViiFlexibleLiveSearch(flexibleCandidates, supplierGuests, wholePropertyRooms, onlineSearchRetry);
+  const wholePropertySlugs = useMemo(() => new Set(properties
+    .filter(isWholePropertySupplierUnit)
+    .map((property) => property.slug)), [properties]);
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
@@ -706,9 +712,10 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     })), [flexibleCandidates, mapCandidates, pathname, requestedLocation]);
   const liveAvailabilityFor = (slug: string): LegacyAvailabilityState | undefined => {
     if (selectedStay && /^vacation-\d+$/.test(slug)) {
-      if (supplierSearch.status === "loading") return { quote: null, status: "loading" };
-      if (supplierSearch.status === "error") return { quote: null, status: "error" };
-      const result = supplierSearch.results[Number(slug.slice("vacation-".length))];
+      const selectedSupplierSearch = wholePropertySlugs.has(slug) ? wholePropertySupplierSearch : supplierSearch;
+      if (selectedSupplierSearch.status === "loading") return { quote: null, status: "loading" };
+      if (selectedSupplierSearch.status === "error") return { quote: null, status: "error" };
+      const result = selectedSupplierSearch.results[Number(slug.slice("vacation-".length))];
       if (!result) return { quote: { from: selectedStay.from, till: selectedStay.till, availability: "unknown", showSelectedDates: true }, status: "ready" };
       const from = result.from || selectedStay.from;
       const till = result.till || selectedStay.till;
@@ -720,9 +727,10 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
         ...(result.total ? { quotedGuests: guests } : {}) }, status: "ready" };
     }
     if (flexibleSearch && /^vacation-\d+$/.test(slug)) {
-      if (flexibleSupplierSearch.status === "loading") return { quote: null, status: "loading" };
-      if (flexibleSupplierSearch.status === "error") return { quote: null, status: "error" };
-      const result = flexibleSupplierSearch.results[Number(slug.slice("vacation-".length))];
+      const selectedSupplierSearch = wholePropertySlugs.has(slug) ? flexibleWholePropertySupplierSearch : flexibleSupplierSearch;
+      if (selectedSupplierSearch.status === "loading") return { quote: null, status: "loading" };
+      if (selectedSupplierSearch.status === "error") return { quote: null, status: "error" };
+      const result = selectedSupplierSearch.results[Number(slug.slice("vacation-".length))];
       if (!result) return { quote: null, status: "ready" };
       const from = result.from || flexibleCandidates[0]?.from;
       const till = result.till || flexibleCandidates[0]?.till;
@@ -748,10 +756,10 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   const eligibleForSelectedStay = (property: Property) => !selectedStay
     || canShowDatedSearchResult(liveAvailabilityFor(property.slug), selectedStay);
   const legacyAvailabilityPending = Boolean(selectedStay) && Object.values(liveAvailabilityBySlug).some((state) => state.status === "loading");
-  const flexibleAvailabilityPending = Boolean(flexibleSearch) && flexibleSupplierSearch.status === "loading";
-  const flexibleAvailabilityError = Boolean(flexibleSearch) && flexibleSupplierSearch.status === "error";
-  const datedAvailabilityPending = Boolean(selectedStay) && (supplierSearch.status === "loading" || legacyAvailabilityPending) || flexibleAvailabilityPending;
-  const datedAvailabilityError = Boolean(selectedStay) && supplierSearch.status === "error" || flexibleAvailabilityError;
+  const flexibleAvailabilityPending = Boolean(flexibleSearch) && (flexibleSupplierSearch.status === "loading" || flexibleWholePropertySupplierSearch.status === "loading");
+  const flexibleAvailabilityError = Boolean(flexibleSearch) && flexibleSupplierSearch.status === "error" && flexibleWholePropertySupplierSearch.status === "error";
+  const datedAvailabilityPending = Boolean(selectedStay) && (supplierSearch.status === "loading" || wholePropertySupplierSearch.status === "loading" || legacyAvailabilityPending) || flexibleAvailabilityPending;
+  const datedAvailabilityError = Boolean(selectedStay) && supplierSearch.status === "error" && wholePropertySupplierSearch.status === "error" || flexibleAvailabilityError;
   const onlineCheckPending = onlineOnly && (undatedSearch ? onlineCapabilities.status === "loading" : datedAvailabilityPending);
   const undatedCapabilityUnavailable = undatedSearch && onlineCapabilities.status === "error";
   const matchesOnline = (property: Property, enabled = true) => enabled && undatedCapabilityUnavailable
@@ -825,7 +833,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, documentSeed, promotionWeight, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, propertyOrderBySlug, startingPrices, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, documentSeed, promotionWeight, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, flexibleSupplierSearch, flexibleWholePropertySupplierSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, wholePropertySupplierSearch, wholePropertySlugs, mapCandidates, onlineOnly, onlineCapabilities, propertyOrderBySlug, startingPrices, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || isWholeCountrySelection(area)) return [];
@@ -843,7 +851,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       return liveAvailabilityFor(property.slug)?.quote?.availability !== "unavailable";
     });
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (property) => property.slug });
-  }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
+  }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, wholePropertySupplierSearch.results, wholePropertySupplierSearch.status, wholePropertySlugs, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
   // Default discovery keeps the exact location cohort first. An explicit price
   // choice ranks the complete displayed set so progressively revealed nearby
   // results cannot break the promised numeric order.

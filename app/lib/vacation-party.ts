@@ -23,6 +23,21 @@ export function vacationRoomGuests(rooms: VacationSearchRoom[]) {
   return rooms.reduce((total, room) => total + room.adults + (room.children || 0), 0);
 }
 
+/** A whole villa is one supplier inventory unit, even when several bedrooms were requested. */
+export function collapseVacationPartyRooms(rooms: VacationSearchRoom[]): VacationSearchRoom[] {
+  if (!rooms.length) return [];
+  const totals = rooms.reduce<{ adults: number; children: number; infants: number }>((sum, room) => ({
+    adults: sum.adults + room.adults,
+    children: sum.children + (room.children || 0),
+    infants: sum.infants + (room.infants || 0),
+  }), { adults: 0, children: 0, infants: 0 });
+  return [{ adults: totals.adults, ...(totals.children ? { children: totals.children } : {}), ...(totals.infants ? { infants: totals.infants } : {}) }];
+}
+
+export function isWholePropertySupplierUnit(property: { scenario?: string; units?: number }) {
+  return property.scenario === "single" && (property.units || 1) === 1;
+}
+
 export function validVacationRooms(value: unknown, guests: number): value is VacationSearchRoom[] {
   return Array.isArray(value) && value.length >= 1 && value.length <= 10 && value.every(room => room && typeof room === "object"
     && Number.isSafeInteger(room.adults) && room.adults >= 1 && room.adults <= 30

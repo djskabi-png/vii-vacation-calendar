@@ -40,7 +40,10 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       shouldCache: (value: unknown) => !includePlaces || eventDiscoveryResponseMatches(value, from, guests, region),
       signal: controller.signal,
     };
-    const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}`, init);
+    // Party composition is part of availability identity. Without roomKey,
+    // simultaneous whole-villa and multi-unit checks could share the wrong
+    // in-flight or cached response.
+    const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}:${roomKey}`, init);
     (request as Promise<{ discoveryVersion?: number; scope?: {date:string;guests:number}; cache?:{status:string;checkedAt?:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
       if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
       if (includePlaces && !eventDiscoveryResponseMatches(result, from, guests, region)) throw new Error("expired_event_snapshot");
