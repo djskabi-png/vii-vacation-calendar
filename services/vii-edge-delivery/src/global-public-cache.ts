@@ -26,6 +26,13 @@ export function globalPublicVariant(request:Request,build:string){
  if(rsc){const context=request.headers.get('X-Vinext-Interception-Context');if(request.headers.get('Accept')!=='text/x-component'||request.headers.get('RSC')!=='1'||!context||!rscContexts.has(context)||params.getAll('_rsc').length!==1||params.get('_rsc')!==browserRscHashes[context])return false;params.delete('_rsc');}
  else if(request.headers.has('RSC')||!(request.headers.get('Accept')||'').includes('text/html'))return false;
  if(base==='/business')return [...params].length===1&&/^(?:vacation|event)-[1-9]\d{0,8}$/.test(params.get('id')||'');
+ // SPA deal cards open an exact public place document in a new desktop tab.
+ // Preserve the selected package and ISO date as distinct cache identity so a
+ // hover warmup from the rail can be reused across POPs instead of exposing a
+ // blank tab to a cold origin. Booking/session parameters remain excluded.
+ if(/^\/discover\/place\/spa-[1-9]\d{0,8}$/.test(base))return [...params].length===2
+  &&params.getAll('date').length===1&&/^\d{4}-\d{2}-\d{2}$/.test(params.get('date')||'')
+  &&params.getAll('package').length===1&&/^[1-9]\d{0,9}$/.test(params.get('package')||'');
  // Keep the complete cache key. This admits the explicit default party only
  // on the fixed region family; dates, duplicate fields and other guests never
  // become the same document or gain broader global-cache eligibility.

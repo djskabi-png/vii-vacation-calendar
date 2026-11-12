@@ -109,6 +109,24 @@ test('actual handler separates build/query variants and does not cache an expire
   } finally { h.restore(); }
 });
 
+test('dated SPA package entry documents are cache-admitted and keep date and package variants distinct', async () => {
+  const h = harness({ headers: headers() });
+  const env = { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' };
+  const request = (date, packageId) => new Request(`https://edge.test/discover/place/spa-25?date=${date}&package=${packageId}`, { headers: { Accept: 'text/html' } });
+  try {
+    const first = await worker.fetch(request('2026-11-13', '4193'), env, h.ctx);
+    assert.equal(first.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const repeat = await worker.fetch(request('2026-11-13', '4193'), env, h.ctx);
+    assert.equal(repeat.headers.get('X-VII-Edge-Delivery'), 'HIT');
+    const anotherPackage = await worker.fetch(request('2026-11-13', '4194'), env, h.ctx);
+    assert.equal(anotherPackage.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    const anotherDate = await worker.fetch(request('2026-11-14', '4193'), env, h.ctx);
+    assert.equal(anotherDate.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    assert.equal(h.stats().originCalls, 3);
+  } finally { h.restore(); }
+});
+
 test('catalog navigation hint is forwarded only on eligible regional Flight MISS and is never stored', async () => {
   const h = harness({ headers: headers() }); const seen = [];
   const original = globalThis.fetch;

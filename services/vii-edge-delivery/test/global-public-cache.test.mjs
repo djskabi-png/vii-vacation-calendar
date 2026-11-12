@@ -96,13 +96,13 @@ test('global writes reject private policy, empty bodies and extended freshness r
  assert.equal(store.writes,0);
 });
 
-test('canonical locations, locale and place identity reuse global storage without admitting dated or arbitrary query state',async()=>{
+test('canonical locations, locale, place identity and exact SPA package entry reuse global storage without admitting arbitrary query state',async()=>{
  const f=fixture();try{
-  for(const path of ['/vacations/north','/en/events/search/center','/discover/place/hourly-1902','/business?id=vacation-164']){
+  for(const path of ['/vacations/north','/en/events/search/center','/discover/place/hourly-1902','/business?id=vacation-164','/discover/place/spa-25?date=2026-11-13&package=4193']){
    const first=await worker.fetch(request(path),f.env,f.ctx);const body=await first.text();await f.drain();f.region();
    const next=await worker.fetch(request(path),f.env,f.ctx);assert.equal(next.headers.get('X-VII-Edge-Cache-Backend'),'global-r2',path);assert.equal(await next.text(),body);await f.drain();
   }
-  for(const path of ['/business?id=vacation-164&from=2026-11-06','/business?id=vacation-164&id=vacation-999','/business?id=private-account','/en/admin','/events?sort=price'])assert.equal(globalPublicVariant(request(path),'test'),false,path);
+  for(const path of ['/business?id=vacation-164&from=2026-11-06','/business?id=vacation-164&id=vacation-999','/business?id=private-account','/en/admin','/events?sort=price','/discover/place/spa-25?date=2026-11-13','/discover/place/spa-25?date=13-11-2026&package=4193','/discover/place/spa-25?date=2026-11-13&package=4193&booking=4193'])assert.equal(globalPublicVariant(request(path),'test'),false,path);
  }finally{f.restore();}
 });
 
