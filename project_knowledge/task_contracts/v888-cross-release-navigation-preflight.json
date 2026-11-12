@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "task_id": "v888-cross-release-navigation-20261112",
+  "project": "VII",
+  "task_type": "production navigation incident repair and controlled release",
+  "requested_outcome": "Prevent the public events page and other primary worlds from falling into a terminal error during navigation or a release transition, reduce the events landing critical path, publish once, and verify the exact live release",
+  "natural_destination": "https://vii.spaplus.co/events and shared primary-world navigation on vii.spaplus.co",
+  "authorization_boundary": "Diagnosis, local repair, regression tests, one controlled public publication and live verification are authorized; destructive data, DNS, permission and environment changes are excluded",
+  "lesson_bundle": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "The incident is on VII shared navigation and the events world",
+      "acceptance_impact": "Use the VII master plan and feedback standard as product truth"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The previous approval missed a live navigation state",
+      "acceptance_impact": "Require exact public navigation, reload, recovery and affected-family evidence"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The repair crosses a managed public release boundary",
+      "acceptance_impact": "Freeze one source, preserve rollback and verify the exact deployed identity"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "A direct refresh works but client-side navigation still reaches the old terminal error",
+      "prevention": "Test both direct document loads and same-origin RSC navigation, including a simulated generation mismatch",
+      "acceptance_check": "The mismatch performs one GET document replacement and matching-generation navigation remains seamless"
+    },
+    {
+      "rejection": "Events is repaired while another world using the same global fetch path breaks",
+      "prevention": "Treat events, spas, hourly and vacations as the affected navigation family",
+      "acceptance_check": "All primary world routes pass the shared generation-boundary test and live navigation checks"
+    },
+    {
+      "rejection": "The page remains so slow that users interpret it as broken or trigger a timeout",
+      "prevention": "Remove live full-catalog D1 work from the events landing critical path and deduplicate its editorial read",
+      "acceptance_check": "The exact public events route returns complete content without the terminal boundary and improves against the 3.9 to 6.4 second baseline"
+    },
+    {
+      "rejection": "A recovery loop or duplicated action creates a worse failure",
+      "prevention": "Limit recovery to same-origin GET RSC responses, guard once per build pair and never replay POST or API actions",
+      "acceptance_check": "Negative tests prove actions, external requests and repeated mismatches are not replayed"
+    }
+  ],
+  "affected_family": [
+    "global client navigation fetch wrapper",
+    "events landing document and RSC render",
+    "events, spas, hourly and vacations primary-world routes",
+    "desktop and 390 pixel mobile navigation",
+    "cross-release open-tab continuity",
+    "managed deployment and rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII platform source of truth", "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label": "Accepted navigation and release behavior", "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label": "Observed public failure", "source": "user screenshot of the public /events terminal error on 2026-11-12"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the focused release-generation tests and before the full build and publication",
+    "checks": [
+      "matching-generation RSC remains unchanged",
+      "mismatched-generation RSC replaces the exact document once",
+      "events uses the accepted build-local catalog on the landing critical path",
+      "POST, external and repeated requests are not replayed"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a tab opened before publication navigate to events after publication without a terminal boundary?",
+      "Can repeated events reloads produce a 500, blank page or old error copy?",
+      "Can the shared recovery replay a POST, external request or loop?",
+      "Can desktop pass while a 390 pixel mobile navigation fails?"
+    ],
+    "natural_destination_evidence": "Exact public /events direct load, home-to-events navigation, reload and back/forward evidence on the deployed build",
+    "affected_family_evidence": "Focused tests plus live desktop and mobile traversal across events, spas, hourly and vacations"
+  },
+  "effectiveness": {
+    "baseline": "Public /events direct GETs took 3.9 to 6.4 seconds and an already-open client displayed the old terminal route boundary during navigation",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "No terminal boundary in the representative navigation matrix, one publication, and materially lower /events response latency"
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

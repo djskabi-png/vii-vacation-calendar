@@ -20,6 +20,8 @@ test("homepage sends only slider data to its hydrated showcase", () => {
 
 test("event listing pages bound preview galleries without dropping venues", () => {
   const eventsPage = readFileSync(new URL("../app/events/page.tsx", import.meta.url), "utf8");
+  assert.match(eventsPage, /bundledPublicCatalogSummaries<EventPlace>\("events"\)/, "the events landing must not block first paint on the live catalog database");
+  assert.doesNotMatch(eventsPage, /publicCatalogSummaries<EventPlace>\("events"\)/);
   assert.match(eventsPage, /sourceEventPlaces\.map\(\(place\) =>/);
   assert.match(eventsPage, /images: \(place\.images\?\.length \? place\.images : \[place\.image\]\)\.slice\(0, 3\)/);
   assert.match(eventsPage, /eventPlaces\.map\(\(place\)/);

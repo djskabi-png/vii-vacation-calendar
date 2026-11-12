@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { SearchBox } from "../components/search-box";
 import { eventPlaceHref, type EventPlace } from "../data/site-data";
-import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PinIcon } from "../site-header";
 import { StructuredData } from "../components/structured-data";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
@@ -55,7 +55,7 @@ function eventRegionItems(eventPlaces: EventPlace[], translate: (value: string) 
 
 export default async function EventsPage() {
   const [sourceEventPlaces, sourcePresentation, { language, translate }] = await Promise.all([
-    publicCatalogSummaries<EventPlace>("events"),
+    bundledPublicCatalogSummaries<EventPlace>("events"),
     readEventLandingPresentation(),
     serverPublicCopy(),
   ]);

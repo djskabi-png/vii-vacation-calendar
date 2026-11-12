@@ -1048,6 +1048,7 @@
         "app/events/",
         "app/worlds/events/",
         "app/lib/public-event-search.ts",
+        "app/lib/event-landing-presentation.ts",
         "app/lib/event-last-minute-props.ts",
         "app/components/event-last-minute.tsx",
         "app/components/event-region-carousel.tsx",

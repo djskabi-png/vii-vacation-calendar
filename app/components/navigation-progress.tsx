@@ -7,10 +7,21 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { catalogNavigationFetch } from '../lib/catalog-navigation-fetch';
 import { hasFreshPublishedSearchCatalog } from '../lib/published-catalog-client-cache';
 
+declare const __VII_CACHE_BUILD_ID__: string;
+
 export function NavigationProgress() {
   useEffect(() => {
     const previous = window.fetch;
-    const wrapped = catalogNavigationFetch(previous.bind(window), window.location.origin, () => hasFreshPublishedSearchCatalog('vacations'));
+    const wrapped = catalogNavigationFetch(
+      previous.bind(window),
+      window.location.origin,
+      () => hasFreshPublishedSearchCatalog('vacations'),
+      {
+        clientBuild: typeof __VII_CACHE_BUILD_ID__ === 'string' ? __VII_CACHE_BUILD_ID__ : 'local',
+        storage: window.sessionStorage,
+        replace: href => window.location.replace(href),
+      },
+    );
     window.fetch = wrapped;
     return () => { if (window.fetch === wrapped) window.fetch = previous; };
   }, []);

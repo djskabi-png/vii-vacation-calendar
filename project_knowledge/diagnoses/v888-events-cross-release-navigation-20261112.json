@@ -1,0 +1,86 @@
+{
+  "status": "diagnosed",
+  "symptom": "A public browser already open on VII navigated to /events and displayed the old full-page Hebrew route boundary saying the page did not load fully, while a later full document reload rendered the events page.",
+  "expected_behavior": "Direct loads and client navigation across primary worlds remain complete during normal use and across a public release, with visible progress and automatic bounded recovery instead of a terminal error page.",
+  "environment": "Public vii.spaplus.co version v887, source 54fc46819883cff04c9aa74ad84cacbdb6836860, build 05353a6e-9f4f-bcd7-6a32-7e6dd5e1b724, observed 2026-11-12 in an existing Chrome tab.",
+  "reproduction": {
+    "steps": [
+      "Keep an older VII client document open across a public release.",
+      "Navigate client-side to /events.",
+      "Observe the old route boundary, then perform a full document reload."
+    ],
+    "evidence": "User screenshot showed the pre-v886 error copy on public /events. The same claimed tab subsequently rendered the full events page with no console error after document recovery. Six no-cache direct GETs returned HTTP 200 but took 3.9 to 6.4 seconds."
+  },
+  "observations": [
+    {
+      "observation": "The screenshot wording exists only in the pre-v886 route error component, not the current v887 source.",
+      "evidence": "git comparison of app/error.tsx before and after commit 8c40a512"
+    },
+    {
+      "observation": "Application and RSC responses expose the current release through X-VII-App-Build or X-VII-Cache-Build, but the global client fetch wrapper did not compare that identity with its compiled client build.",
+      "evidence": "worker/index.ts, worker/public-response-cache.ts and app/lib/catalog-navigation-fetch.ts at v887"
+    },
+    {
+      "observation": "The events landing blocked on the live runtime catalog database even though its discovery content can use the accepted immutable build snapshot, and its editorial read could execute twice in one metadata/page request.",
+      "evidence": "app/events/page.tsx and app/lib/event-landing-presentation.ts at v887"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "An old client parsed a newer release RSC response without a generation boundary and fell into its old route error component.",
+      "prediction": "The visible copy identifies an old client, the current document route is healthy after reload, and a build-header mismatch can be detected before RSC parsing.",
+      "discriminating_test": "Compare error copy by source generation, reload the exact public route, and execute matching versus mismatched RSC responses through the actual global fetch adapter.",
+      "result": "Supported. The copy is pre-v886, reload is healthy, matching responses remain seamless, and mismatched responses now trigger one exact document replacement before parsing.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The /events route has a deterministic render exception in v887.",
+      "prediction": "Fresh document and RSC requests fail consistently on the current build.",
+      "discriminating_test": "Run repeated no-cache document and RSC GETs and inspect the claimed current tab.",
+      "result": "Rejected. Repeated current-build GETs returned 200 and the claimed tab rendered the full page without a console exception.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Slow live catalog and editorial reads increase the failure window and produce a visibly stalled events landing.",
+      "prediction": "Cold public /events is materially slower than a build-local landing path, while the immutable accepted catalog already contains the published event inventory.",
+      "discriminating_test": "Measure repeated public GET latency, inspect the landing read path, replace only the landing catalog with the accepted build snapshot, and run build plus event-family contracts.",
+      "result": "Supported for the latency risk. Public baseline was 3.9 to 6.4 seconds; the landing unnecessarily awaited runtime D1. Post-release timing remains required to quantify the improvement.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Add a same-origin GET-only generation boundary around RSC navigation, cancel a mismatched flight and replace the exact document once per client/server build pair. Move the events landing catalog to the accepted build snapshot and memoize its editorial read inside one server request.",
+    "evidence": "15 focused recovery tests, 24 affected-family tests, 23 release-baseline tests, TypeScript and the production build pass. Live post-release verification is pending."
+  },
+  "affected_family": [
+    "global client fetch wrapper",
+    "events landing document and RSC render",
+    "events, spas, hourly and vacations navigation",
+    "desktop and mobile release transitions",
+    "managed public deployment and rollback"
+  ],
+  "regression_checks": [
+    {
+      "check": "Matching and mismatched generation behavior",
+      "status": "passed",
+      "evidence": "tests/release-generation-navigation.actual.test.mjs"
+    },
+    {
+      "check": "No action replay, external navigation or reload loop",
+      "status": "passed",
+      "evidence": "tests/release-generation-navigation.actual.test.mjs and tests/navigation-stall-recovery-actual.test.mjs"
+    },
+    {
+      "check": "Events landing keeps all venues while removing live catalog work from first paint",
+      "status": "passed",
+      "evidence": "tests/homepage-payload-contract.test.mjs and successful production build"
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact post-release events latency and open-tab cross-release behavior remain to be measured on the deployed candidate."],
+  "authorization_boundary": "Diagnosis, local repair, tests, one authorized public release and live verification; no DNS, destructive data, permission or unrelated environment changes."
+}

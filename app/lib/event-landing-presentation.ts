@@ -3,6 +3,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy.ts";
 import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
 import { runtimeDatabase } from "./runtime-database.ts";
+import { readOnceInServerRequest } from "./server-request-reads.ts";
 
 export type EventLandingSearchItem = {
   id: string;
@@ -134,10 +135,12 @@ export function validEventLandingAttributes(attributes: Record<string, string>) 
 }
 
 export async function readEventLandingPresentation() {
-  const db = await eventLandingDatabase();
-  if (!db) return defaultEventLandingPresentation;
-  const content = await readPublishedContent(db, "events", "landing", "he").catch(() => null);
-  return parseEventLandingPresentation(content?.content);
+  return readOnceInServerRequest("event-landing-presentation", async () => {
+    const db = await eventLandingDatabase();
+    if (!db) return defaultEventLandingPresentation;
+    const content = await readPublishedContent(db, "events", "landing", "he").catch(() => null);
+    return parseEventLandingPresentation(content?.content);
+  });
 }
 
 async function eventLandingDatabase(): Promise<D1Database | null> {
