@@ -147,6 +147,14 @@ test("cold public documents do not read whole runtime catalogs before sending HT
   assert.doesNotMatch(business, /publicCatalogDetail/);
 });
 
+test("home hourly rail keeps every weighted candidate but bounds preview payload", async () => {
+  const source = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.match(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.map/);
+  assert.match(source, /features:\s*place\.features\.slice\(0,\s*4\)/);
+  assert.match(source, /images:\s*place\.images\?\.slice\(0,\s*3\)/);
+  assert.doesNotMatch(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.slice/);
+});
+
 test("spa and hourly place pages select one accepted build supplier without a cold runtime catalog read", async () => {
   const source = await readFile(new URL("app/discover/place/[id]/page.tsx", root), "utf8");
   assert.match(source, /cache\(async \(id: string\)/);

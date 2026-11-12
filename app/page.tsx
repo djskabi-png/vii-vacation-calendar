@@ -82,7 +82,15 @@ async function HomeCatalogShowcase({ readCatalog }: { readCatalog: RequestCatalo
       description: place.description?.slice(0, 220) || "",
       features: place.features?.slice(0, 4) || [],
     }));
-  const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
+  // The rail still receives every eligible supplier so client-side promotion
+  // weights and fair rotation keep their complete candidate set. It does not
+  // need the 1,900+ gallery URLs or long amenity payload used by detail pages.
+  const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces).map((place) => ({
+    ...place,
+    description: place.description.slice(0, 220),
+    features: place.features.slice(0, 4),
+    images: place.images?.slice(0, 3),
+  }));
   return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
 }
