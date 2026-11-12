@@ -19,6 +19,7 @@ import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const headers = { "Cache-Control": "no-store" };
+const visitorWarmBudgetMs = 3_200;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {
@@ -72,7 +73,10 @@ export async function GET(request: Request) {
       load: () => getHomeHolidayDeals({ id, token, holidays, now, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog, from: params.get("from") ?? undefined, till: params.get("till") ?? undefined, guests, part: part as HolidayPart }),
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     }).catch(() => null);
-    const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 1200));
+    // Prefer one bounded response over a partial response followed by the
+    // same browser request. cachedHolidayDiscovery retains the single D1
+    // lease, so concurrent visitors still share one supplier operation.
+    const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), visitorWarmBudgetMs));
     const cached = await timing.measure("snapshot", () => Promise.race([refresh, timeout]));
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));

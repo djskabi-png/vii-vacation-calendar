@@ -1,0 +1,33 @@
+{
+  "status": "fixed",
+  "symptom": "On public build 90a45426-e375-4c53-cc48-28a73a2817bf, a fresh 390x844 homepage context took 6469 ms to finish one regular vacation tab change and showed aria-busy throughout the transition.",
+  "expected_behavior": "A tab click keeps the existing verified rail visible immediately and replaces it from a shared prefetched or single bounded discovery request without a serialized refreshing response, delay, and duplicate request.",
+  "environment": "VII public v876 at https://vii.spaplus.co on 2026-11-12 Asia/Jerusalem, Chrome/Playwright fresh mobile 390x844 and desktop 1440x1000 contexts, exact app build header 90a45426-e375-4c53-cc48-28a73a2817bf.",
+  "reproduction": {
+    "steps": ["Open the homepage in a fresh mobile browser context.", "Wait for the vacation period tabs to render.", "Select חמישי עד שבת, then immediately select שישי עד ראשון.", "Measure click until aria-busy is no longer true and record matching discovery requests."],
+    "evidence": ".qa-output/v876-tab-stall-repro.json records 6469 ms and two sequential friday-weekend API responses of 2508 ms and 2551 ms separated by client recovery."
+  },
+  "observations": [
+    {"observation": "The first friday-weekend response was HTTP 200 but unverified, no-store and represented a refreshing state.", "evidence": ".qa-output/v876-tab-stall-repro.json: 2508 ms, verified null, cache-control no-store."},
+    {"observation": "The browser then issued the same URL again and received the verified response.", "evidence": ".qa-output/v876-tab-stall-repro.json: same URL, 2551 ms, X-VII-Discovery-Verified 1."},
+    {"observation": "The retained rail remained present while busy during slow transitions.", "evidence": ".qa-output/v876-tab-stall-repro.json immediate state for the 6469 ms transition: loading false, rail true, busy true."}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "A cold durable key returns refreshing before the lease-owned warm operation completes, and client recovery serializes a delay plus the duplicate request.", "prediction": "The same URL appears twice, first no-store and then verified, while total time approximates both requests plus recovery delay.", "discriminating_test": "Correlate click timing with all matching API requests in a fresh context.", "result": "Observed 2508 ms refreshing response, 1250 ms recovery delay, 2551 ms verified response and 6469 ms total.", "status": "supported"},
+    {"id": "H2", "mechanism": "Image decoding or rail animation consumes the missing seconds after the API is ready.", "prediction": "The API finishes once and quickly, while click-to-settle remains slow with image or layout activity.", "discriminating_test": "Compare JSON completion and the immediate retained-rail state against panel settle time.", "result": "Rejected: two slow JSON requests consumed the transition; the rail already existed and no skeleton was present.", "status": "rejected"},
+    {"id": "H3", "mechanism": "Regular period tabs lack reusable in-flight requests and sequential priming.", "prediction": "Production source coordinates holiday requests but not regular period requests.", "discriminating_test": "Compare regular and holiday tab request coordination in the exact v876 source.", "result": "Supported: v876 had holidayPrimeRequests and sequential holiday priming but no period equivalent.", "status": "supported"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Join the D1 lease-owned warm promise for a bounded 3200 ms before returning refreshing, add shared in-flight deduplication for regular period tabs, and prefetch remaining regular periods sequentially with one-at-a-time concurrency.",
+    "evidence": "25 focused tests passed, including rapid-selection and cold-recovery suites; the complete vinext production build passed. Public after-evidence remains a release gate."
+  },
+  "affected_family": ["Homepage regular vacation period tabs on mobile", "Homepage regular vacation period tabs on desktop", "Homepage holiday tabs on mobile and desktop", "Verified discovery API cold-key recovery", "D1 lease and supplier-call concurrency", "Retained rail loading and error states"],
+  "regression_checks": [
+    {"check": "Focused regular and holiday tab request coordination", "status": "passed", "evidence": "25 tests passed across the new guard plus existing cold-recovery, rapid-selection, snapshot and cache-contract suites."},
+    {"check": "Complete production compilation and asset verification", "status": "passed", "evidence": "pnpm build exited 0; vinext, RSC assets, deployment pruning and worker startup budget passed."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact post-deploy public cold and warm timings for the new build remain unavailable until the saved version is deployed."],
+  "authorization_boundary": "Authorized repair and publication of the reported VII slider regression only; no access, DNS, audience, supplier write, booking or unrelated route changes."
+}

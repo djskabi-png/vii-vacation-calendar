@@ -37,6 +37,32 @@ type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 const holidayPrimeRequests = new Map<string, Promise<ResponseData>>();
+const periodPrimeRequests = new Map<string, Promise<ResponseData>>();
+
+function homePeriodDealsUrl(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
+  return `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clockKey, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+}
+
+function primeHomePeriodDeals(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
+  const url = homePeriodDealsUrl(period, language, clockKey, guests, regionLabel);
+  const scope = `${clockKey}:verified-offers-v2`;
+  const key = `${scope}:${url}`;
+  const existing = periodPrimeRequests.get(key);
+  if (existing) return existing;
+  const request = discoveryJson<ResponseData>(url, scope, {
+    headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000,
+    staleMs: 60 * 60_000, timeoutMs: 4_000, totalTimeoutMs: 8_000, retries: 1,
+    shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
+    validateResponse: validHomeOfferResponse,
+  }).finally(() => periodPrimeRequests.delete(key));
+  periodPrimeRequests.set(key, request);
+  return request;
+}
+
+function pendingHomePeriodPrime(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
+  const url = homePeriodDealsUrl(period, language, clockKey, guests, regionLabel);
+  return periodPrimeRequests.get(`${clockKey}:verified-offers-v2:${url}`);
+}
 
 function homeHolidayDealsUrl(holiday: HomeHoliday, clockKey: string) {
   return `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holiday.id), proof: "verified-offers-v1", clock: clockKey, ...(holiday.exactStay ? { from: holiday.from, till: holiday.till } : {}) })}`;
@@ -239,7 +265,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     }
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", clock: clock.key, ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
-      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clock.key, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+      : homePeriodDealsUrl(period, language, clock.key, guests, regionLabel);
     let expiryTimer: ReturnType<typeof setTimeout> | undefined;
     const armExpiry = (value: ResponseData | undefined) => {
       if (expiryTimer) clearTimeout(expiryTimer);
@@ -274,8 +300,9 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     // One changed-cache retry can recover a transient read failure. Both
     // attempts and refreshing polls share the same selection deadline.
     const primedHoliday = mode === "holidays" && selectedHoliday ? pendingHomeHolidayPrime(selectedHoliday, clock.key) : undefined;
-    const request = primedHoliday
-      ? waitForHolidayPrime(primedHoliday, controller.signal)
+    const primedPeriod = mode === "near" ? pendingHomePeriodPrime(period, language, clock.key, guests, regionLabel) : undefined;
+    const request = primedHoliday || primedPeriod
+      ? waitForHolidayPrime((primedHoliday || primedPeriod)!, controller.signal)
       : discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
         shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse });
     request
@@ -309,6 +336,25 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       .catch(() => { if (!controller.signal.aborted) recover(false); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
+
+  useEffect(() => {
+    if (!clock || !active || mode !== "near" || fixedPeriod || state !== "ready" || !data) return;
+    const currentIndex = periodTabs.findIndex((item) => item.id === period);
+    if (currentIndex < 0) return;
+    const ordered = periodTabs
+      .filter((item) => item.id !== period)
+      .sort((a, b) => Math.abs(periodTabs.indexOf(a) - currentIndex) - Math.abs(periodTabs.indexOf(b) - currentIndex));
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      for (const item of ordered) {
+        if (cancelled) return;
+        try { await primeHomePeriodDeals(item.id, language, clock.key, guests, regionLabel); } catch { /* The selected tab owns visible recovery. */ }
+        if (cancelled) return;
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+    }, 120);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [active, clock?.key, data, fixedPeriod, guests, language, mode, period, periodTabs, regionLabel, state]);
 
   useEffect(() => {
     if (!clock || !active || mode !== "holidays" || holidayState !== "ready" || state !== "ready" || !data || holidayId === null) return;

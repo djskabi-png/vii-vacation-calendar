@@ -19,6 +19,7 @@ import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const noStore = { "Cache-Control": "no-store" };
+const visitorWarmBudgetMs = 3_200;
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
@@ -93,9 +94,25 @@ export async function GET(request: Request) {
         && deal.till === dates.till && eligibleDealDate(deal.from, now));
       if (validVacationDiscoverySnapshot(recovered.value, dates)) selectedSnapshot = { period: requestedPeriod, dates, cached: recovered, deals: recoveredDeals };
     }
+    if (!selectedSnapshot && db) {
+      // Join the lease-owned warm operation for one bounded window. Returning
+      // `refreshing` immediately made the browser wait and repeat the same
+      // request, turning a normal cold key into a 6-10 second tab transition.
+      const warm = refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now);
+      const warmed = await Promise.race([
+        warm.catch(() => null),
+        new Promise<null>((resolve) => setTimeout(resolve, visitorWarmBudgetMs)),
+      ]);
+      if (warmed && validVacationDiscoverySnapshot(warmed.value, dates)) {
+        const warmedDeals = (await applyCuration(warmed.value.deals, requestedPeriod)).filter(deal => publicSiteIds.has(deal.siteID)
+          && publicSummaryIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from
+          && deal.till === dates.till && eligibleDealDate(deal.from, now));
+        selectedSnapshot = { period: requestedPeriod, dates, cached: warmed, deals: warmedDeals };
+      } else {
+        getRequestExecutionContext()?.waitUntil(warm.then(() => undefined).catch(() => undefined));
+      }
+    }
     if (!selectedSnapshot) {
-      const context = getRequestExecutionContext();
-      if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
       return respond({ period: requestedPeriod, requestedPeriod, dates, deals: [], availabilityStatus: "refreshing",
         ...(region ? { region: region.label, expandedRegion: false } : {}), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } },
       { headers: { ...noStore, "X-VII-Discovery-Cache": "refreshing" } });

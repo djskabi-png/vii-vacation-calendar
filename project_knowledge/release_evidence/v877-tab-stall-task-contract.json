@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-slider-tab-stall-v877-20261112",
+  "project": "VII",
+  "task_type": "production-regression-repair",
+  "goal": "Remove intermittent 6-10 second homepage tab stalls without multiplying supplier traffic, preserve verified offer truth, publish once, and verify the exact public build on mobile and desktop.",
+  "created_at": "2026-11-12T01:00:00.000Z",
+  "updated_at": "2026-11-12T01:12:00.000Z",
+  "completed_at": null,
+  "affected_family": ["homepage vacation periods", "homepage holiday periods", "verified discovery cache", "mobile tab transition", "desktop tab transition", "production release"],
+  "predicted_rejections": [
+    "A warm repeat is fast but the first real tab click still waits several seconds.",
+    "The UI looks responsive while duplicate API requests continue in the background.",
+    "The fix increases concurrent provider traffic and recreates the 524 incident.",
+    "Only mobile or only desktop is verified.",
+    "A local result is reported as public completion."
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "source": "user_correction",
+      "statement": "Tab changes must not intermittently remain stuck for ten seconds.",
+      "acceptance_check": "Fresh mobile and desktop public runs record every tested tab transition, exact build identity and API request count; no duplicated refreshing-to-verified pair remains in the ordinary successful path.",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "R2",
+      "source": "production_safety",
+      "statement": "The repair must not create an origin burst or weaken availability truth.",
+      "acceptance_check": "One-at-a-time prefetch, shared in-flight promise, D1 lease ownership, verified-only caching and no-store refreshing/error paths pass focused tests.",
+      "status": "passed",
+      "evidence": ["25 focused tests passed", "Complete vinext production build passed"]
+    },
+    {
+      "id": "R3",
+      "source": "release_gate",
+      "statement": "Only the exact cumulative source may be published and approved.",
+      "acceptance_check": "Pushed commit, saved Sites version, terminal deployment, public build header and post-deploy browser report agree; v876 remains recorded rollback.",
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "midpoint_gate": {
+    "status": "passed",
+    "evidence": ["Public v876 reproduction isolated 6469ms transition and duplicate response sequence", "Focused regression suite passed", "Production build passed"]
+  },
+  "adversarial_close": {
+    "status": "pending",
+    "checks": ["fresh context", "rapid adjacent tabs", "holiday tabs", "regular period tabs", "mobile", "desktop", "API duplicate count", "JS errors", "broken images", "horizontal overflow"]
+  }
+}
