@@ -3,7 +3,6 @@ account_id = "45b2f6dcf2cfe44204d2c470cbe682d9"
 main = "src/index.ts"
 compatibility_date = "2026-11-04"
 workers_dev = true
-triggers = { crons = ["*/2 * * * *"] }
 routes = [{ pattern = "vii.spaplus.co/*", zone_id = "f1d778343394ef4f56bbcb089793a22a" }]
 
 [[r2_buckets]]
@@ -14,4 +13,4 @@ bucket_name = "vii-public-document-cache"
 EXPERIENCE_ENABLED = "false"
 EXPERIENCE_SAMPLE_RATE_BPS = "500"
 ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site"
-EXPECTED_BUILD = "00bca36c-4f1c-403d-9a13-ceea797015ae"
+EXPECTED_BUILD = "pending-v876-slider-speed-20261112"

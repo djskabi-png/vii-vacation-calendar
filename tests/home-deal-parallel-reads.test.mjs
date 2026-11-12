@@ -17,6 +17,7 @@ import {compareVacationPriority} from '../app/lib/vacation-priority.ts';
 async function loadRoute(name, dependencies) {
  dependencies.requestStageTiming=requestStageTiming;
   dependencies={homeDealDates,firstDealDate,validDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),
+    verifiedPublicDiscoveryHeaders:()=>({"Cache-Control":"no-store"}),
     VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
     getDiscoveryHolidays:async()=>[{id:123,from:'2099-12-05',till:'2099-12-07',nights:1}],cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),
     readCachedDiscovery:async()=>({value:{dates:homeDealDates('tomorrow'),deals:[]},cache:{status:'fresh',checkedAt:new Date().toISOString()}}),...dependencies};

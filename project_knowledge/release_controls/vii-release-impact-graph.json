@@ -486,9 +486,13 @@
         "world.vacations.semantic"
       ],
       "buildUnits": [
-        "managed-site"
+        "managed-site",
+        "edge-delivery"
       ],
-      "requiredLocalTests": []
+      "requiredLocalTests": [
+        "tests/slider-speed-cache-contract.test.mjs",
+        "services/vii-edge-delivery/test/edge-delivery-contract.test.mjs"
+      ]
     },
     "edge-delivery": {
       "dependsOn": [
@@ -1102,6 +1106,7 @@
       "ownerBox": "home-sliders",
       "match": [
         "app/api/vii/home-deals/",
+        "app/api/vii/home-holidays/",
         "app/components/home-live-deals.tsx",
         "tests/home-deals-tab-reconciliation.actual.test.mjs",
         "tests/home-deals-loading.actual.test.mjs",
@@ -1188,6 +1193,8 @@
         "shared/public-business-context.ts",
         "worker/index.ts",
         "shared/public-catalog-navigation.ts"
+        ,"shared/public-discovery-cache.ts"
+        ,"app/lib/public-discovery-response.ts"
       ]
     },
     {

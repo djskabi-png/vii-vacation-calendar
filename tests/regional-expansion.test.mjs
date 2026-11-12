@@ -35,7 +35,7 @@ const options={placeId:o=>o.siteID,key:o=>String(o.siteID)};
 const offers=[{siteID:5,total:10},{siteID:1,total:100},{siteID:2,total:200},{siteID:6,total:900}];
 const publicPlaces=places.filter(p=>p.supplierId!==7);
 function handler(path,method,dependencies){
-  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,canonicalVerifiedSliderItems,validEventDiscoveryResult,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
+  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,canonicalVerifiedSliderItems,validEventDiscoveryResult,verifiedPublicDiscoveryHeaders:()=>({'Cache-Control':'no-store'}),runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
   dependencies=eventRouteDependencies(dependencies);
   if(path==='spa/deals')dependencies=spaDealRouteDependencies(dependencies);
   dependencies.requestStageTiming=requestStageTiming;

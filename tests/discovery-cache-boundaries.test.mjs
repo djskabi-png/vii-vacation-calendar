@@ -14,6 +14,7 @@ import {VACATION_DISCOVERY_POLICY,validVacationDiscoverySnapshot} from '../app/l
 
 function route(path,method,deps){
  deps.requestStageTiming=requestStageTiming;
+ deps.verifiedPublicDiscoveryHeaders ??= headers=>headers;
  deps.publicDiscoveryCatalogIndex=async(world)=>{
   const [places,publishedIds]=await Promise.all([deps.publicCatalogSummaries(world),deps.publishedSupplierIds(world)]);
   return {places:places.filter(place=>publishedIds.has(place.supplierId)),publishedIds};

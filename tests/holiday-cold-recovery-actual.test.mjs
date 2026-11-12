@@ -27,7 +27,7 @@ async function simulate(text,readyAt=20_000,{networkError=false,active=true}={})
   recoveryStartedAt:{current:new Map()},automaticRetries:{current:new Map()},lastGoodData:{current:new Map()},
   selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
   Date:DateFake,setTimeout,clearTimeout,AbortController,URLSearchParams,HOME_OFFER_MAX_AGE_MS:3_600_000,
-  homeOfferCheckedAt:value=>value?.cache?0:null,isFreshHomeOffer:value=>!!value?.cache,validHomeOfferResponse:()=>true,
+   homeOfferCheckedAt:value=>value?.cache?0:null,isFreshHomeOffer:value=>!!value?.cache,validHomeOfferResponse:()=>true,pendingHomeHolidayPrime:()=>undefined,waitForHolidayPrime:pending=>pending,
   setData:value=>{data=value},setState:value=>{status=value;states.push({at:now,status})},
   discoveryJson:(_url,_scope,init)=>new Promise((resolve,reject)=>{calls.push({at:now,signal:init.signal});setTimeout(()=>networkError?reject(Error('network')):resolve(now<readyAt?{holiday:{id:114},deals:[],availabilityStatus:'refreshing'}:{holiday:{id:114},dates:{from:'2026-11-08',till:'2026-11-09'},deals:[],availabilityStatus:'verified',cache:{checkedAt:new Date(0).toISOString()}}),2000)}),
   setDealRetry:()=>{cleanup();cleanup=effect()||(()=>{})}
@@ -62,7 +62,7 @@ test('a cached holiday response never reads full-world galleries or calls the su
  const deps={requestStageTiming:()=>({measure:async(_n,fn)=>fn(),header:()=>''}),holidayParts:['all'],validDate:()=>true,runtimeCatalogDatabase:async()=>({}),publicDiscoveryCatalogIndex:async()=>({places:[{supplierId:12,name:'Real'}],publishedIds:new Set([12])}),supplierToken:async()=>'',getDiscoveryHolidays:async()=>[holiday],firstDealDate:()=>dates.from,
   cachedDiscovery:async()=>({value:{holiday,dates,deals:[{siteID:12,priceGuests:2,from:dates.from}]},cache:{status:'fresh',checkedAt:new Date().toISOString()}}),
   publicCatalogSummaries:()=>{throw Error('Full catalog must remain lazy')},getHomeHolidayDeals:()=>{throw Error('Supplier must remain lazy')},runtimeDatabase:async()=>null,prioritizeOnlineFirst:value=>value,isHomeDealOnlineEligible:()=>true,compareVacationPriority:()=>0,eligibleDealDate:()=>true,
-  setTimeout:()=>0,getRequestExecutionContext:()=>null};
+   setTimeout:()=>0,getRequestExecutionContext:()=>null,verifiedPublicDiscoveryHeaders:()=>({'Cache-Control':'no-store'})};
  deps.cachedHolidayDiscovery=holidayDiscoveryFixture(deps.cachedDiscovery);
  const exports={};new Function(...Object.keys(deps),'exports',js)(...Object.values(deps),exports);
  const response=await exports.GET(new Request('https://example.test/?id=114'));assert.equal(response.status,200);const body=await response.json();assert.equal(body.availabilityStatus,'verified');assert.deepEqual(body.deals.map(x=>x.siteID),[12]);assert.ok(response.headers.has('Server-Timing'));

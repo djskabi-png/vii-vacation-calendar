@@ -4,7 +4,7 @@ const queries = new Map<string, Set<string>>([
   ["/api/vii/home-deals", new Set(["period", "locale", "proof", "clock", "region", "guests"])],
   ["/api/vii/home-holidays", new Set(["locale", "clock", "all"])],
   ["/api/vii/home-holiday-deals", new Set(["id", "guests", "part", "from", "till", "proof", "clock"])],
-  ["/api/spa/deals", new Set(["clock", "region", "full", "date"])],
+  ["/api/spa/deals", new Set(["clock", "region", "full", "date", "rotation"])],
 ]);
 const periods = new Set(["tomorrow", "weekend", "friday-weekend", "thursday", "friday"]);
 const privateHeaders = ["Authorization", "Next-Action", "X-Server-Action", "RSC", "Next-Router-State-Tree", "Next-Router-Prefetch", "Next-Router-Segment-Prefetch", "Next-Url", "X-Vinext-Interception-Context", "X-Vinext-Mounted-Slots", "X-Vinext-Rsc-Render-Mode"];
@@ -23,6 +23,7 @@ export function publicDiscoveryCachePolicy(request: Request, now = new Date()) {
   if (params.get("clock") !== dealClockKey(now)) return null;
   if (params.has("locale") && !["he", "en", "fr", "ru"].includes(params.get("locale")!)) return null;
   if (params.has("proof") && params.get("proof") !== "verified-offers-v1") return null;
+  if (params.has("rotation") && !/^[a-z0-9:_-]{1,128}$/i.test(params.get("rotation")!)) return null;
   if (params.has("guests") && (!/^[1-9]\d?$/.test(params.get("guests")!) || Number(params.get("guests")) > 50)) return null;
   if (url.pathname === "/api/vii/home-deals" && !periods.has(params.get("period") || "")) return null;
   if (url.pathname === "/api/vii/home-holiday-deals" && !/^[1-9]\d{0,8}$/.test(params.get("id") || "")) return null;

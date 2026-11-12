@@ -28,7 +28,8 @@ test("event last-minute verified cards eagerly load the first visible images", a
     read("app/components/event-last-minute.tsx"),
     read("app/components/place-preview-card.tsx"),
   ]);
-  assert.match(component, /priority=\{index < 2 && !deferUntilNearViewport\}/);
+  assert.match(component, /useSectionActivation\(sectionId,deferUntilNearViewport,"900px 0px"\)/);
+  assert.match(component, /priority=\{active && index < 2\}/);
   assert.match(preview, /priority=\{priority\}/);
 });
 

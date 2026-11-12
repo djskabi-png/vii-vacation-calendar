@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "taskId": "vii-slider-speed-v876-20261111",
+  "observedFailure": "Public slider requests repeatedly waited for the managed application instead of receiving a warm edge response.",
+  "rootCause": {
+    "mechanism": "The edge worker expected an older application build and the verified discovery routes returned Cache-Control no-store. Spa requests also used a rotation query that the edge allow-list rejected.",
+    "productionEvidence": {
+      "path": "/api/vii/home-deals?period=tomorrow&locale=he&proof=verified-offers-v1&clock=2026-11-11%3Afuture",
+      "appBuild": "611fc2ee-9f58-b423-fd4f-892cbd970684",
+      "edgeSkip": "build_mismatch",
+      "originTtfbSeconds": [4.31, 5.18]
+    }
+  },
+  "rejectedHypotheses": [
+    {
+      "hypothesis": "Slow images are the sole cause.",
+      "reason": "The JSON discovery response itself took more than four seconds before image decoding began."
+    },
+    {
+      "hypothesis": "Increasing skeleton duration is sufficient.",
+      "reason": "A longer placeholder masks but does not remove origin latency or repeat work."
+    }
+  ],
+  "repair": [
+    "Admit only allow-listed verified discovery responses to a maximum 30-second edge lease.",
+    "Keep refreshing, invalid, error, booking, quote, authenticated and full-search traffic no-store.",
+    "Recognize the bounded spa rotation key without weakening the query allow-list.",
+    "Pre-activate approaching rails and prioritize only the first two visible images.",
+    "Publish the app and edge worker as one build-locked release."
+  ]
+}
+

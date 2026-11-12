@@ -13,8 +13,8 @@ test("live discovery families preserve last good content while refreshing", asyn
     readFile(new URL("app/globals.css", root), "utf8"),
   ]);
   assert.doesNotMatch(vacation, /setState\("loading"\);\s*setData\(null\)/);
-  assert.match(vacation, /displayState === "loading" && !data/);
-  assert.match(vacation, /const refreshing = displayState === "loading" && data !== null/);
+  assert.match(vacation, /displayState === "loading" && !retainedData/);
+  assert.match(vacation, /const refreshing = displayState === "loading" && retainedData !== null/);
   assert.doesNotMatch(spa, /setStatus\("loading"\);\s*setData\(null\)/);
   assert.match(spa, /status==="loading"&&!data/);
   assert.match(holiday, /deals: current\.key === key && isFreshHomeOffer\(current\) \? current\.deals : \[\]/);

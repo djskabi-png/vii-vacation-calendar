@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-slider-speed-v876-20261111",
+  "project": "VII",
+  "task_type": "public-slider-performance-release",
+  "requested_outcome": "Make VII slider data, images and tab changes materially faster without stale truth, blank states, RTL movement regressions or damage to other worlds, verify through QQQAAA and publish the exact passing build.",
+  "natural_destination": "https://vii.spaplus.co/ and the public vacation, holiday, spa and event slider families on desktop and mobile",
+  "authorization_boundary": "Code, tests, production build, managed VII publication and post-public verification are authorized. Supplier facts, production database content, bindings, domains and unrelated design remain unchanged.",
+  "lesson_bundle": [
+    {"lesson_id":"VII-PROJECT-001","reason":"Slider availability and media must preserve VII supplier truth and accepted project behavior.","acceptance_impact":"Run VII source and affected-family gates and preserve booking-time revalidation."},
+    {"lesson_id":"ADIR-WEB-003","reason":"Slow tab and slider actions require immediate local feedback without duplicate requests.","acceptance_impact":"Verify busy feedback, deduplication and actionable recovery."},
+    {"lesson_id":"ADIR-QA-001","reason":"Publication requires the exact public result, not only code or build output.","acceptance_impact":"Run pre-release gates and post-deploy representative scenarios on the frozen version."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The public release must preserve the latest cumulative baseline and have a rollback.","acceptance_impact":"Freeze one clean commit, preserve predecessor assets, record public identity and rollback."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The reported slider pain includes mobile loading and interaction.","acceptance_impact":"Verify 390px and desktop rendering, tab changes, arrows, reload and responsive transitions."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Every slider tab and arrow must remain visibly and functionally correct.","acceptance_impact":"Exercise tabs and both rail ends in success, loading and retry states."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"The optimization affects shared slider families across worlds.","acceptance_impact":"Inventory vacation, holiday, spa and event rails and verify shared behavior."},
+    {"lesson_id":"ADIR-OPS-001","reason":"Browser and build processes must be owned and cleaned.","acceptance_impact":"Record any long-lived process and pass cleanup verification before completion."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only the skeleton looks faster while the data still arrives after several seconds.","prevention":"Measure document and API timing before and after, including Server-Timing and first visible card.","acceptance_check":"Warm and cold timing evidence distinguishes edge, server, render and image stages."},
+    {"rejection":"The default tab improves but switching tabs or another world remains slow.","prevention":"Apply shared cache, request dedupe, priority and pacing rules across the affected family.","acceptance_check":"Vacation, holiday, spa and event tab or selection changes settle without blank screens on mobile and desktop."},
+    {"rejection":"Caching makes availability or price stale.","prevention":"Cache discovery view models only within source expiry and retain live booking confirmation.","acceptance_check":"Expiry tests reject stale accepted offers and booking APIs remain no-store/live."},
+    {"rejection":"Images are still blank because deferred rails leave first images lazy.","prevention":"Promote visible first images only after section activation and retain lazy loading for offscreen cards.","acceptance_check":"First visible images request and decode while offscreen images remain bounded."},
+    {"rejection":"The optimization reintroduces iPhone RTL rail sweeps or geometry shifts.","prevention":"Keep reserved snap wrappers and pace only offscreen content.","acceptance_check":"All vacation and holiday tabs keep stable rail extent and scroll position behavior at 390px."},
+    {"rejection":"A new build overwrites v875 or breaks unrelated routes.","prevention":"Require clean descendant source, protected capability gate, QQQAAA, retained assets and post-deploy public identity checks.","acceptance_check":"Exact frozen commit passes release gates and public build identity plus representative routes after deployment."}
+  ],
+  "affected_family": [
+    "homepage vacation near-date rail",
+    "homepage holiday rail",
+    "homepage and landing-page spa package rails",
+    "homepage and landing-page event availability rails",
+    "shared discovery client cache and request lifecycle",
+    "shared card images and preview galleries",
+    "managed Site document delivery and edge cache",
+    "mobile and desktop RTL slider controls"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[
+    {"label":"VII accepted performance and slider behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+    {"label":"v875 cumulative public baseline","source":"project_knowledge/release_evidence/v875-holiday-atomic-search.json"},
+    {"label":"prior tabbed RTL geometry repair","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}
+  ],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After shared cache, visible-image priority and rail pacing changes pass focused unit tests before production build or edge changes.","checks":["Focused tests show one in-flight request per key, preserved source expiry and visible-first image priority.","Mounted rail tests preserve all wrappers and stable RTL geometry."],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can a cold or expired discovery response still replace useful cards with a blank state?","Does rapid tab switching create duplicate requests or commit an old tab result?","Do first visible images remain lazy after a deferred section activates?","Does any affected rail sweep or lose arrow reachability at 390px?","Does the exact public build preserve v875 availability, gallery and booking invariants?"],"natural_destination_evidence":"Exact deployed build opened at the public homepage and affected routes with network, visual and interaction evidence.","affected_family_evidence":"Focused shared-family tests, QQQAAA, release-source/baseline gates and public mobile/desktop scenario receipts."},
+  "effectiveness": {"baseline":"Public measurements on 2026-11-11: homepage TTFB 5.084-6.543s; home-deals TTFB 1.650-4.449s; first rail rendering intentionally mounts four cards then two per idle batch.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Materially reduce repeat warm slider data and visible-image latency, eliminate duplicate tab requests, and preserve exact truth and RTL behavior."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

@@ -33,7 +33,7 @@ type DealResponse = { cache?:{status:string}; availabilityStatus?:"verified"|"re
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateOffset,fixedDate,fixedWeekday,sectionTitle,layout="rail",deferUntilNearViewport=false}:{sectionId?:string;region?:string;fixedDateOffset?:0|1;fixedDate?:string;fixedWeekday?:SpaWeekdaySlug;sectionTitle?:string;layout?:"rail"|"grid";deferUntilNearViewport?:boolean}) {
  const {language,translate} = useSiteLanguage();
- const active = useSectionActivation(`${sectionId}-title`,deferUntilNearViewport);
+ const active = useSectionActivation(`${sectionId}-title`,deferUntilNearViewport,"900px 0px");
  const clock = useDealClock();
  const documentSeed = useDocumentSeed(false);
  const promotionWeight=usePublicPromotionWeights("spa");
@@ -153,7 +153,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
     const city=localizedBusinessText(offer.city,language,translate,"");
     const mediaKey=`${offer.siteId}:${offer.packageId}:${offer.image}`;
     return <article key={`${offer.siteId}-${offer.packageId}`} className="spa-deal-card" data-price={offer.price} data-site-id={offer.siteId} data-package-id={offer.packageId}>
-     {unavailableMedia.has(mediaKey) ? <Link className="spa-deal-card__image spa-deal-card__image--unavailable" href={href} target="_blank" rel="noopener noreferrer" aria-label={title} onClick={(event)=>openPlaceInSameTabOnMobile(event,href)}><span>{siteName}</span></Link> : <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title} priority={index<2 && !deferUntilNearViewport} onMediaUnavailable={()=>setUnavailableMedia(previous=>new Set(previous).add(mediaKey))}/>}
+     {unavailableMedia.has(mediaKey) ? <Link className="spa-deal-card__image spa-deal-card__image--unavailable" href={href} target="_blank" rel="noopener noreferrer" aria-label={title} onClick={(event)=>openPlaceInSameTabOnMobile(event,href)}><span>{siteName}</span></Link> : <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title} priority={active && index<2} onMediaUnavailable={()=>setUnavailableMedia(previous=>new Set(previous).add(mediaKey))}/>}
      <Link className="spa-deal-card__body" href={href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,href)}><small>{siteName}{city?` · ${city}`:""}</small><h3>{title}</h3><span className="spa-deal-card__meta">{offer.people ? spaDealPeople(offer.people,language) : text.audiences[audience]}{offer.durationMinutes?` · ${offer.durationMinutes} ${text.minutes}`:""}</span><div className="spa-deal-card__bottom"><strong><small>{text.from}</small> <bdi dir="ltr">₪&nbsp;{offer.price.toLocaleString(language==="he"?"he-IL":language)}</bdi></strong><span>{text.details} <span aria-hidden="true">{language==="he"?"←":"→"}</span></span></div></Link>
     </article>;
    })}</EventRail></>:null}

@@ -36,6 +36,46 @@ export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: strin
 type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
+const holidayPrimeRequests = new Map<string, Promise<ResponseData>>();
+
+function homeHolidayDealsUrl(holiday: HomeHoliday, clockKey: string) {
+  return `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holiday.id), proof: "verified-offers-v1", clock: clockKey, ...(holiday.exactStay ? { from: holiday.from, till: holiday.till } : {}) })}`;
+}
+
+function primeHomeHolidayDeals(holiday: HomeHoliday, clockKey: string) {
+  const url = homeHolidayDealsUrl(holiday, clockKey);
+  const scope = `${clockKey}:verified-offers-v2`;
+  const key = `${scope}:${url}`;
+  const existing = holidayPrimeRequests.get(key);
+  if (existing) return existing;
+  const request = discoveryJson<ResponseData>(url, scope, {
+    headers: { Accept: "application/json" },
+    persist: true,
+    freshMs: 5 * 60_000,
+    staleMs: 60 * 60_000,
+    timeoutMs: 4_000,
+    totalTimeoutMs: 8_000,
+    retries: 1,
+    shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
+    validateResponse: validHomeOfferResponse,
+  }).finally(() => holidayPrimeRequests.delete(key));
+  holidayPrimeRequests.set(key, request);
+  return request;
+}
+
+function pendingHomeHolidayPrime(holiday: HomeHoliday, clockKey: string) {
+  const url = homeHolidayDealsUrl(holiday, clockKey);
+  return holidayPrimeRequests.get(`${clockKey}:verified-offers-v2:${url}`);
+}
+
+function waitForHolidayPrime(pending: Promise<ResponseData>, signal: AbortSignal) {
+  if (signal.aborted) return Promise.reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
+  return new Promise<ResponseData>((resolve, reject) => {
+    const abort = () => reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
+    signal.addEventListener("abort", abort, { once: true });
+    pending.then(resolve, reject).finally(() => signal.removeEventListener("abort", abort));
+  });
+}
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -106,7 +146,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
-  const activated = useSectionActivation(`${sectionId}-title`, deferUntilNearViewport);
+  const activated = useSectionActivation(`${sectionId}-title`, deferUntilNearViewport, "900px 0px");
   const active = !pendingSeed && activated;
   const { language, translate } = useSiteLanguage();
   const [chosenPeriod, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? initialData?.display?.defaultPeriod ?? "tomorrow");
@@ -178,7 +218,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     const acceptedCandidate = lastGoodData.current.get(selectionKey);
     const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : initialSeedUsable ? initialData ?? undefined : undefined;
     if (!accepted) lastGoodData.current.delete(selectionKey);
-    setData(accepted ?? null);
+    // Keep the last verified rail visible and inert while another tab is
+    // loading. Clearing it here creates a blank/skeleton flash on every
+    // holiday switch even when the replacement arrives milliseconds later.
+    if (accepted) setData(accepted);
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const seededDates = mode === "near" ? homeDealDates(period, clock.now) : null;
@@ -213,7 +256,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     armExpiry(accepted);
     const recover = (refreshPending = true) => {
       const usable = isFreshHomeOffer(accepted);
-      if (!usable) { lastGoodData.current.delete(selectionKey); setData(null); }
+      if (!usable) {
+        lastGoodData.current.delete(selectionKey);
+        if (!refreshPending) setData(null);
+      }
       const attempts = automaticRetries.current.get(selectionKey) || 0;
       const delay = discoveryRecoveryDelay(attempts, remainingBudget());
       if (!refreshPending || delay === null) { setState(usable ? "ready" : "error"); return; }
@@ -227,8 +273,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     }
     // One changed-cache retry can recover a transient read failure. Both
     // attempts and refreshing polls share the same selection deadline.
-    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
-      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse })
+    const primedHoliday = mode === "holidays" && selectedHoliday ? pendingHomeHolidayPrime(selectedHoliday, clock.key) : undefined;
+    const request = primedHoliday
+      ? waitForHolidayPrime(primedHoliday, controller.signal)
+      : discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
+        shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse });
+    request
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
@@ -260,6 +310,28 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
+  useEffect(() => {
+    if (!clock || !active || mode !== "holidays" || holidayState !== "ready" || state !== "ready" || !data || holidayId === null) return;
+    const currentIndex = holidays.findIndex((item) => item.id === holidayId);
+    if (currentIndex < 0) return;
+    // Warm the nearest choices first and keep concurrency at one. This makes
+    // ordinary tab changes instant without recreating the origin spike that a
+    // six-request burst caused during the prior incident.
+    const ordered = holidays
+      .filter((item) => item.id !== holidayId)
+      .sort((a, b) => Math.abs(holidays.indexOf(a) - currentIndex) - Math.abs(holidays.indexOf(b) - currentIndex));
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      for (const holiday of ordered) {
+        if (cancelled) return;
+        try { await primeHomeHolidayDeals(holiday, clock.key); } catch { /* A selected tab still owns visible retry/error UI. */ }
+        if (cancelled) return;
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+    }, 120);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [active, clock?.key, data, holidayId, holidayState, holidays, mode, state]);
+
   function choose(value: HomeDealPeriod) {
     if (value === period) return;
     // A deliberate visitor choice always wins over a late homepage-settings
@@ -277,14 +349,15 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setHolidayId(value);
   }
 
-  const eligibleDeals = useMemo(() => data?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [data?.deals, clock?.key]);
+  const retainedData = data ?? (state === "loading" && scopedData && isFreshHomeOffer(scopedData.value) ? scopedData.value : null);
+  const eligibleDeals = useMemo(() => retainedData?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [retainedData?.deals, clock?.key]);
   // Preserve accepted identities and truth cohorts before weighted exposure.
   // Each independent search rotates equal-weight eligible venues; the
   // selected search remains stable through map/list and pagination changes.
   const displayedDeals = useMemo(() => orderDiscoveryItems(canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID), {id:deal=>deal.siteID,seed:`${documentSeed}:vacation:${period}:${guests}`,online:deal=>isHomeDealOnlineEligible(deal),priority:deal=>scope&&!matchesSearchLocation({location:deal.city,area:deal.area},scope.label)?1:0,promotionWeight:deal=>promotionWeight(deal.siteID)}), [eligibleDeals,documentSeed,period,guests,scope?.label,promotionWeight]);
   const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
-  const refreshing = displayState === "loading" && data !== null;
+  const refreshing = displayState === "loading" && retainedData !== null;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;
   const resultCountLabel = ({
@@ -297,17 +370,19 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   // Reserve every snap area at once. Appending RTL flex items while Safari is
   // settling a snap changes the rail's extent and can sweep through the list.
   // Only the expensive card content is paced; rail geometry stays unchanged.
+  const renderedHolidayId = retainedData?.holiday?.id ?? currentHoliday?.id;
   const dealCards = useMemo(() => displayedDeals.map((deal, index) => {
-            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
+            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(renderedHolidayId ?? "") : period }).toString()}`;
             return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
               {index < renderedCount ? <PropertyCard
                 property={dealProperty(deal)}
                 selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
                 liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
                 detailHref={href}
+                priority={active && index < 2}
               /> : <div className="home-live-deals__deferred-card" aria-hidden="true"><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>}
             </div>;
-          }), [displayedDeals, renderedCount, mode, currentHoliday?.id, period]);
+          }), [displayedDeals, renderedCount, mode, renderedHolidayId, period, active]);
 
   return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
@@ -329,7 +404,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       </div> : null}
       <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
-        {displayState === "loading" && !data ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
+        {displayState === "loading" && !retainedData ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
             <span>{text.loading}</span>
@@ -345,7 +420,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
             rail lets the browser follow a retained card to its new index
             while React replaces/reorders the results. Never scroll the old
             search on a tab click; keep its momentum and snap anchor isolated. */}
-        {data?.deals.length ? <div key={selectionKey} id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
+        {retainedData?.deals.length ? <div key={selectionKey} id={`${sectionId}-rail`} className={`home-live-deals__track${layout === "grid" ? " home-live-deals__track--grid" : ""}`} ref={track} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})} inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
           {dealCards}
         </div> : null}
       </div>

@@ -6,6 +6,7 @@ import {firstDealDate} from '../../app/lib/deal-clock.ts';
 // availability and time remain explicit, isolated inputs of each scenario.
 export function spaDealRouteDependencies(dependencies){
  return {spaDealDays,spaSliderRepresentatives,orderSpaDealExposure,selectSpaCatalogPackages,firstDealDate,
+  verifiedPublicDiscoveryHeaders:()=>({"Cache-Control":"no-store"}),
   readActivePromotionWeights:async()=>[],runtimeCatalogDatabase:async()=>null,getRequestExecutionContext:()=>null,
   ...dependencies};
 }

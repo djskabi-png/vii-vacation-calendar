@@ -12,6 +12,7 @@ import { firstDealDate } from "../../../lib/deal-clock.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { spaDiscoveryInputs } from "../../../lib/spa-discovery-inputs.ts";
 import { spaDealDays } from "../../../lib/spa-deal-window.ts";
+import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const region = regionalAvailabilityRegion(params.get("region"));
@@ -58,7 +59,7 @@ export async function GET(request: Request) {
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));
-    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days:coveredDays, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status, "Server-Timing": timing } });
+    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegions } : {}), days:coveredDays, offers }, { headers: { ...verifiedPublicDiscoveryHeaders(request, now), "X-VII-Discovery-Cache": cached.cache.status, "Server-Timing": timing } });
   } catch {
     return Response.json({ error: "spa_deals_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }

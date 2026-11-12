@@ -126,7 +126,7 @@ test("event rail keeps quick date tabs and preset pages open directly on results
   assert.match(slider, /additionalPlaces[\s\S]*20 - candidates\.length/);
   assert.match(slider, /confirmed\.has\(place\.slug\)/);
   assert.match(slider, /event-deals__card--browse/);
-  assert.match(slider, /const active = useSectionActivation\(sectionId,deferUntilNearViewport\)/);
+  assert.match(slider, /const active = useSectionActivation\(sectionId,deferUntilNearViewport,"900px 0px"\)/);
   assert.match(slider, /useStartingPrices\("events", active\)/);
   assert.match(slider, /supplierStartingPrice\(startingPrices\[place\.slug\] \|\| place\)/);
   assert.match(slider, /priority: place => supplierStartingPrice\(startingPrices\[place\.slug\] \?\? place\) \? 0 : 1/);

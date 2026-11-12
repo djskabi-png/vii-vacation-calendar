@@ -23,7 +23,7 @@ function callbackAfter(source, marker) {
 }
 
 test("home deals external AbortError reaches recovery, cleanup abort does not", () => {
-  const callback = callbackAfter(homeSource, "discoveryJson<ResponseData>(url");
+  const callback = callbackAfter(homeSource, "const primedHoliday");
   const calls = [];
   const recover = (value) => calls.push(value);
   // Evaluate the actual callback body with the component's runtime variables.
@@ -32,7 +32,7 @@ test("home deals external AbortError reaches recovery, cleanup abort does not", 
 });
 
 test("home deals ignores only an abort caused by its own effect cleanup", () => {
-  const callback = callbackAfter(homeSource, "discoveryJson<ResponseData>(url");
+  const callback = callbackAfter(homeSource, "const primedHoliday");
   const calls = [];
   new Function("controller", "recover", `return (${callback.toString()})()` )({ signal: { aborted: true } }, value => calls.push(value));
   assert.deepEqual(calls, []);

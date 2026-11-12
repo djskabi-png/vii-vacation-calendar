@@ -180,9 +180,10 @@ test("catalog refresh and public discovery caching preserve last-good content", 
   assert.match(catalog, /seed === null \|\| !seedComplete/);
   assert.match(catalog, /setError\(!hasAcceptedContent\.current\)/);
   assert.match(clientCache, /method === "GET" \? "default" : "no-store"/);
-  assert.match(homeDeals, /const publicDiscovery = \{ "Cache-Control": "no-store" \}/);
+  assert.match(homeDeals, /verifiedPublicDiscoveryHeaders\(request, now\)/);
   assert.match(homeDeals, /status: 503, headers: .*noStore/s);
-  assert.match(spaDeals, /Cache-Control": "no-store"/);
+  assert.match(spaDeals, /verifiedPublicDiscoveryHeaders\(request, now\)/);
+  assert.match(spaDeals, /status: 503, headers: \{ "Cache-Control": "no-store" \}/);
 });
 
 test("streamed sliders normalize their initial boundary before observers publish controls", async () => {

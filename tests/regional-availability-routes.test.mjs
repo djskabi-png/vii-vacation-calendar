@@ -21,7 +21,7 @@ import { canonicalVerifiedSliderItems } from '../app/lib/verified-slider-offers.
 import { validVacationDiscoverySnapshot } from '../app/lib/warm-vacation-discovery-cache.ts';
 
 function handler(path, method, dependencies) {
-  dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,canonicalVerifiedSliderItems,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
+  dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,canonicalVerifiedSliderItems,verifiedPublicDiscoveryHeaders:()=>({'Cache-Control':'no-store'}),runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
     VACATION_DISCOVERY_POLICY:{freshMs:5*60_000,staleMs:60*60_000},validVacationDiscoverySnapshot,
     validEventDiscoveryResult,
     readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},

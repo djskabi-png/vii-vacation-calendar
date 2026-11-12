@@ -1,0 +1,143 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public VII site returned Cloudflare 524 and both the custom domain and direct Sites origin accepted TCP/TLS connections but returned zero response bytes before timeout.",
+  "expected_behavior": "Public HTML, static routes and APIs should start returning a response promptly and remain available while release QA runs within a bounded production-safe request budget.",
+  "environment": "Public VII v875 on 2026-11-11 23:47 UTC through 2026-11-12 01:58 Asia/Jerusalem; custom domain vii.spaplus.co and direct origin vii-vacation-calendar.adir-naor-7510.chatgpt.site; local QQQAAA production matrix was active until 2026-11-11 23:49:35 UTC.",
+  "reproduction": {
+    "steps": [
+      "Stop all task-owned local development, preview and test processes.",
+      "Leave more than 100 seconds with no diagnostic traffic.",
+      "Request the direct-origin robots.txt once with a 20 second timeout."
+    ],
+    "evidence": "curl connected in 0.041039 seconds but timed out after 20.000570 seconds with status 000, starttransfer 0 and zero bytes received."
+  },
+  "observations": [
+    {
+      "observation": "Cloudflare displayed error 524 with Browser Working, Cloudflare Working and Host Error at 2026-11-11 23:47 UTC.",
+      "evidence": "User-provided incident screenshot codex-clipboard-1ec2a110-88e6-4c1b-a488-779685776447.png."
+    },
+    {
+      "observation": "The broad QQQAAA run lasted 4 hours 14 minutes and its final production matrix recorded 143 consecutive case_timeout_30000 results out of 148 cases.",
+      "evidence": "qa-reports/qqqaaa/qqqaaa-1794440975229.json and qa-reports/qqqaaa/public-production-matrix/comprehensive-1794440975170.json."
+    },
+    {
+      "observation": "The production matrix timeout uses Promise.race without cancelling the underlying navigation or request.",
+      "evidence": "scripts/audit-comprehensive-production.cjs source inspection."
+    },
+    {
+      "observation": "All task-owned local server and test process identifiers are now absent.",
+      "evidence": "manage-task-resource-hygiene verify passed at 2026-11-12T01:56:17.6151637+02:00 with remaining empty."
+    },
+    {
+      "observation": "The direct Sites origin still timed out after a quiet period and after local process cleanup.",
+      "evidence": "Single curl probe at 2026-11-12 approximately 01:58 Asia/Jerusalem: status=000 total=20.000570 connect=0.041039 starttransfer=0.000000."
+    },
+    {
+      "observation": "The live vii-edge-delivery Worker processed 249.3k requests with 910 errors in the prior 24 hours while median CPU was approximately 3 ms, indicating that the long wait was downstream at the Sites origin rather than CPU-bound edge execution.",
+      "evidence": "Authenticated Cloudflare Workers dashboard inspection during the incident."
+    },
+    {
+      "observation": "The live edge EXPECTED_BUILD was 7e9d5841-407a-f0e1-428e-9f722dd578d9 while the deployed v875 build identity was 611fc2ee-9f58-b423-fd4f-892cbd970684, so valid v875 responses could not satisfy the edge cache-admission build check.",
+      "evidence": "Authenticated vii-edge-delivery Settings inspection and project_knowledge/release_evidence/v875-holiday-atomic-search.json."
+    },
+    {
+      "observation": "A Cloudflare cron trigger was warming the public route family every two minutes while the build mismatch prevented normal cache admission.",
+      "evidence": "Authenticated Cloudflare trigger inspection. The trigger was removed as reversible incident containment and the UI verified No cron triggers configured."
+    },
+    {
+      "observation": "Stopping local load and the recurring edge warmer did not by themselves recover the wedged origin.",
+      "evidence": "A second direct-origin robots.txt probe after the cron stop timed out after 20.012896 seconds with status 000 and starttransfer 0."
+    },
+    {
+      "observation": "One controlled redeploy of the already-saved v875 restarted the Sites origin without saving a new version or changing application data or bindings.",
+      "evidence": "Deployment appgdep_6af503b41fb8819194509a5ddc5165da completed succeeded for version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_c5fb8003b5588191858f87bc490873b0 on env32."
+    },
+    {
+      "observation": "After the controlled redeploy, both the direct origin and public custom domain returned HTTP 200.",
+      "evidence": "Bounded curl probes: origin status=200 total=1.409994 starttransfer=1.409694; public status=200 total=2.634617 starttransfer=1.618356."
+    },
+    {
+      "observation": "After origin recovery, the production edge EXPECTED_BUILD was aligned to the observed v875 application build and the recurring cron remained disabled.",
+      "evidence": "Authenticated Cloudflare Settings showed EXPECTED_BUILD=611fc2ee-9f58-b423-fd4f-892cbd970684 and No cron triggers configured. Two bounded public probes returned HTTP 200 with X-VII-App-Build set to the same identity."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "A release-coordination defect left the edge EXPECTED_BUILD stale after v875, preventing cache admission. The two-minute warmer and the broad QQQAAA run then sent sustained uncached traffic to the Sites origin; QQQAAA client timeouts did not cancel the underlying browser work, allowing in-flight origin work to accumulate until the origin wedged.",
+      "prediction": "The incident overlaps the production matrix, edge CPU remains low while origin waits dominate, the cache build identity is stale, recurring warm traffic continues after local cleanup, and stopping traffic alone may not recover the already-wedged origin without one controlled restart.",
+      "discriminating_test": "Compare live edge and Sites build identities, inspect Worker request and CPU evidence, stop the local runner and recurring warmer, then perform one controlled redeploy of the same saved version and probe origin and public health once.",
+      "result": "All predicted signals were observed. The origin remained stalled after both load sources were stopped, then recovered to HTTP 200 on origin and public endpoints immediately after one controlled redeploy of the unchanged saved v875.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Only the custom-domain Cloudflare edge route is failing while the Site origin is healthy.",
+      "prediction": "The direct chatgpt.site origin responds while vii.spaplus.co returns 524.",
+      "discriminating_test": "Probe the direct origin separately from the custom domain.",
+      "result": "The direct origin also timed out with zero bytes, so an edge-only failure does not explain the incident.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A specific supplier API or database query is slow while static and unrelated routes remain healthy.",
+      "prediction": "Static robots.txt or simple HTML responds while data-heavy routes time out.",
+      "discriminating_test": "Probe a static-like robots.txt route and compare with HTML and API observations.",
+      "result": "robots.txt, HTML and API paths all stalled, so a single data endpoint is insufficient to explain the failure.",
+      "status": "rejected"
+    },
+    {
+      "id": "H4",
+      "mechanism": "The deployed Site worker or platform deployment is independently stuck or unhealthy, whether triggered by load or by a platform/runtime defect.",
+      "prediction": "The direct origin remains stalled after all task traffic is removed and platform logs or a controlled worker restart show the failure boundary.",
+      "discriminating_test": "Inspect authenticated Sites worker/deployment logs and health, then perform only the smallest controlled recovery action if evidence supports it.",
+      "result": "The direct origin remained stalled after cleanup and cooldown and recovered after one controlled redeploy of the same saved version. This confirms a wedged origin state, while the exact internal exhausted resource remains unavailable without platform worker logs.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Stopped all task-owned runners, removed the recurring two-minute edge warmer, redeployed the unchanged saved v875 once to restart the wedged origin, and aligned the production edge EXPECTED_BUILD to the recovered v875 build. Permanent causal hardening still required: real cancellation of timed-out browser work, fail-fast production circuit breaking, a small production smoke instead of the full matrix, origin request deadlines, and an automated release gate that prevents edge/Sites build mismatch.",
+    "evidence": "Containment, origin recovery and edge build alignment are verified. Permanent runner and edge-code hardening are not yet deployed."
+  },
+  "affected_family": [
+    "QQQAAA production runner",
+    "public navigation smoke tests",
+    "Sites worker/origin availability",
+    "Cloudflare custom-domain health"
+  ],
+  "regression_checks": [
+    {
+      "check": "Direct origin recovery",
+      "status": "passed",
+      "evidence": "Direct origin robots.txt returned HTTP 200 in 1.409994 seconds after recovery."
+    },
+    {
+      "check": "Public custom-domain recovery",
+      "status": "passed",
+      "evidence": "Public vii.spaplus.co root returned HTTP 200 in 2.634617 seconds after recovery."
+    },
+    {
+      "check": "Controlled redeploy outcome",
+      "status": "passed",
+      "evidence": "Sites deployment appgdep_6af503b41fb8819194509a5ddc5165da reached succeeded on env32 for the existing v875 Version ID."
+    },
+    {
+      "check": "Load containment",
+      "status": "passed",
+      "evidence": "The Cloudflare cron trigger remains disabled and no broad production matrix was rerun."
+    },
+    {
+      "check": "Edge build alignment",
+      "status": "passed",
+      "evidence": "Cloudflare production EXPECTED_BUILD and public X-VII-App-Build both equal 611fc2ee-9f58-b423-fd4f-892cbd970684."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact worker exception, CPU, wall-time, subrequest or queue state during the incident.",
+    "The exact relative contribution of QQQAAA traffic versus the recurring warmer to the final origin saturation.",
+    "Whether Sites exposes sufficient worker logs to identify the precise exhausted internal resource."
+  ],
+  "authorization_boundary": "Incident diagnosis, stopping verified task-owned processes, reversible removal of the recurring warmer, one controlled redeploy of the already-saved public v875, causal code repair and bounded safety tests were authorized. No DNS change, new source version, repeated deployment or broad production load was performed."
+}

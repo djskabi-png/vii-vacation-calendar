@@ -5,8 +5,8 @@ import { isContentLocale } from "../../../lib/content-studio.ts";
 import { legacyHolidaySearchPath } from "../../../lib/search-opportunities.ts";
 import { holidayWorldPath } from "../../../lib/holiday-world.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
+import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
-const publicDiscovery = { "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=86400" };
 const noStore = { "Cache-Control": "no-store" };
 
 async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
@@ -17,18 +17,19 @@ async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings
 
 export async function GET(request: Request) {
   try {
+    const now = new Date();
     const params = new URL(request.url).searchParams;
     const requestedLocale = params.get("locale");
     const locale = isContentLocale(requestedLocale) ? requestedLocale : "he";
     const settingsPromise = params.get("all") === "1" ? null : displaySettings(locale);
-    const holidays = (await getDiscoveryHolidays(await supplierToken())).map((holiday) => ({
+    const holidays = (await getDiscoveryHolidays(await supplierToken(), now)).map((holiday) => ({
       ...holiday,
       href: holidayWorldPath(holiday.name, holiday.id) || legacyHolidaySearchPath(holiday.name) || undefined,
     }));
-    if (params.get("all") === "1") return Response.json({ holidays }, { headers: publicDiscovery });
+    if (params.get("all") === "1") return Response.json({ holidays }, { headers: noStore });
     const settings = (await settingsPromise)!;
     const visibleHolidays = applyHolidayDisplaySettings(holidays, settings);
-    return Response.json({ holidays: visibleHolidays, limit: visibleHolidays.length }, { headers: publicDiscovery });
+    return Response.json({ holidays: visibleHolidays, limit: visibleHolidays.length }, { headers: verifiedPublicDiscoveryHeaders(request, now) });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

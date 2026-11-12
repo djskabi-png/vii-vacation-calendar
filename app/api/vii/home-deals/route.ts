@@ -16,12 +16,9 @@ import { refreshVacationDiscoveryPeriod, validVacationDiscoverySnapshot } from "
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals-snapshot.ts";
+import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const noStore = { "Cache-Control": "no-store" };
-// API responses stay uncached at the edge. The VII edge worker deliberately
-// bypasses `/api` requests; freshness is owned by the bounded D1 discovery
-// snapshot below and booking performs its own live confirmation.
-const publicDiscovery = { "Cache-Control": "no-store" };
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
@@ -110,7 +107,7 @@ export async function GET(request: Request) {
     }
     const result = { ...cached.value, period: selectedPeriod, dates };
     const selectedDeals = selectHomeDeals(selectedSnapshot.deals, { places: names, publishedIds: publicSiteIds }, dates, guests, now, region?.label, selectedPeriod);
-    return respond({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selectedDeals.expanded, regionalOrder: selectedDeals.deals.map(deal => deal.siteID) } : {}), deals: selectedDeals.deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    return respond({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selectedDeals.expanded, regionalOrder: selectedDeals.deals.map(deal => deal.siteID) } : {}), deals: selectedDeals.deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...verifiedPublicDiscoveryHeaders(request, now), "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return respond({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }
