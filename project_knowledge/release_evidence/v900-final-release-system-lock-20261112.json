@@ -1,0 +1,60 @@
+{
+  "verdict": "ready",
+  "release": "VII v900; application build dbdcc6b8-211e-d11b-78e3-ff9449f8030d; Edge Worker version c6bac5c6-790f-4818-9e6b-147473f83316; source commits 83fe6d659c92a6f6dee17db229a9a0a2d9156c1a and c3201e7c1fbc36581efbed53346ac78b1c3c9387",
+  "target": "https://vii.spaplus.co through Cloudflare Worker vii-edge-delivery",
+  "baseline": "VII v899; application version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_86a664e52d748191ac475c05e62fe431; deployment appgdep_6af5fff83d608191aa33e09fa1385460; application build 45e4aff9-4463-da1a-8c3e-fe9813c34625",
+  "requested_outcome": "Publish one aligned public release, keep public document delivery fast in steady state, preserve private and transactional no-store behavior, and block recurrence of stale application-versus-Edge releases.",
+  "identities": {
+    "application_project": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+    "application_version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_ddcbeadace6c8191be68e274862332ba",
+    "application_deployment": "appgdep_6af60b4da1048191bfe9bc16a54af494",
+    "application_build": "dbdcc6b8-211e-d11b-78e3-ff9449f8030d",
+    "source_commit": "83fe6d659c92a6f6dee17db229a9a0a2d9156c1a",
+    "edge_binding_commit": "c3201e7c1fbc36581efbed53346ac78b1c3c9387",
+    "managed_commit": "47e8cace199779c95c5b77df819d87d87b677dfd",
+    "source_tree": "a1a0a0ef33a30120620edc6488ff5accffd0906d",
+    "edge_worker_version": "c6bac5c6-790f-4818-9e6b-147473f83316",
+    "environment_revision": 32
+  },
+  "changed_components": [
+    "worker/public-response-cache.ts",
+    "services/vii-edge-delivery/src/global-public-cache.ts",
+    "services/vii-edge-delivery/src/generated-release.ts",
+    "services/vii-edge-delivery/test/global-public-cache.test.mjs",
+    "services/vii-edge-delivery/test/public-response-cache.test.mjs"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Public HTML document delivery across home, search and primary worlds"},
+    {"id": "FAM-2", "surface": "Public search, regional, business, event and spa-package detail routes"},
+    {"id": "FAM-3", "surface": "Private and transactional account, booking and API routes"},
+    {"id": "FAM-4", "surface": "Application-build and Edge-build publication alignment"},
+    {"id": "FAM-5", "surface": "Bounded scheduled warming and origin-load protection"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2", "FAM-4"], "state": "success", "status": "passed", "evidence": ".qa-output/v900-public-alignment.json: 14/14 routes HTTP 200, application and cache build dbdcc6b8-211e-d11b-78e3-ff9449f8030d, no build mismatch, and every second request Edge HIT; warm header time 85-161 ms and warm total approximately 92-206 ms."},
+    {"id": "CHK-2", "family_ids": ["FAM-1", "FAM-2"], "state": "responsive", "status": "passed", "evidence": "Live browser inspection at desktop and Playwright inspection at 390x844 mobile: /events, /spas, /hourly, /vacations/north, /search, /holidays and the exact spa package route rendered meaningful titles and content without horizontal overflow, blank page, broken initial images or application error. The exact spa package anchor exists."},
+    {"id": "CHK-3", "family_ids": ["FAM-2"], "state": "responsive", "status": "passed", "evidence": "At 390px mobile, the events availability tab changed to Friday with aria-selected=true, no error state and zero application-induced scroll delta after the control was in view. The north vacation pool filter became pressed and retained a valid results page."},
+    {"id": "CHK-4", "family_ids": ["FAM-2"], "state": "recovery", "status": "passed", "evidence": "The spa detail static snapshot request can return 404 by design; the live Leaflet fallback rendered at 354x298 with map tiles, price marker and OpenStreetMap attribution, so the user-visible map remained available."},
+    {"id": "CHK-5", "family_ids": ["FAM-4"], "state": "failure", "status": "passed", "evidence": "The release-alignment gate rejects stale build identifiers, build mismatch and non-HIT warm responses. The post-deploy public verification passed only after the exact v900 build was bound to the Edge release."},
+    {"id": "CHK-6", "family_ids": ["FAM-1", "FAM-2", "FAM-4", "FAM-5"], "state": "reload", "status": "passed", "evidence": "Focused cache tests passed 46/46, the full Edge suite passed 101/101 after binding, and the application production build completed successfully."},
+    {"id": "CHK-7", "family_ids": ["FAM-4"], "state": "persistence", "status": "passed", "evidence": ".qa-output/v900-final-route-receipt.json confirms route 1b0bd242852d49b7b03af137a10f34af owns vii.spaplus.co/*, request_limit_fail_open is true, the public build matches v900, and the other 21 routes were unchanged."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-5"], "state": "success", "status": "passed", "evidence": "Anonymous stable public documents now advertise up to 900 seconds of application freshness and the global R2 Edge cache respects that origin TTL without exceeding it. Dated and availability URLs remain capped at 180 seconds. The two-minute bounded warmer remains active."},
+    {"id": "CHK-9", "family_ids": ["FAM-3"], "state": "permission", "status": "passed", "evidence": "The cache eligibility rules remain restricted to anonymous public GET/HEAD documents and continue to exclude authenticated, private, transactional and API traffic."},
+    {"id": "CHK-10", "family_ids": ["FAM-4"], "state": "rollback", "status": "passed", "evidence": "Exact v899 application version, deployment, source, managed commit, tree and build identities were recorded before publication; the previous Cloudflare Worker deployment remains available for rollback."}
+  ],
+  "performance_boundary": "Warm public delivery is verified fast. A first origin fill immediately after a new release can still take several seconds on data-heavy routes; the 15-minute public document cache, global R2 cache and two-minute warmer prevent that origin cost from recurring on each ordinary visitor request.",
+  "rollback": {
+    "available": true,
+    "application_version": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_86a664e52d748191ac475c05e62fe431",
+    "application_deployment": "appgdep_6af5fff83d608191aa33e09fa1385460",
+    "application_source": "64ccc8357c4f36e2393576aca12c7073e46de8fe",
+    "application_managed": "986c606d0017eb8e37e43204bdd10b65e57669f3",
+    "application_tree": "c619d009406b4637845d86f672dea5ec94fa3c12",
+    "application_build": "45e4aff9-4463-da1a-8c3e-fe9813c34625",
+    "method": "Redeploy the recorded v899 application version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_86a664e52d748191ac475c05e62fe431 and roll back the Cloudflare Worker to the immediately preceding deployment from the Cloudflare deployment history.",
+    "verification": "The complete v899 identity was captured before v900 publication. Rollback was not executed because v900 passed the release gates."
+  },
+  "authorization_boundary": "Adir explicitly authorized publication of the final public release in the active request.",
+  "remaining_blockers": []
+}
