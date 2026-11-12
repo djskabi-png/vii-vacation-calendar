@@ -37,7 +37,7 @@ test("slider discovery never serializes a second browser attempt behind a cold t
 
 test("background priming yields to visitor tab changes and stays bounded", () => {
   assert.match(slider, /const backgroundPrimeDelayMs = 5_000;/);
-  assert.match(slider, /const backgroundPrimeLimit = 2;/);
+  assert.match(slider, /const backgroundPrimeLimit = 0;/);
   assert.equal((slider.match(/ordered\.slice\(0, backgroundPrimeLimit\)/g) || []).length, 2);
   assert.equal((slider.match(/\}, backgroundPrimeDelayMs\);/g) || []).length, 2);
   assert.match(slider, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);

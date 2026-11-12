@@ -81,14 +81,11 @@ test("visible slider images are high priority while deferred rails preserve geom
   for (const source of [home, spa, events]) assert.match(source, /useSectionActivation\([^\n]+"900px 0px"\)/);
 });
 
-test("holiday tabs retain verified cards and warm the remaining choices sequentially", async () => {
+test("holiday tabs retain verified cards without speculative browser races", async () => {
   const home = await readFile(new URL("app/components/home-live-deals.tsx", root), "utf8");
-  assert.match(home, /const holidayPrimeRequests = new Map/);
-  assert.match(home, /for \(const holiday of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*?await primeHomeHolidayDeals\(holiday, clock\.key\)/);
+  assert.match(home, /const backgroundPrimeLimit = 0/);
   assert.match(home, /const retainedData = data \?\? \(state === "loading"/);
   assert.match(home, /displayState === "loading" && retainedData !== null/);
-  assert.match(home, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
-  assert.match(home, /pending\.controller\.abort\(new DOMException\("Selected tab superseded background priming"/);
 });
 
 test("scheduled vacation sync warms ordinary and holiday slider snapshots", async () => {

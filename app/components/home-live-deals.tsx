@@ -43,7 +43,12 @@ const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 // existing recovery state own any later, visibly signalled retry.
 const sliderRequestBudgetMs = 5_500;
 const backgroundPrimeDelayMs = 5_000;
-const backgroundPrimeLimit = 2;
+// The origin schedule now prepares every regular and holiday snapshot and the
+// verified edge lease serves ordinary tab changes. Browser-side priming raced
+// a deliberate click: aborting that speculative request could leave the chosen
+// tab without a response until its 5.5s deadline. Keep speculative browser I/O
+// disabled; a click owns one foreground request and never competes with itself.
+const backgroundPrimeLimit = 0;
 type PrimeRequest = { promise: Promise<ResponseData>; controller: AbortController };
 const holidayPrimeRequests = new Map<string, PrimeRequest>();
 const periodPrimeRequests = new Map<string, PrimeRequest>();
