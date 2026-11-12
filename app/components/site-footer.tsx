@@ -8,7 +8,7 @@ import { LanguageSwitcher } from "../i18n/locale-provider";
 import { AccessibilityWidget } from "./accessibility-widget";
 import type { WorldId } from "../data/world-data";
 import { footerContextFor, type FooterTopicId } from "../data/footer-context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import type { ManagedLink } from "../lib/content-studio";
 import { PwaInstallControl } from "./pwa-experience";
@@ -37,6 +37,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
   const chromeKey = `${language}:${contextual.label}`;
   const defaultContextualLinks: ManagedLink[] = contextual.links.map((item, index) => ({ id: `default-${index}`, ...item, group: contextual.label, order: index + 1, visible: true, newWindow: false }));
   const [managedChrome, setManagedChrome] = useState<{ key: string; contextual?: ManagedLink[] | null; worlds?: ManagedLink[] | null; service?: ManagedLink[] | null } | null>(null);
+  const [openFooterGroups, setOpenFooterGroups] = useState<Set<string>>(() => new Set());
   const contextualOverride = managedChrome?.key === chromeKey ? managedChrome.contextual?.filter((item) => item.visible && item.group === contextual.label) : null;
   const contextualLinks = (contextualOverride?.length ? contextualOverride : defaultContextualLinks)
     .filter((item) => !item.href.startsWith("/gift-card") || enabled("gift-card"));
@@ -54,6 +55,19 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
     return () => controller.abort();
   }, [chromeKey, language]);
   const links = (items: ManagedLink[]) => items.map((item) => <Link key={item.id} href={item.href} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined}>{translate(item.label)}</Link>);
+  const toggleFooterGroup = (id: string) => setOpenFooterGroups((current) => {
+    const next = new Set(current);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const footerGroup = (id: string, label: string, content: ReactNode) => {
+    const open = openFooterGroups.has(id);
+    return <section className={`footer-group${open ? " is-open" : ""}`}>
+      <strong className="footer-group__title">{translate(label)}</strong>
+      <button type="button" aria-expanded={open} aria-controls={`footer-group-${id}`} onClick={() => toggleFooterGroup(id)}>{translate(label)}</button>
+      <nav id={`footer-group-${id}`} aria-label={label}>{content}</nav>
+    </section>;
+  };
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">
@@ -64,9 +78,9 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
           <p>נופש, אירועים, ספא, ספקים וחוויות, עם חיפוש אחד שמחבר את כל מה שצריך.</p>
           <Link className="footer-join-link" href={`/join/${variant}#${joinTarget}`}>פרסום והצטרפות בתחום זה</Link>
         </section>
-        <nav aria-label={contextual.label}><strong>{translate(contextual.label)}</strong>{links(contextualLinks)}</nav>
-        <nav aria-label="שירותים"><strong>{translate("העולמות שלנו")}</strong>{links(worldLinks)}</nav>
-        <nav aria-label="מידע ושירות"><strong>{translate("מידע ושירות")}</strong>{usingDefaultServiceLinks ? <><Link href="/account">{translate("החשבון האישי שלי")}</Link><Link href="/favorites">{translate("המקומות שאהבתי")}</Link>{enabled("gift-card") ? <Link href={localizedPath("/gift-card", language)}>{translate("גיפט קארד")}</Link> : null}<Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/booking?action=manage">{translate("ניהול הזמנה")}</Link><Link href="/questions">{translate("שאלות ותשובות")}</Link><Link href="/guides">{translate("מגזין ומדריכים")}</Link><Link href="/accessibility">{translate("הצהרת נגישות")}</Link><Link href="/legal/terms">{translate("תקנון האתר")}</Link><Link href="/legal/privacy">{translate("מדיניות פרטיות")}</Link><Link href="/legal/cancellation">{translate("ביטול ושינוי הזמנה")}</Link></> : links(serviceLinks)}<a href="https://www.spaplus.co.il/club/?src=vii" target="_blank" rel="noopener noreferrer">{translate("הצטרפות למועדון לקוחות")}</a></nav>
+        {footerGroup("contextual", contextual.label, links(contextualLinks))}
+        {footerGroup("worlds", "העולמות שלנו", links(worldLinks))}
+        {footerGroup("service", "מידע ושירות", <>{usingDefaultServiceLinks ? <><Link href="/account">{translate("החשבון האישי שלי")}</Link><Link href="/favorites">{translate("המקומות שאהבתי")}</Link>{enabled("gift-card") ? <Link href={localizedPath("/gift-card", language)}>{translate("גיפט קארד")}</Link> : null}<Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/booking?action=manage">{translate("ניהול הזמנה")}</Link><Link href="/questions">{translate("שאלות ותשובות")}</Link><Link href="/guides">{translate("מגזין ומדריכים")}</Link><Link href="/accessibility">{translate("הצהרת נגישות")}</Link><Link href="/legal/terms">{translate("תקנון האתר")}</Link><Link href="/legal/privacy">{translate("מדיניות פרטיות")}</Link><Link href="/legal/cancellation">{translate("ביטול ושינוי הזמנה")}</Link></> : links(serviceLinks)}<a href="https://www.spaplus.co.il/club/?src=vii" target="_blank" rel="noopener noreferrer">{translate("הצטרפות למועדון לקוחות")}</a></>)}
       </div>
       <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><AccessibilityWidget placement="footer" /><CookiePreferencesButton /><PwaInstallControl /><span>כל החופשה, במקום אחד</span></div></div>
     </footer>

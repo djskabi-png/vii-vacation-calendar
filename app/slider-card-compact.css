@@ -1,5 +1,6 @@
 /* Place/deal rails use content-sized cards, not inherited percentage heights.
    Search grids, full galleries, review chronology and detail-page units stay intact. */
+:root { --place-card-media-ratio: 4 / 3; }
 /* Only wrappers stretch cards. An article/link can itself be a rail item:
    turning it into a row hides video captions and distorts direct media. */
 [data-horizontal-rail] > div:is(.home-slider__item, .home-live-deals__item) { display: flex; }
@@ -21,7 +22,7 @@
   padding: 14px;
 }
 [data-horizontal-rail] .stay-card .stay-card__media {
-  aspect-ratio: 1.85;
+  aspect-ratio: var(--place-card-media-ratio);
   min-height: 0;
   flex: 0 0 auto;
 }
@@ -54,7 +55,7 @@
 /* Real photography retains a useful composition; logos keep their contain fit. */
 [data-horizontal-rail] .discovery-card .discovery-card__visual {
   flex: 0 0 auto;
-  aspect-ratio: 1.85;
+  aspect-ratio: var(--place-card-media-ratio);
   height: auto;
   min-height: 0;
 }
@@ -87,7 +88,7 @@
 [data-horizontal-rail] .trail-card .trail-card__footer a { min-height: 44px; display: inline-flex; align-items: center; font-size: .8rem; }
 
 [data-horizontal-rail].event-rail .event-rail-card { grid-template-rows: auto 1fr; }
-[data-horizontal-rail] .event-rail-card > .place-preview-card__media { height: auto; aspect-ratio: 1.85; }
+[data-horizontal-rail] .event-rail-card > .place-preview-card__media { height: auto; aspect-ratio: var(--place-card-media-ratio); }
 [data-horizontal-rail] .event-rail-card .event-rail-card__body { gap: 6px; padding: 14px; }
 [data-horizontal-rail] .event-rail-card .event-rail-card__body > strong { font-size: 1rem; line-height: 1.4; }
 [data-horizontal-rail] .event-rail-card .event-deals__availability { min-height: 0; }
@@ -95,12 +96,12 @@
 [data-horizontal-rail] .event-result-card .event-result-card__offer { min-block-size: 0; }
 [data-horizontal-rail] .event-result-card .event-card__actions { margin-top: auto; min-block-size: 0; }
 [data-horizontal-rail] .event-result-card :is(.stay-card__details-link, .stay-card__contact) { min-height: 44px; }
-[data-horizontal-rail] :is(.event-card, .event-related-card) > .place-preview-card__media { height: auto; aspect-ratio: 1.85; }
+[data-horizontal-rail] :is(.event-card, .event-related-card) > .place-preview-card__media { height: auto; aspect-ratio: var(--place-card-media-ratio); }
 [data-horizontal-rail] .event-card .event-card__body { padding: 14px; }
 [data-horizontal-rail] .event-card .event-card__body h3 { margin-block: 6px; font-size: 1rem; line-height: 1.4; }
 [data-horizontal-rail] .event-card .event-card__body p { margin-block: 6px; font-size: .78rem; }
 
-[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__image { aspect-ratio: 1.85; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__image { aspect-ratio: var(--place-card-media-ratio); }
 [data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body { gap: 8px; padding: 14px; }
 [data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body > small { min-height: 2.8em; }
 [data-horizontal-rail].event-rail .spa-deal-card h3 { font-size: 1rem; min-height: 2.8em; max-height: 2.8em; line-height: 1.4; -webkit-line-clamp: 2; }
@@ -113,7 +114,7 @@
   .home-page [data-horizontal-rail] .discovery-card .discovery-card__body { padding: 14px; }
   .home-page [data-horizontal-rail] .discovery-card .discovery-card__visual { flex-basis: auto; height: auto; min-height: 0; }
   .home-page [data-horizontal-rail] .discovery-card .discovery-card__visual img { height: 100%; }
-  .home-page [data-horizontal-rail] :is(.home-event-feature, .home-event-list__card) > .place-preview-card__media { flex-basis: auto; height: auto; aspect-ratio: 1.85; }
+  .home-page [data-horizontal-rail] :is(.home-event-feature, .home-event-list__card) > .place-preview-card__media { flex-basis: auto; height: auto; aspect-ratio: var(--place-card-media-ratio); }
   .home-page [data-horizontal-rail] .home-event-feature > .place-preview-card__body { padding: 14px; }
   .home-page [data-horizontal-rail] .home-event-feature h3 { font-size: 1.1rem; }
   .home-page [data-horizontal-rail] .home-event-feature p { -webkit-line-clamp: 2; margin-block: 6px; }

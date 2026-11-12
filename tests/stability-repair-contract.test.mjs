@@ -9,7 +9,7 @@ test("optional homepage supplier reads are isolated from the document shell", ()
   assert.match(source, /createRequestCatalogReader\(bundledPublicCatalogSummaries\)/);
   assert.match(source, /readCatalog<Property>\("vacations"\)\.catch\(\(\) => \[\]\)/);
   assert.match(source, /managedMagazineArticles\(magazineArticles\)\.catch\(\(\) => magazineArticles\)/);
-  assert.match(read("app/error.tsx"), /Load again/);
+  assert.match(read("app/error.tsx"), /Try again/);
   assert.match(read("app/global-error.tsx"), /Try again/);
 });
 

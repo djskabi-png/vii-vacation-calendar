@@ -14,7 +14,7 @@ function ordered(source, markers) {
 
 test('vacation rail follows actual progressive/map results and empty recovery, not the heading', () => {
   const source = read('app/search/page.tsx');
-  ordered(source, ['<section className="results-list"', '<ProgressiveResults autoLoad', '<div className="airbnb-map-split">', '<div className="empty-state">', '<RegionalAvailability world="vacation"', '<SearchAfterResults world="vacation"']);
+  ordered(source, ['<section className={`results-list', '<ProgressiveResults autoLoad', '<div className="airbnb-map-split">', '<div className="empty-state">', '<RegionalAvailability world="vacation"', '<SearchAfterResults world="vacation"']);
   assert.equal(source.match(/<RegionalAvailability world="vacation"/g)?.length, 1);
   assert.match(source, /!mapOpen && !selectedStay && !periodSearch && selectedTypes\.length === 0 && !pool && !spa && !whole && !accessibleOnly && !onlineOnly && !selectedExtras\.length \? <RegionalAvailability world="vacation" region=\{area\} guests=\{guests\} embedded/);
 });

@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { parseFragment } from "parse5";
 import { sergeyRoomImages } from "../app/lib/sergey-gallery.ts";
+import { normalizeSergeyHourlyRates } from "../app/lib/sergey-hourly-rates.ts";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -42,18 +43,6 @@ function positive(value) {
   return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
-function rates(basePrices) {
-  if (!basePrices || Array.isArray(basePrices)) return [];
-  const hourly = [
-    { duration: "שעה", weekday: positive(basePrices.hourPriceWeekday), weekend: positive(basePrices.hourPriceWeekend) },
-    { duration: "שעתיים", weekday: positive(basePrices.twoHourPriceWeekday), weekend: positive(basePrices.twoHourPriceWeekend) },
-    { duration: "3 שעות", weekday: positive(basePrices.threeHourPriceWeekday), weekend: positive(basePrices.threeHourPriceWeekend) },
-  ];
-  const nightWeekday = positive(basePrices.overnightPriceWeekday) || positive(basePrices.nightPriceWeekday);
-  const nightWeekend = positive(basePrices.overnightPriceWeekend) || positive(basePrices.nightPriceWeekend);
-  return [...hourly, { duration: "לילה", weekday: nightWeekday, weekend: nightWeekend }].filter((rate) => rate.weekday || rate.weekend);
-}
-
 const [listing, locations] = await Promise.all([get("/rooms"), get("/rooms/locations")]);
 if (!Array.isArray(listing.places) || !Array.isArray(locations.cities) || !Array.isArray(locations.areas)) {
   throw new Error("Invalid rooms catalog or locations");
@@ -87,7 +76,7 @@ for (const entry of active) {
     maxGuests: positive(room.maxGuests),
     features: [...new Set((room.spaces || []).flatMap((space) =>
       (space.features || []).map((feature) => plainText(feature.description))).filter(Boolean))],
-    rates: rates(room.basePrices),
+    rates: normalizeSergeyHourlyRates(room.basePrices, room),
     images: roomPictures(room, detail.galleries),
   })) : [];
   places.push({

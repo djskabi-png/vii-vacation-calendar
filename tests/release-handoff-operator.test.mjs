@@ -32,7 +32,8 @@ test("handoff operator fails closed before writing when candidate manifest is mi
     try { execFileSync("pwsh", ["-NoProfile", "-File", join(root, ".openai", "prepare-vii-release-handoff.ps1"),
       "-VersionNumber", "901", "-Branch", "release/test", "-Summary", "fixture", "-FocusedTests", "1", "-FullTests", "1",
       "-RollbackVersionId", "rollback", "-RollbackDeploymentId", "deployment", "-EnvironmentRevision", "1",
-      "-CandidateManifestPath", join(root, "missing-manifest.json")], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); }
+      "-CandidateManifestPath", join(root, "missing-manifest.json"),
+      "-RetainedAssetsReceiptPath", join(root, "missing-retained-assets.json")], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); }
     catch (caught) { error = caught; }
     assert.ok(error, "operator unexpectedly accepted a missing manifest");
     assert.notEqual(error.status, 0);

@@ -19,7 +19,10 @@ import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const headers = { "Cache-Control": "no-store" };
-const visitorWarmBudgetMs = 4_800;
+// Keep the cold response shorter than the browser observation cycle. The
+// leased supplier refresh continues through waitUntil and later polls only
+// observe it; they do not start duplicate supplier work.
+const visitorWarmBudgetMs = 350;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {

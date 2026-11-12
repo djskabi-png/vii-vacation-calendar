@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FavoriteButton } from "../components/favorite-button";
@@ -10,13 +8,13 @@ import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
 import { trails } from "../data/trail-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { readSavedItems, savedItemKey, SAVED_ITEMS_EVENT, type SavedItem, type SavedWorld, writeSavedItems } from "../lib/saved-items";
-import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem } from "../lib/viewed-items";
+import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem, writeViewedItems } from "../lib/viewed-items";
+import { LIBRARY_PAGE_SIZE, LIBRARY_VALIDATION_BATCH_SIZE, libraryValidationItems, reconcileCheckedLibraryItems } from "../lib/library-reconciliation";
 import { PreviewCardGallery } from "../components/preview-card-gallery";
 import { openPlaceInSameTabOnMobile } from "../lib/mobile-place-navigation";
 
 type LibraryMode = "saved" | "viewed";
 type LibraryItem = SavedItem | ViewedItem;
-const PAGE_SIZE = 8;
 const trailBySlug = new Map(trails.map((trail) => [trail.slug, trail]));
 
 const worldLabels: Record<SiteLanguage, Record<SavedWorld, string>> = {
@@ -123,15 +121,51 @@ export default function FavoritesPage() {
 
   const availableWorlds = useMemo(() => Array.from(new Set(items.map((item) => item.world))), [items]);
   const filteredItems = activeWorld === "all" ? items : items.filter((item) => item.world === activeWorld);
-  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
-  const visibleItems = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const galleryRequest = JSON.stringify(visibleItems.filter(item => ["vacation", "events", "spa", "hourly", "providers", "activities"].includes(item.world) && /^[a-z0-9-]{1,100}$/.test(item.id)).map(({ world, id }) => ({ world, id })));
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / LIBRARY_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const visibleItems = filteredItems.slice((currentPage - 1) * LIBRARY_PAGE_SIZE, currentPage * LIBRARY_PAGE_SIZE);
+  const galleryRequest = JSON.stringify(libraryValidationItems(visibleItems));
+  const validationRequest = useMemo(() => JSON.stringify(libraryValidationItems([...savedItems, ...viewedItems])), [savedItems, viewedItems]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const candidates: Array<{ world: SavedWorld; id: string }> = JSON.parse(validationRequest);
+    if (!candidates.length) return;
+    const controller = new AbortController();
+    void (async () => {
+      const checkedKeys = new Set<string>();
+      const existingKeys = new Set<string>();
+      for (let offset = 0; offset < candidates.length; offset += LIBRARY_VALIDATION_BATCH_SIZE) {
+        const batch = candidates.slice(offset, offset + LIBRARY_VALIDATION_BATCH_SIZE);
+        const response = await fetch("/api/vii/card-galleries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: batch, includeGalleries: false }),
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("catalog_unavailable");
+        const value = await response.json();
+        if (!Array.isArray(value.existingKeys) || value.existingKeys.some((key: unknown) => typeof key !== "string")) throw new Error("invalid_catalog_response");
+        batch.forEach(({ world, id }) => checkedKeys.add(`${world}:${id}`));
+        value.existingKeys.forEach((key: string) => existingKeys.add(key));
+      }
+      if (controller.signal.aborted) return;
+      const nextSaved = reconcileCheckedLibraryItems(savedItems, checkedKeys, existingKeys);
+      const nextViewed = reconcileCheckedLibraryItems(viewedItems, checkedKeys, existingKeys);
+      if (nextSaved.length !== savedItems.length) writeSavedItems(nextSaved);
+      if (nextViewed.length !== viewedItems.length) writeViewedItems(nextViewed);
+      setSavedItems(nextSaved);
+      setViewedItems(nextViewed);
+    })().catch(() => undefined); // Never erase personal state when validation is unavailable or incomplete.
+    return () => controller.abort();
+  }, [ready, savedItems, validationRequest, viewedItems]);
 
   useEffect(() => {
     const items = JSON.parse(galleryRequest);
     if (!items.length) return;
     const controller = new AbortController();
-    void fetch("/api/vii/card-galleries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }), cache: "no-store", signal: controller.signal })
+    void fetch("/api/vii/card-galleries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items, includeGalleries: true }), cache: "no-store", signal: controller.signal })
       .then(response => response.ok ? response.json() : Promise.reject(new Error("catalog_unavailable")))
       .then(value => { if (value.galleries && typeof value.galleries === "object") setCardGalleries(current => ({ ...current, ...value.galleries })); })
       .catch(() => undefined); // Keep the saved cover and detail link usable on failure.
@@ -210,10 +244,10 @@ export default function FavoritesPage() {
               <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,item.href)}>{localizeName(item.name, translate)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}{mode === "viewed" && "viewedAt" in item ? <time dateTime={item.viewedAt}>{copy.viewedAt} {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(item.viewedAt))}</time> : null}<Link className="button secondary" href={item.href} target="_blank" rel="noopener noreferrer" onClick={(event)=>openPlaceInSameTabOnMobile(event,item.href)}>{copy.details}</Link></div>
             </article>; })}
           </div>
-          {totalPages > 1 ? <nav className="favorites-pagination" aria-label={`${copy.page} ${page}`}>
-            <button type="button" disabled={page === 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>{copy.previous}</button>
-            <div>{Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => <button key={number} type="button" aria-current={page === number ? "page" : undefined} className={page === number ? "active" : ""} onClick={() => setPage(number)}>{number}</button>)}</div>
-            <button type="button" disabled={page === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>{copy.next}</button>
+          {totalPages > 1 ? <nav className="favorites-pagination" aria-label={`${copy.page} ${currentPage}`}>
+            <button type="button" disabled={currentPage === 1} onClick={() => setPage(Math.max(1, currentPage - 1))}>{copy.previous}</button>
+            <div>{Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => <button key={number} type="button" aria-current={currentPage === number ? "page" : undefined} className={currentPage === number ? "active" : ""} onClick={() => setPage(number)}>{number}</button>)}</div>
+            <button type="button" disabled={currentPage === totalPages} onClick={() => setPage(Math.min(totalPages, currentPage + 1))}>{copy.next}</button>
           </nav> : null}
         </> : <div className="favorites-empty">
           <div><span aria-hidden="true">{mode === "viewed" ? <EyeTabIcon /> : "♡"}</span><h2>{mode === "viewed" ? copy.emptyViewedTitle : copy.emptySavedTitle}</h2><p>{mode === "viewed" ? copy.emptyViewedText : copy.emptySavedText}</p></div>

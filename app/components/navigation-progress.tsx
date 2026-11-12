@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from "../lib/navigation-recovery";
+import { NAVIGATION_END_EVENT, NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from "../lib/navigation-recovery";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { catalogNavigationFetch } from '../lib/catalog-navigation-fetch';
 import { hasFreshPublishedSearchCatalog } from '../lib/published-catalog-client-cache';
@@ -14,7 +14,7 @@ export function NavigationProgress() {
     window.fetch = wrapped;
     return () => { if (window.fetch === wrapped) window.fetch = previous; };
   }, []);
-  const { translate } = useSiteLanguage();
+  const { language } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [active, setActive] = useState(false);
@@ -28,6 +28,7 @@ export function NavigationProgress() {
     committedRoute.current = committed;
     const pending = pendingHref.current ? new URL(pendingHref.current, window.location.href) : null;
     if (!pending || `${pending.pathname}?${pending.searchParams.toString()}` === committed) {
+      delete document.documentElement.dataset.navigationPending;
       setActive(false);
       if (timer.current) clearTimeout(timer.current);
       timer.current = null;
@@ -41,11 +42,13 @@ export function NavigationProgress() {
       if (next.origin !== window.location.origin) return;
       if (`${next.pathname}?${next.searchParams.toString()}` === committedRoute.current) {
         if (timer.current) clearTimeout(timer.current);
+        delete document.documentElement.dataset.navigationPending;
         pendingHref.current = null;
         setActive(false);
         return;
       }
       pendingHref.current = next.href;
+      document.documentElement.dataset.navigationPending = "true";
       setActive(true);
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
@@ -56,6 +59,13 @@ export function NavigationProgress() {
       }, NAVIGATION_RECOVERY_DELAY_MS);
     };
     const transition = (event: Event) => begin((event as CustomEvent<{ href: string }>).detail.href);
+    const finish = () => {
+      delete document.documentElement.dataset.navigationPending;
+      setActive(false);
+      pendingHref.current = null;
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+    };
     const start = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
@@ -67,15 +77,29 @@ export function NavigationProgress() {
     };
     document.addEventListener("click", start, true);
     window.addEventListener(NAVIGATION_START_EVENT, transition);
+    window.addEventListener(NAVIGATION_END_EVENT, finish);
     return () => {
       document.removeEventListener("click", start, true);
       window.removeEventListener(NAVIGATION_START_EVENT, transition);
+      window.removeEventListener(NAVIGATION_END_EVENT, finish);
       if (timer.current) clearTimeout(timer.current);
+      delete document.documentElement.dataset.navigationPending;
       delete document.documentElement.dataset.navigationProgressReady;
     };
   }, []);
 
-  return <div className={active ? "navigation-progress is-active" : "navigation-progress"} role="status" aria-live="polite" aria-hidden={!active}>
-    <span className="navigation-progress__label">{translate("טוענים את העמוד")}</span><i />
+  const copy = {
+    he: ["פותחים את העמוד", "עוד רגע התוכן מוכן"],
+    en: ["Opening the page", "Your content will be ready shortly"],
+    ru: ["Открываем страницу", "Контент скоро будет готов"],
+    fr: ["Ouverture de la page", "Votre contenu sera bientôt prêt"],
+  }[language];
+
+  return <div className={active ? "navigation-progress is-active" : "navigation-progress"} role="status" aria-live="polite" aria-hidden={!active} aria-busy={active || undefined}>
+    <span className="navigation-progress__bar" aria-hidden="true" />
+    <span className="navigation-progress__panel" dir={language === "he" ? "rtl" : "ltr"}>
+      <span className="navigation-progress__mark" aria-hidden="true"><i /><i /><i /></span>
+      <span className="navigation-progress__label"><strong>{copy[0]}</strong><small>{copy[1]}</small></span>
+    </span>
   </div>;
 }

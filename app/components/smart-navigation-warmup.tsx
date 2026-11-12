@@ -17,11 +17,19 @@ export function SmartNavigationWarmup() {
     if (basePath === "/" || /^\/(?:admin|account|favorites|booking)(?:\/|$)/.test(basePath)) return;
     const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
     if (connection?.saveData || connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") return;
-    const home = localizedPath("/", languageFromPathname(pathname));
+    const language = languageFromPathname(pathname);
+    const home = localizedPath("/", language);
     // The homepage is the primary escape route from every world. Start its
     // App Router request as soon as this page hydrates so an early logo click
     // does not beat an idle callback. Next deduplicates repeat prefetches.
     router.prefetch(home);
+    // The four primary worlds are the highest-frequency cross-site journeys.
+    // Warm their RSC payloads once after hydration so touch navigation does
+    // not pay a multi-second cold-route penalty after the user's tap.
+    for (const route of ["/events", "/spas", "/hourly"]) {
+      const destination = localizedPath(route, language);
+      if (stripLanguagePrefix(destination) !== basePath) router.prefetch(destination);
+    }
   }, [pathname, router]);
 
   useEffect(() => {

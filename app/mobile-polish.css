@@ -39,6 +39,14 @@
   .site-page .section-head { flex-wrap:wrap; align-items:flex-start; gap:10px 16px; }
   .site-page .section-head > :is(div:first-child,h2) { flex:1 1 100%; min-width:0; }
   .site-page .section-head > a { display:inline-flex; align-items:center; min-height:44px; }
+  /* Editorial headings, their destination link and their rail controls are one
+     compact unit. The generic full-row heading rule otherwise leaves a large
+     empty band between the copy and the cards. */
+  .site-page .world-editorial { padding-block:24px; }
+  .site-page .world-editorial .section-head { align-items:center; margin-bottom:8px; gap:8px 12px; }
+  .site-page .world-editorial .section-head > h2 { flex:1 1 220px; width:auto; font-size:1.45rem; line-height:1.25; }
+  .site-page .world-editorial .section-head > a { flex:0 0 auto; min-height:36px; font-size:.9rem; }
+  .site-page .world-editorial > .home-mobile-rail-controls { margin-block:0 8px; }
   .site-page .home-mobile-rail-controls { display:flex; justify-content:flex-end; margin-block:0 12px; }
   .site-page .home-mobile-rail { display:flex; gap:16px; overflow-x:auto; padding:2px 0 12px; scroll-padding-inline:0; scroll-snap-type:x mandatory; overscroll-behavior-inline:contain; }
   .site-page .home-mobile-rail > * { flex:0 0 100%; min-width:0; max-inline-size:100%; scroll-snap-align:start; scroll-snap-stop:always; }
@@ -70,13 +78,29 @@
   .site-page .home-managed-discovery__track .search-depth__discovery-card:focus-visible { outline:3px solid #087e8b; outline-offset:-3px; }
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) { grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; gap:16px; }
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) > * { flex-basis:100%; min-width:0; max-inline-size:100%; }
-  .site-page .footer-grid { gap:26px 18px; padding-block:32px; }
+  /* The generic .section padding is loaded after the world stylesheet and was
+     winning the cascade. Keep the events rhythm deliberately compact. */
+  .site-page .events-page > .section { padding-block:24px; }
+  .site-page .events-page > .event-discovery-section { padding-block:18px; }
+  .site-page .events-page > .event-region-section { padding-block:18px 22px; }
+  .site-page .events-page .section-head { margin-bottom:12px; }
+  .site-page .events-page .event-rail-controls { margin-bottom:8px; }
+  .site-page .footer-grid { gap:0; padding-block:24px 12px; }
   .site-page .site-footer { padding:28px 0 12px; }
-  .site-page .site-footer .footer-about { margin:0; }
-  .site-page .site-footer .footer-bottom { margin-top:20px; padding:14px 0 64px; }
-  .site-page .footer-grid nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 16px; }
-  .site-page .footer-grid nav strong { grid-column:1/-1; margin-bottom:6px; }
-  .site-page .footer-grid nav a { display:flex; align-items:center; min-height:44px; padding-block:6px; line-height:1.45; }
+  .site-page .site-footer .footer-about { margin:0 0 20px; text-align:center; }
+  .site-page .site-footer .footer-about p { max-width:30ch; margin:10px auto 14px; }
+  .site-page .site-footer .footer-about .footer-join-link { margin-inline:auto; }
+  .site-page .footer-group { border-top:1px solid rgba(255,255,255,.14); }
+  .site-page .footer-group__title { display:none; }
+  .site-page .footer-group > button { position:relative; min-height:52px; display:flex; align-items:center; margin:0; padding:10px 2px; cursor:pointer; }
+  .site-page .footer-group > button::after { content:"+"; position:absolute; inset-inline-end:2px; font-size:1.25rem; font-weight:400; }
+  .site-page .footer-group.is-open > button::after { content:"−"; }
+  .site-page .footer-group:not(.is-open) > nav { display:none; }
+  .site-page .footer-group > nav { grid-template-columns:1fr; gap:0; padding:0 2px 12px; }
+  .site-page .footer-group > nav a { display:flex; align-items:center; min-height:42px; padding-block:7px; border-top:1px solid rgba(255,255,255,.07); line-height:1.4; }
+  .site-page .site-footer .footer-bottom { align-items:center; margin-top:0; padding:14px 0 calc(28px + env(safe-area-inset-bottom,0px)); text-align:center; }
+  .site-page .site-footer .footer-bottom > div { width:100%; flex-flow:row wrap; align-items:center; justify-content:center; gap:8px 12px; }
+  .site-page .site-footer .footer-bottom > div > span:last-child { flex-basis:100%; }
   /* Keep the fixed contact/booking action from covering the section reached
      by the spa package CTA, and give the filter sheet a keyboard-safe scroll
      viewport on iOS/Android. */

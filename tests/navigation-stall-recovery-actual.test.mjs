@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
-import { NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from '../app/lib/navigation-recovery.ts';
+import { NAVIGATION_END_EVENT, NAVIGATION_START_EVENT, NAVIGATION_RECOVERY_DELAY_MS, recoverStalledNavigation } from '../app/lib/navigation-recovery.ts';
 const source=fs.readFileSync(new URL('../app/components/navigation-progress.tsx',import.meta.url),'utf8');
 const ast=ts.createSourceFile('navigation-progress.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 const effects=[];
@@ -10,7 +10,7 @@ function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)=
 function fixture(){
  const tasks=new Map(),events=new Map(),values=new Map(),replaced=[];let next=0;
  const location={href:'https://vii.spaplus.co/booking?place=vacation-11',origin:'https://vii.spaplus.co',pathname:'/booking',search:'?place=vacation-11',replace:href=>replaced.push(href)};
- const ctx={pathname:'/booking',searchParams:new URLSearchParams(location.search),timer:{current:null},pendingHref:{current:null},committedRoute:{current:'/booking?place=vacation-11'},active:false,setActive:value=>{ctx.active=value;},URL,NAVIGATION_START_EVENT,NAVIGATION_RECOVERY_DELAY_MS,recoverStalledNavigation,
+ const ctx={pathname:'/booking',searchParams:new URLSearchParams(location.search),timer:{current:null},pendingHref:{current:null},committedRoute:{current:'/booking?place=vacation-11'},active:false,setActive:value=>{ctx.active=value;},URL,NAVIGATION_END_EVENT,NAVIGATION_START_EVENT,NAVIGATION_RECOVERY_DELAY_MS,recoverStalledNavigation,
  Date:{now:()=>100000},setTimeout:(callback,ms)=>{tasks.set(++next,{callback,ms});return next;},clearTimeout:id=>tasks.delete(id),window:{location,sessionStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)},document:{documentElement:{dataset:{}},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)}};
  const callbacks=effects.map(effect=>new Function('ctx',`with(ctx){return ${ts.transpileModule(`const effect=${effect.getText(ast)};`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText.replace(/^const effect\s*=\s*/,'').replace(/;\s*$/,'')};}`)(ctx));
  const listenerIndex=effects.findIndex(effect=>effect.getText(ast).includes('window.addEventListener(NAVIGATION_START_EVENT'));

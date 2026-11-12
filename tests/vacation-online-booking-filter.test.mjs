@@ -36,7 +36,7 @@ test("online selection survives vacation URLs and depth changes but never crosse
 
 test("online filter is wired before primary and nearby results and has truthful date and retry states", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /const onlineOnly = initialParams.get\("online"\) === "1"/);
+  assert.match(page, /const \[onlineOnly, setOnlineOnly\] = useState\(initialParams.get\("online"\) === "1"\)/);
   assert.match(page, /const matchesOnline[\s\S]*matchesVacationOnlineBooking\(/);
   assert.match(page, /shownFilters.onlineOnly[\s\S]*matchesOnline\(property\)/);
   assert.match(page, /online: draftFilters.onlineOnly \? "1" : null/);

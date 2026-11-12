@@ -88,7 +88,16 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       ? { ...current, status: "ready" } : { key, status: "error", deals: [] });
     if (!remainingBudget()) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1", clock: clock.key });
-    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()),
+    const scheduleObservation = () => {
+      const attempts = automaticRetries.current.get(key) || 0;
+      const delay = discoveryRecoveryDelay(attempts, remainingBudget());
+      if (delay === null) fail();
+      else {
+        automaticRetries.current.set(key, attempts + 1);
+        retryTimer = setTimeout(() => setRetry((value) => value + 1), delay);
+      }
+    };
+    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(2_500, remainingBudget()), totalTimeoutMs: Math.min(2_500, remainingBudget()), retries: 0,
       shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as HolidayDealResponse | null), validateResponse: validHomeOfferResponse })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || !holidayStayMatchesPlan(stayPlan, deal.from, deal.till) || deal.total !== null && (!Number.isFinite(deal.total) || deal.total <= 0))) throw new Error("invalid_deals");
@@ -97,13 +106,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       .then((data) => {
         if (controller.signal.aborted || request !== generation.current) return;
         if (data.availabilityStatus === "refreshing" && data.deals.length === 0) {
-          const attempts = automaticRetries.current.get(key) || 0;
-          const delay = discoveryRecoveryDelay(attempts, remainingBudget());
-          if (delay === null) fail();
-          else {
-            automaticRetries.current.set(key, attempts + 1);
-            retryTimer = setTimeout(() => setRetry((value) => value + 1), delay);
-          }
+          scheduleObservation();
           return;
         }
         automaticRetries.current.delete(key);
@@ -119,7 +122,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       })
       .catch(() => {
         if (!controller.signal.aborted && request === generation.current) {
-          fail();
+          scheduleObservation();
         }
       });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };

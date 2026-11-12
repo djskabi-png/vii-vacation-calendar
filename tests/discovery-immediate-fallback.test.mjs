@@ -66,7 +66,8 @@ test("both homepage vacation rails poll explicit refresh state within a shared d
   assert.match(home, /boundedPrimeWait\(existing\.promise, waitBudgetMs\)/);
   assert.match(home, /selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS/);
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);
-  assert.match(home, /catch\(\(\) => \{ if \(!controller\.signal\.aborted\) recover\(false\); \}\)/);
+  assert.match(home, /catch\(\(\) => \{ if \(!controller\.signal\.aborted\) recover\(\); \}\)/,
+    "a transport timeout must observe the same leased refresh again instead of showing a false terminal error");
   assert.match(home, /!refreshPending \|\| delay === null/);
   assert.match(cache, /cache: attempt \|\| candidate && !previous \? "reload"/,
     "the retry must remain a bounded cache-bypassing GET recovery");

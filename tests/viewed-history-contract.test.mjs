@@ -68,7 +68,9 @@ test("the library supports two modes, world filters and pagination", async () =>
     read("app/favorites/page.tsx"),
     readEffectiveWorldCss(),
   ]);
-  assert.match(page, /PAGE_SIZE\s*=\s*8/);
+  assert.match(page, /LIBRARY_PAGE_SIZE/);
+  assert.match(page, /reconcileCheckedLibraryItems/);
+  assert.match(page, /writeViewedItems\(nextViewed\)/);
   assert.match(css, /\.favorite-card > \.universal-favorite \{ top: 10px; inset-inline-start: 10px; inset-inline-end: auto; width: 44px/);
   assert.match(page, /LibraryMode\s*=\s*"saved"\s*\|\s*"viewed"/);
   assert.match(page, /role="tablist"/);

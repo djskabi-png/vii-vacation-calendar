@@ -12,7 +12,7 @@ export const ADMIN_OAUTH_NONCE_COOKIE = "vii_admin_oauth_nonce";
 export const SESSION_COOKIE = CUSTOMER_SESSION_COOKIE;
 export const OAUTH_NONCE_COOKIE = CUSTOMER_OAUTH_NONCE_COOKIE;
 
-export type AuthenticatedAccount = { sub: string; name: string; email: string; picture?: string; provider: "google" };
+export type AuthenticatedAccount = { sub: string; name: string; email: string; phone?: string; picture?: string; provider: "google" };
 const encoder = new TextEncoder();
 
 function base64UrlEncode(value: string | Uint8Array) {

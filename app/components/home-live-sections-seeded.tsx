@@ -1,5 +1,6 @@
 import { HomeLiveSections } from "./home-showcase";
 import { readHomeDealsSnapshot } from "../lib/home-deals-snapshot";
+import { readHomeHolidaySnapshot } from "../lib/home-holiday-snapshot";
 import { headers } from "next/headers";
 
 /** One read-only D1 attempt inside a streamed boundary. Native D1 reads are not
@@ -10,10 +11,13 @@ export async function HomeLiveSectionsSeeded() {
   const locale = (["he", "en", "ru", "fr"].includes(requested) ? requested : "he") as "he" | "en" | "ru" | "fr";
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const initialData = await Promise.race([
-      readHomeDealsSnapshot({ guests: 2, locale }).catch(() => null),
+    const [initialData, initialHolidayData] = await Promise.race([
+      Promise.all([
+        readHomeDealsSnapshot({ guests: 2, locale }).catch(() => null),
+        readHomeHolidaySnapshot({ guests: 2, locale }).catch(() => null),
+      ]),
       new Promise<null>(resolve => { timer = setTimeout(() => resolve(null), 1500); }),
-    ]);
-    return <HomeLiveSections initialData={initialData} />;
+    ]) ?? [null, null];
+    return <HomeLiveSections initialData={initialData} initialHolidayData={initialHolidayData} />;
   } finally { if (timer !== undefined) clearTimeout(timer); }
 }

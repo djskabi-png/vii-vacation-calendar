@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ACCOUNT_EVENT, readAccount, saveAccount, type LocalAccount } from "../lib/account";
 
-type ContextValue = { account: LocalAccount | null; openLogin: () => void; logout: () => Promise<void> };
-const AccountContext = createContext<ContextValue>({ account: null, openLogin: () => undefined, logout: async () => undefined });
+type ProfileUpdate = { name: string; phone: string };
+type ContextValue = { account: LocalAccount | null; ready: boolean; openLogin: () => void; logout: () => Promise<void>; updateProfile: (profile: ProfileUpdate) => Promise<LocalAccount> };
+const AccountContext = createContext<ContextValue>({ account: null, ready: false, openLogin: () => undefined, logout: async () => undefined, updateProfile: async () => { throw new Error("account_unavailable"); } });
 const copy = {
   he: { login: "התחברות", account: "החשבון שלי", title: "מתחברים וממשיכים", body: "התחברו עם Google לזיהוי מהיר ולמילוי פרטים באתר.", google: "המשך עם Google", unavailable: "דרכי התחברות נוספות יתווספו בהמשך.", close: "סגירת חלון ההתחברות", promptTitle: "רוצים למלא את הפרטים אוטומטית?", promptBody: "התחברו לפני מילוי הטופס ונשתמש בפרטים ששמרתם.", promptAction: "התחברות ומילוי אוטומטי", connected: "הפרטים מולאו מהחשבון שלכם." },
   en: { login: "Sign in", account: "My account", title: "Sign in and continue faster", body: "Sign in with your Google account. Your name and email will identify you and prefill forms.", google: "Continue with Google", unavailable: "More sign-in methods will be added later.", close: "Close sign-in dialog", promptTitle: "Want to fill in your details automatically?", promptBody: "Sign in before completing the form and we will use your saved details.", promptAction: "Sign in and autofill", connected: "Details filled from your account." },
@@ -18,10 +19,13 @@ export function AccountAccessProvider({ children }: { children: ReactNode }) {
   const { language } = useSiteLanguage();
   const labels = copy[language];
   const [account, setAccount] = useState<LocalAccount | null>(null);
+  const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLElement | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const titleId = useId();
+  const bodyId = useId();
   useEffect(() => {
     const sync = () => setAccount(readAccount());
     const load = async () => {
@@ -31,6 +35,7 @@ export function AccountAccessProvider({ children }: { children: ReactNode }) {
         if (data.account) saveAccount({ ...data.account, createdAt: new Date().toISOString() });
         else saveAccount(null);
       } catch { sync(); }
+      finally { setReady(true); }
     };
     void load();
     window.addEventListener(ACCOUNT_EVENT, sync);
@@ -42,18 +47,35 @@ export function AccountAccessProvider({ children }: { children: ReactNode }) {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeRef.current?.focus();
-    const keydown = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { close(); return; }
+      if (event.key !== "Tab") return;
+      const focusable = [...(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),[tabindex]:not([tabindex="-1"])') || [])];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
     window.addEventListener("keydown", keydown);
     return () => { document.body.style.overflow = previous; window.removeEventListener("keydown", keydown); };
   }, [close, open]);
   function openLogin() { triggerRef.current = document.activeElement as HTMLElement | null; setOpen(true); }
   function startGoogleLogin() { window.location.assign(`/api/auth/google?returnTo=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`); }
   async function logout() { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); saveAccount(null); }
-  return <AccountContext.Provider value={{ account, openLogin, logout }}>
+  async function updateProfile(profile: ProfileUpdate) {
+    const response = await fetch("/api/auth/session", { method: "PATCH", credentials: "same-origin", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profile) });
+    const data = await response.json().catch(() => ({})) as { account?: Omit<LocalAccount, "createdAt">; error?: string };
+    if (!response.ok || !data.account) throw new Error(data.error || "profile_update_failed");
+    const updated = { ...data.account, createdAt: account?.createdAt || new Date().toISOString() } as LocalAccount;
+    saveAccount(updated);
+    return updated;
+  }
+  return <AccountContext.Provider value={{ account, ready, openLogin, logout, updateProfile }}>
     {children}
-    {open ? <div className="account-auth-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}><section className="account-auth-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} dir={language === "he" ? "rtl" : "ltr"}>
+    {open ? <div className="account-auth-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}><section ref={dialogRef} className="account-auth-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={bodyId} dir={language === "he" ? "rtl" : "ltr"}>
       <button ref={closeRef} className="dialog-close" type="button" onClick={close} aria-label={labels.close}>×</button>
-      <div className="account-auth-dialog__brand"><img src="/vii-logo.png" width="160" height="122" loading="eager" decoding="sync" fetchPriority="high" alt={language === "he" ? "וי פור ויקיישן" : "V For Vacation"} title={language === "he" ? "וי פור ויקיישן" : "V For Vacation"} /><h2 id={titleId}>{labels.title}</h2></div><p>{labels.body}</p>
+      <div className="account-auth-dialog__brand"><img src="/vii-logo.png" width="160" height="122" loading="eager" decoding="sync" fetchPriority="high" alt={language === "he" ? "וי פור ויקיישן" : "V For Vacation"} title={language === "he" ? "וי פור ויקיישן" : "V For Vacation"} /><h2 id={titleId}>{labels.title}</h2></div><p id={bodyId}>{labels.body}</p>
       <div className="social-auth-actions"><button type="button" onClick={startGoogleLogin}><span className="social-auth-icon social-auth-icon--google" aria-hidden="true">G</span><strong>{labels.google}</strong></button></div>
     </section></div> : null}
   </AccountContext.Provider>;

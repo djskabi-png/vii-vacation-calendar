@@ -1,0 +1,101 @@
+{
+  "status": "fixed",
+  "symptom": "Mobile event pages regressed to short wide card images, oversized vertical bands, separated guide headings and controls, and a dense two-column footer.",
+  "expected_behavior": "Every place-card rail uses the approved vacation 4:3 media proportion, event sections use compact spacing, and the mobile footer is grouped and readable without losing any link.",
+  "environment": "Exact locally built VII candidate served by scripts/preview-built-candidate.mjs on port 4191 at 390x844 and 1440x1000.",
+  "authorization_boundary": "The request authorizes local repair and verification; this candidate is saved but is not published without a separate publication instruction.",
+  "reproduction": {
+    "steps": [
+      "Open the production events page at a 390 pixel mobile viewport.",
+      "Measure an event rail image and the direct event section padding.",
+      "Scroll to the guide section and the mobile footer.",
+      "Compare the same surfaces with the vacation card and the attached PDF."
+    ],
+    "evidence": "Before repair, event rail media measured 339x183 at ratio 1.85, direct event sections computed to 48px vertical padding, and the mobile footer measured about 1465px high."
+  },
+  "observations": [
+    {
+      "observation": "A late generic mobile section rule overrode the compact event-world rhythm.",
+      "evidence": "Computed styles on production showed 48px top and bottom padding despite event-specific styles declaring 18px and 26px."
+    },
+    {
+      "observation": "The horizontal card stylesheet explicitly assigned a 1.85 media aspect ratio.",
+      "evidence": "app/slider-card-compact.css contained the 1.85 ratio for event, spa, stay and discovery place-card rails instead of the vacation 4:3 contract."
+    },
+    {
+      "observation": "Generic mobile footer and section-head rules caused both layout regressions.",
+      "evidence": "app/mobile-polish.css forced the first section-head child to a full row and forced footer navigation into dense two-column grids."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1-late-generic-css-cascade",
+      "mechanism": "Later generic mobile selectors won the cascade over event-world spacing and footer layout rules.",
+      "prediction": "Stronger world-scoped selectors and a dedicated mobile footer structure will immediately reduce measured section and footer heights.",
+      "discriminating_test": "Apply only the scoped cascade repair, rebuild, and compare computed padding and footer geometry at 390 pixels.",
+      "result": "Supported: event section padding became 18 to 24px and the footer decreased from about 1465px to 642px without removing links.",
+      "status": "supported"
+    },
+    {
+      "id": "H2-hidden-placeholder-gaps",
+      "mechanism": "Invisible deferred components or loading placeholders reserve the blank vertical space.",
+      "prediction": "The empty bands will remain after CSS specificity changes because their height comes from hidden DOM placeholders.",
+      "discriminating_test": "Inspect visible DOM geometry and recompute page height after changing only section and footer CSS.",
+      "result": "Rejected: the bands collapsed after the CSS-only repair and no hidden placeholder accounted for the prior measured padding.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3-explicit-rail-media-ratio",
+      "mechanism": "A shared compact rail stylesheet encoded 1.85 and overrode the approved vacation 4:3 place-card media shape.",
+      "prediction": "Replacing the encoded ratio with one shared 4:3 token will align all four place-card worlds.",
+      "discriminating_test": "Measure the first place-card image on vacations, spas, hourly and events after the rebuilt candidate loads.",
+      "result": "Supported: all four routes measured 339x254.25 with a ratio of 1.33 at 390 pixels.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1-late-generic-css-cascade",
+  "affected_family": [
+    "Event landing sections and editorial guide controls on mobile",
+    "Vacation, event, spa and hourly horizontal place-card media",
+    "Shared site footer on mobile and desktop breakpoints",
+    "Responsive transitions between compact mobile groups and desktop link columns"
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "fix": {
+    "change": "Introduced one 4:3 place-card media token, added higher-specificity compact event spacing, and replaced the mobile footer link dump with three accessible disclosure groups while retaining normal desktop columns.",
+    "evidence": "The exact rebuilt candidate has no horizontal overflow, event sections compute to 18 to 24px padding, all four world cards measure 4:3, and footer links remain visible on desktop and expandable on mobile."
+  },
+  "regression_checks": [
+    {
+      "check": "Exact candidate production build completes successfully",
+      "status": "passed",
+      "evidence": "pnpm build exited with code 0 and completed all five vinext stages plus asset and startup-budget verification."
+    },
+    {
+      "check": "Cross-world mobile place-card media parity",
+      "status": "passed",
+      "evidence": "At 390x844, /search, /spas, /hourly and /events each measured 339x254.25 and ratio 1.33."
+    },
+    {
+      "check": "Mobile event spacing and horizontal overflow",
+      "status": "passed",
+      "evidence": "Event sections measured 18 to 24px vertical padding and document scroll width did not exceed the 390px viewport."
+    },
+    {
+      "check": "Mobile footer disclosure behavior and content retention",
+      "status": "passed",
+      "evidence": "Three groups rendered closed by default; opening the first set aria-expanded=true and displayed six links in a 264px grid."
+    },
+    {
+      "check": "Desktop footer retains full navigation",
+      "status": "passed",
+      "evidence": "At 1440x1000 the mobile buttons were hidden, titles displayed, navigation displayed as grid, and 26 links had visible geometry."
+    },
+    {
+      "check": "Automated card, spacing and footer contracts",
+      "status": "passed",
+      "evidence": "Ten targeted Node tests passed with zero failures after the final footer implementation."
+    }
+  ]
+}

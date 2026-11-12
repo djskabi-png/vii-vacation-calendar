@@ -19,7 +19,10 @@ import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const noStore = { "Cache-Control": "no-store" };
-const visitorWarmBudgetMs = 4_800;
+// A cold visitor must never wait for the supplier operation. Give an already
+// finishing lease a small chance to complete, otherwise return `refreshing`
+// quickly and let waitUntil keep the one leased refresh alive.
+const visitorWarmBudgetMs = 350;
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 

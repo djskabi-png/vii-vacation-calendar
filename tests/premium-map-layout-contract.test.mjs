@@ -92,7 +92,7 @@ test("desktop search combines a synchronized result list, sticky map and quick f
   assert.match(search, /className="airbnb-map-split__map"/);
   assert.match(search, /className="search-quick-filters"/);
   assert.match(search, />טווח מחיר<\/button>/);
-  assert.match(search, /changeBinaryFilter\("pool", !pool\)/);
+  assert.match(search, /changeBinaryFilter\("pool", !pool, event\.currentTarget\)/);
   assert.match(styles, /\.airbnb-map-split \{[^}]*grid-template-columns:/);
   assert.match(styles, /\.airbnb-map-split__map \{[^}]*position: sticky/);
 });

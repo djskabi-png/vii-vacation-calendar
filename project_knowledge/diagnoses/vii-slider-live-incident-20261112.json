@@ -1,0 +1,84 @@
+{
+  "status": "diagnosed",
+  "symptom": "On mobile, holiday and near-date rails remain on a loader for several seconds and then show a retry error even though valid deals exist; changing tabs can repeat the same sequence.",
+  "expected_behavior": "A tab press gives immediate local feedback, retains the last verified rail while refreshing, and replaces it with the selected verified data without a blank rail or a false terminal error.",
+  "environment": "Public https://vii.spaplus.co on 2026-11-12, photographed on iPhone Safari around 12:46-12:47 Israel time; corroborated from the public JSON endpoints and release/v875-holiday-atomic-search-20261111 at 1e5d5884.",
+  "reproduction": {
+    "steps": [
+      "Open the public home page or a holiday page on mobile.",
+      "Select a holiday or near-date tab whose durable snapshot is cold.",
+      "Observe the skeleton and eventual retry state.",
+      "Request the same public JSON endpoint repeatedly and compare cache status and timing."
+    ],
+    "evidence": "The six user photographs show the loader and retry state. The public Sylvester endpoint first returned availabilityStatus=refreshing with zero deals after 5920ms, then refreshed with 50 deals after 5189ms, then fresh with 50 deals after 1308ms."
+  },
+  "observations": [
+    {
+      "observation": "The holiday detail client stops one transport attempt at 4000ms while the server is allowed to wait 4800ms before returning refreshing.",
+      "evidence": "app/components/holiday-live-deals.tsx timeoutMs=4000; app/api/vii/home-holiday-deals/route.ts visitorWarmBudgetMs=4800."
+    },
+    {
+      "observation": "The home slider allows 5500ms, but the measured cold public response took 5920ms including origin and edge time.",
+      "evidence": "app/components/home-live-deals.tsx sliderRequestBudgetMs=5500 and the public endpoint timing captured on 2026-11-12."
+    },
+    {
+      "observation": "A cold holiday cache can return refreshing with no cards, while the next request produces valid results and only a later request is fast.",
+      "evidence": "Public endpoint sequence: 5920ms refreshing/0, 5189ms refreshed/50, 1308ms fresh/50."
+    },
+    {
+      "observation": "Even verified cache reads still spend material time in display, catalog-index and snapshot reads.",
+      "evidence": "Public tomorrow response was fresh but took 2458ms; Server-Timing reported roughly 1801-1844ms across display, snapshot and catalog index."
+    },
+    {
+      "observation": "The holiday rail is not server-seeded; it always starts client discovery after activation.",
+      "evidence": "HomeLiveSections passes initialData only to the near-date HomeLiveDeals instance, not the holidays instance."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The client timeout and recovery state machine are shorter than or too close to the server cold-cache path, so valid in-flight work is converted into a false error; incomplete prewarming makes that path user-visible.",
+      "prediction": "A cold endpoint will exceed the client budget, return refreshing or complete shortly afterward, and a subsequent request will succeed with deals.",
+      "discriminating_test": "Measure the same cold public holiday endpoint three times and compare timings, cache status and deal count to the code budgets.",
+      "result": "Observed 5920ms refreshing/0, 5189ms refreshed/50 and 1308ms fresh/50 versus client budgets of 4000ms and 5500ms.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The screenshots are caused only by stale browser cache on one iPhone.",
+      "prediction": "Independent no-cache requests would be fast and verified while only the photographed browser failed.",
+      "discriminating_test": "Issue independent no-cache requests to the public API.",
+      "result": "Independent requests reproduced multi-second refreshing and cold behavior, so device cache is not the cause.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The supplier has no deals for the selected holiday.",
+      "prediction": "Later verified responses would still contain no deals.",
+      "discriminating_test": "Repeat the exact endpoint after the server warm operation finishes.",
+      "result": "The endpoint returned 50 verified deals, so the error state was false.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Not implemented in this diagnostic turn. The causal repair is to make discovery snapshot-first, keep the previous verified rail visible during refresh, treat refreshing as a bounded non-terminal state, align one shared end-to-end deadline, and prove scheduled warming coverage instead of relying on it implicitly.",
+    "evidence": "No after-fix evidence exists yet; publication and code changes were explicitly excluded from this diagnostic response."
+  },
+  "affected_family": [
+    "Home near-date rail tabs",
+    "Home holiday rail tabs",
+    "Dedicated holiday audience and period tabs",
+    "Regional vacation availability rails",
+    "Shared discovery cache and warming schedule",
+    "Mobile Safari, Android Chrome and desktop transitions"
+  ],
+  "regression_checks": [],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The production scheduler execution history and per-key warming coverage have not yet been read from Cloudflare logs.",
+    "The exact currently deployed source commit is not exposed by the public build identifier.",
+    "No post-fix mobile acceptance run exists because no fix was made in this turn."
+  ],
+  "authorization_boundary": "Read-only diagnosis and repair plan only; no code change or public deployment authorized by this message."
+}

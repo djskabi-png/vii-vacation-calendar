@@ -73,6 +73,7 @@ import { discoverySeedCompare } from "../lib/discovery-slider-order";
 import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
 import type { MapPriceQuote } from "../lib/map-price";
 import { compareVacationDisplayedPrices, orderVacationResultsByDisplayedPrice, vacationCatalogDisplayedPrice, vacationPriceRangeMaximum } from "../lib/vacation-price-sort";
+import { instantSearchHref } from "../lib/instant-search-url";
 
 // The viewport boundary must defer the module as well as its React subtree.
 // Default SSR is retained for complete seeds, whose guidance is rendered eagerly.
@@ -396,9 +397,13 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   const pathname = usePathname();
   useCatalogNavigationRecovery(landing?.path || pathname, Boolean(landing?.clientCollectionSchema && catalogError && !catalogLoading && properties.length === 0), router.refresh);
   const searchParams = useSearchParams();
-  const searchQuery = searchParams.toString();
+  const routerSearchQuery = searchParams.toString();
+  const [searchQueryOverride, setSearchQueryOverride] = useState<string | null>(null);
+  const searchQuery = searchQueryOverride ?? routerSearchQuery;
   const initialParams = useMemo(() => managedSearchParams(searchQuery, landing?.initialFilters), [searchQuery, landing?.initialFilters]);
-  const onlineOnly = initialParams.get("online") === "1";
+  const [onlineOnly, setOnlineOnly] = useState(initialParams.get("online") === "1");
+  const [pendingQuickFilter, setPendingQuickFilter] = useState<string | null>(null);
+  const [pendingQuickFilterRoute, setPendingQuickFilterRoute] = useState(false);
   const [openDatesRequest, setOpenDatesRequest] = useState(0);
   const [openLocationRequest, setOpenLocationRequest] = useState(0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
@@ -431,6 +436,21 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
 
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPropertyId, setActiveMapPropertyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncBrowserHistory = () => setSearchQueryOverride(window.location.search.replace(/^\?/, ""));
+    window.addEventListener("popstate", syncBrowserHistory);
+    return () => window.removeEventListener("popstate", syncBrowserHistory);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingQuickFilter) return;
+    const timer = window.setTimeout(() => {
+      setPendingQuickFilter(null);
+      setPendingQuickFilterRoute(false);
+    }, pendingQuickFilterRoute ? 3_000 : 180);
+    return () => window.clearTimeout(timer);
+  }, [pendingQuickFilter, pendingQuickFilterRoute]);
 
   const rawHolidayId = Number(searchParams.get("holiday"));
   const explicitHolidaySearchId = Number.isSafeInteger(rawHolidayId) && rawHolidayId > 0 && [2, 6, 20].includes(guests) ? rawHolidayId : null;
@@ -479,6 +499,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
+    setSearchQueryOverride(null);
     if (pathname.replace(/\/$/, "").endsWith("/near-me")) {
       const params = new URLSearchParams(initialParams.toString());
       params.delete("dates"); params.delete("type");
@@ -495,6 +516,46 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     }
     const nextUrl = buildVacationSearchUrl(initialParams.toString(), updates, nextTypes, nextArea);
     router.push(localizedPath(nextUrl, language), { scroll: false });
+  }
+
+  function updateInstantSearchContext(filterId: string, updates: Record<string, string | null>, control?: HTMLButtonElement) {
+    if (pendingQuickFilter) return;
+    // Give the pressed control synchronous visual and accessibility feedback.
+    // Filtering a large local catalogue can make the following React render
+    // expensive, so the indicator must not wait behind that computation.
+    const pressedControl = control ?? document.querySelector<HTMLButtonElement>(`[data-quick-filter="${filterId}"]`);
+    pressedControl?.classList.add("is-pending");
+    pressedControl?.setAttribute("aria-busy", "true");
+    pressedControl?.setAttribute("disabled", "");
+    const explicitParams = new URLSearchParams(searchQuery);
+    const removesImplicitLandingDefault = Object.entries(updates).some(([key, value]) => value === null
+      && !explicitParams.has(key)
+      && initialParams.get(key) === "1");
+    if (removesImplicitLandingDefault) {
+      const destination = buildVacationSearchUrl(initialParams.toString(), updates, selectedTypes, area);
+      setPendingQuickFilter(filterId);
+      setPendingQuickFilterRoute(true);
+      setSearchQueryOverride(null);
+      window.requestAnimationFrame(() => router.push(localizedPath(destination, language), { scroll: false }));
+      return;
+    }
+    const nextHref = instantSearchHref(pathname, searchQuery, landing?.initialFilters, updates);
+    const nextQuery = nextHref.includes("?") ? nextHref.slice(nextHref.indexOf("?") + 1) : "";
+    const preservedScrollY = window.scrollY;
+
+    setPendingQuickFilter(filterId);
+    setPendingQuickFilterRoute(false);
+    setSearchQueryOverride(nextQuery);
+
+    // First let React paint the locally filtered result set and its busy state.
+    // The lightweight history commit then makes the state shareable without a
+    // server route render or the scroll jump caused by router.push.
+    window.requestAnimationFrame(() => {
+      window.history.pushState(window.history.state, "", nextHref);
+      window.requestAnimationFrame(() => {
+        if (Math.abs(window.scrollY - preservedScrollY) > 1) window.scrollTo(window.scrollX, preservedScrollY);
+      });
+    });
   }
 
   function currentFilterState(): VacationFilterState {
@@ -574,7 +635,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     updateSearchContext({ type: null, types: nextTypes.length > 1 ? nextTypes.join(",") : null }, nextTypes, area);
   }
 
-  function changeBinaryFilter(key: "pool" | "spa" | "whole" | "accessible", nextValue: boolean) {
+  function changeBinaryFilter(key: "pool" | "spa" | "whole" | "accessible", nextValue: boolean, control?: HTMLButtonElement) {
     if (filtersOpen && draftFilters) {
       const field = key === "accessible" ? "accessibleOnly" : key;
       setDraftFilters({ ...draftFilters, [field]: nextValue });
@@ -584,17 +645,18 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     if (key === "spa") setSpa(nextValue);
     if (key === "whole") setWhole(nextValue);
     if (key === "accessible") setAccessibleOnly(nextValue);
-    updateSearchContext({ [key]: nextValue ? "1" : null,
+    updateInstantSearchContext(key, { [key]: nextValue ? "1" : null,
       ...(key === "accessible" ? { features: selectedExtras.length ? selectedExtras.join(",") : null } : {}),
-    });
+    }, control);
   }
 
-  function changeOnlineFilter(nextValue: boolean) {
+  function changeOnlineFilter(nextValue: boolean, control?: HTMLButtonElement) {
     if (filtersOpen && draftFilters) {
       setDraftFilters({ ...draftFilters, onlineOnly: nextValue });
       return;
     }
-    updateSearchContext({ online: nextValue ? "1" : null });
+    setOnlineOnly(nextValue);
+    updateInstantSearchContext("online", { online: nextValue ? "1" : null }, control);
   }
 
   function toggleExtraFilter(id: string) {
@@ -664,6 +726,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       setSpa(params.get("spa") === "1");
       setAccessibleOnly(vacationFeatureSelection(params).accessibleOnly);
       setSelectedExtras(vacationFeatureSelection(params).extras.filter((id) => legacyExtraFilters.some((item) => item.id === id)));
+      setOnlineOnly(params.get("online") === "1");
       setSort(VACATION_SORT_VALUES.includes((params.get("sort") || nearby.defaultSort) as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || nearby.defaultSort : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
@@ -1084,6 +1147,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     setSpa(false);
     setWhole(false);
     setAccessibleOnly(false);
+    setOnlineOnly(false);
     setSelectedExtras([]);
     updateSearchContext({ location: "כל הארץ", guests: null, bedrooms: null, pets: null, type: null, types: null, minPrice: null, maxPrice: null, pool: null, spa: null, whole: null, accessible: null, online: null, features: null, sort: null }, [], "הכל");
   }
@@ -1103,6 +1167,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     setSpa(draftFilters.spa);
     setWhole(draftFilters.whole);
     setAccessibleOnly(draftFilters.accessibleOnly);
+    setOnlineOnly(draftFilters.onlineOnly);
     setSelectedExtras(draftFilters.selectedExtras);
     setSort(draftFilters.sort);
     updateSearchContext({
@@ -1192,20 +1257,21 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
             </div>
           </aside>
 
-          <section className="results-list" aria-label="תוצאות">
+          <section className={`results-list ${pendingQuickFilter ? "is-filtering" : ""}`} aria-label="תוצאות" aria-busy={pendingQuickFilter ? "true" : undefined}>
             <section className="results-heading">
               <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{((!catalogLoading && !catalogError) || properties.length > 0) && !onlineCheckPending && !datedAvailabilityPending && !datedAvailabilityError && !undatedCapabilityUnavailable ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
             </section>
-            <nav className="search-quick-filters" aria-label="סינון מהיר">
+            <nav className="search-quick-filters" aria-label="סינון מהיר" aria-busy={pendingQuickFilter ? "true" : undefined}>
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>
-              <button type="button" className={onlineOnly ? "online-booking-quick-filter active" : "online-booking-quick-filter"} aria-pressed={onlineOnly} onClick={() => changeOnlineFilter(!onlineOnly)}>ניתן להזמין אונליין</button>
+              <button data-quick-filter="online" type="button" className={`${onlineOnly ? "online-booking-quick-filter active" : "online-booking-quick-filter"}${pendingQuickFilter === "online" ? " is-pending" : ""}`} aria-pressed={onlineOnly} aria-busy={pendingQuickFilter === "online" || undefined} disabled={Boolean(pendingQuickFilter)} onClick={(event) => changeOnlineFilter(!onlineOnly, event.currentTarget)}><span>ניתן להזמין אונליין</span><i className="quick-filter-spinner" aria-hidden="true" /></button>
               <button type="button" className={selectedTypes.length ? "active" : ""} onClick={() => openFiltersPanel("types")}>סוג מקום</button>
               <button type="button" className={minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX ? "active" : ""} onClick={() => openFiltersPanel("more")}>טווח מחיר</button>
-              <button type="button" className={pool ? "active" : ""} aria-pressed={pool} onClick={() => changeBinaryFilter("pool", !pool)}>בריכה</button>
-              <button type="button" className={spa ? "active" : ""} aria-pressed={spa} onClick={() => changeBinaryFilter("spa", !spa)}>ספא וג׳קוזי</button>
-              {properties.some((property) => property.capacityScope !== "unit" && property.scenario === "single") ? <button type="button" className={whole ? "active" : ""} aria-pressed={whole} onClick={() => changeBinaryFilter("whole", !whole)}>מקום שלם</button> : null}
-              <button type="button" className={accessibleOnly ? "active" : ""} aria-pressed={accessibleOnly} onClick={() => changeBinaryFilter("accessible", !accessibleOnly)}>נגישות</button>
+              <button data-quick-filter="pool" type="button" className={`${pool ? "active" : ""}${pendingQuickFilter === "pool" ? " is-pending" : ""}`} aria-pressed={pool} aria-busy={pendingQuickFilter === "pool" || undefined} disabled={Boolean(pendingQuickFilter)} onClick={(event) => changeBinaryFilter("pool", !pool, event.currentTarget)}><span>בריכה</span><i className="quick-filter-spinner" aria-hidden="true" /></button>
+              <button data-quick-filter="spa" type="button" className={`${spa ? "active" : ""}${pendingQuickFilter === "spa" ? " is-pending" : ""}`} aria-pressed={spa} aria-busy={pendingQuickFilter === "spa" || undefined} disabled={Boolean(pendingQuickFilter)} onClick={(event) => changeBinaryFilter("spa", !spa, event.currentTarget)}><span>ספא וג׳קוזי</span><i className="quick-filter-spinner" aria-hidden="true" /></button>
+              {properties.some((property) => property.capacityScope !== "unit" && property.scenario === "single") ? <button data-quick-filter="whole" type="button" className={`${whole ? "active" : ""}${pendingQuickFilter === "whole" ? " is-pending" : ""}`} aria-pressed={whole} aria-busy={pendingQuickFilter === "whole" || undefined} disabled={Boolean(pendingQuickFilter)} onClick={(event) => changeBinaryFilter("whole", !whole, event.currentTarget)}><span>מקום שלם</span><i className="quick-filter-spinner" aria-hidden="true" /></button> : null}
+              <button data-quick-filter="accessible" type="button" className={`${accessibleOnly ? "active" : ""}${pendingQuickFilter === "accessible" ? " is-pending" : ""}`} aria-pressed={accessibleOnly} aria-busy={pendingQuickFilter === "accessible" || undefined} disabled={Boolean(pendingQuickFilter)} onClick={(event) => changeBinaryFilter("accessible", !accessibleOnly, event.currentTarget)}><span>נגישות</span><i className="quick-filter-spinner" aria-hidden="true" /></button>
             </nav>
+            <span className="sr-only" role="status" aria-live="polite">{pendingQuickFilter ? "מעדכנים את תוצאות החיפוש" : ""}</span>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} className={filter.id === "online" ? "online-booking-active-filter" : undefined} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.id === "price" ? currencyLabelParts(filter.label).map((part, index) => part.amount ? <bdi dir="ltr" key={index}>{part.text}</bdi> : part.text) : filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {onlineOnly && (!undatedSearch || !resultSet.length || undatedCapabilityUnavailable) ? <div className="online-booking-filter-notice" role={(undatedSearch ? onlineCapabilities.status === "error" : datedAvailabilityError) ? "alert" : "status"} aria-busy={undatedSearch ? onlineCapabilities.status === "loading" : datedAvailabilityPending}>
               <p data-no-translate>{translate(undatedSearch

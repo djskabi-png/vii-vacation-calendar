@@ -1,0 +1,63 @@
+{
+  "taskId": "vii-instant-vacation-filters-20261112",
+  "observedFailure": {
+    "productionRoute": "https://vii.spaplus.co/search",
+    "interaction": "vacation quick filter: pool",
+    "baseline": {
+      "feedback": "no local busy state or spinner",
+      "routeWaitMs": 1125,
+      "scrollDriftPx": 125,
+      "stateRisk": "catalog hydration changed the inventory before the filter result became clear"
+    }
+  },
+  "rootCause": [
+    "Client-computable binary filters called router.push and waited for a route render instead of updating the existing catalog locally.",
+    "The pending indicator was rendered by the same expensive React update as the result computation, so it could itself be delayed.",
+    "Implicit feature defaults on semantic landing pages required a real route change when removed, otherwise the heading and reload state disagreed."
+  ],
+  "repair": [
+    "Apply pool, spa, accessibility, whole-place and online quick-filter state locally.",
+    "Synchronize shareable URL state with history.pushState after the local paint and preserve scroll position.",
+    "Give the exact clicked control synchronous aria-busy, disabled and spinner feedback before catalog recomputation.",
+    "Route only semantic landing-default removal to the generic search page after the immediate pending paint."
+  ],
+  "verification": {
+    "builtCandidate": "http://127.0.0.1:4191",
+    "mobile": {
+      "viewport": "390x844",
+      "poolFeedbackMs": 1.2,
+      "scrollDriftPx": 0,
+      "urlReloadBackParity": true,
+      "horizontalOverflow": false
+    },
+    "desktop": {
+      "viewport": "1440x1000",
+      "poolFeedbackMs": 1.0,
+      "scrollDriftPx": 0,
+      "urlReloadBackParity": true,
+      "horizontalOverflow": false
+    },
+    "family": {
+      "pool": "passed",
+      "spa": "passed",
+      "accessibility": "passed",
+      "online": "passed",
+      "wholePlace": "shared implementation and source contract passed; control absent from exact local catalog fixture"
+    },
+    "semanticLandingRemoval": {
+      "route": "/search/vacations/israel-76769-a23bbe99",
+      "mobileFeedbackMs": 0.8,
+      "desktopFeedbackMs": 0.8,
+      "settledRoute": "/search",
+      "settledHeading": "נופש ברחבי הארץ",
+      "reloadParity": true
+    },
+    "focusedRegression": "32/32 passed",
+    "productionBuild": "passed",
+    "eslint": "0 errors; one pre-existing exhaustive-deps warning at app/search/page.tsx"
+  },
+  "release": {
+    "published": false,
+    "reason": "The current request authorized repair and speed improvement but did not explicitly authorize this release to production."
+  }
+}

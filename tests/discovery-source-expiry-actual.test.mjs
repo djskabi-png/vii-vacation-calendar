@@ -59,7 +59,7 @@ test('actual holiday page effect expires an open offer and cannot restore expire
     setTimeout:(fn,ms)=>{const key=++id;timers.set(key,{fn,ms});return key},clearTimeout:key=>timers.delete(key)};
    const cleanup=new Function(...Object.keys(deps),js+';return effect();')(...Object.values(deps));
    for(let tick=0;tick<8;tick++)await Promise.resolve();
-   if(failed){assert.equal(result.status,'error');assert.deepEqual(result.deals,[])}
+   if(failed){assert.equal(result.status,'loading');assert.deepEqual(result.deals,[]);assert.ok([...timers.values()].every(timer=>timer.ms>0),'a transport failure may only schedule a positive bounded observation retry')}
    else{assert.equal(result.status,'ready');const timer=[...timers.values()].find(t=>t.ms===60_000);assert.ok(timer);now+=60_000;timer.fn();assert.equal(result.status,'loading');assert.deepEqual(result.deals,[]);assert.equal(retries,1)}
    cleanup();assert.equal(timers.size,0);
   }

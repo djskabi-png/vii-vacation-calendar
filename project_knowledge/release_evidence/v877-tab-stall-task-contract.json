@@ -5,9 +5,16 @@
   "task_type": "production-regression-repair",
   "goal": "Remove intermittent 6-10 second homepage tab stalls without multiplying supplier traffic, preserve verified offer truth, publish once, and verify the exact public build on mobile and desktop.",
   "created_at": "2026-11-12T01:00:00.000Z",
-  "updated_at": "2026-11-12T01:12:00.000Z",
+  "updated_at": "2026-11-12T01:14:59.964168Z",
   "completed_at": null,
-  "affected_family": ["homepage vacation periods", "homepage holiday periods", "verified discovery cache", "mobile tab transition", "desktop tab transition", "production release"],
+  "affected_family": [
+    "homepage vacation periods",
+    "homepage holiday periods",
+    "verified discovery cache",
+    "mobile tab transition",
+    "desktop tab transition",
+    "production release"
+  ],
   "predicted_rejections": [
     "A warm repeat is fast but the first real tab click still waits several seconds.",
     "The UI looks responsive while duplicate API requests continue in the background.",
@@ -30,7 +37,10 @@
       "statement": "The repair must not create an origin burst or weaken availability truth.",
       "acceptance_check": "One-at-a-time prefetch, shared in-flight promise, D1 lease ownership, verified-only caching and no-store refreshing/error paths pass focused tests.",
       "status": "passed",
-      "evidence": ["25 focused tests passed", "Complete vinext production build passed"]
+      "evidence": [
+        "25 focused tests passed",
+        "Complete vinext production build passed"
+      ]
     },
     {
       "id": "R3",
@@ -39,14 +49,40 @@
       "acceptance_check": "Pushed commit, saved Sites version, terminal deployment, public build header and post-deploy browser report agree; v876 remains recorded rollback.",
       "status": "pending",
       "evidence": []
+    },
+    {
+      "id": "access:sites-write",
+      "source": "access_obstacle",
+      "statement": "Diagnose the Sites source credential project-not-found result after the exact project remained readable",
+      "acceptance_check": "Inspect connector, authorized browser session, project CLI or API configuration and official Sites flow, then verify publication route recovery or an exact human-only dependency",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "midpoint_gate": {
     "status": "passed",
-    "evidence": ["Public v876 reproduction isolated 6469ms transition and duplicate response sequence", "Focused regression suite passed", "Production build passed"]
+    "evidence": [
+      "Public v876 reproduction isolated 6469ms transition and duplicate response sequence",
+      "Focused regression suite passed",
+      "Production build passed"
+    ]
   },
   "adversarial_close": {
     "status": "pending",
-    "checks": ["fresh context", "rapid adjacent tabs", "holiday tabs", "regular period tabs", "mobile", "desktop", "API duplicate count", "JS errors", "broken images", "horizontal overflow"]
-  }
+    "checks": [
+      "fresh context",
+      "rapid adjacent tabs",
+      "holiday tabs",
+      "regular period tabs",
+      "mobile",
+      "desktop",
+      "API duplicate count",
+      "JS errors",
+      "broken images",
+      "horizontal overflow"
+    ]
+  },
+  "verification_status": "in_progress",
+  "verification_errors": []
 }

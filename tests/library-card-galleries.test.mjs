@@ -7,7 +7,7 @@ import { readSupplierCatalogSelectedSummaries } from '../app/lib/supplier-catalo
 async function route(deps = {}) {
   const source = await readFile(new URL('../app/api/vii/card-galleries/route.ts', import.meta.url),'utf8');
   const compiled = stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace('export async function POST','async function POST');
-  const dependencies = { publicCatalogSelectedSummaries:async()=>[], spaPlacesFromSites:sites=>sites, hourlyPlacesFromCatalog:sites=>sites, providerProfiles:[], paidAttractions:[], ...deps };
+  const dependencies = { publicCatalogSelectedSummaries:async()=>[], spaPlacesFromSites:sites=>sites, hourlyPlacesFromCatalog:sites=>sites, properties:[], eventPlaces:[], spaPlaces:[], hourlyPlaces:[], providerProfiles:[], paidAttractions:[], trails:[], ...deps };
   return new Function(...Object.keys(dependencies),`${compiled};return POST;`)(...Object.values(dependencies));
 }
 const request = items => new Request('https://vii.spaplus.co/api/vii/card-galleries',{method:'POST',body:JSON.stringify({items})});
@@ -23,20 +23,21 @@ test('library galleries resolve only requested IDs and expose bounded public pho
   assert.deepEqual(calls,[['vacations',[11]],['events',[22]]]);
   assert.equal(json.galleries['vacation:vacation-11'].length,10);
   assert.equal(new Set(json.galleries['events:event-22']).size,10);
+  assert.deepEqual(new Set(json.existingKeys),new Set(['vacation:vacation-11','events:event-22']));
   assert.doesNotMatch(JSON.stringify(json),/secret|reviews|never-return/);
 });
 
 test('library input rejects malformed, oversize, arbitrary world and excessive page requests before catalog reads',async()=>{
   const post=await route({publicCatalogSelectedSummaries:()=>{throw Error('must not read');}});
-  for(const body of ['null','not-json',JSON.stringify({items:[{world:'admin',id:'foo'}]}),JSON.stringify({items:[{world:'spa',id:'../../secret'}]}),JSON.stringify({items:Array(9).fill({world:'spa',id:'spa-1'})}),'x'.repeat(4097)]){
+  for(const body of ['null','not-json',JSON.stringify({items:[{world:'admin',id:'foo'}]}),JSON.stringify({items:[{world:'spa',id:'../../secret'}]}),JSON.stringify({items:Array(13).fill({world:'spa',id:'spa-1'})}),JSON.stringify({items:[],includeGalleries:'no'}),'x'.repeat(16385)]){
     const response=await post(new Request('https://example.test',{method:'POST',body}));assert.equal(response.status,400,body.slice(0,80));
   }
-  const blocked = await post(new Request('https://example.test',{method:'POST',headers:{'Content-Length':'5000'},body:'{}'}));assert.equal(blocked.status,400);
+  const blocked = await post(new Request('https://example.test',{method:'POST',headers:{'Content-Length':'17000'},body:'{}'}));assert.equal(blocked.status,400);
 });
 
 test('unknown and missing public cards cannot leak another record; failures remain explicit',async()=>{
   const post=await route();const response=await post(request([{world:'vacation',id:'vacation-99999'}]));
-  assert.deepEqual(await response.json(),{galleries:{'vacation:vacation-99999':[]}});
+  assert.deepEqual(await response.json(),{galleries:{'vacation:vacation-99999':[]},existingKeys:[]});
   const fail=await route({publicCatalogSelectedSummaries:async()=>{throw Error('unavailable');}});
   assert.equal((await fail(request([{world:'spa',id:'spa-1'}]))).status,503);
 });
@@ -63,10 +64,20 @@ test('selected summaries retry the same accepted generation when a burst read lo
   assert.doesNotMatch(queries[1].sql,/detail_json/);
 });
 
-test('saved and viewed UI shares gallery without rewriting local history or adding requests elsewhere',async()=>{
+test('existence validation distinguishes missing entries from valid entries without galleries',async()=>{
+  const post=await route({properties:[{slug:'legacy-current',active:true}],eventPlaces:[{slug:'event-current',active:true}],spaPlaces:[{id:'spa-current'}],hourlyPlaces:[{id:'hourly-current'}],providerProfiles:[{slug:'provider-current',images:[]}],trails:[{slug:'trail-current'}]});
+  const response=await post(new Request('https://example.test',{method:'POST',body:JSON.stringify({includeGalleries:false,items:[{world:'vacation',id:'legacy-current'},{world:'events',id:'event-current'},{world:'spa',id:'spa-current'},{world:'hourly',id:'hourly-current'},{world:'providers',id:'provider-current'},{world:'providers',id:'provider-missing'},{world:'trails',id:'trail-current'},{world:'corporate',id:'corporate-experiences'}]})}));
+  assert.equal(response.status,200);
+  const json=await response.json();
+  assert.deepEqual(json.galleries,{});
+  assert.deepEqual(new Set(json.existingKeys),new Set(['vacation:legacy-current','events:event-current','spa:spa-current','hourly:hourly-current','providers:provider-current','trails:trail-current','corporate:corporate-experiences']));
+});
+
+test('saved and viewed UI shares gallery and reconciles both local histories safely',async()=>{
   const page=await readFile(new URL('../app/favorites/page.tsx',import.meta.url),'utf8');
-  assert.match(page,/visibleItems\.filter/);assert.match(page,/\[galleryRequest\]/);assert.match(page,/controller\.abort\(\)/);
+  assert.match(page,/libraryValidationItems\(visibleItems\)/);assert.match(page,/\[galleryRequest\]/);assert.match(page,/controller\.abort\(\)/);
   assert.match(page,/cardGalleries\[item\.key\]/);assert.match(page,/PreviewCardGallery/);
   assert.match(page,/Keep the saved cover and detail link usable on failure/);
-  assert.doesNotMatch(page,/writeViewedItems\(/);
+  assert.match(page,/writeSavedItems\(nextSaved\)/);assert.match(page,/writeViewedItems\(nextViewed\)/);
+  assert.match(page,/Never erase personal state when validation is unavailable or incomplete/);
 });

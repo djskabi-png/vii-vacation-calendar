@@ -32,16 +32,14 @@ import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/dis
 import { acceptedHomeDealsSeed } from "../lib/home-deals-seed.ts";
 import { dealClockKey } from "../lib/deal-clock.ts";
 
-export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; locale?: string; guests?: number; clockKey?: string; renderedAt?: string; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: string }; availabilityStatus?: "verified" | "refreshing"; locale?: string; guests?: number; clockKey?: string; renderedAt?: string; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; holidays?: HomeHoliday[]; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
-// The origin already performs one bounded 4.8s join against the lease-owned
-// refresh. Retrying the same discovery request in the browser doubled a cold
-// tab transition to roughly eight seconds without adding fresh information.
-// Keep one browser attempt slightly wider than the server join and let the
-// existing recovery state own any later, visibly signalled retry.
-const sliderRequestBudgetMs = 5_500;
+// The origin returns a cold `refreshing` observation within 350ms and keeps
+// the single leased supplier operation alive. This budget includes edge and
+// mobile latency without turning one poll into a multi-second blank state.
+const sliderRequestBudgetMs = 2_500;
 const backgroundPrimeDelayMs = 800;
 // Prime only the nearest choices, one request at a time across both rails.
 // A deliberate click adopts the exact in-flight promise below, so priming can
@@ -207,9 +205,9 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const [holidayListRetry, setHolidayListRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [scopedData, setScopedData] = useState<{ key: string; value: ResponseData } | null>(null);
-  const [holidays, setHolidays] = useState<HomeHoliday[]>([]);
-  const [holidayId, setHolidayId] = useState<number | null>(null);
-  const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
+  const [holidays, setHolidays] = useState<HomeHoliday[]>(() => mode === "holidays" ? initialData?.holidays ?? (initialData?.holiday ? [initialData.holiday] : []) : []);
+  const [holidayId, setHolidayId] = useState<number | null>(() => mode === "holidays" ? initialData?.holiday?.id ?? null : null);
+  const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">(() => mode === "holidays" && initialData?.holiday ? "ready" : "loading");
   const track = useRef<HTMLDivElement>(null);
   const lastGoodData = useRef(new Map<string, ResponseData>());
   // Keep the last painted, verified rail independently from the currently
@@ -228,10 +226,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   // Once the shared clock mounts, its current Israel-day/cutoff wins.
   const seedTime = clock?.now ?? new Date(initialData?.renderedAt || "");
   const seedDates = Number.isFinite(seedTime.getTime()) ? homeDealDates(period, seedTime) : null;
-  const initialSeedUsable = seedEnabled && mode === "near" && seedDates !== null && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, ...seedDates, clockKey: dealClockKey(seedTime), now: clock ? Date.now() : seedTime.getTime() });
+  const initialSeedUsable = seedEnabled && mode === "near" && seedDates !== null && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, ...seedDates, clockKey: dealClockKey(seedTime), now: clock?.now.getTime() ?? seedTime.getTime() });
+  const initialHolidaySeedUsable = Boolean(seedEnabled && mode === "holidays" && initialData?.holiday?.id === holidayId
+    && initialData?.guests === guests && initialData?.locale === language && initialData?.clockKey === dealClockKey(seedTime)
+    && isFreshHomeOffer(initialData));
   const data = scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value)
     ? scopedData.value
-    : scopedData === null && initialSeedUsable ? initialData : null;
+    : scopedData === null && (initialSeedUsable || initialHolidaySeedUsable) ? initialData : null;
   function setData(value: ResponseData | null) {
     if (value && isFreshHomeOffer(value)) lastVisibleData.current = value;
     setScopedData(value ? { key: selectionKey, value } : null);
@@ -275,7 +276,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     recoveryStartedAt.current.set(selectionKey, startedAt);
     const remainingBudget = () => Math.max(0, selectionRecoveryBudgetMs - (Date.now() - startedAt));
     const acceptedCandidate = lastGoodData.current.get(selectionKey);
-    const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : initialSeedUsable ? initialData ?? undefined : undefined;
+    const accepted = isFreshHomeOffer(acceptedCandidate) ? acceptedCandidate : initialSeedUsable || initialHolidaySeedUsable ? initialData ?? undefined : undefined;
     if (!accepted) lastGoodData.current.delete(selectionKey);
     // Keep the last verified rail visible and inert while another tab is
     // loading. Clearing it here creates a blank/skeleton flash on every
@@ -284,7 +285,11 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const seededDates = mode === "near" ? homeDealDates(period, clock.now) : null;
-    const canUseSeed = Boolean(seedEnabled && dealRetry === 0 && mode === "near" && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, from: seededDates?.from || "", till: seededDates?.till || "", nights: seededDates?.nights, clockKey: clock.key }) && initialData?.cache?.status === "fresh" && Date.now() - (homeOfferCheckedAt(initialData) ?? 0) < 5 * 60_000);
+    const canUseSeed = Boolean(seedEnabled && dealRetry === 0 && initialData?.cache?.status === "fresh"
+      && Date.now() - (homeOfferCheckedAt(initialData) ?? 0) < 5 * 60_000
+      && (mode === "near"
+        ? acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, from: seededDates?.from || "", till: seededDates?.till || "", nights: seededDates?.nights, clockKey: clock.key })
+        : initialData?.holiday?.id === holidayId && initialData.guests === guests && initialData.locale === language && initialData.clockKey === clock.key));
     if (canUseSeed) {
       lastGoodData.current.set(selectionKey, initialData as ResponseData);
       setData(initialData as ResponseData);
@@ -365,7 +370,9 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         setState("ready");
         armExpiry(result);
       })
-      .catch(() => { if (!controller.signal.aborted) recover(false); });
+      // A transport timeout is not proof that availability failed. Observe
+      // the same leased refresh again inside the shared, bounded deadline.
+      .catch(() => { if (!controller.signal.aborted) recover(); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
@@ -472,13 +479,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     <div className="shell">
       <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{displayState === "ready" ? resultCountLabel : text.loading}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></>}</div></div>
       {!fixedPeriod ? <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
-        {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
+        {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} aria-busy={period === item.id && displayState === "loading" || undefined} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
           if (next < 0) return;
           event.preventDefault();
           choose(periodTabs[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}>{item.label}</button>) : holidays.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={holidayId === item.id} tabIndex={holidayId === item.id ? 0 : -1} onClick={() => chooseHoliday(item.id)} onKeyDown={(event) => {
+        }}>{item.label}</button>) : holidays.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={holidayId === item.id} aria-busy={holidayId === item.id && displayState === "loading" || undefined} tabIndex={holidayId === item.id ? 0 : -1} onClick={() => chooseHoliday(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? holidays.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + holidays.length) % holidays.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + holidays.length) % holidays.length : -1;
           if (next < 0) return;
           event.preventDefault();

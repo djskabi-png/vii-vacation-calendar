@@ -71,6 +71,18 @@ test("hourly mapping preserves unit galleries supplied as arrays and string IDs"
   assert.deepEqual(place.rooms[0].images, ["/api/vii/media/string-id-unit.jpg"]);
 });
 
+test("hourly mapping keeps a scalar room-level night price without fabricating other rates", async () => {
+  const subject = client({
+    rooms: [{ roomID: 71, roomName: "סוויטה", roomCount: 1,
+      basePrices: { hourPriceWeekday: 250, hourPriceWeekend: 250 }, nightPrice: 550 }],
+  });
+  const rates = (await subject.client.fetchCandidate()).entries[0].summary.rooms[0].rates;
+  assert.deepEqual(rates, [
+    { duration: "שעה", weekday: 250, weekend: 250 },
+    { duration: "לילה", weekday: 550, weekend: 550 },
+  ]);
+});
+
 test("rejects mismatched supplier identity and malformed room inventory", async () => {
   await assert.rejects(() => client({ id: 18 }).client.fetchCandidate(), /invalid_room_identity/);
   await assert.rejects(() => client({ rooms: [{ roomID: null, roomName: "חדר" }] }).client.fetchCandidate(), /invalid_room_inventory/);

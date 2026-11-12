@@ -1,0 +1,43 @@
+{
+  "task": "vii-seamless-navigation-recovery-20261112",
+  "observed_at": "2026-11-12",
+  "symptom": "During an otherwise recoverable page or world transition, the shared route error card can appear before the application succeeds.",
+  "root_cause": {
+    "verified": true,
+    "mechanism": "app/error.tsx rendered the terminal error card synchronously while its recovery code only ran later in useEffect. Every recoverable error therefore exposed the terminal surface for at least one paint. app/global-error.tsx had the same ordering flaw.",
+    "trigger_certainty": "The exact production exception that entered the boundary was not captured. Current production transition sampling did not reproduce it, so no unsupported server, cache or RSC trigger claim is made."
+  },
+  "competing_hypotheses": [
+    {
+      "hypothesis": "A permanent origin failure is the primary cause.",
+      "result": "not_supported_by_sample",
+      "evidence": "The user reports that the destination later succeeds, and 24 sampled public cross-world transitions produced no boundary, page error or failed response."
+    },
+    {
+      "hypothesis": "The service worker serves obsolete rendered HTML.",
+      "result": "rejected_for_current_worker",
+      "evidence": "The current public worker caches only the offline shell and static assets; navigation remains network-first."
+    },
+    {
+      "hypothesis": "Slow navigation alone renders the error card.",
+      "result": "rejected_as_sufficient_cause",
+      "evidence": "Cold cross-world transitions were slow, but a delay alone cannot render app/error.tsx without a thrown boundary error."
+    }
+  ],
+  "repair": [
+    "Show immediate branded navigation feedback while retaining the current page.",
+    "Prefetch the four primary world routes after hydration on suitable connections.",
+    "Reserve one automatic route or global boundary reset per pathname and minute.",
+    "Keep existing release-asset cache cleanup and reload recovery bounded.",
+    "Show a concise terminal retry and home action only after bounded recovery is unavailable or exhausted.",
+    "Clear pending feedback on commit, same-route activation, explicit finish, back and unmount."
+  ],
+  "verification": {
+    "unit": "7/7 focused navigation and recovery tests passed.",
+    "build": "Full production build, RSC asset verification and worker startup budget passed.",
+    "delayed_navigation": "Mobile feedback 100ms and desktop feedback 88ms in the final delayed-route audit; old context remained visible; target, back and reload passed.",
+    "family": "24/24 local built-candidate transitions across vacation, events, spa and hourly committed without a visible boundary or page error.",
+    "production_baseline": "24/24 sampled public transitions committed without a visible boundary; this confirms intermittency, not absence of the user-observed defect."
+  },
+  "publication": "not performed; not authorized by the current request"
+}

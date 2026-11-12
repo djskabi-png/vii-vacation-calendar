@@ -1,0 +1,36 @@
+{
+  "status": "fixed_locally_not_deployed",
+  "symptom": "Hourly place pages omit a supplied overnight price; supplier 2717 shows six hourly/day-group choices but no night choice.",
+  "expected_behavior": "If a room supplies a positive overnight price, its page includes לילה with the exact supplied amount; otherwise no night option appears.",
+  "environment": "VII public production and local .release-v790-candidate, observed 2026-11-12.",
+  "reproduction": {
+    "steps": ["Open /discover/place/hourly-2717", "Inspect the room price selector", "Compare with the visible שדה נסתר card on roomsvip.com"],
+    "evidence": "VII exposes 250, 250 and 300 for hour durations only; the legacy card also exposes לילה 550."
+  },
+  "observations": [
+    {"observation":"The current public and bundled normalized entries for supplier 2717 contain no לילה rate.","evidence":"project_knowledge/diagnostics/hourly-live-catalog-20261112.json and app/data/sergey-hourly-catalog.json"},
+    {"observation":"The shared place-detail UI already maps every normalized room rate into a selectable control.","evidence":"app/discover/place/client-page.tsx"},
+    {"observation":"Importer and runtime client duplicated a narrow guessed mapping that only inspects basePrices paired fields.","evidence":"scripts/import-sergey-hourly.mjs and app/lib/sergey-rooms-catalog-client.ts"}
+  ],
+  "hypotheses": [
+    {"id":"H1","mechanism":"The supplier overnight value is outside the two guessed paired basePrices aliases or is scalar, so normalization drops it before rendering.","prediction":"Normalized JSON lacks night although the source consumer displays it, while the UI would render it if present.","discriminating_test":"Compare normalized supplier 2717, the legacy visible card and the place-detail all-rates renderer.","result":"Matched: normalized data lacks night, legacy card shows 550, and UI iterates all normalized rates.","status":"supported"},
+    {"id":"H2","mechanism":"CSS or a fixed UI limit hides the seventh/eighth rate control.","prediction":"The normalized model contains a night rate that is absent from the DOM.","discriminating_test":"Inspect public catalog JSON and live DOM for supplier 2717.","result":"Rejected: neither normalized JSON nor DOM contains a night rate.","status":"rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change":"One shared bounded rate normalizer now serves the build-time importer and runtime client, reads exact scalar or paired overnight values from basePrices or the room projection, and never creates a night option from missing or invalid data.",
+    "evidence":"app/lib/sergey-hourly-rates.ts; 18 scoped tests passed; TypeScript and ESLint passed; desktop and 390px visual layout evidence contains eight controls with no overlap."
+  },
+  "affected_family": ["Hourly importer", "Runtime rooms catalog", "All hourly place rate selectors", "No-night places"],
+  "regression_checks": [
+    "Scalar room-level night price reaches the supplier catalog and detail model.",
+    "Separate weekday and weekend night prices remain distinct.",
+    "Missing, zero, negative, malformed and unrelated fields do not create a night price.",
+    "Hourly detail renders all rates without a duration cap.",
+    "Desktop and 390px selectors fit eight controls without overlap.",
+    "Shekel direction remains correct."
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact live supplier alias must be recorded during the next authenticated refresh. Public production still uses the old normalized catalog and therefore remains unchanged."],
+  "authorization_boundary": "Local diagnosis and repair; no public deploy or catalog activation."
+}

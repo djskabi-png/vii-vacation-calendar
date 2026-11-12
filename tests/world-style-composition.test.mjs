@@ -29,9 +29,10 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   assert.match(providerBlock[0],/\.provider-results \.provider-toolbar\.is-open/);
   for(const addition of unitAdditions)assert.equal(normalized.split(addition).length,2);
   const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
-  // v875 intentionally adds the reviewed vacation holiday-search loader while
-  // preserving the v873 geography containment. Freeze that cumulative cascade.
-  const expected='539943d16e4d6e0e69aca3bb1c57f8dc75be53ef48522f06823918e867868fd6';
+  // The unified release intentionally adds the reviewed account, navigation,
+  // mobile rhythm and footer rules while preserving every world-owned slot.
+  // Freeze that cumulative cascade so later edits cannot silently disturb it.
+  const expected='e3a3f83ad927a15dd80dd1f1338cd0ac43a71decaf0663c156e0694699a91318';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

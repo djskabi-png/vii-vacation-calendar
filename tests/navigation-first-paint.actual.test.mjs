@@ -6,7 +6,7 @@ import { navigationProgressCriticalCss } from '../app/components/navigation-prog
 
 test('navigation feedback keeps its complete styling without a blocking CSS import', () => {
   assert.ok(Buffer.byteLength(navigationProgressCriticalCss) < 2048);
-  for (const selector of ['.navigation-progress{', '.navigation-progress__label{', '.navigation-progress.is-active{', '@keyframes navigation-progress-run', '@media(prefers-reduced-motion:reduce)']) {
+  for (const selector of ['.navigation-progress{', '.navigation-progress__label{', '.navigation-progress.is-active,html[data-navigation-pending="true"] .navigation-progress{', '@keyframes navigation-progress-run', '@media(prefers-reduced-motion:reduce)']) {
     assert.ok(navigationProgressCriticalCss.includes(selector), selector);
   }
   const component = readFileSync('app/components/navigation-progress.tsx', 'utf8');

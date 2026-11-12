@@ -890,6 +890,7 @@
         "app/lib/gallery-candidate-archive.ts",
         "app/lib/supplier-catalog-runtime.ts",
         "app/lib/gallery-apply-integrity.ts"
+      ,"app/lib/sergey-hourly-rates.ts"
       ]
     },
     {
@@ -963,6 +964,12 @@
         "app/lib/share-url.ts",
         "app/join/partner-onboarding.tsx",
         "app/account/page.tsx"
+      ,"app/api/auth/session/route.ts"
+      ,"app/components/account-access.tsx"
+      ,"app/error.tsx"
+      ,"app/global-error.tsx"
+      ,"app/lib/google-auth.ts"
+      ,"app/lib/navigation-recovery.ts"
       ]
     },
     {
@@ -1012,6 +1019,7 @@
       "app/lib/vii-live-search.ts",
       "app/lib/vacation-party.ts",
       "app/components/use-vii-live-search.ts"
+      ,"app/lib/instant-search-url.ts"
       ]
     },
     {
@@ -1115,6 +1123,7 @@
         "app/lib/paced-rail-render.ts",
         "app/lib/home-deals-seed.ts",
         "app/lib/home-deals-snapshot.ts",
+        "app/lib/home-holiday-snapshot.ts",
         "app/lib/discovery-offer-cache.ts",
         "app/lib/discovery-public-index.ts",
         "app/lib/home-deal-curation.ts",
@@ -1340,6 +1349,8 @@
         "app/components/unit-preview-gallery.tsx",
         "app/lib/gallery-media-identity.ts",
         "app/data/verified-media-recovery.json",
+      "app/api/vii/card-galleries/route.ts",
+      "app/lib/library-reconciliation.ts",
         "app/components/gallery-selection.ts",
         "app/components/property-gallery.tsx",
         "app/lib/legacy-gallery-media.ts"
