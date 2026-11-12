@@ -38,6 +38,18 @@ export async function bundledPublicCatalogSummaries<T>(world: SupplierCatalogWor
   return await publicSummaries(world, bundled(world)) as T[];
 }
 
+/**
+ * Resolve a small canonical place shell from the immutable accepted snapshot.
+ * Detail pages use this on the first document so a cold database connection
+ * cannot delay visible content. The client detail endpoint then enriches the
+ * same identity from the current accepted generation behind a shared cache.
+ */
+export async function bundledPublicCatalogSelectedSummaries<T>(world: SupplierCatalogWorld, supplierIds: readonly number[]): Promise<T[]> {
+  const ids = new Set(supplierIds.filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 20));
+  if (!ids.size) return [];
+  return await publicSummaries(world, bundled(world).filter(value => ids.has(Number(catalogIdentity(world, value))))) as T[];
+}
+
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   return readOnceInServerRequest(`public-catalog-summaries:${world}`, async () => {
     const db = await runtimeCatalogDatabase();

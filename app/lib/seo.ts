@@ -102,8 +102,15 @@ export function imageObject(src: string, subject: string, description: string, i
   };
 }
 
+const MAX_PLACE_SCHEMA_IMAGES = 5;
+
 function imageObjects(images: string[], subject: string, description: string) {
-  return Array.from(new Set(images)).map((src, index) => imageObject(src, subject, description, index + 1));
+  // Search engines need a representative image set, not a serialized copy of
+  // an entire supplier gallery. Keeping this list bounded prevents large place
+  // galleries from delaying the first document while preserving image SEO.
+  return Array.from(new Set(images.filter(Boolean)))
+    .slice(0, MAX_PLACE_SCHEMA_IMAGES)
+    .map((src, index) => imageObject(src, subject, description, index + 1));
 }
 
 export function collectionSchema(

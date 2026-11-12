@@ -12,7 +12,7 @@ import { getProviderDetails } from "../../../data/provider-details";
 import { getHourlyDetails } from "../../../data/hourly-details";
 import { getActivityDetails } from "../../../data/activity-details";
 import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
-import { publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
@@ -33,22 +33,19 @@ const resolveItem = cache(async (id: string) => {
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;
   if (/^spa-\d+$/.test(id)) {
     const supplierId = Number(id.slice("spa-".length));
-    const [acceptedSite] = await publicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
+    const [acceptedSite] = await bundledPublicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
     const selectedItem = acceptedSite ? spaPlacesFromSites([acceptedSite])[0] : undefined;
-    // The selected supplier must come from the accepted runtime generation,
-    // but opening one place must not re-project the complete spa catalog.
-    // The immutable build snapshot is sufficient for the small related/search
-    // inventory and is replaced only at the selected identity.
+    // The first document uses the accepted build snapshot so a cold database
+    // connection cannot hold the visible place shell.
     items = discoveryItems.filter((entry) => entry.world === "spa")
       .map((entry) => selectedItem?.id === entry.id ? selectedItem : entry);
     if (selectedItem && !items.some((entry) => entry.id === selectedItem.id)) items.unshift(selectedItem);
     spaSite = acceptedSite;
   } else if (/^hourly-\d+$/.test(id)) {
     const supplierId = Number(id.slice("hourly-".length));
-    const [acceptedPlace] = await publicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
+    const [acceptedPlace] = await bundledPublicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
     const selectedItem = acceptedPlace ? hourlyPlacesFromCatalog([acceptedPlace])[0] : undefined;
-    // As above, keep the current selected record while avoiding a full rooms
-    // catalog transformation on every cold detail-page render.
+    // Keep the selected accepted snapshot without a cold runtime catalog read.
     items = discoveryItems.filter((entry) => entry.world === "hourly")
       .map((entry) => selectedItem?.id === entry.id ? selectedItem : entry);
     if (selectedItem && !items.some((entry) => entry.id === selectedItem.id)) items.unshift(selectedItem);

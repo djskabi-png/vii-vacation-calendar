@@ -142,15 +142,17 @@ test("cold public documents do not read whole runtime catalogs before sending HT
     assert.match(source, /bundledPublicCatalogSummaries/);
     assert.doesNotMatch(source, /publicCatalogSummaries</);
   }
-  assert.match(business, /publicCatalogSelectedSummaries/);
+  assert.match(business, /bundledPublicCatalogSelectedSummaries/);
+  assert.doesNotMatch(business, /publicCatalogSelectedSummaries/);
   assert.doesNotMatch(business, /publicCatalogDetail/);
 });
 
-test("spa and hourly place pages select one accepted supplier instead of reading a whole runtime catalog", async () => {
+test("spa and hourly place pages select one accepted build supplier without a cold runtime catalog read", async () => {
   const source = await readFile(new URL("app/discover/place/[id]/page.tsx", root), "utf8");
   assert.match(source, /cache\(async \(id: string\)/);
-  assert.match(source, /publicCatalogSelectedSummaries<SpaPlusSite>/);
-  assert.match(source, /publicCatalogSelectedSummaries<\(typeof hourlyCatalog\.places\)\[number\]>/);
+  assert.match(source, /bundledPublicCatalogSelectedSummaries<SpaPlusSite>/);
+  assert.match(source, /bundledPublicCatalogSelectedSummaries<\(typeof hourlyCatalog\.places\)\[number\]>/);
+  assert.doesNotMatch(source, /publicCatalogSelectedSummaries/);
   assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "spa"\)/);
   assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "hourly"\)/);
   assert.doesNotMatch(source, /bundledPublicCatalogSummaries/);

@@ -1312,7 +1312,10 @@ test("all authored image elements declare an intentional alt value", async () =>
 test("indexable place schemas expose page-bound image metadata without invented dates", async () => {
   const seo = await readFile(new URL("../app/lib/seo.ts", import.meta.url), "utf8");
 
+  assert.match(seo, /const MAX_PLACE_SCHEMA_IMAGES = 5/);
   assert.match(seo, /function imageObjects\(images: string\[\], subject: string, description: string\)/);
+  assert.match(seo, /new Set\(images\.filter\(Boolean\)\)/);
+  assert.match(seo, /\.slice\(0, MAX_PLACE_SCHEMA_IMAGES\)/);
   assert.match(seo, /"@type": "ImageObject"/);
   assert.match(seo, /contentUrl: absoluteUrl\(src\)/);
   assert.match(seo, /caption: name/);

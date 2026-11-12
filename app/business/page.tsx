@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import BusinessPage, { BusinessComplementarySections } from "./client-page";
 import { getListingOfferings, properties as bundledProperties, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
-import { bundledPublicCatalogSummaries, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries, bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
@@ -39,10 +39,10 @@ const resolveProperty = cache(async (id?: string) => {
   const slug = supplierLegacySlug(id, "vacations") || id;
   const supplierId = /^vacation-(\d+)$/.exec(slug || "")?.[1];
   if (supplierId) {
-    const [property] = await publicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
+    const [property] = await bundledPublicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
     if (property) return { ...property, description: supplierDisplayDescription(property) };
-    // An authoritative empty selection means the supplier was removed from
-    // the accepted generation. Do not resurrect it from the immutable bundle.
+    // The immutable snapshot is the accepted generation packaged with this
+    // release. Missing identities must not be guessed or substituted.
     return undefined;
   }
   return id ? bundledProperties.find((item) => item.slug === slug) : bundledProperties[0];

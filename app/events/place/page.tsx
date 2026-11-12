@@ -6,7 +6,7 @@ import EventPlacePage from "./client-page";
 import { EventRelatedSlot } from "./related-slot";
 import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../data/site-data";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
-import { publicCatalogSelectedSummaries } from "../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries } from "../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
@@ -30,7 +30,7 @@ const resolvePlace = cache(async (id?: string) => {
   if (unavailable) redirect(`${prefix}${unavailable}`);
   const supplierId = /^event-(\d+)$/.exec(id || "")?.[1];
   const [selected] = supplierId
-    ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
+    ? await bundledPublicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
   const place = selected ? { ...selected, description: supplierDisplayDescription(selected) }
     : supplierId ? undefined : id ? bundledPlaces.find((item) => item.slug === id) : undefined;

@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
 import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../../data/site-data";
-import { publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
@@ -28,7 +28,7 @@ const resolvePlace = cache(async (id: string) => {
   if (unavailable) redirect(`${prefix}${unavailable}`);
   const supplierId = /^event-(\d+)$/.exec(id)?.[1];
   const [selected] = supplierId
-    ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
+    ? await bundledPublicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
   const place = supplierId ? selected : bundledEventPlaces.find((item) => item.slug === id);
   if (!place) notFound();

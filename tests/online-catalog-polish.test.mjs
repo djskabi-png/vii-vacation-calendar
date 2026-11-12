@@ -103,7 +103,7 @@ test("card galleries advance past broken supplier images and withdraw media afte
   assert.match(css, /\.preview-card-gallery__missing \{[^}]*position:absolute;[^}]*place-items:center/);
 });
 
-test("business and event detail pages render accepted platform snapshots without live supplier requests", async () => {
+test("business and event detail pages stream accepted build shells and defer current detail enrichment", async () => {
   const [business, businessClient, eventQuery, eventPath, eventClient] = await Promise.all([
     read("app/business/page.tsx"),
     read("app/business/client-page.tsx"),
@@ -112,15 +112,15 @@ test("business and event detail pages render accepted platform snapshots without
     read("app/events/place/client-page.tsx"),
   ]);
   for (const source of [business, eventQuery, eventPath]) {
-    assert.match(source, /publicCatalogDetail/);
-    assert.match(source, /publicCatalogSelectedSummaries/);
+    assert.doesNotMatch(source, /publicCatalogDetail/);
+    assert.match(source, /bundledPublicCatalogSelectedSummaries/);
+    assert.match(source, /supplierDetailUrl/);
     assert.doesNotMatch(source, /liveSupplierPlaceDetail/);
   }
-  assert.match(business, /Promise\.all\(\[/);
   assert.match(eventQuery, /const relatedContent = <Suspense fallback=\{null\}>[\s\S]*EventRelatedContent/);
-  assert.match(eventQuery, /async function EventRelatedContent[\s\S]*loadPlaces\(\)/);
+  assert.match(eventQuery, /async function EventRelatedContent[\s\S]*bundledPlaces/);
   assert.match(eventPath, /const relatedContent = <Suspense fallback=\{null\}>[\s\S]*EventRelatedSlotAsync/);
-  assert.match(eventPath, /async function EventRelatedSlotAsync[\s\S]*loadPlaces\(\)/);
+  assert.match(eventPath, /async function EventRelatedSlotAsync[\s\S]*bundledEventPlaces/);
   assert.doesNotMatch(eventQuery, /relatedPlaces = nearbyRecommendations/);
   assert.doesNotMatch(eventPath, /relatedPlaces = nearbyRecommendations/);
   assert.doesNotMatch(businessClient, /import \{[^}]*\bproperties\b[^}]*\} from "\.\.\/data\/site-data"/);
@@ -133,7 +133,7 @@ test("new-tab business navigation warms only the bounded document path", async (
   const warmup = await read("app/components/smart-navigation-warmup.tsx");
   const scheduler = await read("app/lib/navigation-intent-warmup.ts");
   assert.match(warmup, /isBusinessDepthRoute\(basePath\)/);
-  assert.match(warmup, /warmup\.warm\(destination, opensNewTab \|\| isBusinessDepthRoute\(basePath\)/);
+  assert.match(warmup, /warmup\.warm\(destination, !mobileSameTab && \(opensNewTab \|\| isBusinessDepthRoute\(basePath\)\)\)/);
   assert.match(scheduler, /cache: "force-cache"/);
   assert.match(scheduler, /Accept: "text\/html,application\/xhtml\+xml"/);
 });
