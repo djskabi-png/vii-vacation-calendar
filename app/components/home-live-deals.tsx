@@ -36,6 +36,12 @@ export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: strin
 type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
+// The origin already performs one bounded 3.2s join against the lease-owned
+// refresh. Retrying the same discovery request in the browser doubled a cold
+// tab transition to roughly eight seconds without adding fresh information.
+// Keep one browser attempt slightly wider than the server join and let the
+// existing recovery state own any later, visibly signalled retry.
+const sliderRequestBudgetMs = 4_500;
 const holidayPrimeRequests = new Map<string, Promise<ResponseData>>();
 const periodPrimeRequests = new Map<string, Promise<ResponseData>>();
 
@@ -51,7 +57,7 @@ function primeHomePeriodDeals(period: HomeDealPeriod, language: string, clockKey
   if (existing) return existing;
   const request = discoveryJson<ResponseData>(url, scope, {
     headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000,
-    staleMs: 60 * 60_000, timeoutMs: 4_000, totalTimeoutMs: 8_000, retries: 1,
+    staleMs: 60 * 60_000, timeoutMs: sliderRequestBudgetMs, totalTimeoutMs: sliderRequestBudgetMs, retries: 0,
     shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
     validateResponse: validHomeOfferResponse,
   }).finally(() => periodPrimeRequests.delete(key));
@@ -79,9 +85,9 @@ function primeHomeHolidayDeals(holiday: HomeHoliday, clockKey: string) {
     persist: true,
     freshMs: 5 * 60_000,
     staleMs: 60 * 60_000,
-    timeoutMs: 4_000,
-    totalTimeoutMs: 8_000,
-    retries: 1,
+    timeoutMs: sliderRequestBudgetMs,
+    totalTimeoutMs: sliderRequestBudgetMs,
+    retries: 0,
     shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
     validateResponse: validHomeOfferResponse,
   }).finally(() => holidayPrimeRequests.delete(key));
@@ -303,7 +309,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     const primedPeriod = mode === "near" ? pendingHomePeriodPrime(period, language, clock.key, guests, regionLabel) : undefined;
     const request = primedHoliday || primedPeriod
       ? waitForHolidayPrime((primedHoliday || primedPeriod)!, controller.signal)
-      : discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_000, remainingBudget()), totalTimeoutMs: Math.min(8_000, remainingBudget()), retries: 1,
+      : discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(4_500, remainingBudget()), totalTimeoutMs: Math.min(4_500, remainingBudget()), retries: 0,
         shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse });
     request
       .then((result) => {

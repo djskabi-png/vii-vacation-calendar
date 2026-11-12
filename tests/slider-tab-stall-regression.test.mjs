@@ -24,3 +24,12 @@ test("cold discovery joins one lease-owned warm operation before returning refre
   assert.match(holidayRoute, /const refresh = cachedHolidayDiscovery/);
   assert.doesNotMatch(holidayRoute, /setTimeout\(\(\) => resolve\(null\), 1200\)/);
 });
+
+test("slider discovery never serializes a second browser attempt behind a cold tab click", () => {
+  assert.match(slider, /const sliderRequestBudgetMs = 4_500;/);
+  assert.doesNotMatch(slider, /totalTimeoutMs:\s*8_000/);
+  const sliderRequests = [...slider.matchAll(/totalTimeoutMs:\s*sliderRequestBudgetMs,\s*retries:\s*(\d+)/g)];
+  assert.ok(sliderRequests.length >= 2, "period and holiday primes must share the bounded one-attempt policy");
+  assert.ok(sliderRequests.every((match) => match[1] === "0"));
+  assert.match(slider, /totalTimeoutMs:\s*Math\.min\(4_500, remainingBudget\(\)\),\s*retries:\s*0/);
+});
