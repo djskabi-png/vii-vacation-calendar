@@ -322,7 +322,13 @@ export default { fetch: serve, async scheduled(_controller: EdgeScheduledControl
     .then(report => console.log('VII holiday snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report }))
     .catch(error => console.warn('VII holiday snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }));
   ctx.waitUntil(holidayWork);
-  const work = warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx, _controller.scheduledTime);
+  // Build the holiday snapshots before regenerating the homepage document.
+  // Running both warmers concurrently can cache a perfectly healthy homepage
+  // shell without its verified holiday seed. That makes the first visitor pay
+  // for a cold API observation and can surface a retry card even though the
+  // same cron is already preparing the data. The holiday warmer is bounded
+  // and fail-soft, so document warming still runs after a provider failure.
+  const work = holidayWork.then(() => warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx, _controller.scheduledTime));
   ctx.waitUntil(work);
   const report = await work;
   console.log("VII public document warming", { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report });

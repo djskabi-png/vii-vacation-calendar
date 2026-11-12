@@ -44,7 +44,7 @@ test('admission deadline stops additional work without another supplier retry',a
 });
 
 test('installed edge scheduler actually invokes the holiday warmer independently of managed application cron',async()=>{
- const old=globalThis.fetch;let calendar=0,details=0;const tasks=[];
- globalThis.fetch=async request=>{const path=new URL(request.url).pathname;if(path==='/api/vii/home-holidays'){calendar++;return json({holidays:[{id:114}]});}if(path==='/api/vii/home-holiday-deals'){details++;return json(verified(114));}return new Response('html',{headers:{'Content-Type':path.endsWith('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+100000)}});};
+ const old=globalThis.fetch;let calendar=0,details=0,holidayReady=false;const tasks=[];
+ globalThis.fetch=async request=>{const path=new URL(request.url).pathname;if(path==='/api/vii/home-holidays'){calendar++;return json({holidays:[{id:114}]});}if(path==='/api/vii/home-holiday-deals'){details++;holidayReady=true;return json(verified(114));}assert.equal(holidayReady,true,'homepage warming must start only after holiday snapshots are ready');return new Response('html',{headers:{'Content-Type':path.endsWith('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+100000)}});};
  try{await worker.scheduled({scheduledTime:Date.now(),cron:'*/2 * * * *'},{EXPECTED_BUILD:build,ORIGIN:origin},{waitUntil(p){tasks.push(p)}});await Promise.allSettled(tasks);assert.equal(calendar,1);assert.equal(details,1);}finally{globalThis.fetch=old;}
 });

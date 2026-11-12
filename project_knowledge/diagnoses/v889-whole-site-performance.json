@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "incident": "Public documents and world transitions intermittently took several seconds or reached the origin timeout surface.",
+  "status": "root_fix_live_followup_qualified",
+  "observedEvidence": [
+    "Before repair, representative public documents returned X-VII-Edge-Cache-Skip: build_mismatch.",
+    "The edge EXPECTED_BUILD referenced 90a45426-e375-4c53-cc48-28a73a2817bf while public application v888 served a80f53ca-0270-c4f2-ad57-2156821fdc89.",
+    "After aligning the generation, six representative routes progressed MISS to HIT and warm samples completed in 304-545ms.",
+    "A clean browser visit exposed one cold holiday rail before the repaired scheduler had rebuilt its snapshots; after warming, a second clean visit rendered both rails and tab changes completed in 306-620ms.",
+    "The scheduler previously warmed holiday snapshots and homepage documents concurrently, so it could cache a homepage shell before the verified holiday seed existed.",
+    "Several first-document payloads still exceeded 800KB uncompressed, with vacations/north above 1.3MB."
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "claim": "Stale edge generation forced every otherwise-cacheable document to the slow Sites origin.",
+      "result": "supported_and_repaired"
+    },
+    {
+      "id": "H2",
+      "claim": "The remaining cold-route delay is amplified by serializing full catalogs, rails and structured data into initial HTML and Flight.",
+      "result": "supported_but_unsafe_payload_caps_rejected_and_reverted"
+    },
+    {
+      "id": "H3",
+      "claim": "Images alone caused the document wait.",
+      "result": "rejected_as_primary_cause"
+    },
+    {
+      "id": "H4",
+      "claim": "Concurrent holiday snapshot and homepage warming allowed the cached document to precede its verified seed.",
+      "result": "supported_and_repaired"
+    }
+  ],
+  "prevention": [
+    "A live edge-generation audit must fail release sign-off when the second exact request is not HIT or when app/cache builds differ.",
+    "Holiday snapshots are prepared before the scheduled homepage document is regenerated.",
+    "Payload caps that changed inventory completeness, counts or cheapest-offer semantics were rejected by regression tests and reverted.",
+    "Release evidence must include cold, warm, mobile and desktop checks rather than a build-only claim."
+  ]
+}
