@@ -42,6 +42,8 @@ const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 // Keep one browser attempt slightly wider than the server join and let the
 // existing recovery state own any later, visibly signalled retry.
 const sliderRequestBudgetMs = 5_500;
+const backgroundPrimeDelayMs = 5_000;
+const backgroundPrimeLimit = 2;
 const holidayPrimeRequests = new Map<string, Promise<ResponseData>>();
 const periodPrimeRequests = new Map<string, Promise<ResponseData>>();
 
@@ -352,13 +354,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       .sort((a, b) => Math.abs(periodTabs.indexOf(a) - currentIndex) - Math.abs(periodTabs.indexOf(b) - currentIndex));
     let cancelled = false;
     const timer = setTimeout(async () => {
-      for (const item of ordered) {
+      for (const item of ordered.slice(0, backgroundPrimeLimit)) {
         if (cancelled) return;
         try { await primeHomePeriodDeals(item.id, language, clock.key, guests, regionLabel); } catch { /* The selected tab owns visible recovery. */ }
         if (cancelled) return;
         await new Promise((resolve) => setTimeout(resolve, 150));
       }
-    }, 120);
+    }, backgroundPrimeDelayMs);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [active, clock?.key, data, fixedPeriod, guests, language, mode, period, periodTabs, regionLabel, state]);
 
@@ -374,13 +376,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       .sort((a, b) => Math.abs(holidays.indexOf(a) - currentIndex) - Math.abs(holidays.indexOf(b) - currentIndex));
     let cancelled = false;
     const timer = setTimeout(async () => {
-      for (const holiday of ordered) {
+      for (const holiday of ordered.slice(0, backgroundPrimeLimit)) {
         if (cancelled) return;
         try { await primeHomeHolidayDeals(holiday, clock.key); } catch { /* A selected tab still owns visible retry/error UI. */ }
         if (cancelled) return;
         await new Promise((resolve) => setTimeout(resolve, 150));
       }
-    }, 120);
+    }, backgroundPrimeDelayMs);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [active, clock?.key, data, holidayId, holidayState, holidays, mode, state]);
 

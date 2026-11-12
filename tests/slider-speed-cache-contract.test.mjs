@@ -84,7 +84,7 @@ test("visible slider images are high priority while deferred rails preserve geom
 test("holiday tabs retain verified cards and warm the remaining choices sequentially", async () => {
   const home = await readFile(new URL("app/components/home-live-deals.tsx", root), "utf8");
   assert.match(home, /const holidayPrimeRequests = new Map/);
-  assert.match(home, /for \(const holiday of ordered\)[\s\S]*?await primeHomeHolidayDeals\(holiday, clock\.key\)/);
+  assert.match(home, /for \(const holiday of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*?await primeHomeHolidayDeals\(holiday, clock\.key\)/);
   assert.match(home, /const retainedData = data \?\? \(state === "loading"/);
   assert.match(home, /displayState === "loading" && retainedData !== null/);
   assert.match(home, /pendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
