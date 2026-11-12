@@ -57,6 +57,7 @@ import { PropertyGallery } from "../components/property-gallery";
 import { FloatingContactActions } from "../components/floating-contact-actions";
 import { SearchAfterResults } from "../components/search-after-results";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { useDeferredSupplierDetail } from "../components/use-deferred-supplier-detail";
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
 import { FeatureIcon } from "../components/feature-icon";
@@ -122,7 +123,8 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   return `/booking?${params.toString()}`;
 }
 
-export default function BusinessPage({ initialProperty, relatedProperties, complementaryContent, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; complementaryContent?: ReactNode; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialProperty, relatedProperties, complementaryContent, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail: initialSupplierDetail, supplierDetailUrl, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; complementaryContent?: ReactNode; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; supplierDetailUrl?: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+  const supplierDetail = useDeferredSupplierDetail(supplierDetailUrl, initialSupplierDetail);
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");

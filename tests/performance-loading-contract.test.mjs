@@ -143,7 +143,7 @@ test("cold public documents do not read whole runtime catalogs before sending HT
     assert.doesNotMatch(source, /publicCatalogSummaries</);
   }
   assert.match(business, /publicCatalogSelectedSummaries/);
-  assert.match(business, /publicCatalogDetail/);
+  assert.doesNotMatch(business, /publicCatalogDetail/);
 });
 
 test("spa and hourly place pages select one accepted supplier instead of reading a whole runtime catalog", async () => {
@@ -166,10 +166,30 @@ test("vacation and event detail pages never read a whole runtime catalog on the 
   assert.match(business, /properties as bundledProperties/);
   assert.match(business, /bundledProperties\.map\(\(entry\) => entry\.slug === property\.slug \? property : entry\)/);
   assert.doesNotMatch(business, /bundledPublicCatalogSummaries<Property>/);
+  assert.doesNotMatch(business, /publicCatalogDetail/);
+  assert.match(business, /supplierDetailUrl/);
   for (const source of [eventPath, eventQuery]) {
     assert.match(source, /eventPlaces as bundledEventPlaces/);
     assert.doesNotMatch(source, /publicCatalogSummaries<EventPlace>/);
+    assert.doesNotMatch(source, /publicCatalogDetail/);
+    assert.match(source, /supplierDetailUrl/);
   }
+});
+
+test("place detail enrichment is lazy, deduplicated and independently cacheable", async () => {
+  const [hook, route, businessClient, eventClient] = await Promise.all([
+    readFile(new URL("app/components/use-deferred-supplier-detail.ts", root), "utf8"),
+    readFile(new URL("app/api/vii/place-detail/route.ts", root), "utf8"),
+    readFile(new URL("app/business/client-page.tsx", root), "utf8"),
+    readFile(new URL("app/events/place/client-page.tsx", root), "utf8"),
+  ]);
+  assert.match(hook, /resolvedDetails = new Map/);
+  assert.match(hook, /pendingDetails = new Map/);
+  assert.match(hook, /cache: "force-cache"/);
+  assert.match(route, /publicCatalogDetail<SupplierPlaceDetail>/);
+  assert.match(route, /s-maxage=3600/);
+  assert.match(route, /stale-while-revalidate=86400/);
+  for (const source of [businessClient, eventClient]) assert.match(source, /useDeferredSupplierDetail/);
 });
 
 test("event search serializes a bounded discovery projection", async () => {

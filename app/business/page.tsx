@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import BusinessPage, { BusinessComplementarySections } from "./client-page";
 import { getListingOfferings, properties as bundledProperties, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
-import { bundledPublicCatalogSummaries, publicCatalogDetail, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
@@ -14,7 +14,6 @@ import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import { supplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { nearbyTrails, trails } from "../data/trail-data";
 import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
 import type { SpaPlusSite } from "../data/spaplus";
@@ -97,24 +96,16 @@ export default async function Page({ searchParams }: Props) {
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
   const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
-  const [property, acceptedDetail] = await Promise.all([
-    resolveProperty(params.id),
-    supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
-  ]);
+  const property = await resolveProperty(params.id);
   if (!property) notFound();
   const properties = bundledProperties.map((entry) => entry.slug === property.slug ? property : entry);
   // Public pages render from the accepted platform snapshot. Supplier refreshes
   // belong to the ingestion pipeline and must never sit on the visitor's
   // critical path or turn a slow upstream API into a slow business page.
-  const agreementDetail = supplierPlaceDetail(property.slug);
-  const supplierDetail = acceptedDetail
-    ? { ...acceptedDetail, policy: { ...acceptedDetail.policy, ...(agreementDetail?.policy.cancellationTerms ? { cancellationTerms: agreementDetail.policy.cancellationTerms } : {}) } }
-    : agreementDetail;
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
-  // The accepted detail already owns the full galleries, room data and features.
-  // Avoid serializing the same large media arrays twice into the business-page RSC payload.
   const propertyWithVerifiedVideo = attachVerifiedSupplierVideo(property);
-  const initialProperty = supplierDetail ? { ...propertyWithVerifiedVideo, images: propertyWithVerifiedVideo.images.slice(0, 1), galleryGroups: undefined, roomOptions: undefined, featureGroups: undefined } : propertyWithVerifiedVideo;
+  const initialProperty = propertyWithVerifiedVideo;
+  const supplierDetailUrl = supplierId ? `/api/vii/place-detail?world=vacations&id=${supplierId}` : undefined;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   const selectedDatesHaveLivePrice = Boolean(params.from && params.till && Number(params.price) > 0);
   const resolvedPropertyFaq = propertyFaq.map((item, index) => index === 0 && selectedDatesHaveLivePrice
@@ -155,6 +146,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(resolvedPropertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={initialProperty} relatedProperties={relatedProperties} complementaryContent={<Suspense fallback={<section className="section property-complements" aria-busy="true" />}><BusinessComplementaryContent property={property} /></Suspense>} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={initialProperty} relatedProperties={relatedProperties} complementaryContent={<Suspense fallback={<section className="section property-complements" aria-busy="true" />}><BusinessComplementaryContent property={property} /></Suspense>} faqItems={resolvedPropertyFaq} supplierDetailUrl={supplierDetailUrl} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

@@ -6,11 +6,10 @@ import EventPlacePage from "./client-page";
 import { EventRelatedSlot } from "./related-slot";
 import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../data/site-data";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
-import { publicCatalogDetail, publicCatalogSelectedSummaries } from "../../lib/public-catalog-read.ts";
+import { publicCatalogSelectedSummaries } from "../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
-import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { providerProfiles } from "../../data/world-data";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
@@ -58,12 +57,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function Page({ searchParams }: Props) {
   const id = (await searchParams).id;
   const supplierId = /^event-(\d+)$/.exec(id || "")?.[1];
-  const [place, acceptedDetail] = await Promise.all([
-    resolvePlace(id),
-    supplierId ? publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null,
-  ]);
+  const place = await resolvePlace(id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
-  const supplierDetail = acceptedDetail || undefined;
+  const supplierDetailUrl = supplierId ? `/api/vii/place-detail?world=events&id=${supplierId}` : undefined;
   const relatedContent = <Suspense fallback={null}><EventRelatedContent place={place} /></Suspense>;
   const { language, translate } = await serverPublicCopy();
   const localized = localizedEventPlace(place, language, translate);
@@ -75,7 +71,7 @@ export default async function Page({ searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: localized.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedContent={relatedContent} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedContent={relatedContent} providerInventory={providerProfiles} supplierDetailUrl={supplierDetailUrl} />
   </>;
 }
 

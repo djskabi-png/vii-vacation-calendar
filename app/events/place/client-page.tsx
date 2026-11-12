@@ -34,6 +34,7 @@ import { PropertyGallery } from "../../components/property-gallery";
 import { FloatingContactActions } from "../../components/floating-contact-actions";
 import { SearchAfterResults } from "../../components/search-after-results";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
+import { useDeferredSupplierDetail } from "../../components/use-deferred-supplier-detail";
 import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
@@ -57,7 +58,8 @@ function displayEventDate(value: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value.slice(8, 10)}.${value.slice(5, 7)}.${value.slice(0, 4)}` : value;
 }
 
-export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, relatedContent, providerInventory, supplierDetail }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces?: EventPlace[]; relatedContent?: ReactNode; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail }) {
+export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, relatedContent, providerInventory, supplierDetail: initialSupplierDetail, supplierDetailUrl }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces?: EventPlace[]; relatedContent?: ReactNode; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; supplierDetailUrl?: string }) {
+  const supplierDetail = useDeferredSupplierDetail(supplierDetailUrl, initialSupplierDetail);
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
