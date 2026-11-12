@@ -208,6 +208,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
   const track = useRef<HTMLDivElement>(null);
   const lastGoodData = useRef(new Map<string, ResponseData>());
+  // Keep the last painted, verified rail independently from the currently
+  // selected key. During hydration or a first tab change scopedData can be
+  // temporarily empty even though the visitor is already looking at useful
+  // cards. The visible rail must survive that transition until the newly
+  // selected result is verified.
+  const lastVisibleData = useRef<ResponseData | null>(isFreshHomeOffer(initialData) ? initialData ?? null : null);
   const automaticRetries = useRef(new Map<string, number>());
   const recoveryStartedAt = useRef(new Map<string, number>());
   const displaySettingsApplied = useRef(Boolean(initialData?.display));
@@ -222,7 +228,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const data = scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value)
     ? scopedData.value
     : scopedData === null && initialSeedUsable ? initialData : null;
-  function setData(value: ResponseData | null) { setScopedData(value ? { key: selectionKey, value } : null); }
+  function setData(value: ResponseData | null) {
+    if (value && isFreshHomeOffer(value)) lastVisibleData.current = value;
+    setScopedData(value ? { key: selectionKey, value } : null);
+  }
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
@@ -416,7 +425,11 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     setHolidayId(value);
   }
 
-  const retainedData = data ?? (state === "loading" && scopedData && isFreshHomeOffer(scopedData.value) ? scopedData.value : null);
+  const retainedData = data ?? (state === "loading"
+    ? scopedData && isFreshHomeOffer(scopedData.value) ? scopedData.value
+      : isFreshHomeOffer(lastVisibleData.current) ? lastVisibleData.current
+        : null
+    : null);
   const eligibleDeals = useMemo(() => retainedData?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [retainedData?.deals, clock?.key]);
   // Preserve accepted identities and truth cohorts before weighted exposure.
   // Each independent search rotates equal-weight eligible venues; the
@@ -476,7 +489,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
             <span>{text.loading}</span>
           </div>
-          <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
+          <div className="home-live-deals__loading-cards" data-horizontal-rail aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
         {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
