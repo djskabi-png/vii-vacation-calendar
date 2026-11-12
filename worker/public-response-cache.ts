@@ -97,12 +97,13 @@ function normalizedPublicQuery(url: URL, allowed: ReadonlySet<string>) {
 
 function publicDocumentTtl(pathname: string, url: URL) {
   const path = pathname.replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
-  if (path === "/") return 300;
+  const hasAvailabilityContext = ["date", "from", "till", "to"].some((key) => url.searchParams.has(key));
+  if (path === "/") return 900;
   if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
   if (/^\/(?:business|events\/place|discover\/place)(?:\/|$)/.test(path)
     && !url.searchParams.has("from") && !url.searchParams.has("till")) return 900;
-  if (/^\/(?:last-minute|weekend|business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
-  if (/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|discover\/place)(?:\/|$)/.test(path)) return 180;
+  if (/^\/(?:last-minute|weekend|business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return hasAvailabilityContext ? 180 : 900;
+  if (/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|discover\/place)(?:\/|$)/.test(path)) return hasAvailabilityContext ? 180 : 900;
   if (/^\/legal(?:\/|$)/.test(path)) return 900;
   return null;
 }

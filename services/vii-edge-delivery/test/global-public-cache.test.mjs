@@ -106,9 +106,9 @@ test('canonical locations, locale, place identity and exact SPA package entry re
  }finally{f.restore();}
 });
 
-test('detail authority can only be shortened to five minutes by the global tier',async()=>{
+test('detail authority can retain up to fifteen minutes in the global tier without extending the origin window',async()=>{
  const store=bucket(),key=request('/__vii-edge/detail'),build='test',original=Date.now()+800_000;
  const headers=new Headers({'Content-Type':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(original),'Cache-Control':'public,max-age=800'});
  await writeGlobalPublicCache(store,key,build,new Uint8Array([1]),headers);
- const read=await readGlobalPublicCache(store,key,build);assert.ok(read);assert.ok(Number(read.headers.get('X-VII-Cache-Until'))<=Date.now()+300_000);assert.equal(headers.get('X-VII-Cache-Until'),String(original));
+ const read=await readGlobalPublicCache(store,key,build);assert.ok(read);assert.ok(Number(read.headers.get('X-VII-Cache-Until'))<=Date.now()+900_000);assert.equal(headers.get('X-VII-Cache-Until'),String(original));
 });

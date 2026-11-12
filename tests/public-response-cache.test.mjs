@@ -54,6 +54,15 @@ test("undated place documents keep a longer smart-cache window while dated visit
   assert.notEqual((await policy("/discover/place/spa-25?date=2026-11-13&package=4194", {}, "spa-entry"))?.key, spaPackage.key);
 });
 
+test("public landing documents retain a fifteen minute cross-region window while availability context stays short", async () => {
+  for (const path of ["/", "/search", "/events", "/spas", "/hourly", "/holidays", "/vacations/north", "/providers", "/trails", "/attractions"]) {
+    assert.equal((await policy(path, {}, "landing-window"))?.ttlSeconds, 900, path);
+  }
+  for (const path of ["/search?from=2026-11-13&till=2026-11-14", "/events?date=2026-11-13", "/vacations/north?from=2026-11-13&till=2026-11-14"]) {
+    assert.equal((await policy(path, {}, "availability-window"))?.ttlSeconds, 180, path);
+  }
+});
+
 test("identity isolates builds, hosts, locales, filters and every Flight routing variant", async () => {
   const base = await policy("/spas", {}, "same");
   assert.notEqual((await policy("/spas", {}, "new-release")).key, base.key);
@@ -142,7 +151,7 @@ test("refresh-ahead is nonblocking, deduplicated, capped and retains hard expiry
     () => new Promise((resolve) => { releaseOther = resolve; })), "queued");
   assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), await policy(), ctx, render), "busy");
   assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(Date.now() - 1) } }), p, ctx, render), "expired");
-  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(Date.now() + 175_000) } }), p, ctx, render), "fresh");
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(Date.now() + 700_000) } }), p, ctx, render), "fresh");
   complete(new Response("new")); releaseOther(new Response("other")); await ctx.settle();
   const failure = context();
   assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), p, failure,
@@ -176,7 +185,7 @@ test("homepage SSR offer documents cannot cross the Israel 14:00 cutoff", async 
   const before = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T11:59:59Z"));
   const after = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T12:00:00Z"));
   assert.notEqual(before.key, after.key);
-  assert.equal(before.ttlSeconds, 300);
+  assert.equal(before.ttlSeconds, 900);
   const sameDay = await publicCachePolicy(request, new URL(request.url), "cutoff", new Date("2026-11-07T12:01:00Z"));
   assert.equal(after.key, sameDay.key);
 });

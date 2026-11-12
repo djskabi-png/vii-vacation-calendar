@@ -70,7 +70,7 @@ export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,k
   let value;try{value=JSON.parse(decoder.decode(bytes.subarray(4,4+length)));}catch{return undefined;}
   if(value?.version!==1||value.key!==key.url||value.build!==build||value.status!==200||!Array.isArray(value.headers))return undefined;
   const headers=new Headers(value.headers),until=Number(headers.get('X-VII-Cache-Until'));
-  if(headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||!Number.isFinite(until)||until<=Date.now()||until>Date.now()+300_000||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return undefined;
+  if(headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||!Number.isFinite(until)||until<=Date.now()||until>Date.now()+900_000||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return undefined;
   const expected=decodeURIComponent(new URL(key.url).pathname).includes('/api/')?'application/json':key.url.includes('.rsc')?'text/x-component':'text/html';
   if(!(headers.get('Content-Type')||'').includes(expected))return undefined;
   return new Response(bytes.subarray(4+length),{status:200,headers});
@@ -85,7 +85,7 @@ export async function writeGlobalPublicCache(bucket:PublicCacheBucket|undefined,
  const until=Number(headers.get('X-VII-Cache-Until'));
  if(!Number.isFinite(until)||until<=Date.now()||until>Date.now()+900_000||headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return;
  headers=new Headers(headers);
- const boundedExpiry=Math.min(until,Date.now()+300_000);
+ const boundedExpiry=Math.min(until,Date.now()+900_000);
  headers.set('X-VII-Cache-Until',String(boundedExpiry));
  headers.set('Cache-Control',`public,max-age=${Math.max(0,Math.floor((boundedExpiry-Date.now())/1000))}`);
  const meta=encoder.encode(JSON.stringify({version:1,key:key.url,build,status:200,headers:[...headers]}));
