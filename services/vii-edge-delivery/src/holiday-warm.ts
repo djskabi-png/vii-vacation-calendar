@@ -2,6 +2,7 @@ import { readJsonBody } from '../../../shared/request-body.ts';
 
 type Holiday = { id?: unknown; from?: unknown; till?: unknown; exactStay?: unknown };
 type Options = { origin: string; build: string; fetcher?: typeof fetch; now?: () => number };
+const periods = ['tomorrow', 'weekend', 'friday-weekend', 'thursday', 'friday'] as const;
 
 // The managed application exports a cron handler, but its installed triggers
 // are not exposed by Sites. Use the already installed edge cron as a second
@@ -27,7 +28,7 @@ export async function warmHolidaySnapshots({ origin, build, fetcher = fetch, now
   const calendar = await read('/api/vii/home-holidays?locale=he');
   if (!Array.isArray(calendar.holidays) || calendar.holidays.length > 6) throw new Error('holiday_warm_calendar');
   const unique = new Set<number>();
-  const targets = (calendar.holidays as Holiday[]).map(holiday => {
+  const holidayTargets = (calendar.holidays as Holiday[]).map(holiday => {
     if (!Number.isSafeInteger(holiday.id) || Number(holiday.id) <= 0 || unique.has(Number(holiday.id))) throw new Error('holiday_warm_id');
     unique.add(Number(holiday.id));
     const params = new URLSearchParams({ id: String(holiday.id), guests: '2', part: 'all' });
@@ -35,15 +36,30 @@ export async function warmHolidaySnapshots({ origin, build, fetcher = fetch, now
       if (typeof holiday.from !== 'string' || typeof holiday.till !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(holiday.from) || !/^\d{4}-\d{2}-\d{2}$/.test(holiday.till) || holiday.from >= holiday.till) throw new Error('holiday_warm_stay');
       params.set('from', holiday.from); params.set('till', holiday.till);
     }
-    return '/api/vii/home-holiday-deals?' + params;
+    return { kind: 'holiday' as const, id: Number(holiday.id), path: '/api/vii/home-holiday-deals?' + params };
   });
+  const periodTargets = periods.map(period => ({
+    kind: 'period' as const,
+    period,
+    path: '/api/vii/home-deals?' + new URLSearchParams({ period, locale: 'he', proof: 'verified-offers-v1' }),
+  }));
+  // Put the default near-date rail first, then interleave the remaining
+  // period and holiday choices. This keeps the first screen warm without a
+  // burst and prevents one family from permanently starving the other.
+  const targets: Array<(typeof periodTargets)[number] | (typeof holidayTargets)[number]> = [];
+  const longest = Math.max(periodTargets.length, holidayTargets.length);
+  for (let i = 0; i < longest; i++) {
+    if (periodTargets[i]) targets.push(periodTargets[i]);
+    if (holidayTargets[i]) targets.push(holidayTargets[i]);
+  }
   let index = 0;
   async function worker() {
     while (index < targets.length && now() < deadline) {
-      const path = targets[index++]; report.attempted++;
+      const target = targets[index++]; report.attempted++;
       try {
-        const body = await read(path);
-        if ((body.holiday as Holiday | undefined)?.id !== Number(new URL(path, origin).searchParams.get('id'))) throw new Error('holiday_warm_wrong_selection');
+        const body = await read(target.path);
+        if (target.kind === 'holiday' && (body.holiday as Holiday | undefined)?.id !== target.id) throw new Error('holiday_warm_wrong_selection');
+        if (target.kind === 'period' && body.period !== target.period) throw new Error('holiday_warm_wrong_period');
         if (body.availabilityStatus === 'refreshing') { report.preparing++; continue; }
         const checkedAt = Date.parse((body.cache as { checkedAt?: string } | undefined)?.checkedAt || '');
         if (body.availabilityStatus !== 'verified' || !Array.isArray(body.deals) || !Number.isFinite(checkedAt) || checkedAt > now() || now() - checkedAt >= 60 * 60_000) throw new Error('holiday_warm_unverified');

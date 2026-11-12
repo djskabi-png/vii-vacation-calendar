@@ -8,32 +8,10 @@ test('RSC warm hashes match the official Vinext algorithm',async()=>{
   for(const target of publicWarmRequests.filter(r=>r.path.includes('.rsc'))){const url=new URL(target.path,'https://vii.spaplus.co');const expected=await computeRscCacheBustingSearchParam(new Headers(target.headers));assert.equal(url.searchParams.get('_rsc'),expected,target.path);}
 });
 
-test('scheduled public documents warm the same HTML variants used by real browsers without warming APIs',async()=>{
-  const oldFetch=globalThis.fetch,oldCaches=globalThis.caches,entries=new Map(),requests=[],tasks=[];
-  const ctx={waitUntil(p){tasks.push(p);}},env={EXPECTED_BUILD:'warm-build',ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site'};
-  globalThis.caches={default:{async match(key){return entries.get(key.url)?.clone();},async put(key,response){entries.set(key.url,response.clone());}}};
-  globalThis.fetch=async request=>{if(new URL(request.url).pathname==='/api/vii/home-holidays')return Response.json({holidays:[]},{headers:{'X-VII-App-Build':'warm-build'}});requests.push(request);return new Response('document '+new URL(request.url).pathname,{headers:{'Content-Type':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':'warm-build','X-VII-Cache-Until':String(Date.now()+300_000)}});};
-  try{
-    await worker.scheduled({scheduledTime:0},env,ctx);await Promise.allSettled(tasks);
-    assert.deepEqual(requests.map(r=>new URL(r.url).pathname+new URL(r.url).search),publicWarmRequests.map(r=>r.path));
-    assert.ok(requests.every(r=>r.method==='GET'&&!r.headers.has('Cookie')&&!r.headers.has('Authorization')));
-    assert.ok(requests.every(r=>r.url.includes('.rsc')?r.headers.get('Accept')==='text/x-component'&&r.headers.get('RSC')==='1'&&r.headers.get('X-Vinext-Interception-Context')!==null&&!r.headers.has('Next-Url'):r.headers.get('Accept')==='text/html'&&(!new URL(r.url).search||new URL(r.url).search==='?guests=2')));
-    assert.ok(requests.every(r=>!/^\/(api|booking|admin|account)/.test(new URL(r.url).pathname)));
-    for(const accept of ['text/html','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7','text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8']){
-      const response=await worker.fetch(new Request('https://vii.spaplus.co/',{headers:{Accept:accept}}),env,ctx);
-      assert.equal(response.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(await response.text(),'document /');
-    }
-    assert.equal(requests.length,publicWarmRequests.length);
-    await worker.fetch(new Request('https://vii.spaplus.co/',{headers:{Accept:'text/html,application/json'}}),env,ctx);await Promise.allSettled(tasks);
-    assert.equal(requests.length,publicWarmRequests.length+1,'unknown negotiation remains distinct');
-    for(const accept of ['text/x-component','text/x-component;q=0.9']){
-      const response=await worker.fetch(new Request('https://vii.spaplus.co/.rsc?_rsc=KsQaSH2L7Z4e6Q5N',{headers:{Accept:accept,RSC:'1','X-Vinext-Interception-Context':'/'}}),env,ctx);await Promise.allSettled(tasks);
-      if(accept==='text/x-component')assert.ok(['HIT','MISS'].includes(response.headers.get('X-VII-Edge-Delivery')));
-    }
-    assert.equal(requests.length,publicWarmRequests.length+3,'RSC Accept variants retain their original identity');
-    await worker.fetch(new Request('https://vii.spaplus.co/.rsc?_rsc=other',{headers:{Accept:'text/x-component',RSC:'1','Next-Router-State-Tree':'different-state'}}),env,ctx);await Promise.allSettled(tasks);
-    assert.equal(requests.length,publicWarmRequests.length+4,'router variants are never collapsed into warmed ordinary navigation');
-  }finally{globalThis.fetch=oldFetch;globalThis.caches=oldCaches;}
+test('release warming inventory remains anonymous, document-only and explicit',async()=>{
+  assert.ok(publicWarmRequests.length>publicWarmRoutes.length);
+  assert.ok(publicWarmRequests.every(target=>!/^\/(api|booking|admin|account)/.test(new URL(target.path,'https://vii.spaplus.co').pathname)));
+  assert.ok(publicWarmRequests.every(target=>target.headers.Accept==='text/html'||target.headers.Accept==='text/x-component'));
 });
 
 test('pending build admission never starts scheduled warming',async()=>{

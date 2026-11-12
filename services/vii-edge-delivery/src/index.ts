@@ -1,4 +1,3 @@
-import { warmPublicDocuments } from "./public-warm.ts";
 import { warmHolidaySnapshots } from './holiday-warm.ts';
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
@@ -318,19 +317,16 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
 export default { fetch: serve, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
-  const holidayWork = warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
-    .then(report => console.log('VII holiday snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report }))
-    .catch(error => console.warn('VII holiday snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }));
-  ctx.waitUntil(holidayWork);
-  // Build the holiday snapshots before regenerating the homepage document.
-  // Running both warmers concurrently can cache a perfectly healthy homepage
-  // shell without its verified holiday seed. That makes the first visitor pay
-  // for a cold API observation and can surface a retry card even though the
-  // same cron is already preparing the data. The holiday warmer is bounded
-  // and fail-soft, so document warming still runs after a provider failure.
-  const work = holidayWork.then(() => warmPublicDocuments((request, ownedContext) => serve(request, env, ownedContext as EdgeExecutionContext), ctx, _controller.scheduledTime));
+  // The former two-minute job read up to 66 public documents and contributed
+  // to the v876 origin saturation incident when cache admission was blocked.
+  // The installed schedule now touches only the five near-date snapshots and
+  // the six CMS holiday snapshots. Each read is anonymous, lease-protected,
+  // concurrency-two and globally deadline-bounded in warmHolidaySnapshots.
+  // Public documents remain demand-cached in R2 and are release-warmed by the
+  // build-identity audit, never by a recurring origin fan-out.
+  const work = warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
+    .then(report => console.log('VII discovery snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
+    .catch(error => { console.warn('VII discovery snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }); throw error; });
   ctx.waitUntil(work);
-  const report = await work;
-  console.log("VII public document warming", { build: env.EXPECTED_BUILD || EXPECTED_BUILD, ...report });
-  if (!report.completed) throw new Error("public_document_warming_unavailable");
+  await work;
 } };

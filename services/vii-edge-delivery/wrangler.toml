@@ -3,6 +3,7 @@ account_id = "45b2f6dcf2cfe44204d2c470cbe682d9"
 main = "src/index.ts"
 compatibility_date = "2026-11-04"
 workers_dev = true
+triggers = { crons = ["*/10 * * * *"] }
 routes = [{ pattern = "vii.spaplus.co/*", zone_id = "f1d778343394ef4f56bbcb089793a22a" }]
 
 [[r2_buckets]]
