@@ -11,7 +11,7 @@ import { PUBLIC_CATALOG_NAVIGATION_HEADER, PUBLIC_CATALOG_NAVIGATION_VERSION, is
 type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORIGIN?:string;EXPECTED_BUILD?:string;PUBLIC_CACHE?:PublicCacheBucket};
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
-const EXPECTED_BUILD = "f541a84f-56f0-bbad-e588-ee0e50c0ce30";
+const EXPECTED_BUILD = "a187014d-127a-348e-1156-2f3a2aa970e5";
 const EDGE_CACHE_VERSION = "v22";
 const refreshAfterHeader = "X-VII-Edge-Refresh-After";
 const refreshes = new Set<string>();
