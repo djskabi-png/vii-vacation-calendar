@@ -44,8 +44,9 @@ const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 const sliderRequestBudgetMs = 5_500;
 const backgroundPrimeDelayMs = 5_000;
 const backgroundPrimeLimit = 2;
-const holidayPrimeRequests = new Map<string, Promise<ResponseData>>();
-const periodPrimeRequests = new Map<string, Promise<ResponseData>>();
+type PrimeRequest = { promise: Promise<ResponseData>; controller: AbortController };
+const holidayPrimeRequests = new Map<string, PrimeRequest>();
+const periodPrimeRequests = new Map<string, PrimeRequest>();
 
 function homePeriodDealsUrl(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
   return `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", clock: clockKey, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
@@ -56,20 +57,27 @@ function primeHomePeriodDeals(period: HomeDealPeriod, language: string, clockKey
   const scope = `${clockKey}:verified-offers-v2`;
   const key = `${scope}:${url}`;
   const existing = periodPrimeRequests.get(key);
-  if (existing) return existing;
+  if (existing) return existing.promise;
+  const controller = new AbortController();
   const request = discoveryJson<ResponseData>(url, scope, {
-    headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000,
+    signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000,
     staleMs: 60 * 60_000, timeoutMs: sliderRequestBudgetMs, totalTimeoutMs: sliderRequestBudgetMs, retries: 0,
     shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
     validateResponse: validHomeOfferResponse,
-  }).finally(() => periodPrimeRequests.delete(key));
-  periodPrimeRequests.set(key, request);
+  }).finally(() => {
+    if (periodPrimeRequests.get(key)?.promise === request) periodPrimeRequests.delete(key);
+  });
+  periodPrimeRequests.set(key, { promise: request, controller });
   return request;
 }
 
-function pendingHomePeriodPrime(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
+function cancelPendingHomePeriodPrime(period: HomeDealPeriod, language: string, clockKey: string, guests: number, regionLabel?: string) {
   const url = homePeriodDealsUrl(period, language, clockKey, guests, regionLabel);
-  return periodPrimeRequests.get(`${clockKey}:verified-offers-v2:${url}`);
+  const key = `${clockKey}:verified-offers-v2:${url}`;
+  const pending = periodPrimeRequests.get(key);
+  if (!pending) return;
+  periodPrimeRequests.delete(key);
+  pending.controller.abort(new DOMException("Selected tab superseded background priming", "AbortError"));
 }
 
 function homeHolidayDealsUrl(holiday: HomeHoliday, clockKey: string) {
@@ -81,8 +89,10 @@ function primeHomeHolidayDeals(holiday: HomeHoliday, clockKey: string) {
   const scope = `${clockKey}:verified-offers-v2`;
   const key = `${scope}:${url}`;
   const existing = holidayPrimeRequests.get(key);
-  if (existing) return existing;
+  if (existing) return existing.promise;
+  const controller = new AbortController();
   const request = discoveryJson<ResponseData>(url, scope, {
+    signal: controller.signal,
     headers: { Accept: "application/json" },
     persist: true,
     freshMs: 5 * 60_000,
@@ -92,23 +102,20 @@ function primeHomeHolidayDeals(holiday: HomeHoliday, clockKey: string) {
     retries: 0,
     shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null),
     validateResponse: validHomeOfferResponse,
-  }).finally(() => holidayPrimeRequests.delete(key));
-  holidayPrimeRequests.set(key, request);
+  }).finally(() => {
+    if (holidayPrimeRequests.get(key)?.promise === request) holidayPrimeRequests.delete(key);
+  });
+  holidayPrimeRequests.set(key, { promise: request, controller });
   return request;
 }
 
-function pendingHomeHolidayPrime(holiday: HomeHoliday, clockKey: string) {
+function cancelPendingHomeHolidayPrime(holiday: HomeHoliday, clockKey: string) {
   const url = homeHolidayDealsUrl(holiday, clockKey);
-  return holidayPrimeRequests.get(`${clockKey}:verified-offers-v2:${url}`);
-}
-
-function waitForHolidayPrime(pending: Promise<ResponseData>, signal: AbortSignal) {
-  if (signal.aborted) return Promise.reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
-  return new Promise<ResponseData>((resolve, reject) => {
-    const abort = () => reject(signal.reason ?? new DOMException("Aborted", "AbortError"));
-    signal.addEventListener("abort", abort, { once: true });
-    pending.then(resolve, reject).finally(() => signal.removeEventListener("abort", abort));
-  });
+  const key = `${clockKey}:verified-offers-v2:${url}`;
+  const pending = holidayPrimeRequests.get(key);
+  if (!pending) return;
+  holidayPrimeRequests.delete(key);
+  pending.controller.abort(new DOMException("Selected tab superseded background priming", "AbortError"));
 }
 
 const copy = {
@@ -307,12 +314,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     }
     // One changed-cache retry can recover a transient read failure. Both
     // attempts and refreshing polls share the same selection deadline.
-    const primedHoliday = mode === "holidays" && selectedHoliday ? pendingHomeHolidayPrime(selectedHoliday, clock.key) : undefined;
-    const primedPeriod = mode === "near" ? pendingHomePeriodPrime(period, language, clock.key, guests, regionLabel) : undefined;
-    const request = primedHoliday || primedPeriod
-      ? waitForHolidayPrime((primedHoliday || primedPeriod)!, controller.signal)
-      : discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(5_500, remainingBudget()), totalTimeoutMs: Math.min(5_500, remainingBudget()), retries: 0,
-        shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse });
+    // A deliberate tab choice never inherits the nearly-expired deadline of
+    // an idle background prime. Abort that browser request and start a fresh
+    // foreground read; the origin lease still coalesces supplier work.
+    if (mode === "holidays" && selectedHoliday) cancelPendingHomeHolidayPrime(selectedHoliday, clock.key);
+    if (mode === "near") cancelPendingHomePeriodPrime(period, language, clock.key, guests, regionLabel);
+    const request = discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v2`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true, freshMs: 5 * 60_000, staleMs: 60 * 60_000, timeoutMs: Math.min(5_500, remainingBudget()), totalTimeoutMs: Math.min(5_500, remainingBudget()), retries: 0,
+      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as ResponseData | null), validateResponse: validHomeOfferResponse });
     request
       .then((result) => {
         if (controller.signal.aborted) return;

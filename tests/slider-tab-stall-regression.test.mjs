@@ -6,10 +6,11 @@ const slider = readFileSync(new URL("../app/components/home-live-deals.tsx", imp
 const nearRoute = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
 const holidayRoute = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
 
-test("vacation tabs share in-flight requests and prewarm the remaining periods sequentially", () => {
-  assert.match(slider, /const periodPrimeRequests = new Map<string, Promise<ResponseData>>\(\)/);
-  assert.match(slider, /pendingHomePeriodPrime\(period, language, clock\.key, guests, regionLabel\)/);
-  assert.match(slider, /primedHoliday \|\| primedPeriod[\s\S]*waitForHolidayPrime/);
+test("visitor tab choices supersede background priming and remaining periods still warm sequentially", () => {
+  assert.match(slider, /const periodPrimeRequests = new Map<string, PrimeRequest>\(\)/);
+  assert.match(slider, /cancelPendingHomePeriodPrime\(period, language, clock\.key, guests, regionLabel\)/);
+  assert.match(slider, /pending\.controller\.abort\(new DOMException\("Selected tab superseded background priming"/);
+  assert.doesNotMatch(slider, /waitForHolidayPrime/);
   assert.match(slider, /for \(const item of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*await primeHomePeriodDeals\(item\.id/);
   assert.match(slider, /await new Promise\(\(resolve\) => setTimeout\(resolve, 150\)\)/);
 });
@@ -39,4 +40,5 @@ test("background priming yields to visitor tab changes and stays bounded", () =>
   assert.match(slider, /const backgroundPrimeLimit = 2;/);
   assert.equal((slider.match(/ordered\.slice\(0, backgroundPrimeLimit\)/g) || []).length, 2);
   assert.equal((slider.match(/\}, backgroundPrimeDelayMs\);/g) || []).length, 2);
+  assert.match(slider, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
 });

@@ -87,6 +87,7 @@ test("holiday tabs retain verified cards and warm the remaining choices sequenti
   assert.match(home, /for \(const holiday of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*?await primeHomeHolidayDeals\(holiday, clock\.key\)/);
   assert.match(home, /const retainedData = data \?\? \(state === "loading"/);
   assert.match(home, /displayState === "loading" && retainedData !== null/);
-  assert.match(home, /pendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
+  assert.match(home, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
+  assert.match(home, /pending\.controller\.abort\(new DOMException\("Selected tab superseded background priming"/);
 });
 
