@@ -19,7 +19,7 @@ import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const headers = { "Cache-Control": "no-store" };
-const visitorWarmBudgetMs = 3_200;
+const visitorWarmBudgetMs = 4_800;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {

@@ -19,7 +19,7 @@ import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const noStore = { "Cache-Control": "no-store" };
-const visitorWarmBudgetMs = 3_200;
+const visitorWarmBudgetMs = 4_800;
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
