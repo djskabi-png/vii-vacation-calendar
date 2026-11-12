@@ -43,6 +43,26 @@ test('actual handler forwards infrastructure cookie on MISS and omits it on HIT'
   } finally { h.restore(); }
 });
 
+test('RSC cache identity ignores only the request-specific token and preserves router variants', async () => {
+  const rscHeaders = headers();
+  rscHeaders.set('Content-Type', 'text/x-component');
+  const h = harness({ headers: rscHeaders, body: '<flight/>' });
+  const env = { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' };
+  const request = (token, tree = 'same-tree') => new Request(`https://edge.test/discover/place/spa-290.rsc?_rsc=${token}`, { headers: {
+    Accept: 'text/x-component', RSC: '1', 'Next-Router-State-Tree': tree, 'X-Vinext-Interception-Context': '/spas',
+  } });
+  try {
+    const first = await worker.fetch(request('first-token'), env, h.ctx);
+    assert.equal(first.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const samePayload = await worker.fetch(request('different-token'), env, h.ctx);
+    assert.equal(samePayload.headers.get('X-VII-Edge-Delivery'), 'HIT');
+    const differentTree = await worker.fetch(request('third-token', 'different-tree'), env, h.ctx);
+    assert.equal(differentTree.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    assert.equal(h.stats().originCalls, 2);
+  } finally { h.restore(); }
+});
+
 test('actual handler bypasses private, action, API and unknown-query requests', async () => {
   const h = harness({ headers: headers() });
   try {

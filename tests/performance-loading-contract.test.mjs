@@ -151,7 +151,9 @@ test("spa and hourly place pages select one accepted supplier instead of reading
   assert.match(source, /cache\(async \(id: string\)/);
   assert.match(source, /publicCatalogSelectedSummaries<SpaPlusSite>/);
   assert.match(source, /publicCatalogSelectedSummaries<\(typeof hourlyCatalog\.places\)\[number\]>/);
-  assert.match(source, /bundledPublicCatalogSummaries<SpaPlusSite>/);
+  assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "spa"\)/);
+  assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "hourly"\)/);
+  assert.doesNotMatch(source, /bundledPublicCatalogSummaries/);
   assert.doesNotMatch(source, /publicCatalogSummaries</);
 });
 

@@ -12,7 +12,7 @@ import { getProviderDetails } from "../../../data/provider-details";
 import { getHourlyDetails } from "../../../data/hourly-details";
 import { getActivityDetails } from "../../../data/activity-details";
 import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
-import { bundledPublicCatalogSummaries, publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
+import { publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
@@ -33,26 +33,26 @@ const resolveItem = cache(async (id: string) => {
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;
   if (/^spa-\d+$/.test(id)) {
     const supplierId = Number(id.slice("spa-".length));
-    const [acceptedSite, bundledSites] = await Promise.all([
-      publicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]).then((sites) => sites[0]),
-      bundledPublicCatalogSummaries<SpaPlusSite>("spa"),
-    ]);
-    const sites = acceptedSite
-      ? [acceptedSite, ...bundledSites.filter((site) => site.id !== acceptedSite.id)]
-      : bundledSites;
-    items = spaPlacesFromSites(sites);
-    spaSite = sites.find((site) => `spa-${site.id}` === id);
+    const [acceptedSite] = await publicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
+    const selectedItem = acceptedSite ? spaPlacesFromSites([acceptedSite])[0] : undefined;
+    // The selected supplier must come from the accepted runtime generation,
+    // but opening one place must not re-project the complete spa catalog.
+    // The immutable build snapshot is sufficient for the small related/search
+    // inventory and is replaced only at the selected identity.
+    items = discoveryItems.filter((entry) => entry.world === "spa")
+      .map((entry) => selectedItem?.id === entry.id ? selectedItem : entry);
+    if (selectedItem && !items.some((entry) => entry.id === selectedItem.id)) items.unshift(selectedItem);
+    spaSite = acceptedSite;
   } else if (/^hourly-\d+$/.test(id)) {
     const supplierId = Number(id.slice("hourly-".length));
-    const [acceptedPlace, bundledPlaces] = await Promise.all([
-      publicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]).then((places) => places[0]),
-      bundledPublicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
-    ]);
-    const places = acceptedPlace
-      ? [acceptedPlace, ...bundledPlaces.filter((place) => place.id !== acceptedPlace.id)]
-      : bundledPlaces;
-    items = hourlyPlacesFromCatalog(places);
-    hourlyPlace = places.find((place) => place.id === id);
+    const [acceptedPlace] = await publicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
+    const selectedItem = acceptedPlace ? hourlyPlacesFromCatalog([acceptedPlace])[0] : undefined;
+    // As above, keep the current selected record while avoiding a full rooms
+    // catalog transformation on every cold detail-page render.
+    items = discoveryItems.filter((entry) => entry.world === "hourly")
+      .map((entry) => selectedItem?.id === entry.id ? selectedItem : entry);
+    if (selectedItem && !items.some((entry) => entry.id === selectedItem.id)) items.unshift(selectedItem);
+    hourlyPlace = acceptedPlace;
   } else {
     const [providers, attractions] = await Promise.all([
       managedDiscoveryItems(discoveryItems.filter((entry) => entry.world === "providers"), "providers"),

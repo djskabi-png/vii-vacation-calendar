@@ -12,7 +12,7 @@ type DeliveryEnv=QualityGatewayEnvironment & ExperienceGatewayEnvironment & {ORI
 type EdgeExecutionContext = { waitUntil(promise: Promise<unknown>): void };
 const ORIGIN = "https://vii-vacation-calendar.adir-naor-7510.chatgpt.site";
 const EXPECTED_BUILD = "c4f2bf0e-d89f-fdd5-063b-69cfa6615493";
-const EDGE_CACHE_VERSION = "v22";
+const EDGE_CACHE_VERSION = "v23";
 const refreshAfterHeader = "X-VII-Edge-Refresh-After";
 const refreshes = new Set<string>();
 const refreshAttempts = new Map<string, number>();
@@ -157,7 +157,14 @@ async function fetchPublicRead(request: Request, origin: URL) {
 }
 
 function keyFor(request: Request, url: URL, build: string, now = new Date()) {
-  const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key)).sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+  // Next/Vinext appends a request-specific `_rsc` cache-busting token to
+  // Flight navigations. It is not application state: the actual response
+  // variants are already separated by the router/RSC headers below. Keeping
+  // the token in this key made every tap a guaranteed cache MISS even when an
+  // identical place payload had just been delivered from the same edge POP.
+  // Forward the original token to the origin, but deliberately omit it from
+  // the shared cache identity.
+  const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key) && key !== "_rsc").sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
   const accept = request.headers.get("Accept") || "";
   const htmlTypes = new Set(["text/html", "application/xhtml+xml", "application/xml", "text/xml", "image/avif", "image/webp", "image/apng", "image/svg+xml", "application/signed-exchange", "*/*"]);
   const ordinaryHtml = !url.pathname.endsWith(".rsc") && !request.headers.has("RSC") && !request.headers.has("Next-Router-State-Tree")
