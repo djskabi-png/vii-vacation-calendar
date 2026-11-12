@@ -80,7 +80,11 @@ export function NavigationProgress() {
     const start = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
-      if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+      if (!link || link.hasAttribute("download")) return;
+      // Place links intentionally keep target=_blank for desktop. Their mobile
+      // handler removes that target during the same click so they can use the
+      // client router. Begin feedback during capture, before that handler runs.
+      if (link.target === "_blank" && !window.matchMedia("(max-width: 760px)").matches) return;
       const next = new URL(link.href, window.location.href);
       if (next.origin !== window.location.origin) return;
       if (next.pathname === window.location.pathname && next.search === window.location.search) return;

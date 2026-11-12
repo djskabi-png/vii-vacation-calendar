@@ -37,6 +37,7 @@ test("every place-detail route has an immediate shared loading state", async () 
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /@media\(max-width:720px\)/);
   assert.match(progress, /document\.addEventListener\("click", start, true\)/);
+  assert.match(progress, /link\.target === "_blank" && !window\.matchMedia\("\(max-width: 760px\)"\)\.matches/);
   assert.match(progress, /navigationProgressReady = "true"/);
   assert.match(progress, /aria-live="polite"/);
   assert.match(layout, /<NavigationProgress \/>/);

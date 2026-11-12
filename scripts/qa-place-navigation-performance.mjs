@@ -53,6 +53,9 @@ try {
   await browser.close();
 }
 
-const failed = results.filter((item) => item.targetMode === "_blank" || item.pages !== 1 || !item.feedbackVisible || item.feedbackMs > 1_000 || !item.h1);
+// Desktop markup intentionally retains target=_blank. On mobile the click
+// handler removes it before Next handles the event, so the observed one-page
+// navigation is the acceptance signal rather than the pre-click attribute.
+const failed = results.filter((item) => item.pages !== 1 || !item.feedbackVisible || item.feedbackMs > 1_000 || !item.h1);
 console.log(JSON.stringify({ passed: failed.length === 0, results, failed }, null, 2));
 if (failed.length) process.exitCode = 1;

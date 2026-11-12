@@ -5,6 +5,7 @@ type LinkClick = {
   ctrlKey: boolean;
   shiftKey: boolean;
   altKey: boolean;
+  currentTarget?: { removeAttribute(name: string): void };
   preventDefault(): void;
 };
 
@@ -22,7 +23,15 @@ export function openPlaceInSameTabOnMobile(event: LinkClick, href: string) {
     || typeof window === "undefined"
     || !window.matchMedia("(max-width: 760px)").matches
   ) return false;
-  event.preventDefault();
-  window.location.assign(href);
+  // Next's Link decides between a browser navigation and a client transition
+  // after the supplied onClick returns. Removing only the desktop target on a
+  // normal mobile tap keeps the Link transition, route loading UI and prefetched
+  // data instead of paying for a full document reload. Non-Link callers retain
+  // the safe location fallback.
+  if (event.currentTarget) event.currentTarget.removeAttribute("target");
+  else {
+    event.preventDefault();
+    window.location.assign(href);
+  }
   return true;
 }

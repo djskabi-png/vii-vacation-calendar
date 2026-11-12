@@ -23,10 +23,10 @@ for(const[file,hrefs,minimum]of family)test(`place links preserve desktop new-ta
   }
  }ts.forEachChild(node,visit);}visit(root);assert.ok(count>=minimum,`${file}: inspected ${count} detail links`);
 });
-test('mobile place navigation preserves modified clicks and only redirects normal mobile taps',()=>{
+test('mobile place navigation preserves modified clicks and upgrades normal mobile taps to client transitions',()=>{
  const text=readFileSync(new URL('../app/lib/mobile-place-navigation.ts',import.meta.url),'utf8');
  assert.match(text,/event\.metaKey/);assert.match(text,/event\.ctrlKey/);assert.match(text,/event\.shiftKey/);assert.match(text,/event\.altKey/);
- assert.match(text,/max-width: 760px/);assert.match(text,/window\.location\.assign\(href\)/);
+ assert.match(text,/max-width: 760px/);assert.match(text,/currentTarget\.removeAttribute\("target"\)/);assert.match(text,/window\.location\.assign\(href\)/);
 });
 test('background photo warming begins after visible-image load for both full and compact previews',()=>{
  for(const file of ['components/property-card.tsx','components/preview-card-gallery.tsx'])assert.match(readFileSync(new URL('../app/'+file,import.meta.url),'utf8'),/onLoad=\{warmImages\}/);
