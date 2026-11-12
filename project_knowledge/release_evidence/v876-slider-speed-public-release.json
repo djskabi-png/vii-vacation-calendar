@@ -1,0 +1,56 @@
+{
+  "verdict": "published_and_scoped_verified",
+  "releasedAt": "2026-11-12T02:57:00+02:00",
+  "site": {
+    "version": 876,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_b0074a839028819184c7501058582496",
+    "deploymentId": "appgdep_6af50ce4aa508191abb16acf578fcfe1",
+    "source": "a955bd1052d581ef625c64d5a43fa260d2100b63",
+    "managedSource": "ab13298d414f67e2bea9f5255b462225ced6e6d9",
+    "tree": "de8cc67a8eb9f11f4e02315fc093abc035a29206",
+    "build": "90a45426-e375-4c53-cc48-28a73a2817bf",
+    "environmentRevision": 32,
+    "url": "https://vii.spaplus.co/"
+  },
+  "edge": {
+    "versionId": "8adad7e7-c99b-408d-8f83-59b402895963",
+    "expectedBuild": "90a45426-e375-4c53-cc48-28a73a2817bf",
+    "route": "vii.spaplus.co/*",
+    "requestLimitFailOpen": true,
+    "otherRoutesUnchanged": 21,
+    "cronEnabled": false,
+    "routeReceipt": ".qa-output/v876-final-route-receipt.json"
+  },
+  "rollback": {
+    "version": 875,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_c5fb8003b5588191858f87bc490873b0",
+    "deploymentId": "appgdep_6af503b41fb8819194509a5ddc5165da",
+    "build": "611fc2ee-9f58-b423-fd4f-892cbd970684"
+  },
+  "ordinaryReadiness": {
+    "build": "passed",
+    "fullLocalSuite": "passed with zero failures",
+    "edgeSuite": "88 passed",
+    "releaseSourceGate": "passed on clean source a955bd1052d581ef625c64d5a43fa260d2100b63",
+    "publicBrowserEvidence": ".qa-output/v876-public-slider-audit/report.json",
+    "publicBrowserVerdict": "four scoped responsive scenarios passed",
+    "resourceHygiene": "passed with zero owned processes remaining"
+  },
+  "representativeActorValidation": [
+    {"actor": "desktop visitor", "need": "see and switch vacation and holiday offers without a stuck or blank rail", "startingState": "fresh 1440x1000 visit", "outcome": "HTTP 200, exact build, both tab groups settled with changed content, no JavaScript error, overflow or broken image", "evidence": ".qa-output/v876-public-slider-audit/report.json#home-desktop"},
+    {"actor": "mobile visitor", "need": "use the same home offer rails at 390x844", "startingState": "fresh mobile context", "outcome": "HTTP 200, exact build, both tab groups settled, no horizontal overflow or broken image", "evidence": ".qa-output/v876-public-slider-audit/report.json#home-mobile"},
+    {"actor": "holiday shopper", "need": "change holiday tabs without losing all feedback", "startingState": "loaded verified holiday data", "outcome": "tab transition retained non-empty feedback and settled to a full rail; verified holiday API returned 200", "evidence": ".qa-output/v876-retained-transition.mjs and v876-public-slider-audit/report.json"},
+    {"actor": "spa visitor", "need": "receive the first spa images as the section approaches the viewport", "startingState": "fresh mobile spa page", "outcome": "HTTP 200, exact build, visible images loaded with zero broken images and no horizontal overflow", "evidence": ".qa-output/v876-public-slider-audit/report.json#spa-mobile"},
+    {"actor": "event visitor", "need": "switch the last-minute event rail without a stuck state", "startingState": "fresh mobile events page", "outcome": "HTTP 200, exact build, event tab settled with changed content, no JavaScript error, overflow or broken image", "evidence": ".qa-output/v876-public-slider-audit/report.json#events-mobile"},
+    {"actor": "booking-risk reviewer", "need": "keep discovery acceleration separate from transaction authority", "startingState": "verified discovery response plus existing booking adapters", "outcome": "discovery responses are marked verified and capped at s-maxage 30; booking and mutation cache-separation regression tests passed", "evidence": "tests/slider-speed-cache-contract.test.mjs and tests/discovery-cache-boundaries.test.mjs"},
+    {"actor": "release operator", "need": "avoid mixing old HTML and new assets or repeating the 524 load pattern", "startingState": "v875 active with edge admission suspended", "outcome": "one v876 site deployment, exact build rebinding, cron disabled, route fail-open preserved and 21 unrelated routes unchanged", "evidence": ".qa-output/v876-suspended-route-receipt.json and .qa-output/v876-final-route-receipt.json"}
+  ],
+  "simulatedAdirReview": {
+    "identityBoundary": "internal predictive reviewer, not the real Adir and not publication authority",
+    "verdict": "APPROVE",
+    "scope": "v876 slider-loading, responsive affected family, verified discovery responses and coordinated edge delivery",
+    "finding": "No material open finding in the reviewed scope",
+    "limitation": "This approval does not certify every historical site feature or every physical device. Browser evidence used Chromium at representative desktop and mobile widths."
+  },
+  "authorizationBoundary": "Adir authorized implementation and publication. One Site SAVE, one Site PUBLIC DEPLOY, one admission-suspension Edge deploy and one final build-bound Edge deploy were performed. No booking, lead, review, WhatsApp, payment, data, schema, DNS, domain, sharing, permission or CMS mutation was performed."
+}
