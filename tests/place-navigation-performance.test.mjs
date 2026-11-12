@@ -16,6 +16,7 @@ test("place cards open detail destinations in a new tab", async () => {
   assert.match(properties, /propertyHref[^\n]*target="_blank"/);
   assert.match(events, /<PlacePreviewCard[\s\S]*href=\{href\}/);
   assert.match(preview, /newTab = true/);
+  assert.match(preview, /openPlaceInSameTabOnMobile\(event, href\)/);
   assert.match(spas, /spa-deal-card__body[^\n]*target="_blank"/);
   assert.match(showcase, /home-rating-card__gallery[^\n]*target="_blank"/);
 });

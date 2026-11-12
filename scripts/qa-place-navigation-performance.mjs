@@ -29,7 +29,15 @@ async function check({ id, source, link }) {
   ]).catch(() => false);
   await click;
   const feedbackMs = Math.round(performance.now() - started);
-  await page.waitForURL((url) => target ? `${url.pathname}${url.search}${url.hash}` === target : false, { timeout: 15_000 });
+  // The destination is usable at DOMContentLoaded. Waiting for every lazy
+  // image and third-party resource turns a navigation-performance check into
+  // an unrelated full-page load check and can falsely time out after the URL
+  // and visible destination have already changed.
+  try {
+    await page.waitForURL((url) => target ? `${url.pathname}${url.search}${url.hash}` === target : false, { timeout: 15_000, waitUntil: "domcontentloaded" });
+  } catch (error) {
+    throw new Error(`${id} navigation did not reach ${target}; current URL is ${page.url()}`, { cause: error });
+  }
   await page.locator("h1").first().waitFor({ state: "visible", timeout: 30_000 });
   const readyMs = Math.round(performance.now() - started);
   const snapshot = { id, source, target, targetMode, pages: context.pages().length, feedbackVisible, feedbackMs, readyMs, h1: (await page.locator("h1").first().innerText()).trim() };
