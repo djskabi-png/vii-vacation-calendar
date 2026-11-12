@@ -2,10 +2,11 @@
 
 const baseUrl = String(process.env.VII_PUBLIC_BASE_URL || "https://vii.spaplus.co").replace(/\/$/, "");
 const expectedBuild = String(process.env.VII_EXPECTED_BUILD || process.argv[2] || "").trim();
-const routes = (process.env.VII_EDGE_AUDIT_ROUTES || "/,/events,/spas,/hourly,/vacations/north,/business?id=vacation-1296")
+const routes = (process.env.VII_EDGE_AUDIT_ROUTES || "/,/search,/events,/spas,/hourly,/holidays,/providers,/trails,/attractions,/vacations/north,/business?id=vacation-104,/business?id=vacation-1296,/events/place/event-2259,/discover/place/spa-6")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
+const warmHeaderBudgetMs = Number(process.env.VII_EDGE_WARM_HEADER_BUDGET_MS || 1500);
 
 if (!expectedBuild) {
   console.error("VII_EXPECTED_BUILD or the first CLI argument is required.");
@@ -13,10 +14,13 @@ if (!expectedBuild) {
 }
 
 const read = async (route) => {
+  const started = performance.now();
   const response = await fetch(new URL(route, `${baseUrl}/`), {
     headers: { accept: "text/html,application/xhtml+xml" },
     redirect: "follow",
+    signal: AbortSignal.timeout(15_000),
   });
+  const headerMs = Math.round(performance.now() - started);
   await response.arrayBuffer();
   return {
     route,
@@ -25,6 +29,8 @@ const read = async (route) => {
     skip: response.headers.get("x-vii-edge-cache-skip") || "",
     appBuild: response.headers.get("x-vii-app-build") || "",
     cacheBuild: response.headers.get("x-vii-cache-build") || "",
+    headerMs,
+    totalMs: Math.round(performance.now() - started),
   };
 };
 
@@ -37,6 +43,8 @@ for (const route of routes) {
   if (first.status !== 200 || second.status !== 200) failures.push(`${route}: HTTP ${first.status}/${second.status}`);
   if (first.skip === "build_mismatch" || second.skip === "build_mismatch") failures.push(`${route}: build_mismatch`);
   if (second.delivery !== "HIT") failures.push(`${route}: second request was ${second.delivery || "unclassified"}, expected HIT`);
+  if (!Number.isFinite(warmHeaderBudgetMs) || warmHeaderBudgetMs <= 0) failures.push(`invalid warm header budget: ${warmHeaderBudgetMs}`);
+  else if (second.headerMs > warmHeaderBudgetMs) failures.push(`${route}: warm headers ${second.headerMs}ms exceeded ${warmHeaderBudgetMs}ms`);
   for (const sample of [first, second]) {
     if (sample.appBuild && sample.appBuild !== expectedBuild) failures.push(`${route}: app build ${sample.appBuild} != ${expectedBuild}`);
     if (sample.cacheBuild && sample.cacheBuild !== expectedBuild) failures.push(`${route}: cache build ${sample.cacheBuild} != ${expectedBuild}`);
