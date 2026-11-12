@@ -127,6 +127,29 @@ test('dated SPA package entry documents are cache-admitted and keep date and pac
   } finally { h.restore(); }
 });
 
+test('dated SPA package entry qualifies the current app generic stream without admitting booking state', async () => {
+  const originHeaders = new Headers({
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-store, must-revalidate',
+    'X-VII-App-Build': 'test-build',
+    'Set-Cookie': '__cf_bm=infra; Path=/',
+  });
+  const h = harness({ headers: originHeaders, body: '<html>dated package</html>' });
+  const env = { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' };
+  try {
+    const url = 'https://edge.test/discover/place/spa-25?date=2026-11-13&package=4193';
+    const first = await worker.fetch(new Request(url, { headers: { Accept: 'text/html' } }), env, h.ctx);
+    assert.equal(first.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    assert.equal(first.headers.get('X-VII-Cache-Build'), 'test-build');
+    await first.text(); await new Promise(resolve => setTimeout(resolve, 0));
+    const second = await worker.fetch(new Request(url, { headers: { Accept: 'text/html' } }), env, h.ctx);
+    assert.equal(second.headers.get('X-VII-Edge-Delivery'), 'HIT');
+    assert.equal(h.stats().originCalls, 1);
+    const booking = await worker.fetch(new Request(`${url}&booking=4193`, { headers: { Accept: 'text/html' } }), env, h.ctx);
+    assert.equal(booking.headers.get('X-VII-Edge-Delivery'), null);
+  } finally { h.restore(); }
+});
+
 test('catalog navigation hint is forwarded only on eligible regional Flight MISS and is never stored', async () => {
   const h = harness({ headers: headers() }); const seen = [];
   const original = globalThis.fetch;

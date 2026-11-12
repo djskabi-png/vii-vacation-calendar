@@ -68,8 +68,8 @@ const routingHeaders = ["RSC", "Accept", "Next-Router-State-Tree", "Next-Router-
   "X-Vinext-Mounted-Slots", "X-Vinext-Rsc-Render-Mode"];
 const allowedVaryHeaders = new Set([...routingHeaders.map((header) => header.toLowerCase()), "accept-encoding"]);
 const publicDocumentQueryKeys = new Set([
-  "accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice",
-  "months", "online", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole",
+  "accessible", "area", "date", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice",
+  "months", "online", "package", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole",
 ]);
 
 function hasPrivateCookies(request: Request) {

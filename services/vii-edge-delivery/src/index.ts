@@ -127,6 +127,29 @@ function safePublicRead(request: Request, url: URL) {
   return eligible(request, eligibilityOnly);
 }
 
+function datedSpaPackageEntry(url: URL) {
+  if (!/^(?:\/(?:en|ru|fr))?\/discover\/place\/spa-[1-9]\d{0,8}$/.test(url.pathname)) return false;
+  const keys = [...url.searchParams.keys()];
+  return keys.length === 2 && new Set(keys).size === 2
+    && url.searchParams.getAll("date").length === 1 && /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get("date") || "")
+    && url.searchParams.getAll("package").length === 1 && /^[1-9]\d{0,9}$/.test(url.searchParams.get("package") || "");
+}
+
+function qualifyDatedSpaPackageEntry(response: Response, url: URL, expectedBuild: string) {
+  if (!datedSpaPackageEntry(url) || response.status !== 200
+    || response.headers.get("X-VII-App-Build") !== expectedBuild
+    || !(response.headers.get("Content-Type") || "").includes("text/html")
+    || response.headers.has("X-VII-Cache-Build")) return response;
+  const control = (response.headers.get("Cache-Control") || "").trim().toLowerCase();
+  if (control !== "no-store, must-revalidate") return response;
+  const headers = new Headers(response.headers);
+  const until = Date.now() + 5 * 60_000;
+  headers.set("X-VII-Cache-Build", expectedBuild);
+  headers.set("X-VII-Cache-Until", String(until));
+  headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 function publicReadAttemptResponse(response: Response, attempts: 1 | 2) {
   const headers = new Headers(response.headers);
   // This describes the origin fill. A later shared HIT retains this history,
@@ -273,6 +296,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const lookupMs = Math.round(performance.now() - lookupStarted);
   const originStarted = performance.now();
   let response = publicDocumentRedirect(await fetchPublicRead(request, origin), origin, url);
+  response = qualifyDatedSpaPackageEntry(response, url, expectedBuild);
   const originExpiry = Number(response.headers.get("X-VII-Cache-Until"));
   if (Number.isFinite(originExpiry) && originExpiry > 0 && publicDocumentClock(url.pathname)) {
     const capped = publicDocumentExpiry(url.pathname, originExpiry, clockNow);

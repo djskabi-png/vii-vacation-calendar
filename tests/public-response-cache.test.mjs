@@ -47,6 +47,11 @@ test("undated place documents keep a longer smart-cache window while dated visit
     assert.equal((await policy(path))?.ttlSeconds, 900, path);
   }
   assert.equal((await policy("/business?id=vacation-2566&from=2026-10-24&till=2026-10-25"))?.ttlSeconds, 180);
+  const spaPackage = await policy("/discover/place/spa-25?date=2026-11-13&package=4193", {}, "spa-entry");
+  assert.equal(spaPackage?.ttlSeconds, 900);
+  assert.ok(spaPackage?.key);
+  assert.notEqual((await policy("/discover/place/spa-25?date=2026-11-14&package=4193", {}, "spa-entry"))?.key, spaPackage.key);
+  assert.notEqual((await policy("/discover/place/spa-25?date=2026-11-13&package=4194", {}, "spa-entry"))?.key, spaPackage.key);
 });
 
 test("identity isolates builds, hosts, locales, filters and every Flight routing variant", async () => {
