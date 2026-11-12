@@ -31,10 +31,10 @@ test("homepage uses scheduled dated snapshots without unsupported static offers"
   assert.match(showcase, /<HomeLiveDeals mode="holidays" deferUntilNearViewport pendingSeed=\{pendingSeed\} \/>/);
   assert.match(showcase, /destinationImages.filter/);
   assert.match(showcase, /usedDestinationImages/);
-  assert.match(deals, /`\/api\/vii\/home-deals\?\$\{new URLSearchParams\(\{ period, locale: language, proof: "verified-offers-v1", clock: clock\.key/);
+  assert.match(deals, /`\/api\/vii\/home-deals\?\$\{new URLSearchParams\(\{ period, locale: language, proof: "verified-offers-v1", clock: clockKey/);
   assert.match(deals, /\.\.\.\(regionLabel \? \{ region: regionLabel \} : \{\}\)/);
   assert.match(deals, /`\/api\/vii\/home-holiday-deals\?\$\{new URLSearchParams/);
-  assert.match(deals, /selectedHoliday\?\.exactStay \? \{ from: selectedHoliday\.from, till: selectedHoliday\.till \} : \{\}/);
+  assert.match(deals, /holiday\.exactStay \? \{ from: holiday\.from, till: holiday\.till \} : \{\}/);
   assert.match(deals, /displayedDeals\.map/);
   assert.match(deals, /canonicalVerifiedSliderItems\(/);
   assert.match(deals, /useDocumentSeed/);

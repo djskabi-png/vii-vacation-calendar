@@ -58,7 +58,7 @@ test("content studio owns homepage period tabs and supplier holiday presentation
   assert.match(admin, /עד שישה חגים קרובים לפי תאריך/);
   assert.doesNotMatch(admin, /updateHomePeriodVisibility/);
   assert.match(component, /result\.display\?\.periods/);
-  assert.match(component, /selectedHoliday\.from/);
+  assert.match(component, /holiday\.exactStay \? \{ from: holiday\.from, till: holiday\.till \} : \{\}/);
   assert.match(component, /<strong>\{translate\(item\.name\)\}<\/strong><\/button>/);
   assert.doesNotMatch(component, /<strong>\{item\.name\}<\/strong><small>/);
 });

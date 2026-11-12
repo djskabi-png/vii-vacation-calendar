@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "task_id": "v885-slider-speed-20261112",
+  "observed_failure": "The rail stayed visible, but a first tab selection could take roughly 0.7 to 7.2 seconds to settle because the selected endpoint had not completed yet.",
+  "root_cause": "The dominant delay was the first server and network response. A user click also cancelled speculative work and restarted the same request, so useful in-flight work was discarded.",
+  "hypotheses": [
+    {
+      "id": "server-network",
+      "result": "supported",
+      "evidence": "Endpoint timing aligned with visible settle time while the client rail and loading state appeared immediately."
+    },
+    {
+      "id": "render-animation",
+      "result": "rejected-as-primary",
+      "evidence": "The rail did not disappear and the long wait tracked data completion rather than paint or transition duration."
+    },
+    {
+      "id": "adopt-serial-prime",
+      "result": "supported",
+      "evidence": "The client can safely reuse one already-running request, warm the closest choices sequentially, and retain the existing bounded recovery path."
+    }
+  ],
+  "causal_change": [
+    "Start bounded background priming after 800 ms instead of waiting five seconds.",
+    "Use one module-level serial queue so background work never creates a burst across the two rails.",
+    "Adopt the exact in-flight prime promise on selection instead of aborting and restarting it.",
+    "Bound the adopted wait by the remaining selection recovery budget so speculative work cannot prolong a click.",
+    "Skip speculative priming for hidden pages, Save-Data, 2G and slow-2G connections."
+  ],
+  "preserved_invariants": [
+    "No supplier truth, identity, availability, price, ordering or image semantics changed.",
+    "No cache TTL, database, environment, DNS or scheduled job changed.",
+    "Late responses remain unable to overwrite a newer selection.",
+    "The existing visible rail, loading feedback and bounded recovery behavior remain active."
+  ],
+  "local_verification": {
+    "affected_family_tests": 132,
+    "passed": 132,
+    "failed": 0,
+    "public_destination_verification": "pending exact deployed build"
+  }
+}

@@ -6,12 +6,12 @@ const slider = readFileSync(new URL("../app/components/home-live-deals.tsx", imp
 const nearRoute = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
 const holidayRoute = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
 
-test("visitor tab choices supersede background priming and remaining periods still warm sequentially", () => {
+test("visitor tab choices adopt one bounded prime and remaining periods warm sequentially", () => {
   assert.match(slider, /const periodPrimeRequests = new Map<string, PrimeRequest>\(\)/);
-  assert.match(slider, /cancelPendingHomePeriodPrime\(period, language, clock\.key, guests, regionLabel\)/);
-  assert.match(slider, /pending\.controller\.abort\(new DOMException\("Selected tab superseded background priming"/);
-  assert.doesNotMatch(slider, /waitForHolidayPrime/);
-  assert.match(slider, /for \(const item of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*await primeHomePeriodDeals\(item\.id/);
+  assert.doesNotMatch(slider, /cancelPendingHomePeriodPrime/);
+  assert.doesNotMatch(slider, /Selected tab superseded background priming/);
+  assert.match(slider, /const request = mode === "holidays" && selectedHoliday[\s\S]*primeHomeHolidayDeals\(selectedHoliday, clock\.key, waitBudgetMs\)[\s\S]*primeHomePeriodDeals\(period, language, clock\.key, guests, regionLabel, waitBudgetMs\)/);
+  assert.match(slider, /for \(const item of ordered\.slice\(0, backgroundPrimeLimit\)\)[\s\S]*enqueueBackgroundPrime/);
   assert.match(slider, /await new Promise\(\(resolve\) => setTimeout\(resolve, 150\)\)/);
 });
 
@@ -29,16 +29,19 @@ test("cold discovery joins one lease-owned warm operation before returning refre
 test("slider discovery never serializes a second browser attempt behind a cold tab click", () => {
   assert.match(slider, /const sliderRequestBudgetMs = 5_500;/);
   assert.doesNotMatch(slider, /totalTimeoutMs:\s*8_000/);
-  const sliderRequests = [...slider.matchAll(/totalTimeoutMs:\s*sliderRequestBudgetMs,\s*retries:\s*(\d+)/g)];
+  const sliderRequests = [...slider.matchAll(/totalTimeoutMs:\s*waitBudgetMs,\s*retries:\s*(\d+)/g)];
   assert.ok(sliderRequests.length >= 2, "period and holiday primes must share the bounded one-attempt policy");
   assert.ok(sliderRequests.every((match) => match[1] === "0"));
-  assert.match(slider, /totalTimeoutMs:\s*Math\.min\(5_500, remainingBudget\(\)\),\s*retries:\s*0/);
+  assert.match(slider, /const sliderRequestBudgetMs = 5_500/);
 });
 
 test("background priming yields to visitor tab changes and stays bounded", () => {
-  assert.match(slider, /const backgroundPrimeDelayMs = 5_000;/);
-  assert.match(slider, /const backgroundPrimeLimit = 0;/);
+  assert.match(slider, /const backgroundPrimeDelayMs = 800;/);
+  assert.match(slider, /const backgroundPrimeLimit = 4;/);
+  assert.match(slider, /let backgroundPrimeTail: Promise<void> = Promise\.resolve\(\)/);
+  assert.match(slider, /connection\?\.saveData !== true/);
+  assert.match(slider, /connection\?\.effectiveType !== "2g"/);
   assert.equal((slider.match(/ordered\.slice\(0, backgroundPrimeLimit\)/g) || []).length, 2);
   assert.equal((slider.match(/\}, backgroundPrimeDelayMs\);/g) || []).length, 2);
-  assert.match(slider, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
+  assert.equal((slider.match(/enqueueBackgroundPrime/g) || []).length, 3);
 });

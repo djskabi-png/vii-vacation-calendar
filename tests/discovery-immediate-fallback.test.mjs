@@ -61,7 +61,9 @@ test("both homepage vacation rails poll explicit refresh state within a shared d
   const cache = readFileSync(new URL("../app/lib/discovery-client-cache.ts", import.meta.url), "utf8");
   const publicAudit = readFileSync(new URL("../scripts/audit-search-state.cjs", import.meta.url), "utf8");
   assert.match(home, /home-holidays\?\$\{new URLSearchParams\(\{ locale: language, clock: clock\.key \}\)\}`,[\s\S]*?timeoutMs: 4_000, retries: 1/);
-  assert.match(home, /verified-offers-v2[\s\S]*?\{ signal: controller\.signal,[\s\S]*?freshMs: 5 \* 60_000, staleMs: 60 \* 60_000,[\s\S]*?timeoutMs: Math\.min\(5_500, remainingBudget\(\)\), totalTimeoutMs: Math\.min\(5_500, remainingBudget\(\)\), retries: 0/);
+  assert.match(home, /const waitBudgetMs = Math\.min\(sliderRequestBudgetMs, remainingBudget\(\)\)/);
+  assert.match(home, /freshMs: 5 \* 60_000,[\s\S]*?staleMs: 60 \* 60_000, timeoutMs: waitBudgetMs, totalTimeoutMs: waitBudgetMs, retries: 0/);
+  assert.match(home, /boundedPrimeWait\(existing\.promise, waitBudgetMs\)/);
   assert.match(home, /selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS/);
   assert.match(home, /availabilityStatus === "refreshing" && result\.deals\.length === 0\)[\s\S]*?recover\(\)/);
   assert.match(home, /catch\(\(\) => \{ if \(!controller\.signal\.aborted\) recover\(false\); \}\)/);
@@ -76,7 +78,7 @@ test("both homepage vacation rails poll explicit refresh state within a shared d
 
 test("cold vacation slider starts independent settings, database and catalog reads together", () => {
   const route = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
-  assert.match(route, /const \[display, db, index\] = await Promise\.all\(\[[\s\S]*displayPromise,[\s\S]*databasePromise,[\s\S]*indexPromise,[\s\S]*\]\)/);
+  assert.match(route, /const \[display, db, index, snapshotResult\] = await Promise\.all\(\[[\s\S]*displayPromise,[\s\S]*databasePromise,[\s\S]*indexPromise,[\s\S]*snapshotPromise,[\s\S]*\]\)/);
   assert.doesNotMatch(route, /const \[display, db\] = await Promise\.all/);
   assert.doesNotMatch(route, /await displayPromise[\s\S]*await runtimeCatalogDatabase\(\)[\s\S]*await namesPromise/);
 });

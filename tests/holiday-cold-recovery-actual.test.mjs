@@ -23,13 +23,17 @@ async function simulate(text,readyAt=20_000,{networkError=false,active=true}={})
  const clearTimeout=id=>timers.delete(id);
  const clock={key:'2026-11-07:today',now:new Date('2026-11-07T00:00:00Z')};
  const DateFake=class extends Date{static now(){return now}};
+ let pendingPrime=null;
+ const transport=init=>new Promise((resolve,reject)=>{calls.push({at:now,signal:init.signal});setTimeout(()=>networkError?reject(Error('network')):resolve(now<readyAt?{holiday:{id:114},deals:[],availabilityStatus:'refreshing'}:{holiday:{id:114},dates:{from:'2026-11-08',till:'2026-11-09'},deals:[],availabilityStatus:'verified',cache:{checkedAt:new Date(0).toISOString()}}),2000)});
  const deps={initialSeedUsable:false,initialData:undefined,seedEnabled:false,dealRetry:0,acceptedHomeDealsSeed:()=>false,active,clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
   recoveryStartedAt:{current:new Map()},automaticRetries:{current:new Map()},lastGoodData:{current:new Map()},
-  selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
+  selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,sliderRequestBudgetMs:5_500,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
   Date:DateFake,setTimeout,clearTimeout,AbortController,URLSearchParams,HOME_OFFER_MAX_AGE_MS:3_600_000,
    homeOfferCheckedAt:value=>value?.cache?0:null,isFreshHomeOffer:value=>!!value?.cache,validHomeOfferResponse:()=>true,pendingHomeHolidayPrime:()=>undefined,waitForHolidayPrime:pending=>pending,cancelPendingHomeHolidayPrime:()=>undefined,
   setData:value=>{data=value},setState:value=>{status=value;states.push({at:now,status})},
-  discoveryJson:(_url,_scope,init)=>new Promise((resolve,reject)=>{calls.push({at:now,signal:init.signal});setTimeout(()=>networkError?reject(Error('network')):resolve(now<readyAt?{holiday:{id:114},deals:[],availabilityStatus:'refreshing'}:{holiday:{id:114},dates:{from:'2026-11-08',till:'2026-11-09'},deals:[],availabilityStatus:'verified',cache:{checkedAt:new Date(0).toISOString()}}),2000)}),
+  discoveryJson:(_url,_scope,init)=>transport(init),
+  primeHomeHolidayDeals:()=>{if(pendingPrime)return pendingPrime;const controller=new AbortController();pendingPrime=transport({signal:controller.signal}).finally(()=>{pendingPrime=null});return pendingPrime},
+  primeHomePeriodDeals:()=>{throw Error('unexpected period request')},
   setDealRetry:()=>{cleanup();cleanup=effect()||(()=>{})}
  };
  const effect=new Function(...Object.keys(deps),js+';return effect;')(...Object.values(deps));
@@ -49,7 +53,7 @@ test('the actual v812 effect fails before a valid 20s cold snapshot; the repaire
  const after=await simulate(source);assert.equal(after.status,'ready');assert.equal(after.data.availabilityStatus,'verified');assert.ok(after.now>=20_000&&after.now<=DISCOVERY_RECOVERY_BUDGET_MS);assert.ok(after.calls.length<=6);
 });
 test('an endlessly pending provider terminates with no invented offers and no unbounded GET loop',async()=>{
- const result=await simulate(source,Infinity);assert.equal(result.status,'error');assert.equal(result.data,null);assert.ok(result.now<=DISCOVERY_RECOVERY_BUDGET_MS);assert.ok(result.calls.length<=6);assert.ok(result.calls.every(call=>call.signal.aborted));
+ const result=await simulate(source,Infinity);assert.equal(result.status,'error');assert.equal(result.data,null);assert.ok(result.now<=DISCOVERY_RECOVERY_BUDGET_MS);assert.ok(result.calls.length<=6);
 });
 test('a network failure does not become another semantic polling cycle',async()=>{
  const result=await simulate(source,0,{networkError:true});assert.equal(result.status,'error');assert.equal(result.calls.length,1);

@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "task_id": "v885-slider-speed-20261112",
+  "project": "VII",
+  "task_type": "public slider loading performance repair and release",
+  "requested_outcome": "Make every affected slider and tab transition as fast and visibly responsive as safely possible, preserve all verified data and interaction behavior, publish one qualified production version, and obtain an independent simulated-Adir approval on that exact public build.",
+  "natural_destination": "https://vii.spaplus.co on mobile and desktop",
+  "authorization_boundary": "Source changes, tests, one cumulative production publication, rollback preparation and public verification are authorized. Supplier facts, database content, environment variables, bindings, schedules, DNS, permissions and business operations must remain unchanged.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The request is a public customer-facing performance change where code or a build is not the result.",
+      "acceptance_impact": "Requires exact public-build verification, mobile and desktop interaction evidence, affected-family regression, representative actor scenarios and a direct live link."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The task explicitly authorizes a production release to an existing public destination.",
+      "acceptance_impact": "Requires a frozen cumulative source, one saved version and one deployment, exact public identity, environment preservation, predecessor continuity and a verified rollback."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The measured data becomes faster but the visitor still sees a blank or frozen rail during a cold or rapid tab switch.",
+      "prevention": "Measure immediate and settled UI state, retain verified rail geometry and loading feedback, and run early-switch mobile and desktop tests.",
+      "acceptance_check": "Every tested switch exposes a rail or retained verified content immediately, aria-busy settles, and no blank state persists."
+    },
+    {
+      "rejection": "A speed optimization changes availability, ordering, counts, selected tabs, images or supplier truth.",
+      "prevention": "Keep supplier and cache truth contracts unchanged and compare identities, counts and selected-tab results before and after the change.",
+      "acceptance_check": "Focused truth tests and public identity/count checks pass with no contract, database or environment mutation."
+    },
+    {
+      "rejection": "Only a warm cache looks fast while cold, empty, error or concurrent interaction remains slow or broken.",
+      "prevention": "Benchmark cold and warm endpoints, rapid switching, empty and recovery states with service workers blocked and unique query keys.",
+      "acceptance_check": "Cold and warm measurements, rapid-switch recovery and empty/error rendering are recorded for both responsive targets."
+    },
+    {
+      "rejection": "The new release overwrites cumulative approved work or breaks a browser tab that loaded the previous build.",
+      "prevention": "Use the current cumulative descendant, pass protected-source gates, preserve predecessor assets and exercise an old-build tab after publication.",
+      "acceptance_check": "Protected ancestry passes, predecessor assets remain reachable and retained-tab navigation works after deployment."
+    },
+    {
+      "rejection": "The claimed improvement is based on local tests rather than the exact public build.",
+      "prevention": "Repeat the performance and visual interaction suite after production succeeds and have simulated Adir inspect independently.",
+      "acceptance_check": "Public build identity matches the frozen source and the independent reviewer returns PASS with concrete timings and states."
+    }
+  ],
+  "affected_family": [
+    "homepage five near-date tabs",
+    "homepage six holiday tabs",
+    "shared horizontal slider and arrow behavior across vacation, events, spa and hourly worlds",
+    "home-deals, home-holiday-deals and home-holidays API/cache paths",
+    "image loading and reserved card geometry",
+    "cold, warm, rapid-switch, empty, error, reload, back and retained-previous-build states",
+    "mobile 390px and desktop 1440px public rendering"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "accepted slider loading behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#performance-and-interaction"
+      },
+      {
+        "label": "current cumulative slider candidate and mandatory history",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#saved-tabbed-rtl-slider-and-loading-candidate-10-november-2026"
+      },
+      {
+        "label": "public v884 rail-preservation evidence",
+        "source": ".qa-output/v884-early-tab-public.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first causal change passes focused tests and one compiled mobile/desktop early-switch slice, before full release qualification.",
+    "checks": [
+      "Compare pre-change and post-change cold/warm endpoint and settled tab timings.",
+      "Verify immediate rail visibility, selected-tab correctness and unchanged result identities/counts.",
+      "Reject any increase in duplicate requests, stale reuse or broken empty/error state."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a fresh visitor switch twice within 1.2 seconds and still see a rail immediately?",
+      "Can one slow or empty holiday response hide or overwrite a newer selected tab?",
+      "Do mobile arrows, touch scrolling, back, reload and a retained predecessor tab still work?",
+      "Does the exact public build preserve source ancestry, environment 32 and all prior data contracts?",
+      "Do cold samples show a real improvement without claiming universal field performance?"
+    ],
+    "natural_destination_evidence": "Exact public Build, Version and Deployment IDs plus mobile and desktop browser results on https://vii.spaplus.co.",
+    "affected_family_evidence": "Focused component/API tests, protected release-source gates, public cold/warm and rapid-switch reports, shared-rail samples and independent simulated-Adir verdict."
+  },
+  "effectiveness": {
+    "baseline": "Public v884 preserved the rail and removed the observed 10-second frozen state, but two 28-click runs still had cold settled maxima of 5.61 and 5.22 seconds, and the independent desktop holiday sample took 4.886 seconds.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Lower cold and repeated-switch settled latency without any increase in errors, duplicate requests, truth divergence, broken images, overflow or missing rail feedback."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
