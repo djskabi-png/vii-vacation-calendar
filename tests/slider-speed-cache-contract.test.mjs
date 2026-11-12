@@ -16,7 +16,7 @@ test("verified slider discovery receives only a bounded anonymous cache lease", 
   const build = "12345678-1234-1234-1234-123456789abc";
   const headers = verifiedPublicDiscoveryHeaders(request, now, build);
   assert.ok(policy);
-  assert.ok(policy.ttlSeconds > 0 && policy.ttlSeconds <= 30);
+  assert.ok(policy.ttlSeconds > 0 && policy.ttlSeconds <= 120);
   assert.equal(headers["X-VII-Cache-Build"], build);
   assert.equal(headers["X-VII-Discovery-Verified"], "1");
   assert.equal(Number(headers["X-VII-Cache-Until"]), policy.expiresAt);
@@ -89,5 +89,12 @@ test("holiday tabs retain verified cards and warm the remaining choices sequenti
   assert.match(home, /displayState === "loading" && retainedData !== null/);
   assert.match(home, /cancelPendingHomeHolidayPrime\(selectedHoliday, clock\.key\)/);
   assert.match(home, /pending\.controller\.abort\(new DOMException\("Selected tab superseded background priming"/);
+});
+
+test("scheduled vacation sync warms ordinary and holiday slider snapshots", async () => {
+  const route = await readFile(new URL("app/mcp/route.ts", root), "utf8");
+  assert.match(route, /warmVacationDiscoveryCache/);
+  assert.match(route, /warmHolidayDiscoveryCache/);
+  assert.match(route, /Promise\.all\(\[[\s\S]*warmVacationDiscoveryCache\(db\)[\s\S]*warmHolidayDiscoveryCache\(db\)/);
 });
 

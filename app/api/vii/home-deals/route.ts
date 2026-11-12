@@ -50,34 +50,38 @@ export async function GET(request: Request) {
     return respond({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
+    const now = new Date();
+    const requestedPeriod = period as HomeDealPeriod;
+    const dates = homeDealDates(requestedPeriod, now);
     const displayPromise = timing.measure("display", () => displaySettings(locale));
     const databasePromise = timing.measure("database", () => runtimeCatalogDatabase());
     const indexPromise = databasePromise.then(db => timing.measure("catalog_index", () => publicDiscoveryCatalogIndex("vacations", db)));
-    const now = new Date();
+    const snapshotPromise = databasePromise.then(async db => {
+      let snapshotReadFailed = !db;
+      try {
+        const cached = await timing.measure("snapshot", () => readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
+          policy: VACATION_DISCOVERY_POLICY,
+          validate: value => validVacationDiscoverySnapshot(value, dates),
+        }));
+        return { snapshotReadFailed, snapshot: { period: requestedPeriod, dates, cached } };
+      } catch (error) {
+        // An ordinary cold/expired key is not a storage outage. It must use
+        // background warming instead of making this visitor call the supplier.
+        snapshotReadFailed = !db || !(error instanceof Error && "code" in error && error.code === "discovery_snapshot_missing");
+        return { snapshotReadFailed, snapshot: null };
+      }
+    });
     // These are independent reads. Starting them together is important on a
     // cold isolate: otherwise the slider waits for the settings and database
     // read before it even starts loading the catalog identities.
-    const [display, db, index] = await Promise.all([
+    const [display, db, index, snapshotResult] = await Promise.all([
       displayPromise,
       databasePromise,
       indexPromise,
+      snapshotPromise,
     ]);
     const { places: names, publishedIds: publicSiteIds } = index;
-    const requestedPeriod = period as HomeDealPeriod;
-    const dates = homeDealDates(requestedPeriod, now);
-    let snapshotReadFailed = !db;
-    let snapshot: { period: HomeDealPeriod; dates: typeof dates; cached: Awaited<ReturnType<typeof readCachedDiscovery<CachedHomeDeals>>> } | null = null;
-    try {
-      const cached = await timing.measure("snapshot", () => readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
-        policy: VACATION_DISCOVERY_POLICY,
-        validate: value => validVacationDiscoverySnapshot(value, dates),
-      }));
-      snapshot = { period: requestedPeriod, dates, cached };
-    } catch (error) {
-      // An ordinary cold/expired key is not a storage outage. It must use
-      // background warming instead of making this visitor call the supplier.
-      snapshotReadFailed = !db || !(error instanceof Error && "code" in error && error.code === "discovery_snapshot_missing");
-    }
+    const { snapshotReadFailed, snapshot } = snapshotResult;
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
     const curatedSource = snapshot ? await timing.measure("curation", () => applyCuration(snapshot.cached.value.deals, requestedPeriod)) : [];
     const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)

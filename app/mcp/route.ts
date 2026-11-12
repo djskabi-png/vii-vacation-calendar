@@ -27,9 +27,11 @@ export async function POST(request: Request) {
       if (world === "vacations") {
         const { cachedOnlineCapabilities } = await import("../lib/online-booking-capability-cache.ts");
         const { warmVacationDiscoveryCache } = await import("../lib/warm-vacation-discovery-cache.ts");
+        const { warmHolidayDiscoveryCache } = await import("../lib/warm-holiday-discovery-cache.ts");
         await Promise.all([
           cachedOnlineCapabilities(db),
           warmVacationDiscoveryCache(db),
+          warmHolidayDiscoveryCache(db),
         ]).catch(() => console.error("VII scheduled discovery refresh unavailable"));
       }
       if (world === "events") {

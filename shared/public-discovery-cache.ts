@@ -34,6 +34,10 @@ export function publicDiscoveryCachePolicy(request: Request, now = new Date()) {
   const number = (name: string) => Number(parts.find(part => part.type === name)?.value || 0);
   const seconds = number("hour") * 3600 + number("minute") * 60 + number("second");
   const boundary = seconds < 14 * 3600 ? 14 * 3600 : 24 * 3600;
-  const ttlSeconds = Math.min(30, Math.floor(((boundary - seconds) * 1000 - now.getMilliseconds()) / 1000));
+  // Verified discovery snapshots are already bounded to five minutes and
+  // checkout revalidates availability. A two-minute edge lease keeps ordinary
+  // tab changes off the origin without crossing the Israel-day cutoff or
+  // caching partial/refreshing responses.
+  const ttlSeconds = Math.min(120, Math.floor(((boundary - seconds) * 1000 - now.getMilliseconds()) / 1000));
   return ttlSeconds > 0 ? { ttlSeconds, expiresAt: now.getTime() + ttlSeconds * 1000 } : null;
 }
