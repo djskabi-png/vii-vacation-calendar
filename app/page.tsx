@@ -77,19 +77,40 @@ async function HomeCatalogShowcase({ readCatalog }: { readCatalog: RequestCatalo
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
     (place) => place.slug, "home-events").slice(0, 20).map((place) => ({
-      ...place,
+      slug: place.slug,
+      name: place.name,
+      location: place.location,
+      area: place.area,
+      type: place.type,
+      guests: place.guests,
+      image: place.image,
       images: (place.images?.length ? place.images : [place.image]).slice(0, 3),
       description: place.description?.slice(0, 220) || "",
-      features: place.features?.slice(0, 4) || [],
+      sourceUrl: place.legacySource?.sourceUrl,
+      sourcePropertySlug: place.sourcePropertySlug,
+      contact: place.contact ? { phone: place.contact.phone, whatsapp: place.contact.whatsapp } : undefined,
+      startPriceWinter: place.startPriceWinter,
+      startPriceSummer: place.startPriceSummer,
     }));
   // The rail still receives every eligible supplier so client-side promotion
   // weights and fair rotation keep their complete candidate set. It does not
   // need the 1,900+ gallery URLs or long amenity payload used by detail pages.
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces).map((place) => ({
-    ...place,
+    id: place.id,
+    world: place.world,
+    name: place.name,
+    location: place.location,
+    area: place.area,
     description: place.description.slice(0, 220),
     features: place.features.slice(0, 4),
+    image: place.image,
     images: place.images?.slice(0, 3),
+    imageFit: place.imageFit,
+    imagePosition: place.imagePosition,
+    priceLabel: place.priceLabel,
+    phone: place.phone,
+    whatsapp: place.whatsapp,
+    rating: place.rating,
   }));
   return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;

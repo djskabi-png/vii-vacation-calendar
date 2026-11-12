@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent as ReactMouseEvent } from "react";
 import { DiscoveryCard } from "./discovery-card";
-import type { EventPlace, Property } from "../data/site-data";
+import type { Property } from "../data/site-data";
+import type { EventLastMinutePlace } from "../lib/event-last-minute-props";
 import { eventPlaceHref } from "../lib/event-place-href";
 import type { DiscoveryItem } from "../data/world-data";
 import { publicWorldNavigation } from "../data/world-navigation";
@@ -81,9 +82,11 @@ export type HomeRatedPlace = {
   reviewDate: string;
 };
 
+type HomeEventPlace = EventLastMinutePlace & { description: string };
+
 export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPreview, attractionPreview }: {
   properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
-  eventPlaces: EventPlace[];
+  eventPlaces: HomeEventPlace[];
   hourlyPlaces: DiscoveryItem[];
   providerPreview: DiscoveryItem;
   attractionPreview: DiscoveryItem;
@@ -110,7 +113,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
     compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });
   const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, promotionWeight:place=>eventWeight(place.slug),seed: `${documentSeed}:home-events` });
   const eventFallback = { he: { venue: "מתחם אירועים", location: "ישראל", description: "מתחם לאירועים פרטיים ועסקיים", guests: "אורחים ביחידה הגדולה" }, en: { venue: "Event venue", location: "Israel", description: "Venue for private and business events", guests: "guests in the largest unit" }, ru: { venue: "Площадка для мероприятий", location: "Израиль", description: "Площадка для частных и деловых мероприятий", guests: "гостей в самой большой зоне" }, fr: { venue: "Lieu événementiel", location: "Israël", description: "Lieu pour événements privés et professionnels", guests: "personnes dans le plus grand espace" } }[language];
-  const localizeEvent = (place: EventPlace) => ({
+  const localizeEvent = (place: HomeEventPlace) => ({
     // Keep the first server and browser render identical. Generated catalog
     // translations load asynchronously in the browser and must not change the
     // business facts while React is hydrating this rail.

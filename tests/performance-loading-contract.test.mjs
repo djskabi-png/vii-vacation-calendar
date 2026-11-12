@@ -150,9 +150,19 @@ test("cold public documents do not read whole runtime catalogs before sending HT
 test("home hourly rail keeps every weighted candidate but bounds preview payload", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.match(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.map/);
+  assert.doesNotMatch(source, /const showcaseHourly[\s\S]*?\.map\(\(place\) => \(\{\s*\.\.\.place/);
   assert.match(source, /features:\s*place\.features\.slice\(0,\s*4\)/);
   assert.match(source, /images:\s*place\.images\?\.slice\(0,\s*3\)/);
   assert.doesNotMatch(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.slice/);
+});
+
+test("home event rail projects preview facts instead of hydrating complete venue records", async () => {
+  const source = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.doesNotMatch(source, /const showcaseEvents[\s\S]*?\.map\(\(place\) => \(\{\s*\.\.\.place/);
+  assert.match(source, /description:\s*place\.description\?\.slice\(0,\s*220\)/);
+  assert.match(source, /images:\s*\(place\.images\?\.length \? place\.images : \[place\.image\]\)\.slice\(0,\s*3\)/);
+  assert.match(source, /contact:\s*place\.contact \? \{ phone: place\.contact\.phone, whatsapp: place\.contact\.whatsapp \} : undefined/);
+  assert.doesNotMatch(source, /roomOptions:\s*place\.roomOptions|galleryGroups:\s*place\.galleryGroups|dateQuotes:\s*place\.dateQuotes/);
 });
 
 test("spa and hourly place pages select one accepted build supplier without a cold runtime catalog read", async () => {
