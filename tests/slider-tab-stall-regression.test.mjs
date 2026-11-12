@@ -36,13 +36,16 @@ test("slider discovery observes the server-owned refresh inside one short browse
   assert.ok(350 < 2_500, "the origin observation must settle before the browser transport budget");
 });
 
-test("background priming yields to visitor tab changes and stays bounded", () => {
+test("background priming survives visitor tab changes and stays serialized", () => {
   assert.match(slider, /const backgroundPrimeDelayMs = 800;/);
-  assert.match(slider, /const backgroundPrimeLimit = 4;/);
+  assert.match(slider, /const backgroundPrimeLimit = 5;/);
   assert.match(slider, /let backgroundPrimeTail: Promise<void> = Promise\.resolve\(\)/);
   assert.match(slider, /connection\?\.saveData !== true/);
   assert.match(slider, /connection\?\.effectiveType !== "2g"/);
   assert.equal((slider.match(/ordered\.slice\(0, backgroundPrimeLimit\)/g) || []).length, 2);
   assert.equal((slider.match(/\}, backgroundPrimeDelayMs\);/g) || []).length, 2);
   assert.equal((slider.match(/enqueueBackgroundPrime/g) || []).length, 3);
+  assert.match(slider, /\}, \[active, clock\?\.key, holidayState, holidays, mode\]\);/);
+  assert.match(slider, /recoveryDeadlineTimer = setTimeout/);
+  assert.match(slider, /setState\(usable \? "ready" : "error"\)/);
 });

@@ -83,11 +83,12 @@ test("visible slider images are high priority while deferred rails preserve geom
 
 test("holiday tabs retain verified cards while bounded browser priming shares in-flight work", async () => {
   const home = await readFile(new URL("app/components/home-live-deals.tsx", root), "utf8");
-  assert.match(home, /const backgroundPrimeLimit = 4/);
+  assert.match(home, /const backgroundPrimeLimit = 5/);
   assert.match(home, /const existing = holidayPrimeRequests\.get\(key\);\s*if \(existing\) return boundedPrimeWait\(existing\.promise, waitBudgetMs\)/);
   assert.doesNotMatch(home, /cancelPendingHomeHolidayPrime/);
   assert.match(home, /const retainedData = data \?\? \(state === "loading"/);
   assert.match(home, /displayState === "loading" && retainedData !== null/);
+  assert.match(home, /recoveryDeadlineTimer = setTimeout/);
 });
 
 test("scheduled vacation sync warms ordinary and holiday slider snapshots", async () => {

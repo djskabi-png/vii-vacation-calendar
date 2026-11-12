@@ -41,12 +41,12 @@ const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
 // mobile latency without turning one poll into a multi-second blank state.
 const sliderRequestBudgetMs = 2_500;
 const backgroundPrimeDelayMs = 800;
-// Prime only the nearest choices, one request at a time across both rails.
+// Prime every alternate public choice, one request at a time across both rails.
 // A deliberate click adopts the exact in-flight promise below, so priming can
-// never compete with or restart the visitor's request. Four entries cover all
-// alternate near-date tabs and most of the six public holiday tabs without the
-// origin burst that caused the earlier incident.
-const backgroundPrimeLimit = 4;
+// never restart the visitor's request. Five entries cover all alternate tabs
+// while the shared queue preserves the single-file origin admission that
+// prevents the burst which caused the earlier incident.
+const backgroundPrimeLimit = 5;
 type PrimeRequest = { promise: Promise<ResponseData>; controller: AbortController };
 const holidayPrimeRequests = new Map<string, PrimeRequest>();
 const periodPrimeRequests = new Map<string, PrimeRequest>();
@@ -226,7 +226,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   // Once the shared clock mounts, its current Israel-day/cutoff wins.
   const seedTime = clock?.now ?? new Date(initialData?.renderedAt || "");
   const seedDates = Number.isFinite(seedTime.getTime()) ? homeDealDates(period, seedTime) : null;
-  const initialSeedUsable = seedEnabled && mode === "near" && seedDates !== null && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, ...seedDates, clockKey: dealClockKey(seedTime), now: clock?.now.getTime() ?? seedTime.getTime() });
+  // SSR validates the serialized snapshot against its own render instant so
+  // server and first paint remain identical. Once the live clock mounts, real
+  // wall time wins and an hour-old seed cannot be resurrected by a stale date
+  // snapshot retained across navigation.
+  const seedFreshnessNow = clock ? Date.now() : seedTime.getTime();
+  const initialSeedUsable = seedEnabled && mode === "near" && seedDates !== null && acceptedHomeDealsSeed(initialData, { period, guests, locale: language, region: regionLabel, ...seedDates, clockKey: dealClockKey(seedTime), now: seedFreshnessNow });
   const initialHolidaySeedUsable = Boolean(seedEnabled && mode === "holidays" && initialData?.holiday?.id === holidayId
     && initialData?.guests === guests && initialData?.locale === language && initialData?.clockKey === dealClockKey(seedTime)
     && isFreshHomeOffer(initialData));
@@ -272,6 +277,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let recoveryDeadlineTimer: ReturnType<typeof setTimeout> | null = null;
     const startedAt = recoveryStartedAt.current.get(selectionKey) ?? Date.now();
     recoveryStartedAt.current.set(selectionKey, startedAt);
     const remainingBudget = () => Math.max(0, selectionRecoveryBudgetMs - (Date.now() - startedAt));
@@ -323,7 +329,11 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       }
       const attempts = automaticRetries.current.get(selectionKey) || 0;
       const delay = discoveryRecoveryDelay(attempts, remainingBudget());
-      if (!refreshPending || delay === null) { setState(usable ? "ready" : "error"); return; }
+      if (!refreshPending || delay === null) {
+        if (recoveryDeadlineTimer) clearTimeout(recoveryDeadlineTimer);
+        setState(usable ? "ready" : "error");
+        return;
+      }
       automaticRetries.current.set(selectionKey, attempts + 1);
       setState(usable ? "ready" : "loading");
       retryTimer = setTimeout(() => setDealRetry((value) => value + 1), delay);
@@ -332,6 +342,22 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       recover(false);
       return () => { controller.abort(); if (expiryTimer) clearTimeout(expiryTimer); };
     }
+    // Recovery retries share one selection deadline, but browser scheduling,
+    // backgrounding, and an adopted in-flight promise can otherwise postpone
+    // the next retry callback beyond it. This independent guard guarantees
+    // that the selected tab always leaves aria-busy within the same budget.
+    recoveryDeadlineTimer = setTimeout(() => {
+      controller.abort();
+      if (retryTimer) clearTimeout(retryTimer);
+      recoveryStartedAt.current.delete(selectionKey);
+      automaticRetries.current.delete(selectionKey);
+      const usable = isFreshHomeOffer(accepted);
+      if (!usable) {
+        lastGoodData.current.delete(selectionKey);
+        setData(null);
+      }
+      setState(usable ? "ready" : "error");
+    }, Math.max(1, remainingBudget()));
     // One changed-cache retry can recover a transient read failure. Both
     // attempts and refreshing polls share the same selection deadline.
     // A click adopts the exact in-flight warm request instead of aborting it
@@ -365,6 +391,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         if (!isFreshHomeOffer(result)) throw new Error("expired_result");
         automaticRetries.current.delete(selectionKey);
         recoveryStartedAt.current.delete(selectionKey);
+        if (recoveryDeadlineTimer) clearTimeout(recoveryDeadlineTimer);
         lastGoodData.current.set(selectionKey, result);
         setData(result);
         setState("ready");
@@ -373,7 +400,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       // A transport timeout is not proof that availability failed. Observe
       // the same leased refresh again inside the shared, bounded deadline.
       .catch(() => { if (!controller.signal.aborted) recover(); });
-    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (expiryTimer) clearTimeout(expiryTimer); };
+    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); if (recoveryDeadlineTimer) clearTimeout(recoveryDeadlineTimer); if (expiryTimer) clearTimeout(expiryTimer); };
   }, [active, period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   useEffect(() => {
@@ -397,7 +424,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   }, [active, clock?.key, data, fixedPeriod, guests, language, mode, period, periodTabs, regionLabel, state]);
 
   useEffect(() => {
-    if (!clock || !active || mode !== "holidays" || holidayState !== "ready" || state !== "ready" || !data || holidayId === null) return;
+    if (!clock || !active || mode !== "holidays" || holidayState !== "ready" || holidayId === null) return;
     const currentIndex = holidays.findIndex((item) => item.id === holidayId);
     if (currentIndex < 0) return;
     // Warm the nearest choices first and keep concurrency at one. This makes
@@ -417,7 +444,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       }
     }, backgroundPrimeDelayMs);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [active, clock?.key, data, holidayId, holidayState, holidays, mode, state]);
+  // Do not restart this sweep when a visitor changes tabs or when a result is
+  // painted. The selected request can adopt an in-flight prime; cancelling the
+  // sweep on every click was exactly what left later holiday tabs cold.
+  }, [active, clock?.key, holidayState, holidays, mode]);
 
   function choose(value: HomeDealPeriod) {
     if (value === period) return;

@@ -51,12 +51,12 @@ test('actual source expiry clears accepted fallback after a failed refresh',asyn
 });
 
 test('actual transport failure gets one bounded observation retry instead of a false terminal error',async()=>{
- const h=harness({failed:true});await flush();assert.equal(h.state,'loading');assert.equal(h.timers.size,1);assert.ok([...h.timers.values()][0].ms>0);[...h.timers.values()][0].fn();assert.equal(h.retries,1);h.cleanup();
+ const h=harness({failed:true});await flush();assert.equal(h.state,'loading');assert.equal(h.timers.size,2);const retry=[...h.timers.values()].sort((a,b)=>a.ms-b.ms)[0];assert.ok(retry.ms>0&&retry.ms<10_000);retry.fn();assert.equal(h.retries,1);h.cleanup();
 });
 
 test('only explicit pending refresh permits a bounded follow-up poll',async()=>{
  const dates=homeDealDates('tomorrow',new Date(Date.parse(at)+59*60_000));
- const h=harness({loaded:{period:'tomorrow',dates,availabilityStatus:'refreshing',deals:[]}});await flush();assert.equal(h.state,'loading');assert.equal(h.timers.size,1);[...h.timers.values()][0].fn();assert.equal(h.retries,1);h.cleanup();
+ const h=harness({loaded:{period:'tomorrow',dates,availabilityStatus:'refreshing',deals:[]}});await flush();assert.equal(h.state,'loading');assert.equal(h.timers.size,2);const retry=[...h.timers.values()].sort((a,b)=>a.ms-b.ms)[0];retry.fn();assert.equal(h.retries,1);h.cleanup();
 });
 
 test('selection deadline caps the final request and prevents refresh polling after exhaustion',async()=>{
