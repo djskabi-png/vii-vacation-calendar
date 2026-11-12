@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "task_id": "v889-performance-revolution-20261112",
+  "project": "VII",
+  "task_type": "whole-site public performance repair and qualified release",
+  "requested_outcome": "Make VII load and respond quickly on cold and warm visits across the public worlds, sliders, filters, images and navigation, without losing data, behavior or cumulative fixes, and publish only a qualified cumulative release.",
+  "natural_destination": "https://vii.spaplus.co on 390px mobile and desktop",
+  "authorization_boundary": "Source, edge-delivery configuration, automated tests, one cumulative application publication if needed, one bounded edge deployment, rollback preparation and public verification are authorized. Supplier facts, canonical database content, DNS, bookings and permissions must not change.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "This is a public whole-product performance outcome, not a code-only optimization.",
+      "acceptance_impact": "Requires exact public cold and warm evidence, mobile and desktop interaction checks, affected-family regression and direct live links."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The repair includes production edge coordination and may require one cumulative public release.",
+      "acceptance_impact": "Requires frozen source identity, preserved environment and bindings, predecessor continuity, exact deployed identity and rollback evidence."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Warm cache samples look fast while a cold or no-cache visitor still waits several seconds.",
+      "prevention": "Measure exact cold and warm document, RSC, slider and filter paths separately and retain server-timing evidence.",
+      "acceptance_check": "Cold and warm measurements are reported separately for every representative world and no warm result is presented as cold proof."
+    },
+    {
+      "rejection": "The edge cache silently stops admitting the new application generation after publication.",
+      "prevention": "Bind edge admission to the observed application build and add an executable release-coordination guard.",
+      "acceptance_check": "Public responses have matching build identity and return MISS then HIT without build_mismatch."
+    },
+    {
+      "rejection": "Navigation or filters remain visually frozen even if the network becomes faster.",
+      "prevention": "Test clicked-control feedback, retained useful content, loading semantics and settled results on mobile and desktop.",
+      "acceptance_check": "Every representative action changes state immediately, preserves useful content and settles without blank screens or terminal errors."
+    },
+    {
+      "rejection": "A broad optimization removes data, changes ordering, breaks images, maps, availability or booking context.",
+      "prevention": "Preserve supplier and search contracts, run protected-source and affected-family tests, and compare representative public identities and counts.",
+      "acceptance_check": "All release gates and representative public flows pass with unchanged truth and environment bindings."
+    },
+    {
+      "rejection": "A large CSS or JavaScript payload still delays visible completion after server response improves.",
+      "prevention": "Inventory public HTML, CSS, JavaScript, images and main-thread work and change only measured critical-path waste.",
+      "acceptance_check": "The final evidence includes payload and browser timing deltas and rejects regressions in layout or typography."
+    }
+  ],
+  "affected_family": [
+    "home, vacations, events, spa and hourly landing documents",
+    "regional search, dated search and business detail documents",
+    "React Server Component navigation across worlds and retained old tabs",
+    "near-date and holiday slider tabs plus shared horizontal rails",
+    "filter, sort, map and list interactions",
+    "responsive images, card media and deferred maps",
+    "edge public document cache, global R2 cache and generation admission",
+    "cold, warm, no-cache, empty, error, retry, reload and back states",
+    "390px mobile and desktop rendering"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII loading and performance contract",
+        "source": "project_knowledge/plans/VII_LOADING_NAVIGATION_FINAL_20261107.md"
+      },
+      {
+        "label": "VII accepted performance and interaction behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "current platform truth and open performance work",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first causal edge/origin repair produces an observed public MISS then HIT and before broader payload or application changes.",
+    "checks": [
+      "Compare exact pre-change and post-change cold and warm timings on all four primary worlds.",
+      "Verify matching application and edge generation identity with no build_mismatch.",
+      "Verify no change to content, headers required for privacy, or authenticated/private bypass behavior."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a fresh no-cache visit still take several seconds before useful content?",
+      "Can a world transition, slider tab or filter still appear frozen or show a terminal error?",
+      "Does the edge serve a stale generation or leak private/account state into public cache?",
+      "Do mobile images, typography, maps or card geometry regress after payload changes?",
+      "Can a retained predecessor tab navigate successfully after the final release?"
+    ],
+    "natural_destination_evidence": "Exact public build and edge version, response timing headers, browser mobile and desktop traces, screenshots and direct URLs.",
+    "affected_family_evidence": "Focused performance tests, full release-source and regression gates, public HTTP matrix, browser interaction matrix and rollback proof."
+  },
+  "effectiveness": {
+    "baseline": "Public v888 exact-route responses bypass edge admission with build_mismatch. Representative full document reads measured 2.1 to 5.5 seconds warm and 3.5 to 7.1 seconds no-cache, with 0.64 to 1.37 MB uncompressed HTML bodies.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Restore matching-generation cache admission, achieve fast repeated public documents, reduce cold critical-path latency and payload where causally supported, and preserve all existing public behavior."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
