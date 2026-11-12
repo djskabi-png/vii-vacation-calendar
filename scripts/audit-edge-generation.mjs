@@ -16,7 +16,13 @@ if (!expectedBuild) {
 const read = async (route) => {
   const started = performance.now();
   const response = await fetch(new URL(route, `${baseUrl}/`), {
-    headers: { accept: "text/html,application/xhtml+xml" },
+    // Warm the same Hebrew browser variant that production users request.
+    // Without Accept-Language the release gate can pass while the first real
+    // mobile visit still pays the full cold-origin cost under a different key.
+    headers: {
+      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      "accept-language": "he-IL,he;q=0.9,en;q=0.8",
+    },
     redirect: "follow",
     signal: AbortSignal.timeout(15_000),
   });

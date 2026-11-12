@@ -270,6 +270,13 @@ test("homepage warmup starts immediately without waiting for an idle window", as
   assert.match(warmup, /effectiveType === "2g"/);
 });
 
+test("release warming primes the real Hebrew browser cache variant", async () => {
+  const audit = await readFile(new URL("scripts/audit-edge-generation.mjs", root), "utf8");
+  assert.match(audit, /"accept-language": "he-IL,he;q=0\.9,en;q=0\.8"/);
+  assert.match(audit, /image\/avif,image\/webp/);
+  assert.match(audit, /second\.delivery !== "HIT"/);
+});
+
 test("internal destinations warm after pointer/focus intent without racing mobile Link navigation", async () => {
   const warmup = await readFile(new URL("app/components/smart-navigation-warmup.tsx", root), "utf8");
   assert.match(warmup, /document\.addEventListener\("pointerover"/);
