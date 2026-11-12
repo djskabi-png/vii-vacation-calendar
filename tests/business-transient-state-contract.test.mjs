@@ -28,7 +28,8 @@ test("supplier quote output is keyed to the complete current stay", () => {
 test("vacation detail links retain the requested new-tab policy and a stable loading surface", () => {
   assert.match(newTabPolicy, /business/);
   assert.match(newTabNavigation, /normalizeBusinessDetailLink/);
-  assert.doesNotMatch(newTabNavigation, /removeAttribute\("target"\)/);
+  assert.match(newTabNavigation, /matchMedia\("\(max-width: 760px\)"\)/);
+  assert.match(newTabNavigation, /removeAttribute\("target"\)/);
   assert.match(newTabNavigation, /anchor.target = "_blank"/);
   assert.match(newTabNavigation, /attributeFilter: \["target", "rel"\]/);
   assert.match(loading, /global-route-loading/);

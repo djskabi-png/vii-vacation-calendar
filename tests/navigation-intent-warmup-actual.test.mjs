@@ -79,17 +79,17 @@ test('document read is streamed and bounded, never materialized as a full ArrayB
   assert.equal(reads, 3); assert.equal(cancelled, 1);
 });
 
-test('actual mobile place touch starts reusable Flight and click cancels only document speculation',async()=>{
+test('actual mobile place touch cancels desktop dwell without racing the Link Flight request',async()=>{
  const source=await readFile(new URL('../app/components/smart-navigation-warmup.tsx',import.meta.url),'utf8');
  const ast=ts.createSourceFile('component.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),handlers={};
  const visit=node=>{if(ts.isVariableDeclaration(node)&&['onTouchStart','onClick'].includes(node.name.getText(ast)))handlers[node.name.getText(ast)]=node.initializer.getText(ast);ts.forEachChild(node,visit);};visit(ast);
  const calls=[];class FakeElement{closest(){return {hasAttribute:()=>false,getAttribute:()=>'/business?id=vacation-164'};}};
  const deps={Element:FakeElement,isBusinessDepthRoute:path=>path.startsWith('/business'),stripLanguagePrefix:x=>x,warmup:{warm:(href,documentOnly)=>calls.push(['warm',href,documentOnly]),cancel:href=>calls.push(['cancel',href])},window:{location:{pathname:'/events',origin:'https://vii.spaplus.co'},matchMedia:()=>({matches:true}),clearTimeout:()=>{}},localizedPath:href=>href,languageFromPathname:()=> 'he',dwell:new Map()};
  const load=text=>new Function(...Object.keys(deps),ts.transpileModule(`return (${text});`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText)(...Object.values(deps));
- load(handlers.onTouchStart)({target:new FakeElement()});assert.deepEqual(calls,[['warm','/business?id=vacation-164',false]]);
+ load(handlers.onTouchStart)({target:new FakeElement()});assert.deepEqual(calls,[]);
  const target={closest:()=>({href:'https://vii.spaplus.co/business?id=vacation-164',getAttribute:()=>'/business?id=vacation-164'})};
- load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,[['warm','/business?id=vacation-164',false],['cancel','/business?id=vacation-164']]);
- load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,2);
+ load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,[['cancel','/business?id=vacation-164']]);
+ load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,1);
 });
 
 test('actual component anchor handler excludes private/API links and chooses one destination mode', async () => {

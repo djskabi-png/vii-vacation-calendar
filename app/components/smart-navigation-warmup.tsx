@@ -86,12 +86,13 @@ export function SmartNavigationWarmup() {
       const destination = localizedPath(href, languageFromPathname(window.location.pathname));
       const basePath = stripLanguagePrefix(new URL(destination, window.location.origin).pathname);
       if (!isBusinessDepthRoute(basePath)) return;
-      // A pointerover may have armed the desktop-style dwell timer. Cancel it
-      // and start only the Flight prefetch that the imminent mobile transition
-      // can actually reuse. Next deduplicates this with the following click.
+      // A synthetic pointerover may have armed desktop document speculation.
+      // Cancel it before the tap. Do not start a second Flight request here:
+      // the Link already owns viewport prefetch and the imminent navigation,
+      // and a touchstart prefetch can race that navigation instead of being
+      // reusable when the origin is cold.
       const timer = dwell.get(destination);
       if (timer !== undefined) { window.clearTimeout(timer); dwell.delete(destination); }
-      warmup.warm(destination, false);
     };
     const onPointerOut = (event: PointerEvent) => cancelAnchor(event.target, event.relatedTarget);
     const onClick = (event: MouseEvent) => {

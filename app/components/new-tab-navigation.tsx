@@ -23,6 +23,15 @@ function normalizeBusinessDetailLink(anchor: HTMLAnchorElement) {
   const path = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
   if (url.origin !== window.location.origin || !/^\/business(?:\/|$)/.test(path)) return false;
   if (anchor.hasAttribute("download")) return false;
+  // React renders the approved desktop target in the shared markup. On
+  // mobile the place click must remain an App Router transition. Keep the
+  // observer from restoring target=_blank between the component onClick and
+  // Next's own handler, otherwise the same tap starts Flight and then falls
+  // through to a full document navigation.
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    if (anchor.hasAttribute("target")) anchor.removeAttribute("target");
+    return true;
+  }
   if (anchor.target !== "_blank") anchor.target = "_blank";
   const rel = [...new Set([...(anchor.getAttribute("rel") || "").split(/\s+/).filter(Boolean), "noopener", "noreferrer"])].join(" ");
   if (anchor.rel !== rel) anchor.rel = rel;
