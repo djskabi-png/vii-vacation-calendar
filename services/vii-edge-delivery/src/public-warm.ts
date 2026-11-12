@@ -24,6 +24,55 @@ export const publicWarmRequests: ReadonlyArray<{path:string;headers:Record<strin
 ]);
 type Context = { waitUntil(promise: Promise<unknown>): unknown };
 
+/** Keep only the eight core public HTML shells warm between releases. The release gate
+ * primes the full family once. This steady-state pass is sequential and stops after two
+ * origin MISSes or the first failure, so a broken cache cannot recreate the old 66-read
+ * origin fan-out incident. The rotating start prevents one route from always being last. */
+export async function warmCoreDocuments(read: (request: Request, ctx: Context) => Promise<Response>, ctx: Context, cycleStart = 0) {
+  const started = Date.now();
+  const report = { policy: 'core-html-v1', attempted: 0, completed: 0, hits: 0, misses: 0, failed: 0, skipped: 0, failedPath: '', elapsedMs: 0 };
+  const offset = Math.floor(cycleStart / 120_000) % publicWarmRoutes.length;
+  const targets = [...publicWarmRoutes.slice(offset), ...publicWarmRoutes.slice(0, offset)];
+  for (const path of targets) {
+    if (Date.now() - started >= 30_000 || report.misses >= 2 || report.failed) break;
+    report.attempted++;
+    const controller = new AbortController();
+    const tasks = new Set<Promise<unknown>>();
+    const ownedContext = { waitUntil(promise: Promise<unknown>) {
+      tasks.add(promise); ctx.waitUntil(promise);
+      void promise.finally(() => tasks.delete(promise)).catch(() => undefined);
+    } };
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const work = (async () => {
+        const response = await read(new Request(`https://vii.spaplus.co${path}`, {
+          method: 'GET', headers: { Accept: 'text/html', 'Accept-Language': 'he-IL,he;q=0.9,en;q=0.8' }, signal: controller.signal,
+        }), ownedContext);
+        await response.arrayBuffer();
+        while (tasks.size) await Promise.allSettled([...tasks]);
+        if (!response.ok || response.headers.has('X-VII-Edge-Cache-Skip')) throw new Error('core_warm_not_admitted');
+        const delivery = response.headers.get('X-VII-Edge-Delivery');
+        if (delivery !== 'HIT' && delivery !== 'MISS') throw new Error('core_warm_delivery_unknown');
+        report[delivery === 'HIT' ? 'hits' : 'misses']++;
+      })();
+      const deadline = new Promise((_, reject) => { timer = setTimeout(() => {
+        controller.abort(new DOMException('Core warming deadline', 'TimeoutError')); reject(new Error('core_warm_timeout'));
+      }, 10_000); });
+      await Promise.race([work, deadline]);
+      report.completed++;
+    } catch {
+      report.failed++;
+      report.failedPath = path;
+    } finally {
+      if (timer) clearTimeout(timer);
+      controller.abort();
+    }
+  }
+  report.skipped = targets.length - report.attempted;
+  report.elapsedMs = Date.now() - started;
+  return report;
+}
+
 /** Fixed anonymous HTML and ordinary navigation reads only. The caller supplies the SAME cache
  * admission path as a visitor; this cannot warm APIs or transactional reads. */
 export async function warmPublicDocuments(read: (request: Request, ctx: Context) => Promise<Response>, ctx: Context, cycleStart = 0) {

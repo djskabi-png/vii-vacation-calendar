@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-final-release-system-lock-20261112",
+  "project": "VII",
+  "task_type": "production_release_architecture_and_verification",
+  "requested_outcome": "Unify and lock the VII application, Edge worker and cache release path, publish one aligned production version, and verify fast non-blank behavior across the affected public route families.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local code, tests, release safeguards, production deployment and public verification are authorized by Adir's current request; unrelated product redesigns, purchases and outbound messages are excluded.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The observed failures recur when application, Edge and cache release identities drift.",
+      "acceptance_impact": "Require one recorded release identity, exact public headers, rollback evidence and stale-source overwrite protection."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A single repaired deep link is not proof of the complete affected delivery family.",
+      "acceptance_impact": "Require natural-destination checks for representative worlds, loading states, mobile, desktop and failure recovery."
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "reason": "Slow navigation must acknowledge input and must never expose a blank page.",
+      "acceptance_impact": "Verify immediate loading feedback, bounded wait, success replacement and actionable failure behavior."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "The reported blank and delayed routes are especially damaging on mobile.",
+      "acceptance_impact": "Treat 390-pixel mobile navigation, reload and route transitions as primary release checks."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The release and cache mechanism is shared by every public world.",
+      "acceptance_impact": "Expand verification from spa to vacation, events, hourly, providers and shared content routes."
+    },
+    {
+      "lesson_id": "ADIR-OPS-001",
+      "reason": "Builds and browser tests must not leave owned processes consuming the workstation.",
+      "acceptance_impact": "Create an owned-process manifest and pass cleanup verification before completion."
+    },
+    {
+      "lesson_id": "ADIR-QUESTION-MARK-ALERT-001",
+      "reason": "The prior question-mark escalation signals repeated unverified completion and requires direct corrective action.",
+      "acceptance_impact": "Do not return reassurance; require deployed identity and visible public evidence."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "VII has project-specific multi-world search, cache and release requirements.",
+      "acceptance_impact": "Preserve booking authority, world-specific behavior and the approved master-plan boundaries."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The app is published but the Edge worker still expects a different build and bypasses or rejects cache.",
+      "prevention": "Add a deterministic release gate that reads the deployed build and blocks worker publication on mismatch.",
+      "acceptance_check": "The exact public app build equals the worker expected build in source, deployment metadata and live diagnostics."
+    },
+    {
+      "rejection": "The repaired spa deep link works but another world still shows a blank page or slow uncached navigation.",
+      "prevention": "Inventory the shared document-delivery family and test representative cold and warm routes in every public world.",
+      "acceptance_check": "Representative vacation, spa, events, hourly, provider and content routes render meaningful mobile and desktop content without blank states."
+    },
+    {
+      "rejection": "A fast cache path accidentally stores booking, account, session or Flight state under a shared key.",
+      "prevention": "Keep transactional/private state excluded and retain full router identity for Flight responses.",
+      "acceptance_check": "Automated negative tests reject booking, account, cookie-private and unsafe query variants while Flight variants remain isolated."
+    },
+    {
+      "rejection": "Internal tests pass but the version actually online is different or is overwritten by another source.",
+      "prevention": "Freeze exact source, app, worker and route identities and verify the natural destination after the final deployment.",
+      "acceptance_check": "Public headers, deployed worker version, source commit and visible browser result agree after reload and a prior-version-tab continuity check."
+    },
+    {
+      "rejection": "The release appears fast when warm but cold requests still overload origin or expose an error page.",
+      "prevention": "Measure cold and warm document requests and verify bounded degraded behavior and origin fallback.",
+      "acceptance_check": "Cold and warm samples meet the recorded latency gate and never display provider or framework error pages."
+    }
+  ],
+  "affected_family": [
+    "Application publication and deployed build identity",
+    "Cloudflare Edge worker expected-build admission",
+    "R2 public document cache keys and invalidation",
+    "HTML documents and Next.js Flight responses",
+    "Vacation, spa, events, hourly, provider and content public routes",
+    "Booking, account, session, preview and private query exclusions",
+    "Desktop, 390-pixel mobile, cold, warm, reload, back and stale-tab states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform architecture and release decisions",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted loading and navigation behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Observed spa package blank-page incident and scoped repair",
+        "source": "project_knowledge/diagnoses/spa-package-entry-blank-page-20261112.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After reproducing the current build-alignment state and validating the release gate locally, before any production deployment.",
+    "checks": [
+      "The gate fails on an intentionally mismatched build identity",
+      "The gate passes on the exact current production identity",
+      "Private and transactional cache exclusions remain intact"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a new app build be published while the worker still expects the prior build?",
+      "Can an unsafe booking, account, session or Flight variant enter the shared HTML cache?",
+      "Does any representative public world show a blank, framework error or contradictory stale state on cold mobile navigation?",
+      "Does a pre-release browser tab continue working after the final deployment?",
+      "Can the exact prior worker and application version be restored?"
+    ],
+    "natural_destination_evidence": "Exact public URLs, live headers, timing results and visually inspected desktop/mobile browser states on the deployed candidate.",
+    "affected_family_evidence": "Automated cache-safety suites plus representative public routes for every shared world and state family."
+  },
+  "effectiveness": {
+    "baseline": "The spa package deep link timed out beyond 30 seconds before the scoped repair, and repeated releases required manual build/worker reconciliation.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One deterministic release gate, one aligned public deployment, no blank representative routes, and warm document delivery below one second where cacheable."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

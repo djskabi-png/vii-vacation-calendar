@@ -47,14 +47,13 @@ test('admission deadline stops additional work without another supplier retry',a
  let now=0,reads=0;const report=await warmHolidaySnapshots({origin,build,now:()=>now,fetcher:async request=>{reads++;if(new URL(request.url).pathname.endsWith('home-holidays'))return json({holidays:[{id:1},{id:2},{id:3}]});now=55001;return json(verified(1));}});assert.equal(reads,2);assert.equal(report.attempted,1);
 });
 
-test('installed edge scheduler warms only bounded discovery snapshots and never public documents',async()=>{
+test('installed edge scheduler combines bounded core shells with ten-minute discovery snapshots',async()=>{
  const old=globalThis.fetch;const paths=[];const tasks=[];
- globalThis.fetch=async request=>{const url=new URL(request.url);paths.push(url.pathname);if(url.pathname==='/api/vii/home-holidays')return json({holidays:[{id:114}]});if(url.pathname==='/api/vii/home-holiday-deals')return json(verified(114));if(url.pathname==='/api/vii/home-deals')return json(verifiedPeriod(url.searchParams.get('period')));throw Error(`unexpected recurring read ${url.pathname}`);};
- try{await worker.scheduled({scheduledTime:Date.now(),cron:'*/10 * * * *'},{EXPECTED_BUILD:build,ORIGIN:origin},{waitUntil(p){tasks.push(p)}});await Promise.allSettled(tasks);assert.equal(paths.length,7);assert.ok(paths.every(path=>path.startsWith('/api/vii/home-')));assert.equal(paths.some(path=>path==='/'||path.endsWith('.rsc')),false);}finally{globalThis.fetch=old;}
+ globalThis.fetch=async request=>{const url=new URL(request.url);paths.push(url.pathname);if(url.pathname==='/api/vii/home-holidays')return json({holidays:[{id:114}]});if(url.pathname==='/api/vii/home-holiday-deals')return json(verified(114));if(url.pathname==='/api/vii/home-deals')return json(verifiedPeriod(url.searchParams.get('period')));return new Response('<html/>',{headers:{'Content-Type':'text/html','Cache-Control':'public, max-age=120','X-VII-App-Build':build,'X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+120000)}});};
+ try{await worker.scheduled({scheduledTime:Date.UTC(2026,10,12,18,40),cron:'*/2 * * * *'},{EXPECTED_BUILD:build,ORIGIN:origin},{waitUntil(p){tasks.push(p)}});await Promise.allSettled(tasks);assert.equal(paths.filter(path=>path.startsWith('/api/vii/home-')).length,7);assert.equal(paths.filter(path=>!path.startsWith('/api/vii/home-')).length,2);assert.equal(paths.some(path=>path.endsWith('.rsc')),false);}finally{globalThis.fetch=old;}
 });
 
-test('recurring discovery warming uses the bounded ten-minute production cadence',async()=>{
+test('recurring core warming uses the bounded two-minute production cadence',async()=>{
  const config=await readFile(new URL('../wrangler.toml',import.meta.url),'utf8');
- assert.match(config,/triggers\s*=\s*\{\s*crons\s*=\s*\["\*\/10 \* \* \* \*"\]\s*\}/);
- assert.doesNotMatch(config,/"\*\/2 \* \* \* \*"/);
+ assert.match(config,/triggers\s*=\s*\{\s*crons\s*=\s*\["\*\/2 \* \* \* \*"\]\s*\}/);
 });

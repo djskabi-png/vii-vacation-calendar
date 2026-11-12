@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../src/index.ts';
-import {warmPublicDocuments,publicWarmRoutes,publicWarmRequests} from '../src/public-warm.ts';
+import {warmCoreDocuments,warmPublicDocuments,publicWarmRoutes,publicWarmRequests} from '../src/public-warm.ts';
 import {computeRscCacheBustingSearchParam} from '../../../node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/dist/server/app-rsc-cache-busting.js';
 
 test('RSC warm hashes match the official Vinext algorithm',async()=>{
@@ -17,6 +17,24 @@ test('release warming inventory remains anonymous, document-only and explicit',a
 test('pending build admission never starts scheduled warming',async()=>{
   const old=globalThis.fetch;let reads=0,queued=0;globalThis.fetch=async()=>{reads++;throw Error('unexpected');};
   try{await worker.scheduled({scheduledTime:Date.now()},{EXPECTED_BUILD:'pending-next-release'},{waitUntil(){queued++;}});assert.equal(reads,0);assert.equal(queued,0);}finally{globalThis.fetch=old;}
+});
+
+test('steady-state core warming reads all eight warm shells sequentially',async()=>{
+  let active=0,maxActive=0;
+  const result=await warmCoreDocuments(async()=>{active++;maxActive=Math.max(maxActive,active);active--;return new Response('ok',{headers:{'X-VII-Edge-Delivery':'HIT'}});},{waitUntil(){}});
+  assert.equal(result.completed,publicWarmRoutes.length);assert.equal(result.hits,publicWarmRoutes.length);assert.equal(result.misses,0);assert.equal(maxActive,1);
+});
+
+test('steady-state core warming stops after two cold origin fills',async()=>{
+  const paths=[];
+  const result=await warmCoreDocuments(async request=>{paths.push(new URL(request.url).pathname);return new Response('ok',{headers:{'X-VII-Edge-Delivery':'MISS'}});},{waitUntil(){}},0);
+  assert.equal(result.attempted,2);assert.equal(result.completed,2);assert.equal(result.misses,2);assert.equal(result.skipped,publicWarmRoutes.length-2);assert.deepEqual(paths,publicWarmRoutes.slice(0,2));
+});
+
+test('steady-state core warming rotates its first route and stops on rejection',async()=>{
+  const paths=[];
+  const result=await warmCoreDocuments(async request=>{paths.push(new URL(request.url).pathname);return new Response('old',{headers:{'X-VII-Edge-Cache-Skip':'build_mismatch'}});},{waitUntil(){}},120_000);
+  assert.equal(result.failed,1);assert.equal(result.attempted,1);assert.equal(paths[0],publicWarmRoutes[1]);
 });
 
 test('one failed document cannot stop other routes and owned background work is drained with at most two active documents',async()=>{

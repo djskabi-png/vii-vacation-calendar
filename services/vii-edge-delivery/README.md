@@ -16,6 +16,20 @@ A public read-only GET which receives a transient5xx or non-abort network failur
 
 ## Required release procedure
 
+The release alignment tool is the only supported way to change the Edge build binding. It updates the runtime constant and Wrangler configuration together, rejects an already-divergent source, and fails public verification when any representative route reports a different build, `build_mismatch`, a non-HIT warm response or a warm-header budget breach.
+
+```powershell
+node services/vii-edge-delivery/scripts/release-alignment.mjs --source-only
+node services/vii-edge-delivery/scripts/release-alignment.mjs --suspend pending-vNEXT-UNIQUE
+# Publish the exact approved managed Site and read its public X-VII-App-Build.
+node services/vii-edge-delivery/scripts/release-alignment.mjs --bind ACTUAL-PUBLIC-BUILD-UUID
+node --test services/vii-edge-delivery/test/*.test.mjs
+pnpm --dir services/vii-edge-delivery exec wrangler deploy
+node services/vii-edge-delivery/scripts/release-alignment.mjs --verify-public
+```
+
+Never edit only one expected-build definition and never deploy the final worker without the last command passing. A suspended worker is a deliberate fail-open state, not a completed release.
+
 1. Before a new main Site deployment, suspend old edge cache admission by setting its expected build to a unique pending release sentinel. This avoids serving older HTML while the new assets change. Do not reuse the previous build identifier for a new release.
 2. Publish the exact approved cumulative main source, wait for terminal status, then observe the actual public build using a fresh unique public `release` query. Update EXPECTED_BUILD in source and configuration to that exact observed ID.
 3. Run `node --test services/vii-edge-delivery/test/*.test.mjs`, deploy this exact worker source once, and wait for its terminal result. The route in wrangler.toml is intentionally limited to VII. A supported worker redeploy can replace its own route ID.
@@ -39,7 +53,7 @@ For an intentional admission suspension, pass `--suspended-origin-build ACTUAL_C
 
 ## Bounded public warming
 
-The v10 source adds a two-minute Cron Trigger for eight fixed anonymous HTML documents. Each document has a10-second deadline and the entire invocation stops after45seconds. Reads are sequential and use the same admission rules, hard expiry and expected build as visitors. It never reads APIs, accounts, admin, checkout or dated search. A pending build suspends warming. Counts and build identity are logged without visitor data; an invocation with no completed document fails visibly.
+The installed two-minute Cron keeps eight fixed anonymous HTML shells warm through the same admission path visitors use. Reads are sequential, each has a10-second deadline and the pass stops after two origin MISSes, the first rejection or30seconds. This makes ordinary steady-state HIT maintenance cheap while preventing a cache outage or build mismatch from recreating the former66-document origin fan-out. The start route rotates every cycle. Holiday/discovery snapshots retain their separate ten-minute sub-cadence. APIs, accounts, admin, checkout and dated search are excluded, and a pending build suspends all warming.
 
 Known ordinary browser HTML Accept headers share the same cache identity; unknown content negotiation and every RSC framework variant remain separate. Four actual tests cover warming, variant identity, failure isolation and cancellation in addition to the29 existing handler tests.
 

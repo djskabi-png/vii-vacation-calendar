@@ -1,4 +1,5 @@
 import { warmHolidaySnapshots } from './holiday-warm.ts';
+import { warmCoreDocuments } from './public-warm.ts';
 import {publicDiscoveryCachePolicy} from '../../../shared/public-discovery-cache.ts';
 import {globalPublicVariant,readGlobalPublicCache,writeGlobalPublicCache,type PublicCacheBucket} from './global-public-cache.ts';
 import { qualityGateway, type QualityGatewayEnvironment } from './quality-gateway.ts';
@@ -357,16 +358,15 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
 export default { fetch: serve, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
-  // The former two-minute job read up to 66 public documents and contributed
-  // to the v876 origin saturation incident when cache admission was blocked.
-  // The installed schedule now touches only the five near-date snapshots and
-  // the six CMS holiday snapshots. Each read is anonymous, lease-protected,
-  // concurrency-two and globally deadline-bounded in warmHolidaySnapshots.
-  // Public documents remain demand-cached in R2 and are release-warmed by the
-  // build-identity audit, never by a recurring origin fan-out.
-  const work = warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
-    .then(report => console.log('VII discovery snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
-    .catch(error => { console.warn('VII discovery snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }); throw error; });
-  ctx.waitUntil(work);
-  await work;
+  const core = warmCoreDocuments((request, ownedContext) => serve(request, env, ownedContext), ctx, _controller.scheduledTime)
+    .then(report => console.log('VII core document warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
+    .catch(error => { console.warn('VII core document warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error ? error.name : 'unknown' }); throw error; });
+  const minute = new Date(_controller.scheduledTime).getUTCMinutes();
+  const holiday = minute % 10 === 0
+    ? warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
+      .then(report => console.log('VII discovery snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
+      .catch(error => { console.warn('VII discovery snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }); throw error; })
+    : Promise.resolve();
+  ctx.waitUntil(core); ctx.waitUntil(holiday);
+  await Promise.all([core, holiday]);
 } };
