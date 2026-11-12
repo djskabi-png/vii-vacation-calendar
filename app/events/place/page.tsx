@@ -4,9 +4,9 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
 import { EventRelatedSlot } from "./related-slot";
-import { eventPlaceHref, type EventPlace } from "../../data/site-data";
+import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../data/site-data";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
-import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { publicCatalogDetail, publicCatalogSelectedSummaries } from "../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
@@ -19,8 +19,8 @@ import { localizedEventPlace } from "../../i18n/localized-event-place";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
-const loadPlaces = cache(async () => (await publicCatalogSummaries<EventPlace>("events"))
-  .map((item) => ({ ...item, description: supplierDisplayDescription(item) })));
+const bundledPlaces = bundledEventPlaces
+  .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
 
 const resolvePlace = cache(async (id?: string) => {
   const mappedSlug = supplierLegacySlug(id, "events");
@@ -34,7 +34,7 @@ const resolvePlace = cache(async (id?: string) => {
     ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
   const place = selected ? { ...selected, description: supplierDisplayDescription(selected) }
-    : supplierId ? undefined : id ? (await loadPlaces()).find((item) => item.slug === id) : undefined;
+    : supplierId ? undefined : id ? bundledPlaces.find((item) => item.slug === id) : undefined;
   if (!place) notFound();
   return place;
 });
@@ -80,5 +80,6 @@ export default async function Page({ searchParams }: Props) {
 }
 
 async function EventRelatedContent({ place }: { place: EventPlace }) {
-  return <EventRelatedSlot place={place} places={await loadPlaces()} />;
+  const places = bundledPlaces.map((entry) => entry.slug === place.slug ? place : entry);
+  return <EventRelatedSlot place={place} places={places} />;
 }

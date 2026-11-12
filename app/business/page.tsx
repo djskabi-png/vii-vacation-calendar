@@ -3,7 +3,7 @@ import { cache, Suspense } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import BusinessPage, { BusinessComplementarySections } from "./client-page";
-import { getListingOfferings, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
+import { getListingOfferings, properties as bundledProperties, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
 import { bundledPublicCatalogSummaries, publicCatalogDetail, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
@@ -36,11 +36,6 @@ function normalizedParams(params: BusinessParams) {
   return Object.fromEntries(Object.entries(params).map(([key, value]) => [key, queryValue(value)])) as Record<keyof BusinessParams, string | undefined>;
 }
 
-const loadProperties = cache(async () => {
-  const properties = await bundledPublicCatalogSummaries<Property>("vacations");
-  return properties.map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
-});
-
 const resolveProperty = cache(async (id?: string) => {
   const slug = supplierLegacySlug(id, "vacations") || id;
   const supplierId = /^vacation-(\d+)$/.exec(slug || "")?.[1];
@@ -51,8 +46,7 @@ const resolveProperty = cache(async (id?: string) => {
     // the accepted generation. Do not resurrect it from the immutable bundle.
     return undefined;
   }
-  const properties = await loadProperties();
-  return id ? properties.find((item) => item.slug === slug) : properties[0];
+  return id ? bundledProperties.find((item) => item.slug === slug) : bundledProperties[0];
 });
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -103,12 +97,12 @@ export default async function Page({ searchParams }: Props) {
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
   const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
-  const [property, properties, acceptedDetail] = await Promise.all([
+  const [property, acceptedDetail] = await Promise.all([
     resolveProperty(params.id),
-    loadProperties(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
   ]);
   if (!property) notFound();
+  const properties = bundledProperties.map((entry) => entry.slug === property.slug ? property : entry);
   // Public pages render from the accepted platform snapshot. Supplier refreshes
   // belong to the ingestion pipeline and must never sit on the visitor's
   // critical path or turn a slow upstream API into a slow business page.

@@ -157,6 +157,21 @@ test("spa and hourly place pages select one accepted supplier instead of reading
   assert.doesNotMatch(source, /publicCatalogSummaries</);
 });
 
+test("vacation and event detail pages never read a whole runtime catalog on the critical path", async () => {
+  const [business, eventPath, eventQuery] = await Promise.all([
+    readFile(new URL("app/business/page.tsx", root), "utf8"),
+    readFile(new URL("app/events/place/[id]/page.tsx", root), "utf8"),
+    readFile(new URL("app/events/place/page.tsx", root), "utf8"),
+  ]);
+  assert.match(business, /properties as bundledProperties/);
+  assert.match(business, /bundledProperties\.map\(\(entry\) => entry\.slug === property\.slug \? property : entry\)/);
+  assert.doesNotMatch(business, /bundledPublicCatalogSummaries<Property>/);
+  for (const source of [eventPath, eventQuery]) {
+    assert.match(source, /eventPlaces as bundledEventPlaces/);
+    assert.doesNotMatch(source, /publicCatalogSummaries<EventPlace>/);
+  }
+});
+
 test("event search serializes a bounded discovery projection", async () => {
   const [layout, projection] = await Promise.all([
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),

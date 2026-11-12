@@ -3,8 +3,8 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
-import { eventPlaceHref, type EventPlace } from "../../../data/site-data";
-import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
+import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../../data/site-data";
+import { publicCatalogDetail, publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
@@ -20,8 +20,6 @@ import { EventRelatedSlot } from "../related-slot";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
-const loadPlaces = cache(async () => publicCatalogSummaries<EventPlace>("events"));
-
 const resolvePlace = cache(async (id: string) => {
   const mappedSlug = supplierLegacySlug(id, "events");
   const locale = (await headers()).get("x-vii-locale");
@@ -33,7 +31,7 @@ const resolvePlace = cache(async (id: string) => {
   const [selected] = supplierId
     ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
-  const place = supplierId ? selected : (await loadPlaces()).find((item) => item.slug === id);
+  const place = supplierId ? selected : bundledEventPlaces.find((item) => item.slug === id);
   if (!place) notFound();
   return place;
 });
@@ -85,6 +83,6 @@ export default async function Page({ params, searchParams }: Props) {
 }
 
 async function EventRelatedSlotAsync({ place }: { place: EventPlace }) {
-  const places = await loadPlaces();
+  const places = bundledEventPlaces.map((entry) => entry.slug === place.slug ? place : entry);
   return <EventRelatedSlot place={place} places={places} />;
 }
