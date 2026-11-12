@@ -213,11 +213,13 @@ test("homepage warmup starts immediately without waiting for an idle window", as
   assert.match(warmup, /effectiveType === "2g"/);
 });
 
-test("internal destinations warm after pointer/focus intent without racing a touch navigation", async () => {
+test("internal destinations warm after pointer/focus intent and mobile place touch reuses Flight only", async () => {
   const warmup = await readFile(new URL("app/components/smart-navigation-warmup.tsx", root), "utf8");
   assert.match(warmup, /document\.addEventListener\("pointerover"/);
   assert.match(warmup, /document\.addEventListener\("focusin"/);
-  assert.doesNotMatch(warmup, /onTouchStart\s*=\s*[^;\n]*warmAnchor/);
+  assert.match(warmup, /const onTouchStart = \(event: TouchEvent\)/);
+  assert.match(warmup, /warmup\.warm\(destination, false\)/);
+  assert.match(warmup, /anchor\.target === "_blank" && !mobileSameTab/);
   assert.match(warmup, /router\.prefetch\(destination\)/);
   assert.match(warmup, /saveData/);
   assert.match(warmup, /createNavigationIntentWarmup/);

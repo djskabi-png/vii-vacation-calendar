@@ -53,7 +53,12 @@ export function SmartNavigationWarmup() {
       // current tab's App Router cache. Warm only the document for those
       // destinations, rather than rendering both HTML and Flight on one hover.
       if (dwell.has(destination)) return;
-      const opensNewTab = anchor.target === "_blank";
+      // Place links deliberately retain target=_blank on desktop. On mobile
+      // the click handler removes that target and Next performs an in-app
+      // transition, so warming a full HTML document here would race the RSC
+      // transition and make the origin do the same place work twice.
+      const mobileSameTab = window.matchMedia("(max-width: 760px)").matches && isBusinessDepthRoute(basePath);
+      const opensNewTab = anchor.target === "_blank" && !mobileSameTab;
       dwell.set(destination, window.setTimeout(() => {
         dwell.delete(destination);
         warmup.warm(destination, opensNewTab || isBusinessDepthRoute(basePath));
@@ -72,7 +77,22 @@ export function SmartNavigationWarmup() {
     };
     const onPointerOver = (event: PointerEvent) => warmAnchor(event.target);
     const onFocusIn = (event: FocusEvent) => warmAnchor(event.target);
-    const onTouchStart = () => { /* A tap must never start a competing document fetch. */ };
+    const onTouchStart = (event: TouchEvent) => {
+      if (!(event.target instanceof Element) || !window.matchMedia("(max-width: 760px)").matches) return;
+      const anchor = event.target.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor || anchor.hasAttribute("download")) return;
+      const href = anchor.getAttribute("href");
+      if (!href || !href.startsWith("/") || href.startsWith("//") || href.startsWith("/api/")) return;
+      const destination = localizedPath(href, languageFromPathname(window.location.pathname));
+      const basePath = stripLanguagePrefix(new URL(destination, window.location.origin).pathname);
+      if (!isBusinessDepthRoute(basePath)) return;
+      // A pointerover may have armed the desktop-style dwell timer. Cancel it
+      // and start only the Flight prefetch that the imminent mobile transition
+      // can actually reuse. Next deduplicates this with the following click.
+      const timer = dwell.get(destination);
+      if (timer !== undefined) { window.clearTimeout(timer); dwell.delete(destination); }
+      warmup.warm(destination, false);
+    };
     const onPointerOut = (event: PointerEvent) => cancelAnchor(event.target, event.relatedTarget);
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented) return;

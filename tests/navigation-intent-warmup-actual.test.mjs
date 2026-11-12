@@ -79,16 +79,17 @@ test('document read is streamed and bounded, never materialized as a full ArrayB
   assert.equal(reads, 3); assert.equal(cancelled, 1);
 });
 
-test('actual touch listener starts no work and click listener cancels a competing speculative destination',async()=>{
+test('actual mobile place touch starts reusable Flight and click cancels only document speculation',async()=>{
  const source=await readFile(new URL('../app/components/smart-navigation-warmup.tsx',import.meta.url),'utf8');
  const ast=ts.createSourceFile('component.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),handlers={};
  const visit=node=>{if(ts.isVariableDeclaration(node)&&['onTouchStart','onClick'].includes(node.name.getText(ast)))handlers[node.name.getText(ast)]=node.initializer.getText(ast);ts.forEachChild(node,visit);};visit(ast);
- const calls=[];const deps={warmup:{cancel:href=>calls.push(href)},window:{location:{pathname:'/events'}},localizedPath:href=>href,languageFromPathname:()=> 'he'};
+ const calls=[];class FakeElement{closest(){return {hasAttribute:()=>false,getAttribute:()=>'/business?id=vacation-164'};}};
+ const deps={Element:FakeElement,isBusinessDepthRoute:path=>path.startsWith('/business'),stripLanguagePrefix:x=>x,warmup:{warm:(href,documentOnly)=>calls.push(['warm',href,documentOnly]),cancel:href=>calls.push(['cancel',href])},window:{location:{pathname:'/events',origin:'https://vii.spaplus.co'},matchMedia:()=>({matches:true}),clearTimeout:()=>{}},localizedPath:href=>href,languageFromPathname:()=> 'he',dwell:new Map()};
  const load=text=>new Function(...Object.keys(deps),ts.transpileModule(`return (${text});`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText)(...Object.values(deps));
- load(handlers.onTouchStart)({});assert.deepEqual(calls,[]);
+ load(handlers.onTouchStart)({target:new FakeElement()});assert.deepEqual(calls,[['warm','/business?id=vacation-164',false]]);
  const target={closest:()=>({href:'https://vii.spaplus.co/business?id=vacation-164',getAttribute:()=>'/business?id=vacation-164'})};
- load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,['/business?id=vacation-164']);
- load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,1);
+ load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,[['warm','/business?id=vacation-164',false],['cancel','/business?id=vacation-164']]);
+ load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,2);
 });
 
 test('actual component anchor handler excludes private/API links and chooses one destination mode', async () => {
@@ -100,7 +101,7 @@ test('actual component anchor handler excludes private/API links and chooses one
   const fnJS=ts.transpileModule(`const dwell=new Map(); const handle=${initializer}; return handle;`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
   const calls=[];
   class FakeElement { constructor(anchor){this.anchor=anchor;} closest(){return this.anchor;} }
-  const handle=new Function('Element','localizedPath','languageFromPathname','window','stripLanguagePrefix','isBusinessDepthRoute','warmup','Node', fnJS)(FakeElement,href=>href,()=> 'he',{location:{origin:'https://vii.spaplus.co',pathname:'/'},setTimeout:fn=>{fn();return 1},clearTimeout:()=>{}},x=>x,x=>x.startsWith('/business'),{warm:(...args)=>calls.push(args),cancel:()=>{}},class Node {});
+  const handle=new Function('Element','localizedPath','languageFromPathname','window','stripLanguagePrefix','isBusinessDepthRoute','warmup','Node', fnJS)(FakeElement,href=>href,()=> 'he',{location:{origin:'https://vii.spaplus.co',pathname:'/'},matchMedia:()=>({matches:false}),setTimeout:fn=>{fn();return 1},clearTimeout:()=>{}},x=>x,x=>x.startsWith('/business'),{warm:(...args)=>calls.push(args),cancel:()=>{}},class Node {});
   const anchor=(href,target='')=>new FakeElement({getAttribute:()=>href,hasAttribute:()=>false,target});
   handle(anchor('/business?id=2')); handle(anchor('/events')); handle(anchor('/guides','_blank'));
   handle(anchor('/api/catalog')); handle(anchor('/admin')); handle(anchor('/booking?id=2')); handle(anchor('//external.example'));
