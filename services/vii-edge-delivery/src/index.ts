@@ -187,11 +187,17 @@ function keyFor(request: Request, url: URL, build: string, now = new Date()) {
   // identical place payload had just been delivered from the same edge POP.
   // Forward the original token to the origin, but deliberately omit it from
   // the shared cache identity.
-  const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key) && key !== "_rsc").sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
   const accept = request.headers.get("Accept") || "";
   const htmlTypes = new Set(["text/html", "application/xhtml+xml", "application/xml", "text/xml", "image/avif", "image/webp", "image/apng", "image/svg+xml", "application/signed-exchange", "*/*"]);
   const ordinaryHtml = !url.pathname.endsWith(".rsc") && !request.headers.has("RSC") && !request.headers.has("Next-Router-State-Tree")
     && accept.includes("text/html") && accept.split(",").every(part => htmlTypes.has(part.split(";")[0].trim().toLowerCase()));
+  // Date and package are client display context on this public place page.
+  // Reuse the canonical HTML document while the browser keeps the complete
+  // URL; hydration reads that URL and selects/scrolls the requested package.
+  // Flight requests retain their complete router identity below.
+  const canonicalSpaPackageDocument = ordinaryHtml && datedSpaPackageEntry(url);
+  const query = [...url.searchParams.entries()].filter(([key]) => !allowedUtm.has(key) && key !== "_rsc"
+    && !(canonicalSpaPackageDocument && (key === "date" || key === "package"))).sort().map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
   const clock = publicDocumentClock(url.pathname, now);
   const variants = encodeURIComponent(variantHeaders.map((name) => `${name}:${name === "Accept" && ordinaryHtml ? "text/html" : request.headers.get(name) || ""}`).join("|"));
   return new Request(`${url.origin}/__vii-edge/${EDGE_CACHE_VERSION}/${encodeURIComponent(url.pathname)}?${query}${query ? "&" : ""}__build=${encodeURIComponent(build)}&__variants=${variants}${clock ? `&__clock=${encodeURIComponent(clock)}` : ""}`);
@@ -292,7 +298,10 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
     headers.set("X-VII-Edge-Delivery", "HIT"); headers.set("X-VII-Edge-Cache-Backend", hitLayer);
     return new Response(hit.body, { status: hit.status, headers });
   }
-  const origin = new URL(url.pathname + url.search, anonymousDocumentOrigin(url, env.ORIGIN));
+  const ordinaryDocument = !url.pathname.endsWith(".rsc") && !request.headers.has("RSC") && !request.headers.has("Next-Router-State-Tree")
+    && (request.headers.get("Accept") || "").includes("text/html");
+  const canonicalSpaPackageDocument = ordinaryDocument && datedSpaPackageEntry(url);
+  const origin = new URL(url.pathname + (canonicalSpaPackageDocument ? "" : url.search), anonymousDocumentOrigin(url, env.ORIGIN));
   const lookupMs = Math.round(performance.now() - lookupStarted);
   const originStarted = performance.now();
   let response = publicDocumentRedirect(await fetchPublicRead(request, origin), origin, url);

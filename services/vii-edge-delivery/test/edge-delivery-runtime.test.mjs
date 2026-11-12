@@ -109,7 +109,7 @@ test('actual handler separates build/query variants and does not cache an expire
   } finally { h.restore(); }
 });
 
-test('dated SPA package entry documents are cache-admitted and keep date and package variants distinct', async () => {
+test('dated SPA package HTML reuses the canonical document while Flight keeps date and package variants distinct', async () => {
   const h = harness({ headers: headers() });
   const env = { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' };
   const request = (date, packageId) => new Request(`https://edge.test/discover/place/spa-25?date=${date}&package=${packageId}`, { headers: { Accept: 'text/html' } });
@@ -120,10 +120,28 @@ test('dated SPA package entry documents are cache-admitted and keep date and pac
     const repeat = await worker.fetch(request('2026-11-13', '4193'), env, h.ctx);
     assert.equal(repeat.headers.get('X-VII-Edge-Delivery'), 'HIT');
     const anotherPackage = await worker.fetch(request('2026-11-13', '4194'), env, h.ctx);
-    assert.equal(anotherPackage.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    assert.equal(anotherPackage.headers.get('X-VII-Edge-Delivery'), 'HIT');
     const anotherDate = await worker.fetch(request('2026-11-14', '4193'), env, h.ctx);
-    assert.equal(anotherDate.headers.get('X-VII-Edge-Delivery'), 'MISS');
-    assert.equal(h.stats().originCalls, 3);
+    assert.equal(anotherDate.headers.get('X-VII-Edge-Delivery'), 'HIT');
+    assert.equal(h.stats().originCalls, 1);
+  } finally { h.restore(); }
+});
+
+test('dated SPA package Flight keeps package variants distinct', async () => {
+  const rscHeaders = headers(); rscHeaders.set('Content-Type', 'text/x-component');
+  const h = harness({ headers: rscHeaders, body: '<flight />' });
+  const env = { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' };
+  const headersForFlight = { Accept: 'text/x-component', RSC: '1', 'Next-Router-State-Tree': 'spa-tree' };
+  const request = (date, packageId) => new Request(`https://edge.test/discover/place/spa-25.rsc?date=${date}&package=${packageId}&_rsc=token`, { headers: headersForFlight });
+  try {
+    const first = await worker.fetch(request('2026-11-13', '4193'), env, h.ctx);
+    assert.equal(first.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const repeat = await worker.fetch(request('2026-11-13', '4193'), env, h.ctx);
+    assert.equal(repeat.headers.get('X-VII-Edge-Delivery'), 'HIT');
+    const differentPackage = await worker.fetch(request('2026-11-13', '4194'), env, h.ctx);
+    assert.equal(differentPackage.headers.get('X-VII-Edge-Delivery'), 'MISS');
+    assert.equal(h.stats().originCalls, 2);
   } finally { h.restore(); }
 });
 
