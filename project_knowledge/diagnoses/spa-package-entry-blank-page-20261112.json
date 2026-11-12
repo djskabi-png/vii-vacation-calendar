@@ -1,0 +1,82 @@
+{
+  "status": "fixed",
+  "symptom": "Opening a spa package deep link with date and package query parameters intermittently left a blank page or waited more than 30 seconds before content appeared.",
+  "expected_behavior": "The dated spa package deep link should render the place immediately, preserve the selected date and package, and scroll to the requested package without exposing a blank document.",
+  "environment": "Public VII production at vii.spaplus.co on 2026-11-12, app build 45e4aff9-4463-da1a-8c3e-fe9813c34625 and final Edge worker version 3b186fdd-e4ef-41e6-923f-c4908bbdfb24.",
+  "reproduction": {
+    "steps": [
+      "Open https://vii.spaplus.co/discover/place/spa-25?date=2026-11-13&package=4193#spa-package-4193 in a cold browser session.",
+      "Observe the document while the deep link waits for the origin response and package hydration."
+    ],
+    "evidence": "The pre-fix Playwright reproduction exceeded the 30 second DOMContentLoaded timeout, and public Edge headers showed the dated package request was not served by the fast document cache."
+  },
+  "observations": [
+    {
+      "observation": "The date and package query keys were absent from the public document cache allowlist.",
+      "evidence": "Inspection of services/vii-edge-delivery/src/index.ts and worker/public-response-cache.ts showed neither query key was admitted before the repair."
+    },
+    {
+      "observation": "The same place document hydrated the requested date and package correctly when delivered under the original deep-link URL.",
+      "evidence": ".qa-output/spa-canonical-document-substitution.mjs preserved the URL, displayed 13 בנובמבר 2026, found spa-package-4193, and reported no hydration or console errors."
+    },
+    {
+      "observation": "The final public Edge route now serves dated package documents from cache.",
+      "evidence": "Fresh dated variants returned X-VII-Edge-Delivery: HIT with measured totals of 0.434932 seconds and 0.453180 seconds."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Dated spa package links bypassed the public document cache, forcing a slow origin render and exposing an empty page during the wait.",
+      "prediction": "The exact deep link will miss or bypass Edge while an equivalent canonical place document can render the same package state quickly after hydration.",
+      "discriminating_test": "Compare cache classification for the exact query and run canonical-document substitution while preserving the browser URL.",
+      "result": "The exact query bypassed cache before repair, while canonical substitution preserved the selected date and package without hydration errors.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A client JavaScript exception or missing package record prevented the spa page from rendering.",
+      "prediction": "The page would remain broken after receiving canonical HTML, with console errors or no spa-package-4193 target.",
+      "discriminating_test": "Load the deep link with canonical HTML and inspect console errors, page title, heading, selected date, and package target.",
+      "result": "The page rendered the correct title and heading, displayed the requested date, found the package target, and produced no client exception.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Admit validated spa date and package queries, reuse the canonical place HTML cache identity for ordinary documents, retain full query identity for Flight responses, and exclude booking or private state.",
+    "evidence": "Before repair the exact route timed out beyond 30 seconds; after Edge version 3b186fdd-e4ef-41e6-923f-c4908bbdfb24 it rendered visibly in 1194 ms on mobile and 2225 ms on desktop, with repeat document responses served as HIT."
+  },
+  "affected_family": [
+    "Public spa place deep links containing validated date and package query parameters",
+    "Next.js Flight responses for spa place routes that must retain router query identity",
+    "Booking, session, preview, and other private query states that must remain excluded from shared cache"
+  ],
+  "regression_checks": [
+    {
+      "check": "Exact production spa package deep link on desktop",
+      "status": "passed",
+      "evidence": "Status 200, commit 364 ms, DOMContentLoaded 1830 ms, first visible content 2225 ms, correct H1, package target present, and scrollY 1284."
+    },
+    {
+      "check": "Exact production spa package deep link on iPhone 13 viewport",
+      "status": "passed",
+      "evidence": "Status 200, commit 293 ms, DOMContentLoaded 1014 ms, first visible content 1194 ms, FCP 1028 ms, package target present, and zero request failures."
+    },
+    {
+      "check": "Edge cache and query safety automated suite",
+      "status": "passed",
+      "evidence": "The final Edge test run completed 93 tests with zero failures, including canonical HTML reuse, Flight separation, and private-state exclusions."
+    },
+    {
+      "check": "Rendered production destination through in-app browser",
+      "status": "passed",
+      "evidence": "The exact URL displayed Titanic Spa content, package navigation, interactive map, footer, and the requested production title instead of a blank page."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "A previously observed map-snapshot fallback request returned 404 on one desktop run, but the interactive map loaded and this request was not causal to the blank-page incident."
+  ],
+  "authorization_boundary": "Adir explicitly requested an urgent public repair and publication for the observed VII loading failure; changes were limited to safe cache routing, tests, and deployment evidence."
+}

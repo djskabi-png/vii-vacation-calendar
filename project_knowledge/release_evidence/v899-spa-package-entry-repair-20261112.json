@@ -1,0 +1,52 @@
+{
+  "release": "v899 spa package entry repair",
+  "date": "2026-11-12",
+  "public_url": "https://vii.spaplus.co/discover/place/spa-25?date=2026-11-13&package=4193#spa-package-4193",
+  "app_build": "45e4aff9-4463-da1a-8c3e-fe9813c34625",
+  "edge_worker": {
+    "name": "vii-edge-delivery",
+    "version": "3b186fdd-e4ef-41e6-923f-c4908bbdfb24",
+    "route": "vii.spaplus.co/*"
+  },
+  "source_commits": [
+    "a0ee651f fix(edge): cache dated spa package entries",
+    "b2114109 fix(cache): qualify spa package entry documents",
+    "1649af4f perf(edge): reuse canonical spa place documents"
+  ],
+  "automated_evidence": {
+    "edge_tests": "93 passed, 0 failed",
+    "wrangler_dry_run": "passed"
+  },
+  "production_evidence": {
+    "desktop": {
+      "status": 200,
+      "commit_ms": 364,
+      "dom_content_loaded_ms": 1830,
+      "first_visible_ms": 2225,
+      "first_contentful_paint_ms": 1860,
+      "package_target": true
+    },
+    "mobile_iphone_13": {
+      "status": 200,
+      "commit_ms": 293,
+      "dom_content_loaded_ms": 1014,
+      "first_visible_ms": 1194,
+      "first_contentful_paint_ms": 1028,
+      "package_target": true,
+      "request_failures": 0
+    },
+    "fresh_cache_variants": [
+      {
+        "date": "2026-11-14",
+        "edge_delivery": "HIT",
+        "total_seconds": 0.434932
+      },
+      {
+        "date": "2026-11-15",
+        "edge_delivery": "HIT",
+        "total_seconds": 0.45318
+      }
+    ]
+  },
+  "scope_statement": "This evidence certifies the dated spa package entry family and its cache isolation checks. It does not claim that every unrelated VII route has been re-certified in this incident."
+}
