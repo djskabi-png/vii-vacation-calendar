@@ -84,11 +84,13 @@ test('actual mobile place touch cancels desktop dwell without racing the Link Fl
  const ast=ts.createSourceFile('component.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),handlers={};
  const visit=node=>{if(ts.isVariableDeclaration(node)&&['onTouchStart','onClick'].includes(node.name.getText(ast)))handlers[node.name.getText(ast)]=node.initializer.getText(ast);ts.forEachChild(node,visit);};visit(ast);
  const calls=[];class FakeElement{closest(){return {hasAttribute:()=>false,getAttribute:()=>'/business?id=vacation-164'};}};
- const deps={Element:FakeElement,isBusinessDepthRoute:path=>path.startsWith('/business'),stripLanguagePrefix:x=>x,warmup:{warm:(href,documentOnly)=>calls.push(['warm',href,documentOnly]),cancel:href=>calls.push(['cancel',href])},window:{location:{pathname:'/events',origin:'https://vii.spaplus.co'},matchMedia:()=>({matches:true}),clearTimeout:()=>{}},localizedPath:href=>href,languageFromPathname:()=> 'he',dwell:new Map()};
+ const dwell=new Map([['/business?id=vacation-164',91]]),cleared=[];
+ const deps={Element:FakeElement,isBusinessDepthRoute:path=>path.startsWith('/business'),stripLanguagePrefix:x=>x,warmup:{warm:(href,documentOnly)=>calls.push(['warm',href,documentOnly]),cancel:href=>calls.push(['cancel',href])},window:{location:{pathname:'/events',origin:'https://vii.spaplus.co'},matchMedia:()=>({matches:true}),clearTimeout:id=>cleared.push(id)},localizedPath:href=>href,languageFromPathname:()=> 'he',dwell};
  const load=text=>new Function(...Object.keys(deps),ts.transpileModule(`return (${text});`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText)(...Object.values(deps));
- load(handlers.onTouchStart)({target:new FakeElement()});assert.deepEqual(calls,[]);
+ load(handlers.onTouchStart)({target:new FakeElement()});assert.deepEqual(calls,[]);assert.deepEqual(cleared,[91]);
+ dwell.set('/business?id=vacation-164',92);
  const target={closest:()=>({href:'https://vii.spaplus.co/business?id=vacation-164',getAttribute:()=>'/business?id=vacation-164'})};
- load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,[['cancel','/business?id=vacation-164']]);
+ load(handlers.onClick)({defaultPrevented:false,target});assert.deepEqual(calls,[['cancel','/business?id=vacation-164']]);assert.deepEqual(cleared,[91,92]);assert.equal(dwell.size,0);
  load(handlers.onClick)({defaultPrevented:true,target});assert.equal(calls.length,1);
 });
 

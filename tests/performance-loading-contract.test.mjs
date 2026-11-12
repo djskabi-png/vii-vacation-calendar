@@ -220,6 +220,8 @@ test("internal destinations warm after pointer/focus intent without racing mobil
   assert.match(warmup, /const onTouchStart = \(event: TouchEvent\)/);
   assert.doesNotMatch(warmup, /onTouchStart[\s\S]*warmup\.warm\(destination, false\)/);
   assert.match(warmup, /anchor\.target === "_blank" && !mobileSameTab/);
+  assert.match(warmup, /!mobileSameTab && \(opensNewTab \|\| isBusinessDepthRoute\(basePath\)\)/);
+  assert.match(warmup, /const timer = dwell\.get\(destination\);[\s\S]*window\.clearTimeout\(timer\); dwell\.delete\(destination\);/);
   assert.match(warmup, /router\.prefetch\(destination\)/);
   assert.match(warmup, /saveData/);
   assert.match(warmup, /createNavigationIntentWarmup/);

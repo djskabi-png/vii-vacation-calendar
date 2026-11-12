@@ -61,7 +61,7 @@ export function SmartNavigationWarmup() {
       const opensNewTab = anchor.target === "_blank" && !mobileSameTab;
       dwell.set(destination, window.setTimeout(() => {
         dwell.delete(destination);
-        warmup.warm(destination, opensNewTab || isBusinessDepthRoute(basePath));
+        warmup.warm(destination, !mobileSameTab && (opensNewTab || isBusinessDepthRoute(basePath)));
       }, 160));
     };
     const cancelAnchor = (target: EventTarget | null, relatedTarget: EventTarget | null) => {
@@ -98,7 +98,14 @@ export function SmartNavigationWarmup() {
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented) return;
       const link = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
-      if (link?.href) warmup.cancel(localizedPath(link.getAttribute("href") || link.href, languageFromPathname(window.location.pathname)));
+      if (!link?.href) return;
+      const destination = localizedPath(link.getAttribute("href") || link.href, languageFromPathname(window.location.pathname));
+      // Mobile browsers synthesize pointerover immediately before click. Stop
+      // that freshly armed dwell timer before it can launch a second request
+      // after the Link navigation has already started.
+      const timer = dwell.get(destination);
+      if (timer !== undefined) { window.clearTimeout(timer); dwell.delete(destination); }
+      warmup.cancel(destination);
     };
     document.addEventListener("pointerover", onPointerOver, { passive: true, capture: true });
     document.addEventListener("pointerout", onPointerOut, { passive: true, capture: true });
