@@ -312,7 +312,19 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   return (
     <PageShell variant="events"><NearbySortStatus state={nearby} />
       <main id="main-content" className="results-page events-results-page">
-        {!initialArea ? <>
+        {managedPath ? <>
+          <StructuredData data={breadcrumbSchema([
+            { name: breadcrumbNames.home, path: localizedPath("/", language) },
+            { name: breadcrumbNames.events, path: localizedPath("/events", language) },
+            { name: landingTitle || eventHeading, path: localizedPath(managedPath, language) },
+          ])} />
+          <StructuredData data={collectionSchema(
+            landingTitle || eventHeading,
+            landingDescription || "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.",
+            localizedPath(managedPath, language),
+            filtered.map((place) => ({ name: place.name, path: localizedPath(eventPlaceHref(place), language), image: place.image })),
+          )} />
+        </> : !initialArea ? <>
           <StructuredData data={breadcrumbSchema([
             { name: breadcrumbNames.home, path: localizedPath("/", language) },
             { name: breadcrumbNames.events, path: localizedPath("/events", language) },

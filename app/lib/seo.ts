@@ -35,6 +35,28 @@ export function organizationSchema() {
       height: 122,
     },
     knowsLanguage: ["he-IL", "en", "ru", "fr"],
+    areaServed: {
+      "@type": "Country",
+      name: "Israel",
+    },
+    knowsAbout: [
+      "Vacation rentals in Israel",
+      "Event venues in Israel",
+      "Spa experiences in Israel",
+      "Hourly rooms in Israel",
+      "Travel trails and attractions in Israel",
+    ],
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "מקומות וחוויות בישראל",
+      itemListElement: [
+        { "@type": "OfferCatalog", name: "נופש בישראל", url: `${SITE_URL}/search/` },
+        { "@type": "OfferCatalog", name: "מקומות לאירועים", url: `${SITE_URL}/events/` },
+        { "@type": "OfferCatalog", name: "ספא בישראל", url: `${SITE_URL}/spas/` },
+        { "@type": "OfferCatalog", name: "חדרים לפי שעה", url: `${SITE_URL}/hourly/` },
+        { "@type": "OfferCatalog", name: "מסלולים ואטרקציות", url: `${SITE_URL}/trails/` },
+      ],
+    },
   };
 }
 
@@ -47,6 +69,7 @@ export function websiteSchema() {
     name: SITE_NAME,
     inLanguage: "he-IL",
     publisher: { "@id": ORGANIZATION_ID },
+    about: { "@id": ORGANIZATION_ID },
     potentialAction: {
       "@type": "SearchAction",
       target: {

@@ -12,7 +12,12 @@ const copy = {
 export function localizedEventPlace(place: EventPlace, language: SiteLanguage, translate: (value: string) => string): EventPlace {
   if (language === "he") return place;
   const fallback = copy[language];
-  const name = localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || fallback.name);
+  // A venue name is an identity, not generic interface copy. When the
+  // catalogue has no approved translation or Latin alias, keep the verified
+  // source name instead of collapsing many different venues into the same
+  // "Verified event venue" title. This preserves unique metadata and avoids
+  // inventing a translated business name.
+  const name = localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || place.name);
   const location = localizedBusinessText(place.location, language, translate, latinBusinessAlias(place.location) || fallback.location);
   const area = localizedBusinessText(place.area, language, translate, latinBusinessAlias(place.area) || fallback.location);
   return {

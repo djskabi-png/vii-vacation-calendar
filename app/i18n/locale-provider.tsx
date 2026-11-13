@@ -1739,7 +1739,7 @@ export function LanguageSwitcher({ compact = false, iconOnly = false }: { compac
       ref={trigger}
       className="language-trigger"
       type="button"
-      aria-label={chooserLabels[language]}
+      aria-label={`${labels[language]}, ${chooserLabels[language]}`}
       aria-haspopup="menu"
       aria-expanded={open}
       aria-controls={menuId}

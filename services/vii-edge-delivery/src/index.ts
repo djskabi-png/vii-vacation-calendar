@@ -236,6 +236,16 @@ function deliveryTiming(headers: Headers, lookupMs: number, originMs?: number) {
   headers.append("Server-Timing", timings.join(", "));
 }
 
+function publicSecurityHeaders(response: Response, request: Request) {
+  const headers = new Headers(response.headers);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), payment=(), usb=()");
+  if (new URL(request.url).protocol === "https:")
+    headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
 async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext, refresh = false): Promise<Response> {
   if (env.QUALITY_CONTROL_ENABLED === "true") {
     const experience = await experienceGateway(request, env);
@@ -356,7 +366,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
-export default { fetch: serve, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
+export default { fetch: async (request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext) => publicSecurityHeaders(await serve(request, env, ctx), request), async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
   const core = warmCoreDocuments((request, ownedContext) => serve(request, env, ownedContext), ctx, _controller.scheduledTime)
     .then(report => console.log('VII core document warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))

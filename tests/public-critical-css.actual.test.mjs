@@ -64,6 +64,9 @@ test('real initial HTML orders critical before full resources and supplies a no-
   const full = document.querySelector('link[data-vii-deferred-style]');
   assert.equal(full.media, 'print');
   assert.equal(full.dataset.precedence, 'vii-public');
+  const activeFullLinks = [...document.head.querySelectorAll(`link[rel=stylesheet][href="${virtual.default.vacations}"]`)].filter(link => !link.closest('noscript'));
+  assert.equal(activeFullLinks.length, 1);
+  assert.equal(activeFullLinks[0].media, 'print');
   assert.equal(document.querySelector('noscript link[rel=stylesheet]')?.getAttribute('href'), virtual.default.vacations);
   assert.ok(virtual.criticalStyles.vacations.length < 220_000);
   assert.ok(virtual.criticalStyles.vacations.includes('Rubik'));

@@ -14,6 +14,9 @@ export function PublicStyleResources({ initialPath, isFlight = true }: { initial
     <style href={`vii-critical:${href}`} precedence="vii-critical">{criticalStyles[world]}</style>
     <script dangerouslySetInnerHTML={{ __html: publicStylesReadyBootstrap }} />
     <link key={href} rel="stylesheet" href={href} precedence="vii-public" media="print" data-vii-deferred-style="" suppressHydrationWarning />
-    <noscript><link rel="stylesheet" href={href} /></noscript>
+    {/* Keep the no-JavaScript fallback as raw markup. A JSX stylesheet inside
+        noscript is hoisted by React into the document head and turns the full
+        bundle back into a render-blocking resource. */}
+    <noscript dangerouslySetInnerHTML={{ __html: `<link rel="stylesheet" href="${href}">` }} />
   </>;
 }

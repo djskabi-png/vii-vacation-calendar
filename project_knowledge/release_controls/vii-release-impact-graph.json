@@ -901,6 +901,7 @@
       "match": [
         "app/layout.tsx",
         "app/components/page-shell.tsx",
+        "app/components/accessibility-widget.tsx",
         "app/page.tsx",
         "app/components/site-footer.tsx",
         "app/lib/public-chrome-client.ts",
@@ -1192,6 +1193,10 @@
         "app/lib/sitemap-inventory.ts",
         "app/lib/seo.ts",
         "app/lib/public-url.ts",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "scripts/audit-public-seo.mjs",
+        "tests/seo-geo-hardening.test.mjs",
         "worker/agent-discovery.ts"
       ]
     },

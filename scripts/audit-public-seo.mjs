@@ -112,7 +112,8 @@ async function inspect(path) {
     .map((match) => ({ locale: match[1], href: match[2] }));
   const visibleBreadcrumb = /aria-label="פירורי לחם"/.test(html);
   const localeFreeRoute = route.replace(/^\/(en|ru|fr)(?=\/|\?|$)/, "") || "/";
-  const vacationPath = /^\/(search|vacations|villas|luxury-suites|suite-complexes|vacation-apartments)(\/|\?|$)/.test(localeFreeRoute);
+  const vacationPath = !localeFreeRoute.startsWith("/search/events/") &&
+    /^\/(search|vacations|villas|luxury-suites|suite-complexes|vacation-apartments)(\/|\?|$)/.test(localeFreeRoute);
   const errors = [];
   if (!response.ok) errors.push(`HTTP ${response.status}`);
   if (h1Count !== 1) errors.push(`H1=${h1Count}`);

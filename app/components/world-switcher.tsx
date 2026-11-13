@@ -152,7 +152,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
         </Link>;
       })}
       <details ref={moreRef} className="search-world-tabs__more" open={moreOpen}>
-        <summary ref={moreSummaryRef} aria-label={translate("עולמות נוספים")} aria-expanded={moreOpen} onClick={(event) => { event.preventDefault(); setMoreOpen((value) => !value); }}>
+        <summary ref={moreSummaryRef} aria-label={`${translate("עוד")}, ${translate("עולמות נוספים")}`} aria-expanded={moreOpen} onClick={(event) => { event.preventDefault(); setMoreOpen((value) => !value); }}>
           <span className="search-world-tabs__icon search-world-tabs__icon--more" aria-hidden="true"><i /><i /><i /></span>
           <span>{translate("עוד")}</span>
         </summary>

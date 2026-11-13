@@ -89,5 +89,6 @@ export function AccessibilityWidget({ placement = "icon" }: { placement?: "icon"
       ? "footer-privacy-button accessibility-footer-trigger"
       : "icon-button accessibility-trigger";
 
-  return <><button ref={openButton} className={triggerClass} type="button" aria-label="פתיחת כלי הנגישות" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span>{placement !== "icon" ? <span>כלי נגישות</span> : null}</button>{panel}</>;
+  const triggerLabel = `${placement === "icon" ? "" : "כלי נגישות, "}פתיחת כלי הנגישות`;
+  return <><button ref={openButton} className={triggerClass} type="button" aria-label={triggerLabel} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span>{placement !== "icon" ? <span>כלי נגישות</span> : null}</button>{panel}</>;
 }
