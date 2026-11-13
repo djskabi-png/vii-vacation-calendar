@@ -482,7 +482,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const refreshing = displayState === "loading" && retainedData !== null;
   const fallbackPlaces = retainedData ? [] : fallbackProperties.slice(0, layout === "grid" ? 6 : 3);
   const fallbackVisible = fallbackPlaces.length > 0 && displayState !== "ready";
-  const fallbackTitle = ({ he: "מקומות נופש שכדאי לבדוק", en: "Stays worth checking", ru: "Варианты, которые стоит проверить", fr: "Séjours à vérifier" } as const)[language];
+  const fallbackTitle = ({ he: "הזמנה מהירה לנופש", en: "Quick stay booking", ru: "Быстрое бронирование отдыха", fr: "Réservation rapide de séjour" } as const)[language];
   const visibleTitle = fallbackVisible ? fallbackTitle : title;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;
@@ -537,7 +537,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           </div>
           <div className="home-live-deals__loading-cards" data-horizontal-rail aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
-        {fallbackVisible ? <><div className="home-live-deals__fallback-note" role="status"><span>{language === "he" ? "מציגים מקומות נופש בזמן שבדיקת הזמינות והמחירים מתעדכנת" : text.loading}</span>{displayState === "error" ? <button type="button" onClick={() => {
+        {fallbackVisible ? <><div className="home-live-deals__fallback-note" role="status"><span>{language === "he" ? "אפשר לפתוח מקום ולבחור תאריך. הזמינות והמחירים מתעדכנים כעת" : text.loading}</span>{displayState === "error" ? <button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
           else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
         }}>{text.retry}</button> : null}</div><div id={`${sectionId}-rail`} className={`home-live-deals__track home-live-deals__track--fallback${layout === "grid" ? " home-live-deals__track--grid" : ""}`} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})}>{fallbackPlaces.map((property, index) => <div className="home-live-deals__item" key={property.slug}><PropertyCard property={property} detailHref={`/business?id=${encodeURIComponent(property.slug)}`} priority={index < 2} /></div>)}</div></> : null}

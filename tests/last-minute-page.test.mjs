@@ -23,6 +23,8 @@ test("permanent last-minute page uses verified tomorrow offers without a holiday
   assert.match(page, /נופש ברגע האחרון/);
   assert.match(page, /<HomeLiveDeals fixedPeriod="tomorrow"/);
   assert.match(page, /layout="grid"/);
+  assert.match(page, /homeFallbackProperties/);
+  assert.doesNotMatch(page, /bundledPublicCatalogSummaries|publicVacationSearchProperties/);
   assert.match(page, /last-minute-escape\.webp/);
   assert.doesNotMatch(page, /חנוכה|Hanukkah/);
   assert.match(component, /new URLSearchParams\(\{ period, locale/);
@@ -31,6 +33,19 @@ test("permanent last-minute page uses verified tomorrow offers without a holiday
   assert.match(component, /displayedDeals\.map/);
   assert.match(component, /deferUntilNearViewport && layout === "rail"/);
   assert.match(await read("app/components/use-paced-rail-render.ts"), /!enabled \? total/);
+});
+
+test("landing fallback stays tiny and cannot load the full supplier catalog", async () => {
+  const fallback = await read("app/data/home-fallback-properties.ts");
+  assert.match(fallback, /deliberately tiny, build-owned catalog sample/);
+  assert.equal((fallback.match(/slug: "vacation-/g) || []).length, 6);
+  assert.doesNotMatch(fallback, /sergey-public-catalog|verified-catalog|bundledPublicCatalogSummaries/);
+});
+
+test("homepage availability seed cannot load the full supplier catalog", async () => {
+  const source = await read("app/components/home-live-sections-seeded.tsx");
+  assert.match(source, /homeFallbackProperties/);
+  assert.doesNotMatch(source, /bundledPublicCatalogSummaries|publicVacationSearchProperties/);
 });
 
 test("last-minute page includes SEO, breadcrumbs, FAQ and responsive media", async () => {

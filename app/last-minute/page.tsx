@@ -8,9 +8,7 @@ import { serverPublicCopy } from "../i18n/server-public-copy";
 import { breadcrumbSchema, faqSchema } from "../lib/seo";
 import "../holidays/holiday-world.css";
 import "./last-minute.css";
-import type { Property } from "../data/site-data";
-import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
-import { publicVacationSearchProperties } from "../lib/public-vacation-search";
+import { homeFallbackProperties } from "../data/home-fallback-properties";
 
 const copy = {
   he: {
@@ -54,7 +52,7 @@ export default async function LastMinutePage() {
   const text = copy[language];
   const breadcrumbs = [{ name: translate("ראשי"), path: "/" }, { name: text.title, path: "/last-minute" }];
   const faqs = text.faqs.map(([question, answer]) => ({ question, answer }));
-  const fallbackProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"), 3).slice(0, 6);
+  const fallbackProperties = homeFallbackProperties;
   return <PageShell variant="vacation" footerTopic="vacation-villas">
     <main id="main-content" className="holiday-world last-minute-world">
       <StructuredData data={breadcrumbSchema(breadcrumbs)} />

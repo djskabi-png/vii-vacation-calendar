@@ -32,7 +32,9 @@ test("availability rails may render neutral catalog cards while a refresh is pen
   const holidayRoute = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
   const spaRoute = readFileSync(new URL("../app/api/spa/deals/route.ts", import.meta.url), "utf8");
   assert.match(home, /fallbackProperties/);
-  assert.match(home, /בדיקת הזמינות והמחירים מתעדכנת/);
+  assert.match(home, /הזמנה מהירה לנופש/);
+  assert.match(home, /אפשר לפתוח מקום ולבחור תאריך/);
+  assert.doesNotMatch(home, /fallbackTitle[^\n]+פנוי/);
   assert.match(home, /<PropertyCard property=\{property\} detailHref=/);
   assert.doesNotMatch(home, /<PropertyCard property=\{property\}[^>]*(?:selectedStay|liveAvailabilityState)=/);
   assert.match(home, /availabilityStatus === "refreshing"/);

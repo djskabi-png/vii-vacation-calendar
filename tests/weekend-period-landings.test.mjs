@@ -29,5 +29,7 @@ test("home links, real pages, metadata, sitemap and structured content stay conn
   assert.match(page, /alternates: \{ canonical \}/);
   assert.match(page, /breadcrumbSchema/);
   assert.match(page, /faqSchema/);
+  assert.match(page, /homeFallbackProperties/);
+  assert.doesNotMatch(page, /bundledPublicCatalogSummaries|publicVacationSearchProperties/);
   for (const path of Object.values(permanentHomePeriodLandings)) assert.match(sitemap, new RegExp(path.replaceAll("/", "\\/")));
 });
