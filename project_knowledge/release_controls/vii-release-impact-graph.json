@@ -848,6 +848,7 @@
       "ownerBox": "catalog-source",
       "match": [
         "app/api/catalog/",
+        "app/api/vii/place-detail/",
         "app/data/",
         "app/lib/public-catalog-read.ts",
         "app/lib/sergey-public-catalog-client.ts",

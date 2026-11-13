@@ -6,7 +6,7 @@ import { SearchExperience } from "../search/page";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
-import { publicVacationSearchProperties } from "../lib/public-vacation-search";
+import { publicVacationLandingSeedProperties, publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { accommodationLandingForPath, indexableAccommodationLandings, type AccommodationCategoryId } from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 import { canonicalLegacyVacationSearchPath, semanticVacationFeaturesFromSearchParams, vacationSearchHasTransactionalState } from "../lib/legacy-search-intent.ts";
@@ -125,15 +125,17 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     })
     .slice(0, 10)
     .map((candidate) => ({ label: candidate.title, href: candidate.path }));
-  // Keep complete matching metadata; the result component still mounts only18 cards.
-  const initialListings = publicVacationSearchProperties(landing.listings);
+  // Keep every matching identity and filter while staying below the edge HTML
+  // response budget. Heavy availability and gallery depth refresh client-side.
+  const initialListings = publicVacationLandingSeedProperties(landing.listings).slice(0, 60);
+  const structuredListings = initialListings;
 
   return <>
     <StructuredData data={collectionSchema(
       landing.title,
       landing.description,
       landing.path,
-      initialListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })),
+      structuredListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })),
     )} />
     <StructuredData data={breadcrumbSchema(breadcrumbs)} />
     <StructuredData data={faqSchema(faqs)} />

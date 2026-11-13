@@ -42,3 +42,20 @@ export function publicVacationSearchProperties(properties: readonly Property[], 
     curatedRank: property.curatedRank,
   }));
 }
+
+// Country-level category pages can contain hundreds of places. Shipping the
+// live availability arrays and complete card galleries for every place in the
+// first HTML document can exceed the edge response budget before React gets a
+// chance to hydrate. Keep every searchable identity and filter field in the
+// seed, but let the existing public catalog refresh supply the heavy booking
+// data and remaining card images after the first useful paint.
+export function publicVacationLandingSeedProperties(properties: readonly Property[]): Property[] {
+  return publicVacationSearchProperties(properties, 1).map((property) => ({
+    ...property,
+    dateQuotes: undefined,
+    dailyAvailability: undefined,
+    roomOptions: undefined,
+    contact: undefined,
+    demoOperations: undefined,
+  }));
+}
