@@ -7,7 +7,12 @@ import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
 import { publicVacationLandingSeedProperties, publicVacationSearchProperties } from "../lib/public-vacation-search";
-import { accommodationLandingForPath, indexableAccommodationLandings, type AccommodationCategoryId } from "../data/accommodation-landings";
+import {
+  accommodationCategories,
+  accommodationLandingForPath,
+  accommodationRegions,
+  type AccommodationCategoryId,
+} from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 import { canonicalLegacyVacationSearchPath, semanticVacationFeaturesFromSearchParams, vacationSearchHasTransactionalState } from "../lib/legacy-search-intent.ts";
 
@@ -112,10 +117,17 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
       ? `${onlineBookingCount} מהמקומות בעמוד מאפשרים בדיקת מחיר וזמינות אונליין. בשאר המקומות הזמינות נבדקת בטלפון או בוואטסאפ, ולכן לא מוצג אישור אוטומטי שאין לו מקור.`
       : "המקומות בעמוד אינם מציגים כרגע גם מחיר וגם זמינות אונליין. ממשיכים לעמוד המקום ומשם לטלפון או לוואטסאפ לקבלת תשובה מדויקת.",
   ];
-  const relatedLinks = indexableAccommodationLandings(publishedProperties)
-    .filter((candidate) => candidate.path !== landing.path)
-    .map((candidate) => accommodationLandingForPath(candidate.category.id, candidate.region?.slug, publishedProperties))
+  // The complete SEO inventory includes every city for every category. Building
+  // that graph on every request repeatedly filters the full catalog thousands
+  // of times and can exhaust the edge CPU budget. Related navigation only needs
+  // the bounded national-category and principal-region families.
+  const relatedLinks = [
+    ...accommodationCategories.map((category) => ({ categoryId: category.id, regionSlug: undefined as string | undefined })),
+    ...accommodationRegions.map((region) => ({ categoryId: landing.category.id, regionSlug: region.slug })),
+  ]
+    .map((candidate) => accommodationLandingForPath(candidate.categoryId, candidate.regionSlug, publishedProperties))
     .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
+    .filter((candidate) => candidate.path !== landing.path && candidate.listings.length > 0)
     .sort((left, right) => {
       const sameDestinationLeft = Number(Boolean(landing.region && left.region?.slug === landing.region.slug));
       const sameDestinationRight = Number(Boolean(landing.region && right.region?.slug === landing.region.slug));

@@ -10,6 +10,9 @@ test("regional and accommodation pages preserve complete matching identities wit
   assert.doesNotMatch(regional, /const initialListings = [^;]+\.slice\(/);
   assert.match(regional, /entries=\{initialListings\} complete=\{false\}/);
   assert.match(accommodation, /publicVacationLandingSeedProperties\(landing\.listings\.slice\(0, 60\)\)/);
+  assert.doesNotMatch(accommodation, /indexableAccommodationLandings\(publishedProperties\)/);
+  assert.match(accommodation, /accommodationCategories\.map/);
+  assert.match(accommodation, /accommodationRegions\.map/);
   assert.match(accommodation, /const structuredListings = initialListings/);
   assert.match(accommodation, /entries=\{initialListings\} complete=\{false\}/);
   assert.match(read("app/lib/public-vacation-search.ts"), /publicVacationLandingSeedProperties[\s\S]*dateQuotes: undefined[\s\S]*roomOptions: undefined/);
