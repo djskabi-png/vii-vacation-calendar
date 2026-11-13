@@ -127,7 +127,7 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     .map((candidate) => ({ label: candidate.title, href: candidate.path }));
   // Keep every matching identity and filter while staying below the edge HTML
   // response budget. Heavy availability and gallery depth refresh client-side.
-  const initialListings = publicVacationLandingSeedProperties(landing.listings).slice(0, 60);
+  const initialListings = publicVacationLandingSeedProperties(landing.listings.slice(0, 60));
   const structuredListings = initialListings;
 
   return <>
