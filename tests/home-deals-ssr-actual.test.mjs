@@ -10,6 +10,7 @@ import {acceptedHomeDealsSeed} from '../app/lib/home-deals-seed.ts';
 import * as freshness from '../app/lib/home-offer-freshness.ts';
 import {orderDiscoveryItems} from '../app/lib/discovery-slider-order.ts';
 import {isHomeDealOnlineEligible} from '../app/lib/vacation-online-first.ts';
+import {canonicalVerifiedItems,canonicalVerifiedSliderItems} from '../app/lib/verified-slider-offers.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -39,7 +40,7 @@ function fixture(clock=null) {
  './use-deal-clock':{useDealClock:()=>clock},
  '../lib/discovery-client-cache.ts':{discoveryJson:()=>{throw Error('SSR must not fetch');}},
  '../lib/home-slider-contract.ts':{capHomeHolidayTabs:x=>x},
- '../lib/verified-slider-offers.ts':{canonicalVerifiedSliderItems:x=>x},
+ '../lib/verified-slider-offers.ts':{canonicalVerifiedItems,canonicalVerifiedSliderItems},
  '../lib/home-period-landings.ts':{permanentHomePeriodLandings:{tomorrow:'/vacations/last-minute'}},
  '../lib/home-offer-freshness.ts':freshness,'../lib/discovery-recovery-policy.ts':{},
  '../lib/home-deals-seed.ts':{acceptedHomeDealsSeed},
@@ -70,8 +71,8 @@ test('mounted clock cannot resurrect an expired seed even while its date snapsho
  try {assert.doesNotMatch(fixture({key:dealClockKey(now),now})({initialData:seed}),/data-test-card/);} finally {Date.now=original;}
 });
 
-test('homepage SSR mounts only the useful first row while retaining all twenty offers for paced activation',()=>{
- const complete={...seed,deals:Array.from({length:20},(_,i)=>({...seed.deals[0],siteID:i+1,name:'Retained card '+i}))};
- const html=fixture()({initialData:complete,deferUntilNearViewport:true});assert.equal((html.match(/data-test-card=/g)||[]).length,4);assert.equal(complete.deals.length,20);
- const standalone=fixture()({initialData:complete,layout:'grid'});assert.equal((standalone.match(/data-test-card=/g)||[]).length,20);
+test('SSR mounts one useful row while retaining complete grid geometry and bounded rail geometry',()=>{
+ const complete={...seed,deals:Array.from({length:42},(_,i)=>({...seed.deals[0],siteID:i+1,name:'Retained card '+i}))};
+ const html=fixture()({initialData:complete,deferUntilNearViewport:true});assert.equal((html.match(/home-live-deals__item/g)||[]).length,20);assert.equal((html.match(/data-test-card=/g)||[]).length,4);assert.equal(complete.deals.length,42);
+ const standalone=fixture()({initialData:complete,layout:'grid'});assert.equal((standalone.match(/home-live-deals__item/g)||[]).length,42);assert.equal((standalone.match(/data-test-card=/g)||[]).length,4);assert.equal((standalone.match(/home-live-deals__deferred-card/g)||[]).length,38);
 });

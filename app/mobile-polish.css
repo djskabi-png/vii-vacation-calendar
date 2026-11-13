@@ -147,8 +147,27 @@
   .discovery-detail--providers .provider-process li { min-height:80px; display:grid; grid-template-columns:36px minmax(0,1fr); align-items:center; gap:14px; padding:18px; }
   .discovery-detail--providers .provider-process li p { margin:0; }
   .trail-detail__content h2 { font-size:1.4rem; line-height:1.4; overflow-wrap:anywhere; }
-  /* Keep the thin reading bar and accessible progress value, not a pill over prose. */
-  .site-page .mobile-reading-progress { position:absolute; width:1px; height:1px; min-height:0; padding:0; border:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  /* Keep the numeric progress useful while the article scrolls. The compact
+     safe-area chip never accepts pointer input and therefore cannot cover an
+     article control. */
+  .site-page .mobile-reading-progress {
+    position:fixed;
+    z-index:1090;
+    top:calc(64px + env(safe-area-inset-top));
+    inset-inline-end:10px;
+    width:auto;
+    height:auto;
+    min-height:34px;
+    padding:5px 9px;
+    border:1px solid rgba(8,126,139,.2);
+    overflow:visible;
+    clip-path:none;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .site-page .mobile-reading-progress span { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  .site-page .mobile-reading-progress strong { font-size:.88rem; line-height:1; }
+  .site-page .mobile-reading-progress.is-visible { opacity:1; transform:translateY(0); }
   .site-page .provider-categories { padding-inline:0; scroll-padding-inline:0; mask-image:none; -webkit-mask-image:none; }
   .site-page .provider-categories-controls { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
   .site-page .provider-categories-controls button { border:1px solid #b8d4d9; color:#125c6c; background:#fff; cursor:pointer; }

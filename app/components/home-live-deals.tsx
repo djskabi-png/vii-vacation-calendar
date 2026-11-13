@@ -25,7 +25,7 @@ import {usePublicPromotionWeights} from "./use-public-promotion-weights";
 import {orderDiscoveryItems} from "../lib/discovery-slider-order";
 import {isHomeDealOnlineEligible} from "../lib/vacation-online-first";
 import {matchesSearchLocation} from "../data/search-taxonomy";
-import { canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
+import { canonicalVerifiedItems, canonicalVerifiedSliderItems } from "../lib/verified-slider-offers.ts";
 import { permanentHomePeriodLandings } from "../lib/home-period-landings.ts";
 import { HOME_OFFER_MAX_AGE_MS, homeOfferCheckedAt, isFreshHomeOffer, validHomeOfferResponse } from "../lib/home-offer-freshness.ts";
 import { DISCOVERY_RECOVERY_BUDGET_MS, discoveryRecoveryDelay } from "../lib/discovery-recovery-policy.ts";
@@ -476,8 +476,14 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   // Preserve accepted identities and truth cohorts before weighted exposure.
   // Each independent search rotates equal-weight eligible venues; the
   // selected search remains stable through map/list and pagination changes.
-  const displayedDeals = useMemo(() => orderDiscoveryItems(canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID), {id:deal=>deal.siteID,seed:`${documentSeed}:vacation:${period}:${guests}`,online:deal=>isHomeDealOnlineEligible(deal),priority:deal=>scope&&!matchesSearchLocation({location:deal.city,area:deal.area},scope.label)?1:0,promotionWeight:deal=>promotionWeight(deal.siteID)}), [eligibleDeals,documentSeed,period,guests,scope?.label,promotionWeight]);
-  const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, deferUntilNearViewport && layout === "rail");
+  const displayedDeals = useMemo(() => orderDiscoveryItems(layout === "grid"
+    ? canonicalVerifiedItems(eligibleDeals, deal => deal.siteID)
+    : canonicalVerifiedSliderItems(eligibleDeals, deal => deal.siteID),
+  {id:deal=>deal.siteID,seed:`${documentSeed}:vacation:${period}:${guests}`,online:deal=>isHomeDealOnlineEligible(deal),priority:deal=>scope&&!matchesSearchLocation({location:deal.city,area:deal.area},scope.label)?1:0,promotionWeight:deal=>promotionWeight(deal.siteID)}), [eligibleDeals,layout,documentSeed,period,guests,scope?.label,promotionWeight]);
+  // Full pages retain every verified identity, but mount expensive card
+  // contents in small paint-separated batches. Rails keep their existing
+  // viewport activation and 20-card presentation boundary.
+  const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, layout === "grid" || deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && retainedData !== null;
   const fallbackPlaces = retainedData ? [] : fallbackProperties.slice(0, layout === "grid" ? 6 : 3);

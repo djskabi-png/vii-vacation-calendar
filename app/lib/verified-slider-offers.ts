@@ -24,3 +24,26 @@ export function canonicalVerifiedSliderItems<T>(
   }
   return accepted;
 }
+
+/**
+ * Final boundary for complete verified result grids.
+ *
+ * Full result pages share the same validation and identity rules as discovery
+ * rails, but they must not inherit the rail's 20-card presentation limit.
+ */
+export function canonicalVerifiedItems<T>(
+  items: readonly T[],
+  identity: (item: T) => string | number,
+  valid: (item: T) => boolean = () => true,
+): T[] {
+  const accepted: T[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (!valid(item)) continue;
+    const key = String(identity(item));
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    accepted.push(item);
+  }
+  return accepted;
+}

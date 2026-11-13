@@ -24,7 +24,7 @@ async function fixture(props={},language='he'){
  '../lib/discovery-client-cache.ts':{discoveryJson:(url,_scope,options)=>url.includes('/home-holidays?')?Promise.resolve({holidays}):new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}))},
  '../lib/home-slider-contract.ts':{capHomeHolidayTabs:v=>v.slice(0,6)},'./use-document-seed':{useDocumentSeed:()=> 'fixed-seed'},'./use-public-promotion-weights':{usePublicPromotionWeights:()=>weight},
  '../lib/discovery-slider-order':{orderDiscoveryItems:v=>v},'../lib/vacation-online-first':{isHomeDealOnlineEligible:()=>true},'../data/search-taxonomy':{matchesSearchLocation:()=>true},
- '../lib/verified-slider-offers.ts':{canonicalVerifiedSliderItems:v=>v},'../lib/home-period-landings.ts':{permanentHomePeriodLandings:Object.fromEntries(periods.map(v=>[v.id,'/period/'+v.id]))},
+ '../lib/verified-slider-offers.ts':{canonicalVerifiedItems:v=>v,canonicalVerifiedSliderItems:v=>v},'../lib/home-period-landings.ts':{permanentHomePeriodLandings:Object.fromEntries(periods.map(v=>[v.id,'/period/'+v.id]))},
  '../lib/home-offer-freshness.ts':{HOME_OFFER_MAX_AGE_MS:300_000,homeOfferCheckedAt:v=>Date.parse(v?.cache?.checkedAt||''),isFreshHomeOffer:fresh,validHomeOfferResponse:fresh},
  '../lib/discovery-recovery-policy.ts':{DISCOVERY_RECOVERY_BUDGET_MS:12_000,discoveryRecoveryDelay:()=>null},'../lib/home-deals-seed.ts':{acceptedHomeDealsSeed:(v,c)=>fresh(v)&&v.period===c.period},'../lib/deal-clock.ts':{dealClockKey:()=>clock.key},
  };
@@ -45,6 +45,6 @@ test('actual rapid selection ignores late old data while the bounded transport r
 test('actual holiday selection retains verified cards until the selected holiday is ready',async()=>{
  const h=await fixture({mode:'holidays',initialData:null});try{assert.equal(h.requests.length,1);assert.ok(document.querySelector('[data-horizontal-rail]'),'the first cold holiday state must reserve a visible horizontal rail');await h.complete(0,offer(undefined,false,holidays[0]));const first=h.rail();first.scrollLeft=-345;await h.click(0);assert.equal(h.rail(),first);assert.equal(first.scrollLeft,-345);assert.equal(h.scrolls.length,0);await h.click(1);assert.equal(first.isConnected,false);const retained=h.rail();assert.ok(retained);assert.equal(retained.getAttribute('aria-hidden'),'true');await h.complete(1,offer(undefined,true,holidays[1]));assert.equal(h.rail(),retained);assert.equal(h.rail().getAttribute('aria-hidden'),null);assert.equal(h.rail().scrollLeft,0);}finally{await h.close();}
 });
-test('standalone grid still renders every complete card without deferred placeholders',async()=>{
- const h=await fixture({layout:'grid'});try{assert.equal(h.rail().children.length,20);assert.equal(h.rail().querySelectorAll('[data-card]').length,20);assert.equal(h.rail().querySelectorAll('.home-live-deals__deferred-card').length,0);}finally{await h.close();}
+test('standalone grid reserves every result and progressively mounts expensive cards',async()=>{
+ const h=await fixture({layout:'grid'});try{assert.equal(h.rail().children.length,20);assert.equal(h.rail().querySelectorAll('[data-card]').length,4);assert.equal(h.rail().querySelectorAll('.home-live-deals__deferred-card').length,16);await h.count(20);assert.equal(h.rail().children.length,20);assert.equal(h.rail().querySelectorAll('[data-card]').length,20);assert.equal(h.rail().querySelectorAll('.home-live-deals__deferred-card').length,0);}finally{await h.close();}
 });
