@@ -58,13 +58,45 @@ function collectionIssues(supplierId: number, path: string, before: unknown, aft
   return [];
 }
 
+function positivePrice(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
+function hourlyRateIdentity(value: unknown) {
+  return String(object(value).duration || "").trim();
+}
+
+function roomRateIssues(supplierId: number, beforeRooms: unknown, afterRooms: unknown): CatalogContentIssue[] {
+  const afterById = new Map(records(afterRooms).map((room) => [Number(room.id), room]));
+  const issues: CatalogContentIssue[] = [];
+  for (const room of records(beforeRooms)) {
+    const roomId = Number(room.id);
+    const updated = afterById.get(roomId);
+    if (!Number.isSafeInteger(roomId) || roomId < 1 || !updated) continue;
+    const path = `summary.rooms.${roomId}.rates`;
+    issues.push(...collectionIssues(supplierId, path, room.rates, updated.rates));
+    const nextRates = new Map(records(updated.rates).map((rate) => [hourlyRateIdentity(rate), rate]));
+    for (const rate of records(room.rates)) {
+      const duration = hourlyRateIdentity(rate);
+      if (!duration) continue;
+      const nextRate = nextRates.get(duration);
+      if (!nextRate
+        || (positivePrice(rate.weekday) && !positivePrice(nextRate.weekday))
+        || (positivePrice(rate.weekend) && !positivePrice(nextRate.weekend))) {
+        issues.push({ supplierId, path, reason: "item_removed" });
+      }
+    }
+  }
+  return issues;
+}
+
 /**
  * Supplier responses currently have no field-level tombstones. A partial
  * response must therefore never erase already accepted public content.
  */
 export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
   previous: SupplierCatalogEntry[], candidate: SupplierCatalogEntry[]): CatalogContentIssue[] {
-  if (world !== "vacations" && world !== "events") return [];
+  if (world !== "vacations" && world !== "events" && world !== "rooms") return [];
   const next = new Map(candidate.map((entry) => [entry.supplierId, entry]));
   const issues: CatalogContentIssue[] = [];
   for (const oldEntry of previous) {
@@ -72,6 +104,11 @@ export function catalogContentIntegrityIssues(world: SupplierCatalogWorld,
     if (!updated) continue;
     const before = object(oldEntry.detail);
     const after = object(updated.detail);
+    if (world === "rooms") {
+      issues.push(...roomRateIssues(oldEntry.supplierId,
+        object(oldEntry.summary).rooms, object(updated.summary).rooms));
+      continue;
+    }
     if (before === after) continue;
     for (const key of ["images", "galleryGroups", "features", "featureGroups", "rooms"] as const) {
       issues.push(...collectionIssues(oldEntry.supplierId, `detail.${key}`, before[key], after[key]));

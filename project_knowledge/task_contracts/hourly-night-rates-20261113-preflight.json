@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "task_id": "hourly-night-rates-20261113",
+  "project": "VII",
+  "task_type": "supplier-data-integrity",
+  "requested_outcome": "Preserve and display supplier-provided overnight prices for hourly-room places, including Spa House, without inventing prices.",
+  "natural_destination": "VII hourly place detail pages after an authenticated rooms catalog refresh",
+  "authorization_boundary": "Local diagnosis, code, tests and saved commit are authorized; production synchronization and publication are not authorized in this turn.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A mapper test alone cannot prove that the accepted catalog and public place page contain the supplier night price.",
+      "acceptance_impact": "Completion remains blocked until the refreshed accepted catalog and exact public place page are verified."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The code supports night prices but the accepted rooms generation still contains none.",
+      "prevention": "Separate source mapping, accepted generation and rendered destination evidence.",
+      "acceptance_check": "A refreshed catalog contains the API-provided night rate and the matching place page renders it."
+    },
+    {
+      "rejection": "A later partial supplier response silently removes an accepted night rate.",
+      "prevention": "Block rooms catalog acceptance when a previously accepted duration or positive price disappears.",
+      "acceptance_check": "Integrity tests reject removed or zeroed night rates and permit valid additions and price changes."
+    },
+    {
+      "rejection": "A price is guessed from the old site or manually patched into the snapshot.",
+      "prevention": "Treat the supplier API as authoritative and never fabricate a missing rate.",
+      "acceptance_check": "Tests prove that absent, zero and malformed night values do not create a rate."
+    }
+  ],
+  "affected_family": [
+    "Sergey rooms API normalization",
+    "accepted rooms catalog synchronization",
+    "hourly place detail rate model",
+    "hourly place detail rate cards",
+    "Spa House Rishon LeZion and Petah Tikva examples"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII hourly rates source and display contract",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared normalizer and current accepted catalog are inspected",
+    "checks": [
+      "Confirm the normalizer preserves an API night price",
+      "Count night rates in the currently accepted rooms snapshot",
+      "Identify whether the defect is mapping, persistence or rendering"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a partial rooms response delete an accepted night duration?",
+      "Can one day-group price be silently zeroed?",
+      "Can a first valid night price be added without false rejection?",
+      "Does the exact refreshed Spa House page visibly show the supplier value?"
+    ],
+    "natural_destination_evidence": "Authenticated rooms refresh followed by exact place-page inspection; unavailable until publication and sync are authorized.",
+    "affected_family_evidence": "Focused normalizer, catalog-client, detail-model and catalog-integrity test results."
+  },
+  "effectiveness": {
+    "baseline": "The accepted 52-place rooms snapshot contains 411 rates and zero night rates.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Prevent all silent loss of already accepted hourly-room rates while allowing supplier-authoritative additions and updates."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

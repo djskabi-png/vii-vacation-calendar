@@ -69,5 +69,45 @@ test("non Sergey worlds keep their existing dedicated guards", () => {
   const empty = structuredClone(before);
   empty.detail = {};
   assert.deepEqual(catalogContentIntegrityIssues("spa", [before], [empty]), []);
-  assert.deepEqual(catalogContentIntegrityIssues("rooms", [before], [empty]), []);
+});
+
+function hourlyEntry() {
+  return {
+    supplierId: 1896,
+    summary: {
+      id: "hourly-1896",
+      name: "ספא האוס - ראשון לציון",
+      rooms: [{ id: 3240, name: "Royalty Suite", rates: [
+        { duration: "שעה", weekday: 300, weekend: 300 },
+        { duration: "לילה", weekday: 550, weekend: 650 },
+      ] }],
+    },
+  };
+}
+
+test("hourly sync cannot silently remove an accepted night rate", () => {
+  const before = hourlyEntry();
+  const withoutNight = structuredClone(before);
+  withoutNight.summary.rooms[0].rates.pop();
+  assert.ok(catalogContentIntegrityIssues("rooms", [before], [withoutNight])
+    .some((issue) => issue.path === "summary.rooms.3240.rates" && issue.reason === "item_removed"));
+});
+
+test("hourly sync cannot clear an accepted night price but may update it", () => {
+  const before = hourlyEntry();
+  const cleared = structuredClone(before);
+  cleared.summary.rooms[0].rates[1].weekday = 0;
+  assert.ok(catalogContentIntegrityIssues("rooms", [before], [cleared])
+    .some((issue) => issue.reason === "item_removed"));
+
+  const updated = structuredClone(before);
+  updated.summary.rooms[0].rates[1] = { duration: "לילה", weekday: 575, weekend: 675 };
+  assert.deepEqual(catalogContentIntegrityIssues("rooms", [before], [updated]), []);
+});
+
+test("first supplier night rate may be added without a false integrity failure", () => {
+  const before = hourlyEntry();
+  before.summary.rooms[0].rates.pop();
+  const withNight = hourlyEntry();
+  assert.deepEqual(catalogContentIntegrityIssues("rooms", [before], [withNight]), []);
 });
