@@ -23,14 +23,12 @@ test("home tours use verified media with an honest disclosure", () => {
   assert.match(source, /href=\{`\/business\?id=\$\{property\.slug\}`\}/);
 });
 
-test("home ratings use sourced values, clean excerpts and responsive cards", () => {
+test("home ratings remain available as a component but never block the homepage cold path", () => {
   const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  assert.match(home, /publicCatalogReviewPreviews<SupplierReviewDetail>\("vacations", candidates\.map/);
-  assert.match(home, /Number\(place\.reviews\) >= 5/);
+  assert.doesNotMatch(home, /publicCatalogReviewPreviews|HomeRatings|HomeRatingsSection/);
   assert.match(source, /homeReviewExcerpt\(reviewText\)/);
   assert.match(source, /export function HomeRatingsSection/);
   assert.match(source, /if \(!featuredRatings\.length\) return null/);
-  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings readCatalog=\{readCatalog\} \/><\/Suspense>/);
   assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);
   assert.match(source, /href=\{localizedPath\(`\/business\?id=\$\{place\.slug\}`, language\)\}/);

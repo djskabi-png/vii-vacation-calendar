@@ -6,8 +6,9 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 
 test("optional homepage supplier reads are isolated from the document shell", () => {
   const source = read("app/page.tsx");
-  assert.match(source, /createRequestCatalogReader\(bundledPublicCatalogSummaries\)/);
-  assert.match(source, /readCatalog<Property>\("vacations"\)\.catch\(\(\) => \[\]\)/);
+  assert.match(source, /from "\.\/data\/home-showcase-fallback"/);
+  assert.match(source, /<HomeShowcase properties=\{homeShowcaseProperties\}/);
+  assert.doesNotMatch(source, /createRequestCatalogReader|bundledPublicCatalogSummaries|readCatalog<Property>/);
   assert.match(source, /managedMagazineArticles\(magazineArticles\)\.catch\(\(\) => magazineArticles\)/);
   assert.match(read("app/error.tsx"), /Try again/);
   assert.match(read("app/global-error.tsx"), /Try again/);

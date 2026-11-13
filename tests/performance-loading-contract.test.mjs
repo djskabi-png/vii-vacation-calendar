@@ -104,10 +104,10 @@ test("home cards receive only their featured world previews", async () => {
   const home = await readFile(new URL("app/components/home-showcase.tsx", root), "utf8");
   const page = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.doesNotMatch(home, /import \{ paidAttractions, providerProfiles/);
-  assert.match(page, /providerPreview=\{providerProfiles\[0\]\}/);
-  assert.match(page, /attractionPreview=\{paidAttractions\[0\]\}/);
-  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
-  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
+  assert.match(page, /providerPreview=\{homeShowcaseProvider\}/);
+  assert.match(page, /attractionPreview=\{homeShowcaseAttraction\}/);
+  assert.match(page, /from "\.\/data\/home-showcase-fallback"/);
+  assert.doesNotMatch(page, /paidAttractions|providerProfiles|function homeShowcaseProperties/);
 });
 
 test("vacation search serializes a compact catalog and only the visible card window", async () => {
@@ -138,7 +138,8 @@ test("cold public documents do not read whole runtime catalogs before sending HT
     readFile(new URL("app/spas/page.tsx", root), "utf8"),
     readFile(new URL("app/search/layout.tsx", root), "utf8"),
   ]);
-  for (const source of [home, business, spas, search]) {
+  assert.doesNotMatch(home, /bundledPublicCatalogSummaries|publicCatalogSummaries</);
+  for (const source of [business, spas, search]) {
     assert.match(source, /bundledPublicCatalogSummaries/);
     assert.doesNotMatch(source, /publicCatalogSummaries</);
   }
@@ -147,21 +148,18 @@ test("cold public documents do not read whole runtime catalogs before sending HT
   assert.doesNotMatch(business, /publicCatalogDetail/);
 });
 
-test("home hourly rail keeps every weighted candidate but bounds preview payload", async () => {
-  const source = await readFile(new URL("app/page.tsx", root), "utf8");
-  assert.match(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.map/);
-  assert.doesNotMatch(source, /const showcaseHourly[\s\S]*?\.map\(\(place\) => \(\{\s*\.\.\.place/);
-  assert.match(source, /features:\s*place\.features\.slice\(0,\s*4\)/);
-  assert.match(source, /images:\s*place\.images\?\.slice\(0,\s*3\)/);
-  assert.doesNotMatch(source, /hourlyPlacesFromCatalog\(hourlyCatalogPlaces\)\.slice/);
+test("home hourly rail uses a bounded build-owned preview without catalog deserialization", async () => {
+  const source = await readFile(new URL("app/data/home-showcase-fallback.ts", root), "utf8");
+  assert.match(source, /export const homeShowcaseHourly/);
+  assert.match(source, /id: "hourly-194"/);
+  assert.doesNotMatch(source, /sergey-hourly-catalog|hourlyPlacesFromCatalog|publicCatalog/);
 });
 
-test("home event rail projects preview facts instead of hydrating complete venue records", async () => {
-  const source = await readFile(new URL("app/page.tsx", root), "utf8");
-  assert.doesNotMatch(source, /const showcaseEvents[\s\S]*?\.map\(\(place\) => \(\{\s*\.\.\.place/);
-  assert.match(source, /description:\s*place\.description\?\.slice\(0,\s*220\)/);
-  assert.match(source, /images:\s*\(place\.images\?\.length \? place\.images : \[place\.image\]\)\.slice\(0,\s*3\)/);
-  assert.match(source, /contact:\s*place\.contact \? \{ phone: place\.contact\.phone, whatsapp: place\.contact\.whatsapp \} : undefined/);
+test("home event rail uses bounded real preview facts instead of complete venue records", async () => {
+  const source = await readFile(new URL("app/data/home-showcase-fallback.ts", root), "utf8");
+  assert.match(source, /export const homeShowcaseEvents/);
+  assert.match(source, /slug: "event-2"/);
+  assert.doesNotMatch(source, /publicCatalog|sergey-hourly-catalog/);
   assert.doesNotMatch(source, /roomOptions:\s*place\.roomOptions|galleryGroups:\s*place\.galleryGroups|dateQuotes:\s*place\.dateQuotes/);
 });
 
@@ -292,13 +290,13 @@ test("internal destinations warm after pointer/focus intent without racing mobil
   assert.match(warmup, /\^\\\/\(\?:admin\|account\|favorites\|booking\)/);
 });
 
-test("homepage keeps rated-place details outside the critical world-summary boundary", async () => {
+test("homepage keeps every supplier catalog and review read outside the cold document path", async () => {
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
-  assert.match(home, /async function HomeCatalogShowcase\(\{ readCatalog \}/);
-  assert.match(home, /async function HomeRatings\(\{ readCatalog \}/);
-  assert.match(home, /<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase readCatalog=\{readCatalog\} \/><\/Suspense>/);
-  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings readCatalog=\{readCatalog\} \/><\/Suspense>/);
-  assert.doesNotMatch(home, /hourlyCatalogPlaces, ratedPlaces\] = await Promise\.all/);
+  const fallback = await readFile(new URL("app/data/home-showcase-fallback.ts", root), "utf8");
+  assert.match(home, /from "\.\/data\/home-showcase-fallback"/);
+  assert.match(home, /<HomeShowcase properties=\{homeShowcaseProperties\}/);
+  assert.doesNotMatch(home, /HomeCatalogLoading|HomeRatings|createRequestCatalogReader|bundledPublicCatalogSummaries|sergey-hourly-catalog/);
+  assert.doesNotMatch(fallback, /publicCatalog|sergey-hourly-catalog|import \{[^}]*\} from "\.\/world-data"/);
 });
 
 test("homepage does not prefetch heavyweight search result documents before intent", async () => {

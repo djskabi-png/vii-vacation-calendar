@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { HomeShowcase, HomeTrails, HomeLiveSections, HomeCatalogLoading, HomeRatingsSection, type HomeRatedPlace } from "./components/home-showcase";
+import { HomeShowcase, HomeTrails, HomeLiveSections } from "./components/home-showcase";
 import { HomeLiveSectionsSeeded } from "./components/home-live-sections-seeded";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
@@ -12,115 +12,15 @@ import { magazineArticles } from "./data/magazine-data";
 import { managedMagazineArticles } from "./lib/managed-public-content";
 import { EditorialCover } from "./components/editorial-cover";
 import { headers } from "next/headers";
-import { destinations, visualTourProperties } from "./data/site-data";
-import type { EventPlace, Property } from "./data/site-data";
-import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
-import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { bundledPublicCatalogSummaries, publicCatalogReviewPreviews } from "./lib/public-catalog-read.ts";
-import { createRequestCatalogReader, type RequestCatalogReader } from "./lib/request-catalog-reader.ts";
-import { rotateDaily } from "./lib/daily-rotation";
+import { destinations } from "./data/site-data";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
 import "./home-performance.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
-import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 import { readWorldAvailability } from "./lib/world-availability";
 import { localizedPath, type SiteLanguage } from "./i18n/locale-routing";
-
-type SupplierReview = { author?: string; text?: string; date?: string };
-type SupplierReviewDetail = { reviews?: SupplierReview[] };
-
-async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]> {
-  const candidates = properties
-    .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
-    .sort((a, b) => Number(b.score) - Number(a.score) || a.slug.localeCompare(b.slug))
-    .slice(0, 14);
-  const details = await publicCatalogReviewPreviews<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
-  const withReviews = candidates.map((place) => {
-    const supplierId = Number(place.slug.slice("vacation-".length));
-    const detail = details.get(supplierId);
-    const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
-    return review ? { place, reviewText: review.text!.trim(), reviewAuthor: review.author?.trim() || "אורח", reviewDate: review.date || "" } : null;
-  });
-  return withReviews.filter((entry): entry is HomeRatedPlace => entry !== null);
-}
-
-const destinationMatchers = [
-  (area: string, location: string) => /גליל|גולן/.test(area) && location !== "",
-  (area: string) => /כנרת/.test(area),
-  (area: string) => /ירושלים|יהודה/.test(area),
-  (area: string) => /מישור החוף|שרון|מרכז/.test(area),
-  (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
-  (_area: string, location: string) => location === "אילת",
-];
-
-function homeShowcaseProperties(properties: Property[]) {
-  const destinationPlaces = destinationMatchers.flatMap((matches) => properties
-    .filter((place) => place.image && matches(place.area, place.location))
-    .slice(0, 5));
-  const tourPlaces = rotateDaily(eligibleHomeTourProperties([
-    ...properties,
-    ...visualTourProperties,
-  ]), (place) => place.slug, "home-tours").slice(0, 20);
-  const selected = new Map<string, Property>();
-  [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
-  return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
-}
-
-async function HomeCatalogShowcase({ readCatalog }: { readCatalog: RequestCatalogReader }) {
-  const [properties, eventPlaces, hourlyCatalogPlaces] = await Promise.all([
-    readCatalog<Property>("vacations").catch(() => []),
-    readCatalog<EventPlace>("events").catch(() => []),
-    readCatalog<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
-  ]);
-  const showcaseProperties = homeShowcaseProperties(properties);
-  const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
-    (place) => place.slug, "home-events").slice(0, 20).map((place) => ({
-      slug: place.slug,
-      name: place.name,
-      location: place.location,
-      area: place.area,
-      type: place.type,
-      guests: place.guests,
-      image: place.image,
-      images: (place.images?.length ? place.images : [place.image]).slice(0, 3),
-      description: place.description?.slice(0, 220) || "",
-      sourceUrl: place.legacySource?.sourceUrl,
-      sourcePropertySlug: place.sourcePropertySlug,
-      contact: place.contact ? { phone: place.contact.phone, whatsapp: place.contact.whatsapp } : undefined,
-      startPriceWinter: place.startPriceWinter,
-      startPriceSummer: place.startPriceSummer,
-    }));
-  // The rail still receives every eligible supplier so client-side promotion
-  // weights and fair rotation keep their complete candidate set. It does not
-  // need the 1,900+ gallery URLs or long amenity payload used by detail pages.
-  const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces).map((place) => ({
-    id: place.id,
-    world: place.world,
-    name: place.name,
-    location: place.location,
-    area: place.area,
-    description: place.description.slice(0, 220),
-    features: place.features.slice(0, 4),
-    image: place.image,
-    images: place.images?.slice(0, 3),
-    imageFit: place.imageFit,
-    imagePosition: place.imagePosition,
-    priceLabel: place.priceLabel,
-    phone: place.phone,
-    whatsapp: place.whatsapp,
-    rating: place.rating,
-  }));
-  return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
-    hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
-}
-
-async function HomeRatings({ readCatalog }: { readCatalog: RequestCatalogReader }) {
-  const properties = await readCatalog<Property>("vacations").catch(() => []);
-  const ratedPlaces = await homeRatedPlaces(properties).catch(() => []);
-  return ratedPlaces.length ? <HomeRatingsSection ratedPlaces={ratedPlaces} /> : null;
-}
+import { homeShowcaseAttraction, homeShowcaseEvents, homeShowcaseHourly, homeShowcaseProperties, homeShowcaseProvider } from "./data/home-showcase-fallback";
 
 async function HomeMagazineSection() {
   const requestedLocale = (await headers()).get("x-vii-locale") || "he";
@@ -131,7 +31,6 @@ async function HomeMagazineSection() {
 }
 
 export default async function HomePage() {
-  const readCatalog = createRequestCatalogReader(bundledPublicCatalogSummaries);
   const { translate } = await serverPublicCopy();
   const worldAvailability = await readWorldAvailability();
   return (
@@ -147,8 +46,8 @@ export default async function HomePage() {
         </section>
 
         <Suspense fallback={<HomeLiveSections pendingSeed />}><HomeLiveSectionsSeeded /></Suspense>
-        <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase readCatalog={readCatalog} /></Suspense>
-        <Suspense fallback={null}><HomeRatings readCatalog={readCatalog} /></Suspense>
+        <HomeShowcase properties={homeShowcaseProperties} eventPlaces={homeShowcaseEvents}
+          hourlyPlaces={homeShowcaseHourly} providerPreview={homeShowcaseProvider} attractionPreview={homeShowcaseAttraction} />
 
         {worldAvailability["gift-card"] || worldAvailability.corporate ? <section className="section home-corporate-gift"><div className="shell">{worldAvailability["gift-card"] ? <Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link> : null}{worldAvailability.corporate ? <Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>{worldAvailability["gift-card"] ? "מקום, תוכן, ספקים וגיפט קארד במסלול אחד." : "מקום, תוכן וספקים במסלול אחד."}</p><strong>למרכז הארגוני</strong></div></Link> : null}</div></section> : null}
 
