@@ -19,6 +19,8 @@ export const trailDepthTopics: readonly WorldDepthTopic[] = [
   { slug: "forest", label: "מסלולי יער", params: { nature: "יער" } },
   { slug: "easy", label: "מסלולים קלים", params: { difficulty: "קל" } },
   { slug: "moderate", label: "מסלולים בדרגת קושי בינונית", params: { difficulty: "בינוני" } },
+  { slug: "sharon", label: "מסלולים בשרון", params: { area: "מרכז", q: "שרון" } },
+  { slug: "lowlands", label: "מסלולים בשפלה", params: { area: "מרכז", q: "שפלה" } },
 ];
 
 export function findDepthTopic(topics: readonly WorldDepthTopic[], slug: string) {

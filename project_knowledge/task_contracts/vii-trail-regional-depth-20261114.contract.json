@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "taskId": "vii-trail-regional-depth-20261114",
+  "status": "verified_candidate",
+  "outcome": "Add genuinely recommended, source-backed, detailed trails for underrepresented Sharon and Lowlands areas without publishing filler or closed routes.",
+  "naturalDestination": "/trails and /trails/:slug",
+  "authorizationBoundary": "Implement and verify locally; do not publish without an explicit deployment instruction.",
+  "affectedFamily": ["trail search and cards", "trail detail pages", "trail SEO collections and sitemap", "activities hub count", "desktop and mobile trail layouts"],
+  "invariants": ["every route fact links to an official source", "every new public image has an identified source, credit and license", "closed routes are not added", "existing trails and filters remain available"],
+  "acceptance": ["Eight detailed routes are added across Sharon and Lowlands.", "Each route includes route plan, family fit, accessibility, highlights and safety guidance.", "Sharon and Lowlands have dedicated discovery topics that prefilter correctly.", "Trail counts are derived from data rather than hardcoded.", "Desktop and mobile rendering, build and trail-family tests pass."]
+}

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { trails } from "../data/trail-data";
 import { PageShell } from "../components/page-shell";
 import { TrailCard } from "../components/trail-card";
 import { paidAttractions } from "../data/world-data";
-import { trails } from "../data/trail-data";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
@@ -23,7 +23,7 @@ export default function ActivitiesPage() {
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "מסלולי טיול ואטרקציות", path: "/activities" }])} />
       <StructuredData data={collectionSchema("מסלולי טיול ואטרקציות", "מסלולי טיול עצמאיים ואטרקציות בתשלום ברחבי ישראל.", "/activities", [{ name: "מסלולי טיול", path: "/trails" }, { name: "אטרקציות", path: "/attractions" }])} />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מסלולי טיול ואטרקציות" }]} />
-      <section className="world-hero activities-hub__hero"><div className="shell"><h1>בוחרים איך לבלות את היום</h1><p>שני אזורים ברורים: מסלול עצמאי בטבע עם מידע מלא, או אטרקציה בתשלום עם התאמת ספק ותהליך הזמנה.</p><div className="activities-hub__choices"><Link href="/trails"><strong>מסלולי טיולים</strong><span>48 מסלולים, לפחות שישה בכל אזור ראשי</span><small>למסלולים</small></Link><Link href="/attractions"><strong>אטרקציות בתשלום</strong><span>שטח, מים, סוסים, אוכל וסדנאות</span><small>לאטרקציות</small></Link></div></div></section>
+      <section className="world-hero activities-hub__hero"><div className="shell"><h1>בוחרים איך לבלות את היום</h1><p>שני אזורים ברורים: מסלול עצמאי בטבע עם מידע מלא, או אטרקציה בתשלום עם התאמת ספק ותהליך הזמנה.</p><div className="activities-hub__choices"><Link href="/trails"><strong>מסלולי טיולים</strong><span>{trails.length} מסלולים מומלצים עם מקור רשמי ומידע מלא</span><small>למסלולים</small></Link><Link href="/attractions"><strong>אטרקציות בתשלום</strong><span>שטח, מים, סוסים, אוכל וסדנאות</span><small>לאטרקציות</small></Link></div></div></section>
 
       <section id="independent-trails" className="section shell activities-hub__trails"><div className="section-head"><div><h2>מסלולים שהופקו במיוחד למטיילי וי פור ויקיישן</h2><p>כל מסלול כולל זמן, קושי, אופי, עונה, בטיחות וקישור למקור הרשמי.</p></div><Link href="/trails">לכל {trails.length} המסלולים</Link></div><HomeMobileRail shufflePlaces id="activities-trails" label="מסלולים שהופקו במיוחד למטיילי וי פור ויקיישן" className="trail-grid trail-grid--featured">{trails.slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail><Link className="button primary activities-hub__all" href="/trails">מציאת מסלול לפי אזור וקושי</Link></section>
 

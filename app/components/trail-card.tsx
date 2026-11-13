@@ -7,7 +7,7 @@ import { FavoriteButton } from "./favorite-button";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedBusinessText } from "../i18n/localized-business-content";
 
-export function TrailVisual({ trail, compact = false, language = "he", localizedName }: { trail: Trail; compact?: boolean; language?: "he" | "en" | "ru" | "fr"; localizedName?: string }) {
+export function TrailVisual({ trail, compact = false, showCredit = false, language = "he", localizedName }: { trail: Trail; compact?: boolean; showCredit?: boolean; language?: "he" | "en" | "ru" | "fr"; localizedName?: string }) {
   const copy = language === "en" ? { name: "Nature trail", image: "Nature along", join: " and " }
     : language === "ru" ? { name: "Природный маршрут", image: "Природа на маршруте", join: " и " }
       : language === "fr" ? { name: "Sentier nature", image: "Nature le long de", join: " et " }
@@ -18,7 +18,17 @@ export function TrailVisual({ trail, compact = false, language = "he", localized
   const imageAlt = highlights.length ? `${imageTitle}: ${highlights.join(copy.join)}.` : imageTitle;
 
   return <div className={`trail-visual trail-visual--${trail.tone}${compact ? " trail-visual--compact" : ""}`}>
-    <Image src={`/images/trails/${trail.slug}.jpg`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
+    <Image
+      src={trail.image || `/images/trails/${trail.slug}.jpg`}
+      width={1200}
+      height={800}
+      alt={imageAlt}
+      title={imageTitle}
+      loading={compact ? "lazy" : "eager"}
+      unoptimized={Boolean(trail.image)}
+      referrerPolicy={trail.image ? "no-referrer" : undefined}
+    />
+    {showCredit && trail.imageCredit && trail.imageSource && <small className="trail-visual__credit">צילום: <a href={trail.imageSource} target="_blank" rel="noopener noreferrer">{trail.imageCredit}</a>{trail.imageLicense ? ` · ${trail.imageLicense}` : ""}</small>}
   </div>;
 }
 

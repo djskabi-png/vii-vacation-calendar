@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-trail-regional-depth-20261114",
+  "project": "VII public trails",
+  "task_type": "content and product implementation",
+  "requested_outcome": "Add genuinely recommended, source-backed, detailed trails for underrepresented Sharon and Lowlands areas.",
+  "natural_destination": "Public trail collections, cards and detail pages in the VII trails world.",
+  "authorization_boundary": "Implement and verify locally without publishing or deploying this candidate.",
+  "lesson_bundle": [
+    {"lesson_id":"source-truth","reason":"Trail facts and closures can change and must not be invented.","acceptance_impact":"Every route uses an official authority page and excludes known closed candidates."},
+    {"lesson_id":"media-rights","reason":"Public destination imagery needs verified identity and reuse terms.","acceptance_impact":"Every new route has an exact-location image, creator, source and license."},
+    {"lesson_id":"mobile-primary","reason":"Trail discovery and detail pages are frequently used on phones.","acceptance_impact":"The changed family must be checked at a mobile viewport as well as desktop."}
+  ],
+  "predicted_rejections": [
+    {"rejection":"The new entries are generic filler rather than routes worth recommending.","prevention":"Select only established routes from official authority guides and write a concrete itinerary.","acceptance_check":"Each route has at least four highlights and three route-plan steps."},
+    {"rejection":"A route is closed or its distance and safety facts are invented.","prevention":"Exclude the known closed candidates and retain a direct official source for every route.","acceptance_check":"Every official source resolves on the Parks Authority or KKL domain."},
+    {"rejection":"Cards show missing or unrelated imagery without rights information.","prevention":"Use exact-location Commons media with explicit creator, source and license metadata.","acceptance_check":"Every added route has image, credit, source and license fields and the URL responds."},
+    {"rejection":"The Sharon and Lowlands collections exist but do not filter their inventory.","prevention":"Apply both the Center region and the relevant textual subregion query in the topic contract.","acceptance_check":"The two topic definitions and server-side topic count use the same query rule."},
+    {"rejection":"The activity hub count becomes stale after adding routes.","prevention":"Derive the visible number directly from the trail inventory.","acceptance_check":"No hardcoded 48-trail public count remains in the activities page."},
+    {"rejection":"Desktop works while mobile imagery or attribution overflows.","prevention":"Keep attribution inside the image boundary and run responsive visual checks.","acceptance_check":"A Sharon and Lowlands detail page have no horizontal overflow at desktop and 390 pixels."}
+  ],
+  "affected_family": ["all public trail cards", "all public trail detail pages", "trail topic collections", "trail sitemap inventory", "activities hub trail count"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"Existing detailed VII trail records","source":"app/data/trail-data.ts shared data contract"},{"label":"Official route authorities","source":"Israel Nature and Parks Authority and KKL route guides"}]},
+  "midpoint_gate": {"required":true,"trigger":"After data and topic implementation but before visual approval.","checks":["Validate all eight source and image contracts.","Run trail-family and topic regression tests.","Confirm Sharon and Lowlands each expose at least four matching routes."]},
+  "adversarial_close": {"attack_questions":["Can an unrelated route enter either regional collection?","Can any new card render a missing image?","Can a route claim accessibility or safety not stated in its source?","Can a mobile detail page overflow because of the attribution badge?"],"natural_destination_evidence":"Open the two regional collections and representative detail pages in the rendered application.","affected_family_evidence":"Run the existing trail, topic, sitemap, translation and responsive family tests."},
+  "effectiveness": {"baseline":"The Center area had only six routes and weak Sharon and Lowlands subregional depth.","target":"Eight source-backed routes deepen both subregions and remain discoverable through dedicated collections.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"]},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

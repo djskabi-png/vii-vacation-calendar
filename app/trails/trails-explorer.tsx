@@ -53,9 +53,10 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
   const [selectedRegions, setSelectedRegions] = useState(() => selectedValues(searchParams.get("area") || initialFilters?.area || null, regionOptions));
   const [selectedNatures, setSelectedNatures] = useState(() => selectedValues(searchParams.get("nature") || initialFilters?.nature || null, natureOptions));
   const [selectedDifficulties, setSelectedDifficulties] = useState(() => selectedValues(searchParams.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
-  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [query, setQuery] = useState(searchParams.get("q") || initialFilters?.q || "");
   const nearby = useNearbySort();
-  const sortModel = useMemo(() => ({ distance: (trail: Trail) => nearby.distance(nearbyRegionCenters[trail.mainArea]), id: (trail: Trail) => trail.slug, name: (trail: Trail) => trail.name }), [nearby.origin]);
+  const { distance: nearbyDistance } = nearby;
+  const sortModel = useMemo(() => ({ distance: (trail: Trail) => nearbyDistance(nearbyRegionCenters[trail.mainArea]), id: (trail: Trail) => trail.slug, name: (trail: Trail) => trail.name }), [nearbyDistance]);
   const generalSortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
   const trailSortCopy = language === "he" ? { distance: "המסלולים הקצרים", difficulty: "הקלים קודם" } : language === "en" ? { distance: "Shortest distance", difficulty: "Easiest first" } : language === "ru" ? { distance: "Короткие маршруты", difficulty: "Сначала лёгкие" } : { distance: "Les plus courts", difficulty: "Les plus faciles" };
   const sortOptions = useMemo(() => [generalSortOptions[0], { value: "distance-asc", label: trailSortCopy.distance }, { value: "difficulty-asc", label: trailSortCopy.difficulty }, ...generalSortOptions.slice(1)], [generalSortOptions, trailSortCopy.difficulty, trailSortCopy.distance]);
@@ -131,7 +132,7 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
       setSelectedRegions(selectedValues(params.get("area") || initialFilters?.area || null, regionOptions));
       setSelectedNatures(selectedValues(params.get("nature") || initialFilters?.nature || null, natureOptions));
       setSelectedDifficulties(selectedValues(params.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
-      setQuery(params.get("q") || "");
+      setQuery(params.get("q") || initialFilters?.q || "");
       const nextSort = params.get("sort") || nearby.defaultSort;
       setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as TrailSortKey : "recommended");
     }, 0);

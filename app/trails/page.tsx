@@ -28,7 +28,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TrailsPage({ topic, nearbyLanding = false }: { topic?: WorldDepthTopic; nearbyLanding?: boolean } = {}) {
   const publishedTrails = await managedTrails(trails);
-  const topicItems = topic ? publishedTrails.filter((trail) => (topic.params.area ? trail.mainArea === topic.params.area : true) && (topic.params.nature ? trail.nature.includes(topic.params.nature) : true) && (topic.params.difficulty ? trail.difficulty === topic.params.difficulty : true)) : publishedTrails;
+  const topicItems = topic ? publishedTrails.filter((trail) => {
+    const searchable = `${trail.name} ${trail.mainArea} ${trail.region} ${trail.areaTags.join(" ")} ${trail.nature.join(" ")}`;
+    return (topic.params.area ? trail.mainArea === topic.params.area : true)
+      && (topic.params.nature ? trail.nature.includes(topic.params.nature) : true)
+      && (topic.params.difficulty ? trail.difficulty === topic.params.difficulty : true)
+      && (topic.params.q ? searchable.includes(topic.params.q) : true);
+  }) : publishedTrails;
   const presentation = await readWorldLandingPresentation("trails");
   const topicCopy = nearbyLanding ? nearbyPageContent.trails : topic ? worldDepthCopy(topic.label, (await headers()).get("x-vii-locale"), "trails") : null;
   return <PageShell variant="activities">

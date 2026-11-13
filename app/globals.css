@@ -8364,6 +8364,8 @@ body:has(.menu-layer) .mobile-map-fab {
 .property-nearby-trails { margin-top: 36px; padding-top: 30px; border-top: 1px solid #d7e8ea; }
 .trail-visual { position: relative; overflow: hidden; }
 .trail-visual > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.trail-visual__credit { position: absolute !important; z-index: 3 !important; inset-inline: auto 12px !important; inset-block: auto 10px !important; width: auto; max-width: calc(100% - 24px); padding: 5px 8px; border-radius: 999px; background: rgba(4,44,53,.78); color: #fff !important; font-size: .65rem; line-height: 1.2; }
+.trail-visual__credit a { color: inherit; text-decoration: underline; }
 .trail-visual > .image-context-label { position: absolute; z-index: 2; inset-block-end: 10px; inset-inline-start: 10px; }
 .trail-visual__art { display: none; }
 
