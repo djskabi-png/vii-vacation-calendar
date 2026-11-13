@@ -8,6 +8,9 @@ import { serverPublicCopy } from "../i18n/server-public-copy";
 import { breadcrumbSchema, faqSchema } from "../lib/seo";
 import "../holidays/holiday-world.css";
 import "./last-minute.css";
+import type { Property } from "../data/site-data";
+import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 
 const copy = {
   he: {
@@ -51,6 +54,7 @@ export default async function LastMinutePage() {
   const text = copy[language];
   const breadcrumbs = [{ name: translate("ראשי"), path: "/" }, { name: text.title, path: "/last-minute" }];
   const faqs = text.faqs.map(([question, answer]) => ({ question, answer }));
+  const fallbackProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"), 3).slice(0, 6);
   return <PageShell variant="vacation" footerTopic="vacation-villas">
     <main id="main-content" className="holiday-world last-minute-world">
       <StructuredData data={breadcrumbSchema(breadcrumbs)} />
@@ -59,7 +63,7 @@ export default async function LastMinutePage() {
         <div className="holiday-hero__content"><BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: text.title }]} /><span className="eyebrow">{text.eyebrow}</span><h1>{text.title}</h1><p>{text.intro}</p><div className="holiday-hero__proof" aria-label={text.title}>{text.proof.map((item) => <span key={item}>{item}</span>)}</div></div>
         <div className="holiday-hero__media"><picture><source media="(max-width: 760px)" srcSet="/images/last-minute/last-minute-escape-mobile.webp" /><img src="/images/last-minute/last-minute-escape.webp" alt={text.imageAlt} title={text.imageAlt} width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" /></picture></div>
       </div></section>
-      <HomeLiveDeals fixedPeriod="tomorrow" sectionTitle={text.resultsTitle} allLinkLabel={text.allResults} layout="grid" />
+      <HomeLiveDeals fixedPeriod="tomorrow" sectionTitle={text.resultsTitle} allLinkLabel={text.allResults} layout="grid" fallbackProperties={fallbackProperties} />
       <section className="section shell holiday-story last-minute-story" aria-labelledby="last-minute-story-title"><div><span className="eyebrow">{text.storyEyebrow}</span><h2 id="last-minute-story-title">{text.storyTitle}</h2><p>{text.storyBody}</p></div><ol>{text.steps.map(([title, body], index) => <li key={title}><b>0{index + 1}</b><span><strong>{title}</strong>{body}</span></li>)}</ol></section>
       <section className="section section-tint holiday-faq last-minute-faq"><div className="shell"><div className="holiday-section-head"><div><span className="eyebrow">{text.faqEyebrow}</span><h2>{text.faqTitle}</h2></div></div><div className="holiday-faq__list">{faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></div></section>
     </main>

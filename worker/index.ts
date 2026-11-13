@@ -124,18 +124,16 @@ const worker = {
     ctx.waitUntil(cachedOnlineCapabilities(database).catch(() => {
       console.error("VII online capability refresh unavailable");
     }));
-    // The cron ticks every ten minutes for catalog retries. Discovery rails are
-    // refreshed only on the half hour and visitors always read the last
-    // accepted snapshot instead of waiting on the supplier.
-    if (Math.floor(controller.scheduledTime / 60_000) % 30 === 0) {
-      ctx.waitUntil(Promise.allSettled([
-        warmVacationDiscoveryCache(database, scheduledAt),
-        warmEventDiscoveryCache(database, scheduledAt),
-      ]).then((results) => {
-        if (results[0].status === "rejected") console.error("VII vacation discovery refresh unavailable");
-        if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
-      }));
-    }
+    // Refresh the active discovery keys on every ten-minute tick. The vacation
+    // warmer is deliberately bounded to the five visible period keys, so this
+    // no longer launches the former seven-day cross product.
+    ctx.waitUntil(Promise.allSettled([
+      warmVacationDiscoveryCache(database, scheduledAt),
+      warmEventDiscoveryCache(database, scheduledAt),
+    ]).then((results) => {
+      if (results[0].status === "rejected") console.error("VII vacation discovery refresh unavailable");
+      if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
+    }));
     // All visible holiday rails need an accepted snapshot before a visitor
     // opens a distant tab. Run with the existing10-minute tick, independently
     // of the near-date half-hour batch. The loader shares the request lease.

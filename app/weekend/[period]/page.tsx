@@ -10,6 +10,9 @@ import { isWeekendLandingSlug, weekendLandingPeriods, type WeekendLandingSlug } 
 import { breadcrumbSchema, faqSchema } from "../../lib/seo";
 import "../../holidays/holiday-world.css";
 import "../../last-minute/last-minute.css";
+import type { Property } from "../../data/site-data";
+import { bundledPublicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { publicVacationSearchProperties } from "../../lib/public-vacation-search";
 
 const hebrewCopy: Record<WeekendLandingSlug, { title: string; metaTitle: string; description: string; intro: string; results: string; faq: [string, string][] }> = {
   "thursday-to-saturday": { title: "נופש מחמישי עד שבת בסוף השבוע הקרוב", metaTitle: "נופש מחמישי עד שבת בסוף השבוע הקרוב | זמינות ומחירים", description: "מקומות נופש פנויים מחמישי עד שבת בסוף השבוע הקרוב, עם מחיר לכל השהייה ודרך ישירה לבדוק ולהזמין.", intro: "מקומות שנבדקו לשני לילות, מחמישי עד שבת, מסודרים לפי זמינות, מחיר ואפשרות הזמנה.", results: "מקומות פנויים מחמישי עד שבת", faq: [["לאילו תאריכים העמוד מתייחס?", "לסוף השבוע הקרוב, מחמישי עד שבת. התאריכים המדויקים מופיעים בכל הצעה."], ["המחיר הוא לכל התקופה?", "כן. כאשר מוצג מחיר הוא מתייחס להרכב ולכל השהייה שנבדקה, אלא אם צוין אחרת."]] },
@@ -41,6 +44,7 @@ export default async function WeekendLandingPage({ params }: { params: Promise<{
   const text = hebrewCopy[period];
   const path = `/weekend/${period}`;
   const faqs = text.faq.map(([question, answer]) => ({ question, answer }));
+  const fallbackProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"), 3).slice(0, 6);
   return <PageShell variant="vacation" footerTopic="vacation-villas">
     <main id="main-content" className="holiday-world last-minute-world">
       <StructuredData data={breadcrumbSchema([{ name: translate("ראשי"), path: "/" }, { name: text.title, path }])} />
@@ -49,7 +53,7 @@ export default async function WeekendLandingPage({ params }: { params: Promise<{
         <div className="holiday-hero__content"><BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: text.title }]} /><span className="eyebrow">נופש לסוף השבוע הקרוב</span><h1>{text.title}</h1><p>{text.intro}</p><div className="holiday-hero__proof"><span>זמינות לתאריכים המדויקים</span><span>מחיר לכל השהייה</span><span>בדיקה נוספת לפני הזמנה</span></div></div>
         <div className="holiday-hero__media"><img src="/images/last-minute/last-minute-escape.webp" alt="מקום נופש פנוי לסוף השבוע הקרוב" title="מקום נופש פנוי לסוף השבוע הקרוב" width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" /></div>
       </div></section>
-      <HomeLiveDeals fixedPeriod={weekendLandingPeriods[period]} sectionTitle={text.results} allLinkLabel="לכל התוצאות לתאריכים האלה" layout="grid" />
+      <HomeLiveDeals fixedPeriod={weekendLandingPeriods[period]} sectionTitle={text.results} allLinkLabel="לכל התוצאות לתאריכים האלה" layout="grid" fallbackProperties={fallbackProperties} />
       <section className="section section-tint holiday-faq last-minute-faq"><div className="shell"><div className="holiday-section-head"><h2>שאלות על נופש בסוף השבוע הקרוב</h2></div><div className="holiday-faq__list">{faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></div></section>
     </main>
   </PageShell>;

@@ -42,25 +42,27 @@ export async function warmVacationDiscoveryCache(db: D1Database, now = new Date(
   const publicNames = new Map(places.map(place => [place.supplierId, place.name]));
   const resolveCatalog = discoveryVacationCatalog(places);
   const warmed: Array<{ period: string; status: "fresh" | "refreshed" | "stale" | "unavailable"; count: number }> = [];
-  // Keep a full rolling week prepared. This avoids a cold key after the Israel
-  // date boundary and keeps the rails useful through a multi-day supplier
-  // incident without making any visitor wait on the provider.
-  const upcomingClocks = Array.from({ length: 7 }, (_, offset) => new Date(now.getTime() + offset * 86_400_000));
+  // Warm the five keys visitors can select now, with the default rail first.
+  // The previous seven-day cross product could occupy the scheduled worker
+  // for minutes, so today's visible keys stayed cold while distant dates were
+  // processed. The ten-minute cron refreshes the active set again after every
+  // Israel date boundary; durable stale snapshots cover a supplier incident.
+  const orderedPeriods = ["tomorrow", ...homeDealPeriods.map(item => item.id).filter(id => id !== "tomorrow")] as Array<(typeof homeDealPeriods)[number]["id"]>;
   const seen = new Set<string>();
-  for (const period of homeDealPeriods) for (const clock of upcomingClocks) {
-    const dates = homeDealDates(period.id, clock);
+  for (const period of orderedPeriods) {
+    const dates = homeDealDates(period, now);
     const key = `${dates.from}:${dates.till}:2`;
     if (seen.has(key)) continue;
     seen.add(key);
     try {
       const cached = await cachedDiscovery({
         key: ["vacation-near", dates.from, dates.till, 2], db, policy: VACATION_DISCOVERY_POLICY,
-        load: () => getHomeDeals({ period: period.id, now: clock, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }), validate: value => validVacationDiscoverySnapshot(value, dates),
+        load: () => getHomeDeals({ period, now, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }), validate: value => validVacationDiscoverySnapshot(value, dates),
       });
-      warmed.push({ period: period.id, status: cached.cache.status, count: cached.value.deals.length });
+      warmed.push({ period, status: cached.cache.status, count: cached.value.deals.length });
     } catch {
       // One unavailable date must not prevent the other rails from refreshing.
-      warmed.push({ period: period.id, status: "unavailable", count: 0 });
+      warmed.push({ period, status: "unavailable", count: 0 });
     }
   }
   return warmed;

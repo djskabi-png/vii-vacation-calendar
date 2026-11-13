@@ -188,7 +188,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   };
 }
 
-export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false, initialData, pendingSeed = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean; initialData?: HomeDealsInitialData | null; pendingSeed?: boolean }) {
+export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel, layout = "rail", deferUntilNearViewport = false, initialData, fallbackProperties = [], pendingSeed = false }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string; layout?: "rail" | "grid"; deferUntilNearViewport?: boolean; initialData?: HomeDealsInitialData | null; fallbackProperties?: Property[]; pendingSeed?: boolean }) {
   const clock = useDealClock();
   const documentSeed=useDocumentSeed();
   const promotionWeight=usePublicPromotionWeights("vacations");
@@ -480,6 +480,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && retainedData !== null;
+  const fallbackPlaces = retainedData ? [] : fallbackProperties.slice(0, layout === "grid" ? 6 : 3);
+  const fallbackVisible = fallbackPlaces.length > 0 && displayState !== "ready";
+  const fallbackTitle = ({ he: "מקומות נופש שכדאי לבדוק", en: "Stays worth checking", ru: "Варианты, которые стоит проверить", fr: "Séjours à vérifier" } as const)[language];
+  const visibleTitle = fallbackVisible ? fallbackTitle : title;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;
   const resultCountLabel = ({
@@ -508,7 +512,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
 
   return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{displayState === "ready" ? resultCountLabel : text.loading}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></>}</div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{visibleTitle}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{displayState === "ready" ? resultCountLabel : fallbackVisible ? `${fallbackPlaces.length} ${language === "he" ? "מקומות לבדיקה" : ""}` : text.loading}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={visibleTitle} itemSelector=".home-live-deals__item" disabled={fallbackVisible ? fallbackPlaces.length === 0 : displayState !== "ready" || !displayedDealCount} /></>}</div></div>
       {!fixedPeriod ? <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} aria-busy={period === item.id && displayState === "loading" || undefined} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
@@ -524,16 +528,20 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
         }}><strong>{translate(item.name)}</strong></button>)}
       </div> : null}
-      <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+      <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}${fallbackVisible ? " has-catalog-fallback" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
-        {displayState === "loading" && !retainedData ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
+        {displayState === "loading" && !retainedData && !fallbackVisible ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
             <span>{text.loading}</span>
           </div>
           <div className="home-live-deals__loading-cards" data-horizontal-rail aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
-        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
+        {fallbackVisible ? <><div className="home-live-deals__fallback-note" role="status"><span>{language === "he" ? "מציגים מקומות נופש בזמן שבדיקת הזמינות והמחירים מתעדכנת" : text.loading}</span>{displayState === "error" ? <button type="button" onClick={() => {
+          if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
+          else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
+        }}>{text.retry}</button> : null}</div><div id={`${sectionId}-rail`} className={`home-live-deals__track home-live-deals__track--fallback${layout === "grid" ? " home-live-deals__track--grid" : ""}`} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})}>{fallbackPlaces.map((property, index) => <div className="home-live-deals__item" key={property.slug}><PropertyCard property={property} detailHref={`/business?id=${encodeURIComponent(property.slug)}`} priority={index < 2} /></div>)}</div></> : null}
+        {displayState === "error" && !fallbackVisible ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
           else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
         }}>{text.retry}</button></div> : null}

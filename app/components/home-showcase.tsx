@@ -34,9 +34,9 @@ import { localizedPath } from "../i18n/locale-routing";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
-export function HomeLiveSections({ initialData, initialHolidayData, pendingSeed = false }: { initialData?: HomeDealsInitialData | null; initialHolidayData?: HomeDealsInitialData | null; pendingSeed?: boolean } = {}) {
+export function HomeLiveSections({ initialData, initialHolidayData, fallbackProperties = [], pendingSeed = false }: { initialData?: HomeDealsInitialData | null; initialHolidayData?: HomeDealsInitialData | null; fallbackProperties?: Property[]; pendingSeed?: boolean } = {}) {
   const { enabled } = useWorldAvailability();
-  return enabled("vacation") ? <><HomeLiveDeals deferUntilNearViewport initialData={initialData} pendingSeed={pendingSeed} /><HomeLiveDeals mode="holidays" deferUntilNearViewport initialData={initialHolidayData} pendingSeed={pendingSeed} /></> : null;
+  return enabled("vacation") ? <><HomeLiveDeals deferUntilNearViewport initialData={initialData} fallbackProperties={fallbackProperties} pendingSeed={pendingSeed} /><HomeLiveDeals mode="holidays" deferUntilNearViewport initialData={initialHolidayData} fallbackProperties={fallbackProperties} pendingSeed={pendingSeed} /></> : null;
 }
 
 export function HomeCatalogLoading() {

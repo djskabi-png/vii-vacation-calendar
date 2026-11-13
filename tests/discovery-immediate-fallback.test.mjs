@@ -25,13 +25,16 @@ test("spa catalog fallback keeps real package facts but does not manufacture day
   assert.equal(selectSpaCatalogPackages(sites, "bad-date", "single").length, 0);
 });
 
-test("availability rails never render catalog cards as date-bound offers while a refresh is pending", () => {
+test("availability rails may render neutral catalog cards while a refresh is pending but never invent date-bound availability", () => {
   const home = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   const spa = readFileSync(new URL("../app/components/spa-package-deals.tsx", import.meta.url), "utf8");
   const nearRoute = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
   const holidayRoute = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
   const spaRoute = readFileSync(new URL("../app/api/spa/deals/route.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(home, /fallbackPlaces|promotional detailHref|הזמינות מתעדכנת ברקע/);
+  assert.match(home, /fallbackProperties/);
+  assert.match(home, /בדיקת הזמינות והמחירים מתעדכנת/);
+  assert.match(home, /<PropertyCard property=\{property\} detailHref=/);
+  assert.doesNotMatch(home, /<PropertyCard property=\{property\}[^>]*(?:selectedStay|liveAvailabilityState)=/);
   assert.match(home, /availabilityStatus === "refreshing"/);
   assert.match(home, /shouldCache:[\s\S]*availabilityStatus === "verified"/);
   assert.doesNotMatch(spa, /החבילות והמחירים מוצגים מיד מהקטלוג|catalogNote/);
