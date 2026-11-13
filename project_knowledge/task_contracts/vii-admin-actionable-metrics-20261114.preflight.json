@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-actionable-metrics-20261114",
+  "project": "VII administration",
+  "task_type": "admin product implementation",
+  "requested_outcome": "Make actionable administration metrics open the exact work list and add practical date and search-volume filters for pages awaiting approval.",
+  "natural_destination": "VII admin dashboard, search-page center and content approval queue.",
+  "authorization_boundary": "Implement and verify locally without publishing or changing production data.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The administration interface must shorten real daily work rather than display passive numbers.","acceptance_impact":"Every actionable metric opens a matching management view and retains edit access."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Metric links and filters must preserve the exact metric scope and period.","acceptance_impact":"Pending, published, search and catalog numbers link only to views with matching data meaning."},
+    {"lesson_id":"ADIR-INTENT-001","reason":"The request for every important number implies an affected-family inventory, not one hardcoded card.","acceptance_impact":"Dashboard highlights, search-page metrics, content-queue summaries and growth pipeline are reviewed together."}
+  ],
+  "predicted_rejections": [
+    {"rejection":"The number looks clickable but opens an unfiltered generic page.","prevention":"Attach an explicit destination and query-state contract to each actionable metric.","acceptance_check":"The pending count opens the approval queue and the published count opens published search pages."},
+    {"rejection":"The displayed count and the destination list do not match.","prevention":"Use the same status definitions and preserve period scope in the destination query.","acceptance_check":"Deep-link filters initialize from the URL and expose the matching filtered count."},
+    {"rejection":"Date filtering is ambiguous or excludes part of the selected end date.","prevention":"Filter by last-seen calendar day in Israel and compare inclusive day boundaries.","acceptance_check":"Items on both selected boundary dates remain visible."},
+    {"rejection":"Search-volume filtering supports only one arbitrary threshold.","prevention":"Provide minimum and maximum search counts with numeric validation and reset.","acceptance_check":"Minimum, maximum and combined ranges update the list and result count."},
+    {"rejection":"Filters are usable on desktop but overflow or become unreadable on mobile.","prevention":"Use a responsive advanced-filter grid and visible active-filter summary.","acceptance_check":"The queue has no horizontal overflow at 390 pixels and all controls remain labeled."},
+    {"rejection":"A passive metric is given a misleading destination just to make everything clickable.","prevention":"Link only when a natural management destination exists and leave explanatory metrics passive.","acceptance_check":"Every rendered metric link has a documented route; non-actionable ratios remain non-links."}
+  ],
+  "affected_family": ["admin personalized metric cards", "admin home pulse metrics", "search-page metric cards", "content-queue summary cards", "content-queue filters and deep links", "growth pipeline metrics"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"Existing content queue edit links","source":"app/admin/content-queue/page.tsx"},{"label":"Existing search-page status tabs","source":"app/admin/search-pages/page.tsx"}]},
+  "midpoint_gate": {"required":true,"trigger":"After the pending-count deep link and content-queue filters work, before expanding clickable metrics across the admin family.","checks":["Open the pending count destination with retained URL filters.","Filter one fixture set by inclusive date and search-count range.","Confirm every filtered item still links directly to its editor."]},
+  "adversarial_close": {"attack_questions":["Can a count open a list with a different status scope?","Can invalid or reversed numeric ranges hide all records without explanation?","Can an end-date item be incorrectly excluded?","Can a mobile user reach every filter and reset it?"],"natural_destination_evidence":"Rendered admin queue and search-page center with deep-link state and direct edit links.","affected_family_evidence":"Admin metric-link and queue-filter tests plus responsive visual checks."},
+  "effectiveness": {"baseline":"Important admin counts were passive and the approval queue only supported text and status filtering.","target":"One click reaches the matching work list, while date and volume filters narrow approval work without losing edit access.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"]},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

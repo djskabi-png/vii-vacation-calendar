@@ -29,6 +29,9 @@
 .pulseCard:before{content:"";position:absolute;inset:-65% -15%;background:repeating-radial-gradient(circle at 20% 45%,transparent 0 32px,rgba(111,240,199,.1) 33px 34px);transform:rotate(-8deg);animation:adminOrbit 24s linear infinite}
 .liveDot{background:#7dffd5;box-shadow:0 0 0 5px rgba(111,240,199,.13),0 0 18px #6ff0c7;animation:adminPulse 2.8s ease-in-out infinite}
 .metrics article,.module,.surface,.priorityCard{background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-color:rgba(184,215,208,.78)}
+.metricAction{position:relative;overflow:hidden;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border:1px solid rgba(184,215,208,.78);border-radius:16px;padding:17px 18px;display:grid;gap:4px;box-shadow:0 8px 24px rgba(23,61,57,.04);color:inherit;text-decoration:none}.metricAction:hover,.metricAction:focus-visible{border-color:#74bcb2;transform:translateY(-1px);box-shadow:0 12px 28px rgba(23,61,57,.09)}.metrics .metricAction[data-tone=warning] strong{color:#9a6508}.metrics .metricAction[data-tone=success] strong{color:#18734f}
+@media(max-width:760px){.metricAction{padding:14px}}
+.pulseStats a{border-inline-start:1px solid rgba(255,255,255,.16);padding-inline-start:13px;color:inherit;text-decoration:none;border-radius:6px}.pulseStats a:last-child{border-inline-start:0;padding-inline-start:0}.pulseStats a:hover,.pulseStats a:focus-visible{background:rgba(255,255,255,.08)}@media(max-width:760px){.pulseStats a{padding-inline-start:8px}}
 .module:hover,.module:focus-visible{box-shadow:0 16px 36px rgba(10,84,78,.12),0 0 0 1px rgba(66,207,193,.12)}
 @keyframes adminOrbit{to{transform:rotate(352deg)}}
 @keyframes adminPulse{50%{box-shadow:0 0 0 8px rgba(111,240,199,0),0 0 24px #6ff0c7}}

@@ -4,6 +4,7 @@ import { ModernDateTimeInput } from "../../components/modern-date-time-input";
 import { useAdminCanEdit } from "../admin-access-context.tsx";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, Archive, ArrowLeft, ArrowUpLeft, BarChart3, CalendarClock, CheckCircle2, ChevronLeft, CircleDashed, Clock3, Eye, FileSearch, Filter, History, LayoutDashboard, ListFilter, RefreshCw, Save, Search, Send, Sparkles, Target, Users, X } from "lucide-react";
 import styles from "./search-pages.module.css";
 import { privateSearchPageEditorPath, publicSearchPagePath, publicSearchWorldSegments } from "../../lib/search-page-url-policy.ts";
@@ -48,12 +49,15 @@ const liveReadiness = (item: Opportunity | null) => {
 
 export default function SearchPagesAdmin() {
   const canEdit = useAdminCanEdit();
-  const [period, setPeriod] = useState(30);
+  const params = useSearchParams();
+  const requestedDays = Number(params.get("days"));
+  const requestedStatus = params.get("status");
+  const [period, setPeriod] = useState([7, 30, 90].includes(requestedDays) ? requestedDays : 30);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [current, setCurrent] = useState<Opportunity | null>(null);
   const [versions, setVersions] = useState<Version[]>([]);
-  const [statusFilter, setStatusFilter] = useState<Status | "active" | "internal" | "existing" | "all">("active");
+  const [statusFilter, setStatusFilter] = useState<Status | "active" | "internal" | "existing" | "all">(["pending", "draft", "review", "scheduled", "published", "archived", "active", "internal", "existing", "all"].includes(requestedStatus || "") ? requestedStatus as Status | "active" | "internal" | "existing" | "all" : "active");
   const [query, setQuery] = useState("");
   const [visibleCount,setVisibleCount]=useState(50);
   useEffect(()=>setVisibleCount(50),[query,statusFilter]);
@@ -84,7 +88,8 @@ export default function SearchPagesAdmin() {
 
   const loadDetail = useCallback(async (id: string) => {
     setSelectedId(id); setDetailLoading(true); setError(""); setMessage("");
-    window.history.replaceState(null, "", `/admin/search-pages?id=${encodeURIComponent(id)}`);
+    const nextParams = new URLSearchParams(window.location.search); nextParams.set("id", id);
+    window.history.replaceState(null, "", `/admin/search-pages?${nextParams.toString()}`);
     try {
       const response = await fetch(`/api/admin/search-pages?id=${encodeURIComponent(id)}&days=${period}`, { cache: "no-store" });
       if (!response.ok) throw new Error("לא הצלחנו לטעון את העמוד שבחרתם.");
@@ -95,6 +100,11 @@ export default function SearchPagesAdmin() {
   }, [period]);
 
   useEffect(() => { void loadDashboard(period, true); }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const nextParams = new URLSearchParams(window.location.search);
+    nextParams.set("days", String(period)); nextParams.set("status", statusFilter);
+    window.history.replaceState(null, "", `/admin/search-pages?${nextParams.toString()}`);
+  }, [period, statusFilter]);
 
   const filtered = useMemo(() => {
     const items = dashboard?.opportunities || [];
@@ -164,7 +174,7 @@ export default function SearchPagesAdmin() {
     {error ? <div className={styles.alert} role="alert"><AlertCircle size={18} /><span>{error}</span><button type="button" onClick={() => setError("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {message ? <div className={styles.success} role="status"><CheckCircle2 size={18} /><span>{message}</span><button type="button" onClick={() => setMessage("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {!forbidden && dashboard ? <>
-      <section className={styles.metrics} aria-label="מדדי חיפושים"><article><span><Search size={18} /> חיפושי גולשים</span><strong>{number(dashboard.metrics.recordedSearches)}</strong><small>{period} הימים האחרונים</small></article><article><span><Users size={18} /> מבקרים ייחודיים</span><strong>{number(dashboard.metrics.uniqueSessions)}</strong><small>לפי מזהה מפגש אנונימי</small></article><article className={styles.metricAccent}><span><CircleDashed size={18} /> ממתינים לעבודה</span><strong>{number(dashboard.metrics.pending)}</strong><small>ממתין, טיוטה או בדיקה</small></article><article><span><CheckCircle2 size={18} /> פורסמו</span><strong>{number(dashboard.metrics.published)}</strong><small>כתובות קיימות ומאושרות, ללא כפילויות</small></article><article><span><AlertCircle size={18} /> ללא תוצאות</span><strong>{number(dashboard.metrics.zeroResultSearches)}</strong><small>אות לשיפור היצע או ניסוח</small></article><article><span><Target size={18} /> בדיקות מנהל</span><strong>{number(dashboard.metrics.internalSearches)}</strong><small>מוצגות בנפרד ולא משפיעות על הביקוש</small></article></section>
+      <section className={styles.metrics} aria-label="מדדי חיפושים"><a href={`/admin/search-analytics?days=${Math.min(period, 30)}`}><span><Search size={18} /> חיפושי גולשים</span><strong>{number(dashboard.metrics.recordedSearches)}</strong><small>{period} הימים האחרונים</small></a><a href={`/admin/search-analytics?days=${Math.min(period, 30)}`}><span><Users size={18} /> מבקרים ייחודיים</span><strong>{number(dashboard.metrics.uniqueSessions)}</strong><small>לפי מזהה מפגש אנונימי</small></a><a className={styles.metricAccent} href={`/admin/search-pages?status=active&days=${period}`}><span><CircleDashed size={18} /> ממתינים לעבודה</span><strong>{number(dashboard.metrics.pending)}</strong><small>פתיחת העמודים שממתינים עכשיו</small></a><a href={`/admin/search-pages?status=existing&days=${period}`}><span><CheckCircle2 size={18} /> פורסמו</span><strong>{number(dashboard.metrics.published)}</strong><small>כתובות קיימות ומאושרות, ללא כפילויות</small></a><a href={`/admin/search-analytics?days=${Math.min(period, 30)}`}><span><AlertCircle size={18} /> ללא תוצאות</span><strong>{number(dashboard.metrics.zeroResultSearches)}</strong><small>אות לשיפור היצע או ניסוח</small></a><a href={`/admin/search-pages?status=internal&days=${period}`}><span><Target size={18} /> בדיקות מנהל</span><strong>{number(dashboard.metrics.internalSearches)}</strong><small>מוצגות בנפרד ולא משפיעות על הביקוש</small></a></section>
       <section className={styles.commandCenter}>
         <aside className={styles.queue} aria-label="תור עמודי חיפוש">
           <div className={styles.queueHead}><div><h2>תור עבודה</h2><span>{filtered.length} מתוך {dashboard.opportunities.length}</span></div><label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עמוד, אזור או כתובת" /></label></div>

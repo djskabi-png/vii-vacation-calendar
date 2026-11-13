@@ -12,6 +12,7 @@ export async function GET(request: Request) {
       id: item.id, path: item.canonicalPath || item.proposedPath, title: item.title || item.suggestedTitle,
       world: item.world, location: item.location, searches: item.searches, uniqueSessions: item.uniqueSessions,
       results: item.latestResultCount, readiness: item.readiness, priority: item.priority, status: item.status,
+      firstSeenAt: item.firstSeenAt, lastSeenAt: item.lastSeenAt,
     }));
     return Response.json({ periodDays: 30, queue, generatedAt: report.generatedAt }, { headers });
   } catch (error) {
