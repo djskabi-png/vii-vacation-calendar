@@ -68,7 +68,7 @@ function PopularSearchLink({ item, world = "vacation" }: { item: HomeDiscoveryIt
         const target = new URL(item.href, window.location.origin); target.searchParams.set("sort", "nearest");
         router.push(localizedPath(`${target.pathname}${target.search}${target.hash}`, language));
       }).catch(() => setError(true)).finally(() => { pending.current = false; setBusy(false); });
-    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="lazy" decoding="async" />}<span><strong><CurrencyText text={label} /></strong>{item.note ? <small><CurrencyText text={translate(item.note)} /></small> : null}</span></Link>
+    }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="eager" fetchPriority="high" decoding="async" />}<span><strong><CurrencyText text={label} /></strong>{item.note ? <small><CurrencyText text={translate(item.note)} /></small> : null}</span></Link>
     {error ? <small className="home-popular-search-error" role="status">{translate("לא התקבל מיקום. לחצו שוב כדי לנסות מחדש.")}</small> : null}
   </div>;
 }
