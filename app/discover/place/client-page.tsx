@@ -373,7 +373,27 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
   const providerBreadcrumbs = item.world === "providers" ? providerSearchBreadcrumbs(item) : null;
   const hourlyDetails = item.world === "hourly" ? initialHourlyDetails || getHourlyDetails(item) : undefined;
   const activityDetails = item.world === "activities" ? getActivityDetails(item) : undefined;
-  const galleryImages = [...new Set(item.images?.length ? item.images : item.image ? [item.image] : [])];
+  const bundledGalleryImages = useMemo(() => [...new Set(item.images?.length ? item.images : item.image ? [item.image] : [])], [item.image, item.images]);
+  const [galleryImages, setGalleryImages] = useState(bundledGalleryImages);
+  useEffect(() => {
+    setGalleryImages(bundledGalleryImages);
+    const controller = new AbortController();
+    void fetch("/api/vii/card-galleries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [{ world: item.world, id: item.id }], includeGalleries: true }),
+      cache: "no-store",
+      signal: controller.signal,
+    }).then(async response => {
+      if (!response.ok) return;
+      const payload = await response.json() as { galleries?: Record<string, string[]> };
+      const current = payload.galleries?.[`${item.world}:${item.id}`];
+      if (current?.length) setGalleryImages([...new Set(current)]);
+    }).catch(error => {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    });
+    return () => controller.abort();
+  }, [bundledGalleryImages, item.id, item.world]);
   const gallerySubject = { name: item.name, images: galleryImages };
   const sections = useMemo<DetailSectionLink[]>(() => {
     if (spaDetails) return [

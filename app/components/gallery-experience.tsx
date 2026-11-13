@@ -90,11 +90,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       ...guestPhotos.map((photo, index) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים", topicKey: `guest:${index}` })),
     ]);
   }, [guestPhotos, property]);
-  const defaultTopic = useMemo(() => { const item = allItems.find((candidate) => candidate.category !== "guests"); return item?.topicKey || item?.topic || null; }, [allItems]);
   const resolvedTopic = resolveGalleryTopic(allItems, initialTopic, initialTab);
-  const topicScope = gallerySelectionScope(allItems, initialTab === "guests" || initialTab === "videos" ? "all" : initialTab, resolvedTopic ?? defaultTopic);
+  const topicScope = gallerySelectionScope(allItems, initialTab === "guests" || initialTab === "videos" ? "all" : initialTab, resolvedTopic);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
-  const [topic, setTopic] = useState<string | null>(() => resolvedTopic ?? (initialTab === "all" ? defaultTopic : null));
+  // Opening the full gallery must expose every image in the selected scope.
+  // A topic is applied only when the caller explicitly requested one (for
+  // example, a specific unit). Defaulting to the first supplier group hid all
+  // other groups and could leave mobile with a single tile over a black page.
+  const [topic, setTopic] = useState<string | null>(() => resolvedTopic);
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
   const [mobileViewer, setMobileViewer] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);

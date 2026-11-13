@@ -9619,6 +9619,9 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .story-gallery__workspace {
     background: #02090c;
   }
+  .story-gallery__workspace:not(.is-viewer) {
+    background: #fff;
+  }
   .story-gallery__workspace.is-viewer {
     overflow: hidden;
   }
