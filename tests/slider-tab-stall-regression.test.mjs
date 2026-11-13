@@ -15,9 +15,9 @@ test("visitor tab choices adopt one bounded prime and remaining periods warm seq
   assert.match(slider, /await new Promise\(\(resolve\) => setTimeout\(resolve, 150\)\)/);
 });
 
-test("cold discovery returns a quick observation while one lease-owned warm operation continues", () => {
+test("cold discovery waits long enough to commit the single lease-owned snapshot", () => {
   for (const route of [nearRoute, holidayRoute]) {
-    assert.match(route, /const visitorWarmBudgetMs = 350/);
+    assert.match(route, /const visitorWarmBudgetMs = 6_500/);
     assert.match(route, /Promise\.race\(\[/);
   }
   assert.match(nearRoute, /const warm = refreshVacationDiscoveryPeriod\(db, requestedPeriod, guests, now\)/);
@@ -26,14 +26,14 @@ test("cold discovery returns a quick observation while one lease-owned warm oper
   assert.doesNotMatch(holidayRoute, /setTimeout\(\(\) => resolve\(null\), 1200\)/);
 });
 
-test("slider discovery observes the server-owned refresh inside one short browser attempt", () => {
-  assert.match(slider, /const sliderRequestBudgetMs = 2_500;/);
+test("slider transport remains wider than the bounded cold server fill", () => {
+  assert.match(slider, /const sliderRequestBudgetMs = 7_500;/);
   assert.doesNotMatch(slider, /totalTimeoutMs:\s*8_000/);
   const sliderRequests = [...slider.matchAll(/totalTimeoutMs:\s*waitBudgetMs,\s*retries:\s*(\d+)/g)];
   assert.ok(sliderRequests.length >= 2, "period and holiday primes must share the bounded one-attempt policy");
   assert.ok(sliderRequests.every((match) => match[1] === "0"));
   assert.match(slider, /\.catch\(\(\) => \{ if \(!controller\.signal\.aborted\) recover\(\); \}\)/);
-  assert.ok(350 < 2_500, "the origin observation must settle before the browser transport budget");
+  assert.ok(6_500 < 7_500, "the origin fill must settle before the browser transport budget");
 });
 
 test("background priming survives visitor tab changes and stays serialized", () => {

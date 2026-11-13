@@ -19,10 +19,12 @@ import { requestStageTiming } from "../../../lib/request-stage-timing.ts";
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const headers = { "Cache-Control": "no-store" };
-// Keep the cold response shorter than the browser observation cycle. The
-// leased supplier refresh continues through waitUntil and later polls only
-// observe it; they do not start duplicate supplier work.
-const visitorWarmBudgetMs = 350;
+// A missing durable snapshot must be completed inside this request. The
+// production runtime did not reliably preserve the leased refresh after a
+// 350ms `refreshing` response, so every browser poll could observe the same
+// cold state again. Warm and stale keys still return immediately; this bound
+// is used only for the first snapshot fill and stays below the client budget.
+const visitorWarmBudgetMs = 6_500;
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {

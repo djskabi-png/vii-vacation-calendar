@@ -19,10 +19,12 @@ import { applyHomeDealsCuration, selectHomeDeals } from "../../../lib/home-deals
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
 
 const noStore = { "Cache-Control": "no-store" };
-// A cold visitor must never wait for the supplier operation. Give an already
-// finishing lease a small chance to complete, otherwise return `refreshing`
-// quickly and let waitUntil keep the one leased refresh alive.
-const visitorWarmBudgetMs = 350;
+// A missing durable snapshot must be completed inside this request. The
+// production runtime did not reliably preserve the leased refresh after a
+// 350ms `refreshing` response, so every browser poll could observe the same
+// cold state again. Warm and stale keys still return immediately; this bound
+// is used only for the first snapshot fill and stays below the client budget.
+const visitorWarmBudgetMs = 6_500;
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 

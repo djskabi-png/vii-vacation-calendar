@@ -97,7 +97,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         retryTimer = setTimeout(() => setRetry((value) => value + 1), delay);
       }
     };
-    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(2_500, remainingBudget()), totalTimeoutMs: Math.min(2_500, remainingBudget()), retries: 0,
+    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true, timeoutMs: Math.min(7_500, remainingBudget()), totalTimeoutMs: Math.min(7_500, remainingBudget()), retries: 0,
       shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" && isFreshHomeOffer(value as HolidayDealResponse | null), validateResponse: validHomeOfferResponse })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || !holidayStayMatchesPlan(stayPlan, deal.from, deal.till) || deal.total !== null && (!Number.isFinite(deal.total) || deal.total <= 0))) throw new Error("invalid_deals");

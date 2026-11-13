@@ -27,7 +27,7 @@ async function simulate(text,readyAt=4_800,{networkError=false,active=true}={}){
  const transport=init=>new Promise((resolve,reject)=>{calls.push({at:now,signal:init.signal});setTimeout(()=>networkError?reject(Error('network')):resolve(now<readyAt?{holiday:{id:114},deals:[],availabilityStatus:'refreshing'}:{holiday:{id:114},dates:{from:'2026-11-08',till:'2026-11-09'},deals:[],availabilityStatus:'verified',cache:{checkedAt:new Date(0).toISOString()}}),2000)});
  const deps={initialSeedUsable:false,initialHolidaySeedUsable:false,initialData:undefined,seedEnabled:false,dealRetry:0,acceptedHomeDealsSeed:()=>false,active,clock,mode:'holidays',holidayState:'ready',holidayId:114,holidays:[{id:114}],selectionKey:'he:day:holiday:114',language:'he',period:'tomorrow',fixedPeriod:undefined,regionLabel:undefined,guests:2,
   recoveryStartedAt:{current:new Map()},automaticRetries:{current:new Map()},lastGoodData:{current:new Map()},
-  selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,sliderRequestBudgetMs:2_500,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
+  selectionRecoveryBudgetMs:text===original?10_000:DISCOVERY_RECOVERY_BUDGET_MS,sliderRequestBudgetMs:text===original?5_500:7_500,automaticRecoveryDelays:[1250,2500],discoveryRecoveryDelay,
   Date:DateFake,setTimeout,clearTimeout,AbortController,URLSearchParams,HOME_OFFER_MAX_AGE_MS:3_600_000,
    homeOfferCheckedAt:value=>value?.cache?0:null,isFreshHomeOffer:value=>!!value?.cache,validHomeOfferResponse:()=>true,pendingHomeHolidayPrime:()=>undefined,waitForHolidayPrime:pending=>pending,cancelPendingHomeHolidayPrime:()=>undefined,
   setData:value=>{data=value},setState:value=>{status=value;states.push({at:now,status})},

@@ -36,10 +36,11 @@ export type HomeDealsInitialData = { cache?: { status: string; checkedAt?: strin
 type ResponseData = HomeDealsInitialData;
 
 const selectionRecoveryBudgetMs = DISCOVERY_RECOVERY_BUDGET_MS;
-// The origin returns a cold `refreshing` observation within 350ms and keeps
-// the single leased supplier operation alive. This budget includes edge and
-// mobile latency without turning one poll into a multi-second blank state.
-const sliderRequestBudgetMs = 2_500;
+// A cold origin is allowed one bounded 6.5s snapshot fill. Keep the browser
+// transport wider than that server boundary so a valid result is not aborted
+// just before it is committed. Warm slider changes still resolve from the
+// durable snapshot without consuming this upper bound.
+const sliderRequestBudgetMs = 7_500;
 const backgroundPrimeDelayMs = 800;
 // Prime every alternate public choice, one request at a time across both rails.
 // A deliberate click adopts the exact in-flight promise below, so priming can

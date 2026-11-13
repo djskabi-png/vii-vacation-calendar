@@ -44,6 +44,8 @@ test('navigation feedback is immediate, localized, accessible and explicitly fin
   assert.match(progressSource, /dataset\.navigationPending = "true"/);
   assert.match(progressSource, /delete document\.documentElement\.dataset\.navigationPending/);
   assert.match(progressSource, /window\.addEventListener\(NAVIGATION_END_EVENT, finish\)/);
+  assert.match(progressSource, /committed !== previousCommitted/);
+  assert.match(progressSource, /feedbackTimer\.current = setTimeout[\s\S]*?4_000/);
   assert.match(progressSource, /role="status"/);
   assert.match(progressSource, /aria-live="polite"/);
   for (const language of ['he', 'en', 'ru', 'fr']) assert.match(progressSource, new RegExp(`${language}: \\[`));

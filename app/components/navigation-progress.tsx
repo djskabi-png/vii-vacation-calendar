@@ -30,19 +30,26 @@ export function NavigationProgress() {
   const searchParams = useSearchParams();
   const [active, setActive] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingHref = useRef<string | null>(null);
   const committedRoute = useRef(`${pathname}?${searchParams.toString()}`);
 
   useEffect(() => {
     document.documentElement.dataset.navigationProgressReady = "true";
     const committed = `${pathname}?${searchParams.toString()}`;
+    const previousCommitted = committedRoute.current;
     committedRoute.current = committed;
     const pending = pendingHref.current ? new URL(pendingHref.current, window.location.href) : null;
-    if (!pending || `${pending.pathname}?${pending.searchParams.toString()}` === committed) {
+    // A canonical redirect or server-side query normalization can commit a
+    // valid destination whose serialized URL differs from the clicked href.
+    // Any real route commit after begin must finish the visual feedback.
+    if (!pending || committed !== previousCommitted || `${pending.pathname}?${pending.searchParams.toString()}` === committed) {
       delete document.documentElement.dataset.navigationPending;
       setActive(false);
       if (timer.current) clearTimeout(timer.current);
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
       timer.current = null;
+      feedbackTimer.current = null;
       pendingHref.current = null;
     }
   }, [pathname, searchParams]);
@@ -62,6 +69,13 @@ export function NavigationProgress() {
       document.documentElement.dataset.navigationPending = "true";
       setActive(true);
       if (timer.current) clearTimeout(timer.current);
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+      // Feedback must never become a permanent blur. Recovery remains armed
+      // independently below, but the current page is always usable.
+      feedbackTimer.current = setTimeout(() => {
+        delete document.documentElement.dataset.navigationPending;
+        setActive(false);
+      }, 4_000);
       timer.current = setTimeout(() => {
         if (pendingHref.current !== next.href) return;
         try {
@@ -75,7 +89,9 @@ export function NavigationProgress() {
       setActive(false);
       pendingHref.current = null;
       if (timer.current) clearTimeout(timer.current);
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
       timer.current = null;
+      feedbackTimer.current = null;
     };
     const start = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -98,6 +114,7 @@ export function NavigationProgress() {
       window.removeEventListener(NAVIGATION_START_EVENT, transition);
       window.removeEventListener(NAVIGATION_END_EVENT, finish);
       if (timer.current) clearTimeout(timer.current);
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
       delete document.documentElement.dataset.navigationPending;
       delete document.documentElement.dataset.navigationProgressReady;
     };

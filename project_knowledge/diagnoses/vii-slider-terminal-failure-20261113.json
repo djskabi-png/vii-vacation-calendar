@@ -1,0 +1,74 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public homepage and last-minute rails show branded skeletons and then a retry error instead of real cards; switching tabs can repeat the failure.",
+  "expected_behavior": "Every selected rail reaches a terminal verified state with real cards or a verified empty result, while the previous verified cards stay visible during a tab refresh.",
+  "environment": "Public https://vii.spaplus.co on 2026-11-13, deployed app build dbdcc6b8-211e-d11b-78e3-ff9449f8030d, independently reproduced in a clean Playwright desktop context and corroborated by the user's desktop and iPhone screenshots.",
+  "reproduction": {
+    "steps": [
+      "Open the public homepage in a clean browser context.",
+      "Scroll to the near-date and holiday rails.",
+      "Observe both rails for more than ten seconds and query their public JSON endpoints repeatedly."
+    ],
+    "evidence": "At 1s, 6s and 16s both rails had zero cards; they changed from aria-busy skeletons to the retry error. The corresponding APIs repeatedly returned HTTP 200 with availabilityStatus=refreshing and zero deals."
+  },
+  "observations": [
+    {
+      "observation": "Commit 8c40a512 reduced both cold server snapshot join budgets from 4800ms to 350ms and reduced the homepage browser request budget from 5500ms to 2500ms.",
+      "evidence": "git diff 8c40a512^ 8c40a512 for app/api/vii/home-deals/route.ts, app/api/vii/home-holiday-deals/route.ts and app/components/home-live-deals.tsx."
+    },
+    {
+      "observation": "The 350ms route returns refreshing and delegates the still-pending snapshot to waitUntil, but repeated public requests continue to see refreshing rather than the newly durable snapshot.",
+      "evidence": "Repeated production reads on 2026-11-13 returned X-VII-Discovery-Cache=refreshing, availabilityStatus=refreshing and zero deals."
+    },
+    {
+      "observation": "The earlier cold-path measurement required about 5.9 seconds before a verified 50-deal holiday snapshot existed.",
+      "evidence": "project_knowledge/diagnoses/vii-slider-live-incident-20261112.json records 5920ms refreshing/0, 5189ms refreshed/50 and 1308ms fresh/50."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The server returns after 350ms before the lease-owned provider operation commits, and post-response continuation is not reliably completing in this public runtime; the 2500ms browser budget then repeats observations until the shared deadline becomes a false terminal error.",
+      "prediction": "Clean browsers and direct API calls will reproduce refreshing with zero deals, and the regression will align with the 350ms/2500ms budget change.",
+      "discriminating_test": "Compare fresh-browser terminal state, repeated API responses and the introducing commit.",
+      "result": "All three align: independent browser failure, repeated refreshing API responses and the exact budget regression in 8c40a512.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The failure is only stale browser cache on Adir's devices.",
+      "prediction": "A clean independent browser and no-store API reads will succeed.",
+      "discriminating_test": "Reproduce in a clean Playwright context and inspect no-store API responses.",
+      "result": "The clean context and no-store responses reproduced the failure.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The supplier has no valid inventory for the selected dates.",
+      "prediction": "The API will return a verified empty state rather than a refreshing state, and previous measurements will not produce deals.",
+      "discriminating_test": "Compare status semantics and the prior exact cold-to-warm sequence.",
+      "result": "The API remained refreshing and the earlier exact flow produced 50 verified deals, so absence of inventory is not the mechanism.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "For missing snapshots, give the single lease-owned server refresh a 6500ms bounded join and give the browser transport 7500ms, while warm and stale snapshots remain immediate. Apply the same boundary to near-date, homepage holiday and dedicated holiday clients.",
+    "evidence": "Source patch prepared; post-fix local and public evidence is not yet complete."
+  },
+  "affected_family": [
+    "Homepage near-date rail and all tabs",
+    "Homepage holiday rail and all tabs",
+    "Dedicated holiday audience and period controls",
+    "Regional vacation availability rails",
+    "Last-minute page",
+    "Mobile Safari, Android Chrome and desktop"
+  ],
+  "regression_checks": [],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Post-fix production terminal-state evidence has not yet been collected.",
+    "The scheduler's coverage of every future holiday key still needs separate production evidence."
+  ],
+  "authorization_boundary": "Adir authorized causal repair, production publication and exact post-publication verification for the slider and loading failure."
+}
