@@ -9,6 +9,8 @@ export const defaultWorldAvailability = Object.fromEntries(controllableWorlds.ma
 
 let initialized: Promise<Awaited<ReturnType<typeof requiredRuntimeDatabase>>> | null = null;
 let cached: { until: number; value: WorldAvailability } | null = null;
+const publicReadTimeoutMs = 350;
+const publicCacheTtlMs = 60_000;
 
 async function runtimeDatabase() {
   return requiredRuntimeDatabase("world_availability_unavailable");
@@ -33,14 +35,19 @@ export async function readWorldAvailability(): Promise<WorldAvailability> {
   if (cached && cached.until > Date.now()) return { ...cached.value };
   return { ...await readOnceInServerRequest("world-availability", async () => {
     // The layout and the home page both ask for this state. Deduplicate only
-    // within the current request; the existing 15-second isolate cache remains
+    // within the current request; the isolate cache remains
     // the cross-request fast path and setter invalidation remains authoritative.
     if (cached && cached.until > Date.now()) return { ...cached.value };
     try {
-      const rows = await (await runtimeDatabase()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>();
+      let deadline: ReturnType<typeof setTimeout> | undefined;
+      const rows = await Promise.race([
+        (await runtimeDatabase()).prepare("SELECT world, enabled FROM vii_world_availability").all<{ world: string; enabled: number }>(),
+        new Promise<null>(resolve => { deadline = setTimeout(() => resolve(null), publicReadTimeoutMs); }),
+      ]).finally(() => { if (deadline) clearTimeout(deadline); });
+      if (!rows) return { ...defaultWorldAvailability };
       const state = { ...defaultWorldAvailability };
       for (const row of rows.results) if (controllableWorlds.includes(row.world as ControllableWorld)) state[row.world as ControllableWorld] = row.enabled === 1;
-      cached = { until: Date.now() + 15_000, value: state };
+      cached = { until: Date.now() + publicCacheTtlMs, value: state };
       return { ...state };
     } catch {
       return { ...defaultWorldAvailability };
