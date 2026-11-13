@@ -25,6 +25,10 @@ test("home links, real pages, metadata, sitemap and structured content stay conn
   ]);
   assert.match(home, /permanentHomePeriodLandings\[period\]/);
   assert.match(home, /function choose\(value: HomeDealPeriod\) \{[^}]*displaySettingsApplied\.current = true;/);
+  assert.match(home, /const fallbackDates = fixedPeriod && seedDates \? seedDates : null;/);
+  assert.match(home, /availability: "unknown",[\s\S]*showSelectedDates: true/);
+  assert.match(home, /selectedStay=\{fallbackDates \? \{ from: fallbackDates\.from, till: fallbackDates\.till, guests \} : null\}/);
+  assert.match(home, /source: "weekend-fallback", period/);
   assert.match(page, /generateStaticParams/);
   assert.match(page, /alternates: \{ canonical \}/);
   assert.match(page, /breadcrumbSchema/);

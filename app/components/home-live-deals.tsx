@@ -482,6 +482,17 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const refreshing = displayState === "loading" && retainedData !== null;
   const fallbackPlaces = retainedData ? [] : fallbackProperties.slice(0, layout === "grid" ? 6 : 3);
   const fallbackVisible = fallbackPlaces.length > 0 && displayState !== "ready";
+  // Permanent weekend pages already own an exact date range before their
+  // live availability snapshot resolves. Keep that search context on the
+  // temporary cards, but mark availability as unknown so the fallback never
+  // claims a place is available without supplier evidence.
+  const fallbackDates = fixedPeriod && seedDates ? seedDates : null;
+  const fallbackAvailability: ResolvedAvailability | null = fallbackDates ? {
+    from: fallbackDates.from,
+    till: fallbackDates.till,
+    availability: "unknown",
+    showSelectedDates: true,
+  } : null;
   const fallbackTitle = ({ he: "הזמנה מהירה לנופש", en: "Quick stay booking", ru: "Быстрое бронирование отдыха", fr: "Réservation rapide de séjour" } as const)[language];
   const visibleTitle = fallbackVisible ? fallbackTitle : title;
   const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
@@ -540,7 +551,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
         {fallbackVisible ? <><div className="home-live-deals__fallback-note" role="status"><span>{language === "he" ? "אפשר לפתוח מקום ולבחור תאריך. הזמינות והמחירים מתעדכנים כעת" : text.loading}</span>{displayState === "error" ? <button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
           else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
-        }}>{text.retry}</button> : null}</div><div id={`${sectionId}-rail`} className={`home-live-deals__track home-live-deals__track--fallback${layout === "grid" ? " home-live-deals__track--grid" : ""}`} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})}>{fallbackPlaces.map((property, index) => <div className="home-live-deals__item" key={property.slug}><PropertyCard property={property} detailHref={`/business?id=${encodeURIComponent(property.slug)}`} priority={index < 2} /></div>)}</div></> : null}
+        }}>{text.retry}</button> : null}</div><div id={`${sectionId}-rail`} className={`home-live-deals__track home-live-deals__track--fallback${layout === "grid" ? " home-live-deals__track--grid" : ""}`} {...(layout === "rail" ? { "data-horizontal-rail": true } : {})}>{fallbackPlaces.map((property, index) => {
+          const fallbackHref = fallbackDates ? `/business?${new URLSearchParams({ id: property.slug, from: fallbackDates.from, till: fallbackDates.till, guests: String(guests), source: "weekend-fallback", period }).toString()}` : `/business?id=${encodeURIComponent(property.slug)}`;
+          return <div className="home-live-deals__item" key={property.slug}><PropertyCard property={property} selectedStay={fallbackDates ? { from: fallbackDates.from, till: fallbackDates.till, guests } : null} liveAvailabilityState={fallbackAvailability ? { status: "ready", quote: fallbackAvailability } : undefined} detailHref={fallbackHref} priority={index < 2} /></div>;
+        })}</div></> : null}
         {displayState === "error" && !fallbackVisible ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
           if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
           else { automaticRetries.current.delete(selectionKey); recoveryStartedAt.current.delete(selectionKey); setDealRetry((value) => value + 1); }
