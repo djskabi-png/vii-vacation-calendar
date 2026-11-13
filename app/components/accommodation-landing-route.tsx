@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { SearchExperience } from "../search/page";
-import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
 import { publicVacationLandingSeedProperties, publicVacationSearchProperties } from "../lib/public-vacation-search";
@@ -28,7 +28,7 @@ function urlSearchParams(values: Record<string, string | string[] | undefined>) 
 }
 
 export async function accommodationLandingMetadata(categoryId: AccommodationCategoryId, regionSlug?: string | null): Promise<Metadata> {
-  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
+  const publishedProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"));
   const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) return { robots: { index: false, follow: true } };
   return {
@@ -47,7 +47,12 @@ export async function accommodationLandingMetadata(categoryId: AccommodationCate
 }
 
 export async function AccommodationLandingRoute({ categoryId, regionSlug, searchParams }: { categoryId: AccommodationCategoryId; regionSlug?: string | null; searchParams?: AccommodationSearchParams }) {
-  const publishedProperties = await publicCatalogSummaries<Property>("vacations");
+  // These semantic category pages must be able to produce their first useful
+  // document without a cold D1 catalog read. The accepted immutable snapshot
+  // gives SSR the same canonical identities and filter fields on every edge;
+  // PublishedCatalogSeed remains incomplete below, so the client still
+  // refreshes from the current accepted /api/catalog generation after paint.
+  const publishedProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"));
   const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) notFound();
   if (searchParams) {
