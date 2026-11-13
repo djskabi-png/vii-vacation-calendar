@@ -7734,9 +7734,9 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .favorites-mode-tabs button em { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: rgba(7,126,139,.1); font-size: .7rem; font-style: normal; }
 .favorites-mode-tabs button.active { color: #fff; background: linear-gradient(135deg,#087e8b,#2d8fc6); box-shadow: 0 8px 20px rgba(7,119,137,.18); }
 .favorites-mode-tabs button.active em { background: rgba(255,255,255,.2); }
-.favorites-toolbar { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 16px; margin-bottom: 15px; }
-.favorites-toolbar .favorites-tabs { margin-bottom: 0; }
-.favorites-history-actions { display: flex; align-items: center; gap: 10px; padding-top: 5px; }
+.favorites-toolbar { display: grid; grid-template-columns: minmax(0,1fr); align-items: start; gap: 7px; margin-bottom: 15px; }
+.favorites-toolbar .favorites-tabs { width: 100%; min-width: 0; margin-bottom: 0; }
+.favorites-history-actions { justify-self: start; display: flex; align-items: center; gap: 10px; padding: 0 2px; }
 .favorites-history-actions small { max-width: 230px; color: var(--ink-soft); font-size: .72rem; }
 .favorites-history-actions button { min-height: 42px; padding: 0 13px; color: var(--teal-dark); border: 1px solid #c8dfe2; border-radius: 12px; background: #fff; font: inherit; font-size: .75rem; font-weight: 850; cursor: pointer; white-space: nowrap; }
 .favorites-history-actions button.is-armed { color: #8b2c36; border-color: #e4b8bd; background: #fff4f5; }
@@ -7938,7 +7938,7 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .favorites-mode-tabs { width: 100%; margin-bottom: 14px; }
   .favorites-mode-tabs button { min-height: 50px; padding-inline: 9px; }
   .favorites-toolbar { grid-template-columns: 1fr; gap: 4px; }
-  .favorites-history-actions { justify-content: space-between; padding: 0 2px 8px; }
+  .favorites-history-actions { width: 100%; justify-self: stretch; justify-content: space-between; padding: 0 2px 8px; }
   .favorites-history-actions small { max-width: 185px; }
   .favorites-grid { grid-template-columns: 1fr; gap: 15px; }
   .favorite-card { display: grid; grid-template-columns: 126px minmax(0,1fr); }

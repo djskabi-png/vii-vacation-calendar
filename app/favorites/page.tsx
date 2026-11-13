@@ -153,10 +153,14 @@ export default function FavoritesPage() {
       if (controller.signal.aborted) return;
       const nextSaved = reconcileCheckedLibraryItems(savedItems, checkedKeys, existingKeys);
       const nextViewed = reconcileCheckedLibraryItems(viewedItems, checkedKeys, existingKeys);
-      if (nextSaved.length !== savedItems.length) writeSavedItems(nextSaved);
-      if (nextViewed.length !== viewedItems.length) writeViewedItems(nextViewed);
-      setSavedItems(nextSaved);
-      setViewedItems(nextViewed);
+      if (nextSaved.length !== savedItems.length) {
+        writeSavedItems(nextSaved);
+        setSavedItems(nextSaved);
+      }
+      if (nextViewed.length !== viewedItems.length) {
+        writeViewedItems(nextViewed);
+        setViewedItems(nextViewed);
+      }
     })().catch(() => undefined); // Never erase personal state when validation is unavailable or incomplete.
     return () => controller.abort();
   }, [ready, savedItems, validationRequest, viewedItems]);
