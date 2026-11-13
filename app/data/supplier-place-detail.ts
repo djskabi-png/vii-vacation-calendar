@@ -9,7 +9,9 @@ import { sergeyPlaceGalleryGroups, sergeyPlaceImages, sergeyRoomImages, sergeyRo
 import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "../lib/sergey-amenities.ts";
 import { parseOrderedJson } from "../lib/supplier-gallery-contract.ts";
 import { normalizeReviewSummary } from "../lib/review-summary.ts";
+import { supplierVideos } from "../lib/supplier-videos.ts";
 export { normalizeReviewSummary };
+export { supplierVideos };
 
 export type SupplierPlaceDetail = {
   name?: string;
@@ -59,20 +61,6 @@ function record(value: unknown): Record<string, unknown> {
 
 function plain(value: unknown) {
   return typeof value === "string" ? value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
-}
-
-export function supplierVideos(value: unknown, poster: string) {
-  if (!Array.isArray(value) || !poster) return [];
-  return value.flatMap((entry) => {
-    const row = record(entry);
-    const raw = [row.embedUrl, row.embed_url, row.youtubeUrl, row.youtube_url, row.videoUrl, row.video_url, row.url, row.src].find((item) => typeof item === "string" && item.trim()) as string | undefined;
-    if (!raw) return [];
-    let src = raw.trim();
-    const id = src.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/)?.[1] || (/^[A-Za-z0-9_-]{11}$/.test(src) ? src : "");
-    if (id) src = `https://www.youtube-nocookie.com/embed/${id}`;
-    try { const parsed = new URL(src); if (parsed.protocol !== "https:" || !["www.youtube-nocookie.com", "www.youtube.com", "youtu.be"].includes(parsed.hostname)) return []; } catch { return []; }
-    return [{ title: plain(row.title) || "סרטון מהמקום", src, poster, note: plain(row.note), verifiedRealVideo: true as const, embedUrl: src }];
-  });
 }
 
 export async function liveSupplierPlaceDetail(slug: string, options: { token?: string; fetchImpl?: typeof fetch;

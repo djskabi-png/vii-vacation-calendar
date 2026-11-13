@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "task_id": "supplier-videos-20261113",
+  "project": "VII",
+  "task_type": "supplier-media-integrity",
+  "requested_outcome": "Restore Ahuzat Yosef's verified video and prevent supplier videos from being dropped by accepted catalog generation.",
+  "natural_destination": "The matching place gallery on VII business pages.",
+  "authorization_boundary": "Local repair and verification only; no deployment in this turn.",
+  "lesson_bundle": [{
+    "lesson_id": "ADIR-QA-001",
+    "reason": "One recovered place does not prove the full supplier-video family or public destination.",
+    "acceptance_impact": "Separate local family repair from public and full legacy-inventory verification."
+  }],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Ahuzat Yosef remains missing although another place video works.",
+      "prevention": "Bind the exact legacy video to vacation-279 and test the exact identity.",
+      "acceptance_check": "vacation-279 resolves only to YouTube ID 7FAVmV3P8oI."
+    },
+    {
+      "rejection": "The next catalog rebuild drops API videos again.",
+      "prevention": "Use the shared safe supplier-video normalizer in the build-time mapper.",
+      "acceptance_check": "The build mapper explicitly persists normalized raw.videos or raw.video."
+    },
+    {
+      "rejection": "A video leaks to another business or an unsafe URL is embedded.",
+      "prevention": "Keep place-scoped IDs and strict privacy-enhanced YouTube validation.",
+      "acceptance_check": "Cross-place and unsafe URL negative controls pass."
+    }
+  ],
+  "affected_family": [
+    "vacation and event accepted detail generation",
+    "runtime supplier detail",
+    "verified legacy video registry",
+    "business gallery video rendering"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [{
+      "label": "Supplier videos require a verified upstream contract",
+      "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+    }],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After comparing legacy HTML, accepted detail data and actual gallery behavior.",
+    "checks": [
+      "Verify exact legacy video identity",
+      "Count current accepted video fields",
+      "Distinguish data loss from render failure"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does the wrong place receive the video?",
+      "Can an unsafe embed URL render?",
+      "Does build-time generation still omit raw supplier videos?",
+      "Is the exact public page verified after deployment?"
+    ],
+    "natural_destination_evidence": "Exact public page after an authorized deployment.",
+    "affected_family_evidence": "Focused normalizer, registry, gallery and critical page-path tests."
+  },
+  "effectiveness": {
+    "baseline": "702 accepted static details contain zero videos and vacation-279 has no public video.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Preserve every safe upstream video during accepted generation and restore the verified Ahuzat Yosef example without cross-place leakage."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

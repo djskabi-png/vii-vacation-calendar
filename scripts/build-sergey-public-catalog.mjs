@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { parseFragment } from "parse5";
 import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
+import { supplierVideos } from "../app/lib/supplier-videos.ts";
 import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 import { sergeyPlaceGalleryGroups, sergeyRoomImages, sergeyRoomFeatureGroups } from "../app/lib/sergey-gallery.ts";
@@ -100,8 +101,10 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     return [];
   }
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
+  const videos = supplierVideos(raw.videos ?? raw.video, images[0]);
   details[slug] = {
     images,
+    ...(videos.length ? { videos } : {}),
     galleryGroups: sergeyPlaceGalleryGroups(raw.galleries),
     summary: supplierDisplayDescription({ description: plainText(raw.summary), name, location: city.title, area: areas.get(city.area) || "" }),
     features: sergeyAmenityLabels(raw.shared_amenities, amenityIndex),

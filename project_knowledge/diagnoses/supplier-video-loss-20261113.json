@@ -1,0 +1,94 @@
+{
+  "status": "fixed",
+  "symptom": "A verified video shown on the legacy Ahuzat Yosef page is absent from the new vacation place page.",
+  "expected_behavior": "Every supplier-authoritative or separately verified place video is retained in the accepted detail model and appears only on its matching place gallery.",
+  "environment": "Local cumulative VII release branch release/v909-home-cold-render-20261113 and public pages checked on 2026-11-13.",
+  "reproduction": {
+    "steps": [
+      "Open https://www.vii.co.il/ahuzat_yosef and inspect the video section.",
+      "Open https://vii.spaplus.co/business?id=vacation-279 and inspect the returned page payload.",
+      "Inspect app/data/sergey-place-details.json for vacation-279 and all accepted details."
+    ],
+    "evidence": "Legacy HTML contains YouTube embed 7FAVmV3P8oI; public new-page HTML contains no matching video; all 702 accepted static details currently contain zero videos."
+  },
+  "observations": [
+    {
+      "observation": "The legacy place page owns YouTube video 7FAVmV3P8oI.",
+      "evidence": "Public legacy HTML iframe data-src=//www.youtube.com/embed/7FAVmV3P8oI."
+    },
+    {
+      "observation": "The build-time accepted-catalog mapper omitted raw video fields.",
+      "evidence": "scripts/build-sergey-public-catalog.mjs previously wrote images and gallery groups but never raw.videos or raw.video."
+    },
+    {
+      "observation": "The runtime mapper already accepts safe supplier video fields.",
+      "evidence": "app/data/supplier-place-detail.ts calls supplierVideos(detail.videos ?? detail.video, images[0])."
+    },
+    {
+      "observation": "The bounded legacy inventory found verified videos on many accepted businesses, not only Ahuzat Yosef.",
+      "evidence": "All 702 accepted source pages returned successfully; 156 place identities own 164 exact YouTube IDs in project_knowledge/media/legacy-supplier-video-inventory-20261113.json."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Build-time normalization drops supplier video fields, and the verified legacy fallback registry lacks Ahuzat Yosef.",
+      "prediction": "The accepted static detail inventory has no videos, while the gallery component and runtime mapper can render one when attached.",
+      "discriminating_test": "Count accepted detail videos and inject the exact verified place-bound video through the existing attachment path.",
+      "result": "All 702 accepted details had zero videos; the exact vacation-279 fallback produces the safe nocookie embed and gallery tests pass.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The gallery component cannot render YouTube embeds.",
+      "prediction": "A verified embed would still produce no iframe after the user activates it.",
+      "discriminating_test": "Execute the actual gallery video-map expression with a verified video and activate its play action.",
+      "result": "The component creates the expected privacy-enhanced iframe only after activation.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Persist safe supplier videos during build-time catalog generation and register the exact verified Ahuzat Yosef legacy video as a place-scoped fallback.",
+    "evidence": "Focused supplier, gallery and place critical-path tests pass, including vacation-279 and rejection of unsafe embeds."
+  },
+  "affected_family": [
+    "vacation and event build-time detail normalization",
+    "live supplier detail normalization",
+    "verified place-scoped legacy fallback",
+    "business gallery video tab and safe iframe activation"
+  ],
+  "regression_checks": [
+    {
+      "check": "Supplier API video normalization",
+      "status": "passed",
+      "evidence": "tests/supplier-video-contract.test.mjs passed."
+    },
+    {
+      "check": "Ahuzat Yosef exact identity and video",
+      "status": "passed",
+      "evidence": "tests/verified-supplier-videos.actual.test.mjs passed for vacation-279 and 7FAVmV3P8oI."
+    },
+    {
+      "check": "Unsafe or cross-place video isolation",
+      "status": "passed",
+      "evidence": "Exact hostname, credential, query and ID negative controls passed."
+    },
+    {
+      "check": "Business and event critical page path",
+      "status": "passed",
+      "evidence": "tests/place-open-critical-path-actual.test.mjs passed."
+    },
+    {
+      "check": "Complete accepted legacy-source inventory",
+      "status": "passed",
+      "evidence": "702 of 702 pages were inspected with zero request failures; 156 place-scoped mappings and 164 videos were generated."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The current authenticated supplier API video count cannot be established from the stale static snapshot alone.",
+    "Production remains unchanged until an authorized release and exact public verification."
+  ],
+  "authorization_boundary": "Local diagnosis, code, tests and saved commit only; no production publication or supplier data mutation."
+}
