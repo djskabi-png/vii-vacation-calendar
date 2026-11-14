@@ -48,6 +48,11 @@ test("dated result families preserve their approved truthful inclusion policy", 
   assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
   assert.match(vacation, /if \(selectedStay \|\| holidaySearchId\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
   assert.match(vacation, /const selectedStay = holidaySearchId \|\| holidayDetectionPending \? null : requestedStay/);
+  assert.match(vacation, /result\.minimumNights && result\.minimumNights > 1 \? \{ minimumNights: result\.minimumNights \}/);
+
+  const card = await read("app/components/property-card.tsx");
+  assert.match(card, /unavailableReason === "min_nights"/);
+  assert.match(card, /`מינימום \$\{count\} לילות`/);
 
   const events = await read("app/events/search/page.tsx");
   assert.match(events, /matchesEventSearchLocation\(place, area\) && matchesHardFilters\(place\)/);

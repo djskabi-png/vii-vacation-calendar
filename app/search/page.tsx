@@ -806,6 +806,8 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       const till = result.till || selectedStay.till;
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
       return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
+        ...(result.reason ? { unavailableReason: result.reason } : {}),
+        ...(result.minimumNights && result.minimumNights > 1 ? { minimumNights: result.minimumNights } : {}),
         ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
         ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}),
@@ -822,6 +824,8 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
       if (!from || !till) return { quote: null, status: "ready" };
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
       return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1 && Number.isSafeInteger(result.roomID) && Number(result.roomID) > 0,
+        ...(result.reason ? { unavailableReason: result.reason } : {}),
+        ...(result.minimumNights && result.minimumNights > 1 ? { minimumNights: result.minimumNights } : {}),
         ...(result.roomID ? { supplierRoomID: result.roomID } : {}),
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
         ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}),

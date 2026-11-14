@@ -3358,6 +3358,7 @@ h3 { font-size: 1.18rem; }
 @media (max-width: 620px) { .holiday-search-loading { min-height: 164px; padding: 24px 18px; border-radius: 20px; } }
 @media (prefers-reduced-motion: reduce) { .holiday-search-loading > span i { animation: none; opacity: .76; } }
 .stay-card__availability--available { color: #087d5a; }
+.stay-card__availability--minimum { color: #8a5b08; }
 .stay-card__availability--unavailable { color: #a83d4a; }
 .stay-card__availability--unknown { color: var(--ink-soft); }
 .stay-card__footer { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(8,126,139,.12); display: grid; gap: 12px; }

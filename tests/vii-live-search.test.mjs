@@ -57,6 +57,23 @@ test("one-night vacation search keeps a stay total instead of claiming a nightly
   assert.equal(result.results[0].priceMode, "stay_total");
 });
 
+test("one-night vacation search preserves a supplier minimum-stay restriction", async () => {
+  const result = await liveSupplierSearch({
+    world: "vacations", from: "2026-12-31", till: "2027-01-01", guests: 2,
+    token: "test-token", publishedIds: new Set([14, 15]),
+    fetchImpl: async (url) => url.endsWith("/vacations")
+      ? Response.json({ places: [] })
+      : Response.json({ sites: [
+        { siteID: 14, available: false, reason: "not_sellable", details: { reasons: ["min_nights"], minimumNights: 2 } },
+        { siteID: 15, available: false, reason: "min_nights", details: { minimumNights: 1 } },
+      ] }),
+  });
+  assert.deepEqual(result.results.map(({ siteID, available, reason, minimumNights }) => ({ siteID, available, reason, minimumNights })), [
+    { siteID: 14, available: false, reason: "min_nights", minimumNights: 2 },
+    { siteID: 15, available: false, reason: "min_nights", minimumNights: undefined },
+  ]);
+});
+
 test('infants are preserved separately and provider receives kids, never children',async()=>{
  const rooms=vacationRoomsFromSearchParams(new URLSearchParams('adults=2&children=1&infants=1&rooms=1'));
  assert.deepEqual(rooms,[{adults:2,children:1,infants:1}]);const calls=[];

@@ -12,6 +12,7 @@ export type LiveSearchResult = {
   till: string | null;
   start: string | null;
   reason: string | null;
+  minimumNights?: number;
   roomCount: number;
   priceGuests: number | null;
   priceMode: "stay_total" | "nightly_average" | "event_total";
@@ -84,6 +85,22 @@ let vacationRoomBasisCache: { expires: number; promise: Promise<RoomBasis> } | n
 
 function object(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function minimumStay(...sources: Record<string, unknown>[]) {
+  for (const source of sources) {
+    const details = object(source.details);
+    const value = Number(source.minimumNights ?? source.minNights ?? details.minimumNights ?? details.minNights);
+    if (Number.isSafeInteger(value) && value > 1 && value <= 30) return value;
+  }
+  return undefined;
+}
+
+function vacationRestriction(site: Record<string, unknown>) {
+  const details = object(site.details);
+  const reasons = Array.isArray(details.reasons) ? details.reasons.filter((reason): reason is string => typeof reason === "string") : [];
+  const nestedReason = reasons.find((reason) => reason === "min_nights");
+  return nestedReason ?? (typeof site.reason === "string" ? site.reason : null);
 }
 
 export function validDate(value: unknown): value is string {
@@ -211,6 +228,8 @@ export async function liveSupplierSearch(options: {
     const selectedStay = candidates.length
       ? candidates.map((candidate) => offeredStays.find((stay) => stay.from === candidate.from && stay.till === candidate.till)).find(Boolean) || {}
       : cheapest;
+    const minimumNights = minimumStay(selectedStay, cheapest, site);
+    const restrictionReason = vacationRestriction(site);
     const resultFrom = selectedStay.from ?? (candidates.length ? null : from);
     const resultTill = selectedStay.till ?? (candidates.length ? null : till);
     const selectedTotal = selectedStay.total ?? (selectedStay === cheapest ? site.minTotal : null);
@@ -239,10 +258,11 @@ export async function liveSupplierSearch(options: {
       from: validDate(resultFrom) ? resultFrom : null,
       till: validDate(resultTill) ? resultTill : null,
       start: typeof cheapest.start === "string" && /^\d{2}:\d{2}$/.test(cheapest.start) ? cheapest.start : null,
-      reason: typeof site.reason === "string" ? site.reason : reportedAvailable && !available ? "invalid_supplier_response" : null,
+      reason: restrictionReason ?? (reportedAvailable && !available ? "invalid_supplier_response" : null),
       roomCount: selectedRooms.length || requestedRooms.length,
       priceGuests,
       priceMode,
+      ...(minimumNights ? { minimumNights } : {}),
       ...(selectedRoomID ? { roomID: selectedRoomID } : {}),
     } satisfies LiveSearchResult];
   }));
