@@ -50,22 +50,12 @@ export function HomeCatalogLoading() {
 }
 
 const vacationDestinations = [
-  { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
-  { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/vacations/kinneret?guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
-  { label: "נופש בירושלים", note: "הרי יהודה ואוויר הרים", href: "/vacations/jerusalem?guests=2", image: "/media/231b0e706cc61cc1.jpg" },
-  { label: "נופש במרכז", note: "קרוב, נוח ובלי להתפשר", href: "/vacations/center?guests=2", image: "/media/verified/vacation/vacation-tepers-estate-1.jpg" },
-  { label: "נופש בדרום", note: "מדבר, שקט ומרחבים", href: "/vacations/south-negev?guests=2", image: "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg" },
-  { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat?guests=2", image: "/media/322de460abbda5c6.jpg" },
+  { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north", image: "/media/f18d7c0469633ca0.jpeg" },
+  { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/vacations/kinneret", image: "/media/9a403cb4d9d1cbde.jpg" },
+  { label: "נופש במרכז", note: "קרוב, נוח ובלי להתפשר", href: "/vacations/center", image: "/media/verified/vacation/vacation-tepers-estate-1.jpg" },
+  { label: "נופש באזור ירושלים", note: "הרי יהודה ואוויר הרים", href: "/vacations/jerusalem", image: "/media/231b0e706cc61cc1.jpg" },
+  { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat", image: "/media/322de460abbda5c6.jpg" },
 ] as const;
-
-const destinationMatchers = [
-  (area: string, location: string) => /גליל|גולן/.test(area) && location !== "",
-  (area: string) => /כנרת/.test(area),
-  (area: string) => /ירושלים|יהודה/.test(area),
-  (area: string) => /מישור החוף|שרון|מרכז/.test(area),
-  (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
-  (_area: string, location: string) => location === "אילת",
-];
 
 const destinationLoadingCopy = {
   he: { opening: "פותחים את המקומות...", waiting: "רק רגע, כבר נכנסים", prefix: "פותחים את" },
@@ -101,14 +91,6 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id) && enabled(world.id));
   const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, promotionWeight:({property})=>vacationWeight(property.slug),seed: `${documentSeed}:home-tours`, limit: 7 });
-  const destinationImages = orderDiscoveryRail(properties.filter((property) => property.image), { id: property => property.slug, seed: `${documentSeed}:home-destination-images` });
-  const usedDestinationImages = new Set<string>();
-  const destinationPlaces = vacationDestinations.map((_destination, index) => {
-    const matches = destinationImages.filter((candidate) => destinationMatchers[index](candidate.area, candidate.location));
-    const place = matches.find((candidate) => !usedDestinationImages.has(candidate.image)) || matches[0];
-    if (place) usedDestinationImages.add(place.image);
-    return place;
-  });
   const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, promotionWeight:item=>hourlyWeight(item.id),seed: `${documentSeed}:home-hourly`,
     compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });
   const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, promotionWeight:place=>eventWeight(place.slug),seed: `${documentSeed}:home-events` });
@@ -148,10 +130,9 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><h3>יעדים מומלצים לנופש</h3></div><HomeSliderControls railId="home-destinations-rail" label="יעדי נופש" itemSelector=".home-slider__item" /></div>
           <div id="home-destinations-rail" className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail>
-            {vacationDestinations.map((item, index) => {
-              const place = destinationPlaces[index];
+            {vacationDestinations.map((item) => {
               const isPending = pendingDestination === item.href;
-              return place ? <Link
+              return <Link
                 className={`home-vacation-card home-vacation-card--destination home-slider__item${isPending ? " is-destination-pending" : ""}`}
                 href={item.href}
                 prefetch={false}
@@ -164,7 +145,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
                 aria-disabled={pendingDestination !== null}
                 data-global-feedback="true"
                 data-loading-label={`${destinationLoading.prefix} ${item.label}...`}
-              ><img src={place.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" /><div><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
+              ><img src={item.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" /><div><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link>;
             })}
           </div>
         </div>

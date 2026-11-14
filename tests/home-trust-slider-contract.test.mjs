@@ -8,12 +8,28 @@ const styles = readEffectiveWorldCss();
 
 test("homepage keeps the requested discovery sliders before the next world", () => {
   assert.match(source, /יעדים מומלצים לנופש/);
-  assert.match(source, /destinationImages.filter/);
-  assert.match(source, /usedDestinationImages/);
+  assert.match(source, /vacationDestinations\.map\(\(item\)/);
+  assert.match(source, /src=\{item\.image\}/);
   assert.match(source, /featuredTours.length \?/);
   assert.match(source, />סרטונים מובילים</);
   assert.match(source, />חוות דעת מובילות</);
   assert.ok(source.indexOf("home-trust-discovery") < source.indexOf("<SpaPackageDeals"));
+});
+
+test("homepage always shows five approved vacation destinations without transactional parameters", () => {
+  for (const [label, href] of [
+    ["נופש בצפון", "/vacations/north"],
+    ["נופש בכנרת", "/vacations/kinneret"],
+    ["נופש במרכז", "/vacations/center"],
+    ["נופש באזור ירושלים", "/vacations/jerusalem"],
+    ["נופש באילת", "/vacations/eilat"],
+  ]) {
+    assert.match(source, new RegExp(`label: "${label}"[^\\n]+href: "${href}"`));
+  }
+  assert.equal((source.match(/label: "נופש ב(?:צפון|כנרת|מרכז|אזור ירושלים|אילת)"/g) || []).length, 5);
+  assert.doesNotMatch(source, /href: "\/vacations\/(?:north|kinneret|center|jerusalem|eilat)\?[^\"]+/);
+  assert.match(source, /src=\{item\.image\}/);
+  assert.doesNotMatch(source, /return place \?/);
 });
 
 test("home tours use verified media with an honest disclosure", () => {
