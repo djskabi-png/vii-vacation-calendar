@@ -1,7 +1,7 @@
 "use client";
 import { useNearbySort, NearbySortStatus } from "../components/use-nearby-sort";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TrailCard } from "../components/trail-card";
 import { natureTypes, regions, trails, nearbyTrails, type Trail, type TrailDifficulty } from "../data/trail-data";
@@ -35,13 +35,51 @@ function selectedValues(value: string | null, allowed: string[]) {
 }
 
 function MultiChoice({ label, options, selected, onToggle }: { label: string; options: string[]; selected: string[]; onToggle: (value: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+  const instanceId = useId();
   const summary = selected.length === 0 ? "הכל" : selected.length === 1 ? selected[0] : `${selected.length} נבחרו`;
-  return <details className="trail-multi-select">
-    <summary><span>{label}</span><strong>{summary}</strong></summary>
-    <div role="group" aria-label={`בחירה מרובה: ${label}`}>
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      const target = event.target as Element;
+      if (target.closest(".trail-multi-select__trigger")) return;
+      if (!rootRef.current?.contains(target)) setOpen(false);
+    };
+    const closeForSibling = (event: Event) => {
+      if ((event as CustomEvent<string>).detail !== instanceId) setOpen(false);
+    };
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeWithEscape);
+    document.addEventListener("trail-filter-open", closeForSibling);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeWithEscape);
+      document.removeEventListener("trail-filter-open", closeForSibling);
+    };
+  }, [instanceId, open]);
+
+  const toggleOpen = () => setOpen((value) => {
+    const next = !value;
+    if (next) document.dispatchEvent(new CustomEvent("trail-filter-open", { detail: instanceId }));
+    return next;
+  });
+
+  return <div ref={rootRef} className="trail-multi-select" data-open={open || undefined}>
+    <button ref={triggerRef} className="trail-multi-select__trigger" type="button" aria-expanded={open} aria-controls={menuId} onClick={toggleOpen}><span>{label}</span><strong>{summary}</strong></button>
+    <div id={menuId} role="group" aria-label={`בחירה מרובה: ${label}`} hidden={!open}>
       {options.map((option) => <label key={option} className={selected.includes(option) ? "selected" : ""}><input type="checkbox" checked={selected.includes(option)} onChange={() => onToggle(option)} /><span>{option}</span></label>)}
     </div>
-  </details>;
+  </div>;
 }
 
 export function TrailsExplorer({ items = trails, initialFilters }: { items?: Trail[]; initialFilters?: Readonly<Record<string, string>> }) {
