@@ -30,10 +30,11 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   for(const addition of unitAdditions)assert.equal(normalized.split(addition).length,2);
   const actual=composeWorldStyles(normalized.replace(providerBlock[0],''),sources).replace(/\r\n/g,'\n');
   // The unified release intentionally adds the reviewed account, navigation,
-  // mobile rhythm, footer and responsive gallery-action rules while preserving
-  // every world-owned slot.
+  // mobile rhythm, footer, responsive gallery-action rules and the shared
+  // viewport collision guard for compact select menus while preserving every
+  // world-owned slot.
   // Freeze that cumulative cascade so later edits cannot silently disturb it.
-  const expected='6f83d297411f70d09a2a3519982008627b47b65e4203f3127d2fbdc21b518265';
+  const expected='e0ac1ddfb702f6507cb7b177be245db5aef3606e42c20ef812966a75e27a3bb8';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));

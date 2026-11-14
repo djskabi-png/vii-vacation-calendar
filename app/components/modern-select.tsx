@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { CurrencyText } from "./currency-text";
 
 export type ModernSelectOption = {
@@ -38,6 +38,7 @@ export function ModernSelect({
 }: ModernSelectProps) {
   const generatedId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue ?? options[0]?.value ?? "");
   const selectedValue = value ?? internalValue;
@@ -63,6 +64,30 @@ export function ModernSelect({
     };
   }, []);
 
+  useLayoutEffect(() => {
+    if (!open || !menuRef.current) return;
+    const menu = menuRef.current;
+    const safeViewportInset = 12;
+
+    function keepMenuInsideViewport() {
+      menu.style.setProperty("--modern-select-menu-shift-x", "0px");
+      const rect = menu.getBoundingClientRect();
+      const viewportWidth = document.documentElement.clientWidth;
+      let shift = 0;
+      if (rect.left < safeViewportInset) shift = safeViewportInset - rect.left;
+      else if (rect.right > viewportWidth - safeViewportInset) shift = viewportWidth - safeViewportInset - rect.right;
+      menu.style.setProperty("--modern-select-menu-shift-x", `${Math.round(shift)}px`);
+    }
+
+    keepMenuInsideViewport();
+    window.addEventListener("resize", keepMenuInsideViewport);
+    window.visualViewport?.addEventListener("resize", keepMenuInsideViewport);
+    return () => {
+      window.removeEventListener("resize", keepMenuInsideViewport);
+      window.visualViewport?.removeEventListener("resize", keepMenuInsideViewport);
+    };
+  }, [open, visibleOptions.length]);
+
   function choose(nextValue: string) {
     if (value === undefined) setInternalValue(nextValue);
     onChange?.(nextValue);
@@ -87,7 +112,7 @@ export function ModernSelect({
         <span className="modern-select__chevron" aria-hidden="true" />
       </button>
       {open ? (
-        <div className="modern-select__menu" id={`${generatedId}-options`} role="listbox" aria-labelledby={`${generatedId}-label`}>
+        <div ref={menuRef} className="modern-select__menu" id={`${generatedId}-options`} role="listbox" aria-labelledby={`${generatedId}-label`}>
           {visibleOptions.map((option) => (
             <button
               type="button"

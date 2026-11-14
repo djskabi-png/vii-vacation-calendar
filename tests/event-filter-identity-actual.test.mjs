@@ -36,7 +36,7 @@ test('north and south loft membership survives supplier singular/plural refresh'
 });
 function selectHarness(){
  let open=false;const source=ts.transpileModule(readFileSync(new URL('../app/components/modern-select.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
- let cursor=0;const state=[];const react={useId:()=> 'test',useRef:()=>({current:null}),useEffect:()=>{},useState:initial=>{const i=cursor++;if(!(i in state))state[i]=initial;return[state[i],v=>state[i]=typeof v==='function'?v(state[i]):v]}};
+ let cursor=0;const state=[];const react={useId:()=> 'test',useRef:()=>({current:null}),useEffect:()=>{},useLayoutEffect:()=>{},useState:initial=>{const i=cursor++;if(!(i in state))state[i]=initial;return[state[i],v=>state[i]=typeof v==='function'?v(state[i]):v]}};
  const currency={};const currencySource=ts.transpileModule(readFileSync(new URL('../app/components/currency-text.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  new Function('require','exports',currencySource)(id=>id==='../lib/currency-label'?{currencyLabelParts}:require(id),currency);
  const exports={};new Function('require','exports',source)(id=>id==='react'?react:id==='./currency-text'?currency:require(id),exports);
