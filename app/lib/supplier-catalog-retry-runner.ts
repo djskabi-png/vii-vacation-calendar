@@ -1,4 +1,4 @@
-import type { D1Database } from "../../types/cloudflare-runtime";
+import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
 import { catalogPullSlot, scheduledCatalogRunId, scheduledCatalogWorld } from "./supplier-catalog-schedule.ts";
 import { catalogWorlds, syncSupplierCatalogWorld } from "./supplier-catalog-runtime.ts";
 import { CATALOG_MAX_RETRIES, CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries,
@@ -6,14 +6,15 @@ import { CATALOG_MAX_RETRIES, CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetrie
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { recordCatalogAlert, resolveCatalogAlerts } from "./supplier-catalog-alerts.ts";
 
-type SyncResult = { status: "accepted" | "rejected" | "failed" | "skipped"; id: string; errorCode?: string };
+type SyncResult = { status: "accepted" | "rejected" | "failed" | "skipped"; id: string; errorCode?: string; retryable?: boolean };
 type Sync = (world: SupplierCatalogWorld, source: "manual" | "scheduled" | "retry", runId: string) => Promise<SyncResult>;
 
-function runtimeSync(db: D1Database): Sync {
+function runtimeSync(db: D1Database, mediaArchive?: { bucket: R2Bucket; fetchImpl?: typeof fetch }): Sync {
   return async (world, source, runId) => {
-    const result = await syncSupplierCatalogWorld(db, world, source, { runId });
+    const result = await syncSupplierCatalogWorld(db, world, source, { runId, mediaArchive });
     return { status: result.status as SyncResult["status"], id: result.id,
-      ...("errorCode" in result && result.errorCode ? { errorCode: result.errorCode } : {}) };
+      ...("errorCode" in result && result.errorCode ? { errorCode: result.errorCode } : {}),
+      ...("diagnostics" in result && result.diagnostics?.failure ? { retryable: result.diagnostics.failure.retryable } : {}) };
   };
 }
 
@@ -22,7 +23,7 @@ function after(date: Date, milliseconds: number) {
 }
 
 async function settleInitial(db: D1Database, rootRunId: string, result: SyncResult, now: string) {
-  if (result.status === "accepted" || result.status === "rejected" || result.status === "skipped") {
+  if (result.status === "accepted" || result.status === "rejected" || result.status === "skipped" || result.retryable === false) {
     await cancelPendingCatalogRetries(db, rootRunId, now, result.status, result.id, result.errorCode);
   }
 }
@@ -45,9 +46,10 @@ export async function runCatalogPullWithRetryPlan(db: D1Database, input: {
   runId: string;
   now?: Date;
   sync?: Sync;
+  mediaArchive?: { bucket: R2Bucket; fetchImpl?: typeof fetch };
 }) {
   const now = input.now || new Date();
-  const sync = input.sync || runtimeSync(db);
+  const sync = input.sync || runtimeSync(db, input.mediaArchive);
   await scheduleCatalogRetry(db, { rootRunId: input.runId, world: input.world, attempt: 1,
     dueAt: after(now, CATALOG_RETRY_DELAY_MS), createdAt: now.toISOString() });
   const result = await sync(input.world, input.source, input.runId);
@@ -56,9 +58,9 @@ export async function runCatalogPullWithRetryPlan(db: D1Database, input: {
   return result;
 }
 
-export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; sync?: Sync; limit?: number } = {}) {
+export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; sync?: Sync; limit?: number; mediaArchive?: { bucket: R2Bucket; fetchImpl?: typeof fetch } } = {}) {
   const now = input.now || new Date();
-  const sync = input.sync || runtimeSync(db);
+  const sync = input.sync || runtimeSync(db, input.mediaArchive);
   const jobs = await claimDueCatalogRetries(db, now.toISOString(), input.limit);
   const results: SyncResult[] = [];
   for (const job of jobs) {
@@ -66,11 +68,12 @@ export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; 
       world: job.world, attempt: job.attempt + 1, dueAt: after(now, CATALOG_RETRY_DELAY_MS), createdAt: now.toISOString() });
     const runId = `${job.rootRunId}_retry_${job.attempt}`;
     const result = await sync(job.world, "retry", runId);
-    const terminalStatus = result.status === "failed" && job.attempt === CATALOG_MAX_RETRIES ? "exhausted" :
+    const terminalStatus = result.status === "failed" && result.retryable === false ? "cancelled" :
+      result.status === "failed" && job.attempt === CATALOG_MAX_RETRIES ? "exhausted" :
       result.status === "rejected" ? "cancelled" : "completed";
     await finishCatalogRetry(db, { id: job.id, status: terminalStatus, finishedAt: now.toISOString(),
       resultStatus: result.status, resultRunId: result.id, errorCode: result.errorCode });
-    if (result.status === "accepted" || result.status === "rejected") {
+    if (result.status === "accepted" || result.status === "rejected" || result.retryable === false) {
       await cancelPendingCatalogRetries(db, job.rootRunId, now.toISOString(), result.status, result.id, result.errorCode);
     }
     await settleAlerts(db, { rootRunId: job.rootRunId, world: job.world, result, now: now.toISOString(), exhausted: terminalStatus === "exhausted" });
@@ -83,9 +86,10 @@ export async function runSupplierCatalogScheduleTick(db: D1Database, input: {
   now?: Date;
   sync?: Sync;
   preferredWorld?: SupplierCatalogWorld;
+  mediaArchive?: { bucket: R2Bucket; fetchImpl?: typeof fetch };
 } = {}) {
   const now = input.now || new Date();
-  const retries = await runDueCatalogRetries(db, { now, sync: input.sync });
+  const retries = await runDueCatalogRetries(db, { now, sync: input.sync, mediaArchive: input.mediaArchive });
   const exactWorld = scheduledCatalogWorld(now);
   const recoveryWorld = !exactWorld && (input.preferredWorld || !retries.length)
     ? input.preferredWorld || catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length]
@@ -97,7 +101,7 @@ export async function runSupplierCatalogScheduleTick(db: D1Database, input: {
       runId: input.preferredWorld ? `${recoverySlot.id}_heartbeat_${heartbeatWindow}` : recoverySlot.id }] : [];
   const scheduled: SyncResult[] = [];
   for (const item of due) scheduled.push(await runCatalogPullWithRetryPlan(db, {
-    world: item.world, source: "scheduled", runId: item.runId, now, sync: input.sync,
+    world: item.world, source: "scheduled", runId: item.runId, now, sync: input.sync, mediaArchive: input.mediaArchive,
   }));
   return { primary: scheduled.find((result) => result.status !== "skipped") || scheduled[0] || null, scheduled, retries };
 }

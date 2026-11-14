@@ -6,6 +6,7 @@ import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogArchive, readSupplierCatalogDashboard, readSupplierCatalogRunDiagnostics } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import type { R2Bucket } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
 import { requiredRuntimeDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
 import { readCachedOnlineCapabilities } from "../../../lib/online-booking-capability-cache.ts";
@@ -24,6 +25,14 @@ async function authorized(request: Request) {
 
 async function database(): Promise<D1Database> {
   return requiredRuntimeDatabase("catalog_database_unavailable");
+}
+
+async function mediaArchive() {
+  try {
+    const runtime = await import("cloudflare:workers");
+    const bucket = (runtime.env as unknown as { UPLOADS?: R2Bucket }).UPLOADS;
+    return bucket ? { bucket } : undefined;
+  } catch { return undefined; }
 }
 
 function archivedName(value: unknown) {
@@ -144,9 +153,10 @@ export async function POST(request: Request) {
     const runId = `manual_${Date.now()}_${world}_${crypto.randomUUID().replaceAll("-", "")}`;
     // A targeted detail refresh keeps the same complete-generation guards and
     // lock. It is a single explicit operation, never an automatic retry job.
+    const archive = await mediaArchive();
     const result = target === undefined
-      ? await runCatalogPullWithRetryPlan(await database(), { world, source: "manual", runId })
-      : await syncSupplierCatalogWorld(await database(),world,'manual',{runId,detailSupplierId:target as number});
+      ? await runCatalogPullWithRetryPlan(await database(), { world, source: "manual", runId, mediaArchive: archive })
+      : await syncSupplierCatalogWorld(await database(),world,'manual',{runId,detailSupplierId:target as number,mediaArchive:archive});
     return Response.json(result, { status: result.status === "accepted" ? 200 : 409, headers });
   } catch (error) {
     console.error("VII catalog sync unavailable", world, error);

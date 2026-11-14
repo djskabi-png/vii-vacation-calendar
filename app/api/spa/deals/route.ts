@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     const audiences: SpaDealAudience[] = ["single", "couple", "group"];
     const { sites, cached, refresh, catalogMs, availabilityMs, elapsedMs } = await spaDiscoveryInputs(
       () => publicCatalogSummaries<SpaPlusSite>("spa"),
-      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }), full ? 8_000 : 1_200);
+      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: () => readSpaAvailability(), validate: Array.isArray }), full ? 8_000 : 5_000);
     const timing = `vii-catalog;dur=${catalogMs}, vii-availability;dur=${availabilityMs}, vii-spa-inputs;dur=${elapsedMs}`;
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));

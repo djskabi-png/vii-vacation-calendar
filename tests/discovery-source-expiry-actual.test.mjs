@@ -43,6 +43,16 @@ test('repeated expired200 responses stop, pending is never remembered, and POST 
  }finally{globalThis.fetch=previous}
 });
 
+test('an explicitly retry-safe read-only POST gets one bounded recovery attempt',async()=>{
+ const previous=globalThis.fetch;let calls=0;
+ try{
+  globalThis.fetch=async()=>{calls++;if(calls===1)throw new TypeError('temporary transport failure');return Response.json({availabilityStatus:'verified',places:[{id:1}]})};
+  const result=await discoveryJson('/api/qa-read-only-post-retry','events-home',{method:'POST',body:'{}',retrySafe:true,retries:1,timeoutMs:500,totalTimeoutMs:1_000,validateResponse:value=>value?.availabilityStatus==='verified'});
+  assert.equal(calls,2);
+  assert.equal(result.places.length,1);
+ }finally{globalThis.fetch=previous}
+});
+
 test('actual holiday page effect expires an open offer and cannot restore expired data after a failed refresh',async()=>{
  const text=readFileSync(new URL('../app/components/holiday-live-deals.tsx',import.meta.url),'utf8');
  const ast=ts.createSourceFile('holiday.tsx',text,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);let callback;

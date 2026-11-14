@@ -69,6 +69,25 @@ test("safety rejection is never retried automatically", async () => {
   } finally { db.close(); }
 });
 
+test("a missing gallery archive binding is a configuration failure and is not retried", async () => {
+  const db = await database(); const calls = [];
+  const sync = async (world, source, runId) => {
+    calls.push({ world, source, runId });
+    return { status: "failed", id: runId, errorCode: "gallery_archive_storage_unavailable", retryable: false };
+  };
+  try {
+    await runCatalogPullWithRetryPlan(db, { world: "vacations", source: "manual", runId: "missing_archive_fixture", now: new Date("2026-10-14T10:00:00Z"), sync });
+    await runSupplierCatalogScheduleTick(db, { now: new Date("2026-10-14T10:10:00Z"), preferredWorld: "spa", sync: async (world, source, runId) => {
+      calls.push({ world, source, runId }); return { status: "accepted", id: runId };
+    } });
+    const jobs = (await readCatalogRetryJobs(db)).filter((job) => job.rootRunId === "missing_archive_fixture");
+    assert.equal(jobs.length, 1);
+    assert.equal(jobs[0].status, "cancelled");
+    assert.equal(jobs[0].resultStatus, "failed");
+    assert.equal(calls.filter((call) => call.runId.startsWith("missing_archive_fixture")).length, 1);
+  } finally { db.close(); }
+});
+
 test("a delayed ten-minute tick recovers one latest supplier slot without caller-selected dates", async () => {
   const db = await database(); const calls = [];
   const sync = async (world, source, runId) => { calls.push({ world, source, runId }); return { status: "accepted", id: runId }; };

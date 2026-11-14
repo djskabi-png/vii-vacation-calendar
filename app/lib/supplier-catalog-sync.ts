@@ -188,6 +188,7 @@ function errorCode(error: unknown) {
 }
 
 function failureCategory(code: string, stage: NonNullable<CatalogSyncDiagnostics["failure"]>["stage"]): NonNullable<CatalogSyncDiagnostics["failure"]>["category"] {
+  if (code === "gallery_archive_storage_unavailable") return "resource_or_runtime";
   if (code.includes("not_authorized") || code.includes("missing_sergey_key")) return "authorization";
   if (code.includes("transport") || code.includes("timeout")) return "transport";
   if (code.includes("provider")) return "provider";
@@ -280,7 +281,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       stage, category: failureCategory(code, stage),
       elapsedMs: Math.max(0, now().getTime() - startedMs),
       ...(stage === "candidate_stage" ? { completed, ...(total !== undefined ? { total } : {}) } : {}),
-      retryable: ["transport", "provider", "resource_or_runtime", "database", "unknown"].includes(failureCategory(code, stage)),
+      retryable: code !== "gallery_archive_storage_unavailable"
+        && ["transport", "provider", "resource_or_runtime", "database", "unknown"].includes(failureCategory(code, stage)),
     } };
     const status = code.includes("removal") || code === "catalog_media_requires_review" || code === "catalog_editorial_requires_review"
       || code === "catalog_content_requires_review"

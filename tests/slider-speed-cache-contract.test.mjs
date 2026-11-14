@@ -98,3 +98,12 @@ test("scheduled vacation sync warms ordinary and holiday slider snapshots", asyn
   assert.match(route, /Promise\.all\(\[[\s\S]*warmVacationDiscoveryCache\(db\)[\s\S]*warmHolidayDiscoveryCache\(db\)/);
 });
 
+test("scheduled discovery also warms spa and injects gallery storage into catalog sync", async () => {
+  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  assert.match(worker, /warmSpaDiscoveryCache\(database, scheduledAt, env\.BIZONLINE_SPA_AVAILABILITY_TOKEN\)/);
+  assert.match(worker, /runSupplierCatalogScheduleTick\(database, \{ now: new Date\(controller\.scheduledTime\), mediaArchive: \{ bucket: env\.UPLOADS \} \}\)/);
+  const client = await readFile(new URL("app/components/spa-package-deals.tsx", root), "utf8");
+  assert.match(client, /discoverySeedRank\(regionLabel\|\|"all",documentSeed\)%8/);
+  assert.match(client, /persist:true, freshMs:120_000, staleMs:900_000/);
+});
+

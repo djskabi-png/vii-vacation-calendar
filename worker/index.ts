@@ -78,6 +78,9 @@ interface Env {
   VII_QUALITY_EMAIL_API_KEY?: string;
   VII_QUALITY_EMAIL_FROM?: string;
   VII_QUALITY_EMAIL_RECIPIENTS?: string;
+  SERGEY_VII_API_TOKEN?: string;
+  SPAPLUS_VII_API_KEY?: string;
+  BIZONLINE_SPA_AVAILABILITY_TOKEN?: string;
 }
 
 interface ExecutionContext {
@@ -97,8 +100,8 @@ const worker = {
     const { runSupplierCatalogScheduleTick } = await import("../app/lib/supplier-catalog-retry-runner.ts");
     const { cachedOnlineCapabilities } = await import("../app/lib/online-booking-capability-cache.ts");
     const { bundledMapSnapshotCandidates } = await import("../app/lib/map-snapshot-catalog.ts");
-    const [{ warmVacationDiscoveryCache }, { warmEventDiscoveryCache }, { warmHolidayDiscoveryCache }, { isWeeklyMapSnapshotWindow, reconcileMapSnapshots }] = await Promise.all([
-      import("../app/lib/warm-vacation-discovery-cache.ts"), import("../app/lib/warm-event-discovery-cache.ts"), import("../app/lib/warm-holiday-discovery-cache.ts"), import("../app/lib/map-snapshot-store.ts"),
+    const [{ warmVacationDiscoveryCache }, { warmEventDiscoveryCache }, { warmHolidayDiscoveryCache }, { warmSpaDiscoveryCache }, { isWeeklyMapSnapshotWindow, reconcileMapSnapshots }] = await Promise.all([
+      import("../app/lib/warm-vacation-discovery-cache.ts"), import("../app/lib/warm-event-discovery-cache.ts"), import("../app/lib/warm-holiday-discovery-cache.ts"), import("../app/lib/warm-spa-discovery-cache.ts"), import("../app/lib/map-snapshot-store.ts"),
     ]);
     const database = cloudflareDatabaseForEnv(env);
     if (!database) throw new Error("scheduled_database_unavailable");
@@ -130,9 +133,11 @@ const worker = {
     ctx.waitUntil(Promise.allSettled([
       warmVacationDiscoveryCache(database, scheduledAt),
       warmEventDiscoveryCache(database, scheduledAt),
+      warmSpaDiscoveryCache(database, scheduledAt, env.BIZONLINE_SPA_AVAILABILITY_TOKEN),
     ]).then((results) => {
       if (results[0].status === "rejected") console.error("VII vacation discovery refresh unavailable");
       if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
+      if (results[2].status === "rejected") console.error("VII spa discovery refresh unavailable");
     }));
     // All visible holiday rails need an accepted snapshot before a visitor
     // opens a distant tab. Run with the existing10-minute tick, independently
@@ -154,7 +159,7 @@ const worker = {
         console.error("VII weekly map snapshot reconciliation unavailable", error);
       }));
     }
-    ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ scheduled, retries }) => {
+    ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime), mediaArchive: { bucket: env.UPLOADS } }).then(({ scheduled, retries }) => {
       for (const result of [...retries, ...scheduled]) if (result.status !== "accepted" && result.status !== "skipped") {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }

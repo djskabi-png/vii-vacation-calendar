@@ -90,6 +90,7 @@ test("browser cache rejects old generation, wrong scope and expired source evide
   const now = Date.parse(`${date}T10:00:00Z`);
   const response = { discoveryVersion: EVENT_DISCOVERY_VERSION, scope: {date, guests:20}, results: [], places: [], cache: {checkedAt:new Date(now).toISOString()} };
   assert.equal(eventDiscoveryResponseMatches(response, date, 20, undefined, now), true);
+  assert.equal(eventDiscoveryResponseMatches({...response, region:null}, date, 20, undefined, now), true, "JSON null is the same unscoped region as browser undefined");
   assert.equal(eventDiscoveryResponseMatches({...response, discoveryVersion:1}, date, 20, undefined, now), false);
   assert.equal(eventDiscoveryResponseMatches(response, date, 100, undefined, now), false);
   assert.equal(eventDiscoveryResponseMatches(response, date, 20, "צפון", now), false);

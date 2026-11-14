@@ -3,6 +3,8 @@ type DiscoveryRequestInit = RequestInit & {
   timeoutMs?: number;
   totalTimeoutMs?: number;
   retries?: number;
+  /** Explicit opt-in for an idempotent read-only POST discovery request. */
+  retrySafe?: boolean;
   freshMs?: number;
   staleMs?: number;
   persist?: boolean;
@@ -124,6 +126,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     timeoutMs = defaultTimeoutMs,
     totalTimeoutMs,
     retries = 1,
+    retrySafe = false,
     freshMs = defaultFreshMs,
     staleMs = defaultStaleMs,
     persist = false,
@@ -148,7 +151,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     entries.set(key, previous);
   }
   const method = (requestInit.method || "GET").toUpperCase();
-  const allowedRetries = method === "GET" ? Math.max(0, Math.min(1, Math.trunc(retries))) : 0;
+  const allowedRetries = method === "GET" || retrySafe ? Math.max(0, Math.min(1, Math.trunc(retries))) : 0;
   const boundedTimeout = Math.max(10, Math.min(20_000, Math.trunc(timeoutMs)));
   const load = async () => {
     const deadline = totalTimeoutMs === undefined ? null : Date.now() + Math.max(1, Math.min(20_000, totalTimeoutMs));

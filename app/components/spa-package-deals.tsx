@@ -80,7 +80,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
   if(!clockKey || !active || unsupportedDate) return;
   const controller = new AbortController();
   let followupTimer: number | undefined;
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,rotation:String(discoverySeedRank(regionLabel||"all",documentSeed)),...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:4_500, totalTimeoutMs:10_000, retries:1, cache:"no-store",
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,rotation:String(discoverySeedRank(regionLabel||"all",documentSeed)%8),...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:6_000, totalTimeoutMs:10_000, retries:1, cache:"no-store", persist:true, freshMs:120_000, staleMs:900_000,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){
     const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);});

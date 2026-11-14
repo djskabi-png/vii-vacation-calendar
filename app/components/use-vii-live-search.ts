@@ -43,7 +43,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       // A cold event-discovery snapshot may perform one server-side,
       // lease-protected recovery. Give that bounded recovery enough time while
       // keeping transactional detail and booking checks on the shorter default.
-      ...(world === "events" && includePlaces ? { timeoutMs: 12_000, freshMs: 60_000, staleMs: EVENT_DISCOVERY_MAX_AGE_MS } : {}),
+      ...(world === "events" && includePlaces ? { timeoutMs: 12_000, totalTimeoutMs: 18_000, retries: 1, retrySafe: true, freshMs: 60_000, staleMs: EVENT_DISCOVERY_MAX_AGE_MS } : {}),
       shouldCache: (value: unknown) => !includePlaces || eventDiscoveryResponseMatches(value, from, guests, region),
       signal: controller.signal,
     };
@@ -52,7 +52,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
     // in-flight or cached response.
     const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}:${roomKey}`, init);
     (request as Promise<{ discoveryVersion?: number; scope?: {date:string;guests:number}; cache?:{status:string;checkedAt?:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
-      if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
+      if (!Array.isArray(result.results) || (includePlaces && (result.region || undefined) !== region)) throw new Error("invalid_result");
       if (includePlaces && !eventDiscoveryResponseMatches(result, from, guests, region)) throw new Error("expired_event_snapshot");
       if (!controller.signal.aborted) setValue({ key, state: {
         status: "ready",

@@ -7,8 +7,8 @@ async function token() {
   } catch { /* Local development has no Cloudflare binding. */ }
   return process.env.BIZONLINE_SPA_AVAILABILITY_TOKEN || "";
 }
-export async function readSpaAvailability(): Promise<SpaAvailabilityRow[]> {
-  const key = await token();
+export async function readSpaAvailability(explicitToken?: string): Promise<SpaAvailabilityRow[]> {
+  const key = explicitToken?.trim() || await token();
   if (!key) throw new Error("availability_not_configured");
   const url = new URL("https://www.bizonline.co.il/api/spaplus/get.php");
   url.searchParams.set("act", "availability"); url.searchParams.set("key", key);
