@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { localizedPath, stripLanguagePrefix } from "./i18n/locale-routing";
 import { publicWorldNavigation, type WorldId } from "./data/world-navigation";
+import { hasInPageSearchSurface } from "./lib/header-search-visibility";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
 import { useAccountAccess } from "./components/account-access";
@@ -63,14 +64,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       : pathname === "/attractions" || pathname.startsWith("/attractions/")
         ? "attractions"
         : variant;
-  const hasInPageSearch = pathname === "/"
-    || pathname === "/search" || pathname.startsWith("/search/")
-    || pathname === "/events" || pathname.startsWith("/events/search")
-    || pathname === "/spas" || pathname.startsWith("/spas/search")
-    || pathname === "/hourly" || pathname.startsWith("/hourly/search")
-    || pathname === "/providers" || pathname.startsWith("/providers/search")
-    || pathname === "/attractions" || pathname.startsWith("/attractions/search")
-    || pathname === "/trails" || pathname.startsWith("/trails/search");
+  const hasInPageSearch = hasInPageSearchSurface(pathname);
   const searchLabel = {
     he: "חיפוש באתר",
     en: "Search the site",

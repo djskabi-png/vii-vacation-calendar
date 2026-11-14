@@ -915,6 +915,7 @@
         "app/lib/public-chrome-client.ts",
         "app/lib/world-surface-contract.ts",
         "app/site-header.tsx",
+        "app/lib/header-search-visibility.ts",
         "app/globals.css",
         "app/lib/world-availability.ts",
         "app/components/discovery-card.tsx",

@@ -27,10 +27,8 @@ test("gift card is a fully controllable world with public entry points and index
 
 test("header search shortcut is world-aware and is suppressed on routes with a full search", async () => {
   const header = await read("app/site-header.tsx");
-  assert.match(header, /const hasInPageSearch = pathname === "\/"/);
-  assert.match(header, /pathname\.startsWith\("\/events\/search"\)/);
-  assert.match(header, /pathname\.startsWith\("\/spas\/search"\)/);
-  assert.match(header, /pathname\.startsWith\("\/hourly\/search"\)/);
+  assert.match(header, /const hasInPageSearch = hasInPageSearchSurface\(pathname\)/);
+  assert.match(header, /import \{ hasInPageSearchSurface \} from "\.\/lib\/header-search-visibility"/);
   assert.match(header, /!hasInPageSearch \? <button[^>]+className="icon-button header-search"[^>]+onClick=\{\(\) => setSearchOpen\(true\)\}/);
   assert.match(header, /<SearchBox mode=\{searchMode\} forceExpanded showWorlds \/>/);
   assert.match(header, /activeWorld === "events" \|\| activeWorld === "spa" \|\| activeWorld === "hourly"/);

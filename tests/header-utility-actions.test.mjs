@@ -76,7 +76,7 @@ test("header utility actions share sizing and world selection is not fixed", () 
 
 test("the header adds a direct search shortcut only when the page has no search surface", () => {
   const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldToggleIcon)/)?.[0] ?? "";
-  assert.match(header, /const hasInPageSearch = pathname === "\/"/);
+  assert.match(header, /const hasInPageSearch = hasInPageSearchSurface\(pathname\)/);
   assert.match(header, /!hasInPageSearch \? <button[^>]+className="icon-button header-search"/);
   assert.match(header, /role="dialog" aria-modal="true" aria-labelledby="header-search-title"/);
   assert.match(header, /const searchLabel = \{/);
