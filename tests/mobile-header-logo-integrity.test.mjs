@@ -16,5 +16,6 @@ test("the mobile header reserves a complete uncropped logo slot beside all utili
 test("the narrowest supported header keeps forty-four pixel controls without sacrificing the logo", () => {
   assert.match(styles, /@media \(max-width: 360px\) \{[\s\S]*?grid-template-columns: 48px minmax\(0,1fr\); gap: 1px;[\s\S]*?width: 44px; min-width: 44px; min-height: 44px;/);
   assert.match(styles, /@media \(max-width: 360px\) \{[\s\S]*?\.world-dock > summary \{ width: 90px; min-width: 90px; max-width: 90px; padding-inline: 8px; gap: 4px;/);
-  assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?grid-template-columns: 44px minmax\(0,1fr\);[\s\S]*?\.brand img \{ width: 44px; max-width: 44px; \}[\s\S]*?\.header-actions > \.language-switcher \{ display: none; \}[\s\S]*?\.world-dock > summary \{ width: 90px; min-width: 90px; max-width: 90px; padding-inline: 8px; gap: 4px;/);
+  assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?grid-template-columns: 44px minmax\(0,1fr\);[\s\S]*?\.brand img \{ width: 44px; max-width: 44px; \}[\s\S]*?\.world-dock > summary \{ width: 90px; min-width: 90px; max-width: 90px; padding-inline: 8px; gap: 4px;/);
+  assert.doesNotMatch(styles, /\.header-actions > \.language-switcher \{ display: none; \}/);
 });

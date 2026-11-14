@@ -8634,13 +8634,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .site-header:has(.world-dock) .brand,
   .site-header:has(.world-dock) .brand img { width: 44px; max-width: 44px; }
   .site-header:has(.world-dock) .brand { flex-basis: 44px; }
-  .site-header:has(.world-dock) .header-actions > .language-switcher { display: none; }
   .site-header:has(.world-dock) .world-dock > summary { width: 90px; min-width: 90px; max-width: 90px; padding-inline: 8px; gap: 4px; }
   .site-header:has(.world-dock) .world-dock > summary .world-toggle-icon { display: block; }
-}
-
-@media (max-width: 560px) {
-  .site-header:has(.header-search) .header-actions > .language-switcher { display: none; }
 }
 
 @media (max-width: 360px) {

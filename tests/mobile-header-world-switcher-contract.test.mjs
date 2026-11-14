@@ -27,7 +27,13 @@ test("the mobile world switcher exposes the current topic and a chevron with a f
 test("the narrow header never wraps the world label and reserves room for the optional search action", () => {
   assert.match(styles, /\.world-dock > summary strong \{ font-size: \.72rem; line-height: 1\.25; overflow-wrap: normal; white-space: nowrap; \}/);
   assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.world-dock > summary \{[\s\S]*?width: 90px;[\s\S]*?min-width: 90px;[\s\S]*?max-width: 90px;[\s\S]*?padding-inline: 8px;[\s\S]*?gap: 4px;/);
-  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.site-header:has\(\.header-search\) \.header-actions > \.language-switcher \{ display: none; \}/);
+  assert.doesNotMatch(styles, /\.site-header:has\(\.header-search\) \.header-actions > \.language-switcher \{ display: none; \}/);
   assert.match(styles, /@media \(max-width: 340px\) \{[\s\S]*?\.world-dock > summary \.world-toggle-icon \{ display: block; \}/);
   assert.doesNotMatch(styles, /\.world-dock > summary strong \{[^}]*overflow-wrap: anywhere/);
+});
+
+test("the global language chooser remains present beside every PageShell header state", () => {
+  assert.match(header, /<LanguageSwitcher compact iconOnly \/>/);
+  assert.match(shell, /<SiteHeader variant=\{variant\} \/>/);
+  assert.doesNotMatch(styles, /\.header-actions > \.language-switcher \{ display: none; \}/);
 });
