@@ -3,6 +3,7 @@ import { readPublishedContent, type ContentLocale } from "./content-studio.ts";
 import { resolvePublicSliderMedia } from "./public-media-policy.ts";
 import { normalizeHomepageSearchHref } from "./homepage-search-href.ts";
 import { popularSearchesForWorld, popularSearchWorlds, type PopularSearchWorld } from "./world-popular-search-defaults.ts";
+import { normalizeApprovedDiscoveryHref, approvedEventDiscoveryPaths } from "./approved-discovery-hrefs.ts";
 
 export type HomeDiscoveryItem = {
   id: string;
@@ -15,8 +16,6 @@ export type HomeDiscoveryItem = {
   action?: "nearby";
 };
 
-const vacationSearchHref = (params: Record<string, string>) => `/search?${new URLSearchParams(params).toString()}`;
-
 const defaults = {
   popular: [
     { id: "vacation-villas", label: "וילות נופש", note: "וילות למשפחות ולקבוצות", href: "/villas", image: "/media/322de460abbda5c6.jpg", visible: true },
@@ -24,17 +23,17 @@ const defaults = {
     { id: "vacation-apartments", label: "דירות נופש", note: "דירות מאובזרות לחופשה עצמאית", href: "/vacation-apartments", image: "/media/88fcef4341b24a45.jpeg", visible: true },
     { id: "luxury-suites", label: "סוויטות יוקרתיות", note: "סוויטות לחופשה מפנקת", href: "/luxury-suites", image: "/media/051ff4fbc8d7d2ac.jpeg", visible: true },
     { id: "last-minute", label: "נופש ברגע האחרון", note: "מקומות פנויים לתאריך הקרוב", href: "/last-minute", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
-    { id: "heated-pool-family", label: "נופש למשפחה עם בריכה מחוממת", note: "מקומות למשפחות עם בריכה מחוממת", href: vacationSearchHref({ features: "heated-pool,families" }), image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
+    { id: "heated-pool-family", label: "נופש בצפון עם בריכה מחוממת למשפחות", note: "מקומות למשפחות עם בריכה מחוממת", href: "/search/vacations/north-21009-70308c9b", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
     { id: "event-places", label: "מקומות לאירועים", note: "לופטים ומתחמים לכל חגיגה", href: "/events", image: "/media/bc85b10f1d64d6db.jpeg", visible: true },
     { id: "spa-packages", label: "חבילות ספא", note: "טיפולים וחבילות לפי תאריך", href: "/spas#spa-world-package-deals", image: "/media/editorial/spa-couple-experience.webp", visible: true },
     { id: "hourly-rooms", label: "חדרים לפי שעה", note: "שהייה קצרה, פרטית וגמישה", href: "/hourly", image: "/media/editorial/hourly-stay-what-to-check.webp", visible: true },
-    { id: "lofts", label: "לופטים", note: "לופטים למסיבות ולאירועים", href: "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98", image: "/media/978e5fd5134b0831.jpeg", visible: true }
+    { id: "lofts", label: "לופטים", note: "לופטים למסיבות ולאירועים", href: approvedEventDiscoveryPaths.lofts, image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ],
   cities: [
     { id: "eilat", label: "אילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat", image: "/media/322de460abbda5c6.jpg", visible: true },
     { id: "tiberias", label: "טבריה והכנרת", note: "חופשה קרובה למים", href: "/vacations/kinneret", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
     { id: "jerusalem", label: "ירושלים", note: "אוויר הרים וחופשה עירונית", href: "/vacations/jerusalem", image: "/media/231b0e706cc61cc1.jpg", visible: true },
-    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: vacationSearchHref({ location: "נתניה" }), image: "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg", imageAlt: "מתחם נופש באזור החוף, תמונת אווירה", visible: true },
+    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: "/search/vacations/netanya-11266-7a5b7295", image: "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg", imageAlt: "מתחם נופש באזור החוף, תמונת אווירה", visible: true },
     { id: "galilee", label: "הגליל", note: "נוף ירוק ומתחמים למשפחות", href: "/vacations/north", image: "/media/f18d7c0469633ca0.jpeg", visible: true }
   ],
   types: [
@@ -62,9 +61,10 @@ export function parseHomepageItems(value: string | undefined, fallback: HomeDisc
       if (!entry || typeof entry !== "object") return [];
       const row = entry as Record<string, unknown>;
       const label = typeof row.label === "string" ? row.label.trim().slice(0, 70) : "";
-      const href = typeof row.href === "string" ? row.href.trim().slice(0, 240) : "";
+      const requestedHref = typeof row.href === "string" ? row.href.trim().slice(0, 240) : "";
+      const href = normalizeApprovedDiscoveryHref(requestedHref);
       const requestedImage = typeof row.image === "string" ? row.image.trim().slice(0, 300) : "";
-      if (!label || !/^\/(?!\/)/.test(href) || /[\\\u0000-\u001f]/.test(href) || !/^\/(?!\/)/.test(requestedImage)) return [];
+      if (!label || !href || !/^\/(?!\/)/.test(href) || /[\\\u0000-\u001f]/.test(href) || !/^\/(?!\/)/.test(requestedImage)) return [];
       const id = typeof row.id === "string" && row.id.trim() ? row.id.trim().slice(0, 60) : `item-${index + 1}`;
       const matchedFallback = fallback.find((item) => item.id === id) || fallback[index];
       const media = resolvePublicSliderMedia({ image: requestedImage, topic: `${id} ${label} ${href}`, fallback: matchedFallback?.image });

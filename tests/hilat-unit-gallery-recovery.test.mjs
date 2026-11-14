@@ -51,7 +51,8 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(gallery, /property\.galleryGroups\?\.length/);
   assert.match(gallery, /topicTabs\.map/);
   assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, initialTopic, initialTab\)/);
-  assert.match(gallery, /resolvedTopic \?\? \(initialTab === "all" \? defaultTopic : null\)/);
+  assert.match(gallery, /const \[topic, setTopic\] = useState<string \| null>\(\(\) => resolvedTopic\)/);
+  assert.doesNotMatch(gallery, /defaultTopic/);
   assert.match(gallery, /const \[mobileViewer, setMobileViewer\] = useState\(false\)/);
   assert.doesNotMatch(gallery, /useState\(initialIndex > 0 \|\| initialTab !== "all"\)/);
   assert.match(gallery, /setMobileViewer\(true\)/);
@@ -64,6 +65,20 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(css, /\.story-gallery__mobile-tour button:first-child:nth-last-child\(odd\) \{\s*grid-column: auto;\s*aspect-ratio: 1 \/ \.78;/);
   assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] \{\s*color: white;\s*border-color: #25a9b8;\s*background: #087f8e;/);
   assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] small \{\s*background: #075d69;/);
+});
+
+test("gallery React keys distinguish legitimate repeated supplier photos", async () => {
+  const [gallery, business] = await Promise.all([
+    read("app/components/gallery-experience.tsx"),
+    read("app/business/client-page.tsx"),
+  ]);
+  assert.match(gallery, /function galleryItemKey\(item: GalleryItem, index: number\)/);
+  assert.match(gallery, /`\$\{item\.category\}:\$\{item\.topicKey \|\| item\.topic\}:\$\{index\}:\$\{item\.src\}`/);
+  assert.doesNotMatch(gallery, /key=\{item\.src\}/);
+  assert.doesNotMatch(gallery, /key=\{`mobile-\$\{item\.src\}`\}/);
+  assert.doesNotMatch(gallery, /key=\{video\.src\}/);
+  assert.doesNotMatch(business, /key=\{photo\.src\}/);
+  assert.equal((gallery.match(/galleryItemKey\(item, index\)/g) || []).length, 4);
 });
 
 test("every public place gallery caller uses the shared mobile overview", async () => {

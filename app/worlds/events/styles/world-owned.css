@@ -1247,6 +1247,32 @@
 .event-rail-controls svg { width: 18px; height: 18px; }
 /* VII_FRAGMENT_END EVENTS_309 */
 
+.event-slider-section > .section-head {
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.event-slider-section__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.event-slider-section__actions > a {
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+
+.event-slider-section__actions .home-slider__controls button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 50%;
+}
+
 /* VII_FRAGMENT_BEGIN EVENTS_310 */
 .event-rail { display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: inline mandatory; scrollbar-width: none; padding-bottom: 4px; overscroll-behavior-inline: contain; }
 /* VII_FRAGMENT_END EVENTS_310 */
@@ -1311,6 +1337,10 @@
 .event-deals > .section-head { margin-bottom: 8px; }
 /* VII_FRAGMENT_END EVENTS_325 */
 
+.event-deals > .section-head > div:last-child { display: flex; align-items: center; gap: 14px; }
+
+.event-deals > .section-head > div:last-child > a { color: var(--teal-dark); font-weight: 700; }
+
 /* VII_FRAGMENT_BEGIN EVENTS_326 */
 .event-deals > .event-last-minute-tabs { margin-block: 8px 8px; }
 /* VII_FRAGMENT_END EVENTS_326 */
@@ -1370,6 +1400,57 @@
 /* VII_FRAGMENT_BEGIN EVENTS_340 */
 .event-deals .section-head h2 { font-size: 1.4rem; }
 /* VII_FRAGMENT_END EVENTS_340 */
+
+@media (max-width: 760px) {
+  .event-deals > .section-head { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; }
+  .event-deals > .section-head > div:first-child { min-width: 0; }
+  .event-deals > .section-head > div:last-child { width: 100%; justify-content: space-between; }
+  .event-deals > .section-head > div:last-child > a { min-height: 44px; display: inline-flex; align-items: center; }
+
+  .event-slider-section {
+    padding-block: 14px;
+  }
+
+  .event-slider-section > .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .event-slider-section > .section-head > div:first-child {
+    min-width: 0;
+  }
+
+  .event-slider-section > .section-head .eyebrow {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .event-slider-section > .section-head h2 {
+    margin: 0;
+    font-size: clamp(1.45rem, 7vw, 1.8rem);
+    line-height: 1.18;
+  }
+
+  .event-slider-section__actions {
+    width: 100%;
+    min-height: 44px;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .event-slider-section__actions > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .event-slider-section > .event-rail-wrap {
+    margin-top: 0;
+  }
+}
 
 /* VII_FRAGMENT_BEGIN EVENTS_341 */
 .event-discovery-section { padding-block: 18px; }

@@ -840,7 +840,9 @@
         "app/components/map-provider-boundary.css",
         "app/lib/map-snapshot-candidates.ts",
         "app/lib/map-snapshot-catalog.ts",
-        "app/lib/map-price.ts"
+        "app/lib/map-price.ts",
+        "app/api/map-snapshot/route.ts",
+        "app/lib/map-snapshot-url.ts"
       ]
     },
     {
@@ -893,6 +895,12 @@
         "app/lib/supplier-catalog-runtime.ts",
         "app/lib/gallery-apply-integrity.ts"
       ,"app/lib/sergey-hourly-rates.ts"
+      ,"app/lib/supplier-catalog-sync.ts"
+      ,"app/lib/inactive-business-archive.ts"
+      ,"app/components/inactive-business-page.tsx"
+      ,"app/components/inactive-business-page.module.css"
+      ,"drizzle/0013_adorable_moira_mactaggert.sql"
+      ,"drizzle/meta/0013_snapshot.json"
       ]
     },
     {
@@ -973,6 +981,8 @@
       ,"app/global-error.tsx"
       ,"app/lib/google-auth.ts"
       ,"app/lib/navigation-recovery.ts"
+      ,"app/lib/homepage-presentation.ts"
+      ,"app/components/managed-home-quick-searches.tsx"
       ]
     },
     {
@@ -1023,6 +1033,8 @@
       "app/lib/vacation-party.ts",
       "app/components/use-vii-live-search.ts"
       ,"app/lib/instant-search-url.ts"
+      ,"app/components/special-world-search.tsx"
+      ,"app/lib/approved-discovery-hrefs.ts"
       ]
     },
     {
@@ -1055,7 +1067,8 @@
         "app/lib/event-last-minute-props.ts",
         "app/components/event-last-minute.tsx",
         "app/components/event-region-carousel.tsx",
-        "app/components/event-result-card.tsx"
+        "app/components/event-result-card.tsx",
+        "app/components/event-rail.tsx"
       ]
     },
     {
@@ -1092,14 +1105,16 @@
       "id": "activities",
       "ownerBox": "activities",
       "match": [
-        "app/attractions/"
+        "app/attractions/",
+        "app/activities/"
       ]
     },
     {
       "id": "trails",
       "ownerBox": "trails",
       "match": [
-        "app/trails/"
+        "app/trails/",
+        "app/components/trail-card.tsx"
       ]
     },
     {
@@ -1145,7 +1160,8 @@
         "app/lib/warm-holiday-discovery-cache.ts",
         "app/lib/holiday-deal-selection.ts",
         "app/lib/vii-home-holidays.ts",
-        "app/lib/discovery-vacation-catalog.ts"
+        "app/lib/discovery-vacation-catalog.ts",
+        "app/lib/verified-slider-offers.ts"
       ]
     },
     {
@@ -1168,7 +1184,8 @@
         "app/lib/admin-professor-openai.ts",
         "app/lib/admin-professor.ts",
         "app/lib/professor-business-breakdown.ts",
-        "app/lib/professor-period-bounds.ts"
+        "app/lib/professor-period-bounds.ts",
+        "app/lib/admin-content-queue-filters.ts"
       ]
     },
     {
@@ -1275,6 +1292,8 @@
         "app/contact/",
         "app/lib/world-landing-faq.ts",
         "app/lib/world-landing-presentation.ts",
+        "app/lib/world-depth-topics.ts",
+        "app/corporate/page.tsx",
         "app/admin/content-studio/"
       ]
     },
@@ -1361,7 +1380,9 @@
       "app/lib/library-reconciliation.ts",
         "app/components/gallery-selection.ts",
         "app/components/property-gallery.tsx",
-        "app/lib/legacy-gallery-media.ts"
+        "app/lib/legacy-gallery-media.ts",
+        "app/lib/supplier-videos.ts",
+        "app/components/gallery-action-content.tsx"
       ]
     },
     {

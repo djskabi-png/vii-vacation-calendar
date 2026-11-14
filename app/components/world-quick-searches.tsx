@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { CurrencyText } from "./currency-text";
 import type { SearchMode } from "../data/search-taxonomy";
-import { hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 
 const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: string }>>> = {
@@ -12,10 +11,10 @@ const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: str
     { label: "עם בריכה", href: "/spas/spa-with-pool" },
   ],
   hourly: [
-    { label: "במרכז", href: "/hourly?location=מרכז" },
-    { label: "עד ₪ 250 לשעתיים", href: "/hourly?maxPrice=250" },
-    { label: "עם ג׳קוזי", href: "/hourly?features=jacuzzi" },
-    { label: "כניסה עצמאית", href: "/hourly?features=independent" },
+    { label: "במרכז", href: "/hourly/search/center" },
+    { label: "בצפון", href: "/hourly/search/north" },
+    { label: "במישור החוף והשפלה", href: "/hourly/search/coastal-plain" },
+    { label: "בשרון", href: "/hourly/search/sharon" },
   ],
 };
 
@@ -25,7 +24,6 @@ export function WorldQuickSearches({ mode, initialLocation, initialSpaAudience }
   const spaFeatureIds = ["couples", "day-pass", "hotel", "pool"];
   const contextualLinks = links.map((link, index) => {
     if (mode === "spa") return { ...link, href: spaSearchHref(spaSearchStateFromValues(initialLocation, initialSpaAudience, [spaFeatureIds[index]])) };
-    if (mode === "hourly" && initialLocation) return { ...link, href: mergeSearchHref(hourlySearchHref(initialLocation), new URLSearchParams(link.href.split("?")[1] || "")) };
     return link;
   });
 

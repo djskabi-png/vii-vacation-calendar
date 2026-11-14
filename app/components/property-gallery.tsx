@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { boundedSliderIndex } from "./slider-rail-controls";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResponsiveCardImage } from "./responsive-card-image";
+import { GalleryActionContent } from "./gallery-action-content";
 
 type PropertyGalleryProps = {
   images: string[];
@@ -63,7 +64,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
         quality={index === 0 ? 88 : 82}
         imageWidths={index === 0 ? [640, 960, 1280, 1600] : undefined}
         sizes={galleryImages.length === 1 ? "(max-width: 760px) calc(100vw - 32px), 1200px" : index === 0 ? "(max-width: 760px) calc(100vw - 32px), 600px" : "(max-width: 760px) calc(100vw - 32px), 300px"} />
-      {index === 4 && <span>{copy.full}</span>}
+      {index === 4 && <GalleryActionContent label={copy.full} />}
     </button>)}
 
     {galleryImages.length > 1 ? <>
@@ -75,7 +76,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
         </div>
         <small aria-live="polite">{selected + 1} / {galleryImages.length}</small>
       </div>
-      <button className="property-gallery__open-full" type="button" onClick={() => onOpen(selected)} aria-label={copy.full}>{copy.full}</button>
+      <button className="property-gallery__open-full gallery-action-button" type="button" onClick={() => onOpen(selected)} aria-label={copy.full} title={copy.full}><GalleryActionContent label={copy.full} /></button>
     </> : null}
   </section>;
 }

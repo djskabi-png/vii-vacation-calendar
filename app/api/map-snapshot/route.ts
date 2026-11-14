@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const world = (url.searchParams.get("world") || "").trim().toLowerCase();
   const placeId = (url.searchParams.get("id") || "").trim();
+  const probe = url.searchParams.get("probe") === "1";
   if (!allowedWorlds.has(world) || !/^[a-z0-9_-]{1,160}$/i.test(placeId)) return new Response(null, { status: 404, headers: { "Cache-Control": "public, max-age=60" } });
 
   try {
@@ -23,7 +24,11 @@ export async function GET(request: Request) {
       const candidate = bundledMapSnapshotCandidates().find((item) => item.world === world && item.placeId === placeId);
       const context = getRequestExecutionContext();
       if (candidate && context) context.waitUntil(reconcileMapSnapshots({ db, bucket: env.UPLOADS, env, candidates: [candidate], limit: 1 }).catch(() => undefined));
-      return new Response(null, { status: 404, headers: { "Cache-Control": "public, max-age=30, s-maxage=60", "X-VII-Map-Snapshot": candidate ? "warming" : "missing" } });
+      return new Response(null, { status: probe ? 204 : 404, headers: { "Cache-Control": "public, max-age=30, s-maxage=60", "X-VII-Map-Snapshot": candidate ? "warming" : "missing" } });
+    }
+    if (probe) {
+      const object = await env.UPLOADS.head(record.objectKey);
+      return new Response(null, { status: 204, headers: { "Cache-Control": "public, max-age=300, s-maxage=900", "X-VII-Map-Snapshot": object ? "ready" : "missing" } });
     }
     const object = await env.UPLOADS.get(record.objectKey);
     if (!object) return new Response(null, { status: 404, headers: { "Cache-Control": "public, max-age=60, s-maxage=300" } });
@@ -34,6 +39,6 @@ export async function GET(request: Request) {
     if (record.attribution) headers.set("X-VII-Map-Attribution", record.attribution);
     return new Response(object.body as unknown as BodyInit, { headers });
   } catch {
-    return new Response(null, { status: 404, headers: { "Cache-Control": "public, max-age=30" } });
+    return new Response(null, { status: probe ? 204 : 404, headers: { "Cache-Control": "public, max-age=30", "X-VII-Map-Snapshot": "unavailable" } });
   }
 }

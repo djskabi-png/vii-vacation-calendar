@@ -4,6 +4,7 @@ import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-po
 import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
 import { runtimeDatabase } from "./runtime-database.ts";
 import { readOnceInServerRequest } from "./server-request-reads.ts";
+import { approvedEventDiscoveryPaths, normalizeApprovedDiscoveryHref } from "./approved-discovery-hrefs.ts";
 
 export type EventLandingSearchItem = {
   id: string;
@@ -17,13 +18,11 @@ export type EventLandingSearchItem = {
 
 type HeroImage = { src: string; alt: string };
 
-const searchHref = (params: Record<string, string>) => `/events/search?${new URLSearchParams(params).toString()}`;
-
 const defaultQuickSearches: EventLandingSearchItem[] = [
-  { id: "birthdays", label: "ימי הולדת", note: "לופטים ומתחמים לחגיגה", href: searchHref({ eventType: "יום הולדת" }), image: "/api/vii/media/5962a5b1c42c285.jpeg", imageAlt: "מתחם מעוצב לחגיגת יום הולדת", visible: true },
-  { id: "family", label: "אירועים משפחתיים", note: "מקום שמתאים לכל המשפחה", href: searchHref({ eventType: "אירוע משפחתי" }), image: "/api/vii/media/44677127ddf2c2e.jpeg", imageAlt: "מתחם לאירוע משפחתי", visible: true },
-  { id: "large", label: "מעל 100 משתתפים", note: "מתחמים שמתאימים לאירוע גדול", href: "/events/search?guests=100", image: "/api/vii/media/67659401a5b852d.jpeg", imageAlt: "אולם לאירוע רב משתתפים", visible: true },
-  { id: "noise", label: "ללא הגבלת רעש", note: "מקומות למסיבה שנמשכת", href: "/events/search?noise=1", image: "/api/vii/media/9862975a4a90481.JPG", imageAlt: "מתחם למסיבה פרטית", visible: true },
+  { id: "birthdays", label: "ימי הולדת", note: "לופטים ומתחמים לחגיגה", href: approvedEventDiscoveryPaths.birthdays, image: "/api/vii/media/5962a5b1c42c285.jpeg", imageAlt: "מתחם מעוצב לחגיגת יום הולדת", visible: true },
+  { id: "family", label: "אירועים משפחתיים", note: "מקום שמתאים לכל המשפחה", href: approvedEventDiscoveryPaths.family, image: "/api/vii/media/44677127ddf2c2e.jpeg", imageAlt: "מתחם לאירוע משפחתי", visible: true },
+  { id: "large", label: "מעל 100 משתתפים", note: "מתחמים שמתאימים לאירוע גדול", href: approvedEventDiscoveryPaths.large, image: "/api/vii/media/67659401a5b852d.jpeg", imageAlt: "אולם לאירוע רב משתתפים", visible: true },
+  { id: "noise", label: "ללא הגבלת רעש", note: "מקומות למסיבה שנמשכת", href: approvedEventDiscoveryPaths.noise, image: "/api/vii/media/9862975a4a90481.JPG", imageAlt: "מתחם למסיבה פרטית", visible: true },
   { id: "center", label: "אירועים במרכז", note: "קרוב ונגיש לאורחים", href: "/events/search/center", image: "/api/vii/media/8266f8f7940fa93.jpg", imageAlt: "מקום לאירועים באזור המרכז", visible: true },
   { id: "tel-aviv", label: "אירועים בתל אביב", note: "אווירה עירונית בלב העניינים", href: "/events/search/tel-aviv", image: "/api/vii/media/3465c34aea44623.jpeg", imageAlt: "לופט לאירועים בתל אביב", visible: true }
 ];
@@ -57,11 +56,15 @@ function parseQuickSearches(value: string | undefined) {
   try {
     const rows = JSON.parse(value) as unknown;
     if (!Array.isArray(rows)) return defaultQuickSearches;
+    // An explicit empty array is a publisher decision to remove the rail.
+    // Missing or malformed data may use defaults, but an intentional removal
+    // must survive the first server render and every refresh.
+    if (rows.length === 0) return [];
     const parsed = rows.slice(0, 12).flatMap((entry, index) => {
       if (!entry || typeof entry !== "object") return [];
       const row = entry as Record<string, unknown>;
       const label = typeof row.label === "string" ? row.label.trim().slice(0, 70) : "";
-      const href = safePath(row.href);
+      const href = normalizeApprovedDiscoveryHref(safePath(row.href));
       const requestedImage = typeof row.image === "string" ? row.image.trim().slice(0, 400) : "";
       const imageAlt = typeof row.imageAlt === "string" ? row.imageAlt.trim().slice(0, 140) : "";
       if (!label || !href || !requestedImage || !imageAlt) return [];
@@ -122,7 +125,7 @@ export function validEventLandingAttributes(attributes: Record<string, string>) 
   if (!validWorldTopicImage(attributes.eventTopicImage || "", attributes.eventTopicImageAlt || "")) return false;
   try {
     const rows = JSON.parse(attributes.eventQuickSearches || "") as unknown;
-    if (!Array.isArray(rows) || rows.length < 4 || rows.length > 12) return false;
+    if (!Array.isArray(rows) || rows.length > 12) return false;
     return rows.every((entry) => {
       if (!entry || typeof entry !== "object") return false;
       const row = entry as Record<string, unknown>;

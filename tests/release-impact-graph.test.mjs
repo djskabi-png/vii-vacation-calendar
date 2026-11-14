@@ -40,6 +40,7 @@ test('path boundaries reject unknown, traversal, absolute and lookalike artifact
     assert.equal(resolveImpact(graph,path).status, 'blocked', path);
   }
   assert.equal(resolveImpact(graph,'app\\components\\map\\leaflet-places-map.tsx').ownerBox, 'maps');
+  assert.equal(resolveImpact(graph,'app\\activities\\page.tsx').ownerBox, 'activities');
   const ambiguous = structuredClone(graph);
   ambiguous.entries.push({id:'ambiguous',ownerBox:'search',match:['app/components/map/']});
   assert.equal(resolveImpact(ambiguous,'app/components/map/x.tsx').reason,'ambiguous_owner');

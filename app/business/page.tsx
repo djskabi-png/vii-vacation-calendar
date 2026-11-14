@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import BusinessPage, { BusinessComplementarySections } from "./client-page";
 import { getListingOfferings, properties as bundledProperties, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
-import { bundledPublicCatalogSelectedSummaries, bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries, bundledPublicCatalogSummaries, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbTrailForProperty } from "../data/vacation-landings";
@@ -22,6 +22,8 @@ import { nearbyRecommendations } from "../lib/nearby-recommendations";
 import { serverPublicCopy } from "../i18n/server-public-copy";
 import { localizedPath } from "../i18n/locale-routing";
 import { attachVerifiedSupplierVideo } from "../lib/verified-supplier-videos";
+import InactiveBusinessPage, { inactiveBusinessMetadata } from "../components/inactive-business-page";
+import { inactiveBusiness } from "../lib/inactive-business-archive.ts";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; roomID?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -41,16 +43,24 @@ const resolveProperty = cache(async (id?: string) => {
   if (supplierId) {
     const [property] = await bundledPublicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
     if (property) return { ...property, description: supplierDisplayDescription(property) };
-    // The immutable snapshot is the accepted generation packaged with this
-    // release. Missing identities must not be guessed or substituted.
+    // A missing bundled identity may have been reactivated since this release
+    // was built. Read only that one accepted runtime row before considering
+    // the historical inactive archive; normal place loads stay bundle-first.
+    const [reactivated] = await publicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
+    if (reactivated) return { ...reactivated, description: supplierDisplayDescription(reactivated) };
     return undefined;
   }
   return id ? bundledProperties.find((item) => item.slug === slug) : bundledProperties[0];
 });
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const property = await resolveProperty(queryValue((await searchParams).id));
-  if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
+  const id = queryValue((await searchParams).id);
+  const property = await resolveProperty(id);
+  if (!property) {
+    const supplierId = Number(/^vacation-(\d+)$/.exec(id || "")?.[1]);
+    const archived = supplierId ? await inactiveBusiness("vacations", supplierId) : null;
+    return archived ? inactiveBusinessMetadata(archived) : { title: "המקום אינו זמין", robots: { index: false, follow: false } };
+  }
   const { language, translate } = await serverPublicCopy();
   const name = translate(property.name);
   const description = translate(property.description);
@@ -97,7 +107,11 @@ export default async function Page({ searchParams }: Props) {
   }
   const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
   const property = await resolveProperty(params.id);
-  if (!property) notFound();
+  if (!property) {
+    const archived = supplierId ? await inactiveBusiness("vacations", Number(supplierId)) : null;
+    if (archived) return <InactiveBusinessPage place={archived} />;
+    notFound();
+  }
   const properties = bundledProperties.map((entry) => entry.slug === property.slug ? property : entry);
   // Public pages render from the accepted platform snapshot. Supplier refreshes
   // belong to the ingestion pipeline and must never sit on the visitor's

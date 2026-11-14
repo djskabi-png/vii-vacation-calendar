@@ -202,6 +202,36 @@ export const supplierCatalogState = sqliteTable("supplier_catalog_state", {
   lockUntil: text("lock_until"),
 });
 
+/**
+ * Durable supplier lifecycle archive.
+ *
+ * Active generations stay in supplier_catalog_entries so discovery reads remain
+ * small and fast.  When a supplier explicitly becomes inactive, its last
+ * accepted payload moves here instead of being erased.  The public archive
+ * projection deliberately strips contact and commerce fields; the private
+ * payload remains available for an evidence-backed one-step reactivation.
+ */
+export const supplierCatalogArchive = sqliteTable("supplier_catalog_archive", {
+  id: text("id").primaryKey(),
+  world: text("world").notNull(),
+  supplierId: integer("supplier_id").notNull(),
+  status: text("status").notNull().default("inactive"),
+  summaryJson: text("summary_json").notNull(),
+  detailJson: text("detail_json"),
+  legacyPath: text("legacy_path"),
+  canonicalPath: text("canonical_path").notNull(),
+  sourceUrl: text("source_url"),
+  statusSource: text("status_source").notNull(),
+  firstSeenAt: text("first_seen_at").notNull(),
+  lastActiveAt: text("last_active_at"),
+  deactivatedAt: text("deactivated_at").notNull(),
+  reactivatedAt: text("reactivated_at"),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  uniqueIndex("idx_supplier_catalog_archive_world_supplier").on(table.world, table.supplierId),
+  index("idx_supplier_catalog_archive_status_updated").on(table.status, table.updatedAt),
+]);
+
 export const discoveryPromotionDraftEvents = sqliteTable("discovery_promotion_draft_events", {
   eventId: text("event_id").primaryKey(),
   campaignId: text("campaign_id").notNull(),

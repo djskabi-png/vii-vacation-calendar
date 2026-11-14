@@ -12,9 +12,9 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(legacyPlaceDestination("/dream_eilat_villa"), "/business?id=vacation-2709");
   assert.equal(legacyPlaceDestination("/gesher_laahava"), "/business?id=vacation-2728");
   assert.equal(legacyPlaceDestination("/vila_bereshit"), "/business?id=vacation-2730");
-  assert.deepEqual(legacyDisposition("/%d7%94%d7%9e%d7%aa%d7%97%d7%9d_%d7%a9%d7%9c_%d7%a8%d7%95%d7%a2%d7%99.html"), { status: 410 });
+  assert.deepEqual(legacyDisposition("/%d7%94%d7%9e%d7%aa%d7%97%d7%9d_%d7%a9%d7%9c_%d7%a8%d7%95%d7%a2%d7%99.html"), { status: 301, target: "/business?id=vacation-389" });
   assert.equal(legacyPlaceDestination("/unverified-place"), null);
-  assert.deepEqual(legacyDisposition("/אהבה_בשניים"), { status: 410 });
+  assert.deepEqual(legacyDisposition("/אהבה_בשניים"), { status: 301, target: "/business?id=vacation-1891" });
   assert.equal(legacyInventoryStats.total, legacyInventoryStats.redirects + legacyInventoryStats.gone);
   assert.ok(legacyInventoryStats.total >= 3500);
   assert.equal(looksLikeUninventoriedLegacyPath("/s/Netanya/12806"), true);
@@ -90,7 +90,9 @@ test("temporary host stays out of the index and primary host gets its own canoni
   assert.equal(redirect.headers.get("location"), "https://www.vii.co.il/business?id=vacation-1");
   const unknown = await render("https://www.vii.co.il/unverified-place");
   assert.equal(unknown.status, 410);
-  assert.equal((await render("https://www.vii.co.il/%D7%90%D7%94%D7%91%D7%94_%D7%91%D7%A9%D7%A0%D7%99%D7%99%D7%9D")).status, 410);
+  const inactiveRedirect = await render("https://www.vii.co.il/%D7%90%D7%94%D7%91%D7%94_%D7%91%D7%A9%D7%A0%D7%99%D7%99%D7%9D");
+  assert.equal(inactiveRedirect.status, 301);
+  assert.equal(inactiveRedirect.headers.get("location"), "https://www.vii.co.il/business?id=vacation-1891");
   const searchRedirect = await render("https://www.vii.co.il/s/Netanya/12806");
   assert.equal(searchRedirect.status, 301);
   const searchLocation = searchRedirect.headers.get("location") || "";

@@ -18,7 +18,8 @@ type RetryJob = { id: string; rootRunId: string; world: World; attempt: number; 
   resultStatus: string | null; errorCode: string | null };
 type Alert = { id: string; world: World; severity: "warning" | "critical"; kind: "review_required" | "retries_exhausted" | "stale"; status: "open" | "resolved"; errorCode: string | null; lastSeenAt: string };
 type OnlineCapabilities = { status: "fresh" | "refreshed" | "stale"; checkedAt: string; count: number; targetFreshMinutes: number; lastGoodMaxDays: number };
-type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[]; alerts: Alert[]; onlineCapabilities: OnlineCapabilities | null };
+type InactiveBusiness = { world: World; supplierId: number; name: string; canonicalPath: string; deactivatedAt: string | null; statusSource: string };
+type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[]; alerts: Alert[]; onlineCapabilities: OnlineCapabilities | null; inactiveBusinesses: InactiveBusiness[] };
 
 const worlds: { id: World; name: string }[] = [
   { id: "vacations", name: "נופש" }, { id: "events", name: "אירועים" },
@@ -145,6 +146,8 @@ export default function CatalogSyncPage() {
   const [notice, setNotice] = useState("");
   const [forbidden, setForbidden] = useState(false);
   const [observedAt, setObservedAt] = useState(0);
+  const [inactiveWorld, setInactiveWorld] = useState<World | "all">("all");
+  const [inactiveQuery, setInactiveQuery] = useState("");
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -218,6 +221,25 @@ export default function CatalogSyncPage() {
         <p>כל קובץ נוצר בקריאה עקבית, כולל ספירות וחתימת שלמות בסופו. הקבצים נשמרים רק במחשב שמוריד אותם.</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}><a href="/api/admin/catalog-snapshot" download>הורדת ארבעת הקטלוגים הפעילים</a><a href="/api/admin/public-cms-snapshot" download>הורדת התוכן הציבורי הפעיל</a><a href="/api/admin/catalog-snapshot?format=inline" target="_blank" rel="noopener noreferrer">הצגת גיבוי הקטלוגים כטקסט</a></div>
         <small>הגיבויים האלה אינם כוללים חשבונות, הזמנות, פניות, הודעות או קובצי מדיה.</small>
+      </section>
+      <section aria-labelledby="inactive-businesses-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
+        <h2 id="inactive-businesses-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>מקומות לא פעילים</h2>
+        <p><strong>{dashboard.inactiveBusinesses.length.toLocaleString("he-IL")}</strong> מקומות נשמרים עם עמוד ציבורי וללא טלפון, וואטסאפ, זמינות או הזמנה. חזרה לפרסום מתבצעת רק לאחר שהספק מחזיר אותם כפעילים בסנכרון מאושר.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBlock: 12 }}>
+          <label>חיפוש מקום<input value={inactiveQuery} onChange={(event) => setInactiveQuery(event.target.value)} placeholder="שם או מספר מקום" /></label>
+          <label>תחום<select value={inactiveWorld} onChange={(event) => setInactiveWorld(event.target.value as World | "all")}><option value="all">כל התחומים</option>{worlds.map((world) => <option key={world.id} value={world.id}>{world.name}</option>)}</select></label>
+        </div>
+        <div style={{ overflowX: "auto", maxHeight: 520 }}><table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}>
+          <thead><tr>{["מקום", "תחום", "מזהה ספק", "עמוד ציבורי", "מצב", "פעולה"].map((label) => <th key={label} scope="col" style={{ padding: 10, borderBottom: "1px solid #dce4e2" }}>{label}</th>)}</tr></thead>
+          <tbody>{dashboard.inactiveBusinesses.filter((item) => inactiveWorld === "all" || item.world === inactiveWorld).filter((item) => !inactiveQuery.trim() || `${item.name} ${item.supplierId}`.toLocaleLowerCase("he").includes(inactiveQuery.trim().toLocaleLowerCase("he"))).map((item) => <tr key={`${item.world}:${item.supplierId}`}>
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{item.name}</td>
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{worlds.find((world) => world.id === item.world)?.name}</td>
+            <td dir="ltr" style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{item.supplierId}</td>
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}><a href={item.canonicalPath} target="_blank" rel="noopener noreferrer">פתיחת העמוד</a></td>
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>לא פעיל</td>
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}><button type="button" disabled={!canEdit || !!busy} onClick={() => void pull(item.world)}>{busy === item.world ? "בודקים מול הספק..." : "בדיקה והחזרה אם פעיל"}</button></td>
+          </tr>)}</tbody>
+        </table></div>
       </section>
       <section aria-label="מצב התחומים" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 16, marginBlock: 24 }}>
         {worlds.map(({ id, name }) => {

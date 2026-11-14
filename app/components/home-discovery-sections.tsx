@@ -8,16 +8,16 @@ import { useEffect, useRef, useState } from "react";
 import { Search, MapPin } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
-import { defaultHomepagePresentation, parseHomepagePresentation, type HomeDiscoveryItem } from "../lib/homepage-presentation";
+import { type HomeDiscoveryItem } from "../lib/homepage-presentation";
 import { HomeSliderControls } from "./home-slider-controls";
-import { normalizeHomepageItems } from "../lib/homepage-search-href";
+import { normalizeHomepageItems } from "../lib/homepage-search-href.ts";
 import { type PopularSearchWorld } from "../lib/world-popular-search-defaults";
 import { requestNearbyOrigin } from "./use-nearby-sort";
 import { usePathname, useRouter } from "next/navigation";
 import { nearbyPageContent, nearbyPageForPath } from "../lib/nearby-page-content";
 import { DiscoveryThumbnail } from "./discovery-thumbnail";
 
-type Presentation = {
+export type Presentation = {
   popular: HomeDiscoveryItem[];
   cities: HomeDiscoveryItem[];
   types: HomeDiscoveryItem[];
@@ -35,19 +35,23 @@ function loadPresentation(key: string, url: string) {
   presentationLoads.set(key, { until: Date.now() + 60_000, promise });
   return promise;
 }
-function usePresentation(world: PopularSearchWorld = "vacation") {
+function usePresentation(world: PopularSearchWorld = "vacation", initialPresentation?: Presentation) {
   const { language } = useSiteLanguage();
   const key = `${language}:${world}`;
-  const [scoped, setScoped] = useState<{ key: string; value: Presentation } | null>(null);
+  const [scoped, setScoped] = useState<{ key: string; value: Presentation } | null>(() => initialPresentation ? { key, value: initialPresentation } : null);
   useEffect(() => {
+    // Server-managed pages already carry the authoritative published snapshot.
+    // Re-fetching during hydration can briefly replace a deliberately empty or
+    // edited list with stale/default data and then make it jump again.
+    if (initialPresentation) return;
     let alive = true;
     void loadPresentation(key, `/api/vii/homepage-presentation?locale=${language}&world=${world}`)
       .then((value: Presentation) => { if (alive) setScoped({ key, value: {
         ...value, popular: normalizeHomepageItems(value.popular), cities: normalizeHomepageItems(value.cities), types: normalizeHomepageItems(value.types),
       } }); }).catch(() => undefined);
     return () => { alive = false; };
-  }, [language, world, key]);
-  return scoped?.key === key ? scoped.value : parseHomepagePresentation(undefined, world);
+  }, [language, world, key, initialPresentation]);
+  return scoped?.key === key ? scoped.value : null;
 }
 
 function PopularSearchLink({ item, world = "vacation" }: { item: HomeDiscoveryItem; world?: PopularSearchWorld }) {
@@ -87,12 +91,12 @@ function DiscoveryRail({ id, title, items }: { id: string; title: string; items:
   </section>;
 }
 
-export function HomeQuickSearches({ world = "vacation" }: { world?: PopularSearchWorld }) {
+export function HomeQuickSearches({ world = "vacation", initialPresentation }: { world?: PopularSearchWorld; initialPresentation?: Presentation }) {
   const { language, translate } = useSiteLanguage();
-  const presentation = usePresentation(world);
+  const presentation = usePresentation(world, initialPresentation);
   const nearbyPage = nearbyPageForPath(usePathname());
   const id = world === "vacation" ? "home-popular-searches" : `popular-searches-${world}`;
-  if (nearbyPage || !presentation.popular.length) return null;
+  if (nearbyPage || !presentation?.popular.length) return null;
   return <section className="home-visual-searches" aria-labelledby={`${id}-title`}>
     <div className="home-visual-searches__head">
       <div className="home-visual-searches__title"><Search aria-hidden="true" /><h2 id={`${id}-title`}>{translate("חיפושים פופולריים")}</h2></div>
@@ -105,6 +109,7 @@ export function HomeQuickSearches({ world = "vacation" }: { world?: PopularSearc
 export function HomeManagedDiscovery() {
   const { language } = useSiteLanguage();
   const presentation = usePresentation();
+  if (!presentation) return null;
   return <div className="home-managed-discovery-wrap">
     <DiscoveryRail id="home-city-rail" title="חיפוש לפי עיר ואזור" items={presentation.cities} />
     <DiscoveryRail id="home-type-rail" title="סוגי מקומות נופש" items={presentation.types} />

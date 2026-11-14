@@ -35,7 +35,8 @@ test('unrelated links, arbitrary features, external links and ambiguous repeated
 });
 test('defaults and managed CMS records use the same correct search contract',()=>{
  const source=readFileSync('app/lib/homepage-presentation.ts','utf8');
- assert.match(source,/id: "heated-pool-family"[^\n]*href: vacationSearchHref\(\{ features: "heated-pool,families" \}\)/);
+ assert.match(source,/id: "heated-pool-family"[^\n]*href: "\/search\/vacations\/north-21009-70308c9b"/);
+ assert.match(source,/normalizeApprovedDiscoveryHref\(requestedHref\)/);
  assert.match(source,/href: normalizeHomepageSearchHref\(href\)/);
 });
 test('the browser also normalizes cached old presentation responses before rendering links',()=>{
@@ -45,9 +46,7 @@ test('the browser also normalizes cached old presentation responses before rende
 test('cached legacy items are repaired without mutating managed content or dropping metadata',()=>{
  const input=[{id:'pool',href:'/search?feature=בריכה&guests=6',label:'נופש עם בריכה',image:'/media/pool.jpg',visible:true},{id:'north',href:'/vacations/north',label:'נופש בצפון'}];
  const output=normalizeHomepageItems(input);
- assert.equal(output[0].href,'/search?guests=6&pool=1');
- assert.deepEqual({...output[0],href:input[0].href},input[0]);
- assert.deepEqual(output[1],input[1]);
+ assert.deepEqual(output,[input[1]]);
  assert.equal(input[0].href,'/search?feature=בריכה&guests=6');
  assert.deepEqual(normalizeHomepageItems([]),[]);
 });

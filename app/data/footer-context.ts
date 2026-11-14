@@ -2,19 +2,13 @@ import type { WorldId } from "./world-data";
 import { cleanAccommodationPath } from "./accommodation-landings";
 import { cleanVacationPath } from "./vacation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "./spa-search-landings";
+import { eventSearchHref, hourlySearchHref } from "./world-search-landings";
 
 export type FooterLink = { href: string; label: string };
 export type FooterContext = { label: string; links: FooterLink[] };
 export type FooterTopicId = "vacation-villas" | "suite-complexes" | "luxury-suites" | "vacation-apartments";
 
 const vacationDestinations = ["צפון", "כנרת", "גליל מערבי", "מרכז", "ירושלים", "ים המלח", "אילת"];
-
-function regionalLinks(path: string, regions: string[], label: (region: string) => string): FooterLink[] {
-  return regions.map((region) => ({
-    href: `${path}${path.includes("?") ? "&" : "?"}location=${encodeURIComponent(region)}`,
-    label: label(region),
-  }));
-}
 
 export const worldFooterContexts: Record<WorldId, FooterContext> = {
   vacation: {
@@ -26,11 +20,8 @@ export const worldFooterContexts: Record<WorldId, FooterContext> = {
   },
   events: {
     label: "מקומות לאירועים לפי אזור",
-    links: regionalLinks(
-      "/events/search",
-      ["תל אביב", "מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "ראשון לציון", "נשר"],
-      (region) => `מקומות לאירועים ב${region}`,
-    ),
+    links: ["תל אביב", "מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "ראשון לציון", "נשר"]
+      .map((region) => ({ href: eventSearchHref(region), label: `מקומות לאירועים ב${region}` })),
   },
   corporate: {
     label: "אירועי חברה ורווחה",
@@ -48,7 +39,8 @@ export const worldFooterContexts: Record<WorldId, FooterContext> = {
   },
   hourly: {
     label: "חדרים לפי שעה לפי אזור",
-    links: regionalLinks("/hourly", ["תל אביב", "ראשון לציון", "חיפה", "ירושלים", "הרצליה"], (region) => `חדרים לפי שעה ב${region}`),
+    links: ["תל אביב", "ראשון לציון", "חיפה", "ירושלים", "הרצליה"]
+      .map((region) => ({ href: hourlySearchHref(region), label: `חדרים לפי שעה ב${region}` })),
   },
   providers: {
     label: "שירותים לאירוח ולאירועים",
@@ -66,9 +58,9 @@ export const worldFooterContexts: Record<WorldId, FooterContext> = {
     links: [
       { href: "/trails", label: "מסלולי טיולים" },
       { href: "/attractions", label: "אטרקציות בתשלום" },
-      { href: "/trails?area=צפון", label: "מסלולים בצפון" },
-      { href: "/trails?area=ירושלים", label: "מסלולים בירושלים" },
-      { href: "/trails?area=אילת%20והסביבה", label: "מסלולים באילת" },
+      { href: "/trails/explore/north", label: "מסלולים בצפון" },
+      { href: "/trails/explore/jerusalem", label: "מסלולים בירושלים" },
+      { href: "/trails/explore/eilat", label: "מסלולים באילת" },
     ],
   },
 };

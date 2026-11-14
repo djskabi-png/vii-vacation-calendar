@@ -1,0 +1,41 @@
+{
+  "task_id": "vii-inactive-business-archive-20261114",
+  "workspace": "C:/Users/Adir/Documents/vii.co.il/.release-v907-slider-fallback",
+  "owned_processes": [
+    {
+      "pid": 20840,
+      "session_id": 5293,
+      "purpose": "bounded local production visual and HTTP verification",
+      "port": 4178,
+      "stop": "graceful session interrupt after verification",
+      "state": "stopped",
+      "stopped_at": "2026-11-14T03:39:30+02:00"
+    },
+    {
+      "pid": 27700,
+      "session_id": 48364,
+      "purpose": "final frozen-candidate visual and HTTP verification",
+      "port": 4178,
+      "stop": "graceful session interrupt after verification",
+      "state": "stopped",
+      "stopped_at": "2026-11-14T03:42:10+02:00"
+    }
+  ],
+  "bounded_commands": [
+    {
+      "identity": "legacy-inactive-recovery",
+      "command": "node scripts/recover-legacy-inactive-businesses.mjs",
+      "deadline_minutes": 6,
+      "attempt_1": "failed after recovery because multiple legacy aliases correctly resolved to one supplier identity",
+      "attempt_2_change": "merge legacy aliases by stable world and supplier ID before writing the archive"
+    },
+    {
+      "identity": "qqqaaa-production-audit",
+      "command": "pnpm qa:qqqaaa",
+      "deadline_minutes": 12,
+      "attempt_1": "stopped deliberately after live production navigation began timing out and the audit was adding avoidable load",
+      "exit_condition": "do not retry unchanged against production; verify the frozen candidate locally and run bounded production checks only after deployment"
+    }
+  ],
+  "completion_requirement": "No owned server, watcher, browser runner or recovery process remains live."
+}

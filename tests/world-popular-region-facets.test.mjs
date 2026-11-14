@@ -5,8 +5,8 @@ test('region shortcuts use exact accepted facets instead of silently ignored or 
  assert.equal(popularSearchesForWorld('corporate').find(row=>row.label==='ספא לקבוצות').href,'/spas/search/groups');
 });
 
-test('hourly region pages exist in the approved inventory; unapproved south uses explicit filtering',async()=>{
+test('hourly region shortcuts only use approved semantic pages',async()=>{
  const {worldLocationSlug}=await import('../app/lib/location-slug.ts');const {searchLocationOptions}=await import('../app/data/search-taxonomy.ts');const approved=JSON.parse(readFileSync(new URL('../app/data/approved-world-locations.json',import.meta.url),'utf8'));const slugs=new Set([...approved.hourly,...searchLocationOptions('hourly')].map(worldLocationSlug));
  for(const row of popularSearchesForWorld('hourly')){const url=new URL(row.href,'https://vii.invalid');if(url.pathname.startsWith('/hourly/search/'))assert.ok(slugs.has(url.pathname.split('/').pop()),row.href);}
- const south=popularSearchesForWorld('hourly').find(row=>row.label.includes('בדרום'));assert.equal(new URL(south.href,'https://vii.invalid').searchParams.get('location'),'דרום ונגב');
+ for(const row of popularSearchesForWorld('hourly'))assert.equal(new URL(row.href,'https://vii.invalid').search,'');
 });

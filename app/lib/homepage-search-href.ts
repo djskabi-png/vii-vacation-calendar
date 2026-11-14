@@ -1,3 +1,5 @@
+import { normalizeApprovedDiscoveryHref } from "./approved-discovery-hrefs.ts";
+
 // Keep old managed homepage links compatible with the current search contract.
 // Do not rewrite other worlds, arbitrary features or explicit pool selections.
 export function normalizeHomepageSearchHref(href: string): string {
@@ -28,7 +30,7 @@ export function semanticNearbyPath(pathname: string, mode?: "vacation" | "spa" |
 }
 
 export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
-  return items.map((item) => {
+  return items.flatMap((item) => {
     let href=normalizeHomepageSearchHref(item.href);
     if ((item as T & {action?:string}).action === "nearby") {
       // A managed nearby tile is a semantic landing-page entry, not a generic
@@ -37,7 +39,8 @@ export function normalizeHomepageItems<T extends { href: string }>(items: T[]): 
       // query keys.
       href = semanticNearbyDestination(href);
     }
-    return {...item,href};
+    const approvedHref = normalizeApprovedDiscoveryHref(href);
+    return approvedHref ? [{...item,href:approvedHref}] : [];
   });
 }
 
@@ -56,6 +59,7 @@ export function validManagedSearchList(value: string) {
       ids.add(row.id);
       return typeof row.label === "string" && row.label.trim().length > 0 && row.label.length <= 70
         && typeof row.href === "string" && row.href.length <= 240 && /^\/(?!\/)/.test(row.href) && !/[\\\u0000-\u001f]/.test(row.href)
+        && normalizeApprovedDiscoveryHref(normalizeHomepageSearchHref(row.href)) !== null
         && typeof row.image === "string" && row.image.length <= 300 && /^\/(?!\/)/.test(row.image)
         && (row.action === undefined || row.action === "" || row.action === "nearby");
     });

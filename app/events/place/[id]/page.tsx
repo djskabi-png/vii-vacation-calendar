@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
 import { eventPlaceHref, eventPlaces as bundledEventPlaces, type EventPlace } from "../../../data/site-data";
-import { bundledPublicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries, publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
@@ -16,6 +16,8 @@ import { serverLocalePath, serverPublicCopy } from "../../../i18n/server-public-
 import { localizedEventPlace } from "../../../i18n/localized-event-place";
 import { Suspense } from "react";
 import { EventRelatedSlot } from "../related-slot";
+import InactiveBusinessPage, { inactiveBusinessMetadata } from "../../../components/inactive-business-page";
+import { inactiveBusiness } from "../../../lib/inactive-business-archive.ts";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
@@ -27,16 +29,22 @@ const resolvePlace = cache(async (id: string) => {
   const unavailable = unavailableLegacySearchHref(id, "events");
   if (unavailable) redirect(`${prefix}${unavailable}`);
   const supplierId = /^event-(\d+)$/.exec(id)?.[1];
-  const [selected] = supplierId
+  let [selected] = supplierId
     ? await bundledPublicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
     : [];
+  if (supplierId && !selected) [selected] = await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)]);
   const place = supplierId ? selected : bundledEventPlaces.find((item) => item.slug === id);
-  if (!place) notFound();
   return place;
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const place = await resolvePlace((await params).id);
+  const id = (await params).id;
+  const place = await resolvePlace(id);
+  if (!place) {
+    const supplierId = Number(/^event-(\d+)$/.exec(id)?.[1]);
+    const archived = supplierId ? await inactiveBusiness("events", supplierId) : null;
+    return archived ? inactiveBusinessMetadata(archived) : { title: "המקום אינו זמין", robots: { index: false, follow: false } };
+  }
   const canonical = await serverLocalePath(eventPlaceHref(place));
   const { language, translate } = await serverPublicCopy();
   const localized = localizedEventPlace(place, language, translate);
@@ -55,6 +63,11 @@ export default async function Page({ params, searchParams }: Props) {
   const id = (await params).id;
   const supplierId = /^event-(\d+)$/.exec(id)?.[1];
   const place = await resolvePlace(id);
+  if (!place) {
+    const archived = supplierId ? await inactiveBusiness("events", Number(supplierId)) : null;
+    if (archived) return <InactiveBusinessPage place={archived} />;
+    notFound();
+  }
   const selection = await searchParams;
   const datedEvent = validDate(selection.from) && /^\d+$/.test(selection.guests || "")
     && Number(selection.guests) > 0 && Number(selection.guests) <= 1000;

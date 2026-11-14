@@ -12,7 +12,8 @@ test('canonical nearby worlds keep direct links while legacy nearby actions reta
  assert.equal(popularSearchWorlds.length,8);
  for(const world of popularSearchWorlds){
  const rows=parseHomepagePresentation(undefined,world.id).popular;
- assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');assert.ok(nearby,world.id);if(['corporate'].includes(world.id)) assert.equal(new URL(nearby.href,'https://vii.invalid').searchParams.get('sort'),'nearest'); else assert.match(nearby.href,/\/near-me$/);
+ assert.ok(rows.length>=4,world.id);const nearby=rows.find(row=>row.action==='nearby');if(world.id==='corporate') assert.equal(nearby,undefined); else { assert.ok(nearby,world.id); assert.match(nearby.href,/\/near-me$/); }
+ for(const row of rows) assert.equal(new URL(row.href,'https://vii.invalid').search,'',`${world.id}: ${row.href}`);
  for(const row of rows)assert.ok(existsSync(new URL('../public'+row.image,import.meta.url)),row.image);
  const visualRows=rows.filter(row=>row.action!=='nearby');
  assert.equal(new Set(visualRows.map(row=>row.image)).size,visualRows.length,`${world.id} must not reuse one image for every popular search`);
@@ -22,7 +23,7 @@ test('world overrides retain order and explicit hidden/empty states without cont
  const rows=popularSearchesForWorld('spa');const attr={homePopularSearchesSpa:JSON.stringify([rows[2],{...rows[0],visible:false},rows[1]])};
  assert.deepEqual(parseHomepagePresentation(attr,'spa').popular.map(r=>r.id),[rows[2].id,rows[1].id]);
  assert.equal(parseHomepagePresentation({homePopularSearchesSpa:'[]'},'spa').popular.length,0);
- assert.ok(parseHomepagePresentation(attr,'hourly').popular.some(row=>row.href.includes('independent')));
+ assert.ok(parseHomepagePresentation(attr,'hourly').popular.some(row=>row.href.includes('/hourly/search/')));
  assert.equal(parseHomepagePresentation({homePopularSearchesSpa:'broken'},'spa').popular[0].action,'nearby');
 });
 test('legacy vacation content gains nearby once; current schema respects deliberate removal',()=>{
@@ -43,10 +44,10 @@ test('spa service predicates use positive supplier evidence rather than hotel/tr
  assert.ok(catalog.sites.some(site=>spaSourceServiceTerms(site).includes('חדר לפי שעה')));
  assert.ok(catalog.sites.some(site=>spaSourceServiceTerms(site).includes('לינה')));
 });
-test('popular event links use actual plural facets and corporate occasion rather than ignored values',()=>{
- for(const row of popularSearchesForWorld('events')){const value=new URL(row.href,'https://vii.invalid').searchParams.get('type');if(value)assert.ok(eventVenueTypeOrder.includes(value),value);}
+test('popular event links use approved clean pages rather than ignored parameter values',()=>{
+ for(const row of popularSearchesForWorld('events')) assert.equal(new URL(row.href,'https://vii.invalid').search,'');
  assert.equal(normalizeEventVenueType('לופט'),'לופטים');assert.equal(normalizeEventVenueType('וילה'),'וילות');
- assert.equal(new URL(popularSearchesForWorld('corporate')[0].href,'https://vii.invalid').searchParams.get('eventType'),'אירועי חברה');
+ assert.equal(popularSearchesForWorld('corporate')[0].href,'/search/events/corporate-events');
 });
 test('transactional and nearby world pages suppress the editorial popular-search rail',()=>{
  assert.match(worldLandingSource,/hidePopularSearches = false/);

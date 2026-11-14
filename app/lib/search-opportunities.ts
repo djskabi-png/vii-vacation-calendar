@@ -11,6 +11,7 @@ import { holidayWorldPath } from "./holiday-world.ts";
 import { completeLegacySearchFilters, completeLegacySearchSourcePath } from "./legacy-search-intent.ts";
 import { legacyMissingSearchPages } from "../data/legacy-missing-search-pages.ts";
 import legacyEventSearchPages from "../data/legacy-event-search-pages.json" with { type: "json" };
+import { curatedEventSearchPages } from "../data/curated-event-search-pages.ts";
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -96,7 +97,7 @@ export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "ti
   return true;
 }
 
-const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages, ...(legacyEventSearchPages as LegacySearchPageRecord[]).map(page => ({ ...page, world: "events" as const }))] as LegacySearchPageRecord[])
+const staticSearchPages = ([...legacySearchPublications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages, ...(legacyEventSearchPages as LegacySearchPageRecord[]).map(page => ({ ...page, world: "events" as const })), ...curatedEventSearchPages.map(page => ({ ...page, world: "events" as const }))] as LegacySearchPageRecord[])
   .map(hydrateLegacyPage)
   .filter(publicSearchOpportunityAllowed);
 let approvalIndex:Map<string,Set<string>>|null=null;

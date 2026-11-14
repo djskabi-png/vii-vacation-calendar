@@ -17,8 +17,8 @@ test("shared maps prefer a stored snapshot and use a passive real map on detail 
   ]);
   assert.match(map, /mapSnapshotPublicUrl\(tone, preview\.id\)/);
   assert.match(map, /useState\(true\)/);
-  assert.match(map, /fetch\(snapshotUrl, \{ cache: "force-cache"/);
-  assert.match(map, /if \(response\.ok\) setSnapshotUnavailable\(false\)/);
+  assert.match(map, /fetch\(snapshotProbeUrl, \{ cache: "force-cache"/);
+  assert.match(map, /response\.headers\.get\("X-VII-Map-Snapshot"\) === "ready"/);
   assert.doesNotMatch(map, /else if \(single\) setEnabled\(true\)/);
   assert.match(map, /const placeFallback = snapshotUnavailable/);
   assert.match(map, /const previewImage = placeFallback \? preview\.image : snapshotUrl/);
@@ -35,6 +35,7 @@ test("shared maps prefer a stored snapshot and use a passive real map on detail 
   assert.match(detail, /<DeferredDiscoveryMap items=\{\[item\]\} tone=\{item\.world === "spa" \? "spa" : "hourly"\} single \/>/);
   assert.doesNotMatch(detail, /<DeferredDiscoveryMap items=\{\[item\]\}[^>]*single autoLoad/);
   assert.match(url, /\/api\/map-snapshot\?world=/);
+  assert.match(url, /&probe=1/);
   assert.match(css, /\.map-preview-image\.is-map-snapshot/);
   assert.match(css, /\.map-preview-attribution/);
   assert.match(css, /\.map-passive-activate/);
@@ -81,6 +82,8 @@ test("snapshot delivery is server-side, cached and never exposes provider creden
     read("app/lib/map-snapshot-store.ts"),
   ]);
   assert.match(route, /UPLOADS\.get\(record\.objectKey\)/);
+  assert.match(route, /UPLOADS\.head\(record\.objectKey\)/);
+  assert.match(route, /status: probe \? 204 : 404/);
   assert.match(route, /getRequestExecutionContext/);
   assert.match(route, /reconcileMapSnapshots\(\{ db, bucket: env\.UPLOADS, env, candidates: \[candidate\], limit: 1 \}\)/);
   assert.match(route, /"X-VII-Map-Snapshot": candidate \? "warming" : "missing"/);

@@ -19,6 +19,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { WorldLanding } from "./world-landing";
 import EventSearchPage from "../events/search/page";
 import styles from "../find/[slug]/search-landing.module.css";
+import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 
 type Result = { id: string; name: string; location: string; area: string; description: string; image?: string; images: string[]; href: string };
 
@@ -76,9 +77,12 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
     </>;
   }
   if (page.world === "events") {
-    return <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
-      initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, value === true ? "1" : String(value)]))}
-      managedPath={page.canonicalPath} managedBody={page.body} managedFaq={page.faq} />;
+    const eventEntries = await publicCatalogSummaries<EventPlace>("events");
+    return <PublishedCatalogSeed world="events" entries={eventEntries}>
+      <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
+        initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, value === true ? "1" : String(value)]))}
+        managedPath={page.canonicalPath} managedBody={page.body} managedFaq={page.faq} />
+    </PublishedCatalogSeed>;
   }
   if (page.world === "spa" || page.world === "hourly") {
     const discoveryItems = page.world === "spa"

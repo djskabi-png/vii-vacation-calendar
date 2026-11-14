@@ -6,11 +6,12 @@ import { orderPlaceRailChildren } from "../lib/place-rail-children";
 import { useDocumentSeed } from "./use-document-seed";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
-export function EventRail({ title, children, shufflePlaces = false, warmAheadImages = false }: { title: string; children: ReactNode; shufflePlaces?: boolean; warmAheadImages?: boolean }) {
+export function EventRail({ title, children, shufflePlaces = false, warmAheadImages = false, railId: providedRailId, showControls = true }: { title: string; children: ReactNode; shufflePlaces?: boolean; warmAheadImages?: boolean; railId?: string; showControls?: boolean }) {
   const rail = useRef<HTMLDivElement>(null);
   const warmedImages = useRef(new Set<string>());
   const imagePreloaders = useRef<HTMLImageElement[]>([]);
-  const railId = useId();
+  const generatedRailId = useId();
+  const railId = providedRailId || generatedRailId;
   const seed = useDocumentSeed();
   const { language } = useSiteLanguage();
   const rendered = shufflePlaces ? orderPlaceRailChildren(children, `${seed}:${title}`) : children;
@@ -53,7 +54,7 @@ export function EventRail({ title, children, shufflePlaces = false, warmAheadIma
     };
   }, [seed, title, warmAheadImages]);
   return <div className="event-rail-wrap">
-    <SliderRailControls railId={railId} railRef={rail} label={title} className="event-rail-controls" />
+    {showControls ? <SliderRailControls railId={railId} railRef={rail} label={title} className="event-rail-controls" /> : null}
     <div id={railId} className="event-rail" dir={language === "he" ? "rtl" : "ltr"} ref={rail} data-horizontal-rail aria-label={title}>{rendered}</div>
   </div>;
 }

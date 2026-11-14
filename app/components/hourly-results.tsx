@@ -189,9 +189,9 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     {resultItems.length > filtered.length && <NearbySearchNotice />}
     <div className="hourly-results__toolbar" aria-label={translate("סינון תוצאות של חדרים לפי שעה")}>
       <div className="hourly-results__heading">
-        <div><h2 aria-live="polite">{resultLabel}</h2></div>
+        <div><h2 className="discovery-results-count" aria-live="polite">{resultLabel}</h2></div>
         <div className="hourly-results__actions">
-          <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />
+          <ModernSelect className="discovery-sort-control" compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />
           <ResultsViewToggle value={viewMode} onChange={setViewMode} />
           <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>{translate("סינון")}{features.length ? ` (${features.length})` : ""}</button>
           {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={translate(mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה")} aria-pressed={mapOpen} data-map-interactive={mapInteractive} disabled={!mapInteractive} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{translate(mapOpen ? "תצוגת רשימה" : "מפה")}</span><span className="map-button__mobile-label" aria-hidden="true">{translate("מפה")}</span></button>}

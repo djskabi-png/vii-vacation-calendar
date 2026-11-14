@@ -19,6 +19,10 @@ import { buildSearchDepthLocationLayers, isPlaceTypeSuggestion, type SearchDepth
 import { useSearchDepthSeed } from "./search-depth-seed";
 import { useWorldAvailability } from "./world-availability-provider";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
+import { cleanAccommodationPath } from "../data/accommodation-landings";
+import { cleanVacationPath } from "../data/vacation-landings";
+import { eventCombinationHref, eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { normalizeApprovedDiscoveryHref } from "../lib/approved-discovery-hrefs";
 
 export type SearchContentWorld = DepthWorld;
 
@@ -169,6 +173,22 @@ function contextualHref(
   customPath?: string,
 ) {
   const params = depthQuery(world, currentQuery, updates);
+  if (world === "vacation") {
+    const location = params.get("location") || "כל הארץ";
+    const type = params.get("type") || params.get("types")?.split(",").filter(Boolean)[0];
+    if (type) return localizedPath(cleanAccommodationPath(type, location) || "/search", language);
+    const destination = params.get("location");
+    if (destination) return localizedPath(cleanVacationPath(destination) || "/search", language);
+  }
+  if (world === "events") {
+    const location = params.get("location") || "כל הארץ";
+    const type = params.get("type");
+    if (type) return localizedPath(eventCombinationHref(location, type), language);
+    if (params.size === 1 && params.has("location")) return localizedPath(eventSearchHref(location), language);
+  }
+  if (world === "hourly" && params.size === 1 && params.has("location")) {
+    return localizedPath(hourlySearchHref(params.get("location") || undefined), language);
+  }
   if (world === "spa") {
     const state = spaSearchStateFromValues(params.get("location") || undefined, params.get("spaFor") || undefined, (params.get("features") || "").split(",").filter(Boolean));
     const path = localizedPath(spaSearchHref(state), language);
@@ -242,6 +262,9 @@ function destinationHref(
   locationParam: string,
   destination: string,
 ) {
+  if (world === "vacation") return localizedPath(cleanVacationPath(destination) || "/search", language);
+  if (world === "events") return localizedPath(eventSearchHref(destination), language);
+  if (world === "hourly") return localizedPath(hourlySearchHref(destination), language);
   if (world === "spa") {
     const region = spaSearchRegions.find((entry) => entry.label === destination);
     if (region) {
@@ -252,6 +275,13 @@ function destinationHref(
     }
   }
   return contextualHref(world, language, currentQuery, { [locationParam]: isWholeCountrySelection(destination) ? null : destination });
+}
+
+function approvedDiscoveryLinks(links: DiscoveryLink[]) {
+  return links.flatMap((item) => {
+    const href = normalizeApprovedDiscoveryHref(item.href);
+    return href ? [{ ...item, href }] : [];
+  });
 }
 
 function DiscoveryRail({ title, links }: {
@@ -466,26 +496,29 @@ export function SearchAfterResults({
   const mergedQuery = new URLSearchParams(baseParams);
   searchParams.forEach((value, key) => mergedQuery.set(key, value));
   const currentQuery = depthQuery(world, mergedQuery.toString(), {}, resolvedLocation).toString();
+  // Editorial discovery links always open durable approved pages. Search-state
+  // parameters belong to the active results flow and must not leak into cards.
+  const discoveryQuery = "";
   const mode: SearchMode | null = world === "vacation" || world === "events" || world === "spa" || world === "hourly" ? world : null;
   const locationLayers = mode ? buildSearchDepthLocationLayers(mode, resolvedLocation, effectiveInventory) : secondaryDepthLayers(world, resolvedLocation, effectiveInventory);
   const destinations = locationLayers.suitableRegions.length ? locationLayers.suitableRegions : destinationOptions(world, resolvedLocation, effectiveInventory);
   const regionLinks: DiscoveryLink[] = destinations.map((destination) => ({
     label: localizedEntity(destination),
-    href: destinationHref(world, language, currentQuery, locationParam, destination),
+    href: destinationHref(world, language, discoveryQuery, locationParam, destination),
     meta: discovery.destinationMeta,
     topic: depthTopicKey(destination, world),
   }));
-  const cityLinks: DiscoveryLink[] = locationLayers.cities.map((destination) => ({ label: localizedEntity(destination), href: world === "activities" || world === "trails" ? contextualHref(world, language, currentQuery, { q: destination }) : destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: "city" }));
-  const additionalRegionLinks: DiscoveryLink[] = locationLayers.additionalRegions.filter((destination) => !destinations.includes(destination)).map((destination) => ({ label: localizedEntity(destination), href: destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: depthTopicKey(destination, world) }));
+  const cityLinks: DiscoveryLink[] = locationLayers.cities.map((destination) => ({ label: localizedEntity(destination), href: world === "activities" || world === "trails" ? contextualHref(world, language, discoveryQuery, { q: destination }) : destinationHref(world, language, discoveryQuery, locationParam, destination), meta: discovery.destinationMeta, topic: "city" }));
+  const additionalRegionLinks: DiscoveryLink[] = locationLayers.additionalRegions.filter((destination) => !destinations.includes(destination)).map((destination) => ({ label: localizedEntity(destination), href: destinationHref(world, language, discoveryQuery, locationParam, destination), meta: discovery.destinationMeta, topic: depthTopicKey(destination, world) }));
   const suggestions = searchSuggestions.length ? searchSuggestions : defaultDepthSuggestions(world, effectiveInventory);
   const translatedSuggestions = suggestions.filter(item => !Object.keys(item.params).length || !Object.entries(item.params).every(([key, value]) => new URLSearchParams(currentQuery).get(key) === value)).map((item) => ({ item, label: localizedEntity(item.label, discovery.searchMeta) }));
   const scopedLocation = locationLabel ? translatedLocation : "";
   const typesTitle = world === "providers" ? translate("סוג השירות") : world === "activities" ? translate("סוג חוויה") : world === "trails" ? translate("סוג טבע") : discovery.placeTypes;
   const typeSuggestion = (item: ContextualSearchSuggestion) => item.kind === "type" || isPlaceTypeSuggestion(item.params);
   const typeLinks: DiscoveryLink[] = translatedSuggestions.filter(({ item }) => typeSuggestion(item)).map(({ item, label }) => ({
-    label: scopeSuggestionLabel(label, scopedLocation, language, "type"), href: contextualHref(world, language, currentQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params),
+    label: scopeSuggestionLabel(label, scopedLocation, language, "type"), href: contextualHref(world, language, discoveryQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params),
   }));
-  const smartLinks: DiscoveryLink[] = translatedSuggestions.filter(({ item }) => !typeSuggestion(item)).map(({ item, label }) => ({ label: scopeSuggestionLabel(label, scopedLocation, language, "smart"), href: contextualHref(world, language, currentQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params) }));
+  const smartLinks: DiscoveryLink[] = translatedSuggestions.filter(({ item }) => !typeSuggestion(item)).map(({ item, label }) => ({ label: scopeSuggestionLabel(label, scopedLocation, language, "smart"), href: contextualHref(world, language, discoveryQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params) }));
   const contextualComplementsAllowed = (world === "vacation" || world === "events") && Boolean(resolvedLocation) && !isWholeCountrySelection(resolvedLocation);
   const trailLinks: VisualDiscoveryLink[] = contextualComplementsAllowed && enabled("trails") ? depthSeed.trails
     .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => matchesDepthTerm(tag, resolvedLocation || "", locationLayers.contextArea) ? Math.max(score, tag === resolvedLocation ? 3 : 1) : score, 0) }))
@@ -520,11 +553,11 @@ export function SearchAfterResults({
 
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
         <div className="search-depth__discovery-intro"><h2 id={`search-related-${world}`}>{discovery.title}</h2></div>
-        <DiscoveryRail title={!resolvedLocation || isWholeCountrySelection(resolvedLocation) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={regionLinks} />
-        <DiscoveryRail title={`${world === "trails" ? discovery.additionalRegions : discovery.citiesInArea}${titleLocationLabel}`} links={cityLinks} />
-        <DiscoveryRail title={`${typesTitle}${titleLocationLabel}`} links={typeLinks} />
-        <DiscoveryRail title={`${searchSuggestions.length ? discovery.smartSearches : discovery.generalSearches}${titleLocationLabel}`} links={smartLinks} />
-        <DiscoveryRail title={discovery.additionalRegions} links={additionalRegionLinks} />
+        <DiscoveryRail title={!resolvedLocation || isWholeCountrySelection(resolvedLocation) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={approvedDiscoveryLinks(regionLinks)} />
+        <DiscoveryRail title={`${world === "trails" ? discovery.additionalRegions : discovery.citiesInArea}${titleLocationLabel}`} links={approvedDiscoveryLinks(cityLinks)} />
+        <DiscoveryRail title={`${typesTitle}${titleLocationLabel}`} links={approvedDiscoveryLinks(typeLinks)} />
+        <DiscoveryRail title={`${searchSuggestions.length ? discovery.smartSearches : discovery.generalSearches}${titleLocationLabel}`} links={approvedDiscoveryLinks(smartLinks)} />
+        <DiscoveryRail title={discovery.additionalRegions} links={approvedDiscoveryLinks(additionalRegionLinks)} />
         <VisualDiscoveryRail title={`${discovery.trails}${titleLocationLabel}`} links={trailLinks} />
         <VisualDiscoveryRail title={discovery.providers} links={providerLinks} />
       </section>

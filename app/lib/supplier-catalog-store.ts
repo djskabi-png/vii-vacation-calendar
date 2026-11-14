@@ -17,6 +17,27 @@ type RunRow = { status: string };
 type CountRow = { count: number };
 type StateRow = { activeRunId: string | null; activeCount: number; acceptedAt: string | null };
 type EntryRow = { supplierId: number; summaryJson: string; detailJson: string | null };
+type ArchiveRow = { supplierId: number; world: SupplierCatalogWorld; status: string; summaryJson: string;
+  detailJson: string | null; legacyPath: string | null; canonicalPath: string; sourceUrl: string | null;
+  statusSource: string; firstSeenAt: string; lastActiveAt: string | null; deactivatedAt: string;
+  reactivatedAt: string | null; updatedAt: string };
+
+export type SupplierCatalogArchiveEntry = {
+  supplierId: number;
+  world: SupplierCatalogWorld;
+  status: "inactive" | "active";
+  summary: unknown;
+  detail: unknown | null;
+  legacyPath: string | null;
+  canonicalPath: string;
+  sourceUrl: string | null;
+  statusSource: string;
+  firstSeenAt: string;
+  lastActiveAt: string | null;
+  deactivatedAt: string;
+  reactivatedAt: string | null;
+  updatedAt: string;
+};
 
 const rowLimitBytes = 1_800_000;
 // A single accepted vacation generation can contain hundreds of large detail
@@ -26,6 +47,45 @@ export const CATALOG_SYNC_READ_PAGE_SIZE = 8;
 
 function validWorld(world: string): world is SupplierCatalogWorld {
   return ["vacations", "events", "rooms", "spa"].includes(world);
+}
+
+export function supplierCanonicalPath(world: SupplierCatalogWorld, supplierId: number) {
+  if (world === "vacations") return `/business?id=vacation-${supplierId}`;
+  if (world === "events") return `/events/place/event-${supplierId}`;
+  if (world === "rooms") return `/discover/place/hourly-${supplierId}`;
+  return `/discover/place/spa-${supplierId}`;
+}
+
+function supplierSourceUrl(entry: SupplierCatalogEntry) {
+  const summary = entry.summary as Record<string, unknown>;
+  const detail = entry.detail as Record<string, unknown> | null | undefined;
+  const value = typeof summary.sourceUrl === "string" ? summary.sourceUrl
+    : typeof detail?.sourceUrl === "string" ? detail.sourceUrl : null;
+  return value?.trim() || null;
+}
+
+function sourcePath(value: string | null) {
+  if (!value) return null;
+  try { return new URL(value, "https://www.vii.co.il").pathname || null; } catch { return null; }
+}
+
+function decodeArchive(row: ArchiveRow): SupplierCatalogArchiveEntry {
+  return {
+    supplierId: row.supplierId,
+    world: row.world,
+    status: row.status === "active" ? "active" : "inactive",
+    summary: JSON.parse(row.summaryJson),
+    detail: row.detailJson ? JSON.parse(row.detailJson) : null,
+    legacyPath: row.legacyPath,
+    canonicalPath: row.canonicalPath,
+    sourceUrl: row.sourceUrl,
+    statusSource: row.statusSource,
+    firstSeenAt: row.firstSeenAt,
+    lastActiveAt: row.lastActiveAt,
+    deactivatedAt: row.deactivatedAt,
+    reactivatedAt: row.reactivatedAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 function childIds(world: SupplierCatalogWorld, row: SupplierCatalogEntry) {
@@ -232,7 +292,36 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     previousEntries,
     candidateEntries,
   )) throw new Error("catalog_media_requires_review");
+  const explicitInactive = explicitInactiveRemoval(previousEntries, candidateEntries, input.sourceInventory);
+  const removedEntries = explicitInactive ? previousEntries.filter((entry) => !next.has(entry.supplierId)) : [];
+  const archiveStatements = removedEntries.map((entry) => {
+    const sourceUrl = supplierSourceUrl(entry);
+    return db.prepare(`INSERT INTO supplier_catalog_archive
+      (id, world, supplier_id, status, summary_json, detail_json, legacy_path, canonical_path,
+       source_url, status_source, first_seen_at, last_active_at, deactivated_at, reactivated_at, updated_at)
+      VALUES (?, ?, ?, 'inactive', ?, ?, ?, ?, ?, 'supplier_explicit_inactive', ?, ?, ?, NULL, ?)
+      ON CONFLICT(world, supplier_id) DO UPDATE SET status = 'inactive', summary_json = excluded.summary_json,
+       detail_json = excluded.detail_json, legacy_path = COALESCE(excluded.legacy_path, supplier_catalog_archive.legacy_path),
+       canonical_path = excluded.canonical_path, source_url = COALESCE(excluded.source_url, supplier_catalog_archive.source_url),
+       status_source = excluded.status_source, last_active_at = excluded.last_active_at,
+       deactivated_at = excluded.deactivated_at, reactivated_at = NULL, updated_at = excluded.updated_at`)
+      .bind(`${input.world}:${entry.supplierId}`, input.world, entry.supplierId,
+        JSON.stringify(entry.summary), entry.detail === undefined ? null : JSON.stringify(entry.detail),
+        sourcePath(sourceUrl), supplierCanonicalPath(input.world, entry.supplierId), sourceUrl,
+        input.finishedAt, state.acceptedAt || input.finishedAt, input.finishedAt, input.finishedAt);
+  });
+  const reactivationStatements = [];
+  const candidateIds = candidateEntries.map((entry) => entry.supplierId);
+  for (let index = 0; index < candidateIds.length; index += 80) {
+    const ids = candidateIds.slice(index, index + 80);
+    reactivationStatements.push(db.prepare(`UPDATE supplier_catalog_archive SET status = 'active',
+      status_source = 'supplier_explicit_active', reactivated_at = ?, updated_at = ?
+      WHERE world = ? AND status = 'inactive' AND supplier_id IN (${ids.map(() => "?").join(",")})`)
+      .bind(input.finishedAt, input.finishedAt, input.world, ...ids));
+  }
   const results = await db.batch([
+    ...archiveStatements,
+    ...reactivationStatements,
     db.prepare(`UPDATE supplier_catalog_state SET active_run_id = ?, accepted_at = ?, active_count = ?,
       lock_run_id = NULL, lock_until = NULL WHERE world = ? AND lock_run_id = ?`)
       .bind(input.id, input.finishedAt, input.expectedCount, input.world, input.id),
@@ -242,7 +331,42 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       AND EXISTS (SELECT 1 FROM supplier_catalog_state WHERE world = ? AND active_run_id = ?)`)
       .bind(input.finishedAt, previousEntries.length, input.expectedCount, input.added, input.changed, removed, input.diagnostics ? JSON.stringify(sanitizeCatalogDiagnostics(input.diagnostics)) : null, input.id, input.world, input.world, input.id),
   ]);
-  if (results[0].meta.changes !== 1 || results[1].meta.changes !== 1) throw new Error("catalog_publish_race");
+  const stateResult = results.at(-2);
+  const runResult = results.at(-1);
+  if (stateResult?.meta.changes !== 1 || runResult?.meta.changes !== 1) throw new Error("catalog_publish_race");
+}
+
+export async function readSupplierCatalogArchiveEntry(db: D1Database, world: SupplierCatalogWorld, supplierId: number) {
+  if (!validWorld(world) || !Number.isSafeInteger(supplierId) || supplierId < 1) return null;
+  const row = await db.prepare(`SELECT supplier_id AS supplierId, world, status, summary_json AS summaryJson,
+    detail_json AS detailJson, legacy_path AS legacyPath, canonical_path AS canonicalPath,
+    source_url AS sourceUrl, status_source AS statusSource, first_seen_at AS firstSeenAt,
+    last_active_at AS lastActiveAt, deactivated_at AS deactivatedAt, reactivated_at AS reactivatedAt,
+    updated_at AS updatedAt FROM supplier_catalog_archive WHERE world = ? AND supplier_id = ?`)
+    .bind(world, supplierId).first<ArchiveRow>();
+  return row ? decodeArchive(row) : null;
+}
+
+export async function readSupplierCatalogArchive(db: D1Database, input: {
+  world?: SupplierCatalogWorld;
+  status?: "inactive" | "active";
+  limit?: number;
+  offset?: number;
+} = {}) {
+  const limit = Math.max(1, Math.min(200, Number(input.limit) || 100));
+  const offset = Math.max(0, Number(input.offset) || 0);
+  const clauses: string[] = [];
+  const bindings: unknown[] = [];
+  if (input.world) { if (!validWorld(input.world)) return []; clauses.push("world = ?"); bindings.push(input.world); }
+  if (input.status) { clauses.push("status = ?"); bindings.push(input.status); }
+  const rows = await db.prepare(`SELECT supplier_id AS supplierId, world, status, summary_json AS summaryJson,
+    detail_json AS detailJson, legacy_path AS legacyPath, canonical_path AS canonicalPath,
+    source_url AS sourceUrl, status_source AS statusSource, first_seen_at AS firstSeenAt,
+    last_active_at AS lastActiveAt, deactivated_at AS deactivatedAt, reactivated_at AS reactivatedAt,
+    updated_at AS updatedAt FROM supplier_catalog_archive ${clauses.length ? `WHERE ${clauses.join(" AND ")}` : ""}
+    ORDER BY updated_at DESC, world, supplier_id LIMIT ? OFFSET ?`)
+    .bind(...bindings, limit, offset).all<ArchiveRow>();
+  return rows.results.map(decodeArchive);
 }
 
 export async function finishSupplierCatalogRun(db: D1Database, input: {

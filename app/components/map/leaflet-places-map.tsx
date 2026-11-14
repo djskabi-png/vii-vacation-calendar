@@ -6,7 +6,7 @@ import { MapPinned } from "lucide-react";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { localizedPath } from "../../i18n/locale-routing";
 import { PreviewCardGallery } from "../preview-card-gallery";
-import { mapSnapshotPublicUrl } from "../../lib/map-snapshot-url";
+import { mapSnapshotProbeUrl, mapSnapshotPublicUrl } from "../../lib/map-snapshot-url";
 import { trackMapInteraction } from "../../lib/analytics";
 import { signalExperienceStage } from '../../lib/experience-signals';
 import { validMapCoordinate, spreadMapCluster, mapSpiderOffset } from "../../lib/map-marker-layout";
@@ -152,6 +152,7 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
   const previewImageRef = useRef<HTMLImageElement>(null);
   const preview = places[0] ?? null;
   const snapshotUrl = preview ? mapSnapshotPublicUrl(tone, preview.id) : "";
+  const snapshotProbeUrl = preview ? mapSnapshotProbeUrl(tone, preview.id) : "";
   const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
   const pricedPlaceCount = places.filter((place) => place.markerKind === "price").length;
@@ -177,15 +178,15 @@ export function LeafletPlacesMap({ places: incomingPlaces, initialPlaceIds, tone
     // A changed place must never keep a snapshot accepted for the prior place.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSnapshotUnavailable(true);
-    if (!snapshotUrl) return;
+    if (!snapshotProbeUrl) return;
     const controller = new AbortController();
-    void fetch(snapshotUrl, { cache: "force-cache", signal: controller.signal })
+    void fetch(snapshotProbeUrl, { cache: "force-cache", signal: controller.signal })
       .then((response) => {
-        if (response.ok) setSnapshotUnavailable(false);
+        if (response.ok && response.headers.get("X-VII-Map-Snapshot") === "ready") setSnapshotUnavailable(false);
       })
       .catch(() => undefined);
     return () => controller.abort();
-  }, [single, snapshotUrl]);
+  }, [single, snapshotProbeUrl]);
 
   useEffect(() => {
     if (snapshotUnavailable) return;

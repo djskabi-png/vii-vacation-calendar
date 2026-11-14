@@ -19,9 +19,9 @@ const routes = [
 
 const executable = [
   process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
-  chromium.executablePath(),
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate));
 
 if (!executable) throw new Error("No Chromium-family browser is available for the gallery release audit");
@@ -34,7 +34,18 @@ try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: "he-IL", colorScheme: "light" });
     const page = await context.newPage();
     const url = `${base}${route.path}#${route.hash}`;
-    const result = { id: route.id, url, checks: {}, errors: [] };
+    const runtimeErrors = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" || (message.type() === "warning" && /same key|hydration|uncaught/i.test(message.text()))) {
+        const location = message.location();
+        runtimeErrors.push(`console:${message.type()}:${message.text()}:${location.url || "unknown-source"}:${location.lineNumber || 0}`);
+      }
+    });
+    page.on("pageerror", (error) => runtimeErrors.push(`pageerror:${error.message}`));
+    page.on("response", (response) => {
+      if (response.status() >= 400) runtimeErrors.push(`http:${response.status()}:${response.request().resourceType()}:${response.url()}`);
+    });
+    const result = { id: route.id, url, checks: {}, runtimeErrors, errors: [] };
     try {
       const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       result.checks.http = response?.status() || 0;
@@ -73,7 +84,9 @@ try {
       await page.locator(".story-gallery__mobile-tour:not(.is-hidden)").waitFor({ state: "visible", timeout: 10000 });
       result.checks.returnedToOverview = true;
 
-      const secondTab = page.locator(".story-gallery__tabs button").nth(1);
+      const secondTab = page.locator(".story-gallery__tabs button")
+        .filter({ hasNotText: /סרטונים|תמונות אורחים/ })
+        .nth(1);
       if (await secondTab.count()) {
         await secondTab.click();
         result.checks.tabOverviewDisplay = await page.locator(".story-gallery__mobile-tour").evaluate((tour) => getComputedStyle(tour).display);
@@ -116,7 +129,8 @@ try {
       && desktop?.scrollX === 0
       && desktop?.documentWidth <= desktop?.viewportWidth + 1
       && result.checks.close?.bodyOverflow === ""
-      && result.checks.close?.hash === "";
+      && result.checks.close?.hash === ""
+      && result.runtimeErrors.length === 0;
     results.push(result);
     await context.close();
   }

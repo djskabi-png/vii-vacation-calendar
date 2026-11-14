@@ -1,0 +1,90 @@
+{
+  "status": "diagnosed",
+  "symptom": "The redirects administration reports about 404 legacy URLs as HTTP 410 and labels the whole group as removed without replacement.",
+  "expected_behavior": "Every legacy URL is classified from current evidence: direct 301 to an equivalent live page, a dedicated approved search page when the legacy URL represents durable search intent, or 410 only when no equivalent content or active entity exists.",
+  "environment": "VII cumulative candidate and live vii.spaplus.co, checked 2026-11-14 Asia/Jerusalem.",
+  "reproduction": {
+    "steps": [
+      "Read the bundled legacy redirect inventory and count the gone set.",
+      "Classify gone paths by URL family.",
+      "Compare every gone path source identity against the current live catalog API for vacations, events, rooms and spa.",
+      "Request each exact source path and candidate target from production without following redirects."
+    ],
+    "evidence": "The bundled inventory has 405 gone paths: 375 root-level place paths and 30 event/place paths, with zero legacy /s search paths. The live runtime catalog contains 16 exact source-URL matches. Two currently return 410 while their exact targets return 200: /caves_view -> /business?id=vacation-21 and /events/loft_54 -> /events/place/event-2320."
+  },
+  "observations": [
+    {
+      "observation": "The 410 group is not a missing search-page queue.",
+      "evidence": "All 405 bundled gone URLs are place-detail style paths; none starts with /s. The legacy search-page inventory separately maps 2362 search URLs to approved canonical pages."
+    },
+    {
+      "observation": "The bundled gone inventory is older than the active runtime catalog for at least two public entities.",
+      "evidence": "The live catalog reports vacation-21 for /caves_view and event-2320 for /events/loft_54; both target pages return HTTP 200 while the old paths return HTTP 410."
+    },
+    {
+      "observation": "A catalog summary alone is insufficient to create a redirect.",
+      "evidence": "Several runtime summary identities currently have detail targets returning HTTP 404. Redirecting those paths would create bad 301 destinations."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Every reported 410 is genuinely obsolete and has no equivalent destination.",
+      "prediction": "No gone source path has an exact current catalog identity with a live 200 detail page.",
+      "discriminating_test": "Join gone paths to current live sourceUrl identities and verify candidate destinations.",
+      "result": "Rejected. Two exact current identities have live 200 destinations.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The static gone classification was not reconciled against the newer accepted runtime catalog, so revived or restored businesses remained 410.",
+      "prediction": "Some gone paths exactly match live current sourceUrl values and have valid direct destination pages.",
+      "discriminating_test": "Compare all gone identities to the live four-world catalog and test both old and new URLs.",
+      "result": "Supported for /caves_view and /events/loft_54. Each old URL returns 410 and each exact current detail page returns 200.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The count mainly consists of legacy search intents for which new search pages were never created.",
+      "prediction": "A material share of gone paths uses the legacy /s search family.",
+      "discriminating_test": "Classify every gone path by route family.",
+      "result": "Rejected. Zero of the 405 bundled gone paths belongs to /s; search-page migration is a separate 2362-URL inventory.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Reconcile 410 classifications against the accepted live catalog before release. Automatically propose only exact source-identity matches whose detail target returns 200; route durable search intent to the approved page workflow; keep uncertain or removed entities in a review queue rather than claiming they are definitively removed without replacement.",
+    "evidence": "The method identifies two safe immediate 301 corrections and refuses several tempting but invalid targets that currently return 404."
+  },
+  "affected_family": [
+    "legacy place redirects",
+    "legacy event place redirects",
+    "redirect administration counts and labels",
+    "runtime catalog reconciliation",
+    "SEO migration evidence"
+  ],
+  "regression_checks": [
+    {
+      "check": "Current search-page migration separation",
+      "status": "passed",
+      "evidence": "The gone set contains zero /s paths; 2362 managed search redirects remain in their dedicated inventory."
+    },
+    {
+      "check": "Safe-target verification",
+      "status": "passed",
+      "evidence": "Both proposed direct targets return HTTP 200 and share the exact sourceUrl identity with their legacy paths."
+    },
+    {
+      "check": "False-positive prevention",
+      "status": "passed",
+      "evidence": "Candidate matches whose detail targets return 404 were not approved for redirect."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The other roughly 402 managed 410 records still require evidence-based review against current catalog, historic content and search demand; they cannot be declared correct or wrong from the count alone.",
+    "The screenshot count differs from the 405 bundled baseline because managed database overrides are merged at runtime."
+  ],
+  "authorization_boundary": "Read-only diagnosis only. No redirect, page creation, CMS approval or production publication was performed."
+}

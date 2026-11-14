@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-inactive-business-archive-20261114",
+  "project": "VII",
+  "task_type": "supplier lifecycle, legacy SEO and public release",
+  "requested_outcome": "Preserve every recoverable no-longer-advertised business as an indexable inactive canonical page, exclude it from discovery and contact flows, manage it as inactive, and replace incorrect legacy 410 responses with direct canonical redirects before publishing the verified cumulative release.",
+  "natural_destination": "Legacy business URLs, canonical VII place pages, public search and sitemaps, supplier sync, and the VII administration system.",
+  "authorization_boundary": "Implementation, legacy-source recovery, database migration, administration changes, tests and public deployment of the complete verified cumulative VII release are authorized. Credentials must not be exposed and an inactive supplier record must not be manually advertised against supplier truth.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The change spans public pages, search exclusion, administration, redirects, persistence and release.","acceptance_impact":"The exact deployed build must pass end-to-end inactive, reactivation, legacy redirect and active-business regression scenarios."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The request explicitly includes a public deployment to a destination with prior competing release sources.","acceptance_impact":"Freeze one cumulative source, preserve rollback identity, and verify the exact live build and routes after the final deployment."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Inactive businesses must remain visible and operable in the administration system.","acceptance_impact":"Admin status, public preview, persistence, audit data and the verified reactivation action must work after a cache-free reload."},
+    {"lesson_id":"ADIR-SEO-001","reason":"The purpose is to preserve URL equity while accurately representing inactive places.","acceptance_impact":"Canonical, robots, sitemap policy, schema and direct legacy redirects must agree with the visible inactive state."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Active, inactive and removed are business-critical statuses sourced from supplier truth.","acceptance_impact":"Status and counts must reconcile to persisted supplier records without inferred or placeholder activation."},
+    {"lesson_id":"ADIR-PUBLIC-TRUST-001","reason":"The public page must not expose stale contact, booking, availability or offer claims.","acceptance_impact":"Inactive output is scanned for contact and commerce leakage and all public-surface categories affected by the change are classified."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"An old URL still returns 410 even though the business identity and content are recoverable.","prevention":"Recover and persist the old identity, then generate a direct 301 to its canonical inactive page.","acceptance_check":"Every recoverable legacy business in the 405-row 410 set has a final canonical identity and a one-hop redirect; only evidenced unrecoverable records remain 410."},
+    {"rejection":"An inactive business leaks into search results or still exposes phone, WhatsApp, booking, price or availability.","prevention":"Separate archive storage and public projection from the active catalog and omit all conversion fields and offer schema.","acceptance_check":"Search, map and rails exclude inactive IDs while the canonical page returns 200 index,follow and contains no contact or booking affordance in HTML or hydrated UI."},
+    {"rejection":"Reactivating a supplier loses the archived data or requires rebuilding the page manually.","prevention":"Use supplier ID plus world as the stable key and retain the archived record while active catalog truth takes precedence automatically.","acceptance_check":"A fixture changing inactive to active restores the normal full page and discovery presence in one sync without losing media or metadata."},
+    {"rejection":"The admin shows a status that is not persisted or offers an unsafe manual activation.","prevention":"Read persisted lifecycle state and make reactivation a supplier-truth verification action with an audit result.","acceptance_check":"Admin reload preserves inactive state and public URL; recheck refuses activation while supplier says inactive and succeeds when supplier says active."},
+    {"rejection":"The release overwrites newer fixes or passes only local tests.","prevention":"Build from the current cumulative worktree, run release-source/baseline gates, capture rollback identity, deploy once, then verify live desktop/mobile/admin/headers.","acceptance_check":"Exact live build identity matches the frozen candidate and five to ten representative post-deploy scenarios pass without high or critical findings."}
+  ],
+  "affected_family": [
+    "vacation, event, spa and hourly supplier lifecycle",
+    "canonical place detail resolvers and metadata",
+    "public search, map, rails and recommendation queries",
+    "legacy 301 and 410 disposition inventory",
+    "XML sitemaps, robots, canonical and structured data",
+    "supplier synchronization and D1 persistence",
+    "administration inactive-business workflow",
+    "mobile and desktop inactive place presentation",
+    "cumulative VII production release and rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Existing old VII pages preserve business content and stable site IDs","source":"Live legacy pages such as https://www.vii.co.il/ahuza_babustan"},
+      {"label":"VII supplier and legacy routing architecture","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"VII accepted lifecycle, SEO and cross-world behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After one recovered legacy vacation place is persisted as inactive and rendered end to end, before importing the complete legacy family.",
+    "checks": [
+      "Confirm the old URL redirects once to a canonical 200 inactive page",
+      "Confirm the page is index,follow and omits phone, WhatsApp, booking, price, availability and offer schema",
+      "Confirm the same ID is absent from search and visible as inactive in admin after reload"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an inactive ID still appear through a secondary search, map, rail, sitemap or recommendation path?",
+      "Can stale contact or offer data leak through HTML, JSON-LD, client hydration, API responses or sharing metadata?",
+      "Does a legacy URL chain, loop, land on a generic page or remain 410 despite a recovered identity?",
+      "Does cold-cache reactivation restore the active experience without duplicate canonical pages or data loss?",
+      "Can a stale release source overwrite this lifecycle implementation after deployment?"
+    ],
+    "natural_destination_evidence": "Exact deployed legacy and canonical URLs inspected at desktop and mobile widths, plus live admin persistence and response metadata.",
+    "affected_family_evidence": "Automated lifecycle, redirect, search-exclusion, sitemap, schema, admin and reactivation tests across all supported worlds, followed by representative live scenarios."
+  },
+  "effectiveness": {
+    "baseline": "405 legacy paths are classified as 410, the active sync discards inactive supplier rows, and canonical detail resolvers only read active snapshots.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","recoverable_legacy_pages_redirected","unrecoverable_410_rows","inactive_contact_leaks","reactivation_round_trips","post_deploy_failures","elapsed_time"],
+    "target": "Every recoverable business preserves one canonical inactive page and direct redirect, zero inactive contact leaks, and a verified supplier-driven return to active status."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

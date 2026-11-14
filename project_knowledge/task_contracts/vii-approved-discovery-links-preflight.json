@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-approved-discovery-links-20261114",
+  "project": "VII",
+  "task_type": "search-navigation-repair",
+  "requested_outcome": "Managed popular and quick-search links resolve to approved semantic pages, family and birthday event pages return relevant results, and removed homepage items never flash on refresh.",
+  "natural_destination": "VII homepage and discovery rails across every supported world",
+  "authorization_boundary": "Local source changes and verification only. No public deployment.",
+  "lesson_bundle": [
+    { "lesson_id": "VII-PROJECT-001", "reason": "VII-specific discovery behavior.", "acceptance_impact": "Apply the VII feedback standard." },
+    { "lesson_id": "ADIR-SEARCH-001", "reason": "Discovery and search state disagree.", "acceptance_impact": "Verify canonical destinations, relevance and zero-result behavior." },
+    { "lesson_id": "ADIR-QA-001", "reason": "A local fix would miss CMS overrides and sibling worlds.", "acceptance_impact": "Test the whole family and refresh persistence." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "Only the two reported cards are fixed.", "prevention": "Centralize normalization and audit every managed discovery source.", "acceptance_check": "A family test rejects query-string destinations." },
+    { "rejection": "The canonical event page still has zero results.", "prevention": "Use normalized event facets and current catalog counts.", "acceptance_check": "Birthday and family facets each have current matches." },
+    { "rejection": "A removed homepage item still flashes.", "prevention": "Hydrate the homepage rail from the authoritative server presentation.", "acceptance_check": "First render uses the saved presentation without default substitution." },
+    { "rejection": "A stale CMS link reintroduces the defect.", "prevention": "Normalize known legacy links and exclude unresolved query links at the shared boundary.", "acceptance_check": "CMS round-trip tests cover both cases." }
+  ],
+  "affected_family": ["event landing quick searches", "homepage popular searches", "world popular searches", "hourly quick searches", "CMS managed lists", "homepage first render"],
+  "family_inventory_complete": true,
+  "approved_precedents": { "sources": [
+    { "label": "VII master plan", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+    { "label": "VII feedback standard", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" }
+  ], "no_precedent_reason": null },
+  "midpoint_gate": { "required": true, "trigger": "After the resolver and two event pages pass focused tests.", "checks": ["Clean canonical hrefs", "Nonzero event inventory matches", "Legacy CMS normalization"], "not_required_reason": null },
+  "adversarial_close": { "attack_questions": ["Does any managed default still contain a query?", "Can stale CMS content bypass normalization?", "Does a saved removal flash?", "Do the pages show matching results?"], "natural_destination_evidence": "Rendered local homepage and event landing plus route tests.", "affected_family_evidence": "Automated inventory across all supported world defaults and parser inputs." },
+  "effectiveness": { "baseline": "Two event cards use query URLs, one returns zero results, and homepage defaults render before managed data.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "Zero parameter URLs in managed defaults, nonzero event results, and no fallback flash." },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

@@ -1,8 +1,11 @@
 import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
-import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
+import { legacyGalleryFilename, localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { PUBLIC_GALLERY_OBJECT_PREFIX, storedGalleryContentType, validGalleryFilename } from "./gallery-media-identity.ts";
+import inactiveArchive from "../data/inactive-business-archive.generated.json" with { type: "json" };
 
 const MAX_BYTES = 8_000_000;
+const archivedStaticFiles = new Set((inactiveArchive.records as Array<{ images?: string[] }>).flatMap((record) =>
+  (record.images || []).map(legacyGalleryFilename).filter((filename): filename is string => Boolean(filename))));
 type WriteOptions = NonNullable<Parameters<R2Bucket["put"]>[2]>;
 const authorization = new WeakMap<D1Database, Map<string, { until: number; allowed: boolean }>>();
 type Image = { bytes: Uint8Array; type: string; etag?: string };
@@ -41,6 +44,11 @@ function referenced(value: unknown, filename: string): boolean {
 
 export async function catalogReferencesGallery(db: D1Database, filename: string, now = Date.now()) {
   if (!validGalleryFilename(filename)) return false;
+  // Historical inactive pages are part of the accepted public archive. Their
+  // exact filenames are build-time allow-listed so the first request can copy
+  // official legacy bytes into immutable R2 storage before the old origin is
+  // retired. No arbitrary filename or URL can cross this boundary.
+  if (archivedStaticFiles.has(filename)) return true;
   let cache = authorization.get(db);
   if (!cache) { cache = new Map(); authorization.set(db, cache); }
   const hit = cache.get(filename);

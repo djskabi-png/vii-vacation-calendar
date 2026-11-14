@@ -4,13 +4,14 @@ import { inspectSupplierCatalogWorld } from "../../../lib/supplier-catalog-runti
 import { syncSupplierCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
-import { readSupplierCatalogDashboard, readSupplierCatalogRunDiagnostics } from "../../../lib/supplier-catalog-store.ts";
+import { readSupplierCatalogArchive, readSupplierCatalogDashboard, readSupplierCatalogRunDiagnostics } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
 import { requiredRuntimeDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
 import { readCachedOnlineCapabilities } from "../../../lib/online-booking-capability-cache.ts";
 import { publicOnlineCapabilities } from "../../../lib/online-booking-capability.ts";
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
+import { generatedInactiveBusinesses } from "../../../lib/inactive-business-archive.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -23,6 +24,29 @@ async function authorized(request: Request) {
 
 async function database(): Promise<D1Database> {
   return requiredRuntimeDatabase("catalog_database_unavailable");
+}
+
+function archivedName(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "מקום ללא שם";
+  const row = value as Record<string, unknown>;
+  return [row.name, row.title].find((item): item is string => typeof item === "string" && item.trim().length > 0)?.trim() || "מקום ללא שם";
+}
+
+async function inactiveArchiveForAdmin(db: D1Database) {
+  const runtime = (await Promise.all([0, 200, 400].map((offset) => readSupplierCatalogArchive(db, { limit: 200, offset })))).flat();
+  const runtimeByIdentity = new Map(runtime.map((item) => [`${item.world}:${item.supplierId}`, item]));
+  const rows = generatedInactiveBusinesses().flatMap((item) => {
+    const runtimeItem = runtimeByIdentity.get(`${item.world}:${item.supplierId}`);
+    if (runtimeItem?.status === "active") return [];
+    return [{ world: item.world, supplierId: item.supplierId, name: runtimeItem ? archivedName(runtimeItem.summary) : item.name,
+      canonicalPath: runtimeItem?.canonicalPath || item.canonicalPath, deactivatedAt: runtimeItem?.deactivatedAt || item.updatedAt || null,
+      statusSource: runtimeItem?.statusSource || "legacy_recovery" }];
+  });
+  for (const item of runtime) if (item.status === "inactive" && !rows.some((row) => row.world === item.world && row.supplierId === item.supplierId)) {
+    rows.push({ world: item.world, supplierId: item.supplierId, name: archivedName(item.summary), canonicalPath: item.canonicalPath,
+      deactivatedAt: item.deactivatedAt, statusSource: item.statusSource });
+  }
+  return rows.sort((left, right) => left.world.localeCompare(right.world) || left.name.localeCompare(right.name, "he"));
 }
 
 export async function GET(request: Request) {
@@ -70,8 +94,8 @@ export async function GET(request: Request) {
       databaseOrigin = "cloudflare-d1";
       degraded = true;
     }
-    const [retryJobsResult, alertsResult, capabilityResult, vacationIdsResult] = await Promise.allSettled([
-      readCatalogRetryJobs(db), readCatalogAlerts(db), readCachedOnlineCapabilities(db), publishedSupplierIds("vacations"),
+    const [retryJobsResult, alertsResult, capabilityResult, vacationIdsResult, inactiveArchiveResult] = await Promise.allSettled([
+      readCatalogRetryJobs(db), readCatalogAlerts(db), readCachedOnlineCapabilities(db), publishedSupplierIds("vacations"), inactiveArchiveForAdmin(db),
     ]);
     const retryJobs = retryJobsResult.status === "fulfilled" ? retryJobsResult.value : [];
     const storedAlerts = alertsResult.status === "fulfilled" ? alertsResult.value : [];
@@ -81,11 +105,16 @@ export async function GET(request: Request) {
     const capabilityValue = capabilitySnapshot
       ? publicOnlineCapabilities(capabilitySnapshot.value, vacationIds)
       : {};
-    return Response.json({ ...dashboard, databaseOrigin, degraded, retryJobs, alerts, diagnosticsAvailability: {
+    return Response.json({ ...dashboard, databaseOrigin, degraded, retryJobs, alerts,
+      inactiveBusinesses: inactiveArchiveResult.status === "fulfilled" ? inactiveArchiveResult.value : generatedInactiveBusinesses().map((item) => ({
+        world: item.world, supplierId: item.supplierId, name: item.name, canonicalPath: item.canonicalPath,
+        deactivatedAt: item.updatedAt || null, statusSource: "legacy_recovery",
+      })), diagnosticsAvailability: {
       retries: retryJobsResult.status === "fulfilled",
       alerts: alertsResult.status === "fulfilled",
       onlineCapabilities: capabilityResult.status === "fulfilled",
       publishedVacationIds: vacationIdsResult.status === "fulfilled",
+      inactiveArchive: inactiveArchiveResult.status === "fulfilled",
     }, onlineCapabilities: capabilitySnapshot ? {
       status: capabilitySnapshot.cache.status,
       checkedAt: capabilitySnapshot.cache.checkedAt,

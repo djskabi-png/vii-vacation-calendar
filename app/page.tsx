@@ -21,6 +21,8 @@ import { serverPublicCopy } from "./i18n/server-public-copy";
 import { readWorldAvailability } from "./lib/world-availability";
 import { localizedPath, type SiteLanguage } from "./i18n/locale-routing";
 import { homeShowcaseAttraction, homeShowcaseEvents, homeShowcaseHourly, homeShowcaseProperties, homeShowcaseProvider } from "./data/home-showcase-fallback";
+import { readHomepagePresentation } from "./lib/homepage-presentation";
+import { runtimeDatabase } from "./lib/runtime-database";
 
 async function HomeMagazineSection() {
   const requestedLocale = (await headers()).get("x-vii-locale") || "he";
@@ -31,8 +33,11 @@ async function HomeMagazineSection() {
 }
 
 export default async function HomePage() {
-  const { translate } = await serverPublicCopy();
-  const worldAvailability = await readWorldAvailability();
+  const { translate, language } = await serverPublicCopy();
+  const [worldAvailability, homePresentation] = await Promise.all([
+    readWorldAvailability(),
+    runtimeDatabase().then((db) => readHomepagePresentation(db, language, "vacation")).catch(() => readHomepagePresentation(undefined, language, "vacation")),
+  ]);
   return (
     <PageShell>
       <main id="main-content" className="home-page">
@@ -41,7 +46,7 @@ export default async function HomePage() {
             <h1>{translate("כל מה שעושים בחופש, במקום אחד")}</h1>
             <p>{translate("נופש, ספא, אירועים ופעילויות. מחפשים ומזמינים ישר כאן.")}</p>
             <SearchBox showWorlds />
-            <HomeQuickSearches />
+            <HomeQuickSearches initialPresentation={homePresentation} />
           </div>
         </section>
 

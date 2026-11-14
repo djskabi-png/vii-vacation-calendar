@@ -127,9 +127,9 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
 
   return <div className="provider-results" aria-busy={pendingCategory !== null}><NearbySortStatus state={nearby} regionalOnly />
     <div className="provider-results-toolbar">
-      <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
+      <p className="provider-results-count discovery-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
       <div className="provider-results-actions">
-      <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && nearbyDefaultSort(pathname, null) === "recommended" ? "" : next }); }} options={sortOptions} />
+      <ModernSelect className="discovery-sort-control" compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" && nearbyDefaultSort(pathname, null) === "recommended" ? "" : next }); }} options={sortOptions} />
       <button type="button" className="provider-filter-toggle" aria-label={filtersOpen ? labels.close : labels.filters} aria-expanded={filtersOpen} aria-controls={filterPanelId} onClick={() => setFiltersOpen(value => !value)}>{filtersOpen ? <span aria-hidden="true">×</span> : null}{labels.filters}{activeFilterCount ? <span>{activeFilterCount}</span> : null}</button>
       </div>
     </div>

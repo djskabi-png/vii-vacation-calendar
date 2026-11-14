@@ -44,9 +44,12 @@ const assets = {
   },
 };
 const context = { waitUntil(promise) { promise.catch(() => undefined); }, passThroughOnException() {} };
-// These POST handlers only calculate supplier quotes. Reservation, lead,
-// account and administration mutations remain unavailable in this preview.
-const quoteReadPaths = new Set(["/api/vii/stay-quote", "/api/vii/stay-unit-quotes"]);
+// These POST handlers are read-only queries. Reservation, lead, account and
+// administration mutations remain unavailable in this preview.
+const readPostPaths = new Set(["/api/vii/stay-quote", "/api/vii/stay-unit-quotes", "/api/vii/card-galleries", "/api/vii/live-search"]);
+// Candidate-owned read endpoints must exercise the newly built Worker rather
+// than being silently replaced by the current public implementation.
+const candidateReadPaths = new Set(["/api/map-snapshot"]);
 
 const server = http.createServer(async (request, response) => {
   try {
@@ -56,10 +59,10 @@ const server = http.createServer(async (request, response) => {
       response.end('<!doctype html><html><body><a href="/vacations/kinneret">Kinneret delayed stylesheet</a><a href="/">Home delayed stylesheet</a><a href="/events">Events delayed stylesheet</a><a href="/spas">Spa delayed stylesheet</a><a href="/hourly">Hourly delayed stylesheet</a></body></html>');
       return;
     }
-    const quoteRead = request.method === "POST" && quoteReadPaths.has(incoming.pathname);
-    if (request.method !== "GET" && request.method !== "HEAD" && !quoteRead) { response.writeHead(405); response.end(); return; }
+    const readPost = request.method === "POST" && readPostPaths.has(incoming.pathname);
+    if (request.method !== "GET" && request.method !== "HEAD" && !readPost) { response.writeHead(405); response.end(); return; }
     let quoteBody;
-    if (quoteRead) {
+    if (readPost) {
       const chunks = []; let bytes = 0;
       for await (const chunk of request) { bytes += chunk.length; if (bytes > 65_536) { response.writeHead(413); response.end(); return; } chunks.push(chunk); }
       quoteBody = Buffer.concat(chunks);
@@ -67,8 +70,10 @@ const server = http.createServer(async (request, response) => {
     let result = await assets.fetch(new Request(incoming));
     if (result.status === 404 && localCatalog && incoming.pathname === "/api/catalog") {
       result = await catalogResponse(new Request(incoming), null);
+    } else if (result.status === 404 && candidateReadPaths.has(incoming.pathname)) {
+      result = await worker.fetch(new Request(incoming, { headers: request.headers }), { ASSETS: assets }, context);
     } else if (result.status === 404 && incoming.pathname !== "/api/vii/homepage-presentation" && (incoming.pathname.startsWith("/api/") || incoming.pathname === "/_vinext/image")) {
-      result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: quoteRead ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(quoteRead ? { "Content-Type": "application/json" } : {}) }, ...(quoteRead ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
+      result = await fetch(`${publicOrigin}${incoming.pathname}${incoming.search}`, { method: readPost ? "POST" : request.method, headers: { Accept: request.headers.accept || "*/*", ...(readPost ? { "Content-Type": "application/json" } : {}) }, ...(readPost ? { body: quoteBody } : {}), signal: AbortSignal.timeout(45_000) });
     } else if (result.status === 404) {
       const flight = incoming.pathname.endsWith('.rsc') || request.headers.rsc === '1' || String(request.headers.accept || '').includes('text/x-component');
       const renderer = predecessor && !flight && String(request.headers.accept || '').includes('text/html') ? predecessor : worker;

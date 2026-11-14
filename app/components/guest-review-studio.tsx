@@ -9,6 +9,7 @@ import type { LegacyReview } from "../data/legacy-vacation-profiles";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { SliderRailControls } from "./slider-rail-controls";
+import { GalleryActionContent } from "./gallery-action-content";
 
 type ReviewSubject = "place" | "trail";
 
@@ -203,7 +204,7 @@ export function GuestReviewStudio({
       </div>
       <div className="review-experience__actions">
         <button className="button primary" type="button" onClick={openDialog}>{buttonLabel}</button>
-        {!isTrail && onOpenGallery ? <button className="button secondary" type="button" onClick={onOpenGallery}>{copy.gallery}</button> : null}
+        {!isTrail && onOpenGallery ? <button className="button secondary gallery-action-button" type="button" onClick={onOpenGallery} aria-label={copy.gallery} title={copy.gallery}><GalleryActionContent label={copy.gallery} /></button> : null}
       </div>
     </div>
 

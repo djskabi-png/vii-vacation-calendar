@@ -3856,8 +3856,11 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .discovery-detail__gallery-media img { display: block; transition: transform .45s ease; }
 .discovery-detail__gallery-media:hover img { transform: scale(1.025); }
 .discovery-detail__gallery-launch { position: absolute; z-index: 3; inset-inline-start: 22px; bottom: 22px; min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 8px 15px; color: var(--ink); border: 1px solid rgba(255,255,255,.72); border-radius: 15px; background: rgba(255,255,255,.94); box-shadow: 0 12px 28px rgba(0,35,43,.2); backdrop-filter: blur(12px); font: inherit; font-weight: 850; cursor: pointer; }
-.discovery-detail__gallery-launch > span { color: var(--teal-dark); font-size: 1.15rem; }
-.discovery-detail__gallery-launch small { color: var(--ink-soft); font-size: .72rem; font-weight: 750; }
+.gallery-action-content { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.gallery-action-content > svg { width: 19px; height: 19px; flex: 0 0 19px; color: var(--teal-dark); stroke-width: 2; }
+.gallery-action-content__label { font: inherit; color: inherit; }
+.gallery-action-content__meta { color: var(--ink-soft); font-size: .72rem; font-weight: 750; }
+.discovery-detail__gallery-launch .gallery-action-content { color: var(--ink); font-size: inherit; }
 .discovery-detail__media > span { display: grid; justify-items: center; color: white; }
 .discovery-detail__media b { font-size: 7rem; }
 .discovery-detail__actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 9px; }
@@ -4182,6 +4185,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .event-feature-groups .feature-list,.supplier-room-feature-groups .feature-list { margin-block: 14px 0; }
 .property-gallery img { width: 100%; height: 100%; object-fit: cover; }
 .property-gallery button span { position: absolute; bottom: 16px; inset-inline-start: 16px; background: white; padding: 8px 12px; border-radius: 10px; font-weight: 700; }
+.property-gallery button .gallery-action-content { display: inline-flex; align-items: center; gap: 7px; }
+.property-gallery button .gallery-action-content__label { position: static; padding: 0; color: inherit; background: transparent; font: inherit; }
 .property-gallery button.property-gallery__mobile-arrow,.property-gallery .property-gallery__mobile-position,.property-gallery .property-gallery__open-full { display: none; }
 .property-gallery.single { grid-template-columns: 1fr; grid-template-rows: 520px; }
 .property-layout { display: grid; grid-template-columns: minmax(0,1fr) 370px; gap: 70px; padding-block: 60px 90px; }
@@ -4805,6 +4810,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .discovery-detail__media { min-height: 360px; order: -1; }
   .discovery-detail__media img { height: 360px; }
   .discovery-detail__gallery-launch { inset-inline: 14px; bottom: 14px; justify-content: center; }
+  .gallery-action-button { width: 44px; min-width: 44px; height: 44px; min-height: 44px; display: grid !important; place-items: center; flex: 0 0 44px; gap: 0; padding: 0 !important; border-radius: 50% !important; }
+  .gallery-action-button .gallery-action-content { position: static; display: grid; place-items: center; padding: 0; background: transparent; }
+  .gallery-action-button .gallery-action-content__label,.gallery-action-button .gallery-action-content__meta { display: none; }
+  .gallery-action-button .gallery-action-content > svg { width: 21px; height: 21px; margin: 0; }
+  .discovery-detail__gallery-launch.gallery-action-button { inset-inline-start: 14px; inset-inline-end: auto; }
   .spa-detail-nav { top: 68px; }
   .provider-toolbar { position: static; grid-template-columns: 1fr; }
   .provider-filter-options { grid-column: auto; }
@@ -5103,7 +5113,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .property-gallery__mobile-arrow--previous { inset-inline-start: 10px; }
   .property-gallery__mobile-arrow--next { inset-inline-end: 10px; }
   .property-gallery .property-gallery__mobile-position { position: absolute; inset: auto 0 0; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; padding-inline: 14px; color: #365b63; background: #fff; }
-  .property-gallery .property-gallery__open-full { position: absolute; z-index: 5; inset-inline-end: 12px; bottom: 48px; display: block; padding: 7px 11px; border: 1px solid rgba(255,255,255,.85); border-radius: 999px; color: #123f49; background: rgba(255,255,255,.94); box-shadow: 0 6px 18px rgba(0,35,43,.18); font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+  .property-gallery .property-gallery__open-full { position: absolute; z-index: 5; inset-inline-end: 12px; bottom: 48px; display: grid; width: 44px; height: 44px; padding: 0; place-items: center; border: 1px solid rgba(255,255,255,.85); border-radius: 50%; color: #123f49; background: rgba(255,255,255,.94); box-shadow: 0 6px 18px rgba(0,35,43,.18); font: inherit; cursor: pointer; }
+  .property-gallery button.property-gallery__open-full .gallery-action-content { position: static; display: grid; place-items: center; padding: 0; background: transparent; }
   .property-gallery__mobile-dots { display: flex; align-items: center; gap: 6px; }
   .property-gallery__mobile-dots i { width: 6px; height: 6px; border-radius: 50%; background: #b5c9cd; transition: width .2s ease,background .2s ease; }
   .property-gallery__mobile-dots i.is-active { width: 18px; border-radius: 999px; background: var(--teal-dark); }
@@ -10370,7 +10381,7 @@ body:has(.story-gallery, .share-dialog-layer, .review-studio, .vacation-booking-
 /* VII_WORLD_STYLE_EVENTS_308 */
 /* VII_WORLD_STYLE_EVENTS_309 */
 [data-slider-controls] button:disabled,
-button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: default; box-shadow: none; transform: none; pointer-events: none; }
+button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: default; box-shadow: none; pointer-events: none; }
 .stay-card:hover .stay-card__gallery-arrow:disabled,
 .property-gallery button.property-gallery__mobile-arrow:disabled,
 .story-gallery__tap:disabled { opacity: .32; }

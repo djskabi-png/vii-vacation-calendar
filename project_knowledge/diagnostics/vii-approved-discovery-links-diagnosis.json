@@ -1,0 +1,65 @@
+{
+  "status": "fixed",
+  "symptom": "Clicking family-event and birthday discovery cards opened parameterized event searches; family events could show zero results, and a removed homepage discovery card appeared briefly during refresh.",
+  "expected_behavior": "Every editorial discovery card opens its approved canonical landing page with matching results, and the homepage first paint contains only the currently published managed cards.",
+  "environment": "VII local release worktree release/v909-home-cold-render-20261113 on 2026-11-14, using the bundled public event catalog and Next/Vinext source.",
+  "authorization_boundary": "Local source repair and verification only; no public deployment was requested or performed.",
+  "reproduction": {
+    "steps": [
+      "Inspect the event quick-search and world popular-search defaults for the family and birthday cards.",
+      "Resolve the legacy eventType URLs and compare them with approved managed search-page routes.",
+      "Inspect the homepage presentation hook before its API request resolves."
+    ],
+    "evidence": "The source contained /events/search query destinations, and usePresentation returned parseHomepagePresentation(undefined, world) while the managed request was pending."
+  },
+  "observations": [
+    { "observation": "Known family and birthday discovery destinations were query URLs rather than canonical approved pages.", "evidence": "Pre-fix event-landing-presentation.ts and world-popular-search-defaults.ts source inspection." },
+    { "observation": "The event inventory is present.", "evidence": "The shared taxonomy finds 11 birthday matches and 8 family-event matches in the bundled public catalog." },
+    { "observation": "The homepage client displayed default data before managed data arrived.", "evidence": "Pre-fix usePresentation returned parseHomepagePresentation(undefined, world) whenever scoped data was absent." }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Parameterized editorial links bypass approved managed pages and raw event facet aliases are applied inconsistently.",
+      "prediction": "The source contains query destinations while canonical managed pages are absent from the discovery links, despite matching catalog inventory.",
+      "discriminating_test": "Inspect defaults and resolve legacy URLs, then count catalog matches through matchesEventOccasion.",
+      "result": "Legacy query destinations were found and 11 birthday plus 8 family matches were confirmed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The catalog contains no birthday or family-event inventory.",
+      "prediction": "Shared taxonomy matching returns zero records for the two approved page filters.",
+      "discriminating_test": "Run the approved-discovery-links inventory regression against bundledPublicCatalogSummaries(events).",
+      "result": "The regression found 11 birthday matches and 8 family-event matches, so missing inventory is not the cause.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The removed homepage card flashes because client fallback defaults are rendered before the authoritative managed presentation resolves.",
+      "prediction": "The hook returns default presentation data during the pending request and later replaces it with managed data.",
+      "discriminating_test": "Inspect the hook pending-state return path and the homepage server render input.",
+      "result": "The pre-fix hook returned defaults; the repaired homepage now passes readHomepagePresentation output into the first render and other consumers return null instead of stale defaults.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Create approved event pages, normalize known legacy links, reject unresolved parameter links at CMS parse and validation boundaries, use the shared event occasion matcher, and hydrate the homepage from its authoritative server presentation.",
+    "evidence": "All 18 focused regressions passed, including canonical link mapping, non-empty inventory, cross-world query-free defaults, CMS rejection, aliases, and first-paint source guards."
+  },
+  "affected_family": [
+    "Homepage popular-search first paint and managed content refresh",
+    "Event quick searches and popular searches",
+    "World popular-search defaults for vacation, spa, events, hourly, providers, trails, attractions and corporate",
+    "Event region and venue-type discovery cards",
+    "CMS validation for managed discovery lists"
+  ],
+  "regression_checks": [
+    { "check": "Approved event link mapping and matching inventory", "status": "passed", "evidence": "tests/approved-discovery-links.test.mjs passed 5 checks." },
+    { "check": "Cross-world clean popular-search URLs", "status": "passed", "evidence": "tests/world-popular-search-defaults.test.mjs passed 7 checks." },
+    { "check": "Homepage and quick-search contracts", "status": "passed", "evidence": "homepage-popular-searches, world-quick-searches and event-occasion-aliases passed 6 checks." }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Public behavior remains unverified because this local repair has not been deployed."]
+}

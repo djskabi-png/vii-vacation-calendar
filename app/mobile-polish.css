@@ -39,6 +39,93 @@
   .site-page .section-head { flex-wrap:wrap; align-items:flex-start; gap:10px 16px; }
   .site-page .section-head > :is(div:first-child,h2) { flex:1 1 100%; min-width:0; }
   .site-page .section-head > a { display:inline-flex; align-items:center; min-height:44px; }
+  /* A slider heading is one compact mobile unit: title, then one shared row
+     for its destination link and arrows, then the cards. EventRail and
+     HomeMobileRail used to reserve two separate 44px rows here. */
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls),
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    row-gap:8px;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .section-head,
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .section-head {
+    display:contents;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .section-head > :is(div:first-child,h2),
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .section-head > :is(div:first-child,h2) {
+    grid-row:1;
+    grid-column:1;
+    min-width:0;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .section-head h2,
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .section-head h2 {
+    margin:0;
+    line-height:1.25;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .section-head .eyebrow,
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .section-head .eyebrow {
+    display:block;
+    margin-bottom:3px;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .section-head > a,
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .section-head > a {
+    grid-row:2;
+    grid-column:1;
+    justify-self:start;
+    min-height:44px;
+    margin:0;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .home-mobile-rail-controls {
+    grid-row:2;
+    grid-column:1;
+    align-self:center;
+    justify-self:end;
+    margin:0;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .event-rail-wrap {
+    display:contents;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .event-rail-wrap > .event-rail-controls {
+    grid-row:2;
+    grid-column:1;
+    align-self:center;
+    justify-self:end;
+    margin:0;
+  }
+  .site-page :is(section,.shell):has(> .section-head + .event-rail-wrap) > .event-rail-wrap > .event-rail,
+  .site-page :is(section,.shell):has(> .section-head + .home-mobile-rail-controls) > .home-mobile-rail {
+    grid-row:3;
+    grid-column:1;
+    margin-top:0;
+  }
+  .site-page .event-slider-section > .section-head > .event-slider-section__actions {
+    grid-row:2;
+    grid-column:1;
+    width:100%;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .site-page .event-slider-section__actions > a {
+    display:inline-flex;
+    align-items:center;
+    min-height:44px;
+    color:var(--teal-dark);
+    font-weight:700;
+  }
+  .site-page .event-slider-section__actions .home-slider__controls {
+    margin-inline-start:auto;
+  }
+  .site-page .event-slider-section__actions .home-slider__controls button {
+    width:44px;
+    min-width:44px;
+    height:44px;
+    min-height:44px;
+    padding:0;
+  }
   /* Editorial headings, their destination link and their rail controls are one
      compact unit. The generic full-row heading rule otherwise leaves a large
      empty band between the copy and the cards. */
@@ -81,10 +168,10 @@
   /* The generic .section padding is loaded after the world stylesheet and was
      winning the cascade. Keep the events rhythm deliberately compact. */
   .site-page .events-page > .section { padding-block:24px; }
-  .site-page .events-page > .event-discovery-section { padding-block:18px; }
+  .site-page .events-page > .event-discovery-section { padding-block:14px; }
   .site-page .events-page > .event-region-section { padding-block:18px 22px; }
-  .site-page .events-page .section-head { margin-bottom:12px; }
-  .site-page .events-page .event-rail-controls { margin-bottom:8px; }
+  .site-page .events-page .section-head { margin-bottom:8px; }
+  .site-page .events-page .event-rail-controls { margin-bottom:4px; }
   .site-page .footer-grid { gap:0; padding-block:24px 12px; }
   .site-page .site-footer { padding:28px 0 12px; }
   .site-page .site-footer .footer-about { margin:0 0 20px; text-align:center; }
@@ -181,4 +268,107 @@
 @media (max-width:360px) {
   .site-page .home-managed-discovery__track .search-depth__discovery-card { grid-template-columns:56px minmax(0,1fr) 12px; padding:12px; column-gap:10px; }
   .site-page .home-managed-discovery__track .home-managed-discovery__visual { width:56px; height:56px; }
+}
+/* Compact result summaries and sorting stay consistent across discovery worlds. */
+.discovery-results-count {
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+  font-size: .9rem !important;
+  font-weight: 760;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+.discovery-sort-control.modern-select--compact {
+  width: auto;
+  min-width: 136px;
+  max-width: 190px;
+  display: block;
+}
+.discovery-sort-control .modern-select__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.discovery-sort-control.modern-select--compact .modern-select__trigger {
+  min-height: 40px;
+  padding-inline: 12px;
+  border-radius: 13px;
+  box-shadow: none;
+}
+.discovery-sort-control .modern-select__trigger strong {
+  font-size: .82rem;
+  font-weight: 820;
+  flex: 0 0 auto;
+}
+.discovery-sort-control.modern-select--compact .modern-select__menu {
+  width: max-content;
+  min-width: 190px;
+  max-width: min(260px, calc(100vw - 24px));
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+.discovery-sort-control .modern-select__menu button > span { white-space: nowrap; }
+.discovery-sort-control .modern-select__menu button.is-selected,
+.discovery-sort-control .modern-select__menu button.is-selected > span,
+.discovery-sort-control .modern-select__menu button.is-selected bdi,
+.discovery-sort-control .modern-select__menu button.is-selected bdi > span {
+  color: #fff !important;
+}
+
+@media (max-width: 760px) {
+  .discovery-results-count {
+    max-width: 42vw;
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: .78rem !important;
+    line-height: 1.28;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .discovery-sort-control.modern-select--compact,
+  .results-toolbar > .results-toolbar__sort.discovery-sort-control {
+    width: auto;
+    min-width: 118px;
+    max-width: 154px;
+    display: block;
+    flex: 0 0 118px;
+  }
+  .discovery-sort-control.modern-select--compact .modern-select__trigger {
+    min-height: 40px;
+  }
+  .hourly-results__heading,
+  .spa-results__heading {
+    gap: 8px;
+  }
+  .hourly-results__heading > div:first-child,
+  .spa-results__heading > .discovery-results-count {
+    flex: 0 1 auto;
+  }
+  .hourly-results__actions,
+  .spa-results__view-actions {
+    min-width: 0;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+  }
+  .spa-results__view-actions .modern-select.discovery-sort-control {
+    min-width: 118px;
+    flex: 0 0 118px;
+  }
+  .spa-results__view-actions .discovery-sort-control .modern-select__label {
+    display: block;
+  }
+}
+
+@media (max-width: 380px) {
+  .discovery-results-count { max-width: 34vw; font-size: .74rem !important; }
+  .discovery-sort-control.modern-select--compact,
+  .results-toolbar > .results-toolbar__sort.discovery-sort-control { min-width: 108px; max-width: 136px; flex-basis: 108px; }
+  .spa-results__view-actions .modern-select.discovery-sort-control { min-width: 108px; flex-basis: 108px; }
+  .discovery-sort-control .modern-select__trigger strong { font-size: .76rem; }
 }

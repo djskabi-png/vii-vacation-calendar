@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-console-errors-20261114",
+  "project": "VII",
+  "task_type": "root-cause-debugging",
+  "requested_outcome": "Find and remove reproducible browser code errors across representative VII page families without changing approved behavior or design.",
+  "natural_destination": "The exact local candidate rendered in a real browser on representative desktop and mobile routes.",
+  "authorization_boundary": "Read-only production diagnosis and local source repair are allowed. No publication, production data write, DNS change, supplier mutation, or outbound message is authorized.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A source edit or passing build cannot prove that browser errors disappeared.",
+      "acceptance_impact": "Require exact browser evidence for the fixed route and the complete affected template family."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The observed error is produced by a shared gallery component used across worlds.",
+      "acceptance_impact": "Audit representative vacation, event, spa and hourly detail pages on desktop and mobile."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "The user explicitly asked for improvement without breaking function or appearance.",
+      "acceptance_impact": "Keep gallery ordering, media identity, controls, labels and layout invariant; change only unstable React identity and other proven error boundaries."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "Several reported failures occur only in mobile gallery and slider states.",
+      "acceptance_impact": "Exercise the affected component at 390px with gallery open, navigation, close and reload."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only one reported page is fixed while the same React error remains in other worlds.",
+      "prevention": "Repair the shared gallery identity boundary and run a cross-world route matrix.",
+      "acceptance_check": "No React duplicate-key or uncaught page error on the representative detail-page family in both viewports."
+    },
+    {
+      "rejection": "Console output is hidden or ignored instead of fixing the cause.",
+      "prevention": "Capture exact pageerror, console error and failing network evidence before editing and retest after editing.",
+      "acceptance_check": "The diagnosis names a supported root cause and rejects competing hypotheses with reproducible evidence."
+    },
+    {
+      "rejection": "The error disappears but gallery order, unit separation, arrows or labels regress.",
+      "prevention": "Preserve item ordering and selection semantics and run existing gallery integrity tests plus an explicit duplicate-source regression.",
+      "acceptance_check": "Existing gallery tests and the new duplicate-source identity test pass, with browser controls still usable."
+    }
+  ],
+  "affected_family": [
+    "shared GalleryExperience desktop rendering",
+    "shared GalleryExperience mobile tour and viewer",
+    "vacation business detail",
+    "event place detail",
+    "spa place detail",
+    "hourly place detail",
+    "homepage and world index templates for unrelated console errors"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted gallery identity and sequence",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#place-pages-and-media"
+      },
+      {
+        "label": "Scoped API gallery closure",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#scoped-api-gallery-closure-sites860-10-november-2026"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first representative detail page reproduces the console error and the smallest identity fix removes it.",
+    "checks": [
+      "Reproduce duplicate-key error before the fix",
+      "Open and navigate the same gallery after the fix without a pageerror or console error",
+      "Confirm item count and first selected image remain unchanged"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a duplicate supplier image still create a React key collision in another gallery scope?",
+      "Does mobile gallery open, move, close and reopen without an uncaught error?",
+      "Did the narrow fix alter gallery membership, ordering, labels, arrows or unrelated page behavior?"
+    ],
+    "natural_destination_evidence": "Real-browser local candidate results with captured console, pageerror and network status for representative routes.",
+    "affected_family_evidence": "Focused tests plus desktop/mobile route matrix across vacation, event, spa and hourly detail families and unrelated index pages."
+  },
+  "effectiveness": {
+    "baseline": "A prior local browser run emitted repeated React duplicate-key errors in the shared GalleryExperience when supplier images were reused across gallery identities.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero reproducible React duplicate-key or uncaught page errors in the representative browser matrix, with no gallery behavior regression."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -11,7 +11,7 @@ const events = await readFile(new URL("../app/events/page.tsx", import.meta.url)
 const css = await readEffectiveWorldCss();
 
 test("events, spa and hourly pages expose world-specific quick searches", () => {
-  assert.match(eventPresentation, /searchHref\(\{ eventType: "יום הולדת" \}\)/);
+  assert.match(eventPresentation, /approvedEventDiscoveryPaths\.birthdays/);
   assert.match(component, /spa:/);
   assert.match(component, /hourly:/);
   assert.match(landing, /<WorldQuickSearches mode=\{searchMode\}/);
@@ -19,13 +19,11 @@ test("events, spa and hourly pages expose world-specific quick searches", () => 
 });
 
 test("every quick search is a crawlable link with a meaningful URL state", () => {
-  assert.match(eventPresentation, /new URLSearchParams\(params\)\.toString\(\)/);
-  assert.match(eventPresentation, /searchHref\(\{ eventType: "יום הולדת" \}\)/);
-  assert.match(eventPresentation, /guests=100/);
+  assert.match(eventPresentation, /approvedEventDiscoveryPaths\.family/);
+  assert.match(eventPresentation, /approvedEventDiscoveryPaths\.large/);
   assert.match(component, /\/spas\/couples-spa/);
-  assert.match(component, /maxPrice=250/);
-  assert.match(component, /עד ₪ 250 לשעתיים/);
-  assert.match(component, /features=independent/);
+  assert.match(component, /\/hourly\/search\/center/);
+  assert.doesNotMatch(component, /\/hourly\?/);
   assert.doesNotMatch(component, /preventDefault/);
   assert.match(eventComponent, /<Link key=\{item\.id\} href=\{item\.href\}/);
 });

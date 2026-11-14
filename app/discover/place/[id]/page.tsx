@@ -12,7 +12,7 @@ import { getProviderDetails } from "../../../data/provider-details";
 import { getHourlyDetails } from "../../../data/hourly-details";
 import { getActivityDetails } from "../../../data/activity-details";
 import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
-import { bundledPublicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSelectedSummaries, publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
@@ -22,6 +22,8 @@ import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landing
 import { spaBreadcrumbsForLocation } from "../../../data/spa-search-landings";
 import { discoveryBreadcrumbsForLocation } from "../../../lib/place-breadcrumb-locations";
 import { providerSearchBreadcrumbs } from "../../../lib/provider-search-state";
+import InactiveBusinessPage, { inactiveBusinessMetadata } from "../../../components/inactive-business-page";
+import { inactiveBusiness } from "../../../lib/inactive-business-archive.ts";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -33,7 +35,8 @@ const resolveItem = cache(async (id: string) => {
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;
   if (/^spa-\d+$/.test(id)) {
     const supplierId = Number(id.slice("spa-".length));
-    const [acceptedSite] = await bundledPublicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
+    let [acceptedSite] = await bundledPublicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
+    if (!acceptedSite) [acceptedSite] = await publicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]);
     const selectedItem = acceptedSite ? spaPlacesFromSites([acceptedSite])[0] : undefined;
     // The first document uses the accepted build snapshot so a cold database
     // connection cannot hold the visible place shell.
@@ -43,7 +46,8 @@ const resolveItem = cache(async (id: string) => {
     spaSite = acceptedSite;
   } else if (/^hourly-\d+$/.test(id)) {
     const supplierId = Number(id.slice("hourly-".length));
-    const [acceptedPlace] = await bundledPublicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
+    let [acceptedPlace] = await bundledPublicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
+    if (!acceptedPlace) [acceptedPlace] = await publicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]);
     const selectedItem = acceptedPlace ? hourlyPlacesFromCatalog([acceptedPlace])[0] : undefined;
     // Keep the selected accepted snapshot without a cold runtime catalog read.
     items = discoveryItems.filter((entry) => entry.world === "hourly")
@@ -59,9 +63,15 @@ const resolveItem = cache(async (id: string) => {
     items = discoveryItems.map((entry) => managed.get(entry.id) || entry);
   }
   const item = items.find((entry) => entry.id === id);
-  if (!item) notFound();
+  if (!item) return null;
   return { item: spaSite ? { ...item, description: spaSite.shortDescription || spaEditorialDescription(spaSite) } : item, items, spaSite, hourlyPlace };
 });
+
+async function inactiveDiscoveryItem(id: string) {
+  const match = /^(spa|hourly)-(\d+)$/.exec(id);
+  if (!match) return null;
+  return inactiveBusiness(match[1] === "spa" ? "spa" : "rooms", Number(match[2]));
+}
 
 function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (typeof hourlyCatalog.places)[number]) {
   if (item.world === "spa") return getSpaDetails(item.id, spaSite)?.faq || [];
@@ -72,7 +82,13 @@ function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (type
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { item, spaSite } = await resolveItem((await params).id);
+  const id = (await params).id;
+  const resolved = await resolveItem(id);
+  if (!resolved) {
+    const archived = await inactiveDiscoveryItem(id);
+    return archived ? inactiveBusinessMetadata(archived) : { title: "המקום אינו זמין", robots: { index: false, follow: false } };
+  }
+  const { item, spaSite } = resolved;
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
   const { translate } = await serverPublicCopy();
   const title = translate(spaSite ? spaEditorialTitle(spaSite) : item.name);
@@ -88,7 +104,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const { item, items, spaSite, hourlyPlace } = await resolveItem((await params).id);
+  const id = (await params).id;
+  const resolved = await resolveItem(id);
+  if (!resolved) {
+    const archived = await inactiveDiscoveryItem(id);
+    if (archived) return <InactiveBusinessPage place={archived} />;
+    notFound();
+  }
+  const { item, items, spaSite, hourlyPlace } = resolved;
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
   const providerBreadcrumbs = item.world === "providers" ? providerSearchBreadcrumbs(item) : null;
   const itemBreadcrumbs = item.world === "hourly"

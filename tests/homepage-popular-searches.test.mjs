@@ -10,11 +10,11 @@ const expected = [
   ["דירות נופש", "/vacation-apartments"],
   ["סוויטות יוקרתיות", "/luxury-suites"],
   ["נופש ברגע האחרון", "/last-minute"],
-  ["נופש למשפחה עם בריכה מחוממת", "heated-pool,families"],
+  ["נופש בצפון עם בריכה מחוממת למשפחות", "/search/vacations/north-21009-70308c9b"],
   ["מקומות לאירועים", "/events"],
   ["חבילות ספא", "/spas#spa-world-package-deals"],
   ["חדרים לפי שעה", "/hourly"],
-  ["לופטים", "/events/search?type=%D7%9C%D7%95%D7%A4%D7%98"],
+  ["לופטים", "approvedEventDiscoveryPaths.lofts"],
 ];
 
 test("homepage popular searches contain the requested ten destinations", () => {

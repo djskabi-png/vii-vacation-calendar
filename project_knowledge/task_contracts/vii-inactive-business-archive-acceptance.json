@@ -1,0 +1,66 @@
+{
+  "goal": "Recover and preserve inactive VII businesses as accurate indexable canonical pages while excluding them from active discovery, retaining all data for supplier-driven reactivation, and publishing the verified cumulative release.",
+  "intent_model": {
+    "literal_request": "Turn the 405 base-mapped 410 business URLs into inactive business pages, remove phone and WhatsApp, keep them indexable and manageable, preserve their data and allow a one-click return to advertising.",
+    "implied_outcome": "Temporary advertising pauses never destroy SEO equity or business data, and neither visitors nor search engines receive stale commercial claims.",
+    "likely_rejections": ["Some recoverable URLs still return 410","Inactive places appear in search","Contact or booking remains visible","Admin cannot restore a returning business","A deployment overwrites newer work"],
+    "interpretation_rules": [
+      {"phrase":"כל המקומות","operational_meaning":"Classify and process the complete 405-row legacy-gone family, not only the two already known active mismatches.","acceptance_impact":"A reconciliation ledger must account for every row as active redirect, inactive archive redirect, or evidenced true removal."},
+      {"phrase":"בלחיצת כפתור","operational_meaning":"Provide one administration action that verifies current supplier truth and completes reactivation without rebuilding content.","acceptance_impact":"The persisted status transition and public/search reflection must be tested from inactive through active."},
+      {"phrase":"לא מוסתר ממנועי חיפוש","operational_meaning":"Return a substantive 200 canonical page with index,follow and appropriate sitemap treatment, not a soft 404 or noindex page.","acceptance_impact":"Live response, canonical, robots and structured data must agree with the inactive content."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer":"An inactive business is preserved but clearly unavailable.",
+    "current_decision":"Distinguish inactive from permanently removed using supplier truth and recovered identity.",
+    "next_action":"Visitors choose an active alternative; an operator rechecks and reactivates a returning supplier.",
+    "deferred_complexity":["Manual content enrichment unrelated to recovered data"],
+    "preserved_depth":["Historic media and metadata","supplier identity","direct legacy redirects","audit history","automatic active return"]
+  },
+  "predictive_preflight": {
+    "manifest_path":"project_knowledge/task_contracts/vii-inactive-business-archive-preflight.json",
+    "lesson_bundle_ids":["ADIR-QA-001","ADIR-DEPLOY-001","ADIR-ADMIN-001","ADIR-SEO-001","ADIR-DATA-001","ADIR-PUBLIC-TRUST-001"],
+    "no_applicable_lessons_reason":null,
+    "midpoint_requirement":"preflight:midpoint",
+    "adversarial_requirement":"preflight:adversarial",
+    "effectiveness_requirement":"preflight:effectiveness"
+  },
+  "actors":["public visitor","search engine crawler","VII administrator","supplier synchronization worker"],
+  "natural_destination":"Legacy VII URLs, canonical place pages, search and map results, XML sitemaps, supplier persistence and the VII administration interface.",
+  "facts":[
+    {"claim":"The bundled legacy inventory contains 405 gone paths, including recoverable business paths.","evidence":"project_knowledge/diagnostics/vii-legacy-410-classification-20261114.json"},
+    {"claim":"The current sync filters active=false records before generation persistence.","evidence":"app/lib/sergey-public-catalog-client.ts"},
+    {"claim":"The current business detail resolvers read active public snapshots and return notFound when absent.","evidence":"app/business/page.tsx and app/discover/place/[id]/page.tsx"}
+  ],
+  "assumptions":[
+    {"claim":"A recoverable old page exposes enough stable identity and content to build an inactive archive row.","validation":"Parse the old page site ID, canonical path, title, description and media and reconcile it to supplier/world identity."},
+    {"claim":"All four worlds can share one lifecycle contract while retaining their own canonical routes.","validation":"Run fixtures and route tests for vacation, event, spa and hourly IDs."}
+  ],
+  "in_scope":["Inactive archive persistence","legacy recovery and reconciliation","public inactive pages","search exclusion","SEO metadata and sitemap policy","admin inactive inventory and verified reactivation","cumulative release and live verification"],
+  "out_of_scope":["Inventing missing business facts","Manually forcing an inactive supplier into active advertising","Deleting preserved supplier data"],
+  "invariants":["Active businesses keep full current behavior","Inactive businesses never appear as bookable or contactable","Supplier active state remains authoritative","Unknown unrecoverable identities do not receive fabricated pages","Existing cumulative fixes remain in the release"],
+  "affected_family":["vacation supplier lifecycle and /business detail route","event supplier lifecycle and /events/place detail route","spa supplier lifecycle and /discover/place/spa detail route","hourly supplier lifecycle and /discover/place/hourly detail route","public search, map, slider and recommendation exclusion queries","legacy redirect inventory and Worker disposition","XML sitemap, canonical, robots and structured-data generators","inactive-business administration list and reactivation action","supplier sync migration and D1 archive persistence","cumulative VII production release and rollback pipeline"],
+  "characteristics":{"stateful":true},
+  "requirements":[
+    {"id":"REQ-1","statement":"Every recoverable legacy business receives a stable canonical inactive page and one-hop legacy redirect.","source":"User request"},
+    {"id":"REQ-2","statement":"Inactive public pages are indexable and substantive but expose no phone, WhatsApp, booking, availability, price or offer claims.","source":"User request"},
+    {"id":"REQ-3","statement":"Inactive businesses are excluded from all active discovery surfaces.","source":"User request and VII product truth"},
+    {"id":"REQ-4","statement":"All recoverable data and supplier identity persist for a future return.","source":"User request"},
+    {"id":"REQ-5","statement":"Admin shows inactive records and provides a one-action supplier-verified reactivation path that persists and is audited.","source":"User request"},
+    {"id":"REQ-6","statement":"The complete 405-row legacy disposition is reconciled and only truly unrecoverable or permanently removed paths remain 410.","source":"User request"},
+    {"id":"REQ-7","statement":"The exact cumulative candidate is published with rollback and live desktop, mobile, SEO and admin evidence.","source":"User request and release policy"}
+  ],
+  "acceptance_checks":[
+    {"id":"AC-1","requirement_ids":["REQ-1","REQ-2"],"kind":"success","setup":"A recovered inactive vacation record and its old path","action":"Request the old URL and follow its redirect on desktop and mobile","observable_result":"One 301 leads to a 200 canonical index,follow page showing 'ירד מפרסום' with preserved identity/media and no contact or commerce actions."},
+    {"id":"AC-2","requirement_ids":["REQ-2","REQ-3"],"kind":"failure","setup":"An inactive record containing historic contact and offer data in private archive storage","action":"Render public HTML, hydrate it and query every discovery surface","observable_result":"No phone, WhatsApp, booking, availability, price or Offer JSON-LD leaks and the ID is absent from search, map, rails and recommendations."},
+    {"id":"AC-3","requirement_ids":["REQ-4","REQ-5"],"kind":"persistence","setup":"An inactive supplier record visible in admin","action":"Reload without cache and re-read the persisted record","observable_result":"Status, public URL, preserved data counts and lifecycle timestamps remain unchanged and an audit record exists."},
+    {"id":"AC-4","requirement_ids":["REQ-4","REQ-5"],"kind":"recovery","setup":"The supplier fixture changes the same world and ID from inactive to active","action":"Run the verified reactivation action and the normal sync","observable_result":"The canonical page becomes the full active page, discovery inclusion returns and archived media/metadata are not lost or duplicated."},
+    {"id":"AC-5","requirement_ids":["REQ-5"],"kind":"permission","setup":"Supplier truth still reports active=false","action":"An administrator invokes reactivation","observable_result":"The system refuses advertising activation, keeps the archive page and records the reason without changing public discovery."},
+    {"id":"AC-6","requirement_ids":["REQ-6"],"kind":"empty","setup":"The full 405-row legacy-gone inventory","action":"Run reconciliation against old-page recovery, active catalog and persisted inactive archive","observable_result":"Every row has one explicit evidenced disposition and no recoverable identity remains in the unexplained 410 bucket."},
+    {"id":"AC-7","requirement_ids":["REQ-7"],"kind":"rollback","setup":"A frozen clean cumulative release candidate with recorded current production identity","action":"Run release gates, deploy once and execute representative live scenarios","observable_result":"Live build identity matches the candidate, critical routes and admin pass, and a tested rollback target is recorded."},
+    {"id":"AC-8","requirement_ids":["REQ-1","REQ-2","REQ-3","REQ-7"],"kind":"retry","setup":"A cold-cache legacy or canonical request after deployment","action":"Load once, reload and revisit from an active search page","observable_result":"No transient 404/410, generic redirect, stale CTA, hydration error or contradictory robots state appears."}
+  ],
+  "open_questions":[],
+  "authorization_boundary":"The user authorized implementation and public deployment of the completed verified cumulative VII release. No invented identities, unsafe forced activation, credential disclosure or repeated uncertain deploy is authorized.",
+  "ready_for_implementation":true
+}

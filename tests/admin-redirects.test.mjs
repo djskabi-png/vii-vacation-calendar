@@ -64,8 +64,8 @@ test("inactive legacy suppliers never redirect to a public 404", () => {
   const result = mergedRedirectInventory([], { query: "villa_monsoon_premium", pageSize: 20 });
   assert.equal(result.total, 1);
   assert.equal(result.rows[0].source_path, "/villa_monsoon_premium");
-  assert.equal(result.rows[0].status, 410);
-  assert.equal(result.rows[0].target_path, null);
+  assert.equal(result.rows[0].status, 301);
+  assert.equal(result.rows[0].target_path, "/business?id=vacation-458");
 });
 
 test("redirect inventory filters outside the first page without rendering every row", () => {

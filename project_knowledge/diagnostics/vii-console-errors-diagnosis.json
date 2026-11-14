@@ -1,0 +1,105 @@
+{
+  "status": "fixed",
+  "symptom": "Representative VII pages emitted browser or React code errors during normal rendering, especially when a place gallery contained repeated supplier image URLs and when a stored map snapshot was not yet available.",
+  "expected_behavior": "Pages render without uncaught browser errors, React identity warnings or expected-fallback HTTP errors while preserving truthful gallery membership, ordering, map fallback and controls.",
+  "environment": "Public VII baseline and the exact cumulative local candidate release/v909-home-cold-render-20261113, desktop and 390px mobile, 2026-11-14.",
+  "reproduction": {
+    "steps": [
+      "Open representative vacation, event, spa and hourly place pages.",
+      "Open and operate each full gallery, including topic changes, viewer close and desktop/mobile transitions.",
+      "Capture console errors, React duplicate-key or hydration warnings, page errors and HTTP responses of status 400 or higher.",
+      "Open the home and each world index and detail route on desktop and mobile, then reload a place page."
+    ],
+    "evidence": ".qa-output/vii-console-errors/public-before-instrumented/gallery-mobile-release-audit.json captured map-snapshot 404 errors on public spa/hourly pages; source inspection found source-only gallery keys. The exact fixed candidate evidence is in .qa-output/vii-console-errors/local-final-exact/gallery-mobile-release-audit.json and .qa-output/vii-console-errors/local-route-final-exact.json."
+  },
+  "observations": [
+    {
+      "observation": "GalleryExperience rendered multiple lists with React keys derived only from item.src even though supplier data can intentionally preserve the same source image as distinct place and unit identities.",
+      "evidence": "Before the fix, app/components/gallery-experience.tsx used URL-only keys in mobile tour and progress lists and desktop progress/grid lists."
+    },
+    {
+      "observation": "Public spa and hourly samples requested absent optional map snapshots and received HTTP 404 before falling back to the venue image.",
+      "evidence": ".qa-output/vii-console-errors/public-before-instrumented/gallery-mobile-release-audit.json records GET /api/map-snapshot?world=spa&id=spa-6 and world=hourly&id=hourly-475 as 404 browser errors."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "React list keys used image source alone, but identical supplier URLs can legitimately appear in distinct gallery identities, causing key collisions.",
+      "prediction": "A gallery with the same image URL in multiple topic scopes emits a duplicate-key warning; a stable composite identity removes the warning without changing item order.",
+      "discriminating_test": "Assert composite category/topic/index/source keys and exercise all four gallery worlds while collecting console and page errors.",
+      "result": "Confirmed. Composite keys were applied to shared gallery, guest-photo and video lists. The focused regression suite passed 16/16 and the final four-world audit recorded zero runtime errors while all gallery interactions passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "An expected missing optional map snapshot used HTTP 404 as client control flow, which the browser surfaced as an error even though the visual fallback succeeded.",
+      "prediction": "Spa/hourly pages without a stored snapshot log 404, while a non-error readiness probe can preserve the same fallback without a console error.",
+      "discriminating_test": "Compare the instrumented public baseline with the exact candidate after adding a 204 readiness probe and retaining ordinary image-request semantics.",
+      "result": "Confirmed. Public baseline captured the two 404s; the exact candidate returned zero runtime errors across those same worlds and the broader route matrix.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A general page-rendering or hydration failure is responsible for the reported errors.",
+      "prediction": "Errors persist across index/detail/reload routes after the two targeted fixes.",
+      "discriminating_test": "Run desktop and mobile route reliability checks across home, four world indexes, four detail routes and reload.",
+      "result": "Rejected for the tested family. Twenty checks returned no captured console, page, hydration, duplicate-key or HTTP failure errors.",
+      "status": "rejected"
+    },
+    {
+      "id": "H4",
+      "mechanism": "The observed cross-world console noise had two independent shared-component causes: ambiguous React media identities and an expected optional map fallback represented as HTTP 404.",
+      "prediction": "Fixing both shared mechanisms removes the errors across their affected worlds without changing gallery order, map fallback or controls.",
+      "discriminating_test": "Apply both narrow fixes, then build and exercise all four detail worlds plus the desktop/mobile route family with runtime error capture.",
+      "result": "Supported. The exact candidate passed the build, 16 focused tests, four gallery-world interaction audits and 20 route checks with zero captured runtime errors.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H4",
+  "fix": {
+    "change": "Use stable composite React keys for legitimate repeated media identities. Probe optional map-snapshot readiness with a 204 status/header contract and transfer the image only when ready; retain the existing venue-image fallback and ordinary image endpoint behavior.",
+    "evidence": "16/16 focused tests passed; pnpm build passed; the exact candidate four-world gallery audit passed with zero runtime errors; the exact candidate desktop/mobile route matrix passed 20/20 with zero captured errors."
+  },
+  "affected_family": [
+    "shared full gallery",
+    "vacation detail",
+    "event detail",
+    "spa detail",
+    "hourly detail",
+    "shared map snapshot fallback"
+  ],
+  "regression_checks": [
+    {
+      "check": "Focused gallery and map regression tests",
+      "status": "passed",
+      "evidence": "node --test tests/hilat-unit-gallery-recovery.test.mjs tests/map-snapshot-pipeline.test.mjs completed with 16 passed and 0 failed"
+    },
+    {
+      "check": "Production candidate build",
+      "status": "passed",
+      "evidence": "pnpm build completed all five vinext stages, RSC verification, pruning and worker startup budget checks with exit code 0"
+    },
+    {
+      "check": "Four-world mobile and desktop gallery audit",
+      "status": "passed",
+      "evidence": ".qa-output/vii-console-errors/local-final-exact/gallery-mobile-release-audit.json records vacation, event, spa and hourly as passed with empty runtimeErrors and errors arrays"
+    },
+    {
+      "check": "Desktop and mobile route matrix",
+      "status": "passed",
+      "evidence": ".qa-output/vii-console-errors/local-route-final-exact.json records 20 checks, 0 failed and empty errors arrays"
+    },
+    {
+      "check": "Visual screenshot review",
+      "status": "passed",
+      "evidence": "The four screenshots under .qa-output/vii-console-errors/local-final-exact were inspected at 390x844 and retained Rubik/Heebo typography, 390px document width, gallery overview, viewer, back and close controls"
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The public release remains unchanged until a separately authorized deployment; therefore the current public baseline can still show the old map-snapshot 404 until that candidate is published.",
+    "The route matrix is a representative cross-world family check, not a mathematical proof over every generated URL."
+  ],
+  "authorization_boundary": "Read-only production diagnosis and local source/test changes only; no production publication or data mutation."
+}

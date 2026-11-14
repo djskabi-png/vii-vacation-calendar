@@ -1,18 +1,31 @@
+import fs from "node:fs";
 import { chromium } from "playwright";
 
 const base = (process.argv.find((value) => value.startsWith("--base="))?.slice(7) || "http://127.0.0.1:4191").replace(/\/$/, "");
 const repeats = Math.max(1, Math.min(5, Number(process.argv.find((value) => value.startsWith("--repeats="))?.slice(10) || 2)));
 const routes = [
   { id: "home", path: "/", expected: /נופש|חיפושים פופולריים/ },
-  { id: "search", path: "/vacations/search/rishon-lezion?from=2026-11-26&till=2026-11-28&adults=3&sort=price-asc", expected: /נופש|ראשון לציון/ },
+  { id: "vacations", path: "/vacations/north", expected: /נופש|צפון/ },
+  { id: "events", path: "/events", expected: /אירועים/ },
+  { id: "spas", path: "/spas", expected: /ספא/ },
+  { id: "hourly", path: "/hourly", expected: /חדרים|שעה/ },
   { id: "business", path: "/business?id=vacation-164", expected: /אחוזת הספא|פרטי הלינה במקום|על המקום/ },
+  { id: "event-place", path: "/events/place/event-680", expected: /אירוע|מתחם/ },
+  { id: "spa-place", path: "/discover/place/spa-6", expected: /ספא/ },
+  { id: "hourly-place", path: "/discover/place/hourly-475", expected: /חדר|שעה/ },
 ];
 const profiles = [
   { id: "desktop", viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false },
   { id: "mobile", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
 ];
 const blockedText = /העמוד לא נטען במלואו|לא הצלחנו להשלים את הטעינה|500 Internal server error|This site ran into a problem/;
-const browser = await chromium.launch({ headless: true });
+const executable = [
+  process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  chromium.executablePath(),
+].find((candidate) => candidate && fs.existsSync(candidate));
+const browser = await chromium.launch({ headless: true, executablePath: executable });
 const results = [];
 
 try {
@@ -20,8 +33,14 @@ try {
     const context = await browser.newContext({ ...profile, serviceWorkers: "allow", locale: "he-IL" });
     const page = await context.newPage();
     const errors = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" || (message.type() === "warning" && /same key|hydration|uncaught/i.test(message.text()))) {
+        const location = message.location();
+        errors.push(`console:${message.type()}:${message.text()}:${location.url || "unknown-source"}`);
+      }
+    });
     page.on("pageerror", (error) => errors.push(`pageerror:${error.message}`));
-    page.on("response", (response) => { if (response.status() >= 500) errors.push(`http:${response.status()}:${response.url()}`); });
+    page.on("response", (response) => { if (response.status() >= 400) errors.push(`http:${response.status()}:${response.request().resourceType()}:${response.url()}`); });
     for (let pass = 1; pass <= repeats; pass += 1) {
       for (const route of routes) {
         const started = Date.now();

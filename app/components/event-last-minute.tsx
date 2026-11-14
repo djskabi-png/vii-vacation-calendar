@@ -29,6 +29,7 @@ import { supplierStartingPrice } from "../lib/supplier-starting-price";
 import { CatalogStartingPrice } from "./catalog-starting-price";
 import { uniqueEventVenueItems, eventDealPagePath, type EventDealPresetId } from "../lib/event-discovery-contract.ts";
 import { ModernSelect } from "./modern-select";
+import { HomeSliderControls } from "./home-slider-controls";
 
 const copy = {
   he: { title: "מקומות לאירועים בתאריכים הקרובים", all: "לכל המקומות לאירועים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לרענן זמינות כרגע", retry: "לנסות שוב", empty: "אין כרגע הצעה מאומתת לתאריך הזה.", fallbackTitle: "מקומות נוספים שכדאי לבדוק", fallbackStatus: "הזמינות לתאריך הזה עדיין לא אומתה. אפשר לפנות ישירות למקום.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", today: "פנוי להיום", tomorrow: "פנוי למחר", thursday: "פנוי לחמישי", friday: "פנוי לשישי" },
@@ -122,6 +123,8 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   // label when the live supplier check failed or returned no verified offer.
   const showBrowseFallback = Boolean(!busy && !candidates.length && additionalPlaces.length && (search.status === "ready" || search.status === "error"));
   const visibleAdditionalPlaces = showBrowseFallback ? additionalPlaces : [];
+  const railId = `${sectionId}-rail`;
+  const hasRailItems = Boolean(candidates.length || visibleAdditionalPlaces.length);
 
   function choosePreset(id: string, presetDate: string) {
     setDate(presetDate);
@@ -129,7 +132,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   }
 
   return <section className={`section shell event-discovery-section event-deals${layout === "grid" ? " event-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
-    <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2>{layout === "rail" ? <Link href={localizedPath(searchPath, language)}>{allLabel}</Link> : null}</div>
+    <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div>{layout === "rail" ? <div><Link href={localizedPath(searchPath, language)}>{allLabel}</Link><HomeSliderControls railId={railId} label={title} itemSelector=".event-rail-card" disabled={busy || !hasRailItems} /></div> : null}</div>
     {!fixedPreset ? <div className="home-live-deals__tabs event-last-minute-tabs" role="tablist" aria-label={text.title}>
       {presets.map((preset, index) => <button type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={selectedPreset === preset.id} tabIndex={selectedPreset === preset.id ? 0 : -1} key={preset.id} onClick={() => choosePreset(preset.id, preset.date)} onKeyDown={(event) => {
         const next = event.key === "Home" ? 0 : event.key === "End" ? presets.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + presets.length) % presets.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + presets.length) % presets.length : -1;
@@ -152,7 +155,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
       {search.status === "ready" && !candidates.length && !visibleAdditionalPlaces.length ? <p className="event-rail-status">{text.empty}</p> : null}
       {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
       {showBrowseFallback ? <h3 className="event-deals__fallback-title">{text.fallbackTitle}</h3> : null}
-      {!busy && (candidates.length || visibleAdditionalPlaces.length) ? <EventRail key={`${date}-${guests}`} title={showBrowseFallback ? text.fallbackTitle : title}>{candidates.map(({ place, offer }, index) => {
+      {!busy && hasRailItems ? <EventRail key={`${date}-${guests}`} railId={railId} showControls={false} title={showBrowseFallback ? text.fallbackTitle : title}>{candidates.map(({ place, offer }, index) => {
         place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));

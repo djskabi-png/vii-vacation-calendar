@@ -20,10 +20,10 @@ export type DiscoverySortModel<T> = {
 };
 
 const copy: Record<SiteLanguage, Record<DiscoverySortKey | "label", string>> = {
-  he: { nearest: "קרוב אליי", label: "מיון לפי", recommended: "מומלצים מתחלפים", popular: "פופולריים", "price-asc": "מחיר מהנמוך לגבוה", "price-desc": "מחיר מהגבוה לנמוך", "rating-desc": "הכי מדורגים", name: "שם א-ב" },
-  en: { nearest: "Nearest to me", label: "Sort by", recommended: "Fresh recommendations", popular: "Most popular", "price-asc": "Price: low to high", "price-desc": "Price: high to low", "rating-desc": "Top rated", name: "Name A-Z" },
-  ru: { nearest: "Ближе ко мне", label: "Сортировка", recommended: "Новые рекомендации", popular: "Популярные", "price-asc": "Цена: по возрастанию", "price-desc": "Цена: по убыванию", "rating-desc": "С лучшим рейтингом", name: "Название А-Я" },
-  fr: { nearest: "Les plus proches", label: "Trier par", recommended: "Suggestions renouvelées", popular: "Les plus populaires", "price-asc": "Prix croissant", "price-desc": "Prix décroissant", "rating-desc": "Les mieux notés", name: "Nom A-Z" },
+  he: { nearest: "קרוב אליי", label: "מיון לפי", recommended: "מומלצים", popular: "פופולריים", "price-asc": "מחיר מהנמוך לגבוה", "price-desc": "מחיר מהגבוה לנמוך", "rating-desc": "הכי מדורגים", name: "שם א-ב" },
+  en: { nearest: "Nearest to me", label: "Sort by", recommended: "Recommended", popular: "Most popular", "price-asc": "Price: low to high", "price-desc": "Price: high to low", "rating-desc": "Top rated", name: "Name A-Z" },
+  ru: { nearest: "Ближе ко мне", label: "Сортировка", recommended: "Рекомендуемые", popular: "Популярные", "price-asc": "Цена: по возрастанию", "price-desc": "Цена: по убыванию", "rating-desc": "С лучшим рейтингом", name: "Название А-Я" },
+  fr: { nearest: "Les plus proches", label: "Trier par", recommended: "Recommandés", popular: "Les plus populaires", "price-asc": "Prix croissant", "price-desc": "Prix décroissant", "rating-desc": "Les mieux notés", name: "Nom A-Z" },
 };
 
 export function discoverySortLabel(language: SiteLanguage) {

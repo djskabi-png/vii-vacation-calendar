@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-results-toolbar-compact-20261114",
+  "project": "VII",
+  "task_type": "cross-world responsive UI correction",
+  "requested_outcome": "Make the result count and sort control compact, clear and readable in every VII discovery world without changing search or sort behavior.",
+  "natural_destination": "Rendered vacation, spa, event and hourly search result toolbars on mobile and desktop.",
+  "authorization_boundary": "Local source, tests and local visual verification only. No public deployment is authorized in this turn.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "The reported defect is primarily a cramped mobile composition problem.",
+      "acceptance_impact": "Verify the first results toolbar at 390px and a narrow mobile width with no horizontal overflow and at most two lines for the count."
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "reason": "The request explicitly removes redundant labels and reduces visual weight and spacing.",
+      "acceptance_impact": "The toolbar must use one restrained count, one compact sort trigger and no duplicate sort label."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "Rendered mobile evidence is needed for a shared search control correction.",
+      "acceptance_impact": "Capture and inspect rendered mobile screenshots rather than accepting source or build evidence alone."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the hourly route is fixed while another world still shows the old verbose sort label.",
+      "prevention": "Change the shared sort copy and compact selector treatment, then inspect all four world implementations.",
+      "acceptance_check": "Vacation, spa, event and hourly toolbars all render the recommended option as the localized equivalent of 'Recommended' and hide the redundant compact label."
+    },
+    {
+      "rejection": "The result count still breaks into three lines on a phone.",
+      "prevention": "Use shared compact type and flexible layout constraints for every result heading family.",
+      "acceptance_check": "At 390px the result count is one line where space permits and never exceeds two lines at the narrow test width."
+    },
+    {
+      "rejection": "The selected menu option remains unreadable on the dark gradient.",
+      "prevention": "Force selected option text and all nested currency/text fragments to inherit a high-contrast white color.",
+      "acceptance_check": "The open selected option has white text and a visible white check indicator on the dark background."
+    },
+    {
+      "rejection": "A CSS-only change breaks selector interaction or sort behavior.",
+      "prevention": "Preserve values and callbacks and test opening, choosing another option, closing and retaining the selected value.",
+      "acceptance_check": "The selector opens, exposes the same options, changes sort, closes and keeps its chosen value."
+    }
+  ],
+  "affected_family": [
+    "vacation search results toolbar",
+    "event search results toolbar",
+    "spa result heading and actions",
+    "hourly result heading and actions",
+    "provider results toolbar",
+    "shared compact ModernSelect",
+    "Hebrew, English, Russian and French recommended labels"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "User-provided screenshots of the current result count and unreadable selected option",
+        "source": "codex-clipboard-9c1d841f-740b-4e08-b943-d1b6c478eb9e.png and codex-clipboard-27dbcf02-315a-4b99-b100-f41dec3d3503.png"
+      },
+      {
+        "label": "VII cross-world consistency and mobile primary-surface rules",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After shared copy and compact selector styling are implemented but before broad visual QA.",
+    "checks": [
+      "Run focused component/source tests",
+      "Render one mobile hourly result toolbar and inspect count wrapping, sort copy and selected-option contrast"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does any world still display the phrase 'מומלצים מתחלפים' in its result sort control?",
+      "Can the result count still wrap to three or more lines at 390px or create horizontal overflow?",
+      "Does opening the selector reveal low-contrast selected text or hide the check state?",
+      "Did the visual change alter sort state, URLs or result ordering behavior?"
+    ],
+    "natural_destination_evidence": "Local rendered screenshots and interaction traces for representative result routes at mobile and desktop widths.",
+    "affected_family_evidence": "Focused tests and a route matrix covering vacation, spa, event and hourly toolbars plus shared component assertions."
+  },
+  "effectiveness": {
+    "baseline": "User screenshots show a three-line result count, redundant sort label/copy and unreadable selected text.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All four world toolbars pass the same compact-copy, maximum-two-line and selected-contrast checks in one implementation pass."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

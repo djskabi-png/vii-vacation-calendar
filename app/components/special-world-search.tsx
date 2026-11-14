@@ -1,4 +1,4 @@
-import { HomeQuickSearches } from "./home-discovery-sections";
+import { ManagedHomeQuickSearches } from "./managed-home-quick-searches";
 import { SearchWorldTabs, type PublicWorldId } from "./world-switcher";
 import { TranslatedText } from "./translated-text";
 import { SpecialSearchSummary } from "./special-search-summary";
@@ -22,6 +22,6 @@ export function SpecialWorldSearch({ active, targetId, description, initialArea 
         </a>
       </div>
     </details>
-    <div className="world-popular-searches"><HomeQuickSearches world={active} /></div>
+    <div className="world-popular-searches"><ManagedHomeQuickSearches world={active} /></div>
   </div></section>;
 }

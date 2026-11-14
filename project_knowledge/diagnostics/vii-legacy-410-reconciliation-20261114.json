@@ -1,0 +1,23 @@
+{
+  "status": "implemented_candidate",
+  "checkedAt": "2026-11-14T00:00:00+02:00",
+  "baselineGonePaths": 405,
+  "reclassifiedToRedirect": 402,
+  "remainingGonePaths": 3,
+  "inactiveSupplierIdentitiesRecovered": 369,
+  "inactiveLegacyAliasesRecovered": 386,
+  "activeSupplierRedirectsRecovered": 13,
+  "nonBusinessSemanticRedirects": [
+    { "source": "/art", "target": "/magazine", "reason": "legacy article hub" },
+    { "source": "/villa_nis", "target": "/vacations/eilat", "reason": "legacy source currently resolves to the Eilat vacation inventory" },
+    { "source": "/villa_nis?from=2025-10-12&till=2025-10-13&guest=2", "target": "/vacations/eilat", "reason": "dated alias of the same legacy inventory route" }
+  ],
+  "remaining410": [
+    { "source": "/events/villa_douvdevan_tiberias", "reason": "legacy source reaches a not-found event surface and exposes no stable supplier identity" },
+    { "source": "/my_villa", "reason": "legacy source resolves to the homepage and exposes no stable supplier identity" },
+    { "source": "/seagal", "reason": "legacy canonical resolves to the homepage and exposes no stable supplier identity" }
+  ],
+  "safetyRule": "No business identity, redirect target or public facts are fabricated. A 410 remains only when no stable entity or equivalent destination can be recovered.",
+  "publicInactiveRule": "Recovered inactive businesses retain an indexable canonical page containing identity, location, description and archived media only. Phone, WhatsApp, booking, offers, price and availability are excluded by an explicit public projection.",
+  "reactivationRule": "An accepted active supplier generation overrides both the runtime archive and the bundled historical archive. The same canonical URL resumes the active business page without a redirect or SEO reset."
+}

@@ -1,0 +1,37 @@
+{
+  "goal": "Every popular or quick-search card opens an approved semantic page and the homepage never flashes removed content.",
+  "intent_model": {
+    "literal_request": "Fix family and birthday links, audit every world, and fix the homepage refresh flash.",
+    "implied_outcome": "Discovery navigation stays canonical and CMS-authoritative across refreshes and future edits.",
+    "likely_rejections": ["A sibling world still uses parameters", "A clean page has no results", "A removed card flashes"],
+    "interpretation_rules": [{ "phrase": "בכל עולם", "operational_meaning": "Inventory every shared managed discovery source.", "acceptance_impact": "Cross-world automated coverage is mandatory." }]
+  },
+  "cognitive_flow": { "current_layer": "A discovery card identifies a stable page.", "current_decision": "Resolve each card to its approved canonical destination.", "next_action": "Click and receive a populated page without stale content.", "deferred_complexity": ["Public deployment"], "preserved_depth": ["CMS editing", "localized routes", "transactional date and guest searches"] },
+  "predictive_preflight": { "manifest_path": "project_knowledge/task_contracts/vii-approved-discovery-links-preflight.json", "lesson_bundle_ids": ["VII-PROJECT-001", "ADIR-SEARCH-001", "ADIR-QA-001"], "no_applicable_lessons_reason": null, "midpoint_requirement": "preflight:midpoint", "adversarial_requirement": "preflight:adversarial", "effectiveness_requirement": "preflight:effectiveness" },
+  "actors": ["public visitor", "content editor"],
+  "natural_destination": "Homepage and world discovery rails",
+  "facts": [
+    { "claim": "Event defaults use eventType query parameters.", "evidence": "app/lib/event-landing-presentation.ts" },
+    { "claim": "The homepage client renders fallback data before its API response.", "evidence": "app/components/home-discovery-sections.tsx" }
+  ],
+  "assumptions": [{ "claim": "The current event catalog has family and birthday matches.", "validation": "Count normalized facets in bundledPublicCatalogSummaries." }],
+  "in_scope": ["Canonical discovery destinations", "approved event pages", "CMS normalization", "homepage first render"],
+  "out_of_scope": ["Production deployment", "Transactional searches with dates, guests or active filters"],
+  "invariants": ["Transactional searches remain parameterized", "Near-me retains geolocation", "Removed CMS items stay removed"],
+  "affected_family": ["event quick searches", "world popular searches", "homepage presentation", "hourly quick links", "content studio lists"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "Family and birthday cards open populated approved pages.", "source": "User request" },
+    { "id": "REQ-2", "statement": "No managed discovery default exposes a parameter URL.", "source": "User request" },
+    { "id": "REQ-3", "statement": "Legacy managed links normalize or are excluded.", "source": "Project truth" },
+    { "id": "REQ-4", "statement": "Removed homepage content never appears during refresh.", "source": "User request" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Current catalog and event defaults", "action": "Resolve family and birthday cards", "observable_result": "Clean managed paths and at least one matching result each." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2", "REQ-3"], "kind": "failure", "setup": "All defaults and stale CMS rows", "action": "Run family contract test", "observable_result": "Known links normalize and unresolved parameter links do not render." },
+    { "id": "AC-3", "requirement_ids": ["REQ-4"], "kind": "persistence", "setup": "Saved presentation with an item removed", "action": "Render and refresh", "observable_result": "Saved list is used on first paint without a fallback flash." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and tests only; no publication.",
+  "ready_for_implementation": true
+}

@@ -4,7 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import {
   acceptSupplierCatalogRun, beginSupplierCatalogRun, finishSupplierCatalogRun,
-  readSupplierCatalog, stageSupplierCatalogEntries,
+  readSupplierCatalog, readSupplierCatalogArchiveEntry, stageSupplierCatalogEntries,
 } from "../app/lib/supplier-catalog-store.ts";
 
 test('actual publish never serializes or reparses the already pinned full-detail generations',async()=>{
@@ -20,7 +20,7 @@ test('actual publish never serializes or reparses the already pinned full-detail
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys = ON");
-  for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra", "0003_catalog_diagnostics"]) {
+  for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra", "0003_catalog_diagnostics", "0013_adorable_moira_mactaggert"]) {
     const source = await readFile(new URL(`../drizzle/${name}.sql`, import.meta.url), "utf8");
     for (const sql of source.split("--> statement-breakpoint").map((part) => part.trim()).filter(Boolean)) sqlite.exec(sql);
   }
@@ -63,6 +63,40 @@ test("new run reconciles only the exact expired lock owner", async () => {
     assert.equal(await beginSupplierCatalogRun(db, run("new-owner", "2026-10-12T12:00:00Z")), true);
     assert.equal((await db.prepare("SELECT status FROM supplier_catalog_runs WHERE id = ?").bind("expired-old").first()).status, "failed");
     assert.equal((await db.prepare("SELECT lock_run_id AS id FROM supplier_catalog_state WHERE world = 'spa'").first()).id, "new-owner");
+  } finally { db.close(); }
+});
+
+test("explicit supplier inactivity archives complete data and later reactivation preserves the canonical identity", async () => {
+  const db = await database();
+  const initial = Array.from({ length: 20 }, (_, index) => ({ supplierId: index + 1,
+    summary: { name: `מקום ${index + 1}`, sourceUrl: `https://www.vii.co.il/place_${index + 1}` },
+    detail: { description: `תיאור ${index + 1}`, rooms: [] } }));
+  try {
+    await beginSupplierCatalogRun(db, { id: "archive-base", world: "vacations", source: "test", startedAt: "2026-11-14T00:00:00Z", lockUntil: "2026-11-14T00:15:00Z" });
+    await stageSupplierCatalogEntries(db, "archive-base", "vacations", initial);
+    await acceptSupplierCatalogRun(db, { id: "archive-base", world: "vacations", expectedCount: 20, added: 20, changed: 0, removed: 0,
+      finishedAt: "2026-11-14T00:01:00Z", baseline: [], previous: [], candidate: initial });
+
+    const inactive = initial.slice(0, 19);
+    await beginSupplierCatalogRun(db, { id: "archive-remove", world: "vacations", source: "test", startedAt: "2026-11-14T01:00:00Z", lockUntil: "2026-11-14T01:15:00Z" });
+    await stageSupplierCatalogEntries(db, "archive-remove", "vacations", inactive);
+    await acceptSupplierCatalogRun(db, { id: "archive-remove", world: "vacations", expectedCount: 19, added: 0, changed: 0, removed: 1,
+      finishedAt: "2026-11-14T01:01:00Z", previous: initial, candidate: inactive,
+      sourceInventory: { activeCount: 19, previousInactiveIds: [20], previousInactiveIdsTruncated: false, previousUnknownActivityIds: [], previousUnknownActivityIdsTruncated: false } });
+    const archived = await readSupplierCatalogArchiveEntry(db, "vacations", 20);
+    assert.equal(archived.status, "inactive");
+    assert.equal(archived.canonicalPath, "/business?id=vacation-20");
+    assert.deepEqual(archived.detail, initial[19].detail);
+
+    await beginSupplierCatalogRun(db, { id: "archive-return", world: "vacations", source: "test", startedAt: "2026-11-14T02:00:00Z", lockUntil: "2026-11-14T02:15:00Z" });
+    await stageSupplierCatalogEntries(db, "archive-return", "vacations", initial);
+    await acceptSupplierCatalogRun(db, { id: "archive-return", world: "vacations", expectedCount: 20, added: 1, changed: 0, removed: 0,
+      finishedAt: "2026-11-14T02:01:00Z", previous: inactive, candidate: initial,
+      sourceInventory: { activeCount: 20, previousInactiveIds: [], previousInactiveIdsTruncated: false, previousUnknownActivityIds: [], previousUnknownActivityIdsTruncated: false } });
+    const returned = await readSupplierCatalogArchiveEntry(db, "vacations", 20);
+    assert.equal(returned.status, "active");
+    assert.equal(returned.canonicalPath, archived.canonicalPath);
+    assert.equal(returned.reactivatedAt, "2026-11-14T02:01:00Z");
   } finally { db.close(); }
 });
 
