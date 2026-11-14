@@ -3654,6 +3654,7 @@ h3 { font-size: 1.18rem; }
 .world-mark--activities { border-radius: 50%; background: linear-gradient(135deg,#108bc1,#40bfa1); }
 .world-mark--trails { border-radius: 50% 50% 45% 10%; background: linear-gradient(135deg,#2e8b67,#79b84a); }
 .world-mark--attractions { border-radius: 50%; background: linear-gradient(135deg,#167fc1,#8b62d8); }
+.world-mark--gift-card { border-radius: 4px 4px 50% 4px; transform: rotate(45deg); background: linear-gradient(135deg,#e34878,#8b62d8); }
 .world-dock { position: fixed; z-index: 850; right: 22px; bottom: 22px; display: grid; justify-items: end; gap: 10px; }
 body:has(.cookie-card) .world-dock { bottom: 118px; }
 body:has(.cookie-card) .smart-concierge { display: none; }

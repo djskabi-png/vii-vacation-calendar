@@ -21,7 +21,7 @@ function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", locati
   return hourlySearchHref(location);
 }
 
-export type PublicWorldId = WorldId | "trails" | "attractions";
+export type PublicWorldId = WorldId | "trails" | "attractions" | "gift-card";
 
 export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId }) {
   const rootRef = useRef<HTMLDetailsElement>(null);

@@ -56,11 +56,13 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const homeLoadingLabel = translate("פותחים את דף הבית...");
   const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
-  const activeWorld = pathname === "/trails" || pathname.startsWith("/trails/")
-    ? "trails"
-    : pathname === "/attractions" || pathname.startsWith("/attractions/")
-      ? "attractions"
-      : variant;
+  const activeWorld = pathname === "/gift-card" || pathname.startsWith("/gift-card/")
+    ? "gift-card"
+    : pathname === "/trails" || pathname.startsWith("/trails/")
+      ? "trails"
+      : pathname === "/attractions" || pathname.startsWith("/attractions/")
+        ? "attractions"
+        : variant;
   const hasInPageSearch = pathname === "/"
     || pathname === "/search" || pathname.startsWith("/search/")
     || pathname === "/events" || pathname.startsWith("/events/search")
