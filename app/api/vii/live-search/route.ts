@@ -41,11 +41,36 @@ export async function POST(request: Request) {
   if (world === "events" && body.includePlaces === true && !eligibleDealDate(body.from, new Date())) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
+  const datedCacheKey = ["dated-search", world, ...(world === "events" ? [EVENT_DISCOVERY_VERSION] : []), body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both", candidates.length ? candidates : null] as const;
+  const datedCachePolicy = { freshMs: 60_000, staleMs: 30 * 60_000 };
+  const validDatedSnapshot = (value: unknown) => !!value && typeof value === "object" && Array.isArray((value as { results?: unknown }).results);
+  let preloadedCacheDb: Awaited<ReturnType<typeof runtimeCatalogDatabase>> | null = null;
+
+  // A dated vacation snapshot is already public, validated discovery evidence.
+  // Read it before loading supplier credentials and the publication inventory;
+  // those unrelated reads were adding seconds even on a fresh cache hit and
+  // pushed otherwise successful browser requests past their deadline.
+  if (datedDiscovery && world === "vacations") {
+    preloadedCacheDb = await runtimeCatalogDatabase().catch(() => null);
+    if (preloadedCacheDb) {
+      const accepted = await readCachedDiscovery<LiveSearchPayload>({
+        key: datedCacheKey,
+        db: preloadedCacheDb,
+        policy: datedCachePolicy,
+        validate: validDatedSnapshot,
+      }).catch(() => null);
+      if (accepted) return Response.json({ ...accepted.value, cache: accepted.cache }, {
+        headers: { ...noStore, "X-VII-Discovery-Cache": accepted.cache.status },
+      });
+    }
+  }
   try {
     const [publicIds, token, regionPlaces, cacheDb] = await Promise.all([
       publishedSupplierIds(world), supplierToken(),
       region ? publicCatalogSummaries<{ supplierId: number; image?: string; location?: string; area?: string; lat?: number; lng?: number }>("events") : Promise.resolve([]),
-      datedDiscovery || world === "events" && body.includePlaces === true ? runtimeCatalogDatabase().catch(() => null) : Promise.resolve(null),
+      datedDiscovery || world === "events" && body.includePlaces === true
+        ? preloadedCacheDb ? Promise.resolve(preloadedCacheDb) : runtimeCatalogDatabase().catch(() => null)
+        : Promise.resolve(null),
     ]);
     // Discovery requests opt in explicitly. Detail and booking requests remain
     // realtime and must never inherit discovery's last-good fallback.
@@ -77,11 +102,11 @@ export async function POST(request: Request) {
       load: () => loadEventDiscovery({ date: body.from as string, guests: Number(body.guests), token, publishedIds: publicIds }),
     }) : null;
     const dated = datedDiscovery ? await cachedDiscovery<LiveSearchPayload>({
-      key: ["dated-search", world, ...(world === "events" ? [EVENT_DISCOVERY_VERSION] : []), body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both", candidates.length ? candidates : null],
+      key: datedCacheKey,
       db: cacheDb,
       load,
-      policy: { freshMs: 60_000, staleMs: 30 * 60_000 },
-      validate: value => !!value && typeof value === "object" && Array.isArray((value as { results?: unknown }).results),
+      policy: datedCachePolicy,
+      validate: validDatedSnapshot,
     }) : null;
     const result = discovery ? cached!.value : dated ? dated.value : await load();
     if (world === "events" && body.includePlaces === true) {

@@ -28,7 +28,8 @@ test('inactive demos, unavailable listings and empty media are excluded before s
  assert.deepEqual(eligibleHomeTourProperties(values).map(p=>p.slug),['active','legacy']);
  assert.equal(JSON.stringify(values),before);
  assert.equal(eligibleHomeTourProperties(values)[0].videos[0],video);
- assert.match(page,/rotateDaily\(eligibleHomeTourProperties\(/);
+ const source=readFileSync(new URL('../app/components/home-showcase.tsx',import.meta.url),'utf8');
+ assert.match(source,/eligibleHomeTourProperties\(properties\)\.flatMap/);
 });
 test('mixed video arrays retain valid pairs but never render empty or unsafe media',()=>{
  const good={src:'/own-tour.mp4',poster:'/own-poster.jpg',note:'Real source disclosure',verifiedRealVideo:true};

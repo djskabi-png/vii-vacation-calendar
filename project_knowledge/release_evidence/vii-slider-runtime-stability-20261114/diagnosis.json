@@ -1,0 +1,94 @@
+{
+  "status": "locally_fixed_pending_release",
+  "symptom": "Homepage discovery rails could retain another tab's cards, while an exact dated vacation search with the online-booking filter could discard every result and show a supplier error even though the discovery API later returned a valid payload.",
+  "expected_behavior": "Every selection immediately acknowledges its own state, never displays another selection as current, and a transient supplier or capability delay never turns the complete catalog into a false zero-results page.",
+  "environment": "Public VII v914 on 2026-11-14 and local source based on 495cde793c3c5488f264fd462b1a4250b12e4ca5.",
+  "reproduction": {
+    "steps": [
+      "Open the public homepage and switch holiday, spa and event tabs",
+      "Open /search/?location=כל+הארץ&from=2026-11-27&till=2026-11-28&guests=2&online=1",
+      "Observe the online filter, the empty result set and the availability error"
+    ],
+    "evidence": "Public UI screenshots, browser observations and repeated direct timings of the exact live-search request."
+  },
+  "observations": [
+    {
+      "observation": "The exact public live-search request returned HTTP 200 with a valid 61,736-byte result, but the first measured response took 4.802 seconds and repeated responses varied between about 3.14 and 5.59 seconds.",
+      "evidence": ".openai/exact-search-headers.txt and .openai/exact-search-body.json captured during diagnosis"
+    },
+    {
+      "observation": "The browser client used a 5-second default deadline and no safe retry for this idempotent dated discovery call.",
+      "evidence": "app/components/use-vii-live-search.ts before the repair"
+    },
+    {
+      "observation": "The dated eligibility predicate removed catalog results while availability was loading, and the online-only predicate depended on the same exact-date response instead of retained capability evidence.",
+      "evidence": "app/lib/dated-availability-eligibility.ts and app/lib/vacation-online-booking-filter.ts before the repair"
+    },
+    {
+      "observation": "The shared homepage rail could retain data without requiring the retained selection key to match the current selection key.",
+      "evidence": "app/components/home-live-deals.tsx before the repair"
+    },
+    {
+      "observation": "The public route-family audit timed out on /favorites before DOMContentLoaded at 30 seconds; the audit runner has been hardened to record and continue instead of hiding all later results.",
+      "evidence": "scripts/audit-route-reliability.mjs public run on 2026-11-14"
+    },
+    {
+      "observation": "The completed second public route-family audit reached all 60 desktop and mobile checks. It exposed an avoidable 404 holiday-match request on an ordinary dated search, stale audit expectations for a guide and contact page, and an intentional not-found console message; the runner expectations and the no-holiday response contract were repaired locally.",
+      "evidence": "scripts/audit-route-reliability.mjs completed public run on 2026-11-14 and app/api/vii/home-holiday-deals/route.ts"
+    },
+    {
+      "observation": "The exact repaired URL was opened in the built-candidate preview on desktop and mobile. It rendered 21 properties and 43 units, visible cards, selected-date availability labels, online-booking links, and the 6-of-21 online-filter summary without the invalid-date or availability-failure state.",
+      "evidence": "Natural-destination built-candidate browser verification on 2026-11-14"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Cross-selection retained client state was rendered as current data.",
+      "result": "Confirmed and removed by selection-key ownership.",
+      "status": "confirmed"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A valid but variable 3-6 second supplier discovery response crossed a 5-second browser deadline; the failure then fed both eligibility and online-only filtering.",
+      "result": "Confirmed by repeated exact-request timing and source inspection.",
+      "status": "confirmed"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Fresh cached dated discovery still performed unrelated credential and publication reads before returning the cache hit.",
+      "result": "Confirmed in the route and shortened with an early validated D1 cache return.",
+      "status": "confirmed"
+    }
+  ],
+  "root_cause_hypothesis_id": ["H1", "H2", "H3"],
+  "fix": {
+    "change": "Selection-key ownership for retained rail data; a bounded 12-second attempt, one safe retry and 18-second total budget for idempotent dated discovery; stale-last-good cache reuse; early validated D1 cache return; fail-open online capability behavior; catalog cards remain visible while exact availability is pending or temporarily unavailable; a no-holiday date probe returns a normal no-match response instead of 404; neutral truthful error copy.",
+    "evidence": "48 focused dated-search, online-booking, holiday and slider tests pass, 32 prior slider/spa tests pass, all 17 regression guards pass, critical public family tests pass 65/65, flexible online tests pass 19/19, focused ESLint reports zero errors, the production build passes, and the exact built candidate renders usable results on desktop and mobile."
+  },
+  "affected_family": [
+    "vacation dated search",
+    "online-only search",
+    "vacation rail",
+    "holiday rail",
+    "spa rail",
+    "event rail",
+    "shared discovery client",
+    "live-search API",
+    "route reliability audit"
+  ],
+  "regression_checks": [
+    "Exact selected dates remain part of every request and cache identity",
+    "A transient discovery failure cannot empty online-only results when capability evidence exists or the capability service is unavailable",
+    "Loading without an exact quote keeps catalog cards visible without claiming availability",
+    "Retained rail data is rendered only for the same selection key",
+    "Fresh cache hits bypass unrelated supplier-token and publication reads",
+    "An ordinary date selection with no matching holiday returns a normal no-match response instead of a 404",
+    "A route navigation timeout is recorded and does not abort the rest of the audit"
+  ],
+  "confidence": "high_for_local_fix_not_yet_production_verified",
+  "remaining_unknowns": [
+    "The repaired exact URL has not been verified at its public destination because this turn does not authorize publication"
+  ],
+  "authorization_boundary": "Local diagnosis, source repair and verification only; no publication or production mutation."
+}

@@ -2,8 +2,9 @@
 import { nearbySortCopy, nearbySortRegionalCopy } from "../i18n/nearby-sort-copy";
 
 import { useCallback, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { nearbyDefaultSort } from "../lib/nearby-page-content";
+import { canonicalNearestNearbyUrl } from "../lib/homepage-search-href";
 import { proximityDistance, validProximityPoint, type ProximityPoint } from "../lib/proximity-sort";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
@@ -51,11 +52,19 @@ export function requestNearbyOrigin(): Promise<ProximityPoint> {
 
 export function useNearbySort() {
   const params = useSearchParams();
-  const defaultSort = nearbyDefaultSort(usePathname(), params.get("sort"));
+  const pathname = usePathname();
+  const router = useRouter();
+  const paramsKey = params.toString();
+  const defaultSort = nearbyDefaultSort(pathname, params.get("sort"));
   const active = defaultSort === "nearest";
   const [origin, setOrigin] = useState<ProximityPoint | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    const canonical = canonicalNearestNearbyUrl(new URL(`${pathname}${paramsKey ? `?${paramsKey}` : ""}`, "https://vii.invalid"));
+    if (!canonical) return;
+    router.replace(`${canonical.pathname}${canonical.search}`, { scroll: false });
+  }, [paramsKey, pathname, router]);
   useEffect(() => {
     if (!active) return;
     let alive = true;

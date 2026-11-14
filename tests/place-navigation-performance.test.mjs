@@ -6,17 +6,19 @@ const root = new URL("../", import.meta.url);
 const source = async (path) => readFile(new URL(path, root), "utf8");
 
 test("place cards open detail destinations in a new tab", async () => {
-  const [properties, events, spas, showcase, preview] = await Promise.all([
+  const [properties, events, spas, showcase, preview, navigation] = await Promise.all([
     source("app/components/property-card.tsx"),
     source("app/components/event-last-minute.tsx"),
     source("app/components/spa-package-deals.tsx"),
     source("app/components/home-showcase.tsx"),
     source("app/components/place-preview-card.tsx"),
+    source("app/components/new-tab-navigation.tsx"),
   ]);
   assert.match(properties, /propertyHref[^\n]*target="_blank"/);
   assert.match(events, /<PlacePreviewCard[\s\S]*href=\{href\}/);
   assert.match(preview, /newTab = true/);
-  assert.match(preview, /openPlaceInSameTabOnMobile\(event, href\)/);
+  assert.match(preview, /target=\{newTab \? "_blank" : undefined\}/);
+  assert.match(navigation, /document\.addEventListener\("click", normalizeMobileClick, true\)/);
   assert.match(spas, /spa-deal-card__body[^\n]*target="_blank"/);
   assert.match(showcase, /home-rating-card__gallery[^\n]*target="_blank"/);
 });

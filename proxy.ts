@@ -2,9 +2,12 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { redirectForPath, redirectLookupDatabase, shouldCheckRedirect } from "./app/lib/admin-redirects";
 import {canonicalLocationDestination} from './app/lib/canonical-location-redirect.ts';
+import { canonicalNearestNearbyUrl } from './app/lib/homepage-search-href.ts';
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname.replace(/\/$/, "") || "/";
+  const canonicalNearby = canonicalNearestNearbyUrl(request.nextUrl);
+  if (canonicalNearby) return NextResponse.redirect(canonicalNearby, 301);
   const canonicalLocation=canonicalLocationDestination(request.nextUrl);
   if(canonicalLocation)return NextResponse.redirect(canonicalLocation,301);
   if (!shouldCheckRedirect(path)) return NextResponse.next();

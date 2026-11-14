@@ -49,3 +49,9 @@ test("background priming survives visitor tab changes and stays serialized", () 
   assert.match(slider, /recoveryDeadlineTimer = setTimeout/);
   assert.match(slider, /setState\(usable \? "ready" : "error"\)/);
 });
+
+test("a newly selected tab never paints verified cards owned by another selection", () => {
+  assert.doesNotMatch(slider, /lastVisibleData/);
+  assert.match(slider, /const retainedData = data \?\? \(state === "loading"[\s\S]*scopedData\?\.key === selectionKey/);
+  assert.match(slider, /scopedData && scopedData\.key !== selectionKey \? "loading"/);
+});

@@ -25,7 +25,7 @@ function harness(){let id=0,attempt=0,result={key:'',data:null,status:'loading'}
 }
 const body=status=>({days:['2026-11-06'],offers:{'2026-11-06':{single:[{packageId:1}]}},checkedAt:'2026-11-05T12:00:00Z',availabilityStatus:status});
 test('actual SPA effect follows refreshing twice, then stops without losing usable data',async()=>{
- const h=harness();let cleanup=h.start();assert.equal(h.requests[0].options.cache,'no-store','followups must bypass a previously cached refreshing HTTP response');h.requests[0].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,1);assert.equal(h.fire(),2000);assert.equal(h.attempt(),1);cleanup();
+ const h=harness();let cleanup=h.start();assert.equal(h.requests[0].options.cache,'default','the canonical verified rail response must remain eligible for browser and edge reuse');assert.doesNotMatch(h.requests[0].url,/rotation=/,'the same rail scope must have one cache identity');h.requests[0].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,1);assert.equal(h.fire(),2000);assert.equal(h.attempt(),1);cleanup();
  cleanup=h.start();h.requests[1].resolve(body('refreshing'));await flush();assert.equal(h.fire(),4000);assert.equal(h.attempt(),2);cleanup();
  cleanup=h.start();h.requests[2].resolve(body('refreshing'));await flush();assert.equal(h.timers.size,0);assert.equal(h.result().status,'error');assert.equal(h.result().data,null);assert.equal(h.requests.length,3);cleanup();
 });

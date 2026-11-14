@@ -35,7 +35,7 @@ test("professor is an explicit permissioned module with quota, history and no in
   const route = read("../app/api/admin/professor/route.ts");
   assert.match(engine, /daily_limit INTEGER NOT NULL DEFAULT 20/);
   assert.match(engine, /status = 'success'/);
-  assert.match(engine, /נתוני Biz לטווח הזה עדיין לא נשמרו במטמון/);
+  assert.match(engine, /נתוני Biz אינם זמינים כרגע לטווח הזה/);
   assert.match(engine, /parseProfessorIntent/);
   assert.match(engine, /מסד V ומטמון Biz בלבד/);
   assert.match(engine, /ProfessorQuestionError/);

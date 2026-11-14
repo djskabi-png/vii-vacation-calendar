@@ -40,6 +40,19 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ world, from, till, guests, ...(datedDiscovery ? { discoverySearch: true } : {}), ...(world === "events" && slot ? { slot } : {}), ...(world === "events" && includePlaces ? { includePlaces: true, discoveryVersion: EVENT_DISCOVERY_VERSION, ...(region ? { region } : {}) } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
       cache: "no-store" as const,
+      ...(datedDiscovery ? {
+        // Dated discovery is an idempotent read. A cold Worker request can
+        // legitimately cross the generic five-second UI budget even though a
+        // verified snapshot is about to arrive. Keep the current catalogue on
+        // screen and allow one bounded recovery attempt instead of converting
+        // a slow success into an empty result page.
+        timeoutMs: 12_000,
+        totalTimeoutMs: 18_000,
+        retries: 1,
+        retrySafe: true,
+        freshMs: 60_000,
+        staleMs: 30 * 60_000,
+      } : {}),
       // A cold event-discovery snapshot may perform one server-side,
       // lease-protected recovery. Give that bounded recovery enough time while
       // keeping transactional detail and booking checks on the shorter default.
@@ -139,7 +152,11 @@ export function useViiHolidayLiveSearch(
       for (let attempt = 0; attempt < 4; attempt += 1) {
         const response = await discoveryJson(`/api/vii/home-holiday-deals?${params}`, `${key}:attempt:${attempt}`, {
           signal: controller.signal, cache: "no-store" as const, retries: 0, staleWhileRevalidate: false,
-        }) as { holiday?: { id: number; name?: string }; availabilityStatus?: string; checkedAt?: string | null; stayPlan?: { minNights: number; maxNights: number }; deals?: Array<{ siteID: number; from: string; till: string; total: number | null; nights: number; priceGuests: number; onlineBooking?: boolean; roomID?: number }> };
+        }) as { matched?: boolean; holiday?: { id: number; name?: string }; availabilityStatus?: string; checkedAt?: string | null; stayPlan?: { minNights: number; maxNights: number }; deals?: Array<{ siteID: number; from: string; till: string; total: number | null; nights: number; priceGuests: number; onlineBooking?: boolean; roomID?: number }> };
+        if (response.matched === false && !id) {
+          if (!controller.signal.aborted) setValue({ key, state: { ...idle, status: "ready", holidayId: null, matched: false } });
+          return;
+        }
         if (!response.holiday || !Number.isSafeInteger(response.holiday.id) || response.holiday.id <= 0) throw new Error("invalid_holiday");
         matchedHoliday = response.holiday;
         if (response.availabilityStatus === "refreshing" && attempt < 3) {

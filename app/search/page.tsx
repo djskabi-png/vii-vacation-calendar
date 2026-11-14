@@ -464,7 +464,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
   const periodSearch = Boolean(flexibleSearch || holidaySearchId);
   const undatedSearch = !selectedStay && !periodSearch && !hasSearchDate(searchParams);
-  const onlineCapabilities = useOnlineCapabilities(undatedSearch, onlineSearchRetry);
+  const onlineCapabilities = useOnlineCapabilities(undatedSearch || onlineOnly, onlineSearchRetry);
   const flexibleCandidates = useMemo(
     () => flexibleVacationCandidates(flexibleSearch, guests),
     [flexibleSearch, guests],
@@ -851,13 +851,12 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
   const datedAvailabilityPending = holidayDetectionPending || Boolean(selectedStay) && (supplierSearch.status === "loading" || wholePropertySupplierSearch.status === "loading" || legacyAvailabilityPending) || flexibleAvailabilityPending || Boolean(holidaySearchId) && holidaySupplierSearch.status === "loading";
   const datedAvailabilityError = Boolean(selectedStay) && supplierSearch.status === "error" && wholePropertySupplierSearch.status === "error" || flexibleAvailabilityError || Boolean(holidaySearchId) && holidaySupplierSearch.status === "error";
   const holidayTransitionPending = holidayDetectionPending || Boolean(holidaySearchId) && holidaySupplierSearch.status === "loading";
-  const onlineCheckPending = onlineOnly && (undatedSearch ? onlineCapabilities.status === "loading" : datedAvailabilityPending);
-  const undatedCapabilityUnavailable = undatedSearch && onlineCapabilities.status === "error";
-  const matchesOnline = (property: Property, enabled = true) => enabled && undatedCapabilityUnavailable
-    ? true
-    : !property.demoOperations?.fictional && matchesVacationOnlineBooking(
+  const onlineCheckPending = onlineOnly && (onlineCapabilities.status === "loading" || datedAvailabilityPending);
+  const capabilityUnavailable = onlineCapabilities.status === "error";
+  const undatedCapabilityUnavailable = undatedSearch && capabilityUnavailable;
+  const matchesOnline = (property: Property, enabled = true) => !property.demoOperations?.fictional && matchesVacationOnlineBooking(
     enabled, liveAvailabilityFor(property.slug), selectedStayFor(property.slug),
-    { undated: undatedSearch, capability: onlineCapabilities.capabilities[property.slug] },
+    { undated: undatedSearch, capability: onlineCapabilities.capabilities[property.slug], capabilityUnavailable },
   );
   const searchPrice = (property: Property) => liveAvailabilityFor(property.slug)?.quote?.nightlyPrice
     ?? vacationCatalogDisplayedPrice(property, startingPrices[property.slug], property.price);
@@ -1277,12 +1276,14 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
             </nav>
             <span className="sr-only" role="status" aria-live="polite">{pendingQuickFilter ? "מעדכנים את תוצאות החיפוש" : ""}</span>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} className={filter.id === "online" ? "online-booking-active-filter" : undefined} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.id === "price" ? currencyLabelParts(filter.label).map((part, index) => part.amount ? <bdi dir="ltr" key={index}>{part.text}</bdi> : part.text) : filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            {onlineOnly && (!undatedSearch || !resultSet.length || undatedCapabilityUnavailable) ? <div className="online-booking-filter-notice" role={(undatedSearch ? onlineCapabilities.status === "error" : datedAvailabilityError) ? "alert" : "status"} aria-busy={undatedSearch ? onlineCapabilities.status === "loading" : datedAvailabilityPending}>
-              <p data-no-translate>{translate(undatedSearch
+            {onlineOnly && (!undatedSearch || !resultSet.length || undatedCapabilityUnavailable) ? <div className="online-booking-filter-notice" role={(capabilityUnavailable || datedAvailabilityError) ? "alert" : "status"} aria-busy={onlineCheckPending}>
+              <p data-no-translate>{translate(capabilityUnavailable
+                ? "לא הצלחנו לאמת כרגע אילו מקומות תומכים בהזמנה אונליין. מוצגים כל המקומות כדי שלא לאבד אפשרויות."
+                : undatedSearch
                 ? onlineCapabilities.status === "loading" ? "טוענים מקומות להזמנה אונליין..." : onlineCapabilities.status === "error" ? "לא הצלחנו להחיל כרגע את סינון ההזמנה אונליין. מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו."
-                : !selectedStay && !periodSearch ? "בחרו תאריכים תקינים לבדיקת זמינות." : datedAvailabilityError ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : datedAvailabilityPending ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
-              {!undatedSearch && (!selectedStay && !periodSearch || !datedAvailabilityPending && !datedAvailabilityError && !resultSet.length) ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
-              {(undatedSearch ? onlineCapabilities.status === "error" : datedAvailabilityError) ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
+                : holidayDetectionPending ? "בודקים את התאריכים והזמינות..." : !selectedStay && !periodSearch ? "בחרו תאריכים תקינים לבדיקת זמינות." : datedAvailabilityError ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : datedAvailabilityPending ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
+              {!undatedSearch && !holidayDetectionPending && (!selectedStay && !periodSearch || !datedAvailabilityPending && !datedAvailabilityError && !resultSet.length) ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
+              {(capabilityUnavailable || datedAvailabilityError) ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
               {!onlineCheckPending && !resultSet.length ? <button className="button subtle" type="button" onClick={() => changeOnlineFilter(false)}>הסרת סינון הזמנה אונליין</button> : null}
             </div> : null}
             {selectedStay && !onlineOnly && (datedAvailabilityPending || datedAvailabilityError || supplierSearch.stale || !resultSet.length) ? <div className="online-booking-filter-notice" role={datedAvailabilityError ? "alert" : "status"} aria-busy={datedAvailabilityPending}>

@@ -30,7 +30,10 @@ export function hasConfirmedDatedAvailability(state: AvailabilityState | undefin
  */
 export function canShowDatedSearchResult(state: AvailabilityState | undefined, selection: Selection | null | undefined) {
   const quote = state?.quote;
-  if (!selection || state?.status === "loading") return false;
+  if (!selection) return false;
+  // Loading and transport failure are not evidence that a place is
+  // unavailable. Keep the catalogue card visible with its honest checking or
+  // fallback state; only a mismatched quote is rejected.
   if (!quote) return true;
   return quote.from === selection.from && quote.till === selection.till;
 }

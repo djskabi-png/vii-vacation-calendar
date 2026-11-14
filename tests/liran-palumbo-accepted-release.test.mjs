@@ -36,7 +36,7 @@ test("supplier room amenities remain room-scoped while shared facts remain prope
 test("gallery keeps a clear full-gallery action and gates video to verified media", () => {
   const propertyGallery = read("app/components/property-gallery.tsx");
   const gallery = read("app/components/gallery-experience.tsx");
-  assert.match(propertyGallery, /className="property-gallery__open-full"/);
+  assert.match(propertyGallery, /className="property-gallery__open-full gallery-action-button"/);
   assert.match(propertyGallery, /aria-label=\{copy\.full\}/);
   assert.match(gallery, /property\.videos\?\.length \? <button/);
   assert.match(gallery, /isSafeYoutubeEmbed\(video\.embedUrl\)/);

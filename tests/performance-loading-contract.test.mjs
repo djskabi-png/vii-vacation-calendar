@@ -306,8 +306,8 @@ test("homepage does not prefetch heavyweight search result documents before inte
     readFile(new URL("app/components/home-live-deals.tsx", root), "utf8"),
     readFile(new URL("app/components/world-switcher.tsx", root), "utf8"),
   ]);
-  assert.match(page, /href="\/search" prefetch=\{false\}/);
-  assert.match(page, /href=\{`\/search\?location=.*?prefetch=\{false\}/s);
+  assert.match(page, /href=\{localizedPath\("\/search", language\)\} prefetch=\{false\}/);
+  assert.match(page, /href=\{localizedPath\(`\/search\?location=\$\{encodeURIComponent\(destination\.name\)\}`, language\)\} prefetch=\{false\}/);
   assert.match(showcase, /href=\{item\.href\}[\s\S]*?prefetch=\{false\}/);
   assert.match(deals, /href=\{localizedPath\(searchHref, language\)\} prefetch=\{false\}/);
   assert.doesNotMatch(switcher, /world-dock__prehydrate|globalSearchHref/);

@@ -13,7 +13,7 @@ test("event landing defaults provide a complete hero and visual discovery rail",
   assert.equal(presentation.heroImages.length, 1);
   assert.ok(presentation.heroImages.every((image) => image.src && image.alt));
   assert.ok(presentation.quickSearches.length >= 4);
-  assert.ok(presentation.quickSearches.every((item) => item.href.startsWith("/events/") && item.image && item.imageAlt));
+  assert.ok(presentation.quickSearches.every((item) => item.href.startsWith("/") && !item.href.includes("?") && item.image && item.imageAlt));
 });
 
 test("event landing management accepts safe complete presentation data and rejects unsafe destinations", () => {

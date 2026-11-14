@@ -1,5 +1,3 @@
-"use client";
-
 import { SliderRailControls } from "./slider-rail-controls";
 
 export function HomeSliderControls({

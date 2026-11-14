@@ -5,7 +5,7 @@ import {currencyLabelParts} from '../app/lib/currency-label.ts';
 import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import catalog from '../app/data/sergey-public-catalog.json' with {type:'json'};
-import {normalizeEventVenueType,matchesEventVenueType} from '../app/lib/event-search-taxonomy.ts';
+import {normalizeEventVenueType,matchesEventOccasion,matchesEventVenueType} from '../app/lib/event-search-taxonomy.ts';
 import {matchesSearchLocation} from '../app/data/search-taxonomy.ts';
 import {uniqueSearchLocations} from '../app/lib/geographic-names.ts';
 const require=createRequire(import.meta.url);
@@ -14,7 +14,7 @@ const aliases=[['לופט','לופטים'],['וילה','וילות'],['מתחם 
 const page=readFileSync(new URL('../app/events/search/page.tsx',import.meta.url),'utf8');
 const ast=ts.createSourceFile('page.tsx',page,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 let predicate;function visit(n){if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==='matchesHardFilters')predicate=n.initializer.getText(ast);ts.forEachChild(n,visit)}visit(ast);
-function actualPredicate(type){const js=ts.transpileModule('const predicate='+predicate+';',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;return new Function('type','matchesEventVenueType','eventType','facility','guests','noNoiseLimit','accessibleOnly','eventMatchesFeatureSelection','matchesVacationSearchFilter',js+';return predicate;')(type,matchesEventVenueType,'הכל','הכל',0,false,false,()=>true,()=>true)}
+function actualPredicate(type){const js=ts.transpileModule('const predicate='+predicate+';',{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;return new Function('type','matchesEventVenueType','matchesEventOccasion','eventType','facility','guests','noNoiseLimit','accessibleOnly','eventMatchesFeatureSelection','matchesVacationSearchFilter',js+';return predicate;')(type,matchesEventVenueType,matchesEventOccasion,'הכל','הכל',0,false,false,()=>true,()=>true)}
 test('actual event page accepts both provider singular and route plural without changing business facts',()=>{
  for(const [singular,plural]of aliases)for(const stored of [singular,plural])for(const selected of [singular,plural])assert.equal(actualPredicate(selected)({type:stored,eventTypes:[],features:[]}),true,stored+' / '+selected);
  assert.equal(actualPredicate('לופטים')({type:'וילה',eventTypes:[],features:[]}),false);

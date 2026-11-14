@@ -574,5 +574,6 @@
   "המעבר מתעכב. אפשר לבחור שוב את התחום.": {"en":"Navigation is taking longer. You can select the category again.","fr":"La navigation prend plus de temps. Vous pouvez sélectionner à nouveau la catégorie.","ru":"Переход занимает больше времени. Можно выбрать категорию ещё раз."},
   "לא מצאנו התאמה לסינונים שבחרתם": {"en":"No providers match these filters","fr":"Aucun prestataire ne correspond aux filtres","ru":"Нет поставщиков по выбранным фильтрам"},
   "אפשר להסיר סינון או לבחור תחום אחר.": {"en":"Remove a filter or choose another category.","fr":"Supprimez un filtre ou choisissez une autre catégorie.","ru":"Уберите фильтр или выберите другую категорию."},
-  "ספק אחד": {"en":"1 provider","fr":"1 prestataire","ru":"1 поставщик"}
+  "ספק אחד": {"en":"1 provider","fr":"1 prestataire","ru":"1 поставщик"},
+  "לא הצלחנו לאמת כרגע אילו מקומות תומכים בהזמנה אונליין. מוצגים כל המקומות כדי שלא לאבד אפשרויות.": {"en":"We could not verify online-booking support right now. All places are shown so you do not lose options.","fr":"Nous n’avons pas pu vérifier les réservations en ligne pour le moment. Tous les lieux restent affichés pour ne pas limiter vos options.","ru":"Сейчас не удалось проверить поддержку онлайн-бронирования. Показаны все места, чтобы не терять варианты."}
 }

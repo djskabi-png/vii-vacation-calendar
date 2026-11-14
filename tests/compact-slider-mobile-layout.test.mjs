@@ -24,7 +24,7 @@ test("mobile slider families share one compact heading, action and controls rhyt
 
   const eventPage = read("app/events/page.tsx");
   for (const railId of ["recommended-events-rail", "event-types-rail", "event-providers-rail", "event-places-rail"]) {
-    assert.match(eventPage, new RegExp(`<HomeSliderControls railId="${railId}"`));
-    assert.match(eventPage, new RegExp(`<EventRail railId="${railId}" showControls=\\{false\\}`));
+    assert.match(eventPage, new RegExp(`<EventRail railId="${railId}"`));
   }
+  assert.doesNotMatch(eventPage, /HomeSliderControls/);
 });

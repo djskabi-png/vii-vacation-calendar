@@ -211,12 +211,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">(() => mode === "holidays" && initialData?.holiday ? "ready" : "loading");
   const track = useRef<HTMLDivElement>(null);
   const lastGoodData = useRef(new Map<string, ResponseData>());
-  // Keep the last painted, verified rail independently from the currently
-  // selected key. During hydration or a first tab change scopedData can be
-  // temporarily empty even though the visitor is already looking at useful
-  // cards. The visible rail must survive that transition until the newly
-  // selected result is verified.
-  const lastVisibleData = useRef<ResponseData | null>(isFreshHomeOffer(initialData) ? initialData ?? null : null);
   const automaticRetries = useRef(new Map<string, number>());
   const recoveryStartedAt = useRef(new Map<string, number>());
   const displaySettingsApplied = useRef(Boolean(initialData?.display));
@@ -240,7 +234,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     ? scopedData.value
     : scopedData === null && (initialSeedUsable || initialHolidaySeedUsable) ? initialData : null;
   function setData(value: ResponseData | null) {
-    if (value && isFreshHomeOffer(value)) lastVisibleData.current = value;
     setScopedData(value ? { key: selectionKey, value } : null);
   }
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
@@ -468,9 +461,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   }
 
   const retainedData = data ?? (state === "loading"
-    ? scopedData && isFreshHomeOffer(scopedData.value) ? scopedData.value
-      : isFreshHomeOffer(lastVisibleData.current) ? lastVisibleData.current
-        : null
+    ? scopedData?.key === selectionKey && isFreshHomeOffer(scopedData.value) ? scopedData.value : null
     : null);
   const eligibleDeals = useMemo(() => retainedData?.deals?.filter(deal => !clock || eligibleDealDate(deal.from, clock.now)) || [], [retainedData?.deals, clock?.key]);
   // Preserve accepted identities and truth cohorts before weighted exposure.

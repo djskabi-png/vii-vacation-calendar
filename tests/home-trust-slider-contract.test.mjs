@@ -33,7 +33,7 @@ test("homepage always shows five approved vacation destinations without transact
 });
 
 test("home tours use verified media with an honest disclosure", () => {
-  assert.match(source, /properties\.flatMap\(\(property\) => homeTourVideos\(property\.videos\)/);
+  assert.match(source, /eligibleHomeTourProperties\(properties\)\.flatMap\(\(property\) => homeTourVideos\(property\.videos\)/);
   assert.match(source, /<video controls playsInline preload="none"/);
   assert.match(source, /\{video\.note\}/);
   assert.match(source, /href=\{`\/business\?id=\$\{property\.slug\}`\}/);

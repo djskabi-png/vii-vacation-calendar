@@ -580,7 +580,10 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
         if (selectedSpaAudience) nearbyDestination.searchParams.set("spaFor", selectedSpaAudience);
         if (initialSpaFeatures.length) nearbyDestination.searchParams.set("features", initialSpaFeatures.join(","));
       }
-      nearbyDestination.searchParams.set("sort", "nearest");
+      // The semantic nearby page owns nearest ordering by default. Keeping the
+      // redundant query produced a duplicate parameter URL instead of the
+      // approved indexable destination.
+      nearbyDestination.searchParams.delete("sort");
       destination = `${nearbyDestination.pathname}${nearbyDestination.search}`;
     }
     try {

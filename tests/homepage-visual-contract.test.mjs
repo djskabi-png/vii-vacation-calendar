@@ -27,10 +27,10 @@ test("homepage uses scheduled dated snapshots without unsupported static offers"
     readFile(new URL("../app/lib/warm-vacation-discovery-cache.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/lib/vii-supplier-token.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
-  assert.match(showcase, /<HomeLiveDeals mode="holidays" deferUntilNearViewport initialData=\{initialHolidayData\} pendingSeed=\{pendingSeed\} \/>/);
-  assert.match(showcase, /destinationImages.filter/);
-  assert.match(showcase, /usedDestinationImages/);
+  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} fallbackProperties=\{fallbackProperties\} pendingSeed=\{pendingSeed\} \/>/);
+  assert.match(showcase, /<HomeLiveDeals mode="holidays" deferUntilNearViewport initialData=\{initialHolidayData\} fallbackProperties=\{fallbackProperties\} pendingSeed=\{pendingSeed\} \/>/);
+  assert.match(showcase, /const vacationDestinations = \[/);
+  assert.equal((showcase.match(/label: "נופש ב/g) || []).length, 5);
   assert.match(deals, /`\/api\/vii\/home-deals\?\$\{new URLSearchParams\(\{ period, locale: language, proof: "verified-offers-v1", clock: clockKey/);
   assert.match(deals, /\.\.\.\(regionLabel \? \{ region: regionLabel \} : \{\}\)/);
   assert.match(deals, /`\/api\/vii\/home-holiday-deals\?\$\{new URLSearchParams/);

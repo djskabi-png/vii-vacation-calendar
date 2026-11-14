@@ -30,7 +30,8 @@ test("nearby control ranks browser coordinates rather than silently converting t
   const helper = readFileSync(new URL("../app/components/use-nearby-sort.tsx", import.meta.url), "utf8");
   assert.match(search, /await requestNearbyOrigin\(\)/);
   assert.match(search, /chooseLocation\("כל הארץ", true\)/);
-  assert.match(search, /searchParams\.set\("sort", "nearest"\)/);
+  assert.match(search, /nearbyDestination\.pathname = semanticNearbyPath\(nearbyDestination\.pathname, mode\)/);
+  assert.match(search, /nearbyDestination\.searchParams\.delete\("sort"\)/);
   assert.doesNotMatch(search, /select\(nearestSearchLocation/);
   assert.match(helper, /navigator\.geolocation\.getCurrentPosition/);
   assert.match(helper, /timeout:\s*8000/);

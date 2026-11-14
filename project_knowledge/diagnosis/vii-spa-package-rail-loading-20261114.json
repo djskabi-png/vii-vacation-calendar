@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "taskId": "vii-spa-package-rail-loading-20261114",
+  "status": "root_fixed_in_saved_candidate_not_published",
+  "failure": "The SPA packages rail remains on skeleton loading and may end in a retry message.",
+  "reproduction": {
+    "page": "https://vii.spaplus.co/spas?spaDealDate=2026-11-15&spaDealFor=single#spa-world-package-deals",
+    "observedUi": "SPA heading and controls render, while the package result surface remains a three-card skeleton.",
+    "apiEvidence": [
+      {"request": "rotation=0", "wallMs": 10213, "status": 200, "availabilityStatus": "verified", "offers": 20},
+      {"request": "rotation=3", "wallMs": 4883, "status": 200, "availabilityStatus": "refreshing", "offers": 0},
+      {"request": "canonical after background refresh", "wallMs": 5744, "status": 200, "availabilityStatus": "refreshing", "offers": 0, "serverTiming": "catalog 2442ms; availability budget 1200ms"},
+      {"request": "direct supplier-backed availability route", "wallMs": 3345, "status": 200, "rows": 379, "bytes": 18990}
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Document-seed rotation fragments the edge and browser cache into eight URL variants, so a visitor can hit a cold variant even while another variant has verified data.",
+      "evidenceFor": ["The same clock and data scope returned verified data for rotation 0 and refreshing empty data for rotation 3.", "The client places rotation in the request URL and the edge cache key retains the exact query."],
+      "test": "Remove transport-level rotation from rail requests, retain client-side ordering, and assert identical API URLs across document seeds."
+    },
+    {
+      "id": "H2",
+      "statement": "A budget shorter than the observed supplier response repeatedly returns refreshing instead of allowing a cold request to create a verified reusable response.",
+      "evidenceFor": ["The public route remained refreshing after a bounded five-second follow-up wait.", "Server-Timing showed a 1200ms availability budget while the direct supplier-backed availability route completed successfully in 3345ms."],
+      "test": "Use a 4500ms rail budget, keep full pages at 8000ms, and verify healthy availability produces verified cards in route tests."
+    },
+    {
+      "id": "H5",
+      "statement": "The availability cache key changes with the first deal date, creating a preventable cold cache every Israel-day rollover.",
+      "evidenceFor": ["Both the public route and scheduled warmer keyed the same rolling supplier payload by firstDealDate(now).", "The supplier payload contains many future dates and is safe to filter against the current supported window."],
+      "test": "Make the route and scheduled warmer share one stable rolling key and retain current-day filtering at response time."
+    },
+    {
+      "id": "H3",
+      "statement": "Date or audience tab selection restarts the network effect and aborts usable requests.",
+      "evidenceAgainst": ["The rail request key excludes the selected rail date and audience.", "Tab selection uses history.replaceState and local state while the API requests all rail dates and audiences together."],
+      "test": "Regression test that audience/date selection does not alter the canonical rail request identity."
+    },
+    {
+      "id": "H4",
+      "statement": "The browser waits for unrelated images or window load before committing JSON.",
+      "evidenceAgainst": ["The discovery client waits only for DOMContentLoaded plus two animation frames, not window load.", "The screenshot already shows the mounted loading branch and API timing independently reproduces the delay."],
+      "test": "Retain the existing initial-document boundary and do not alter image loading."
+    }
+  ],
+  "currentConclusion": "H1, H2 and H5 jointly explain the observed long skeleton. H3 and H4 are not supported. The saved candidate now uses one canonical transport URL, one rolling availability snapshot, a 4500ms cold rail budget that covers the observed healthy supplier response, and client-side-only fair ordering.",
+  "verification": {
+    "targetedTests": "44 passed, 0 failed",
+    "productionBuild": "passed",
+    "localRuntime": "component and route mounted; local environment has no availability token, so live supplier cards cannot be visually certified locally",
+    "production": "not published by this task and therefore still exhibits the old behavior"
+  },
+  "rollback": "Revert only the SPA rail canonical request identity, rolling cache key and rail budget changes; supplier data selection and booking code are untouched."
+}

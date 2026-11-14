@@ -935,6 +935,7 @@
         "app/app-experience.css",
         "app/components/cookie-consent.tsx",
         "app/components/slider-rail-controls.tsx",
+        "app/components/home-slider-controls.tsx",
         "app/components/responsive-viewport-guard.tsx",
         "app/components/global-action-feedback.tsx",
         "app/components/unified-amenity-list.tsx",
@@ -1054,7 +1055,9 @@
         "app/components/accommodation-landing-route.tsx",
         "app/lib/resolve-supplier-availability.ts",
         "app/lib/booking-selection.ts",
-        "app/lib/review-summary.ts"
+        "app/lib/review-summary.ts",
+        "app/lib/dated-availability-eligibility.ts",
+        "app/lib/vacation-online-booking-filter.ts"
       ]
     },
     {
@@ -1090,7 +1093,10 @@
         "scripts/lib/spaplus-facility-parser.mjs",
         "app/components/spa-package-deals.css",
         "app/lib/spa-package-deals.ts",
-        "app/lib/spa-about-source.ts"
+        "app/lib/spa-about-source.ts",
+        "app/lib/spa-availability.ts",
+        "app/lib/warm-spa-discovery-cache.ts",
+        "app/lib/spa-discovery-cache-key.ts"
       ]
     },
     {
@@ -1198,7 +1204,11 @@
         "app/components/detail-sticky-dock.tsx",
         "app/lib/quoted-price-guests.ts",
         "app/lib/event-whatsapp-inquiry.ts",
-        "app/gift-card/"
+        "app/gift-card/",
+        "app/api/integrations/spaplus/bookings/route.ts",
+        "app/api/leads/route.ts",
+        "app/api/vii/booking/route.ts",
+        "app/lib/operations-audit.ts"
       ]
     },
     {
@@ -1272,6 +1282,7 @@
         "tests/",
         "scripts/",
         "project_knowledge/",
+        ".openai/",
         ".gitignore",
         "tools/"
       ]
@@ -1413,7 +1424,8 @@
       "id": "request-lifecycle",
       "ownerBox": "request-lifecycle",
       "match": [
-        "app/lib/server-request-reads.ts"
+        "app/lib/server-request-reads.ts",
+        "proxy.ts"
       ]
     },
     {
@@ -1449,6 +1461,13 @@
         "app/components/recommended-place-banner.tsx",
         "app/components/recommended-place-banner.css",
         "drizzle/0012_promotion_membership_flags.sql"
+      ]
+    },
+    {
+      "id": "catalog-retry-runner",
+      "ownerBox": "catalog-source",
+      "match": [
+        "app/lib/supplier-catalog-retry-runner.ts"
       ]
     },
     {

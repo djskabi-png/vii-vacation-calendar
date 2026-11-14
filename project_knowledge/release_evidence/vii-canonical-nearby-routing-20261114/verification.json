@@ -1,0 +1,58 @@
+{
+  "task": "vii-canonical-nearby-routing-20261114",
+  "status": "verified_local_not_deployed",
+  "observed_public_baseline": {
+    "url": "https://vii.spaplus.co/hourly?sort=nearest",
+    "status": 200,
+    "location": null,
+    "meaning": "The currently public release still serves the parameter URL and has not received this repair."
+  },
+  "verified_candidate": {
+    "build": "passed",
+    "focused_tests": {
+      "passed": 27,
+      "failed": 0
+    },
+    "broader_nearby_family_tests": {
+      "passed": 36,
+      "failed": 0
+    },
+    "eslint_changed_scope": "passed",
+    "http_matrix": {
+      "passed": 29,
+      "failed": 0,
+      "worlds": [
+        "vacations",
+        "spas",
+        "events",
+        "hourly",
+        "trails",
+        "attractions",
+        "providers"
+      ],
+      "locales": [
+        "he",
+        "en",
+        "fr",
+        "ru"
+      ],
+      "expected_status": 301,
+      "preserved_parameters": [
+        "from",
+        "guests"
+      ],
+      "removed_parameter": "sort=nearest",
+      "followed_hourly_destination": {
+        "path": "/hourly/near-me",
+        "status": 200
+      }
+    }
+  },
+  "scope_invariants": [
+    "Other sort values are unchanged.",
+    "Unrelated routes are unchanged.",
+    "Other query parameters are preserved.",
+    "Locale prefixes are preserved.",
+    "No production deployment was performed in this task."
+  ]
+}

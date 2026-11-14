@@ -31,7 +31,7 @@ test("compact place previews use independent media and body links, not nested bu
   // Preserve the caller's class while allowing the event contact footer modifier.
   assert.match(card, /<article className=\{`\$\{className\}\$\{contact \? " place-preview-card--contact" : ""\}`\}>\s*<PreviewCardGallery/);
   assert.match(card, /images=\{\[image, \.\.\.images\]\}/);
-  assert.match(card, /<Link className="place-preview-card__body"[^>]*onClick=\{newTab \? \(event\) => openPlaceInSameTabOnMobile\(event, href\) : undefined\}/);
+  assert.match(card, /<Link className="place-preview-card__body"[^>]*target=\{newTab \? "_blank" : undefined\}/);
   assert.doesNotMatch(card, /<Link[^>]*>\s*<PreviewCardGallery/);
 });
 

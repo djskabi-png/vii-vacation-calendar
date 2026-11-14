@@ -32,7 +32,8 @@ test("SPA package cards expose an explicit people basis and select the exact pac
 });
 
 test("SPA detail gallery preserves source identity while removing duplicate URLs", () => {
-  assert.match(page, /const galleryImages = \[\.\.\.new Set\(item\.images\?\.length/);
+  assert.match(page, /const bundledGalleryImages = useMemo\(\(\) => \[\.\.\.new Set\(item\.images\?\.length/);
+  assert.match(page, /const \[galleryImages, setGalleryImages\] = useState\(bundledGalleryImages\)/);
   assert.doesNotMatch(card, /\.\.\.site\.packages\.map\(\(pack\) => pack\.image\)/);
 });
 

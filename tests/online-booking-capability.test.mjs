@@ -47,12 +47,13 @@ test("live recovery accepts only explicit supplier online-booking flags", () => 
   assert.throws(() => onlineCapabilitiesFromSearch({ results: [{ siteID: 71, onlineBooking: false }] }, now), /capabilities_unavailable/);
 });
 
-test("undated filter accepts persisted capability but never relaxes dated selection", () => {
+test("persisted capability keeps the online filter stable across dated availability checks", () => {
   const discovery = { undated: true, capability: { checkedAt: Date.now() } };
   assert.equal(matchesVacationOnlineBooking(true, undefined, null, discovery), true);
-  assert.equal(matchesVacationOnlineBooking(true, undefined, null, { undated: false, capability: discovery.capability }), false);
-  assert.equal(matchesVacationOnlineBooking(true, undefined, { from: "2026-11-01", till: "2026-11-04" }, discovery), false);
+  assert.equal(matchesVacationOnlineBooking(true, undefined, null, { undated: false, capability: discovery.capability }), true);
+  assert.equal(matchesVacationOnlineBooking(true, undefined, { from: "2026-11-01", till: "2026-11-04" }, discovery), true);
   assert.equal(matchesVacationOnlineBooking(true, undefined, null, { undated: true }), false);
+  assert.equal(matchesVacationOnlineBooking(true, undefined, { from: "2026-11-01", till: "2026-11-04" }, { undated: false, capabilityUnavailable: true }), true);
   assert.equal(matchesVacationOnlineBooking(false, undefined, null), true);
 });
 test("capability carries no probe availability, prices, dates or personal fields", async () => {
@@ -136,10 +137,10 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.doesNotMatch(page, /בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין/);
   assert.match(page, /const startingPrices = useStartingPrices\("vacations", true\);/);
   assert.equal((page.match(/catalogStartingPrices=\{startingPrices\[property\.slug\]\}/g) || []).length, 2);
-  assert.match(page, /aria-busy=\{undatedSearch \? onlineCapabilities.status === "loading" : datedAvailabilityPending\}/);
+  assert.match(page, /aria-busy=\{onlineCheckPending\}/);
   assert.match(page, /onlineOnly && undatedCapabilityUnavailable/);
-  assert.match(page, /undatedCapabilityUnavailable[\s\S]*?\? true[\s\S]*?matchesVacationOnlineBooking/);
-  assert.match(page, /מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין/);
+  assert.match(page, /capabilityUnavailable: onlineCapabilities\.status === "error"|const capabilityUnavailable = onlineCapabilities\.status === "error"/);
+  assert.match(page, /מוצגים כל המקומות כדי שלא לאבד אפשרויות/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
   assert.match(worker, /scheduled[\s\S]*cloudflareDatabaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
   const route = readFileSync(new URL("../app/api/vii/online-capabilities/route.ts", import.meta.url), "utf8");

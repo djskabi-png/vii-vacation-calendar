@@ -27,7 +27,7 @@ import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import {usePublicPromotionWeights} from "./use-public-promotion-weights";
 import { useDocumentSeed } from "./use-document-seed";
-import { homeTourVideos } from "../lib/home-video-selection";
+import { eligibleHomeTourProperties, homeTourVideos } from "../lib/home-video-selection";
 import { useWorldAvailability } from "./world-availability-provider";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { localizedPath } from "../i18n/locale-routing";
@@ -89,7 +89,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id) && enabled(world.id));
-  const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
+  const featuredTours = orderDiscoveryRail(eligibleHomeTourProperties(properties).flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, promotionWeight:({property})=>vacationWeight(property.slug),seed: `${documentSeed}:home-tours`, limit: 7 });
   const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, promotionWeight:item=>hourlyWeight(item.id),seed: `${documentSeed}:home-hourly`,
     compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });

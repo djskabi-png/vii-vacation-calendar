@@ -113,5 +113,5 @@ test("growth center reports verified local capabilities and honest external conn
 test("content queue retains demand, readiness, priority and direct editing", async () => {
   const page = await read("app/admin/content-queue/page.tsx");
   for (const behavior of ["חיפושים מצטברים", "מוכנות ממוצעת", "העדיפות משלבת ביקוש", "חיפושים", "ייחודיים", "תוצאות", "פתיחה ועריכה"]) assert.match(page, new RegExp(behavior));
-  assert.match(page, /\/admin\/search-pages\?id=/);
+  assert.match(page, /href=\{item\.editHref\}/);
 });

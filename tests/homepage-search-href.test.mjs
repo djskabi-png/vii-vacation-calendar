@@ -6,8 +6,10 @@ import {localizedPath} from '../app/i18n/locale-routing.ts';
 
 test('managed links carry locale in the React navigation prop, not only a later DOM rewrite',()=>{
  const source=readFileSync('app/components/home-discovery-sections.tsx','utf8');
+ const homepage=readFileSync('app/page.tsx','utf8');
  assert.equal((source.match(/href=\{localizedPath\(item.href, language\)\}/g)||[]).length,2);
- assert.ok(source.includes('href={localizedPath("/search", language)}'));
+ assert.ok(homepage.includes('href={localizedPath("/search", language)}'));
+ assert.ok(homepage.includes('href={localizedPath(`/search?location=${encodeURIComponent(destination.name)}`, language)}'));
  for(const locale of ['en','fr','ru']){
   assert.equal(localizedPath(normalize('/search?feature=בריכה'),locale),`/${locale}/search?pool=1`);
   assert.equal(localizedPath('/vacations/north',locale),`/${locale}/vacations/north`);

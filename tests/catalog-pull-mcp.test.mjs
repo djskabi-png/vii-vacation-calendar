@@ -141,7 +141,7 @@ test('vacation MCP has one server-chosen run per Israel hour while native and ot
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys = ON");
-  for (const name of ["0002_sour_tigra", "0003_catalog_diagnostics", "0007_catalog_retry_queue"]) {
+  for (const name of ["0002_sour_tigra", "0003_catalog_diagnostics", "0007_catalog_retry_queue", "0013_adorable_moira_mactaggert"]) {
     const source = await readFile(new URL(`../drizzle/${name}.sql`, import.meta.url), "utf8");
     for (const sql of source.split("--> statement-breakpoint").map((part) => part.trim()).filter(Boolean)) sqlite.exec(sql);
   }

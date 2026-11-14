@@ -1,0 +1,27 @@
+{
+  "target": "VII slider runtime stability and cross-template error audit",
+  "natural_destination": "Exact local release candidate routes on desktop and 390px mobile, with later production verification requiring separate publication authorization",
+  "requirements": [
+    {"id": "REQ-1", "statement": "Every selected rail tab displays only matching data and status."},
+    {"id": "REQ-2", "statement": "Loading, failure, retry and retained-result states are bounded, visible and non-contradictory."},
+    {"id": "REQ-3", "statement": "Every public page template family is scanned for runtime, network, blank-screen and responsive failures."},
+    {"id": "REQ-4", "statement": "Existing search, gallery, navigation, content and availability capabilities remain unchanged."}
+  ],
+  "risks": [
+    {"id": "RISK-1", "risk": "Stale availability is presented as current for another date or tab.", "severity": "high"},
+    {"id": "RISK-2", "risk": "A rail remains busy, fails without recovery or shows error and usable results simultaneously.", "severity": "high"},
+    {"id": "RISK-3", "risk": "A shared repair breaks another world, route or viewport.", "severity": "high"},
+    {"id": "RISK-4", "risk": "Slow SSR or a critical request creates a blank or misleading first viewport.", "severity": "high"}
+  ],
+  "characteristics": {"stateful": true, "asynchronous": true, "role_based": false, "responsive": true, "external_integration": true},
+  "cases": [
+    {"id": "TC-1", "priority": "P0", "requirement_ids": ["REQ-1", "REQ-2"], "risk_ids": ["RISK-1", "RISK-2"], "tags": ["success", "persistence", "retry", "idempotency"], "preconditions": "Holiday rail has verified initial cards.", "action": "Switch through all holiday tabs, including rapid A-B-A selection and reload.", "oracle": "Active tab, link, dates, cards and status agree; an older response cannot replace current data.", "execution_status": "planned"},
+    {"id": "TC-2", "priority": "P0", "requirement_ids": ["REQ-1", "REQ-2"], "risk_ids": ["RISK-1", "RISK-2"], "tags": ["success", "failure", "retry", "dependency-failure", "idempotency"], "preconditions": "Spa rail is visible.", "action": "Switch date and audience; exercise timeout/failure and retry.", "oracle": "The control updates immediately, request settles within its budget, data identity matches selection, and failure leaves one clear recovery path.", "execution_status": "planned"},
+    {"id": "TC-3", "priority": "P0", "requirement_ids": ["REQ-1", "REQ-2", "REQ-4"], "risk_ids": ["RISK-2", "RISK-3"], "tags": ["success", "failure", "retry", "persistence", "responsive"], "preconditions": "Vacation and event rails have initial results.", "action": "Switch every preset, use arrows and touch-style scrolling, then reload at desktop and 390px.", "oracle": "All controls settle with matching data, selection persists correctly, and no sibling rail resets or moves unexpectedly.", "execution_status": "planned"},
+    {"id": "TC-4", "priority": "P0", "requirement_ids": ["REQ-3"], "risk_ids": ["RISK-3", "RISK-4"], "tags": ["success", "failure", "responsive", "dependency-failure"], "preconditions": "Template inventory is complete.", "action": "Open representative homepage, world, search, semantic landing, business, account, favorites, guides, legal, admin sign-in and unknown routes at desktop and 390px.", "oracle": "No uncaught console error, failed critical request, blank first viewport, stuck busy state, missing global navigation or horizontal overflow remains unresolved.", "execution_status": "planned"},
+    {"id": "TC-5", "priority": "P1", "requirement_ids": ["REQ-4"], "risk_ids": ["RISK-3"], "tags": ["success", "persistence", "responsive"], "preconditions": "Representative existing routes are available.", "action": "Exercise vacation filter, business gallery, language control, 404 recovery and browser back.", "oracle": "URLs, counts, gallery identity, navigation and layout retain prior verified behavior.", "execution_status": "planned"},
+    {"id": "TC-6", "priority": "P1", "requirement_ids": ["REQ-2", "REQ-3"], "risk_ids": ["RISK-2", "RISK-4"], "tags": ["success", "failure", "retry", "dependency-failure", "idempotency"], "preconditions": "Exact rail API query parameters are known.", "action": "Measure cold and warm direct API plus page HTML requests.", "oracle": "Status, cache, duration and payload ownership are recorded; errors are distinguished from client state defects.", "execution_status": "planned"}
+  ],
+  "out_of_scope": ["Production publication", "DNS changes", "Supplier data mutation", "Authenticated booking or payment side effects"],
+  "ready_for_execution": true
+}

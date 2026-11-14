@@ -35,8 +35,9 @@ test("availability rails may render neutral catalog cards while a refresh is pen
   assert.match(home, /הזמנה מהירה לנופש/);
   assert.match(home, /אפשר לפתוח מקום ולבחור תאריך/);
   assert.doesNotMatch(home, /fallbackTitle[^\n]+פנוי/);
-  assert.match(home, /<PropertyCard property=\{property\} detailHref=/);
-  assert.doesNotMatch(home, /<PropertyCard property=\{property\}[^>]*(?:selectedStay|liveAvailabilityState)=/);
+  assert.match(home, /<PropertyCard\s+property=\{property\}[^>]*detailHref=/);
+  assert.match(home, /fallbackAvailability:[\s\S]*availability: "unknown"/);
+  assert.doesNotMatch(home, /fallbackAvailability:[\s\S]{0,180}availability: "available"/);
   assert.match(home, /availabilityStatus === "refreshing"/);
   assert.match(home, /shouldCache:[\s\S]*availabilityStatus === "verified"/);
   assert.doesNotMatch(spa, /החבילות והמחירים מוצגים מיד מהקטלוג|catalogNote/);

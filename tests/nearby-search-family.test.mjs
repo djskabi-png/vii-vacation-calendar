@@ -86,7 +86,8 @@ test("dated spa expansion retains audience, amenity and available-site filtering
 
 test("business recommendation reads are public, managed, parallel and failure isolated", async () => {
   const page = await read("app/business/page.tsx");
-  assert.match(page, /const \[property, properties, acceptedDetail\] = await Promise\.all/);
+  assert.match(page, /const property = await resolveProperty\(params\.id\)/);
+  assert.match(page, /const properties = bundledProperties\.map/);
   assert.match(page, /complementaryContent=\{<Suspense fallback=\{<section className="section property-complements" aria-busy="true" \/>\}>/);
   assert.match(page, /async function BusinessComplementaryContent/);
   assert.match(page, /const \[trailInventory, spaSites, attractions\] = await Promise\.all/);

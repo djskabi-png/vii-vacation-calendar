@@ -1,18 +1,18 @@
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { readSpaAvailability } from "../../../lib/spa-availability.ts";
 import { eventDealDate } from "../../../lib/event-deal-dates.ts";
-import { spaSliderRepresentatives, orderSpaDealExposure, selectSpaCatalogPackages, selectSpaPackageDeals, type SpaDealAudience } from "../../../lib/spa-package-deals.ts";
+import { spaSliderRepresentatives, orderSpaDealExposure, selectSpaPackageDeals, type SpaDealAudience } from "../../../lib/spa-package-deals.ts";
 import { readActivePromotionWeights } from "../../../lib/discovery-promotion-drafts.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { spaPlusArea } from "../../../data/spa-regions.ts";
 import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
-import { firstDealDate } from "../../../lib/deal-clock.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { spaDiscoveryInputs } from "../../../lib/spa-discovery-inputs.ts";
 import { spaDealDays } from "../../../lib/spa-deal-window.ts";
 import { verifiedPublicDiscoveryHeaders } from "../../../lib/public-discovery-response.ts";
+import { spaDiscoveryAvailabilityCacheKey } from "../../../lib/spa-discovery-cache-key.ts";
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const region = regionalAvailabilityRegion(params.get("region"));
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     const audiences: SpaDealAudience[] = ["single", "couple", "group"];
     const { sites, cached, refresh, catalogMs, availabilityMs, elapsedMs } = await spaDiscoveryInputs(
       () => publicCatalogSummaries<SpaPlusSite>("spa"),
-      async () => cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: () => readSpaAvailability(), validate: Array.isArray }), full ? 8_000 : 5_000);
+      async () => cachedDiscovery({ key: spaDiscoveryAvailabilityCacheKey, db: await runtimeCatalogDatabase(), load: () => readSpaAvailability(), validate: Array.isArray }), full ? 8_000 : 4_500);
     const timing = `vii-catalog;dur=${catalogMs}, vii-availability;dur=${availabilityMs}, vii-spa-inputs;dur=${elapsedMs}`;
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));

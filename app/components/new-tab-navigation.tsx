@@ -21,7 +21,7 @@ function normalizeBusinessDetailLink(anchor: HTMLAnchorElement) {
   if (!rawHref || rawHref.startsWith("#")) return false;
   const url = new URL(anchor.href, window.location.href);
   const path = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
-  if (url.origin !== window.location.origin || !/^\/business(?:\/|$)/.test(path)) return false;
+  if (url.origin !== window.location.origin || !isBusinessDepthRoute(path)) return false;
   if (anchor.hasAttribute("download")) return false;
   // React renders the approved desktop target in the shared markup. On
   // mobile the place click must remain an App Router transition. Keep the
@@ -73,7 +73,17 @@ export function NewTabNavigation() {
       });
       observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["target", "rel"] });
     }, hydrationDelay);
-    return () => { window.clearTimeout(timer); observer?.disconnect(); };
+    const normalizeMobileClick = (event: MouseEvent) => {
+      if (!window.matchMedia("(max-width: 760px)").matches) return;
+      const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>("a[href]");
+      if (anchor) normalizeBusinessDetailLink(anchor);
+    };
+    document.addEventListener("click", normalizeMobileClick, true);
+    return () => {
+      window.clearTimeout(timer);
+      observer?.disconnect();
+      document.removeEventListener("click", normalizeMobileClick, true);
+    };
   }, []);
 
   return null;

@@ -54,11 +54,11 @@ test("undated place documents keep a longer smart-cache window while dated visit
   assert.notEqual((await policy("/discover/place/spa-25?date=2026-11-13&package=4194", {}, "spa-entry"))?.key, spaPackage.key);
 });
 
-test("public landing documents retain a fifteen minute cross-region window while availability context stays short", async () => {
-  for (const path of ["/", "/search", "/events", "/spas", "/hourly", "/holidays", "/vacations/north", "/providers", "/trails", "/attractions"]) {
+test("public landing documents retain a fifteen minute cross-region window while dynamic vacation surfaces stay short", async () => {
+  for (const path of ["/", "/search", "/events", "/spas", "/hourly", "/holidays", "/providers", "/trails", "/attractions"]) {
     assert.equal((await policy(path, {}, "landing-window"))?.ttlSeconds, 900, path);
   }
-  for (const path of ["/search?from=2026-11-13&till=2026-11-14", "/events?date=2026-11-13", "/vacations/north?from=2026-11-13&till=2026-11-14"]) {
+  for (const path of ["/vacations/north", "/search?from=2026-11-13&till=2026-11-14", "/events?date=2026-11-13", "/vacations/north?from=2026-11-13&till=2026-11-14"]) {
     assert.equal((await policy(path, {}, "availability-window"))?.ttlSeconds, 180, path);
   }
 });

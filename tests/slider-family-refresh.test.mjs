@@ -8,8 +8,8 @@ test('every static place/trail recommendation family explicitly opts in, semanti
    assert.ok(rails.length,path);
    assert.ok(rails.every(rail=>rail.includes('shufflePlaces')),path);
  }
- assert.match(read('events/page.tsx'),/<EventRail[^>]+railId="event-places-rail"[^>]+showControls=\{false\}[^>]+shufflePlaces warmAheadImages title=\{translate\("מקומות לאירועים"\)\}>\{eventPlaces\.map/);
- assert.match(read('events/page.tsx'),/<EventRail[^>]+railId="event-providers-rail"[^>]+showControls=\{false\}[^>]+shufflePlaces title=\{translate\("ספקים לאירוע"\)\}/);
+ assert.match(read('events/page.tsx'),/<EventRail[^>]+railId="event-places-rail"[^>]+shufflePlaces warmAheadImages title=\{translate\("מקומות לאירועים"\)\}>\{eventPlaces\.map/);
+ assert.match(read('events/page.tsx'),/<EventRail[^>]+railId="event-providers-rail"[^>]+shufflePlaces title=\{translate\("ספקים לאירוע"\)\}/);
  assert.doesNotMatch(read('world-editorial-links.tsx'.replace(/^/,'components/')),/<HomeMobileRail shufflePlaces/);
  assert.doesNotMatch(read('events/page.tsx'),/<EventRail shufflePlaces title="סוגי מקומות/);
 });
@@ -33,6 +33,6 @@ test('document seed is shared in memory, not persisted between full loads or for
  assert.doesNotMatch(seed,/localStorage|sessionStorage|fetch\(|cookie/);
  for(const path of ['components/home-live-deals.tsx','components/holiday-live-deals.tsx','components/spa-package-deals.tsx','components/event-last-minute.tsx']){
   const source=read(path);assert.doesNotMatch(source,/rotation:\s*documentSeed/);
-  if(path.includes("spa-package"))assert.match(source,/rotation:String\(discoverySeedRank/);
+  if(path.includes("spa-package"))assert.match(source,/seed: `\$\{documentSeed\}:spa:\$\{date\}:\$\{audience\}`/);
  }
 });

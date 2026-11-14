@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-canonical-nearby-routing-20261114",
+  "project": "VII",
+  "task_type": "canonical nearby route repair",
+  "requested_outcome": "Every generic world URL using sort=nearest resolves directly to its approved semantic near-me page, and every nearby entry generates the canonical page instead of a parameter-only URL.",
+  "natural_destination": "VII vacation, spa, events, hourly, attractions, trails and providers search routes in Hebrew, English, French and Russian.",
+  "authorization_boundary": "Local source repair and verification only. Publication is not authorized by the current request.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A helper change is insufficient unless the actual route family and redirects are verified.",
+      "acceptance_impact": "Require canonical URL, preserved transactional parameters and direct permanent redirect evidence."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "Nearby behavior is a shared seven-world family.",
+      "acceptance_impact": "Apply and test one consistent rule across every supported world and locale."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "This is a routing correction, not a search redesign.",
+      "acceptance_impact": "Preserve filters, dates, guests, language, location permission behavior and unrelated sorting."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Hourly is fixed but another world still opens a sort=nearest parameter URL.",
+      "prevention": "Use one canonical world map at both server entry and shared client nearby state.",
+      "acceptance_check": "All seven generic routes and three locale prefixes resolve to their matching /near-me route."
+    },
+    {
+      "rejection": "The redirect loses dates, guests, filters or language.",
+      "prevention": "Remove only the redundant nearest sort parameter and retain every other query value and locale.",
+      "acceptance_check": "Parameterized positive tests preserve all non-sort values byte-for-byte after URL decoding."
+    },
+    {
+      "rejection": "Selecting another sort is redirected incorrectly.",
+      "prevention": "Activate canonicalization only when sort equals nearest.",
+      "acceptance_check": "Recommended, price and rating URLs return no nearby redirect."
+    },
+    {
+      "rejection": "Old managed popular-search data still emits the legacy parameter URL.",
+      "prevention": "Normalize server-provided initial presentation data as well as asynchronously loaded data.",
+      "acceptance_check": "A legacy managed nearby item renders one canonical semantic destination without duplication."
+    }
+  ],
+  "affected_family": [
+    "vacation /search",
+    "spa /spas",
+    "events /events/search",
+    "hourly /hourly",
+    "attractions /attractions",
+    "trails /trails",
+    "providers /providers",
+    "he, en, fr and ru locale prefixes",
+    "shared nearby sort hook, search box and managed popular-search links",
+    "server proxy redirect order"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted canonical nearby pages",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#nearby-entry-retina-maps-and-snap-boundaries-10-november-2026"
+      },
+      {
+        "label": "Previously qualified seven-world nearby route family",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#scoped-sites843-nearby-entry-and-page-shell-correction-9-november-2026"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The pure canonicalization helper and proxy contract pass for hourly plus one localized route.",
+    "checks": [
+      "hourly nearest becomes /hourly/near-me",
+      "locale and non-sort parameters survive",
+      "non-nearest sort remains unchanged"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any supported generic world still retain sort=nearest after navigation?",
+      "Can a locale prefix or transactional filter be lost?",
+      "Can a non-nearest sorting choice be redirected?",
+      "Can a canonical near-me page enter a redirect loop?"
+    ],
+    "natural_destination_evidence": "Exact local built-candidate HTTP and browser checks for the reported hourly URL and representative desktop/mobile canonical pages.",
+    "affected_family_evidence": "Automated matrix for seven worlds, four locales, preserved parameters, negative sorts and loop prevention."
+  },
+  "effectiveness": {
+    "baseline": "The reported public hourly URL remains /hourly?sort=nearest instead of the approved semantic page.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero supported generic nearest URLs remain after one redirect, with no lost query state and no redirect loops."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -38,6 +38,10 @@ export async function POST(request: Request) {
         const { warmEventDiscoveryCache } = await import("../lib/warm-event-discovery-cache.ts");
         await warmEventDiscoveryCache(db).catch(() => console.error("VII scheduled event discovery refresh unavailable"));
       }
+      if (world === "spa") {
+        const { warmSpaDiscoveryCache } = await import("../lib/warm-spa-discovery-cache.ts");
+        await warmSpaDiscoveryCache(db).catch(() => console.error("VII scheduled spa discovery refresh unavailable"));
+      }
       console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
       return value;
     },

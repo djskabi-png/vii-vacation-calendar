@@ -7,6 +7,7 @@ import { stripTypeScriptTypes } from "node:module";
 import { eventDealDate } from "../app/lib/event-deal-dates.ts";
 import { firstDealDate } from "../app/lib/deal-clock.ts";
 import { spaDiscoveryInputs } from "../app/lib/spa-discovery-inputs.ts";
+import { spaDiscoveryAvailabilityCacheKey } from "../app/lib/spa-discovery-cache-key.ts";
 
 const baseDay = "2026-11-05";
 function daysFor(now) {
@@ -45,6 +46,7 @@ function handler({ now = "2026-11-05T13:00:00+02:00",availabilityFailure=false,b
     spaDiscoveryInputs:(...args)=>{budgets.push(args[2]);return spaDiscoveryInputs(...args);},
     runtimeCatalogDatabase: async () => ({}),
     firstDealDate,
+    spaDiscoveryAvailabilityCacheKey,
     getRequestExecutionContext: () => null,
     Date: frozenDate(now),
   });
@@ -55,7 +57,7 @@ function handler({ now = "2026-11-05T13:00:00+02:00",availabilityFailure=false,b
 test('actual refreshing API never caches or invents dated offers and full pages have a finite healthy-source budget',async()=>{
  const budgets=[],GET=handler({availabilityFailure:true,budgets});
  for(const query of ['?full=1&date=2026-11-06','']){const response=await GET(new Request('https://example.test/api/spa/deals'+query));const body=await response.json();assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(body.availabilityStatus,'refreshing');for(const day of Object.values(body.offers))for(const offers of Object.values(day))assert.equal(offers.length,0);}
- assert.deepEqual(budgets,[8000,1200]);
+ assert.deepEqual(budgets,[8000,4500]);
 });
 
 test("actual spa API slider returns the six supported dates capped at twenty offers per audience", async () => {

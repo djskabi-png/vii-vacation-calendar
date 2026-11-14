@@ -25,7 +25,7 @@ test("hourly result bands are full width and the live count is the results headi
   assert.match(styles, /\.world-page--hourly > \.world-breadcrumbs \{[\s\S]*?width: 100%;[\s\S]*?padding-inline: max\(20px, calc\(\(100% - 1180px\) \/ 2\)\)/);
   assert.match(styles, /\.world-page--hourly \.hourly-results__toolbar \{[\s\S]*?background: transparent;/);
   assert.match(landing, /world !== "spa" && world !== "hourly"/);
-  assert.match(results, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
+  assert.match(results, /<h2 className="discovery-results-count" aria-live="polite">\{resultLabel\}<\/h2>/);
   assert.match(hourlyPage, /חדרים וסוויטות לפי שעה ב/);
 });
 

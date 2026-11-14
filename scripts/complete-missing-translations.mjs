@@ -35,17 +35,36 @@ async function collect(directory, phrases) {
 }
 
 async function translate(text, language) {
-  const params = new URLSearchParams({ client: "gtx", sl: "he", tl: language, dt: "t", q: text });
+  const params = new URLSearchParams({ client: "dict-chrome-ex", sl: "he", tl: language, q: text });
   for (let attempt = 0; attempt < 6; attempt += 1) {
-    const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`);
+    const response = await fetch(`https://clients5.google.com/translate_a/t?${params}`);
     if (response.ok) {
       const data = await response.json();
-      const translated = data[0].map((part) => part[0]).join("").trim();
+      const translated = (typeof data?.[0] === "string" ? data[0] : data?.[0]?.map((part) => part[0]).join(""))?.trim();
       if (translated && !hebrew.test(translated)) return translated;
     }
     await new Promise((resolvePromise) => setTimeout(resolvePromise, 1000 * (attempt + 1)));
   }
   throw new Error(`Translation failed for ${language}: ${text.slice(0, 80)}`);
+}
+
+async function translateMissing(missing, language, concurrency = 2) {
+  const translated = new Array(missing.length);
+  const failures = [];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, missing.length) }, async () => {
+    while (cursor < missing.length) {
+      const index = cursor++;
+      try {
+        translated[index] = await translate(missing[index], language);
+      } catch (error) {
+        failures.push({ index, error });
+      }
+      if ((index + 1) % 20 === 0) process.stdout.write(`${language}:${index + 1}/${missing.length}\n`);
+    }
+  });
+  await Promise.all(workers);
+  return { translated, failures };
 }
 
 const phrases = new Set();
@@ -67,11 +86,12 @@ for (const language of ["en", "ru", "fr"]) {
     for (const [phrase, translations] of Object.entries(auxiliary)) covered[phrase] = translations[language];
   }
   const missing = [...phrases].filter((phrase) => !covered[phrase]);
-  for (const [index, phrase] of missing.entries()) {
-    dictionary[phrase] = await translate(phrase, language);
-    if ((index + 1) % 20 === 0) process.stdout.write(`${language}:${index + 1}/${missing.length}\n`);
-  }
+  const { translated: translations, failures } = await translateMissing(missing, language);
+  missing.forEach((phrase, index) => {
+    if (translations[index]) dictionary[phrase] = translations[index];
+  });
   await writeFile(path, `${JSON.stringify(dictionary, null, 2)}\n`, "utf8");
+  if (failures.length) throw new AggregateError(failures.map(({ error }) => error), `${failures.length} translations failed for ${language}`);
   result[language] = missing.length;
 }
 console.log(JSON.stringify(result));

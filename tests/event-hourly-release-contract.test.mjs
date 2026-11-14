@@ -18,7 +18,8 @@ test("event details expose one feature disclosure and no redundant title action"
 test("event preset pages render results directly and hide stale cards while loading", () => {
   const source = read("app/components/event-last-minute.tsx");
   assert.match(source, /layout === "grid" && !fixedPreset/);
-  assert.match(source, /!busy && \(candidates\.length \|\| visibleAdditionalPlaces\.length\)/);
+  assert.match(source, /const hasRailItems = Boolean\(candidates\.length \|\| visibleAdditionalPlaces\.length\)/);
+  assert.match(source, /!busy && hasRailItems/);
   assert.match(source, /displayEventDate\(offer\.from!\)/);
 });
 

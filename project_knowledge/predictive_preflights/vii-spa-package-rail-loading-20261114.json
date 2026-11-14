@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "taskId": "vii-spa-package-rail-loading-20261114",
+  "goal": "The SPA package rail must render verified offers promptly, preserve the last verified result during refresh, and never strand the visitor on a skeleton because a cache variant is cold.",
+  "scope": [
+    "SPA package rail API cache identity and bounded availability wait",
+    "SPA rail client request/cache identity",
+    "single, couple and group tabs on desktop and mobile",
+    "homepage and SPA-world consumers of the shared component"
+  ],
+  "notAuthorized": ["production publication", "supplier data mutation", "booking behavior changes"],
+  "selectedTeam": [
+    {"role": "primary developer", "reason": "diagnose and repair the shared SPA rail"},
+    {"role": "regression checker", "reason": "material shared-component risk"}
+  ],
+  "omittedRoles": [
+    {"role": "content and SEO", "reason": "no public copy or indexable content is changing"},
+    {"role": "backend architect", "reason": "the observed mechanism is a bounded cache/request defect, not a platform redesign"}
+  ],
+  "predictedRejections": [
+    "The rail still shows skeletons for several seconds after opening the SPA page.",
+    "One audience or date tab works while another remains on loading or error.",
+    "The SPA-world fix breaks the homepage instance of the same component.",
+    "A fast retry masks the symptom but multiplies supplier or origin traffic.",
+    "A claimed fix is based only on source tests and not the rendered flow."
+  ],
+  "earliestMidpoint": "A deterministic test proves one canonical rail request identity across document seeds and a cold availability miss returns within the bounded rail budget.",
+  "closeEvidence": [
+    "targeted unit and contract tests",
+    "production-baseline timing evidence retained separately from post-fix evidence",
+    "desktop and mobile rendered checks for all three audiences",
+    "homepage and SPA-world shared-consumer regression",
+    "no production claim without the exact deployed build"
+  ],
+  "relevantLessons": [
+    "Shared-component defects expand regression to every affected consumer.",
+    "Loading feedback must be immediate and last-good content must remain usable.",
+    "A source or test result is supporting evidence, not a live completion claim."
+  ]
+}

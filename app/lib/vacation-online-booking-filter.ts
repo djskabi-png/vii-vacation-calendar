@@ -10,10 +10,15 @@ export function matchesVacationOnlineBooking(
   enabled: boolean,
   state: LegacyAvailabilityState | undefined,
   selection: Selection,
-  discovery?: { undated: boolean; capability?: { checkedAt: number } },
+  discovery?: { undated: boolean; capability?: { checkedAt: number }; capabilityUnavailable?: boolean },
 ): boolean {
   if (!enabled) return true;
-  if (!selection && discovery?.undated) return hasOnlineCapability(discovery.capability);
+  // Capability belongs to the business, not to one supplier response. A
+  // dated quote proves availability and price, but it must not be the only
+  // proof that the business supports online booking.
+  if (hasOnlineCapability(discovery?.capability)) return true;
+  if (discovery?.capabilityUnavailable) return true;
+  if (!selection && discovery?.undated) return false;
   const quote = state?.quote;
   return canShowOnlineBookingBadge({
     ready: state?.status === "ready",

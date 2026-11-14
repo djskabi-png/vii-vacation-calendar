@@ -18,7 +18,7 @@ test("dated vacation results do not manufacture availability or a dated price", 
   assert.match(card, /resolvedAvailability\?\.availability === "unknown" && !hasQuotedPrice/, "a dated catalog price is allowed only when exact-date availability remains unknown and no quote exists");
   assert.match(card, /datedUnknownStartingPrice \? <CatalogStartingPrice amount=\{datedUnknownStartingPrice\}/, "the catalog amount remains explicitly rendered as a starting price, never as a dated quote");
   assert.match(card, /בודקים זמינות ומחיר/);
-  assert.match(card, /האישור האונליין אינו זמין כרגע\. אפשר לפנות למקום/);
+  assert.match(card, /בדיקת הזמינות לא הושלמה\. אפשר לפנות למקום/);
   assert.doesNotMatch(card, /לא הצלחנו לאמת זמינות ומחיר כרגע/);
 });
 

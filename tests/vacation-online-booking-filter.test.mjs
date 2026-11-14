@@ -24,6 +24,14 @@ test("online filter excludes no-date, stale, phone-only, demo, unknown, missing 
   assert.equal(matchesVacationOnlineBooking(true, good, null), false);
 });
 
+test("capability proof prevents a transient dated-search failure from emptying online results", () => {
+  const capability = { checkedAt: Date.now() };
+  for (const state of [undefined, { status: "loading", quote: null }, { status: "error", quote: null }]) {
+    assert.equal(matchesVacationOnlineBooking(true, state, selection, { undated: false, capability }), true);
+  }
+  assert.equal(matchesVacationOnlineBooking(true, { status: "error", quote: null }, selection, { undated: false, capabilityUnavailable: true }), true);
+});
+
 test("online selection survives vacation URLs and depth changes but never crosses worlds", () => {
   // The URL builder's extensionless framework imports are covered by the
   // production build/browser flow; inspect its generic preservation boundary.

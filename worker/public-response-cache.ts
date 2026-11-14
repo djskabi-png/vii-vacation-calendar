@@ -103,7 +103,11 @@ function publicDocumentTtl(pathname: string, url: URL) {
   if (/^\/(?:business|events\/place|discover\/place)(?:\/|$)/.test(path)
     && !url.searchParams.has("from") && !url.searchParams.has("till")) return 900;
   if (/^\/(?:last-minute|weekend|business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return hasAvailabilityContext ? 180 : 900;
-  if (/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|discover\/place)(?:\/|$)/.test(path)) return hasAvailabilityContext ? 180 : 900;
+  // Vacation discovery documents are assembled from a shared supplier
+  // snapshot whose safe reuse window is five minutes. Keep the HTML edge
+  // lifetime below that source window even when the URL has no explicit
+  // dates, otherwise a warm document can outlive the facts it presents.
+  if (/^\/(?:vacations|villas|zimmers|suites|luxury-suites|suite-complexes|vacation-apartments|hospitality-complexes|discover\/place)(?:\/|$)/.test(path)) return 180;
   if (/^\/legal(?:\/|$)/.test(path)) return 900;
   return null;
 }

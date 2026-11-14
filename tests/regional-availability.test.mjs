@@ -61,7 +61,7 @@ test('event API applies regional eligibility before top20; scope travels through
   assert.match(route,/area: place.area/);
   const hook=read('app/components/use-vii-live-search.ts');
   assert.match(hook,/\$\{region \|\| ""\}/);
-  assert.match(hook,/includePlaces && result.region !== region/);
+  assert.match(hook,/includePlaces && \(result\.region \|\| undefined\) !== region/);
   const rail=read('app/components/event-last-minute.tsx');
   assert.match(rail,/uniqueEventVenueItems/);
   assert.match(rail,/search\.resultOrder\.length/);

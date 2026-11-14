@@ -15,7 +15,7 @@ test("hourly uses one filter system with state-driven headings", async () => {
 
   assert.match(landing, /world !== "spa" && world !== "hourly" && <WorldQuickSearches/);
   assert.match(landing, /world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"/);
-  assert.match(results, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
+  assert.match(results, /<h2 className="discovery-results-count" aria-live="polite">\{resultLabel\}<\/h2>/);
   assert.doesNotMatch(results, /<h2>\{collectionTitle\}<\/h2>/);
   assert.match(results, /hourly-results__filters-head/);
   assert.match(heading, /const queryLocation = searchParams\.get\("location"\)/);

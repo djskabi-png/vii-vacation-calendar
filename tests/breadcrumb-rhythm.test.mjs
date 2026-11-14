@@ -52,9 +52,9 @@ test("spa and hourly expose one concise live results heading", () => {
   const spa = read("app/components/world-map-results.tsx");
   const hourly = read("app/components/hourly-results.tsx");
   assert.match(landing, /world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"/);
-  assert.match(spa, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
+  assert.match(spa, /<h2 className="discovery-results-count" aria-live="polite">\{resultLabel\}<\/h2>/);
   assert.match(hourly, /resultItems\.length === 1 \? translate\("נמצא מקום אחד"\)/);
-  assert.match(hourly, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
+  assert.match(hourly, /<h2 className="discovery-results-count" aria-live="polite">\{resultLabel\}<\/h2>/);
 });
 
 test("dynamic spa and hourly result counts are localized in every public language", () => {

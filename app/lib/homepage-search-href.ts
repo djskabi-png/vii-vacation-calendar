@@ -13,24 +13,46 @@ export function normalizeHomepageSearchHref(href: string): string {
 }
 
 const nearbyRoutes: Record<string, string> = { "/search": "/vacations/near-me", "/spas": "/spas/near-me", "/events/search": "/events/near-me", "/hourly": "/hourly/near-me", "/trails": "/trails/near-me", "/attractions": "/attractions/near-me", "/providers": "/providers/near-me" };
+const canonicalNearbyRoutes = new Set(Object.values(nearbyRoutes));
+
+function nearbyRouteParts(pathname: string) {
+  const locale = pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
+  const path = pathname.slice(locale.length).replace(/\/$/, "") || "/";
+  const destination = nearbyRoutes[path] || (canonicalNearbyRoutes.has(path) ? path : null);
+  return { locale, path, destination };
+}
+
+/** Canonicalize only the semantic nearest intent. Other sorting parameters
+ * remain transactional and must not be rewritten as content pages. */
+export function canonicalNearestNearbyUrl(input: URL): URL | null {
+  if (input.searchParams.get("sort") !== "nearest") return null;
+  const { locale, destination } = nearbyRouteParts(input.pathname);
+  if (!destination) return null;
+  const canonical = new URL(input);
+  canonical.pathname = `${locale}${destination}`;
+  canonical.searchParams.delete("sort");
+  return canonical;
+}
 
 export function semanticNearbyDestination(href: string): string {
   const url = new URL(href, "https://vii.invalid");
-  const locale = url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
-  const path = url.pathname.slice(locale.length).replace(/\/$/, "");
-  return nearbyRoutes[path] ? `${locale}${nearbyRoutes[path]}${url.search}${url.hash}` : href;
+  const canonical = canonicalNearestNearbyUrl(url);
+  if (canonical) return `${canonical.pathname}${canonical.search}${canonical.hash}`;
+  const { locale, path, destination } = nearbyRouteParts(url.pathname);
+  return destination && nearbyRoutes[path] ? `${locale}${destination}${url.search}${url.hash}` : href;
 }
 
 export function semanticNearbyPath(pathname: string, mode?: "vacation" | "spa" | "events" | "hourly"): string {
   if (mode) return { vacation: "/vacations/near-me", spa: "/spas/near-me", events: "/events/near-me", hourly: "/hourly/near-me" }[mode];
   const url = new URL(pathname, "https://vii.invalid");
-  const locale = url.pathname.match(/^\/(en|ru|fr)(?=\/)/)?.[0] || "";
-  const path = url.pathname.slice(locale.length).replace(/\/$/, "");
-  return nearbyRoutes[path] ? `${locale}${nearbyRoutes[path]}` : url.pathname;
+  const { locale, path, destination } = nearbyRouteParts(url.pathname);
+  return destination && nearbyRoutes[path] ? `${locale}${destination}` : url.pathname;
 }
 
 export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
-  return items.flatMap((item) => {
+  const normalized: T[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
     let href=normalizeHomepageSearchHref(item.href);
     if ((item as T & {action?:string}).action === "nearby") {
       // A managed nearby tile is a semantic landing-page entry, not a generic
@@ -40,8 +62,12 @@ export function normalizeHomepageItems<T extends { href: string }>(items: T[]): 
       href = semanticNearbyDestination(href);
     }
     const approvedHref = normalizeApprovedDiscoveryHref(href);
-    return approvedHref ? [{...item,href:approvedHref}] : [];
-  });
+    if (approvedHref && !seen.has(approvedHref)) {
+      seen.add(approvedHref);
+      normalized.push({...item,href:approvedHref});
+    }
+  }
+  return normalized;
 }
 
 export function isManagedSearchListAttribute(key: string) {

@@ -8,7 +8,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { type HomeDiscoveryItem } from "../lib/homepage-presentation";
 import { HomeSliderControls } from "./home-slider-controls";
-import { normalizeHomepageItems } from "../lib/homepage-search-href.ts";
+import { normalizeHomepageItems, semanticNearbyDestination } from "../lib/homepage-search-href.ts";
 import { type PopularSearchWorld } from "../lib/world-popular-search-defaults";
 import { requestNearbyOrigin } from "./use-nearby-sort";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,7 +34,12 @@ function loadPresentation(key: string, url: string) {
 function usePresentation(world: PopularSearchWorld = "vacation", initialPresentation?: Presentation) {
   const { language } = useSiteLanguage();
   const key = `${language}:${world}`;
-  const [scoped, setScoped] = useState<{ key: string; value: Presentation } | null>(() => initialPresentation ? { key, value: initialPresentation } : null);
+  const [scoped, setScoped] = useState<{ key: string; value: Presentation } | null>(() => initialPresentation ? { key, value: {
+    ...initialPresentation,
+    popular: normalizeHomepageItems(initialPresentation.popular),
+    cities: normalizeHomepageItems(initialPresentation.cities),
+    types: normalizeHomepageItems(initialPresentation.types),
+  } } : null);
   useEffect(() => {
     // Server-managed pages already carry the authoritative published snapshot.
     // Re-fetching during hydration can briefly replace a deliberately empty or
@@ -65,8 +70,7 @@ function PopularSearchLink({ item, world = "vacation" }: { item: HomeDiscoveryIt
       event.preventDefault(); if (pending.current) return;
       pending.current = true; setBusy(true); setError(false);
       void requestNearbyOrigin().then(() => {
-        const target = new URL(item.href, window.location.origin); target.searchParams.set("sort", "nearest");
-        router.push(localizedPath(`${target.pathname}${target.search}${target.hash}`, language));
+        router.push(localizedPath(semanticNearbyDestination(item.href), language));
       }).catch(() => setError(true)).finally(() => { pending.current = false; setBusy(false); });
     }}>{item.action === "nearby" ? <MapPin className="home-popular-search-location" aria-hidden="true" /> : <DiscoveryThumbnail src={item.image} alt={imageAlt} loading="eager" fetchPriority="high" decoding="async" />}<span><strong><CurrencyText text={label} /></strong>{item.note ? <small><CurrencyText text={translate(item.note)} /></small> : null}</span></Link>
     {error ? <small className="home-popular-search-error" role="status">{translate("לא התקבל מיקום. לחצו שוב כדי לנסות מחדש.")}</small> : null}

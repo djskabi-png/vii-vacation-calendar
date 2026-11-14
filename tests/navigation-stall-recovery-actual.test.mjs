@@ -10,21 +10,21 @@ function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(ast)=
 function fixture(){
  const tasks=new Map(),events=new Map(),values=new Map(),replaced=[];let next=0;
  const location={href:'https://vii.spaplus.co/booking?place=vacation-11',origin:'https://vii.spaplus.co',pathname:'/booking',search:'?place=vacation-11',replace:href=>replaced.push(href)};
- const ctx={pathname:'/booking',searchParams:new URLSearchParams(location.search),timer:{current:null},pendingHref:{current:null},committedRoute:{current:'/booking?place=vacation-11'},active:false,setActive:value=>{ctx.active=value;},URL,NAVIGATION_END_EVENT,NAVIGATION_START_EVENT,NAVIGATION_RECOVERY_DELAY_MS,recoverStalledNavigation,
+ const ctx={pathname:'/booking',searchParams:new URLSearchParams(location.search),timer:{current:null},feedbackTimer:{current:null},pendingHref:{current:null},committedRoute:{current:'/booking?place=vacation-11'},active:false,setActive:value=>{ctx.active=value;},URL,NAVIGATION_END_EVENT,NAVIGATION_START_EVENT,NAVIGATION_RECOVERY_DELAY_MS,recoverStalledNavigation,
  Date:{now:()=>100000},setTimeout:(callback,ms)=>{tasks.set(++next,{callback,ms});return next;},clearTimeout:id=>tasks.delete(id),window:{location,sessionStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)},document:{documentElement:{dataset:{}},addEventListener:(k,v)=>events.set(k,v),removeEventListener:k=>events.delete(k)}};
  const callbacks=effects.map(effect=>new Function('ctx',`with(ctx){return ${ts.transpileModule(`const effect=${effect.getText(ast)};`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText.replace(/^const effect\s*=\s*/,'').replace(/;\s*$/,'')};}`)(ctx));
  const listenerIndex=effects.findIndex(effect=>effect.getText(ast).includes('window.addEventListener(NAVIGATION_START_EVENT'));
  const commitIndex=effects.findIndex(effect=>effect.getText(ast).includes('committedRoute.current = committed'));
  assert.ok(listenerIndex>=0&&commitIndex>=0,'the actual recovery/commit effects must exist');
  const cleanup=callbacks[listenerIndex]();
- return {ctx,tasks,events,values,replaced,commit:callbacks[commitIndex],cleanup,start:href=>events.get(NAVIGATION_START_EVENT)({detail:{href}}),fire:()=>{const [id,task]=[...tasks.entries()][0];tasks.delete(id);task.callback();}};
+ return {ctx,tasks,events,values,replaced,commit:callbacks[commitIndex],cleanup,start:href=>events.get(NAVIGATION_START_EVENT)({detail:{href}}),fire:(delay=NAVIGATION_RECOVERY_DELAY_MS)=>{const [id,task]=[...tasks.entries()].find(([,candidate])=>candidate.ms===delay);tasks.delete(id);task.callback();}};
 }
 test('actual router/back recovery retains exact target and is bounded to one document GET',()=>{
- const f=fixture();f.start('/?from=2026-11-05&guests=6#home-live-deals');assert.equal(f.ctx.active,true);assert.equal([...f.tasks.values()][0].ms,8000);f.fire();
+ const f=fixture();f.start('/?from=2026-11-05&guests=6#home-live-deals');assert.equal(f.ctx.active,true);assert.ok([...f.tasks.values()].some(task=>task.ms===8000));f.fire();
  assert.deepEqual(f.replaced,['https://vii.spaplus.co/?from=2026-11-05&guests=6#home-live-deals']);f.start('/trails?area=North');f.fire();assert.equal(f.replaced.length,1);assert.deepEqual([...f.values.keys()],['vii-navigation-recovery-at']);
 });
 test('visible commit and superseded navigation cancel recovery rather than sending the user backwards',()=>{
- const f=fixture();f.start('/events');f.start('/trails?area=North');assert.equal(f.tasks.size,1);f.ctx.pathname='/trails';f.ctx.searchParams=new URLSearchParams('area=North');f.commit();assert.equal(f.tasks.size,0);assert.equal(f.ctx.active,false);assert.equal(f.ctx.pendingHref.current,null);
+ const f=fixture();f.start('/events');f.start('/trails?area=North');assert.equal(f.tasks.size,2);f.ctx.pathname='/trails';f.ctx.searchParams=new URLSearchParams('area=North');f.commit();assert.equal(f.tasks.size,0);assert.equal(f.ctx.active,false);assert.equal(f.ctx.pendingHref.current,null);
  f.start('/spas');f.start('/trails?area=North');assert.equal(f.tasks.size,0);assert.equal(f.ctx.pendingHref.current,null);assert.equal(f.replaced.length,0);f.cleanup();
 });
 test('external, API and storage-denied recoveries never navigate or replay an action',()=>{

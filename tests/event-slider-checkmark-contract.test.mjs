@@ -11,14 +11,14 @@ const [landing, detail, css, eventRail] = await Promise.all([
 ]);
 
 test("general event venue rail exposes the complete loaded catalog", () => {
-  assert.match(landing, /<EventRail shufflePlaces warmAheadImages title=\{translate\("מקומות לאירועים"\)\}>\{eventPlaces\.map\(/);
+  assert.match(landing, /<EventRail railId="event-places-rail" shufflePlaces warmAheadImages title=\{translate\("מקומות לאירועים"\)\}>\{eventPlaces\.map\(/);
   assert.doesNotMatch(landing, /eventPlaces\.slice\(0,\s*4\)/);
   assert.match(landing, /event-rail-card event-card event-world-card/);
   assert.doesNotMatch(css, /\.event-world-card \{[^}]*content-visibility:\s*auto;/s);
   assert.match(eventRail, /warmAheadImages[\s\S]*preloadDistance[\s\S]*new Image\(\)/);
   assert.match(eventRail, /dir=\{language === "he" \? "rtl" : "ltr"\}/);
 });
-test("the unified event place feature card uses the shared centered semantic icon", () => {
+test("event place feature cards use the shared centered semantic icon", () => {
   assert.match(detail, /import \{ UnifiedAmenityList \} from "\.\.\/\.\.\/components\/unified-amenity-list"/);
   assert.equal((detail.match(/<UnifiedAmenityList/g) || []).length, 1);
   assert.doesNotMatch(detail, /function EventFeatureCheck\(\)/);

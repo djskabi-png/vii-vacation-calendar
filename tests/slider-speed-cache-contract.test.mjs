@@ -103,7 +103,8 @@ test("scheduled discovery also warms spa and injects gallery storage into catalo
   assert.match(worker, /warmSpaDiscoveryCache\(database, scheduledAt, env\.BIZONLINE_SPA_AVAILABILITY_TOKEN\)/);
   assert.match(worker, /runSupplierCatalogScheduleTick\(database, \{ now: new Date\(controller\.scheduledTime\), mediaArchive: \{ bucket: env\.UPLOADS \} \}\)/);
   const client = await readFile(new URL("app/components/spa-package-deals.tsx", root), "utf8");
-  assert.match(client, /discoverySeedRank\(regionLabel\|\|"all",documentSeed\)%8/);
+  assert.doesNotMatch(client, /rotation:String\(/, "SPA transport cache identity is canonical across presentation seeds");
+  assert.match(client, /orderDiscoveryRail\)[\s\S]*seed: `\$\{documentSeed\}:spa:/, "presentation rotation remains client-side");
   assert.match(client, /persist:true, freshMs:120_000, staleMs:900_000/);
 });
 

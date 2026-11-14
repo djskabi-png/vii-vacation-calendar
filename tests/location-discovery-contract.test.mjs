@@ -20,7 +20,8 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   const nearby = readFileSync(new URL("../app/components/use-nearby-sort.tsx", import.meta.url), "utf8");
   assert.match(nearby, /navigator\.geolocation\.getCurrentPosition/);
   assert.match(search, /requestNearbyOrigin/);
-  assert.match(search, /searchParams\.set\("sort", "nearest"\)/);
+  assert.match(search, /nearbyDestination\.pathname = semanticNearbyPath\(nearbyDestination\.pathname, mode\)/);
+  assert.match(search, /nearbyDestination\.searchParams\.delete\("sort"\)/);
   assert.match(search, /className="location-nearby"/);
   assert.match(search, /vacationLocationGroups\.flatMap/);
   assert.match(search, /className="location-search-results"/);

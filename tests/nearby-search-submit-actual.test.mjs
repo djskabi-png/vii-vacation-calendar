@@ -14,7 +14,7 @@ test('actual nearby choice preserves the browser point for ranking and does not 
  await actualFunction('chooseNearbyLocation',ctx)();assert.deepEqual(selection,['כל הארץ',true]);
  ctx.requestNearbyOrigin=async()=>{throw Error('denied')};selection=undefined;await actualFunction('chooseNearbyLocation',ctx)();assert.equal(selection,undefined);assert.match(status,/לא הצלחנו/);
 });
-for(const mode of ['vacation','events','spa','hourly'])test(`actual ${mode} submission carries nearest sort without coordinates and retains date/party context`,()=>{
+for(const mode of ['vacation','events','spa','hourly'])test(`actual ${mode} submission uses the canonical nearby page without coordinates and retains date/party context`,()=>{
  let target,tracking;const emptyRange={from:'2026-11-26',till:'2026-11-28',to:'2026-11-28'};
  const ctx={isSearchingRef:{current:false},setIsSearching:()=>{},setSearchCommitted:()=>{},closeMobileSearch:()=>{},locationValueRef:{current:'כל הארץ'},canonicalSearchLocation:value=>value,
  maximumPrice:0,spaAudience:null,spaDateRef:{current:{date:'2026-11-26',withoutDate:false}},guests:5,eventDateRangeRef:{current:emptyRange},vacationPartyRef:{current:{adults:3,children:2,infants:0,pets:0,rooms:2}},vacationDateRangeRef:{current:emptyRange},vacationFlexibleSearchRef:{current:null},
@@ -22,7 +22,7 @@ for(const mode of ['vacation','events','spa','hourly'])test(`actual ${mode} subm
  mergeSearchHref:(route,params)=>route+(params.size?'?'+params:''),searchParamsKey:'',language:'he',isWholeCountrySelection:value=>value==='כל הארץ',nearbySelectionRef:{current:true},
  window:{location:{origin:'https://vii.spaplus.co',pathname:'/old',search:''},setTimeout:()=>0},trackSearchSubmitted:value=>{tracking=value},localizedPath:path=>path,router:{push:value=>{target=value}}};
  ctx.semanticNearbyPath=semanticNearbyPath;
- actualFunction('search',ctx)();assert.ok(target);const url=new URL(target,'https://vii.spaplus.co');assert.equal(url.searchParams.get('sort'),'nearest');assert.equal(url.searchParams.has('lat'),false);assert.equal(url.searchParams.has('lng'),false);assert.doesNotMatch(target,/32\.08|34\.78/);
+ actualFunction('search',ctx)();assert.ok(target);const url=new URL(target,'https://vii.spaplus.co');assert.equal(url.searchParams.has('sort'),false);assert.equal(url.searchParams.has('lat'),false);assert.equal(url.searchParams.has('lng'),false);assert.doesNotMatch(target,/32\.08|34\.78/);
  assert.equal(url.pathname,{vacation:'/vacations/near-me',events:'/events/near-me',spa:'/spas/near-me',hourly:'/hourly/near-me'}[mode]);
  if(mode==='vacation')assert.equal(url.searchParams.get('type'),'וילות');
  if(mode==='spa')assert.equal(url.searchParams.get('features'),'pool,heated-pool');

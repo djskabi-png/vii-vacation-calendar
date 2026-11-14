@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-slider-runtime-stability-20261114",
+  "project": "VII",
+  "task_type": "root-cause repair and cross-template runtime QA",
+  "requested_outcome": "Repair the confirmed slider loading and stale-state failures, then inspect every public page template family for console, network, blank-screen and contradictory loading failures without regressing existing behavior.",
+  "natural_destination": "VII public routes and their exact local release candidate equivalents on desktop and 390px mobile",
+  "authorization_boundary": "Local source repair and verification are authorized. Publication, deployment and DNS changes are not authorized by the current request.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-QA-001", "reason": "A local fix is insufficient without affected-family regression evidence.", "acceptance_impact": "Require exact failure reproduction, shared-family checks and natural-destination evidence."},
+    {"lesson_id": "ADIR-WEB-002", "reason": "The sliders are asynchronous state machines with loading, success, failure and retry states.", "acceptance_impact": "Test transition boundaries, stale data, aborts, retry and reload."},
+    {"lesson_id": "ADIR-WEB-003", "reason": "Every delayed click must acknowledge the action and remain understandable.", "acceptance_impact": "Verify immediate localized loading feedback and accessible busy state."},
+    {"lesson_id": "ADIR-CONTROL-001", "reason": "Every tab, arrow, retry action and filter must work visibly.", "acceptance_impact": "Inventory and exercise shared slider controls and representative route controls."},
+    {"lesson_id": "ADIR-CONSISTENCY-001", "reason": "A shared slider defect expands to all worlds and equivalent rails.", "acceptance_impact": "Verify vacation, holiday, spa and event rails on desktop and mobile."},
+    {"lesson_id": "ADIR-SCOPE-001", "reason": "The repair must not redesign or remove existing capabilities.", "acceptance_impact": "Record invariants and compare unrelated content, links, cards and layout before and after."},
+    {"lesson_id": "ADIR-MOBILE-001", "reason": "The reported failures are especially costly on mobile.", "acceptance_impact": "Run 390x844 interaction and visual checks, including arrows and tab replacement."},
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "Any later release requires exact source and rollback evidence.", "acceptance_impact": "Keep production unchanged and prepare version-specific release evidence only after local qualification."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "One slider is repaired while another still shows stale cards or a contradictory error.", "prevention": "Repair the shared state boundary and execute the full rail family matrix.", "acceptance_check": "Every selected tab owns matching dates, cards, link and status; no error appears beside usable unlabelled results."},
+    {"rejection": "The page looks fixed locally but console or network errors remain on another template.", "prevention": "Build a route-template inventory and scan settled desktop/mobile pages plus key interactions.", "acceptance_check": "Every inventoried template has recorded HTTP, console, network, blank-screen and overflow results."},
+    {"rejection": "A performance optimization removes freshness or shows incorrect cached availability.", "prevention": "Separate editorial shell caching from date-specific availability and retain explicit freshness ownership.", "acceptance_check": "Changed-date tabs return matching dated data after reload and never reuse another tab's cards as current truth."},
+    {"rejection": "A broad edit breaks existing filters, links, galleries or mobile layout.", "prevention": "Keep the change at the shared causal boundary and run targeted-change invariants on representative routes.", "acceptance_check": "Search filter, business gallery, navigation, 404, language control and responsive geometry remain passing."},
+    {"rejection": "A passing unit suite is presented as proof of the public product.", "prevention": "Distinguish local qualification from production verification and do not deploy without explicit authorization.", "acceptance_check": "Final status names exact local commit and leaves production unchanged unless separately authorized."}
+  ],
+  "affected_family": [
+    "homepage vacation live deals rail",
+    "homepage holiday live deals rail",
+    "homepage spa package deals rail",
+    "homepage event last-minute rail",
+    "shared discovery request, cache and stale-result helpers",
+    "public API routes feeding those rails",
+    "homepage, world index, search, semantic landing, detail, account, favorites, guides, legal, admin sign-in and not-found templates",
+    "desktop and 390px mobile loading, success, empty, failure, retry, reload and navigation states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII accepted slider behavior", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#performance-and-interaction"},
+      {"label": "VII release and data invariants", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first failing slider passes the exact stale/error transition locally with a source-level regression test.",
+    "checks": ["exact tab owns matching dated results", "no simultaneous usable results and terminal error", "retry and abort remain bounded", "unrelated slider baseline still passes"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a rapid tab switch let an older response replace the current selection?",
+      "Can a timed-out refresh show an error beside usable results without a last-verified disclosure?",
+      "Can any inventoried route produce a console error, failed critical request, blank first viewport or stuck busy state?",
+      "Can mobile arrows, reload or breakpoint changes lose the selected tab or lock scrolling?",
+      "Did the repair alter unrelated search, gallery, navigation, content or availability truth?"
+    ],
+    "natural_destination_evidence": "Screenshots and runtime ledgers from exact local candidate routes, followed by production evidence only after separate publication authorization.",
+    "affected_family_evidence": "Automated affected-family tests plus desktop/mobile browser matrix covering every rail and every public template class."
+  },
+  "effectiveness": {
+    "baseline": "Production v914 showed a spa rail failing after about 20 seconds, an event rail settling after about 8.5 seconds, and a holiday tab displaying stale dates with a terminal error.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "All rail-family state tests pass on the first candidate and every template has explicit runtime evidence with zero unresolved high or critical defects."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

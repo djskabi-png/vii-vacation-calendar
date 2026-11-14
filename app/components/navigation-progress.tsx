@@ -60,6 +60,9 @@ export function NavigationProgress() {
       if (next.origin !== window.location.origin) return;
       if (`${next.pathname}?${next.searchParams.toString()}` === committedRoute.current) {
         if (timer.current) clearTimeout(timer.current);
+        if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+        timer.current = null;
+        feedbackTimer.current = null;
         delete document.documentElement.dataset.navigationPending;
         pendingHref.current = null;
         setActive(false);

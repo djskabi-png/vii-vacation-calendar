@@ -8,7 +8,7 @@ test("hourly mobile flows directly from the page introduction to a count toolbar
     readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
     readEffectiveWorldCss(),
   ]);
-  assert.match(results, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
+  assert.match(results, /<h2 className="discovery-results-count" aria-live="polite">\{resultLabel\}<\/h2>/);
   assert.doesNotMatch(results, /חדרים וסוויטות לפי שעה ב\$\{location\}/);
   assert.match(styles, /\.world-page--hourly \.world-page-heading \{ padding-bottom: 0; \}/);
   assert.match(styles, /\.world-page--hourly \.world-page-heading \+ \.section \{ padding-top: 8px; \}/);

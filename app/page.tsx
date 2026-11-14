@@ -61,11 +61,11 @@ export default async function HomePage() {
 
         <section className="section shell home-page-section" aria-labelledby="destination-title">
           <div className="section-head"><div><h2 id="destination-title">יעדים שכיף לברוח אליהם</h2></div><Link href="/destinations">לכל היעדים</Link></div>
-          <div className="destination-grid">{destinations.map((destination, index) => <Link key={destination.name} className={`destination-tile destination-tile--${index + 1}`} href={`/search?location=${encodeURIComponent(destination.name)}`} prefetch={false}><img src={destination.image} alt={destination.name} title={destination.name} loading="lazy" decoding="async" /><span><strong>{destination.name}</strong><small>{destination.subtitle}</small></span></Link>)}</div>
+          <div className="destination-grid">{destinations.map((destination, index) => <Link key={destination.name} className={`destination-tile destination-tile--${index + 1}`} href={localizedPath(`/search?location=${encodeURIComponent(destination.name)}`, language)} prefetch={false}><img src={destination.image} alt={destination.name} title={destination.name} loading="lazy" decoding="async" /><span><strong>{destination.name}</strong><small>{destination.subtitle}</small></span></Link>)}</div>
         </section>
 
         <section className="section shell why-section home-page-section" aria-labelledby="why-title">
-          <div><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>בוחרים אזור והרכב, משווים תמונות ומתקנים ובודקים מחיר וזמינות לפני שמזמינים.</p><Link className="button primary" href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים את החיפוש...">מתחילים לחפש</Link></div>
+          <div><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>בוחרים אזור והרכב, משווים תמונות ומתקנים ובודקים מחיר וזמינות לפני שמזמינים.</p><Link className="button primary" href={localizedPath("/search", language)} prefetch={false} data-global-feedback="true" data-loading-label="פותחים את החיפוש...">מתחילים לחפש</Link></div>
           <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מצמצמים את החיפוש לפי האזור, מספר האורחים ומה שחשוב לכם.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>משווים תמונות, מתקנים ופרטי אירוח לפני שבוחרים.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>בודקים את התאריך, המחיר והתנאים לפני שמתחייבים.</p></article></div>
         </section>
 

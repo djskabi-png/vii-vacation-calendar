@@ -1018,7 +1018,7 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(discoveryPlace, /<GuestReviewStudio/);
   assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /featuredTours.length/);
-  assert.match(home, /properties.flatMap/);
+  assert.match(home, /eligibleHomeTourProperties\(properties\)\.flatMap/);
   assert.doesNotMatch(home, /nightlyPrice|role="tablist"/);
   assert.match(styles, /story-gallery__progress/);
   assert.match(styles, /\.property-gallery \{ display: block; overflow: hidden; border-radius: 18px; background: #edf5f5; \}/);
@@ -1611,7 +1611,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
     readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
+  assert.match(home, /href=\{localizedPath\("\/search", language\)\}[^>]*data-global-feedback="true"/);
   assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} fallbackProperties=\{fallbackProperties\} pendingSeed=\{pendingSeed\} \/>/);
   assert.match(liveDeals, /const selectedDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
   assert.match(liveDeals, /const searchDates = clock && selectedDates && eligibleDealDate\(selectedDates.from, clock.now\) \? selectedDates : undefined/);

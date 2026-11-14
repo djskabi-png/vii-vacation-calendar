@@ -94,6 +94,14 @@ export async function GET(request: Request) {
     return respond({ ...result, deals, cache: cached.cache, availabilityStatus: "verified" }, { headers: { ...verifiedPublicDiscoveryHeaders(request, now), "X-VII-Discovery-Cache": cached.cache.status } });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";
+    // Date matching is a discovery probe, not a request for a known holiday.
+    // A valid date range that does not belong to a managed holiday is a
+    // successful negative match. Returning 404 here polluted every ordinary
+    // dated search with a console/network error before its normal availability
+    // request even started.
+    if (reason === "invalid_holiday" && validHolidayMatch && !validRequestedId) {
+      return respond({ matched: false, deals: [], availabilityStatus: "not_applicable" }, { headers });
+    }
     return respond({ error: reason }, { status: reason === "invalid_holiday" ? 404 : ["invalid_stay", "invalid_selection"].includes(reason) ? 400 : 503, headers });
   }
 }

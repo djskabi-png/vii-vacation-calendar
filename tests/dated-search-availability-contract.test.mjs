@@ -25,7 +25,7 @@ test("dated vacation discovery keeps the complete inventory and ranks the five c
   assert.equal(canShowDatedSearchResult(state("unknown"), selection), true);
   assert.equal(canShowDatedSearchResult(state("unavailable"), selection), true);
   assert.equal(canShowDatedSearchResult({ status: "error", quote: null }, selection), true);
-  assert.equal(canShowDatedSearchResult({ status: "loading", quote: null }, selection), false);
+  assert.equal(canShowDatedSearchResult({ status: "loading", quote: null }, selection), true);
   assert.deepEqual([
     datedSearchResultTier({ availability: "unavailable", hasPrice: true, onlineBookable: true }),
     datedSearchResultTier({ availability: "unknown", hasPrice: false, onlineBookable: false }),
@@ -48,6 +48,13 @@ test("dated result families preserve their approved truthful inclusion policy", 
   assert.match(vacation, /\.filter\(\(property\) => eligibleForSelectedStay\(property\)\)/);
   assert.match(vacation, /if \(selectedStay \|\| holidaySearchId\) \{\s*const tierPriority = datedTier\(a\) - datedTier\(b\)/);
   assert.match(vacation, /const selectedStay = holidaySearchId \|\| holidayDetectionPending \? null : requestedStay/);
+  assert.match(vacation, /holidayDetectionPending \? "בודקים את התאריכים והזמינות\.\.\."/);
+  assert.match(vacation, /!undatedSearch && !holidayDetectionPending/);
+  const holidayHook = await read("app/components/use-vii-live-search.ts");
+  assert.match(holidayHook, /response\.matched === false && !id/);
+  const holidayRoute = await read("app/api/vii/home-holiday-deals/route.ts");
+  assert.match(holidayRoute, /validHolidayMatch && !validRequestedId/);
+  assert.match(holidayRoute, /matched: false, deals: \[\], availabilityStatus: "not_applicable"/);
   assert.match(vacation, /result\.minimumNights && result\.minimumNights > 1 \? \{ minimumNights: result\.minimumNights \}/);
 
   const card = await read("app/components/property-card.tsx");
@@ -72,6 +79,8 @@ test("dated discovery cache is explicit and booking/detail calls remain realtime
   assert.match(hook, /datedDiscovery \? \{ discoverySearch: true \} : \{\}/);
   assert.match(route, /body\.discoverySearch === true && body\.includePlaces !== true/);
   assert.match(route, /\["dated-search", world, \.\.\.\(world === "events" \? \[EVENT_DISCOVERY_VERSION\] : \[\]\), body\.from, body\.till, Number\(body\.guests\)/);
+  assert.match(hook, /datedDiscovery \? \{[\s\S]*timeoutMs: 12_000,[\s\S]*totalTimeoutMs: 18_000,[\s\S]*retrySafe: true/);
+  assert.match(route, /readCachedDiscovery<LiveSearchPayload>[\s\S]*X-VII-Discovery-Cache/);
 });
 
 test("search summary shows committed dates for vacation, events and spa", async () => {
