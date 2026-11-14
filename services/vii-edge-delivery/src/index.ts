@@ -159,6 +159,40 @@ function publicReadAttemptResponse(response: Response, attempts: 1 | 2) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+function temporaryFailureResponse(request: Request, attempts: 1 | 2, failure: "origin_5xx" | "origin_transport" | "edge_unexpected") {
+  const url = new URL(request.url);
+  const headers = new Headers({
+    "Cache-Control": "private, no-store, must-revalidate",
+    "Retry-After": "2",
+    "X-Robots-Tag": "noindex, nofollow",
+    "X-VII-Edge-Origin-Attempts": String(attempts),
+    "X-VII-Edge-Recovery": failure,
+  });
+  const documentRequest = request.method === "GET"
+    && !url.pathname.endsWith(".rsc")
+    && !request.headers.has("RSC")
+    && (request.headers.get("Accept") || "").includes("text/html");
+  if (!documentRequest) {
+    if (url.pathname.startsWith("/api/")) {
+      headers.set("Content-Type", "application/json; charset=utf-8");
+      return new Response(JSON.stringify({ error: "temporarily_unavailable", retryable: true }), { status: 503, headers });
+    }
+    headers.set("Content-Type", "text/plain; charset=utf-8");
+    return new Response("Temporarily unavailable", { status: 503, headers });
+  }
+  headers.set("Content-Type", "text/html; charset=utf-8");
+  const language = /^\/(en|ru|fr)(?:\/|$)/.exec(url.pathname)?.[1] || "he";
+  const copy = {
+    he: ["מחזירים את האתר לפעולה", "החיבור לא הושלם כרגע. אפשר לנסות שוב בלי לאבד את הכתובת שבחרתם.", "מתחברים מחדש", "לנסות שוב", "לדף הבית", "הכתובת והבחירות שלכם נשמרות"],
+    en: ["Restoring the site", "The connection did not complete. Try again without losing the address you selected.", "Reconnecting", "Try again", "Homepage", "Your address and selections are preserved"],
+    ru: ["Восстанавливаем сайт", "Подключение не завершилось. Повторите попытку без потери выбранного адреса.", "Подключаемся снова", "Попробовать снова", "Главная", "Адрес и выбранные параметры сохранены"],
+    fr: ["Rétablissement du site", "La connexion n’a pas abouti. Réessayez sans perdre l’adresse sélectionnée.", "Reconnexion", "Réessayer", "Accueil", "Votre adresse et vos choix sont conservés"],
+  }[language] || ["מחזירים את האתר לפעולה", "החיבור לא הושלם כרגע. אפשר לנסות שוב בלי לאבד את הכתובת שבחרתם.", "מתחברים מחדש", "לנסות שוב", "לדף הבית", "הכתובת והבחירות שלכם נשמרות"];
+  const direction = language === "he" ? "rtl" : "ltr";
+  const body = `<!doctype html><html lang="${language}" dir="${direction}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${copy[0]}</title><style>@font-face{font-family:Rubik;src:url('/fonts/rubik/rubik-hebrew-v31.woff2') format('woff2');font-display:swap}*{box-sizing:border-box}body{margin:0;color:#11363d;background:radial-gradient(circle at 50% 14%,rgba(255,202,79,.22),transparent 27%),radial-gradient(circle at 12% 72%,rgba(111,218,210,.25),transparent 32%),#f5faf9;font-family:Rubik,Arial,sans-serif}.page{min-height:100svh;display:grid;place-items:center;padding:clamp(20px,5vw,64px);text-align:center}.card{width:min(680px,100%);display:grid;justify-items:center;gap:18px;padding:clamp(26px,6vw,52px);border:1px solid rgba(9,111,119,.16);border-radius:32px;background:rgba(255,255,255,.94);box-shadow:0 26px 80px rgba(15,70,74,.13)}.brand{width:108px;height:82px;display:grid;place-items:center;border-radius:24px;background:#fff;box-shadow:0 12px 34px rgba(20,87,91,.1)}.brand img{width:82px;height:auto}.status{display:inline-flex;align-items:center;gap:9px;min-height:36px;padding:7px 14px;border-radius:999px;background:#e7f6f4;color:#087482;font-size:.84rem;font-weight:800}.status i{width:9px;height:9px;border-radius:50%;background:#0a8992;box-shadow:0 0 0 6px rgba(10,137,146,.1)}h1{margin:2px 0 0;font-size:clamp(1.65rem,5vw,2.55rem);line-height:1.14;letter-spacing:-.035em}p{max-width:510px;margin:0;color:#587178;font-size:clamp(.94rem,2.6vw,1.05rem);line-height:1.65}.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.action{min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 22px;border:1px solid #0a7c86;border-radius:15px;font:inherit;font-weight:800;text-decoration:none;cursor:pointer}.primary{color:#fff;background:linear-gradient(135deg,#087b84,#238fc4)}.secondary{color:#0b6972;background:#fff}small{display:flex;align-items:center;gap:7px;color:#6c8186;font-weight:600}small i{width:7px;height:7px;border-radius:50%;background:#27a36d}@media(max-width:560px){.page{place-items:start center;padding:22px 14px}.card{border-radius:25px}.actions{width:100%}.action{flex:1 1 140px}}</style></head><body><main class="page"><section class="card" role="alert"><span class="brand"><img src="/vii-logo.png" width="82" height="63" alt="V For Vacation"></span><span class="status"><i></i>${copy[2]}</span><h1>${copy[0]}</h1><p>${copy[1]}</p><div class="actions"><button class="action primary" type="button" onclick="location.reload()">${copy[3]}</button><a class="action secondary" href="/">${copy[4]}</a></div><small><i></i>${copy[5]}</small></section></main></body></html>`;
+  return new Response(body, { status: 503, headers });
+}
+
 async function fetchPublicRead(request: Request, origin: URL) {
   const anonymous = anonymousPublicRequest(origin, request, isCatalogNavigationHintCandidate(request));
   let failed: Response | undefined;
@@ -177,7 +211,17 @@ async function fetchPublicRead(request: Request, origin: URL) {
   headers.delete("If-Modified-Since");
   // Exactly one changed, read-only retry. Private/API/action/POST traffic
   // never enters this helper, and a second failure is returned unchanged.
-  return publicReadAttemptResponse(await fetch(new Request(anonymous, { headers, cache: "reload", redirect: "manual" })), 2);
+  try {
+    const retry = await fetch(new Request(anonymous, { headers, cache: "reload", redirect: "manual" }));
+    if (retry.status < 500) return publicReadAttemptResponse(retry, 2);
+    await retry.body?.cancel().catch(() => undefined);
+    console.warn("VII public origin returned repeated 5xx", { build: EXPECTED_BUILD, pathname: new URL(request.url).pathname, status: retry.status, attempts: 2 });
+    return temporaryFailureResponse(request, 2, "origin_5xx");
+  } catch (error) {
+    if (request.signal.aborted || error instanceof Error && error.name === "AbortError") throw error;
+    console.error("VII public origin transport failure", { build: EXPECTED_BUILD, pathname: new URL(request.url).pathname, reason: error instanceof Error ? error.name : "unknown", attempts: 2 });
+    return temporaryFailureResponse(request, 2, "origin_transport");
+  }
 }
 
 function keyFor(request: Request, url: URL, build: string, now = new Date()) {
@@ -366,16 +410,24 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   return new Response(stored.body, { status: stored.status, headers: clientHeaders });
 }
 type EdgeScheduledController = { scheduledTime: number; cron: string; noRetry?: () => void };
-export default { fetch: async (request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext) => publicSecurityHeaders(await serve(request, env, ctx), request), async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
+export default { fetch: async (request: Request, env: DeliveryEnv, ctx: EdgeExecutionContext) => {
+  try {
+    return publicSecurityHeaders(await serve(request, env, ctx), request);
+  } catch (error) {
+    if (request.signal.aborted || error instanceof Error && error.name === "AbortError") throw error;
+    console.error("VII edge request contained", { build: env.EXPECTED_BUILD || EXPECTED_BUILD, method: request.method, pathname: new URL(request.url).pathname, reason: error instanceof Error ? error.name : "unknown" });
+    return publicSecurityHeaders(temporaryFailureResponse(request, 1, "edge_unexpected"), request);
+  }
+}, async scheduled(_controller: EdgeScheduledController, env: DeliveryEnv, ctx: EdgeExecutionContext) {
   if ((env.EXPECTED_BUILD || EXPECTED_BUILD).startsWith("pending-")) return;
   const core = warmCoreDocuments((request, ownedContext) => serve(request, env, ownedContext), ctx, _controller.scheduledTime)
     .then(report => console.log('VII core document warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
-    .catch(error => { console.warn('VII core document warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error ? error.name : 'unknown' }); throw error; });
+    .catch(error => { console.warn('VII core document warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error ? error.name : 'unknown' }); });
   const minute = new Date(_controller.scheduledTime).getUTCMinutes();
   const holiday = minute % 10 === 0
     ? warmHolidaySnapshots({ origin: env.ORIGIN || ORIGIN, build: env.EXPECTED_BUILD || EXPECTED_BUILD })
       .then(report => console.log('VII discovery snapshot warming', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, cron: _controller.cron, ...report }))
-      .catch(error => { console.warn('VII discovery snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }); throw error; })
+      .catch(error => { console.warn('VII discovery snapshot warming unavailable', { build: env.EXPECTED_BUILD || EXPECTED_BUILD, reason: error instanceof Error && /^(?:holiday_warm_[a-z_]+|request_body_timeout|request_cancelled|body_too_large|invalid_json)$/.test(error.message) ? error.message : error instanceof Error ? error.name : 'unknown' }); })
     : Promise.resolve();
   ctx.waitUntil(core); ctx.waitUntil(holiday);
   await Promise.all([core, holiday]);

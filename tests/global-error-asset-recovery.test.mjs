@@ -13,6 +13,8 @@ test("a stale deployment asset triggers one bounded hard reload", () => {
   assert.match(source, /recoverReleaseAssetMismatch\(error, "global"\)/);
 });
 
-test("ordinary application errors still use the React reset boundary", () => {
-  assert.match(source, /assetLoadFailure \? window\.location\.reload\(\) : reset\(\)/);
+test("ordinary application errors reset once, then offer a bounded document retry", () => {
+  assert.match(source, /recoverRouteBoundaryOnce/);
+  assert.match(source, /recoverStalledNavigation/);
+  assert.match(source, /window\.location\.reload\(\)/);
 });

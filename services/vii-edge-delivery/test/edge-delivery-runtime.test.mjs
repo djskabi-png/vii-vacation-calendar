@@ -206,10 +206,22 @@ test('ineligible hinted POST preserves body and auth while removing only the nav
   } finally { globalThis.fetch = oldFetch; }
 });
 
-test('actual handler returns origin failure and never stores it', async () => {
+test('actual handler contains repeated origin transport failure and never stores it', async () => {
   const h = harness({ headers: headers() }); const original = globalThis.fetch;
   globalThis.fetch = async (request) => { if (request.url.startsWith('https://vii-vacation-calendar')) throw new Error('origin_down'); return original(request); };
-  try { await assert.rejects(() => worker.fetch(new Request('https://edge.test/search', { headers: { Accept: 'text/html' } }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, h.ctx), /origin_down/); assert.equal(h.stats().writes.length, 0); } finally { h.restore(); }
+  try { const response = await worker.fetch(new Request('https://edge.test/search', { headers: { Accept: 'text/html' } }), { ORIGIN: 'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site', EXPECTED_BUILD: 'test-build' }, h.ctx); assert.equal(response.status, 503); assert.equal(response.headers.get('X-VII-Edge-Recovery'), 'origin_transport'); assert.equal(response.headers.get('X-VII-Edge-Origin-Attempts'), '2'); assert.match(await response.text(), /מחזירים את האתר לפעולה/); assert.equal(h.stats().writes.length, 0); } finally { h.restore(); }
+});
+
+test('unexpected private origin transport errors are contained as retryable 503 responses', async () => {
+  const h = harness({ headers: headers() }); const original = globalThis.fetch;
+  globalThis.fetch = async () => { throw new TypeError('private_origin_down'); };
+  try {
+    const response = await worker.fetch(new Request('https://vii.spaplus.co/api/account', { headers: { Authorization: 'Bearer synthetic' } }), {}, h.ctx);
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get('X-VII-Edge-Recovery'), 'edge_unexpected');
+    assert.deepEqual(await response.json(), { error: 'temporarily_unavailable', retryable: true });
+    assert.equal(h.stats().writes.length, 0);
+  } finally { globalThis.fetch = original; h.restore(); }
 });
 
 test('actual handler fails closed on duplicate keys and unknown tracking keys', async () => {
@@ -311,9 +323,9 @@ test('single origin attempt is visible before a blocked body and preserves the s
   assert.equal(r.headers.get('X-VII-Edge-Origin-Attempts'),'1');assert.equal(calls,1);release();assert.equal(await r.text(),'shellresults');
  }finally{clearTimeout(timer);release();globalThis.fetch=old;h.restore();}
 });
-test('repeated public failures stop after two attempts and private or transactional traffic never retries',async()=>{
+test('repeated public failures stop after two attempts with a controlled recovery page while private or transactional traffic never retries',async()=>{
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;return new Response('unavailable',{status:503});};
- try{const r=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx);assert.equal(r.status,503);assert.equal(calls,2);assert.equal(h.stats().writes.length,0);for(const request of [new Request('https://vii.spaplus.co/api/vii/stay-quote',{method:'POST',body:'{}'}),new Request('https://vii.spaplus.co/admin',{headers:{Cookie:'vii_admin_session=private'}}),new Request('https://vii.spaplus.co/search',{headers:{Authorization:'Bearer synthetic'}})]){calls=0;const excluded=await worker.fetch(request,{},h.ctx);assert.equal(calls,1);assert.equal(excluded.headers.get('X-VII-Edge-Origin-Attempts'),null);}}finally{globalThis.fetch=old;h.restore();}
+ try{const r=await worker.fetch(new Request('https://vii.spaplus.co/search',{headers:{Accept:'text/html'}}),{},h.ctx);assert.equal(r.status,503);assert.equal(r.headers.get('X-VII-Edge-Recovery'),'origin_5xx');assert.equal(r.headers.get('Retry-After'),'2');assert.match(await r.text(),/לנסות שוב/);assert.equal(calls,2);assert.equal(h.stats().writes.length,0);for(const request of [new Request('https://vii.spaplus.co/api/vii/stay-quote',{method:'POST',body:'{}'}),new Request('https://vii.spaplus.co/admin',{headers:{Cookie:'vii_admin_session=private'}}),new Request('https://vii.spaplus.co/search',{headers:{Authorization:'Bearer synthetic'}})]){calls=0;const excluded=await worker.fetch(request,{},h.ctx);assert.equal(calls,1);assert.equal(excluded.headers.get('X-VII-Edge-Origin-Attempts'),null);assert.equal(excluded.headers.get('X-VII-Edge-Recovery'),null);}}finally{globalThis.fetch=old;h.restore();}
 });
 test('one public network failure recovers but an explicit cancellation never retries',async()=>{
  const h=harness({headers:headers()});const old=globalThis.fetch;let calls=0;globalThis.fetch=async()=>{calls++;if(calls===1)throw new TypeError('transient transport');return new Response('ok',{headers:headers()});};

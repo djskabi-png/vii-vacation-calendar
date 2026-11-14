@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ErrorRecoverySurface } from "./components/error-recovery-surface";
 import { isReleaseAssetMismatch, recoverReleaseAssetMismatch } from "./lib/release-asset-recovery";
-import { finishNavigationFeedback, recoverRouteBoundaryOnce } from "./lib/navigation-recovery";
+import { finishNavigationFeedback, recoverRouteBoundaryOnce, recoverStalledNavigation } from "./lib/navigation-recovery";
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const [recovering, setRecovering] = useState(true);
@@ -17,6 +17,16 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
       finishNavigationFeedback();
       setRecovering(false);
     };
+    const tryDocumentRecovery = () => {
+      finishNavigationFeedback();
+      const started = recoverStalledNavigation(window.location.href, {
+        currentHref: window.location.href,
+        now: Date.now(),
+        storage: window.sessionStorage,
+        replace: value => window.location.replace(value),
+      });
+      if (!started) stopRecovering();
+    };
     const recover = async () => {
       if (assetLoadFailure) {
         if (!await recoverReleaseAssetMismatch(error, "global")) stopRecovering();
@@ -29,31 +39,18 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         schedule: callback => window.requestAnimationFrame(callback),
         reset,
       });
-      if (!started) { stopRecovering(); return; }
-      fallbackTimer = window.setTimeout(stopRecovering, 3_500);
+      if (!started) { tryDocumentRecovery(); return; }
+      fallbackTimer = window.setTimeout(tryDocumentRecovery, 1_800);
     };
     void recover();
     return () => { active = false; window.clearTimeout(fallbackTimer); };
   }, [assetLoadFailure, error, reset]);
   const labels = {
-    he: ["לא הצלחנו להשלים את הטעינה", "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.", "לנסות שוב", "לדף הבית", "מחזירים את האתר לפעולה", "עוד רגע אפשר להמשיך מאותה נקודה"],
-    en: ["We could not complete loading", "Try again. If the problem continues, return to the homepage.", "Try again", "Homepage", "Restoring the site", "You can continue from the same place shortly"],
-    ru: ["Не удалось завершить загрузку", "Попробуйте снова. Если проблема не исчезнет, вернитесь на главную страницу.", "Попробовать снова", "Главная", "Восстанавливаем сайт", "Скоро можно будет продолжить с того же места"],
-    fr: ["Le chargement n’a pas pu être terminé", "Réessayez. Si le problème persiste, revenez à l’accueil.", "Réessayer", "Accueil", "Rétablissement du site", "Vous pourrez bientôt reprendre au même endroit"],
-  }[language as "he" | "en" | "ru" | "fr"] || ["לא הצלחנו להשלים את הטעינה", "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.", "לנסות שוב", "לדף הבית", "מחזירים את האתר לפעולה", "עוד רגע אפשר להמשיך מאותה נקודה"];
+    he: { title: recovering ? "מחזירים את האתר לפעולה" : "הטעינה לא הושלמה", body: recovering ? "מבצעים ניסיון התאוששות קצר ושומרים על הכתובת והבחירות שלכם." : "החיבור לא הושלם. אפשר לנסות שוב בלי לאבד את הכתובת שבחרתם.", status: recovering ? "מתחברים מחדש" : "הטעינה נעצרה", retry: "לנסות שוב", home: "לדף הבית", preserved: "הכתובת והבחירות שלכם נשמרות" },
+    en: { title: recovering ? "Restoring the site" : "Loading did not complete", body: recovering ? "Running a short recovery while preserving your address and selections." : "The connection did not complete. Try again without losing the address you selected.", status: recovering ? "Reconnecting" : "Loading stopped", retry: "Try again", home: "Homepage", preserved: "Your address and selections are preserved" },
+    ru: { title: recovering ? "Восстанавливаем сайт" : "Загрузка не завершилась", body: recovering ? "Выполняем короткое восстановление, сохраняя адрес и выбранные параметры." : "Подключение не завершилось. Повторите попытку без потери выбранного адреса.", status: recovering ? "Подключаемся снова" : "Загрузка остановлена", retry: "Попробовать снова", home: "Главная", preserved: "Адрес и выбранные параметры сохранены" },
+    fr: { title: recovering ? "Rétablissement du site" : "Le chargement n’a pas abouti", body: recovering ? "Nous lançons une courte récupération tout en conservant votre adresse et vos choix." : "La connexion n’a pas abouti. Réessayez sans perdre l’adresse sélectionnée.", status: recovering ? "Reconnexion" : "Chargement interrompu", retry: "Réessayer", home: "Accueil", preserved: "Votre adresse et vos choix sont conservés" },
+  }[language as "he" | "en" | "ru" | "fr"] || { title: recovering ? "מחזירים את האתר לפעולה" : "הטעינה לא הושלמה", body: recovering ? "מבצעים ניסיון התאוששות קצר ושומרים על הכתובת והבחירות שלכם." : "החיבור לא הושלם. אפשר לנסות שוב בלי לאבד את הכתובת שבחרתם.", status: recovering ? "מתחברים מחדש" : "הטעינה נעצרה", retry: "לנסות שוב", home: "לדף הבית", preserved: "הכתובת והבחירות שלכם נשמרות" };
   const direction = language === "he" ? "rtl" : "ltr";
-  if (recovering) return <html lang={language} dir={direction}><body style={{ margin: 0 }}><main className="route-recovery-loading" id="main-content" aria-busy="true" aria-live="polite">
-    <section><span className="route-recovery-loading__mark" aria-hidden="true"><i /><i /><i /></span><h1>{labels[4]}</h1><p>{labels[5]}</p></section>
-    <div className="route-recovery-loading__skeleton" aria-hidden="true"><i /><i /><i /></div>
-  </main></body></html>;
-  return <html lang={language} dir={direction}><body><main className="error-state-page" id="main-content">
-    <section className="empty-state" role="alert">
-      <h1>{labels[0]}</h1>
-      <p>{labels[1]}</p>
-      <div className="error-state-page__actions">
-        <button className="button primary" type="button" onClick={() => assetLoadFailure ? window.location.reload() : reset()}>{labels[2]}</button>
-        <Link className="button secondary" href="/">{labels[3]}</Link>
-      </div>
-    </section>
-  </main></body></html>;
+  return <html lang={language} dir={direction}><body style={{ margin: 0 }}><ErrorRecoverySurface labels={labels} recovering={recovering} onRetry={() => window.location.reload()} /></body></html>;
 }

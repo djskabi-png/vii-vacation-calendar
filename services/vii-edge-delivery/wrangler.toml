@@ -6,6 +6,10 @@ workers_dev = true
 triggers = { crons = ["*/2 * * * *"] }
 routes = [{ pattern = "vii.spaplus.co/*", zone_id = "f1d778343394ef4f56bbcb089793a22a" }]
 
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 [[r2_buckets]]
 binding = "PUBLIC_CACHE"
 bucket_name = "vii-public-document-cache"

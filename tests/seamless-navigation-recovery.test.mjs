@@ -56,11 +56,13 @@ test('navigation feedback is immediate, localized, accessible and explicitly fin
 test('primary worlds are prefetched and route failures show recovery before terminal error', () => {
   for (const route of ['"/events"', '"/spas"', '"/hourly"']) assert.ok(warmupSource.includes(route));
   assert.match(warmupSource, /router\.prefetch\(destination\)/);
-  assert.match(errorSource, /if \(recovering\) return <main className="route-recovery-loading"/);
+  assert.match(errorSource, /ErrorRecoverySurface/);
   assert.match(errorSource, /recoverRouteBoundaryOnce/);
-  assert.match(errorSource, /fallbackTimer = window\.setTimeout\(stopRecovering, 3_500\)/);
-  assert.match(errorSource, /role="alert"/);
-  assert.match(globalErrorSource, /if \(recovering\) return <html/);
+  assert.match(errorSource, /recoverStalledNavigation/);
+  assert.match(errorSource, /fallbackTimer = window\.setTimeout\(tryDocumentRecovery, 1_800\)/);
+  assert.match(errorSource, /window\.location\.reload\(\)/);
+  assert.match(globalErrorSource, /<html lang=\{language\}/);
   assert.match(globalErrorSource, /recoverRouteBoundaryOnce/);
-  assert.match(globalErrorSource, /route-recovery-loading/);
+  assert.match(globalErrorSource, /recoverStalledNavigation/);
+  assert.match(globalErrorSource, /ErrorRecoverySurface/);
 });
