@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { CurrencyText } from "./currency-text";
 import { useEffect, useRef, useState } from "react";
@@ -21,8 +19,6 @@ export type Presentation = {
   popular: HomeDiscoveryItem[];
   cities: HomeDiscoveryItem[];
   types: HomeDiscoveryItem[];
-  editorialTitle: string;
-  editorialBody: string;
 };
 
 const presentationLoads = new Map<string, { until: number; promise: Promise<Presentation> }>();
@@ -107,12 +103,10 @@ export function HomeQuickSearches({ world = "vacation", initialPresentation }: {
 }
 
 export function HomeManagedDiscovery() {
-  const { language } = useSiteLanguage();
   const presentation = usePresentation();
   if (!presentation) return null;
   return <div className="home-managed-discovery-wrap">
     <DiscoveryRail id="home-city-rail" title="חיפוש לפי עיר ואזור" items={presentation.cities} />
     <DiscoveryRail id="home-type-rail" title="סוגי מקומות נופש" items={presentation.types} />
-    <section className="home-editorial-copy" aria-labelledby="home-editorial-title"><h2 id="home-editorial-title">{presentation.editorialTitle}</h2><p>{presentation.editorialBody}</p><Link href={localizedPath("/search", language)} prefetch={false} className="button primary" data-global-feedback="true" data-loading-label="פותחים את החיפוש...">לכל מקומות הנופש</Link></section>
   </div>;
 }

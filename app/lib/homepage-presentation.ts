@@ -91,8 +91,6 @@ export const defaultHomepagePresentation = {
   popular: defaults.popular,
   cities: defaults.cities,
   types: defaults.types,
-  editorialTitle: "רוצים חופשה שמתאימה בדיוק לכם?",
-  editorialBody: "אפשר להתחיל מסוג המקום, מהעיר או מהתאריך. כל בחירה שומרת את הכיוון שלכם ומובילה לתוצאות שאפשר להמשיך לסנן ולהשוות.",
 };
 
 export function worldPopularSearchItems(attributes?: Record<string, string>, world: PopularSearchWorld = "vacation") {
@@ -110,8 +108,6 @@ export function parseHomepagePresentation(attributes?: Record<string, string>, w
     popular: worldPopularSearchItems(attributes, world).filter((item) => item.visible),
     cities: parseHomepageItems(attributes?.homeCitySearches, defaults.cities).filter((item) => item.visible),
     types: parseHomepageItems(attributes?.homeTypeSearches, defaults.types).filter((item) => item.visible),
-    editorialTitle: attributes?.homeEditorialTitle?.trim().slice(0, 120) || defaultHomepagePresentation.editorialTitle,
-    editorialBody: attributes?.homeEditorialBody?.trim().slice(0, 700) || defaultHomepagePresentation.editorialBody,
   };
 }
 

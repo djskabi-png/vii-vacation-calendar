@@ -5848,10 +5848,6 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 .home-managed-discovery__track .search-depth__discovery-card:hover .home-managed-discovery__visual img { transform: scale(1.045); }
 .home-managed-discovery__track .search-depth__discovery-card strong { min-width: 0; align-self: end; font-size: .94rem; line-height: 1.35; }
 .home-managed-discovery__track .search-depth__discovery-card small { min-width: 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.4; }
-.home-editorial-copy { max-width: 900px; margin-inline: auto; padding: clamp(24px,4vw,46px); border-radius: 28px; background: linear-gradient(135deg,#eaf9f7,#f4f8ff); text-align: center; }
-.home-editorial-copy > span { color: #087b82; font-size: .78rem; font-weight: 850; }
-.home-editorial-copy h2 { margin: 7px 0 10px; color: #113c40; font-size: clamp(1.55rem,3vw,2.35rem); }
-.home-editorial-copy p { max-width: 720px; margin: 0 auto 18px; color: #496966; line-height: 1.75; }
 .home-live-deals__whatsapp { min-height: 38px; border: 0; background: transparent; color: #087d84; font: inherit; font-weight: 800; cursor: pointer; }
 .home-live-deals__whatsapp svg { width: 18px; height: 18px; fill: none; stroke: currentColor; }
 .flexible-content__intro { margin: 0 0 8px; padding: 12px 14px; border-radius: 12px; background: #eef8f7; color: #315c59; line-height: 1.55; }
@@ -5866,7 +5862,6 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
   .home-managed-discovery__track.search-depth__rail { grid-auto-columns: minmax(220px,78vw); gap: 10px; }
   .home-managed-discovery__track .search-depth__discovery-card { min-height: 116px; padding: 16px; border-radius: 17px; }
   .home-managed-discovery__head { align-items: center; }
-  .home-editorial-copy { text-align: start; border-radius: 22px; }
 }
 @media (prefers-reduced-motion: reduce) { .home-live-deals__loading::before, .home-live-deals__loading::after, .home-live-deals__loading-route img, .home-live-deals__loading-card, .home-live-deals__loading-image::after, .home-live-deals__loading-lines span, .home-live-deals__results.is-refreshing::after, .spa-package-deals__results.is-refreshing::after, .holiday-deals__surface.is-refreshing::after { animation: none; } }
 .home-last-minute { padding-block: 64px; color: var(--ink); background: radial-gradient(circle at 14% 18%,rgba(100,205,210,.22),transparent 32%),linear-gradient(135deg,#eef9f8 0%,#f8fbfb 55%,#fff8f2 100%); }

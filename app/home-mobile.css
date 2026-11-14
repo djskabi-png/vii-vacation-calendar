@@ -60,9 +60,6 @@
   .home-page .home-managed-discovery-wrap { gap:28px; margin-top:28px; }
   .home-page .home-vacation-discovery__intro { margin-bottom:22px; }
   .home-page .home-vacation-discovery__intro h2 { font-size:1.55rem; }
-  .home-page .home-editorial-copy { padding:22px 18px; border-radius:20px; text-align:start; }
-  .home-page .home-editorial-copy h2 { font-size:1.35rem; }
-  .home-page .home-editorial-copy p { font-size:.9rem; }
   .home-page .home-short-stay .discovery-card__visual { flex:0 0 210px; height:210px; min-height:210px; }
   .home-page .home-short-stay .discovery-card__visual img { height:210px; }
   .home-page .home-short-stay .discovery-card__body { padding:16px; }

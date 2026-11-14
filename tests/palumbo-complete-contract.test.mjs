@@ -14,12 +14,13 @@ test("homepage discovery is visual, managed and complete", async () => {
   ]);
   assert.match(home, /<HomeQuickSearches/);
   assert.match(showcase, /<HomeManagedDiscovery/);
-  for (const key of ["homePopularSearches", "homeCitySearches", "homeTypeSearches", "homeEditorialTitle", "homeEditorialBody"]) {
+  for (const key of ["homePopularSearches", "homeCitySearches", "homeTypeSearches"]) {
     assert.match(admin + presentation, new RegExp(key));
     assert.match(presentation, new RegExp(key));
   }
   assert.match(discovery, /חיפוש לפי עיר ואזור/);
   assert.match(discovery, /סוגי מקומות נופש/);
+  assert.doesNotMatch(discovery + admin + presentation, /homeEditorial(?:Title|Body)|home-editorial-copy|רוצים חופשה שמתאימה בדיוק לכם/);
 });
 
 test("place-type cards use distinct relevant photography without the unavailable placeholder", async () => {
