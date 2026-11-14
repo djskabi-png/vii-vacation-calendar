@@ -9,7 +9,7 @@ test("optional homepage supplier reads are isolated from the document shell", ()
   assert.match(source, /from "\.\/data\/home-showcase-fallback"/);
   assert.match(source, /<HomeShowcase properties=\{homeShowcaseProperties\}/);
   assert.doesNotMatch(source, /createRequestCatalogReader|bundledPublicCatalogSummaries|readCatalog<Property>/);
-  assert.match(source, /managedMagazineArticles\(magazineArticles\)\.catch\(\(\) => magazineArticles\)/);
+  assert.match(source, /managedMagazineArticles\(magazineArticles\)\.catch\(\(\) => magazineArticles\.filter\(\(article\) => isMagazineArticlePublicAt\(article\)\)\)/);
   assert.match(read("app/error.tsx"), /Try again/);
   assert.match(read("app/global-error.tsx"), /Try again/);
 });

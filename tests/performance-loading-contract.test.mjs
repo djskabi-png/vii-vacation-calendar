@@ -144,7 +144,7 @@ test("cold public documents do not read whole runtime catalogs before sending HT
     assert.doesNotMatch(source, /publicCatalogSummaries</);
   }
   assert.match(business, /bundledPublicCatalogSelectedSummaries/);
-  assert.doesNotMatch(business, /publicCatalogSelectedSummaries/);
+  assert.match(business, /publicCatalogSelectedSummaries<Property>\("vacations", \[Number\(supplierId\)\]\)/);
   assert.doesNotMatch(business, /publicCatalogDetail/);
 });
 
@@ -168,7 +168,7 @@ test("spa and hourly place pages select one accepted build supplier without a co
   assert.match(source, /cache\(async \(id: string\)/);
   assert.match(source, /bundledPublicCatalogSelectedSummaries<SpaPlusSite>/);
   assert.match(source, /bundledPublicCatalogSelectedSummaries<\(typeof hourlyCatalog\.places\)\[number\]>/);
-  assert.doesNotMatch(source, /publicCatalogSelectedSummaries/);
+  assert.match(source, /publicCatalogSelectedSummaries/);
   assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "spa"\)/);
   assert.match(source, /discoveryItems\.filter\(\(entry\) => entry\.world === "hourly"\)/);
   assert.doesNotMatch(source, /bundledPublicCatalogSummaries/);

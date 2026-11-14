@@ -29,6 +29,6 @@ test("vacation result summary reports complexes and units in every language", ()
 
 test("the visible search result set drives the live inventory summary", () => {
   assert.match(searchSource, /vacationInventorySummary\(displayedResults, language\)/);
-  assert.match(searchSource, /className="results-heading__inventory" aria-live="polite"/);
+  assert.match(searchSource, /className="results-heading__inventory discovery-results-count" aria-live="polite"/);
   assert.match(css, /\.results-heading__inventory \{[^}]*font-variant-numeric: tabular-nums/);
 });

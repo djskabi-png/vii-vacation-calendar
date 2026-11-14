@@ -17,8 +17,8 @@ test("place photography uses the vacation 4:3 contract in every horizontal world
 
 test("events mobile sections override the late generic section padding", () => {
   assert.match(mobile, /\.events-page > \.section\s*\{\s*padding-block:24px/);
-  assert.match(mobile, /\.events-page > \.event-discovery-section\s*\{\s*padding-block:18px/);
-  assert.match(mobile, /\.events-page \.section-head\s*\{\s*margin-bottom:12px/);
+  assert.match(mobile, /\.events-page > \.event-discovery-section\s*\{\s*padding-block:14px/);
+  assert.match(mobile, /\.events-page \.section-head\s*\{\s*margin-bottom:8px/);
   assert.match(mobile, /\.world-editorial \.section-head\s*\{[^}]*margin-bottom:8px/);
   assert.match(mobile, /\.world-editorial > \.home-mobile-rail-controls\s*\{\s*margin-block:0 8px/);
 });

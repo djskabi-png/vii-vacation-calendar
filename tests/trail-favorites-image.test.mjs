@@ -9,7 +9,7 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 test("saved and viewed trail cards use the current image even when a stored snapshot has no image", async () => {
   const page = await read("app/favorites/page.tsx");
   assert.match(page, /item\.world === "trails" \? trailBySlug\.get\(item\.id\)/);
-  assert.match(page, /const image = trail \? `\/images\/trails\/\$\{trail\.slug\}\.jpg` : item\.image/);
+  assert.match(page, /const image = trail \? \(trail\.image \|\| `\/images\/trails\/\$\{trail\.slug\}\.jpg`\) : item\.image/);
   assert.match(page, /const items: LibraryItem\[\] = mode === "viewed" \? viewedItems : savedItems/);
   assert.match(page, /<PreviewCardGallery className="favorite-card__media" name=\{imageAlt\} imageLabel=\{imageTitle\}/);
   assert.doesNotMatch(page, /favorite-card__media-label|תמונת המחשה/);
@@ -19,8 +19,9 @@ test("saved and viewed trail cards use the current image even when a stored snap
 test("all catalog trail covers used by favorites exist", async () => {
   const data = await read("app/data/trail-data.ts");
   const slugs = [...data.matchAll(/slug:\s*"([a-z0-9-]+)"/g)].map((match) => match[1]);
-  assert.equal(slugs.length, 48);
-  for (const slug of slugs) {
+  assert.equal(slugs.length, 56);
+  const externalImages = new Set([...data.matchAll(/slug:\s*"([a-z0-9-]+)"[^\r\n]*image:\s*"https:\/\//g)].map((match) => match[1]));
+  for (const slug of slugs.filter((slug) => !externalImages.has(slug))) {
     const asset = fileURLToPath(new URL(`public/images/trails/${slug}.jpg`, root));
     assert.ok((await stat(asset)).size > 1000, slug);
   }

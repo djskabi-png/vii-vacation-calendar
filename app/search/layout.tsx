@@ -9,7 +9,7 @@ import { trails } from "../data/trail-data";
 import { providerProfiles } from "../data/world-data";
 
 const searchDepthSeed = {
-  trails: trails.map((trail) => ({ slug: trail.slug, name: trail.name, mainArea: trail.mainArea, region: trail.region, areaTags: trail.areaTags, image: `/images/trails/${trail.slug}.jpg`, meta: `${trail.duration} · ${trail.difficulty}` })),
+  trails: trails.map((trail) => ({ slug: trail.slug, name: trail.name, mainArea: trail.mainArea, region: trail.region, areaTags: trail.areaTags, image: trail.image || `/images/trails/${trail.slug}.jpg`, meta: `${trail.duration} · ${trail.difficulty}` })),
   providers: providerProfiles.filter((item) => item.indexable !== false && item.image).map((item) => ({ id: item.id, name: item.name, location: item.location, area: item.area, serviceAreas: item.serviceAreas || [], image: item.image!, meta: item.features.slice(0, 2).join(" · ") })),
 };
 

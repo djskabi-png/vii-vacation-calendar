@@ -27,7 +27,7 @@ test('no browser origin preserves prior order, zero distance is known, and antip
 });
 test('all seven result families wire browser origin into the shared order before progressive display',()=>{
  for(const file of ['app/search/page.tsx','app/events/search/page.tsx','app/components/hourly-results.tsx','app/components/world-map-results.tsx','app/components/provider-results.tsx','app/attractions/attractions-explorer.tsx','app/trails/trails-explorer.tsx']){
-  const source=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');assert.match(source,/useNearbySort\(\)/,file);assert.match(source,/NearbySortStatus/,file);assert.match(source,/nearby\.distance/,file);
+  const source=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');assert.match(source,/useNearbySort\(\)/,file);assert.match(source,/NearbySortStatus/,file);assert.match(source,/nearby(?:\.distance|Distance)/,file);
  }
  const options=sort.discoverySortOptions([],{id:x=>x.id,name:x=>x.id},'he');assert.equal(options.find(x=>x.value==='nearest').label,'קרוב אליי');
 });

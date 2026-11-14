@@ -35,7 +35,7 @@ test("visible control names remain part of their accessible names", async () => 
   ]);
   assert.match(worlds, /aria-label=\{`\$\{translate\("עוד"\)\}, \$\{translate\("עולמות נוספים"\)\}`\}/);
   assert.match(locale, /aria-label=\{`\$\{labels\[language\]\}, \$\{chooserLabels\[language\]\}`\}/);
-  assert.match(accessibility, /triggerLabel = `\$\{placement === "icon" \? "" : "כלי נגישות, "\}פתיחת כלי הנגישות`/);
+  assert.match(accessibility, /const triggerLabel = placement === "icon" \? "פתיחת כלי הנגישות" : `\$\{visibleLabel\}, פתיחת כלי הנגישות`/);
 });
 
 test("edge delivery applies compatible public security headers", async () => {

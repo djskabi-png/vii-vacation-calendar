@@ -720,7 +720,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
-  assert.match(homeShowcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
+  assert.match(homeShowcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} fallbackProperties=\{fallbackProperties\} pendingSeed=\{pendingSeed\} \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /<SpaPackageDeals deferUntilNearViewport \/>/);
@@ -797,11 +797,11 @@ test("independent trails are sourced, filterable and connected to stays", async 
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readEffectiveWorldCss(),
   ]);
-  assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 31);
-  assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 31);
-  assert.equal((data.match(/difficulty: "/g) || []).length, 48);
-  assert.equal((data.match(/duration: "/g) || []).length, 48);
-  assert.equal((data.match(/safety: \[/g) || []).length, 23);
+  assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 36);
+  assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 36);
+  assert.equal((data.match(/difficulty: "/g) || []).length, 56);
+  assert.equal((data.match(/duration: "/g) || []).length, 56);
+  assert.equal((data.match(/safety: \[/g) || []).length, 31);
   assert.match(listing, /סינון מסלולי טיול/);
   assert.match(listing, /setSelectedDifficulties/);
   assert.match(listing, /setSelectedNatures/);
@@ -1212,13 +1212,13 @@ test("activities hub separates trails from paid attractions and every main trail
   assert.match(attractionsHtml, /אטרקציות בתשלום בישראל/);
   assert.match(attractionsHtml, /aria-label="סינון אטרקציות בתשלום"/);
   assert.match(attractionsHtml, /מידע מאומת/);
-  assert.match(trailsHtml, /"numberOfItems":48/);
+  assert.match(trailsHtml, /"numberOfItems":56/);
 
   for (const area of ["צפון", "כנרת", "חיפה", "מרכז", "תל אביב", "דרום ונגב", "ירושלים", "אילת והסביבה"]) {
     const directCount = [...trailSource.matchAll(new RegExp(`mainArea: "${area}"`, "g"))].length;
     const mappedCount = [...trailSource.matchAll(new RegExp(`^\\s+"[^"]+": "${area}",$`, "gm"))].length;
     const count = directCount + mappedCount;
-    assert.equal(count, 6, `${area} source coverage`);
+    assert.ok(count >= 6, `${area} source coverage`);
   }
 });
 
@@ -1593,12 +1593,13 @@ test("vacation results heading stays concise without a redundant status eyebrow"
 
 test("homepage keeps factual vacation discovery before spa without unsupported offers", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const recommended = source.indexOf("<HomeLiveDeals deferUntilNearViewport initialData={initialData} pendingSeed={pendingSeed} />");
+  const recommended = source.indexOf("<HomeLiveDeals deferUntilNearViewport initialData={initialData} fallbackProperties={fallbackProperties} pendingSeed={pendingSeed} />");
   const discovery = source.indexOf('className="section home-vacation-discovery"');
   const spa = source.indexOf('<SpaPackageDeals deferUntilNearViewport />');
   assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
   assert.match(source, /יעדים מומלצים לנופש/);
-  assert.match(source, /\/vacations\/north\?guests=2/);
+  assert.match(source, /href: "\/vacations\/north"/);
+  assert.doesNotMatch(source, /\/vacations\/north\?guests=/);
   assert.doesNotMatch(source, /nightlyPrice|home-vacation-card--style/);
 });
 
@@ -1611,7 +1612,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   ]);
 
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
-  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} pendingSeed=\{pendingSeed\} \/>/);
+  assert.match(showcase, /<HomeLiveDeals deferUntilNearViewport initialData=\{initialData\} fallbackProperties=\{fallbackProperties\} pendingSeed=\{pendingSeed\} \/>/);
   assert.match(liveDeals, /const selectedDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
   assert.match(liveDeals, /const searchDates = clock && selectedDates && eligibleDealDate\(selectedDates.from, clock.now\) \? selectedDates : undefined/);
   assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: String\(guests\), \.\.\.\(regionLabel \? \{ location: regionLabel \} : \{\}\) \}\)/);

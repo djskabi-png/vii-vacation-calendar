@@ -3,7 +3,7 @@ import ts from "typescript";
 import fs from "node:fs";
 
 const source = fs.readFileSync(new URL("../app/components/unit-preview-gallery.tsx", import.meta.url), "utf8");
-const body = source.replace(/^"use client";\s*/, "").replace(/import[\s\S]*?;\n/g, "").replace(/export function /g, "function ").replace(/function UnitPreviewGallery[\s\S]*$/m, "");
+const body = source.replace(/^"use client";\s*/, "").replace(/import[\s\S]*?;\r?\n/g, "").replace(/export function /g, "function ").replace(/function UnitPreviewGallery[\s\S]*$/m, "");
 const js = ts.transpileModule(body, { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
 const { unitPreviewSources, nextUnitPreviewIndex } = new Function(`${js}; return {unitPreviewSources, nextUnitPreviewIndex};`)();
 

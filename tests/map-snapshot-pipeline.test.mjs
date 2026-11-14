@@ -83,7 +83,8 @@ test("snapshot delivery is server-side, cached and never exposes provider creden
   ]);
   assert.match(route, /UPLOADS\.get\(record\.objectKey\)/);
   assert.match(route, /UPLOADS\.head\(record\.objectKey\)/);
-  assert.match(route, /status: probe \? 204 : 404/);
+  assert.match(route, /return new Response\(null, \{ status: 204, headers: \{ "Cache-Control": "public, max-age=30, s-maxage=60"/);
+  assert.match(route, /if \(!object\) return new Response\(null, \{ status: 204/);
   assert.match(route, /getRequestExecutionContext/);
   assert.match(route, /reconcileMapSnapshots\(\{ db, bucket: env\.UPLOADS, env, candidates: \[candidate\], limit: 1 \}\)/);
   assert.match(route, /"X-VII-Map-Snapshot": candidate \? "warming" : "missing"/);

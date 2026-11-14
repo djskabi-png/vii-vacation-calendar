@@ -239,7 +239,7 @@ export default function FavoritesPage() {
           <div className="favorites-grid">
             {visibleItems.map((item) => {
               const trail = item.world === "trails" ? trailBySlug.get(item.id) : undefined;
-              const image = trail ? `/images/trails/${trail.slug}.jpg` : item.image;
+              const image = trail ? (trail.image || `/images/trails/${trail.slug}.jpg`) : item.image;
               const imageTitle = localizeName(item.name, translate);
               const imageAlt = trail ? `${imageTitle}: ${trail.highlights.slice(0, 2).map((highlight) => translate(highlight)).join(language === "he" ? " ו" : " · ")}.` : imageTitle;
               return <article key={item.key} className="favorite-card">

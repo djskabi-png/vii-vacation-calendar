@@ -32,19 +32,23 @@ test("all trail visuals expose useful route text without public production label
   const TrailVisual = new Function("React", "Image", visual)(React, NextImage.default || NextImage);
   const directory = new URL("../public/images/trails/", import.meta.url);
   const files = (await readdir(directory)).filter((name) => name.endsWith(".jpg")).sort();
-  assert.equal(trails.length, 48);
-  assert.deepEqual(files, trails.map((trail) => `${trail.slug}.jpg`).sort());
+  assert.equal(trails.length, 56);
+  assert.deepEqual(files, trails.filter((trail) => !trail.image).map((trail) => `${trail.slug}.jpg`).sort());
   const hashes = new Set();
   for (const trail of trails) {
-    const bytes = await readFile(new URL(`${trail.slug}.jpg`, directory));
-    assert.equal(bytes.readUInt16BE(0), 0xffd8);
-    assert.equal(bytes.readUInt16BE(bytes.length - 2), 0xffd9);
-    hashes.add(createHash("sha256").update(bytes).digest("hex"));
+    if (trail.image) {
+      assert.match(trail.image, /^https:\/\//);
+    } else {
+      const bytes = await readFile(new URL(`${trail.slug}.jpg`, directory));
+      assert.equal(bytes.readUInt16BE(0), 0xffd8);
+      assert.equal(bytes.readUInt16BE(bytes.length - 2), 0xffd9);
+      hashes.add(createHash("sha256").update(bytes).digest("hex"));
+    }
     const html = renderToStaticMarkup(React.createElement(TrailVisual, { trail }));
     assert.ok(html.includes(`title="נוף לאורך מסלול ${trail.name}"`));
     assert.ok(html.includes(`alt="נוף לאורך מסלול ${trail.name}: ${trail.highlights.slice(0, 2).join(" ו")}."`));
     assert.ok(!html.includes('image-context-label'));
     assert.ok(!html.includes('aria-hidden="true"'));
   }
-  assert.equal(hashes.size, 48);
+  assert.equal(hashes.size, files.length);
 });

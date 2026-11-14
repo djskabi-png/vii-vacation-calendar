@@ -53,7 +53,9 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(gallery, /group\.title/);
   assert.match(gallery, /group\.images\.map/);
   assert.match(gallery, /topicTabs\.map/);
-  assert.match(gallery, /const defaultTopic = useMemo/);
+  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic/);
+  assert.match(gallery, /const \[topic, setTopic\] = useState<string \| null>\(\(\) => resolvedTopic\)/);
+  assert.match(gallery, /const \[selected, setSelected\] = useState\(initialTopic \? 0 : initialIndex\)/);
   assert.doesNotMatch(gallery, />\{tabLabels\.all\}<small>/);
   assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{keyFor\(item\)\}\\u0000\$\{item\.src\}`/);
   const scoped=[{category:"place",topic:"Suite",src:"editorial"},{category:"units",topic:"Suite",src:"room"}];
