@@ -1,5 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { loadCachedBizConversions } from "./biz-conversion-cache.ts";
+import { cachedBizConversions, loadCachedBizConversions } from "./biz-conversion-cache.ts";
+import { fetchViiConversions, type ConversionWorld } from "./vii-conversions.ts";
+import { supplierToken } from "./vii-supplier-token.ts";
 import { publicCatalogSummaries } from "./public-catalog-read.ts";
 import { parseProfessorIntent, professorNeedsInventory, type ProfessorIntent, type ProfessorMetric, type ProfessorPlace, type ProfessorRange, type ProfessorWorld } from "./admin-professor-intent.ts";
 import { interpretProfessorQuestion } from "./admin-professor-openai.ts";
@@ -20,6 +22,11 @@ type ProfessorAnswer = {
   dataStatus?: 'ready'|'partial'|'unavailable';
 };
 
+type ProfessorHistoryEntry = {
+  id: string; question: string; answer: ProfessorAnswer | null; status: string;
+  error: { code: string; message: string } | null; durationMs: number; createdAt: string;
+};
+
 export class ProfessorQuestionError extends Error {
   readonly code: "clarification_required" | "unsupported_question";
   constructor(code: "clarification_required" | "unsupported_question", message: string) { super(message); this.code = code; this.name = "ProfessorQuestionError"; }
@@ -33,7 +40,6 @@ const schema = [
 
 export async function ensureProfessorSchema(db: D1Database) { await db.batch(schema.map((sql) => db.prepare(sql))); }
 const day = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
-const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + 1); return date.toISOString(); };
 const WORLD_LABEL: Record<ProfessorWorld, string> = { vacations: "כל הנופש", events: "כל האירועים", rooms: "כל החדרים לפי שעה", spa: "כל הספא" };
 const WORLD_DB: Record<ProfessorWorld, string[]> = { vacations: ["vacation", "vacations"], events: ["event", "events"], rooms: ["hourly", "room", "rooms"], spa: ["spa"] };
 const METRIC_LABEL: Record<ProfessorMetric, string> = {
@@ -95,6 +101,7 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
   loadBizConversions?: typeof loadCachedBizConversions;
   bizDb?: D1Database;
   now?: Date;
+  forceBizRefresh?: boolean;
 } = {}) {
   const {since,until}=professorPeriodBounds(range.from,range.till); const scope = scopeWhere(intent);
   const needsInternal = intent.metrics.some((metric) => ["impressions", "pageViews", "phone", "whatsapp"].includes(metric));
@@ -115,6 +122,21 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
   const injectedBizLoader = dependencies.loadBizConversions;
   let fastBiz = needsBiz && !injectedBizLoader ? await fastCachedBizTotals(bizDb, range, intent).catch(() => null) : null;
   let cached = needsBiz && injectedBizLoader ? await injectedBizLoader(bizDb, range.from, range.till).catch(() => []) : [];
+  let autoRefreshAttempted = false;
+  let autoRefreshError: string | null = null;
+  if (needsBiz && (dependencies.forceBizRefresh || !fastBiz && !cached.length) && intent.place?.siteID && intent.place.world !== "spa") {
+    autoRefreshAttempted = true;
+    try {
+      const target = { world: intent.place.world as ConversionWorld, siteID: intent.place.siteID };
+      await cachedBizConversions({ db: bizDb, ...target, from: range.from, till: range.till,
+        forceRefresh: dependencies.forceBizRefresh === true,
+        fetcher: async () => fetchViiConversions({ ...target, from: range.from, till: range.till, token: await supplierToken() }) });
+      fastBiz = !injectedBizLoader ? await fastCachedBizTotals(bizDb, range, intent).catch(() => null) : null;
+      cached = injectedBizLoader ? await injectedBizLoader(bizDb, range.from, range.till).catch(() => []) : [];
+    } catch (error) {
+      autoRefreshError = error instanceof Error ? error.message.slice(0, 120) : "biz_source_unavailable";
+    }
+  }
   if (needsBiz && !fastBiz && !cached.length) {
     const today = day(dependencies.now || new Date());
     const yesterday = new Date(`${today}T12:00:00Z`); yesterday.setUTCDate(yesterday.getUTCDate() - 1);
@@ -137,7 +159,8 @@ export async function metricSnapshot(db: D1Database, range: ProfessorRange, inte
     bizRevenue: hasBiz ? fastBiz?.revenue ?? sum((row) => row.conversions.summary.all.revenue) : null,
   };
   return { metrics, bizSavedAt: fastBiz?.savedAt || selected.map((row) => row.cache.savedAt).sort().at(-1) || null,
-    bizRows: fastBiz?.businesses || selected.length, bizSupported, bizRange: hasBiz ? bizRange : null };
+    bizRows: fastBiz?.businesses || selected.length, bizSupported, bizRange: hasBiz ? bizRange : null,
+    autoRefreshAttempted, autoRefreshError };
 }
 
 async function ranking(db: D1Database, bizDb: D1Database, range: ProfessorRange, intent: ProfessorIntent, places: ProfessorPlace[]) {
@@ -187,7 +210,7 @@ async function ranking(db: D1Database, bizDb: D1Database, range: ProfessorRange,
 function scopeLabel(intent: ProfessorIntent) { return intent.place?.name || (intent.world ? WORLD_LABEL[intent.world] : "כל העסקים"); }
 function metricValue(metrics: MetricValues, metric: ProfessorMetric) { return metrics[metric]; }
 function formatMetric(metric: ProfessorMetric, value: number | null) {
-  if (value === null) return `${METRIC_LABEL[metric]}: לא נשמר במטמון לטווח הזה`;
+  if (value === null) return `${METRIC_LABEL[metric]}: המקור לא החזיר נתון מאומת לטווח הזה`;
   return `${METRIC_LABEL[metric]}: ${metric === "bizRevenue" ? "₪ " : ""}${value.toLocaleString("he-IL")}`;
 }
 function answerText(intent: ProfessorIntent, current: MetricValues, comparison: MetricValues | null, ranked: Array<{ name: string; value: number }>) {
@@ -218,7 +241,7 @@ function buildInsights(intent: ProfessorIntent, current: MetricValues, compariso
   const contacts = (current.bizCalls || 0) + (current.bizWhatsapp || 0);
   if (contacts > 0 && current.bizOrders && current.bizOrders > 0) insights.unshift({ kind: "conversion", title: "יחס קשר להזמנה", detail: `הזמנה אחת לכל ${Math.max(1, Math.round(contacts / current.bizOrders)).toLocaleString("he-IL")} אנשי קשר שנשמרו במערכת Biz` });
   const unavailable = intent.metrics.filter((metric) => metricValue(current, metric) === null);
-  if (unavailable.length) insights.push({ kind: "warning", title: "כיסוי נתונים חלקי", detail: `${unavailable.map((metric) => METRIC_LABEL[metric]).join(", ")} לא נשמרו לטווח הזה ולכן לא חושבו` });
+  if (unavailable.length) insights.push({ kind: "warning", title: "כיסוי נתונים חלקי", detail: `${unavailable.map((metric) => METRIC_LABEL[metric]).join(", ")} לא הוחזרו ממקור מאומת לטווח הזה ולכן לא חושבו` });
   return insights.slice(0, 5);
 }
 
@@ -240,7 +263,8 @@ export async function saveProfessorQuota(db: D1Database, email: string, limit: n
   await db.prepare(`INSERT INTO vii_professor_quota_v1(email,daily_limit,updated_at,updated_by) VALUES(?,?,?,?) ON CONFLICT(email) DO UPDATE SET daily_limit=excluded.daily_limit,updated_at=excluded.updated_at,updated_by=excluded.updated_by`).bind(email.trim().toLowerCase(), value, now, actor.trim().toLowerCase()).run(); return value;
 }
 
-export async function answerProfessor(db: D1Database, email: string, question: string, reportingDb: D1Database = db): Promise<ProfessorAnswer> {
+export async function answerProfessor(db: D1Database, email: string, question: string, reportingDb: D1Database = db,
+  options: { forceBizRefresh?: boolean } = {}): Promise<ProfessorAnswer> {
   await ensureProfessorSchema(db); const started = Date.now(); const normalizedQuestion = question.trim().slice(0, 800);
   const quota = await professorQuota(db, email); if (!normalizedQuestion || quota.remaining < 1) throw new Error(quota.remaining < 1 ? "quota_exceeded" : "question_required");
   const interpretation = await interpretProfessorQuestion(normalizedQuestion);
@@ -260,14 +284,14 @@ export async function answerProfessor(db: D1Database, email: string, question: s
     world: parsed.place?.world || parsed.world || context.world,
     metrics: parsed.explicitMetrics ? parsed.metrics : context.plan.metrics,
   } : parsed;
-  const readSnapshot = async (range: ProfessorRange) => {
-    try { return await metricSnapshot(reportingDb, range, intent, { bizDb: db }); }
+  const readSnapshot = async (range: ProfessorRange, forceBizRefresh = false) => {
+    try { return await metricSnapshot(reportingDb, range, intent, { bizDb: db, forceBizRefresh }); }
     catch (error) {
       if (reportingDb === db) throw error;
-      return metricSnapshot(db, range, intent, { bizDb: db });
+      return metricSnapshot(db, range, intent, { bizDb: db, forceBizRefresh });
     }
   };
-  const current = await readSnapshot(intent.range);
+  const current = await readSnapshot(intent.range, options.forceBizRefresh === true);
   const previous = intent.compareRange ? await readSnapshot(intent.compareRange) : null;
   const closedDate = new Date(`${day(new Date())}T12:00:00Z`);closedDate.setUTCDate(closedDate.getUTCDate()-1);
   const closedTill=day(closedDate);
@@ -292,7 +316,9 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   const partialBizRange = current.bizRange && (current.bizRange.from !== intent.range.from || current.bizRange.till !== intent.range.till);
   const coverage = businessRows ? `נתונים שמורים עבור ${knownRows} מתוך ${businessRows.length} עסקים${current.bizRange?`, נתוני Biz עד ${current.bizRange.till}`:''}` : !bizRequested ? "נתוני V מאומתים" : !current.bizSupported ? "נתוני V מאומתים; Biz אינו תומך בעולם הזה" : current.bizRows
     ? `נתוני V ומערכת Biz שמורים, כיסוי Biz עבור ${current.bizRows} עסקים${partialBizRange ? ` עד ${current.bizRange?.till}` : ""}`
-    : "נתוני V מאומתים; נתוני Biz לטווח הזה עדיין לא נשמרו במטמון";
+    : current.autoRefreshAttempted
+      ? "נתוני V מאומתים; בוצע ניסיון רענון אוטומטי מול Biz אך לא התקבל נתון מאומת"
+      : "נתוני V מאומתים; נתוני Biz אינם זמינים כרגע לטווח הזה";
   const result: ProfessorAnswer = {
     answer: answerText(intent, current.metrics, previousMetrics, ranked), range: intent.range, compareRange: intent.compareRange,
     place: intent.place, world: intent.world, metrics: current.metrics, comparison, ranking: ranked,
@@ -307,4 +333,23 @@ export async function answerProfessor(db: D1Database, email: string, question: s
   await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)").bind(crypto.randomUUID(), email.trim().toLowerCase(), normalizedQuestion, JSON.stringify(result), dataStatus==='unavailable'?'unavailable':"success", Date.now() - started, new Date().toISOString()).run();
   return result;
 }
-export async function professorHistory(db: D1Database, email: string) { await ensureProfessorSchema(db); const rows = await db.prepare("SELECT id,question,answer_json AS answerJson,duration_ms AS durationMs,created_at AS createdAt FROM vii_professor_questions_v1 WHERE email = ? AND status = 'success' ORDER BY created_at DESC LIMIT 20").bind(email.trim().toLowerCase()).all<{ id: string; question: string; answerJson: string; durationMs: number; createdAt: string }>(); return rows.results.map((row) => { try { return { ...row, answer: JSON.parse(row.answerJson) as ProfessorAnswer }; } catch { return null; } }).filter(Boolean); }
+export async function saveProfessorFailure(db: D1Database, email: string, question: string, code: string, message: string, durationMs: number) {
+  await ensureProfessorSchema(db);
+  const payload = { code: code.slice(0, 80), message: message.slice(0, 500) };
+  await db.prepare("INSERT INTO vii_professor_questions_v1(id,email,question,answer_json,status,duration_ms,created_at) VALUES(?,?,?,?,?,?,?)")
+    .bind(crypto.randomUUID(), email.trim().toLowerCase(), question.trim().slice(0, 800), JSON.stringify(payload), "failed", Math.max(0, durationMs), new Date().toISOString()).run();
+}
+
+export async function professorHistory(db: D1Database, email: string): Promise<ProfessorHistoryEntry[]> {
+  await ensureProfessorSchema(db);
+  const rows = await db.prepare("SELECT id,question,answer_json AS answerJson,status,duration_ms AS durationMs,created_at AS createdAt FROM vii_professor_questions_v1 WHERE email = ? ORDER BY created_at DESC LIMIT 20")
+    .bind(email.trim().toLowerCase()).all<{ id: string; question: string; answerJson: string; status: string; durationMs: number; createdAt: string }>();
+  return rows.results.map((row) => {
+    try {
+      const parsed = JSON.parse(row.answerJson) as ProfessorAnswer | { code?: unknown; message?: unknown };
+      if (row.status === "success" || row.status === "unavailable") return { ...row, answer: parsed as ProfessorAnswer, error: null };
+      const failure = parsed as { code?: unknown; message?: unknown };
+      return { ...row, answer: null, error: { code: String(failure.code || "professor_unavailable"), message: String(failure.message || "לא התקבלה תשובה מאומתת") } };
+    } catch { return { ...row, answer: null, error: { code: "invalid_history", message: "הרשומה לא ניתנת לקריאה" } }; }
+  });
+}

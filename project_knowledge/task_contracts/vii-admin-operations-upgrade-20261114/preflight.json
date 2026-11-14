@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-operations-upgrade-20261114",
+  "project": "VII",
+  "task_type": "admin-product-and-integrations",
+  "requested_outcome": "Implement every approved administration improvement from the supplied plan except original section 2, with truthful booking, reporting, content, quality, magazine and Professor behavior.",
+  "natural_destination": "The authenticated VII administration routes and their connected data sources in the local release candidate.",
+  "authorization_boundary": "Local source, tests, fixtures and saved evidence only. No public deployment, production data mutation, external booking, outbound message or analytics publication is authorized in this task.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "The task is a broad daily-use administration upgrade.",
+      "acceptance_impact": "Every changed module must expose a clear task, authoritative save/read behavior, permissions, audit context and usable next action."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Bookings, report totals, statuses and quality metrics are visible operational facts.",
+      "acceptance_impact": "Every value must identify its source, formula or status semantics, period, freshness and reconciliation evidence; intent cannot be shown as completion."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "The request explicitly requires clickable counts, shortcuts, filters and actions.",
+      "acceptance_impact": "All visible controls are inventoried and exercised in enabled, disabled, loading, empty, error and persistence states."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A code-only change would not prove the administration journeys work.",
+      "acceptance_impact": "The exact local candidate must be opened at the natural admin routes and tested end to end before completion."
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "reason": "The user asked for a coherent future-facing admin rather than repetitive boxes and unclear text.",
+      "acceptance_impact": "Desktop and 390px admin views must show restrained spacing, hierarchy, readable statuses and no dead or duplicate frames."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "Original section 2 is explicitly excluded while adjacent reporting work remains included.",
+      "acceptance_impact": "No business-performance graph expansion is introduced; existing verified capabilities outside the listed scope remain unchanged."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "A spa click or iframe opening is reported as a completed Titanic booking.",
+      "prevention": "Separate intent, pending, confirmed, rejected and unknown states and require provider acknowledgement before confirmation.",
+      "acceptance_check": "Tests and UI evidence show no confirmed booking without a provider reference, and duplicate reconciliation is idempotent."
+    },
+    {
+      "rejection": "Professor still gives generic or cache-missing answers and loses recent questions.",
+      "prevention": "Persist recent questions, refresh connected evidence automatically, expose source/freshness/failure, and preserve the active result across reload.",
+      "acceptance_check": "A simple and a business question both return sourced states; recent shortcuts persist and a source failure is explicit."
+    },
+    {
+      "rejection": "Report or quality failures are flattened to zero or identical boilerplate.",
+      "prevention": "Model fresh, stale, partial, unsupported, unavailable and failed states separately with action links.",
+      "acceptance_check": "Negative fixtures render distinct statuses, timestamps, counts and recommended actions without false zeroes."
+    },
+    {
+      "rejection": "Clickable numbers only filter the current page or lose the user's context.",
+      "prevention": "Use canonical query-state links and server-side/full-dataset search, pagination and export.",
+      "acceptance_check": "Count links preserve world, date, search, sort and page intent and reach the complete filtered dataset."
+    },
+    {
+      "rejection": "Content and magazine statuses remain ambiguous and redirects/canonicals are not actionable.",
+      "prevention": "Separate publication state from edit state and show public/edit/source/target/sitemap/redirect evidence plus next action.",
+      "acceptance_check": "Existing-live-with-draft, new-draft, scheduled, archived and redirect cases each render distinct truthful labels and links."
+    },
+    {
+      "rejection": "The change looks good in source but is not usable on the actual admin screens.",
+      "prevention": "Run compiled local browser checks on desktop and 390px, including loading, empty, failure, retry, reload and back.",
+      "acceptance_check": "Natural-destination screenshots and interaction receipts cover every changed admin family."
+    }
+  ],
+  "affected_family": [
+    "admin Professor page and API",
+    "spa booking readiness/status and analytics contract",
+    "Biz report ingestion, cache and reconciliation",
+    "content approval queue, canonical pages, sitemaps and redirects",
+    "quality and stability dashboard and scheduler states",
+    "actionable admin counters and context-preserving links",
+    "business-performance full dataset search/pagination/export without graph redesign",
+    "magazine public/edit/improvement status management",
+    "shared admin typography, spacing, loading, error, empty and permission states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform truth and administration invariants",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted administration and booking behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "User-supplied approved implementation plan excluding section 2",
+        "source": "C:/Users/Adir/.codex/attachments/a4fc8408-3d9c-4efc-bb36-0667daac4eb8/Pasted text.txt"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first truthful end-to-end slice for Professor and booking/report status models is implemented and tested, before broad visual expansion.",
+    "checks": [
+      "Professor recent/search/cache/failure slice works from API to rendered admin UI",
+      "booking and report states do not convert unknown, unsupported or failed sources into success or zero",
+      "section 2 graph work remains untouched"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a click, iframe open or GTM event still appear as a confirmed booking without provider proof?",
+      "Can a source outage or stale cache still appear as zero, fresh or successful?",
+      "Can a count link, search or export omit records outside the current page or lose filters?",
+      "Can an existing published page with draft edits still be mislabeled only as draft?",
+      "Can a 390px Hebrew admin view hide an action, wrap mixed-direction data incorrectly or show an unapproved fallback font?",
+      "Did any excluded section 2 graph or unrelated public product behavior change?"
+    ],
+    "natural_destination_evidence": "Compiled authenticated local administration routes exercised on desktop and 390px with persisted reload and connected API responses.",
+    "affected_family_evidence": "Automated contract, integration and negative-state tests plus a route-by-route browser evidence ledger for all nine affected families."
+  },
+  "effectiveness": {
+    "baseline": "The supplied plan reports missing Professor answers/shortcuts, uncertain spa booking visibility, opaque report and quality states, ambiguous content/magazine statuses and incomplete admin navigation.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One cumulative local candidate with zero false-success states, complete actionable navigation and no repeated correction before handoff."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

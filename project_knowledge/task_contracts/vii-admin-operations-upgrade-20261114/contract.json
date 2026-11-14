@@ -1,0 +1,228 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-admin-operations-upgrade-20261114",
+  "project": "VII",
+  "task_type": "admin-product-and-integrations",
+  "goal": "Implement all approved administration improvements except original section 2",
+  "created_at": "2026-11-14T13:00:02.748905Z",
+  "updated_at": "2026-11-14T14:25:00.000000Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "c9db4b470ca5aa49c866a076005e81e751021b25e5aa0a146dfa225f4d6ef5a2"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "1c81246af91e8dff6f047e2bac6308f158a6c021d1ecd0c1d0228b0561cd07a7"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v907-slider-fallback\\project_knowledge\\task_contracts\\vii-admin-operations-upgrade-20261114\\preflight.json",
+      "sha256": "9967026bf92c499bed5560823a73869f2e624b1005d0b767240548d238628f91"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v907-slider-fallback\\project_knowledge\\task_contracts\\vii-admin-operations-upgrade-20261114\\preflight.json",
+    "sha256": "9967026bf92c499bed5560823a73869f2e624b1005d0b767240548d238628f91",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 9,
+    "lesson_bundle_count": 6,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "title": "מערכת ניהול היא מוצר תפעולי מלא",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "כל מדד גלוי הוא חוזה נתונים אמיתי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "title": "ריסון חזותי וקצב ריווח מדוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "תיקון ממוקד שומר על העיצוב המאושר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Implement all approved administration improvements except original section 2",
+      "acceptance_check": "All in-scope admin families pass connected-data, negative-state, persistence, desktop and 390px acceptance; section 2 remains unchanged",
+      "status": "partial",
+      "evidence": [
+        "Local production build passed after implementation",
+        "Relevant regression suite passed locally",
+        "Simulated Adir reviewed the exact uncommitted worktree and the actionable force-refresh gap was corrected"
+      ],
+      "reason": "Local implementation is verified. Authenticated visual inspection at the natural admin destination and the external Spa Plus provider callback remain pending, so full end-to-end completion is not claimed."
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v907-slider-fallback\\project_knowledge\\task_contracts\\vii-admin-operations-upgrade-20261114\\preflight.json validated with sha256 9967026bf92c499bed5560823a73869f2e624b1005d0b767240548d238628f91"
+      ],
+      "reason": null,
+      "updated_at": "2026-11-14T13:00:02.748905Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the first truthful end-to-end slice for Professor and booking/report status models is implemented and tested, before broad visual expansion.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Professor, booking audit, provider receipt, content queue, quality states and magazine state separation were implemented before final UI expansion",
+        "Targeted Professor and operations tests passed before the production build"
+      ],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "partial",
+      "evidence": [
+        "Simulated Adir independently reviewed the exact worktree and identified the missing explicit Biz refresh control",
+        "The explicit refresh control was added and covered by regression tests"
+      ],
+      "reason": "Authenticated desktop and mobile natural-destination inspection is still pending."
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "First close attempt found and prevented three stale test-contract failures before handoff",
+        "The final local build completed and the bounded regression suite passed"
+      ],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-ADMIN-001",
+      "source": "lesson:ADIR-ADMIN-001",
+      "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
+      "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
+      "status": "partial",
+      "evidence": [
+        "Local admin APIs and interfaces passed build and bounded regression tests"
+      ],
+      "reason": "Authenticated persistence and natural-destination visual inspection were not performed in this task."
+    },
+    {
+      "id": "lesson:ADIR-DATA-001",
+      "source": "lesson:ADIR-DATA-001",
+      "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
+      "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
+      "status": "partial",
+      "evidence": [
+        "Operations distinguish submission, lead acceptance, provider confirmation, stale callback and unknown status",
+        "Professor reports unavailable or partial data instead of inventing values"
+      ],
+      "reason": "Production provider callbacks and the historic Titanic Spa booking cannot be verified until the external Spa Plus sender is connected."
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה. בכל פרויקט, פעולה זמינה חייבת להיראות כהה, מלאה וברורה ולהיות ניתנת להפעלה; פעולה שאינה זמינה חייבת להיראות בהירה ומוחלשת, לא להיות ניתנת להפעלה ולהיחשף גם כמצב סמנטי אמיתי. צבע לבדו אינו מספיק, ומראה הרכיב חייב להתאים תמיד להתנהגות בפועל.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, אם לא נבדקו כל המופעים במשפחה שנכשלה, אם פעולה זמינה אינה מודגשת וניתנת להפעלה, אם פעולה לא זמינה אינה מוחלשת או עדיין מגיבה, אם המראה וההתנהגות סותרים זה את זה, או אם ההבחנה נשענת על צבע בלבד ללא מצב סמנטי נגיש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-VISUAL-001",
+      "source": "lesson:ADIR-VISUAL-001",
+      "statement": "כל ממשק משתמש בהיררכיה נקייה ובקצב ריווח מדוד, ללא כותרות כפולות, טקסטי מילוי, קווים ללא תפקיד, מסגרות בתוך מסגרות, שטחים ריקים ללא סיבה או תוכן ובקרים הצמודים לגבולות.",
+      "acceptance_check": "שער הראיות נכשל ללא אסימוני ריווח, מדידות של מעברים סמוכים, צילום עמוד מלא במחשב ובנייד, סריקת תוכן כפול ומלאי מסגרות וקווים שעברו בדיקה עצמאית.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SCOPE-001",
+      "source": "lesson:ADIR-SCOPE-001",
+      "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
+      "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:scope-exclusion",
+      "source": "project_guidance",
+      "statement": "Original section 2 business performance graph expansion is not changed",
+      "acceptance_check": "Original section 2 business performance graph expansion is not changed",
+      "status": "passed",
+      "evidence": [
+        "git diff confirms no app/admin/business-performance file was changed"
+      ],
+      "reason": null
+    },
+    {
+      "id": "project:no-publication",
+      "source": "project_guidance",
+      "statement": "No production deployment or external mutation occurs",
+      "acceptance_check": "No production deployment or external mutation occurs",
+      "status": "passed",
+      "evidence": [
+        "No production deployment, outbound message or external configuration mutation was performed"
+      ],
+      "reason": null
+    }
+  ],
+  "verification_status": "local_verified_external_and_authenticated_visual_pending",
+  "verification_errors": [
+    "Spa Plus must configure the production callback sender and shared secret before provider-confirmed statuses can be verified end to end.",
+    "Authenticated desktop and 390px admin rendering was not opened at the natural destination in this task."
+  ]
+}

@@ -25,3 +25,18 @@ test("admin numbers link to their natural work queues", async () => {
   assert.match(searchPages, /status=existing/);
   assert.match(queueApi, /firstSeenAt: item\.firstSeenAt, lastSeenAt: item\.lastSeenAt/);
 });
+
+test("content approval queue separates live enrichment, new proposals and legacy redirects", async () => {
+  const [queueApi, queuePage] = await Promise.all([
+    readFile(new URL("app/api/admin/content-queue/route.ts", root), "utf8"),
+    readFile(new URL("app/admin/content-queue/page.tsx", root), "utf8"),
+  ]);
+  assert.match(queueApi, /existing_enrichment/);
+  assert.match(queueApi, /new_proposal/);
+  assert.match(queueApi, /legacy_redirect/);
+  assert.match(queueApi, /publicationState/);
+  assert.match(queueApi, /sitemapState/);
+  assert.match(queuePage, /העמוד הציבורי/);
+  assert.match(queuePage, /נדרשת בדיקת 301/);
+  assert.match(queuePage, /סוג טיפול/);
+});

@@ -74,6 +74,30 @@ export function trackBusinessEvent(name: "impression" | "page_view" | "phone_rev
   void fetch("/api/analytics/business", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(event), keepalive: true, credentials: "same-origin" }).catch(() => undefined);
 }
 
+export function trackBookingReceipt(details: { reference: string; status: "confirmed" | "pending_approval" | "lead_accepted";
+  placeId: string; placeName: string; world: string; value?: number | null; currency?: string }) {
+  if (typeof window === "undefined" || !details.reference) return;
+  const dedupeKey = `vii-booking-receipt:${details.reference}:${details.status}`;
+  if (window.sessionStorage.getItem(dedupeKey)) return;
+  window.sessionStorage.setItem(dedupeKey, new Date().toISOString());
+  const eventDetails = {
+    event: details.status === "confirmed" ? "vii_booking_confirmed" : "vii_booking_request_accepted",
+    transaction_id: details.reference,
+    booking_status: details.status,
+    place_id: details.placeId,
+    place_name: details.placeName,
+    world: details.world,
+    value: Number.isFinite(details.value) ? details.value : undefined,
+    currency: details.currency || "ILS",
+    page_path: `${window.location.pathname}${window.location.search}`,
+  };
+  window.dispatchEvent(new CustomEvent("vii:booking-receipt", { detail: eventDetails }));
+  if (window.localStorage.getItem("vii-cookie-choice") === "all") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(eventDetails);
+  }
+}
+
 export function trackPhoneReveal(details: PhoneRevealDetails) {
   if (typeof window === "undefined") return;
 

@@ -43,6 +43,7 @@ export async function POST(request: Request) {
   }
 
   const localReference = String(payload.submissionId);
+  const isBookingRequest = payload.purpose === "booking" || payload.purpose === "booking-management";
   if (isWhatsAppEnquiry) {
     try {
       await saveWhatsAppLead(payload, localReference);
@@ -55,6 +56,20 @@ export async function POST(request: Request) {
   if (!secret || secret.length < 32) {
     if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
     return json({ success: false, error: "lead_service_not_configured" }, 503);
+  }
+
+  if (isBookingRequest) {
+    try {
+      await recordBookingAudit({ id: localReference, world: String(payload.world || "unknown"),
+        placeId: String(payload.placeId || payload.organization || "unknown"),
+        placeName: String(payload.organization || payload.placeName || ""), destination: "vii_leads",
+        status: "submission_started", arrivalDate: typeof payload.requestedDate === "string" ? payload.requestedDate : null,
+        departureDate: typeof payload.requestedTill === "string" ? payload.requestedTill : null,
+        amount: Number.isFinite(Number(payload.expectedTotal)) ? Number(payload.expectedTotal) : null, currency: "ILS" });
+    } catch (error) {
+      console.error("VII booking audit unavailable before lead submission", error);
+      return json({ success: false, error: "booking_audit_unavailable" }, 503);
+    }
   }
 
   try {
@@ -86,17 +101,23 @@ export async function POST(request: Request) {
     });
     const result = (await response.json().catch(() => null)) as Record<string, unknown> | null;
     if (!response.ok || !result?.success) {
+      if (isBookingRequest) {
+        try { await recordBookingAudit({ id: localReference, world: String(payload.world || "unknown"),
+          placeId: String(payload.placeId || payload.organization || "unknown"), placeName: String(payload.organization || payload.placeName || ""),
+          destination: "vii_leads", status: "lead_service_rejected" }); } catch (auditError) { console.error("VII rejected booking audit update unavailable", auditError); }
+      }
       if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
       return json({ success: false, error: "upstream_rejected" }, 502);
     }
     const reference = isWhatsAppEnquiry ? localReference : String(result.reference || payload.submissionId);
-    if (payload.purpose === "booking" || payload.purpose === "booking-management") {
+    if (isBookingRequest) {
       try {
         await recordBookingAudit({ id: reference, world: String(payload.world || "unknown"),
           placeId: String(payload.placeId || payload.organization || "unknown"),
           placeName: String(payload.organization || ""), destination: "vii_leads", status: "lead_service_accepted",
           arrivalDate: typeof payload.requestedDate === "string" ? payload.requestedDate : null,
-          departureDate: typeof payload.requestedTill === "string" ? payload.requestedTill : null });
+          departureDate: typeof payload.requestedTill === "string" ? payload.requestedTill : null,
+          amount: Number.isFinite(Number(payload.expectedTotal)) ? Number(payload.expectedTotal) : null, currency: "ILS" });
       } catch (error) { console.error("VII lead booking audit unavailable after acceptance", error); }
     }
     return json({
@@ -106,6 +127,11 @@ export async function POST(request: Request) {
       emailDelivered: result.emailDelivered === true,
     });
   } catch {
+    if (isBookingRequest) {
+      try { await recordBookingAudit({ id: localReference, world: String(payload.world || "unknown"),
+        placeId: String(payload.placeId || payload.organization || "unknown"), placeName: String(payload.organization || payload.placeName || ""),
+        destination: "vii_leads", status: "status_unknown" }); } catch (auditError) { console.error("VII uncertain lead booking audit update unavailable", auditError); }
+    }
     if (isWhatsAppEnquiry) return json({ success: true, reference: localReference, upstreamDelivered: false });
     return json({ success: false, error: "upstream_unavailable" }, 502);
   }

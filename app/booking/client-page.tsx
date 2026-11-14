@@ -15,7 +15,7 @@ import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { vacationPartyForGuestCount } from "../lib/vacation-party";
 import type { Property } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
-import { trackBusinessEvent } from "../lib/analytics";
+import { trackBookingReceipt, trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
 import { supplierPhoneLink } from "../lib/supplier-contact";
 import { bookingReturnHref } from "../lib/booking-return-href";
@@ -334,6 +334,8 @@ export default function BookingPageClient(props: Props) {
         setReference(result.reference);
         setSupplierBookingStatus(result.status);
         setState("success");
+        trackBookingReceipt({ reference: result.reference, status: result.status, placeId: props.placeId,
+          placeName: props.placeName, world: props.world, value: currentTotal, currency: "ILS" });
         trackBusinessEvent("booking_request", { placeId: props.placeId, placeName: props.placeName, world: props.world });
         return;
       }
@@ -354,6 +356,7 @@ export default function BookingPageClient(props: Props) {
           email: values.get("email"),
           organization: props.placeName,
           package: supplierSiteID ? `room-${supplierQuote.roomIDs[0] || props.supplierRoomID || ""}` : props.offerId || undefined,
+          expectedTotal: currentTotal || undefined,
           message: details,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
@@ -366,6 +369,8 @@ export default function BookingPageClient(props: Props) {
       setReference(result.reference || "");
       setPaymentOpen(false);
       setState("success");
+      if (!isManage && result.reference) trackBookingReceipt({ reference: result.reference, status: "lead_accepted",
+        placeId: props.placeId, placeName: props.placeName, world: props.world, value: currentTotal, currency: "ILS" });
       if (!isManage) trackBusinessEvent("booking_request", { placeId: props.placeId, placeName: props.placeName, world: props.world });
       if (usesSpaPayment) setSuccessExplanationOpen(true);
     } catch (error) {

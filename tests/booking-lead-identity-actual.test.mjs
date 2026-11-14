@@ -32,7 +32,7 @@ test('actual event WhatsApp and general booking requests carry stable identity a
   assert.equal(event.purpose,'whatsapp_enquiry');
   assert.equal(event.email,undefined);
   const activity = requestPayload('app/booking/client-page.tsx', {
-    id: 'activity-fixture', values, window, isManage: false, supplierSiteID: undefined, supplierQuote: {}, details: 'fixture details',
+    id: 'activity-fixture', values, window, isManage: false, supplierSiteID: undefined, supplierQuote: {}, details: 'fixture details', currentTotal: 0,
     props: { world: 'activities', placeId: 'museum-fixture', placeName: 'Museum fixture', offerId: 'entry' },
   });
   assert.equal(event.placeId, 'event-1400');
@@ -59,6 +59,6 @@ test('actual event WhatsApp and general booking requests carry stable identity a
     assert.equal(response.status, 200);
   }
   assert.deepEqual(forwarded.map(row => row.placeId), ['event-1400', 'museum-fixture']);
-  assert.deepEqual(audits.map(row => row.placeId), ['museum-fixture'],'opening an event WhatsApp enquiry is not a booking acceptance');
-  assert.ok(audits.every(row => row.status === 'lead_service_accepted'), 'acceptance is not relabeled supplier delivery');
+  assert.deepEqual(audits.map(row => row.placeId), ['museum-fixture', 'museum-fixture'],'opening an event WhatsApp enquiry is not a booking acceptance');
+  assert.deepEqual(audits.map(row => row.status), ['submission_started', 'lead_service_accepted'], 'the booking request is audited before and after lead-service acceptance');
 });

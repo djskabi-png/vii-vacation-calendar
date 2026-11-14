@@ -18,10 +18,10 @@ test("Professor keeps quota and history on one persistent primary state store", 
 
 test("Professor separates report reads from state writes and falls back only for reads", () => {
   assert.match(route, /const report = await reportingDatabase\(\)/);
-  assert.match(route, /answerProfessor\(stateDb, session\.email, question, report\.database\)/);
-  assert.match(engine, /answerProfessor\(db: D1Database, email: string, question: string, reportingDb: D1Database = db\)/);
-  assert.match(engine, /try \{ return await metricSnapshot\(reportingDb, range, intent, \{ bizDb: db \}\); \}/);
-  assert.match(engine, /return metricSnapshot\(db, range, intent, \{ bizDb: db \}\)/);
+  assert.match(route, /answerProfessor\(stateDb, session\.email, question, report\.database,/);
+  assert.match(engine, /answerProfessor\(db: D1Database, email: string, question: string, reportingDb: D1Database = db,/);
+  assert.match(engine, /try \{ return await metricSnapshot\(reportingDb, range, intent, \{ bizDb: db, forceBizRefresh \}\); \}/);
+  assert.match(engine, /return metricSnapshot\(db, range, intent, \{ bizDb: db, forceBizRefresh \}\)/);
   assert.match(engine, /ranking\(reportingDb, db, intent\.range, intent, places\)/);
   assert.match(engine, /ranking\(db, db, intent\.range, intent, places\)/);
   assert.match(engine, /INSERT INTO vii_professor_questions_v1/);

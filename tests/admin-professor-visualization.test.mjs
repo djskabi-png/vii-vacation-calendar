@@ -40,3 +40,10 @@ test("Professor isolates mixed Hebrew, English, numeric, date and currency runs 
   assert.match(styles, /professorBidiText\{direction:rtl;unicode-bidi:isolate;text-align:right\}/);
   assert.match(styles, /professorLtrRun\{direction:ltr;unicode-bidi:isolate;display:inline-block\}/);
 });
+
+test("Professor can explicitly refresh a named Biz business without silently reusing cache", () => {
+  assert.match(page, /רענון ישיר ממערכת Biz/);
+  assert.match(page, /ask\(question, true\)/);
+  assert.match(engine, /forceRefresh: dependencies\.forceBizRefresh === true/);
+  assert.match(engine, /options: \{ forceBizRefresh\?: boolean \}/);
+});

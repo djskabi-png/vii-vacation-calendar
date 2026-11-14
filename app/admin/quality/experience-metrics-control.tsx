@@ -14,10 +14,13 @@ const states: Record<string, string> = { disabled: 'המדידה עדיין לא
 export default function ExperienceMetricsControl() {
   const [data, setData] = useState<Summary | null>(null);
   const [message, setMessage] = useState('');
+  const [lastAttemptAt, setLastAttemptAt] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const request = useRef<AbortController | null>(null);
   useEffect(() => () => { request.current?.abort(); }, []);
+  const state: 'waiting' | 'loading' | 'data' | 'insufficient' | 'off' | 'error' = loading ? 'loading' : data ? 'data'
+    : !message ? 'waiting' : message === states.disabled ? 'off' : message === states.insufficient_data ? 'insufficient' : 'error';
   async function load() {
     if (request.current) return;
     const controller = new AbortController(); request.current = controller;
@@ -37,12 +40,12 @@ export default function ExperienceMetricsControl() {
   return <details className={`${styles.section} ${styles.experiencePanel}`}>
     <summary>מהירות וחוויית גלישה בפועל</summary>
     <p>מדידות מהגלישה באתר, לפי עולם, סוג עמוד ומכשיר.</p>
-    <button className={styles.experienceLoad} type="button" onClick={() => void load()} disabled={loading} aria-busy={loading}>{loading ? 'טוענים מדדים...' : 'טעינת המדדים'}</button>
-    {message ? <p role="status">{message}</p> : null}
+    <div className={styles.experienceState} data-state={state} role="status"><strong>{state === 'waiting' ? 'ממתין לטעינה' : state === 'loading' ? 'טוען מדידות' : state === 'data' ? 'נתונים זמינים' : state === 'insufficient' ? 'אין עדיין מספיק דגימות' : state === 'off' ? 'המדידה כבויה' : 'שגיאה בקריאת המדדים'}</strong><span>{state === 'waiting' ? 'הדוח נטען רק בלחיצה כדי לא להאט את ממשק הניהול.' : state === 'loading' ? 'קוראים חלונות מדידה שהסתיימו בלבד.' : state === 'data' ? 'הטבלה מפרטת עולם, סוג עמוד, מכשיר, מדד וכמות דגימות.' : message || 'לא התקבלו נתונים תקינים.'}</span>{lastAttemptAt ? <small>בדיקה אחרונה: {new Date(lastAttemptAt).toLocaleString('he-IL')}</small> : null}</div>
+    <button className={styles.experienceLoad} type="button" onClick={() => { setLastAttemptAt(Date.now()); void load(); }} disabled={loading} aria-busy={loading}>{loading ? 'טוענים מדדים...' : 'טעינת המדדים'}</button>
     {data ? <>
       <p>{data.sampleCount?.toLocaleString('he-IL')} מדידות בחלון של 24 שעות</p>
       <p><bdi>{new Date(data.windowStart!).toLocaleString('he-IL')}</bdi> עד <bdi>{new Date(data.windowEnd!).toLocaleString('he-IL')}</bdi></p>
-      <details><summary>איך לקרוא את המדדים?</summary><p>המדידה נעשית בדגימה לאחר הסכמה. הספירה היא של מדידות, ולא של גולשים, ונכללים רק חלונות זמן שהסתיימו. האחוזונים הם אומדנים לפי טווחי מדידה ומוצגים מ־20 מדידות מספריות. זמני המתנה וכשל נכללים כשמשך הזמן נמדד.</p></details>
+      <details><summary>איך לקרוא את המדדים?</summary><p>המדידה נעשית בדגימה לאחר הסכמה. הספירה היא של מדידות, ולא של גולשים, ונכללים רק חלונות זמן שהסתיימו. האחוזונים הם אומדנים לפי טווחי מדידה ומוצגים מ־20 מדידות מספריות. זמני המתנה וכשל נכללים כשמשך הזמן נמדד. הנתונים מצטברים לפי משפחת מסלול ואינם שומרים כתובת פרטנית או פרטי גולש.</p></details>
       <div className={styles.experienceTableScroll}><table className={styles.experienceTable}>
         <caption>מדידות בגרסת האתר הנוכחית</caption>
         <thead><tr><th scope="col">מסלול</th><th scope="col">מדד</th><th scope="col">מדידות</th><th scope="col">אומדן ל־75%</th><th scope="col">אומדן ל־95%</th><th scope="col">שגיאות והמתנות</th></tr></thead>

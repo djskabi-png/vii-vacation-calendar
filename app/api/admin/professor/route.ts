@@ -1,6 +1,6 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { resolveAdminAccess } from "../../../lib/admin-grants.ts";
-import { answerProfessor, ProfessorQuestionError, professorHistory, professorQuota, saveProfessorQuota } from "../../../lib/admin-professor.ts";
+import { answerProfessor, ProfessorQuestionError, professorHistory, professorQuota, saveProfessorFailure, saveProfessorQuota } from "../../../lib/admin-professor.ts";
 import { reportingDatabase, runtimeD1Database } from "../../../lib/runtime-database.ts";
 import { requestOriginMatches } from "../../../lib/request-origin.ts";
 
@@ -15,16 +15,19 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null); if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (!requestOriginMatches(request)) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
-  const body = await request.json().catch(() => null) as { question?: unknown; action?: unknown; email?: unknown; limit?: unknown } | null;
+  const body = await request.json().catch(() => null) as { question?: unknown; action?: unknown; email?: unknown; limit?: unknown; forceRefresh?: unknown } | null;
   const stateDb = await runtimeD1Database(); const db = stateDb;
   if (body?.action === "quota") { const access = await resolveAdminAccess(session.email, async () => db, session.sub); if (!access?.manageUsers) return Response.json({ error: "forbidden" }, { status: 403, headers }); const email = typeof body.email === "string" ? body.email : ""; const limit = Number(body.limit); if (!email.includes("@") || !Number.isSafeInteger(limit) || limit < 0 || limit > 500) return Response.json({ error: "invalid_input" }, { status: 400, headers }); return Response.json({ email, limit: await saveProfessorQuota(stateDb, email, limit, session.email) }, { headers }); }
   const question = typeof body?.question === "string" ? body.question.trim() : ""; if (!question || question.length > 800) return Response.json({ error: "invalid_question" }, { status: 400, headers });
+  const started = Date.now();
   try {
     const report = await reportingDatabase();
-    return Response.json({ answer: await answerProfessor(stateDb, session.email, question, report.database), quota: await professorQuota(stateDb, session.email) }, { headers });
+    return Response.json({ answer: await answerProfessor(stateDb, session.email, question, report.database,
+      { forceBizRefresh: body?.forceRefresh === true }), quota: await professorQuota(stateDb, session.email) }, { headers });
   } catch (error) {
-    if (error instanceof ProfessorQuestionError) return Response.json({ error: error.code, message: error.message }, { status: 422, headers });
     const code = error instanceof Error ? error.message : "professor_unavailable";
+    await saveProfessorFailure(stateDb, session.email, question, error instanceof ProfessorQuestionError ? error.code : code, error instanceof Error ? error.message : "לא התקבלה תשובה מאומתת", Date.now() - started).catch(() => undefined);
+    if (error instanceof ProfessorQuestionError) return Response.json({ error: error.code, message: error.message }, { status: 422, headers });
     return Response.json({ error: code }, { status: code === "quota_exceeded" ? 429 : 503, headers });
   }
 }
