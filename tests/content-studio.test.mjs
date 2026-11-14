@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import {
-  createContentItem, ensureContentItem, parseContentChange, parseContentCreate, readContentItems,
-  readContentVersions, readPublishedContent, readPublishedItems, saveContentItem,
+  createContentItem, ensureContentItem, ensureContentItems, parseContentChange, parseContentCreate, readContentItems,
+  readContentVersions, readManagedContentStates, readPublishedContent, readPublishedItems, saveContentItem,
 } from "../app/lib/content-studio.ts";
 
 async function database() {
@@ -16,6 +16,7 @@ async function database() {
       async run() { return { meta: { changes: sqlite.prepare(sql).run(...values).changes } }; },
       async first() { return sqlite.prepare(sql).get(...values) || null; },
       async all() { return { results: sqlite.prepare(sql).all(...values) }; } }; },
+    async batch(statements) { const results = []; for (const statement of statements) results.push(await statement.run()); return results; },
     close() { sqlite.close(); }, sqlite,
   };
 }
@@ -54,6 +55,21 @@ test("archiving removes the managed public override and stale writers cannot ove
     const [current] = await readContentItems(db, "spa", "he");
     await saveContentItem(db, change(current, "archived", "גרסה חיה", "archive"), "one@vii.co.il");
     assert.equal(await readPublishedContent(db, "spa", "77"), null);
+  } finally { db.close(); }
+});
+
+test("scheduled editorial sources stay private before the publication instant and become public exactly on time", async () => {
+  const db = await database();
+  try {
+    const scheduledAt = "2026-11-15T08:00:00.000Z";
+    const scheduledSource = { ...source, type: "magazine", key: "scheduled-guide", world: "vacations", initialStatus: "scheduled", scheduledAt,
+      title: "מדריך נופש מתוזמן", slug: "scheduled-guide", imageAlt: "משפחה מתכננת חופשה בישראל",
+      attributes: { image: "/media/editorial/vacations-family-planning.webp", imageTitle: "מדריך נופש", imageCredit: "תמונת המחשה", dateLabel: "15 בנובמבר 2026", readTime: "8", world: "vacations", checklist: "[]", faqs: "[]", sourceLinks: "[]", relatedSearches: "[]", scheduledAt } };
+    const [item] = await ensureContentItems(db, [scheduledSource]);
+    assert.equal(item.status, "scheduled"); assert.equal(item.scheduledAt, scheduledAt);
+    assert.equal((await readManagedContentStates(db, "magazine", [scheduledSource.key], "he", "2026-11-15T07:59:59.999Z")).get(scheduledSource.key).content, null);
+    assert.equal((await readManagedContentStates(db, "magazine", [scheduledSource.key], "he", scheduledAt)).get(scheduledSource.key).content.title, scheduledSource.title);
+    assert.equal((await readContentVersions(db, item.id))[0].status, "scheduled");
   } finally { db.close(); }
 });
 

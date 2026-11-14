@@ -25,6 +25,7 @@ export type EditorialContent = {
 export type ContentSource = {
   type: ContentType; key: string; world: string; locale?: ContentLocale; sourceLabel: string;
   title: string; summary?: string; body?: string; slug?: string; imageAlt?: string; indexable?: boolean; links?: ManagedLink[]; attributes?: Record<string, string>;
+  initialStatus?: Extract<ContentStatus, "draft" | "scheduled">; scheduledAt?: string | null;
 };
 export type ContentItem = {
   id: string; contentType: ContentType; entityKey: string; world: string; locale: ContentLocale; sourceLabel: string;
@@ -113,10 +114,15 @@ function parseItem(row: Record<string, unknown>): ContentItem {
 
 export async function ensureContentItem(db: D1Database, source: ContentSource, actor = "system") {
   const locale = source.locale || "he"; const id = contentItemId(source.type, source.key, locale); const content = sourceEditorial(source); const now = new Date().toISOString();
+  const initialStatus = source.initialStatus === "scheduled" && source.scheduledAt ? "scheduled" : "draft";
   await db.prepare(`INSERT OR IGNORE INTO vii_content_items
-    (id, content_type, entity_key, world, locale, source_label, source_json, draft_json, status, version, updated_at, updated_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', 1, ?, ?)`)
-    .bind(id, source.type, source.key, source.world, locale, source.sourceLabel, JSON.stringify(content), JSON.stringify(content), now, actor).run();
+    (id, content_type, entity_key, world, locale, source_label, source_json, draft_json, status, scheduled_at, version, updated_at, updated_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`)
+    .bind(id, source.type, source.key, source.world, locale, source.sourceLabel, JSON.stringify(content), JSON.stringify(content), initialStatus, initialStatus === "scheduled" ? source.scheduledAt : null, now, actor).run();
+  if (initialStatus === "scheduled") await db.prepare(`INSERT OR IGNORE INTO vii_content_versions
+    (id, item_id, version, action, status, content_json, scheduled_at, created_at, created_by)
+    VALUES (?, ?, 1, 'schedule', 'scheduled', ?, ?, ?, ?)`)
+    .bind(`${id}:1`, id, JSON.stringify(content), source.scheduledAt, now, actor).run();
   await db.prepare(`UPDATE vii_content_items SET source_label = ?, source_json = ? WHERE id = ?`)
     .bind(source.sourceLabel, JSON.stringify(content), id).run();
   const row = await db.prepare(`SELECT id, content_type AS contentType, entity_key AS entityKey, world, locale,
@@ -133,12 +139,18 @@ export async function ensureContentItems(db: D1Database, sources: readonly Conte
   for (let offset = 0; offset < sources.length; offset += 40) {
     const statements = sources.slice(offset, offset + 40).flatMap((source) => {
       const locale = source.locale || "he"; const id = contentItemId(source.type, source.key, locale); const content = JSON.stringify(sourceEditorial(source));
-      return [
+      const initialStatus = source.initialStatus === "scheduled" && source.scheduledAt ? "scheduled" : "draft";
+      const inserts = [
         db.prepare(`INSERT OR IGNORE INTO vii_content_items
-          (id, content_type, entity_key, world, locale, source_label, source_json, draft_json, status, version, updated_at, updated_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft', 1, ?, ?)`).bind(id, source.type, source.key, source.world, locale, source.sourceLabel, content, content, now, actor),
+          (id, content_type, entity_key, world, locale, source_label, source_json, draft_json, status, scheduled_at, version, updated_at, updated_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`).bind(id, source.type, source.key, source.world, locale, source.sourceLabel, content, content, initialStatus, initialStatus === "scheduled" ? source.scheduledAt : null, now, actor),
         db.prepare("UPDATE vii_content_items SET source_label = ?, source_json = ? WHERE id = ?").bind(source.sourceLabel, content, id),
       ];
+      if (initialStatus === "scheduled") inserts.push(db.prepare(`INSERT OR IGNORE INTO vii_content_versions
+        (id, item_id, version, action, status, content_json, scheduled_at, created_at, created_by)
+        VALUES (?, ?, 1, 'schedule', 'scheduled', ?, ?, ?, ?)`)
+        .bind(`${id}:1`, id, content, source.scheduledAt, now, actor));
+      return inserts;
     });
     await db.batch(statements);
   }
@@ -229,9 +241,13 @@ export function parseContentChange(value: unknown) {
   const required: Record<string, string[]> = {
     trails: ["mainArea", "region", "nature", "duration", "difficulty", "officialSource", "sourceName", "mapQuery"],
     providers: ["location", "area", "features", "image", "sourceName"], attractions: ["location", "area", "features", "image", "sourceName"],
-    magazine: ["category", "image", "dateLabel", "readTime"],
+    magazine: ["category", "image", "imageTitle", "imageCredit", "dateLabel", "readTime"],
   };
   const family = row.id.split(":", 1)[0];
+  if (["published", "scheduled"].includes(status) && family === "magazine" && content.links.some((link) => link.href.includes("?"))) return null;
+  if (["published", "scheduled"].includes(status) && family === "magazine" && (!content.imageAlt || content.links.length < 2)) return null;
+  if (["published", "scheduled"].includes(status) && family === "magazine" && content.attributes.scheduledAt
+    && (content.body.length < 3_500 || !content.attributes.faqs || !content.attributes.checklist || !content.attributes.world)) return null;
   if (["published", "scheduled"].includes(status) && required[family]?.some((key) => !content.attributes[key])) return null;
   if (["published", "scheduled"].includes(status) && family === "trails" && !/^https:\/\//.test(content.attributes.officialSource || "")) return null;
   if (["published", "scheduled"].includes(status) && family === "trails"
@@ -282,6 +298,22 @@ export async function readPublishedContentBatch(db: D1Database, type: ContentTyp
     WHERE i.id IN (${placeholders}) AND i.status <> 'archived'`).bind(now, ...ids).all<{ itemId: string; contentJson: string }>();
   return new Map(rows.results.flatMap((row) => { const content = JSON.parse(row.contentJson) as EditorialContent;
     return editorialLocaleApproved(content, locale) ? [[row.itemId.split(":").slice(1, -1).join(":"), content] as const] : []; }));
+}
+
+export type ManagedContentState = { status: ContentStatus; scheduledAt: string | null; content: EditorialContent | null };
+
+export async function readManagedContentStates(db: D1Database, type: ContentType, keys: readonly string[], locale: ContentLocale = "he", now = new Date().toISOString()) {
+  const unique = [...new Set(keys)].filter((key) => /^[A-Za-z0-9._-]+$/.test(key));
+  if (!unique.length) return new Map<string, ManagedContentState>();
+  const ids = unique.map((key) => contentItemId(type, key, locale)); const placeholders = ids.map(() => "?").join(",");
+  const rows = await db.prepare(`SELECT i.id AS itemId, i.status, i.scheduled_at AS scheduledAt, v.content_json AS contentJson
+    FROM vii_content_items i LEFT JOIN vii_content_versions v ON v.item_id = i.id AND v.version = CASE
+      WHEN i.status = 'scheduled' AND i.scheduled_at <= ? THEN i.version ELSE i.published_version END
+    WHERE i.id IN (${placeholders})`).bind(now, ...ids).all<{ itemId: string; status: ContentStatus; scheduledAt: string | null; contentJson: string | null }>();
+  return new Map(rows.results.map((row) => [row.itemId.split(":").slice(1, -1).join(":"), {
+    status: row.status, scheduledAt: row.scheduledAt,
+    content: row.contentJson ? JSON.parse(row.contentJson) as EditorialContent : null,
+  }]));
 }
 
 export function preparePublishedItemsRead(db: D1Database, type: ContentType, locale: ContentLocale = "he", now = new Date().toISOString()) {

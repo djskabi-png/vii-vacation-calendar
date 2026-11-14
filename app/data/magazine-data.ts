@@ -1,5 +1,6 @@
 import { eventPlaces, properties } from "./site-data";
 import { editorialWorldArticles, type EditorialWorld } from "./editorial-world-articles";
+import { scheduledEditorialProgram } from "./scheduled-editorial-program";
 import { editorialImageCopy } from "./editorial-image-copy";
 
 function propertyImage(slug: string) {
@@ -26,6 +27,8 @@ export type MagazineArticle = {
   imageCredit?: string;
   world?: EditorialWorld;
   publishedAt?: string;
+  scheduledAt?: string;
+  publicationManaged?: boolean;
   modifiedAt?: string;
   publishedLocales?: string[];
   indexable?: boolean;
@@ -247,6 +250,7 @@ const originalMagazineArticles: MagazineArticle[] = [
 ];
 
 export const magazineArticles: MagazineArticle[] = [
+  ...scheduledEditorialProgram,
   ...editorialWorldArticles.map(({ imagePath, ...article }): MagazineArticle => ({ ...article,
     image: imagePath, dateLabel: "17 באוקטובר 2026", publishedLocales: ["he"],
     imageCredit: "תמונת המחשה שנוצרה בבינה מלאכותית", imageAlt: editorialImageCopy[article.slug].he.alt, imageTitle: editorialImageCopy[article.slug].he.title,

@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const db = await database(); const allSources = (await contentStudioSources(db, locale, selectedType)).filter((item) => item.type === selectedType);
     const term = (url.searchParams.get("q") || "").normalize("NFC").trim().toLocaleLowerCase("he").slice(0, 100);
     const matchingSources = term ? allSources.filter((item) => `${item.title} ${item.key}`.toLocaleLowerCase("he").includes(term)) : allSources;
-    const pageSources = matchingSources.slice(0, 80); const selectedId = url.searchParams.get("id");
+    const pageSources = matchingSources.slice(0, selectedType === "magazine" ? 240 : 80); const selectedId = url.searchParams.get("id");
     const selectedSource = selectedId ? allSources.find((item) => contentItemId(item.type, item.key, locale) === selectedId) : undefined;
     const seeded = await ensureContentItems(db, selectedSource && !pageSources.includes(selectedSource) ? [...pageSources, selectedSource] : pageSources);
     const originals = await readOriginalContentItems(db, selectedType, locale);

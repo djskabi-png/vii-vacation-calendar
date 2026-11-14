@@ -977,6 +977,7 @@
         "app/account/page.tsx"
       ,"app/api/auth/session/route.ts"
       ,"app/components/account-access.tsx"
+      ,"app/components/error-recovery-surface.tsx"
       ,"app/error.tsx"
       ,"app/global-error.tsx"
       ,"app/lib/google-auth.ts"
@@ -1290,6 +1291,11 @@
         "app/guides/",
         "app/questions/",
         "app/contact/",
+        "app/api/content/magazine/",
+        "app/lib/content-studio-inventory.ts",
+        "app/lib/managed-public-content.ts",
+        "app/lib/israel-date-time.ts",
+        "app/lib/magazine-schedule.ts",
         "app/lib/world-landing-faq.ts",
         "app/lib/world-landing-presentation.ts",
         "app/lib/world-depth-topics.ts",

@@ -1,9 +1,10 @@
 import type { DiscoveryItem } from "../data/world-data.ts";
 import type { Trail } from "../data/trail-data.ts";
 import type { MagazineArticle } from "../data/magazine-data.ts";
-import { readPublishedContent, readPublishedContentBatch, readPublishedItems, type ContentLocale, type ContentType } from "./content-studio.ts";
+import { readManagedContentStates, readPublishedContent, readPublishedContentBatch, readPublishedItems, type ContentLocale, type ContentType } from "./content-studio.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { magazineBodyOverride } from "./magazine-body";
+import { isMagazineArticlePublicAt, sortMagazineArticlesByPublication } from "./magazine-schedule";
 
 export async function managedDiscoveryItems(items: readonly DiscoveryItem[], type: Extract<ContentType, "providers" | "attractions">) {
   const db = await runtimeCatalogDatabase(); if (!db) return [...items];
@@ -38,24 +39,34 @@ export async function managedTrails(items: readonly Trail[]) {
 }
 
 export async function managedMagazineArticles(items: readonly MagazineArticle[]) {
-  const db = await runtimeCatalogDatabase(); if (!db) return [...items];
+  const now = new Date().toISOString();
+  const staticVisible = (item: MagazineArticle) => isMagazineArticlePublicAt(item, now);
+  const db = await runtimeCatalogDatabase(); if (!db) return sortMagazineArticlesByPublication(items.filter(staticVisible));
   try {
-  const overlays = await readPublishedContentBatch(db, "magazine", items.map((item) => item.slug));
-  const managed = items.map((item) => { const content = overlays.get(item.slug); return content ? { ...item, title: content.title,
+  const states = await readManagedContentStates(db, "magazine", items.map((item) => item.slug), "he", now);
+  const managed = items.flatMap((item) => { const state = states.get(item.slug); const content = state?.content;
+    if (item.publicationManaged && state && !content) return [];
+    if (item.publicationManaged && !state && !staticVisible(item)) return [];
+    return [content ? { ...item, title: content.title,
     excerpt: content.summary, ...magazineBodyOverride(content.body, item), imageAlt: content.imageAlt || item.imageAlt,
     image: content.attributes.image || item.image, imageTitle: content.attributes.imageTitle || item.imageTitle || item.imageAlt,
     imageCredit: content.attributes.imageCredit || item.imageCredit,
-    indexable: content.indexable, metaTitle: content.metaTitle || item.title, metaDescription: content.metaDescription || content.summary } : item; });
+    world: (content.attributes.world || item.world) as MagazineArticle["world"], publishedAt: content.attributes.publishedAt || item.publishedAt,
+    modifiedAt: content.attributes.modifiedAt || item.modifiedAt, checklist: parseJsonArray(content.attributes.checklist, item.checklist),
+    faqs: parseJsonArray(content.attributes.faqs, item.faqs || []), sourceLinks: parseJsonArray(content.attributes.sourceLinks, item.sourceLinks || []),
+    relatedSearches: content.links.length ? content.links.filter((link) => link.visible).map((link) => ({ label: link.label, href: link.href })) : parseJsonArray(content.attributes.relatedSearches, item.relatedSearches || []),
+    indexable: content.indexable, metaTitle: content.metaTitle || item.title, metaDescription: content.metaDescription || content.summary } : item]; });
   const known = new Set(items.map((item) => item.slug)); const originals = (await readPublishedItems(db, "magazine")).filter((item) => !known.has(item.key));
-  return [...managed, ...originals.map(({ key, content }): MagazineArticle => ({ slug: key, title: content.title,
+  return sortMagazineArticlesByPublication([...managed, ...originals.map(({ key, content }): MagazineArticle => ({ slug: key, title: content.title,
     category: content.attributes.category, excerpt: content.summary, image: content.attributes.image, imageAlt: content.imageAlt,
     imageTitle: content.attributes.imageTitle || content.imageAlt, imageCredit: content.attributes.imageCredit,
     indexable: content.indexable, metaTitle: content.metaTitle, metaDescription: content.metaDescription,
     readTime: Math.max(1, Number(content.attributes.readTime) || 5), dateLabel: content.attributes.dateLabel,
     tags: split(content.attributes.tags), intro: content.body, takeaway: content.attributes.takeaway || content.summary,
-    sections: [{ id: "article", title: content.title, paragraphs: paragraphs(content.body) }], checklist: ["קראתי ושמרתי את הרעיון להמשך"] }))];
-  } catch { return [...items]; }
+    sections: [{ id: "article", title: content.title, paragraphs: paragraphs(content.body) }], checklist: ["קראתי ושמרתי את הרעיון להמשך"] }))]);
+  } catch { return sortMagazineArticlesByPublication(items.filter(staticVisible)); }
 }
+
 
 export async function managedChrome(type: "navigation" | "footer", key: string, locale: ContentLocale = "he") {
   const db = await runtimeCatalogDatabase(); if (!db) return null;
@@ -64,3 +75,4 @@ export async function managedChrome(type: "navigation" | "footer", key: string, 
 
 function split(value = "") { return value.split(",").map((item) => item.trim()).filter(Boolean); }
 function paragraphs(value = "") { const result = value.split(/\n\s*\n/).map((item) => item.trim()).filter(Boolean); return result.length ? result : ["המידע המלא יעודכן בקרוב."]; }
+function parseJsonArray<T>(value: string | undefined, fallback: T[]): T[] { try { const parsed = JSON.parse(value || "[]"); return Array.isArray(parsed) ? parsed as T[] : fallback; } catch { return fallback; } }

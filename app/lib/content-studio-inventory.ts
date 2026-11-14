@@ -30,16 +30,23 @@ function sourceAttributes(type: ContentType, row: UnknownRow): Record<string, st
   if (type === "providers" || type === "attractions") return { location: text(row.location), area: text(row.area), features: list(row.features),
     image: text(row.image), priceLabel: text(row.priceLabel), phone: text(row.phone), sourceUrl: text(row.sourceUrl), sourceName: text(row.sourceName) };
   if (type === "magazine") return { category: text(row.category), image: text(row.image), dateLabel: text(row.dateLabel), readTime: String(numeric(row.readTime) || ""),
-    takeaway: text(row.takeaway), tags: list(row.tags), imageTitle: text(row.imageTitle) || text(row.imageAlt), imageCredit: text(row.imageCredit), world: text(row.world) };
+    takeaway: text(row.takeaway), tags: list(row.tags), imageTitle: text(row.imageTitle) || text(row.imageAlt), imageCredit: text(row.imageCredit), world: text(row.world),
+    publishedAt: text(row.publishedAt), modifiedAt: text(row.modifiedAt), scheduledAt: text(row.scheduledAt),
+    checklist: JSON.stringify(Array.isArray(row.checklist) ? row.checklist : []), faqs: JSON.stringify(Array.isArray(row.faqs) ? row.faqs : []),
+    sourceLinks: JSON.stringify(Array.isArray(row.sourceLinks) ? row.sourceLinks : []), relatedSearches: JSON.stringify(Array.isArray(row.relatedSearches) ? row.relatedSearches : []) };
   return {};
 }
 
 function source(type: ContentType, world: string, row: UnknownRow, key: string, sourceLabel: string, locale: ContentLocale): ContentSource {
   const about = Array.isArray(row.about) ? row.about.filter((item): item is string => typeof item === "string") : [];
+  const editorialLinks = type === "magazine" && Array.isArray(row.relatedSearches) ? row.relatedSearches.flatMap((item, index) => {
+    const value = item as UnknownRow; const label = text(value.label); const href = text(value.href);
+    return label && href ? [managedLink(`related-${index + 1}`, label, href, "קישורים פנימיים", index + 1)] : [];
+  }) : undefined;
   return { type, world, key, sourceLabel, locale, title: text(row.title || row.name) || key,
     summary: text(row.shortDescription || row.description || row.summary || row.excerpt),
     body: type === "magazine" ? magazineBodySource(row as unknown as Parameters<typeof magazineBodySource>[0]) : about.join("\n\n") || text(row.intro || row.body), slug: text(row.slug) || key,
-    imageAlt: text(row.imageAlt) || text(row.title || row.name), indexable: row.indexable !== false, attributes: sourceAttributes(type, row) };
+    imageAlt: text(row.imageAlt) || text(row.title || row.name), indexable: row.indexable !== false, links: editorialLinks, attributes: sourceAttributes(type, row) };
 }
 
 async function catalogRows(db: D1Database, world: "vacations" | "events" | "rooms" | "spa") {
@@ -83,7 +90,9 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     ...providerProfiles.map((row) => source("providers", "providers", row as unknown as UnknownRow, row.id, row.sourceName || "V verified catalog", locale)),
     ...paidAttractions.map((row) => source("attractions", "activities", row as unknown as UnknownRow, row.id, row.sourceName || "V verified catalog", locale)),
     ...trails.map((row) => source("trails", "activities", row as unknown as UnknownRow, row.slug, row.sourceName, locale)),
-    ...magazineArticles.map((row) => source("magazine", "magazine", row as unknown as UnknownRow, row.slug, "V editorial", locale)),
+    ...magazineArticles.map((row) => ({ ...source("magazine", row.world || "magazine", row as unknown as UnknownRow, row.slug, "V editorial", locale),
+      initialStatus: row.publicationManaged && row.scheduledAt ? "scheduled" as const : undefined,
+      scheduledAt: row.publicationManaged ? row.scheduledAt || null : null })),
   ];
   const primaryLinks = publicWorldNavigation.map((row, index) => managedLink(String(row.id), row.shortLabel, row.href, "עולמות", index + 1));
   const secondaryLinks = [

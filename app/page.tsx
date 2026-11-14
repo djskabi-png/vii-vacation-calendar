@@ -10,6 +10,7 @@ import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
 import { magazineArticles } from "./data/magazine-data";
 import { managedMagazineArticles } from "./lib/managed-public-content";
+import { isMagazineArticlePublicAt } from "./lib/magazine-schedule";
 import { EditorialCover } from "./components/editorial-cover";
 import { headers } from "next/headers";
 import { destinations } from "./data/site-data";
@@ -27,7 +28,7 @@ import { runtimeDatabase } from "./lib/runtime-database";
 async function HomeMagazineSection() {
   const requestedLocale = (await headers()).get("x-vii-locale") || "he";
   const locale: SiteLanguage = ["he", "en", "ru", "fr"].includes(requestedLocale) ? requestedLocale as SiteLanguage : "he";
-  const managedArticles = await managedMagazineArticles(magazineArticles).catch(() => magazineArticles);
+  const managedArticles = await managedMagazineArticles(magazineArticles).catch(() => magazineArticles.filter((article) => isMagazineArticlePublicAt(article)));
   const homeArticles = managedArticles.filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
   return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href={localizedPath("/guides", locale)}>לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={localizedPath(`/guides/${article.slug}`, locale)}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
