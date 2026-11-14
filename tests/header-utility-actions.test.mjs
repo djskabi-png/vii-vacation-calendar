@@ -85,7 +85,10 @@ test("the header adds a direct search shortcut only when the page has no search 
   assert.match(header, /ru: "Поиск по сайту"/);
   assert.match(header, /fr: "Rechercher sur le site"/);
   assert.match(header, /aria-label=\{searchLabel\}/);
-  assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
+  assert.doesNotMatch(header, /<AccessibilityWidget placement="icon" \/>/);
+  assert.match(header, /<AccessibilityWidget placement="menu" label=\{accessibilityLabel\} \/>[\s\S]*menu-panel__account/);
+  assert.match(header, /className="menu-button"[\s\S]*?onClick=\{\(\) => setMenuOpen\(true\)\}><MenuIcon \/><\/button>/);
+  assert.doesNotMatch(header, /<MenuIcon \/><span>/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(worldSwitcherComponent, /document\.addEventListener\("click", closeOnOutsideClick\)/);
   assert.doesNotMatch(worldSwitcherComponent, /document\.addEventListener\("pointerdown"/);

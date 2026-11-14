@@ -18,7 +18,7 @@ import { SavedViewedMenu } from "./components/saved-viewed-menu";
 import type { ManagedLink } from "./lib/content-studio";
 import { useWorldAvailability } from "./components/world-availability-provider";
 import { SearchBox } from "./components/search-box";
-import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./components/site-icons";
+import { CalendarIcon, GiftIcon, PinIcon, SearchIcon } from "./components/site-icons";
 
 export { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "./components/site-icons";
 
@@ -89,6 +89,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     ru: { connected: "Вы вошли", title: "Мой аккаунт", summary: "Избранное, бронирования и запросы в одном месте" },
     fr: { connected: "Connecté", title: "Mon compte", summary: "Favoris, réservations et demandes au même endroit" },
   }[language];
+  const accessibilityLabel = { he: "נגישות", en: "Accessibility", ru: "Специальные возможности", fr: "Accessibilité" }[language];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -175,7 +176,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     };
   }, [searchOpen]);
 
-  useEffect(() => setSearchOpen(false), [pathname]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearchOpen(false), 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   const closeMenu = () => {
     setMenuOpen(false);
@@ -200,6 +204,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label={translate("סגירת תפריט")}><CloseIcon /></button>
         </div>
 
+        <AccessibilityWidget placement="menu" label={accessibilityLabel} />
 
         {account ? (
           <Link className="menu-panel__account" href="/account" onClick={closeMenu}>
@@ -248,7 +253,6 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         <span className="menu-panel__section-title">{translate("עוד באתר")}</span>
         <div className="menu-panel__secondary">
           {usingDefaultSecondary ? <>{enabled("gift-card") ? <Link href={localizedPath("/gift-card", language)} onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link> : null}<Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : <>{secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}{secondaryNav.some((item) => item.href === "/holidays") ? null : <Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link>}</>}
-          <AccessibilityWidget placement="menu" />
         </div>
 
         <div className="menu-panel__footer">
@@ -288,11 +292,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <div className="header-actions">
             <SavedViewedMenu />
             <LanguageSwitcher compact iconOnly />
-            <AccessibilityWidget placement="icon" />
             {!hasInPageSearch ? <button ref={searchButtonRef} type="button" className="icon-button header-search" onClick={() => setSearchOpen(true)} aria-label={searchLabel} aria-haspopup="dialog" aria-expanded={searchOpen}><SearchIcon /></button> : null}
             {enabled("gift-card") ? <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href={localizedPath("/gift-card", language)} aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link> : null}
             <WorldSwitcher active={activeWorld} />
-            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
+            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /></button>
           </div>
         </div>
       </header>

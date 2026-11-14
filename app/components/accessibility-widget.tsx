@@ -18,7 +18,7 @@ type AccessibilitySettings = {
 const defaults: AccessibilitySettings = { fontScale: 100, highContrast: false, monochrome: false, underlineLinks: false, pauseMotion: false, textSpacing: false, visibleFocus: false, largeCursor: false };
 const storageKey = "vii-accessibility-settings";
 
-export function AccessibilityWidget({ placement = "icon" }: { placement?: "icon" | "menu" | "footer" }) {
+export function AccessibilityWidget({ placement = "icon", label }: { placement?: "icon" | "menu" | "footer"; label?: string }) {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<AccessibilitySettings>(defaults);
   const [hydrated, setHydrated] = useState(false);
@@ -89,6 +89,11 @@ export function AccessibilityWidget({ placement = "icon" }: { placement?: "icon"
       ? "footer-privacy-button accessibility-footer-trigger"
       : "icon-button accessibility-trigger";
 
-  const triggerLabel = `${placement === "icon" ? "" : "כלי נגישות, "}פתיחת כלי הנגישות`;
-  return <><button ref={openButton} className={triggerClass} type="button" aria-label={triggerLabel} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span>{placement !== "icon" ? <span>כלי נגישות</span> : null}</button>{panel}</>;
+  const visibleLabel = label || (placement === "menu" ? "נגישות" : "כלי נגישות");
+  const triggerLabel = placement === "icon" ? "פתיחת כלי הנגישות" : `${visibleLabel}, פתיחת כלי הנגישות`;
+  return <><button ref={openButton} className={triggerClass} type="button" aria-label={triggerLabel} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><AccessibilityTriggerIcon />{placement !== "icon" ? <span>{visibleLabel}</span> : null}</button>{panel}</>;
+}
+
+function AccessibilityTriggerIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2" /><path d="M5 8h14M12 6v7m0 0-4 7m4-7 4 7" /></svg>;
 }

@@ -876,7 +876,7 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.doesNotMatch(data, /מידע הנגישות טרם אומת/);
   assert.match(listing, /נגישות במקום/);
   assert.match(listing, /if \(!information\) return null/);
-  assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
+  assert.match(header, /<AccessibilityWidget placement="menu" label=\{accessibilityLabel\} \/>/);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(footer, /href="\/accessibility"/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
@@ -915,7 +915,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.equal(Object.keys(dictionaries.ru).length >= 2000, true);
   assert.equal(Object.keys(dictionaries.fr).length >= 2000, true);
   assert.match(header, /<LanguageSwitcher compact/);
-  assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
+  assert.match(header, /<AccessibilityWidget placement="menu" label=\{accessibilityLabel\} \/>/);
   assert.match(header, /const advertiseHref = localizedPath\("\/join#join-pricing", language\)/);
   assert.match(header, /className="menu-panel__join" href=\{advertiseHref\}/);
   assert.doesNotMatch(header, /className="menu-panel__eyebrow"/);
