@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-11-14T05:00:33.428Z",
+  "sourceCorpus": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v907-slider-fallback\\project_knowledge\\legacy-content-snapshot-20261114\\legacy-content-corpus.json",
+  "vacation": {
+    "total": 2360,
+    "changed": 2360,
+    "added": 258,
+    "final": 2618,
+    "sourceMissing": []
+  },
+  "events": {
+    "total": 64,
+    "changed": 64,
+    "added": 74,
+    "final": 138,
+    "sourceMissing": []
+  },
+  "redirects": {
+    "final": 6076,
+    "aliasesFromCorpus": 4894
+  }
+}

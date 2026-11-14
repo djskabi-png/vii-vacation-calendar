@@ -22,8 +22,8 @@ export async function readPublicSearchContent(db: D1Database, path: string, now 
   if (!value || value.canonicalPath !== path || value.robotsIndex !== true) return null;
   const text = (key: string, max: number) => typeof value[key] === "string" ? (value[key] as string).slice(0, max) : "";
   return { title: text("title", 90), metaTitle: text("metaTitle", 70), metaDescription: text("metaDescription", 180),
-    h1: text("h1", 100), summary: text("summary", 420), body: text("body", 8000),
-    faq: Array.isArray(value.faq) ? value.faq.slice(0, 8).flatMap(item => item && typeof item.question === "string" && typeof item.answer === "string"
+    h1: text("h1", 100), summary: text("summary", 420), body: text("body", 30_000),
+    faq: Array.isArray(value.faq) ? value.faq.slice(0, 20).flatMap(item => item && typeof item.question === "string" && typeof item.answer === "string"
       ? [{ question: item.question.slice(0, 180), answer: item.answer.slice(0, 600) }] : []) : [] };
 }
 

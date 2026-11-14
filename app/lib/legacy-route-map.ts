@@ -4,11 +4,14 @@ import legacyEventSearchPages from "../data/legacy-event-search-pages.json" with
 
 export type LegacyDisposition = { status: 301; target: string } | { status: 410 };
 
-const redirects = inventory.redirects as Record<string, string>;
+const redirects = Object.fromEntries(Object.entries(inventory.redirects as Record<string, string>)
+  .map(([source, target]) => [normalizedLegacySource(source), target])) as Record<string, string>;
 const gone = new Set(inventory.gone as string[]);
 const legacyPriceKeys = new Set(["price", "minPrice", "maxPrice"]);
 
 const reviewedLegacyCanonicalRedirects: Record<string, string> = {
+  "/art": "/guides",
+  "/art/5": "/guides",
   "/s/even_menahem/15220": "/search/vacations/even-menahem-15220-private-covered-heated-pool",
   "/s/israel/178087": "/search/vacations/israel-178087-valentines-day",
   "/guesthouse_events": "/events/place/event-812",
@@ -32,8 +35,6 @@ const reviewedLegacyCanonicalRedirects: Record<string, string> = {
 for (const page of legacyEventSearchPages as Array<{ legacySourcePath?: string; canonicalPath?: string }>) {
   if (page.legacySourcePath && page.canonicalPath) reviewedLegacyCanonicalRedirects[page.legacySourcePath.toLowerCase()] = page.canonicalPath;
 }
-reviewedLegacyCanonicalRedirects["/events/s/qiryat_atta/11235130831"] = "/events/search/kiryat-ata";
-
 export function normalizedLegacySource(input: URL | string) {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const pathname = (url.pathname.replace(/\/+$/, "") || "/").toLowerCase();
@@ -46,16 +47,21 @@ export function normalizedLegacySource(input: URL | string) {
 for (const page of legacyEventSearchPages as Array<{ legacySourcePath?: string; canonicalPath?: string }>) {
   if (page.legacySourcePath && page.canonicalPath) reviewedLegacyCanonicalRedirects[normalizedLegacySource(page.legacySourcePath)] = page.canonicalPath;
 }
+reviewedLegacyCanonicalRedirects["/events/s/qiryat_atta/11235130831"] = "/events/search/kiryat-ata";
 
 export function legacyDisposition(input: URL | string): LegacyDisposition | null {
   const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
   const exact = normalizedLegacySource(url);
   const path = normalizedLegacySource(url.pathname);
-  let target = reviewedLegacyCanonicalRedirects[exact] || reviewedLegacyCanonicalRedirects[path] || redirects[exact] || redirects[path];
+  const isLegacySearch = /^(?:\/s|\/events\/s)(?:\/|$)/i.test(url.pathname);
+  // A base /s redirect must not swallow a semantic query before its approved
+  // content page is resolved.
+  let target = reviewedLegacyCanonicalRedirects[exact] || redirects[exact]
+    || (!isLegacySearch || !url.search ? reviewedLegacyCanonicalRedirects[path] || redirects[path] : undefined);
   // Legacy search pages were published without booking state. A dated legacy
   // URL must still resolve to the same approved semantic page while retaining
   // the visitor's dates and party for the new search experience.
-  if (!target && /^(?:\/s|\/events\/s)(?:\/|$)/i.test(url.pathname)) {
+  if (!target && isLegacySearch) {
     const semantic = new URL(url);
     // A published legacy price combination is itself a registered intent.
     // Try it before treating an added price as transactional state.
@@ -69,6 +75,10 @@ export function legacyDisposition(input: URL | string): LegacyDisposition | null
     }
   }
   if (target) return {status:301,target:canonicalLegacyTarget(url,target)};
+  // The legacy article endpoint exposed numeric soft pages without a stable
+  // article slug or unique body. Preserve every observed numeric entry point
+  // at the real editorial index instead of returning an unexplained 404.
+  if (/^\/art\/\d+\/?$/i.test(url.pathname)) return { status: 301, target: "/guides" };
   if (gone.has(exact) || gone.has(path)) return { status: 410 };
   return null;
 }

@@ -111,6 +111,9 @@ export function approvedExistingPath(world:string,sourcePath:string,filters:Reco
   for(const page of staticSearchPages){
    for(const [path,values]of [[page.sourcePath,page.filters],[page.canonicalPath,page.filters],[page.canonicalPath,{}]] as const){
     const fingerprint=searchApprovalFingerprint(path,values,page.locale);if(!fingerprint)continue;
+    // A source URL whose entire query is transient (for example guests=100)
+    // must not approve every other transient search on the same base route.
+    if(path===page.sourcePath&&path.includes('?')&&fingerprint.endsWith('|[]'))continue;
     const key=page.world+':'+page.locale+':'+fingerprint;const paths=approvalIndex.get(key)||new Set<string>();paths.add(page.canonicalPath);approvalIndex.set(key,paths);
    }
   }
@@ -345,10 +348,10 @@ export function parseOpportunityChange(value: unknown, existing = false) {
     typeof row.status !== "string" || !opportunityStatuses.includes(row.status as OpportunityStatus)) return null;
   const title = cleanText(row.title, 90); const metaTitle = cleanText(row.metaTitle, 70);
   const metaDescription = cleanText(row.metaDescription, 180); const h1 = cleanText(row.h1, 100);
-  const summary = cleanText(row.summary, 420); const body = cleanText(row.body, 8000);
+  const summary = cleanText(row.summary, 420); const body = cleanText(row.body, 30_000);
   const slug = cleanText(row.slug, 120); const assignee = cleanText(row.assignee, 120) || "";
   if ([title, metaTitle, metaDescription, h1, summary, body, slug].some((field) => field === null) || !slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return null;
-  const faq = Array.isArray(row.faq) ? row.faq.slice(0, 8).flatMap((item) => {
+  const faq = Array.isArray(row.faq) ? row.faq.slice(0, 20).flatMap((item) => {
     if (!item || typeof item !== "object") return [];
     const question = cleanText((item as Record<string, unknown>).question, 180);
     const answer = cleanText((item as Record<string, unknown>).answer, 600);

@@ -15,6 +15,9 @@
 /qa-reports/
 /.codex/
 /project_knowledge/runtime/
+/project_knowledge/legacy-content-snapshot-20261114/legacy-content-corpus.json
+/project_knowledge/legacy-content-snapshot-20261114/legacy-content-corpus-checkpoint.json
+/project_knowledge/legacy-content-snapshot-20261114/legacy-content-corpus-summary.json
 
 # next.js
 /.next/

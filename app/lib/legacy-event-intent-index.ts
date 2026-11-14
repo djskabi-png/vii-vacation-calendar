@@ -3,8 +3,10 @@ import { canonicalSearchLocation } from "./geographic-names.ts";
 import { normalizeEventVenueType } from "./event-search-taxonomy.ts";
 
 type EventIntent = { location?: string; type?: string; features?: string; eventType?: string; accessible?: string; noise?: string };
-type LegacyPage = { canonicalPath: string; location: string; filters?: Record<string, string> };
-export const legacyEventIntentIndex = pages.map(({ canonicalPath, location, filters }) => ({ canonicalPath, location, filters })) as LegacyPage[];
+type LegacyPage = { canonicalPath: string; location: string; filters?: Record<string, string>; sourcePath?: string };
+export const legacyEventIntentIndex = pages
+  .filter((page) => !page.sourcePath?.includes("legacyPage="))
+  .map(({ canonicalPath, location, filters }) => ({ canonicalPath, location, filters })) as LegacyPage[];
 
 const aliases: Record<string, string> = { "לופט": "לופטים", "וילה": "וילות", "מתחם אירוח": "מתחמי אירוח" };
 function norm(key: string, value: string) {

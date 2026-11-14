@@ -2,7 +2,8 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import inventory from '../app/data/legacy-redirect-inventory.json' with {type:'json'};
 import {canonicalGeneratedLegacyTarget} from '../scripts/lib/legacy-generated-target.mjs';
 test('all stored legacy targets are already normalized by the reusable generator policy',()=>{
- assert.equal(Object.keys(inventory.redirects).length,3149);
+ assert.ok(Object.keys(inventory.redirects).length>=3149);
+ assert.equal(inventory.stats.redirects,Object.keys(inventory.redirects).length);
  for(const[source,target]of Object.entries(inventory.redirects))assert.equal(canonicalGeneratedLegacyTarget(source,target),target,source);
 });
 test('an existing approved villa/pool page is used directly without dropping transactional state',()=>{

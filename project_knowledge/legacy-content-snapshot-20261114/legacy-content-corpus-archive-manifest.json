@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T05:00:45.412Z",
+  "source": "project_knowledge/legacy-content-snapshot-20261114/legacy-content-corpus.json",
+  "archive": "project_knowledge/legacy-content-snapshot-20261114/legacy-content-corpus.json.gz",
+  "rows": 4894,
+  "sourceBytes": 191189939,
+  "archiveBytes": 17605573,
+  "sourceSha256": "f4bf1c60b8cacf03cd747e13d2aa3b4fd204daf9cdfd33f449c68d37aa93e91b",
+  "archiveSha256": "c1726babee1ef126bdc16b66d4a5e90ff3bb0473fb25461b73036f60973cc962"
+}

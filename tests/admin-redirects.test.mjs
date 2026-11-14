@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 import { ensureRedirectSchema, normalizeRedirectSource, parseRedirectInput, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { DELETE, GET, POST } from "../app/api/admin/redirects/route.ts";
 import { mergedRedirectInventory } from "../app/lib/redirect-admin-inventory.ts";
+import bundledRedirects from "../app/data/legacy-redirect-inventory.json" with { type: "json" };
 
 test("redirect editor rejects active routes, system paths and external targets", () => {
   const good = { sourcePath: "/legacy-villa-123", targetPath: "/villas/north", status: 301, active: true };
@@ -41,8 +42,9 @@ test("redirect API denies anonymous reads and writes", async () => {
 
 test("redirect administration merges the complete bundled inventory with managed precedence", () => {
   const baseline = mergedRedirectInventory([], { pageSize: 100 });
-  assert.equal(baseline.allTotal, 3554);
-  assert.equal(baseline.baselineTotal, 3554);
+  const bundledTotal = Object.keys(bundledRedirects.redirects).length + bundledRedirects.gone.length;
+  assert.equal(baseline.allTotal, bundledTotal);
+  assert.equal(baseline.baselineTotal, bundledTotal);
   assert.equal(baseline.rows.length, 100);
   const result = mergedRedirectInventory([
     { source_path: "/villa_circle", target_path: "/business?id=vacation-999", status: 301, active: 1, deleted: 0, updated_at: "2026-10-25T00:00:00.000Z", updated_by: "owner@example.test" },
@@ -57,7 +59,7 @@ test("redirect administration merges the complete bundled inventory with managed
   ], { query: "villa_yotam", pageSize: 100 });
   assert.equal(deleted.total, 0);
   assert.equal(deleted.deleted, 1);
-  assert.equal(deleted.allTotal, 3553);
+  assert.equal(deleted.allTotal, bundledTotal - 1);
 });
 
 test("inactive legacy suppliers never redirect to a public 404", () => {

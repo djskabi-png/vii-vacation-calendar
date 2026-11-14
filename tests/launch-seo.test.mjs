@@ -22,6 +22,9 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
 });
 
 test("reviewed legacy search and event sources have exact canonical destinations", () => {
+  assert.deepEqual(legacyDisposition("/art"), { status: 301, target: "/guides" });
+  assert.deepEqual(legacyDisposition("/art/5"), { status: 301, target: "/guides" });
+  assert.deepEqual(legacyDisposition("/art/137"), { status: 301, target: "/guides" });
   assert.equal(legacyPlaceDestination("/s/even_menahem/15220"), "/search/vacations/even-menahem-15220-private-covered-heated-pool");
   assert.equal(legacyPlaceDestination("/s/israel/178087"), "/search/vacations/israel-178087-valentines-day");
   assert.equal(legacyPlaceDestination("/Guesthouse_Events"), "/events/place/event-812");

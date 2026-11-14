@@ -5,6 +5,10 @@ import {completeLegacySearchFilters,completeLegacySearchSourcePath,legacyIntentS
 export function buildLegacyVacationIntentIndex() {
   const candidates = new Map<string, LegacySearchPage[]>();
   for (const page of [...legacySearchPublications.pages, ...curatedVacationSearchPages] as LegacySearchPage[]) {
+    // Recovery pages preserve exact legacy URLs and editorial content. They
+    // are not approved generic filter intents and must never displace curated
+    // location/category landings in interactive search.
+    if (page.sourcePath.includes("legacyPage=")) continue;
     const filters = completeLegacySearchFilters(page);
     const features = legacyIntentStringFeatures(filters.features);
     if (!features.length) continue;
