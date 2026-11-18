@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-final-fixes-20261118",
+  "project": "VII",
+  "task_type": "full-stack repair and API reconciliation",
+  "requested_outcome": "Implement every item in the saved Kira and Liran correction lists, reconcile legacy mismatches against live supplier/API truth, and produce a regression-tested release candidate with every API limitation mapped to the affected item IDs.",
+  "natural_destination": "The VII public product families and their owning API, normalization, search, gallery, booking, localization, SEO and administration layers.",
+  "authorization_boundary": "Local code, read-only live API diagnostics, local builds and tests are authorized. Production deployment, DNS or primary-domain cutover, indexation-policy publication, outbound email, supplier writes and production database mutations require separate explicit authorization.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "reason": "The task explicitly compares the replacement product with legacy behavior and content.",
+      "acceptance_impact": "Every Kira and Liran item must be classified as preserved, intentionally replaced, repaired, upstream-blocked or not applicable, with source and evidence."
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "reason": "The lists contain filters, galleries, loaders, share, review, booking and navigation interactions.",
+      "acceptance_impact": "Changed interactions require desktop, 390-pixel mobile and low-height coverage for success, loading, empty, failure, retry, reset, close, back and persistence where applicable."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "Availability, pricing, minimum nights, units, packages, amenities and media follow VII-specific world and supplier rules.",
+      "acceptance_impact": "Supplier/API truth and the VII master plan govern the fix; legacy output is a discrepancy signal rather than automatic authority."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the examples are repaired while equivalent worlds, routes or states remain broken.",
+      "prevention": "Inventory shared components, routes, locales, viewports, supplier modes and data states before editing, then test the whole affected family.",
+      "acceptance_check": "The final family matrix contains every KIRA-01..12 and LIRAN-01..29 item with route and state evidence."
+    },
+    {
+      "rejection": "Legacy differences are copied blindly even when the old site is stale or the supplier API says something else.",
+      "prevention": "Probe the live read-only API first, inspect normalization and filtering second, and use legacy only to locate discrepancies.",
+      "acceptance_check": "Each data discrepancy records the live source response shape, local interpretation, cause class and mapped correction IDs."
+    },
+    {
+      "rejection": "The UI looks fixed but availability, price, CTA or media identity still contradict each other.",
+      "prevention": "Use one truth contract from provider response through canonical normalization, filters and rendered action, with identity-preserving media ownership.",
+      "acceptance_check": "Representative vacation, event, spa and hourly flows agree on availability, price, minimum stay, unit identity, CTA and gallery."
+    },
+    {
+      "rejection": "Performance work hides waits or errors instead of removing duplicate requests, caps, cache misses or rendering races.",
+      "prevention": "Reproduce and diagnose network, cache, query and render timing with competing hypotheses before changing loaders or fallbacks.",
+      "acceptance_check": "Before-and-after timing evidence and atomic-state tests show no contradictory skeleton, empty, retry or result flashes."
+    },
+    {
+      "rejection": "A production claim is made even though this message did not authorize publication or owner-level controls remain unavailable.",
+      "prevention": "Keep production unchanged and label the output as a tested release candidate until explicit publication authorization.",
+      "acceptance_check": "No deployment, DNS, indexation or external write occurs; remaining authorization-only actions are listed precisely."
+    }
+  ],
+  "affected_family": [
+    "vacation, event, spa and hourly search/result routes",
+    "availability, minimum-stay, capacity, price and CTA normalization",
+    "place and unit detail pages, galleries, video, amenities and sharing",
+    "loading, caching, back navigation and responsive transitions",
+    "Hebrew, English, Russian and French routes and directionality",
+    "robots, sitemap, canonical, redirects, deployment identity and release evidence",
+    "administration, review moderation and advertising request workflows"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII approved product and architecture decisions",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted feedback behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Saved Kira correction list",
+        "source": "calendar-airbnb/project_knowledge/VII_FIXES_KIRA_2026-11-18.md"
+      },
+      {
+        "label": "Saved Liran correction list",
+        "source": "calendar-airbnb/project_knowledge/VII_LIRAN_FIX_LIST_2026-11-18.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the live-API discrepancy ledger and first representative end-to-end fix for each world are complete, before expanding shared changes to every family member.",
+    "checks": [
+      "Every data issue is classified as upstream API, adapter/normalization, filter/ranking, cache, rendering or legacy-only discrepancy.",
+      "One representative vacation, event, spa and hourly flow passes source-to-UI truth checks.",
+      "No shared fix changes unrelated typography, layout, content, routing or conversion behavior."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a one-night search still hide a property whose minimum stay is two or more nights instead of showing the truthful minimum?",
+      "Can a place or unit still expose a price, availability message, CTA or gallery that belongs to a different source identity?",
+      "Can back, refresh, tab switching, mobile transition or a slow/error response produce a contradictory blank, retry or stale-results state?",
+      "Can a non-Hebrew route leak Hebrew, overflow horizontally or point to the wrong canonical or sitemap state?",
+      "Can a full results or gallery page still inherit a slider pagination cap?"
+    ],
+    "natural_destination_evidence": "Local production-mode candidate captures, request traces and flow results on the exact representative routes, followed by production evidence only after separate publication authorization.",
+    "affected_family_evidence": "Automated and visual matrices across route families, worlds, locales, viewports, data modes and error states."
+  },
+  "effectiveness": {
+    "baseline": "Public v917 at source c8cbda44 has two saved correction lists containing 12 Kira and 29 Liran families, with repeated reports of regressions and legacy/API uncertainty.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All 41 families have evidence or a precise upstream/authorization blocker, with zero unclassified legacy/API mismatches and no high or critical regression in the release candidate."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

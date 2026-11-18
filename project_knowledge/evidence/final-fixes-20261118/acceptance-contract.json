@@ -1,0 +1,198 @@
+{
+  "goal": "Deliver one coherent, source-truth-driven repair candidate for both saved correction lists and explain every remaining API change or gap by correction ID.",
+  "intent_model": {
+    "literal_request": "Execute the two saved lists, check live API data before treating old-site differences as defects, fix everything locally and explain API work by item.",
+    "implied_outcome": "A stable final solution in which public behavior, supplier truth, normalization, filters, media identity and release evidence agree across all VII worlds.",
+    "likely_rejections": [
+      "One or more saved item IDs are omitted.",
+      "A legacy difference is copied without live source verification.",
+      "A local UI workaround masks an upstream or normalization defect.",
+      "Shared-family regressions appear in another world, locale or viewport.",
+      "Production is changed without explicit authorization."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "פתרון סופי",
+        "operational_meaning": "Close the causal chain from supplier/API through normalization, filtering, caching and rendering, not only the reported screenshot.",
+        "acceptance_impact": "Every item needs source, cause, fix and family regression evidence, or a precise external blocker."
+      },
+      {
+        "phrase": "תבדוק בריל טיים ב API",
+        "operational_meaning": "Use read-only live source queries before relying on legacy output for availability, price, capacity, units, amenities or media.",
+        "acceptance_impact": "Data items must include redacted API evidence and cause classification."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Source-of-truth reconciliation and causal implementation.",
+    "current_decision": "For each discrepancy, identify whether ownership is upstream API, provider adapter, canonical normalization, filter/ranking, cache or UI.",
+    "next_action": "Implement and verify the smallest causal fix across the complete affected family.",
+    "deferred_complexity": [
+      "Production deployment and DNS cutover",
+      "External supplier contract changes requiring their action",
+      "Outbound emails or production data mutations"
+    ],
+    "preserved_depth": [
+      "Full release candidate",
+      "API gap ledger",
+      "Rollback-ready source history",
+      "Desktop, mobile, low-height and locale regression evidence"
+    ]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/evidence/final-fixes-20261118/preflight.json",
+    "lesson_bundle_ids": ["ADIR-WEB-001", "ADIR-WEB-002", "VII-PROJECT-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor", "VII content operator", "VII API and supplier adapters"],
+  "natural_destination": "The local production-mode VII release candidate on the exact public route families.",
+  "facts": [
+    {
+      "claim": "The exact public source baseline is c8cbda44a8f1565d6cbac4b9f07bd249f326e741.",
+      "evidence": "Git log and prior v917 deployment evidence."
+    },
+    {
+      "claim": "The saved scope contains KIRA-01..12 and LIRAN-01..29.",
+      "evidence": "VII_FIXES_KIRA_2026-11-18.md and VII_LIRAN_FIX_LIST_2026-11-18.md."
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The configured live API endpoints can be queried read-only from the development environment.",
+      "validation": "Inspect existing project configuration and run bounded redacted probes without exposing secrets."
+    }
+  ],
+  "in_scope": [
+    "All KIRA-01..12 and LIRAN-01..29 correction families",
+    "Read-only live supplier/API reconciliation",
+    "Local API, adapter, canonical, filtering, caching, UI and test changes",
+    "Source-to-UI cause ledger and item mapping",
+    "Local production-mode release-candidate verification"
+  ],
+  "out_of_scope": [
+    "Production deployment without a new explicit instruction",
+    "DNS or primary-domain cutover",
+    "Production database mutations, supplier writes or outbound business messaging",
+    "Inventing unavailable supplier data"
+  ],
+  "invariants": [
+    "Provider-owned facts remain provider-authoritative.",
+    "Old-site output is not copied when it conflicts with verified live source truth.",
+    "Unit and general place media identities remain separate.",
+    "Full result and gallery routes do not inherit slider caps.",
+    "Existing approved layout, typography, navigation and conversion behavior remain unchanged outside affected families.",
+    "Production remains unchanged until authorized."
+  ],
+  "affected_family": [
+    "Search, results, filters, maps and booking CTAs",
+    "Availability, price, capacity and minimum-stay data",
+    "Place, unit, spa-package and event detail data",
+    "Galleries, video, amenities, sharing and reviews",
+    "Loaders, caching, errors, back navigation and responsive transitions",
+    "Localization, robots, sitemap, canonicals, redirects and release identity",
+    "Administration and operational destinations"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {
+      "id": "REQ-KIRA",
+      "statement": "Classify and repair every KIRA-01..12 item within authorization, with explicit blockers for domain, owner or publication-only actions.",
+      "source": "VII_FIXES_KIRA_2026-11-18.md"
+    },
+    {
+      "id": "REQ-LIRAN",
+      "statement": "Classify and repair every LIRAN-01..29 item within authorization across the complete shared family.",
+      "source": "VII_LIRAN_FIX_LIST_2026-11-18.md"
+    },
+    {
+      "id": "REQ-API",
+      "statement": "For every old/new mismatch involving data, inspect live API truth first and classify the cause as upstream API, adapter/normalization, filter/ranking, cache, rendering or legacy-only.",
+      "source": "Current user instruction"
+    },
+    {
+      "id": "REQ-MAP",
+      "statement": "Return a clear API change/gap ledger mapped to the exact Kira and Liran item IDs.",
+      "source": "Current user instruction"
+    },
+    {
+      "id": "REQ-REGRESSION",
+      "statement": "Preserve verified existing behavior and pass automated plus natural-surface checks for changed families on desktop, mobile, low height and relevant locales/states.",
+      "source": "VII feedback standard and accepted account lessons"
+    },
+    {
+      "id": "REQ-PERSISTENCE",
+      "statement": "URL, filter, selection, retry, back-navigation and administration state affected by the changes survives the relevant reload or navigation boundary.",
+      "source": "VII feedback standard"
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "id": "AC-INVENTORY",
+      "requirement_ids": ["REQ-KIRA", "REQ-LIRAN", "REQ-MAP"],
+      "kind": "success",
+      "setup": "The two saved lists and exact public baseline are loaded.",
+      "action": "Build the final reconciliation matrix.",
+      "observable_result": "All 41 item IDs have owner, cause, implementation status, evidence and any exact external blocker; none are omitted or generically marked done."
+    },
+    {
+      "id": "AC-API-TRUTH",
+      "requirement_ids": ["REQ-API", "REQ-MAP"],
+      "kind": "success",
+      "setup": "A representative discrepancy exists between old and new behavior.",
+      "action": "Probe the live API read-only and trace the same entity through normalization and filters.",
+      "observable_result": "The final cause is demonstrated and the fix occurs in the owning layer; unavailable upstream fields are not invented."
+    },
+    {
+      "id": "AC-DATA-EMPTY",
+      "requirement_ids": ["REQ-LIRAN", "REQ-API"],
+      "kind": "empty",
+      "setup": "The supplier returns no confirmable availability, price or media for the requested identity.",
+      "action": "Open the corresponding result or detail flow.",
+      "observable_result": "The page shows the truthful localized enquiry or unavailable state without contradictory CTA, borrowed media, fake price or false online-booking claim."
+    },
+    {
+      "id": "AC-FAILURE-RECOVERY",
+      "requirement_ids": ["REQ-KIRA", "REQ-LIRAN", "REQ-REGRESSION"],
+      "kind": "recovery",
+      "setup": "A supplier request is slow, times out or fails.",
+      "action": "Exercise loading, failure and retry on affected search and slider flows.",
+      "observable_result": "The interface remains atomic and responsive, exposes one actionable localized state, prevents duplicate work and recovers without stale or contradictory content."
+    },
+    {
+      "id": "AC-FAILURE",
+      "requirement_ids": ["REQ-KIRA", "REQ-LIRAN", "REQ-API"],
+      "kind": "failure",
+      "setup": "The live supplier or API cannot provide a required field, identity or timely response.",
+      "action": "Trace the failed field through the adapter and render the affected public flow.",
+      "observable_result": "The owning upstream gap is recorded against exact correction IDs, the product degrades honestly without invented data, and unrelated results remain usable."
+    },
+    {
+      "id": "AC-PERSISTENCE",
+      "requirement_ids": ["REQ-PERSISTENCE", "REQ-REGRESSION"],
+      "kind": "persistence",
+      "setup": "A visitor has selected world, location, dates, guests, filters, unit or sort state.",
+      "action": "Navigate, reload, use back, and cross relevant responsive boundaries.",
+      "observable_result": "The URL, visible controls, count, list, map and selected unit remain one consistent state without reset or overflow."
+    },
+    {
+      "id": "AC-ROLLBACK",
+      "requirement_ids": ["REQ-REGRESSION"],
+      "kind": "rollback",
+      "setup": "The release candidate fails a critical family gate.",
+      "action": "Reject the candidate and retain the exact public baseline commit.",
+      "observable_result": "No production change occurs and c8cbda44 remains the documented rollback baseline."
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Which upstream fields or supplier endpoints are actually absent or inconsistent?",
+      "blocking": false,
+      "resolution": "Resolve per item through bounded read-only live API probes and record the result in the reconciliation ledger."
+    }
+  ],
+  "authorization_boundary": "Implement and test locally, including read-only live API verification. Do not deploy, cut over domains, publish indexation policy, mutate production data or send external messages without explicit authorization.",
+  "ready_for_implementation": true
+}

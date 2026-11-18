@@ -105,7 +105,29 @@ function anonymousPublicRequest(origin: URL, request: Request, catalogNavigation
   return new Request(origin, { method: "GET", headers, redirect: "manual", signal: request.signal });
 }
 
+function publicCatalogRead(request: Request, url = new URL(request.url)) {
+  if (request.method !== "GET" || privateRequest(request) || url.pathname !== "/api/catalog") return false;
+  const accept = request.headers.get("Accept") || "";
+  if (!["", "*/*", "application/json"].includes(accept)) return false;
+  const allowed = new Set(["id", "view", "world"]), seen = new Set<string>();
+  for (const [key, value] of url.searchParams) {
+    if (!allowed.has(key) || seen.has(key) || value.length > 24) return false;
+    seen.add(key);
+  }
+  const world = url.searchParams.get("world");
+  const view = url.searchParams.get("view");
+  const id = url.searchParams.get("id");
+  if (!world || !["vacations", "events", "rooms", "spa"].includes(world)) return false;
+  if (view !== null && !["lookup", "search", "cards"].includes(view)) return false;
+  if (id !== null && !/^[1-9]\d{0,8}$/.test(id)) return false;
+  if ((view === "lookup" || view === "search") && id !== null) return false;
+  if (view === "search" && world !== "vacations" && world !== "events") return false;
+  if (view === "cards" && (world !== "spa" || id !== null)) return false;
+  return true;
+}
+
 function eligible(request: Request, url: URL) {
+  if(publicCatalogRead(request,url))return true;
   if(!privateRequest(request)&&publicDiscoveryCachePolicy(request))return true;
   if (privateRequest(request) || url.pathname.startsWith("/api/") || /^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(url.pathname)) return false;
   const rsc = url.pathname.endsWith(".rsc");
@@ -159,6 +181,18 @@ function publicReadAttemptResponse(response: Response, attempts: 1 | 2) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+function staleRecoveryResponse(response: Response, attempts: 1 | 2, failure: "origin_5xx" | "origin_transport") {
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+  headers.set("Warning", '110 - "Response is stale"');
+  headers.set("X-VII-Edge-Delivery", "STALE");
+  headers.set("X-VII-Edge-Cache-Backend", "global-r2-stale");
+  headers.set("X-VII-Edge-Origin-Attempts", String(attempts));
+  headers.set("X-VII-Edge-Recovery", `stale_if_${failure}`);
+  headers.delete(refreshAfterHeader);
+  return new Response(response.body, { status: 200, headers });
+}
+
 function temporaryFailureResponse(request: Request, attempts: 1 | 2, failure: "origin_5xx" | "origin_transport" | "edge_unexpected") {
   const url = new URL(request.url);
   const headers = new Headers({
@@ -193,7 +227,7 @@ function temporaryFailureResponse(request: Request, attempts: 1 | 2, failure: "o
   return new Response(body, { status: 503, headers });
 }
 
-async function fetchPublicRead(request: Request, origin: URL) {
+async function fetchPublicRead(request: Request, origin: URL, stale?: Response) {
   const anonymous = anonymousPublicRequest(origin, request, isCatalogNavigationHintCandidate(request));
   let failed: Response | undefined;
   try {
@@ -202,9 +236,11 @@ async function fetchPublicRead(request: Request, origin: URL) {
     failed = response;
   } catch (error) {
     if (request.signal.aborted || error instanceof Error && error.name === "AbortError") throw error;
+    if (stale) return staleRecoveryResponse(stale, 1, "origin_transport");
   }
   if (request.signal.aborted) throw request.signal.reason;
   await failed?.body?.cancel().catch(() => undefined);
+  if (failed && stale) return staleRecoveryResponse(stale, 1, "origin_5xx");
   const headers = new Headers(anonymous.headers);
   headers.set("Cache-Control", "no-cache");
   headers.delete("If-None-Match");
@@ -300,6 +336,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const url = new URL(request.url);
   const catalogNavigationHint = isCatalogNavigationHintCandidate(request);
   const discovery=publicDiscoveryCachePolicy(request);
+  const catalog=publicCatalogRead(request,url);
   if (!eligible(request, url)) {
     if (safePublicRead(request, url)) return fetchPublicRead(request, new URL(url.pathname + url.search, bypassOrigin(url, env.ORIGIN)));
     const upstreamHeaders = new Headers(request.headers);
@@ -324,10 +361,12 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   let hit = cache && !refresh ? await boundedMatch(cache, key) : undefined;
   if(hit&&(!Number.isFinite(Number(hit.headers.get('X-VII-Cache-Until')))||Number(hit.headers.get('X-VII-Cache-Until'))<=Date.now()))hit=undefined;
   let hitLayer='available';
-  const globalVariant=globalPublicVariant(request,expectedBuild);
+  const globalVariant=catalog||globalPublicVariant(request,expectedBuild);
+  let staleGlobal:Response|undefined;
   if(!hit&&!refresh&&globalVariant){
-    hit=await readGlobalPublicCache(env.PUBLIC_CACHE,key,expectedBuild);
-    if(hit){hitLayer='global-r2';if(cache)ctx.waitUntil(cache.put(key,hit.clone()).catch(()=>undefined));}
+    const global=await readGlobalPublicCache(env.PUBLIC_CACHE,key,expectedBuild,{allowStale:true});
+    if(global?.headers.get('X-VII-Global-Cache-State')==='stale')staleGlobal=global;
+    else if(global){hit=global;hitLayer='global-r2';if(cache)ctx.waitUntil(cache.put(key,hit.clone()).catch(()=>undefined));}
   }
   const hitExpiry = Number(hit?.headers.get("X-VII-Cache-Until"));
   if (hit && Number.isFinite(hitExpiry) && hitExpiry > Date.now()) {
@@ -359,7 +398,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   const origin = new URL(url.pathname + (canonicalSpaPackageDocument ? "" : url.search), anonymousDocumentOrigin(url, env.ORIGIN));
   const lookupMs = Math.round(performance.now() - lookupStarted);
   const originStarted = performance.now();
-  let response = publicDocumentRedirect(await fetchPublicRead(request, origin), origin, url);
+  let response = publicDocumentRedirect(await fetchPublicRead(request, origin, staleGlobal), origin, url);
   response = qualifyDatedSpaPackageEntry(response, url, expectedBuild);
   const originExpiry = Number(response.headers.get("X-VII-Cache-Until"));
   if (Number.isFinite(originExpiry) && originExpiry > 0 && publicDocumentClock(url.pathname)) {
@@ -374,7 +413,7 @@ async function serve(request: Request, env: DeliveryEnv, ctx: EdgeExecutionConte
   }
   const originMs = Math.round(performance.now() - originStarted);
   const contentType = response.headers.get("Content-Type") || "";
-  const expectedType = discovery?'application/json':url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";
+  const expectedType = discovery||catalog?'application/json':url.pathname.endsWith(".rsc") ? "text/x-component" : "text/html";
   const control = (response.headers.get("Cache-Control") || "").toLowerCase();
   const vary = (response.headers.get("Vary") || "").split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
   const allowedVary = new Set(["accept", "rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-url", "x-vinext-interception-context", "x-vinext-mounted-slots", "x-vinext-rsc-render-mode", "accept-encoding"]);

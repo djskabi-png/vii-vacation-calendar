@@ -11,6 +11,7 @@ export type PublicCachePolicy = {
   home: boolean;
   build: string;
   expiresAt?: number;
+  expectedContentType?: "application/json" | "application/xml";
 };
 
 type StoredResponse = { body: ArrayBuffer; headers: [string, string][]; expiresAt: number };
@@ -128,7 +129,12 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
   let query: string | null;
   let ttlSeconds: number;
   let home = false;
-  if (url.pathname === "/api/catalog") {
+  if (url.pathname === "/sitemap.xml" || url.pathname.startsWith("/sitemaps/")) {
+    query = normalizedPublicQuery(url, new Set());
+    if (query === null) return null;
+    kind = "data";
+    ttlSeconds = 900;
+  } else if (url.pathname === "/api/catalog") {
     query = normalizedPublicQuery(url, new Set(["id", "view", "world"]));
     if (!url.searchParams.get("world")) return null;
     kind = "data";
@@ -172,7 +178,8 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
   const identity = await digest(JSON.stringify([identityUrl.origin, url.pathname, query, variants, ...(clock ? [clock] : [])]));
   const key = `runtime-cache/public/${publicCacheVersion}/${build}/${identityUrl.hostname}/${kind}/${identity}`;
   const expiresAt = kind === "data" ? undefined : publicDocumentExpiry(url.pathname, now.getTime() + ttlSeconds * 1000, now);
-  return { key, edgeUrl: `${identityUrl.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build, expiresAt };
+  return { key, edgeUrl: `${identityUrl.origin}/__vii-cache/${publicCacheVersion}/${build}/${kind}/${identity}`, kind, ttlSeconds, home, build, expiresAt,
+    ...(url.pathname === "/sitemap.xml" || url.pathname.startsWith("/sitemaps/") ? { expectedContentType: "application/xml" as const } : {}) };
 }
 
 function edgeCache(): EdgeCache | undefined {
@@ -266,7 +273,7 @@ export function storePublicCache(response: Response, policy: PublicCachePolicy |
   if (!policy || response.status !== 200 || response.headers.has("Set-Cookie")
     || (!frameworkStreamDefault && /(?:^|,)\s*(?:private|no-store)(?:\s*(?:,|=|$))/i.test(control))) return skip();
   const contentType = response.headers.get("Content-Type") || "";
-  const expected = policy.kind === "document" ? "text/html" : policy.kind === "navigation" ? "text/x-component" : "application/json";
+  const expected = policy.kind === "document" ? "text/html" : policy.kind === "navigation" ? "text/x-component" : policy.expectedContentType || "application/json";
   if (!contentType.includes(expected)) return skip();
   if ((response.headers.get("Vary") || "").split(",").some((name) => name.trim() && !allowedVaryHeaders.has(name.trim().toLowerCase()))) return skip();
   const declaredSize = Number(response.headers.get("Content-Length"));

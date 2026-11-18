@@ -7,7 +7,7 @@ function bucket(){const data=new Map();return {data,reads:0,writes:0,async get(k
 function fixture(){
  const priorFetch=globalThis.fetch,priorCaches=globalThis.caches,store=bucket(),tasks=[];let calls=0,build='global-build';
  const env={EXPECTED_BUILD:build,PUBLIC_CACHE:store},ctx={waitUntil(p){tasks.push(p);}};
- globalThis.fetch=async request=>{calls++;return new Response(`public ${new URL(request.url).pathname}`,{headers:{'Content-Type':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+180_000),'Content-Security-Policy':"default-src 'self'"}});};
+ globalThis.fetch=async request=>{calls++;const path=new URL(request.url).pathname;return new Response(path.startsWith('/api/')?JSON.stringify({path,entries:[{supplierId:1}]}):`public ${path}`,{headers:{'Content-Type':path.startsWith('/api/')?'application/json':request.url.includes('.rsc')?'text/x-component':'text/html','X-VII-Cache-Build':build,'X-VII-Cache-Until':String(Date.now()+180_000),'Content-Security-Policy':"default-src 'self'"}});};
  const region=()=>{const map=new Map();globalThis.caches={default:{async match(key){return map.get(key.url)?.clone();},async put(key,value){map.set(key.url,value.clone());}}};};region();
  return {store,env,ctx,region,get calls(){return calls;},build(value){build=value;env.EXPECTED_BUILD=value;},async drain(){while(tasks.length)await Promise.allSettled(tasks.splice(0));},restore(){globalThis.fetch=priorFetch;globalThis.caches=priorCaches;}};
 }
@@ -69,6 +69,34 @@ test('expired or different-build objects cannot become fresh through promotion',
  const f=fixture(),oldNow=Date.now;let clock=oldNow();Date.now=()=>clock;
  try{await (await worker.fetch(request(),f.env,f.ctx)).arrayBuffer();await f.drain();clock+=181_000;f.region();const expired=await worker.fetch(request(),f.env,f.ctx);assert.equal(expired.headers.get('X-VII-Edge-Delivery'),'MISS');await expired.arrayBuffer();await f.drain();assert.equal(f.calls,2);
   f.build('next-build');f.region();const next=await worker.fetch(request(),f.env,f.ctx);assert.equal(next.headers.get('X-VII-Edge-Delivery'),'MISS');assert.equal(next.headers.get('X-VII-Cache-Build'),'next-build');await next.arrayBuffer();await f.drain();assert.equal(f.calls,3);
+ }finally{Date.now=oldNow;f.restore();}
+});
+
+test('an expired exact-build document is used only as a stale-if-error recovery and avoids a retry storm',async()=>{
+ const f=fixture(),oldNow=Date.now;let clock=oldNow();Date.now=()=>clock;
+ try{
+  const first=await worker.fetch(request('/events'),f.env,f.ctx);await first.arrayBuffer();await f.drain();
+  clock+=181_000;f.region();
+  globalThis.fetch=async()=>{throw new TypeError('origin overloaded')};
+  const recovered=await worker.fetch(request('/events'),f.env,f.ctx);
+  assert.equal(recovered.status,200);assert.equal(recovered.headers.get('X-VII-Edge-Delivery'),'STALE');
+  assert.equal(recovered.headers.get('X-VII-Edge-Cache-Backend'),'global-r2-stale');
+  assert.equal(recovered.headers.get('X-VII-Edge-Origin-Attempts'),'1');
+  assert.equal(recovered.headers.get('X-VII-Edge-Recovery'),'stale_if_origin_transport');
+  assert.match(recovered.headers.get('Warning'),/^110/);assert.match(await recovered.text(),/public \/events/);
+ }finally{Date.now=oldNow;f.restore();}
+});
+
+test('an exact public catalog snapshot survives origin overload without sharing malformed or private variants',async()=>{
+ const f=fixture(),oldNow=Date.now;let clock=oldNow();Date.now=()=>clock;
+ try{
+  const catalog=request('/api/catalog?world=events&view=search',{Accept:'application/json'});
+  const first=await worker.fetch(catalog,f.env,f.ctx);assert.equal(first.status,200);await first.arrayBuffer();await f.drain();
+  clock+=181_000;f.region();globalThis.fetch=async()=>{throw new TypeError('origin overloaded')};
+  const recovered=await worker.fetch(catalog,f.env,f.ctx);assert.equal(recovered.status,200);assert.equal(recovered.headers.get('X-VII-Edge-Delivery'),'STALE');assert.equal(recovered.headers.get('X-VII-Edge-Origin-Attempts'),'1');assert.deepEqual((await recovered.json()).entries,[{supplierId:1}]);
+  const reads=f.store.reads;
+  await (await worker.fetch(request('/api/catalog?world=events&view=search&view=search',{Accept:'application/json'}),f.env,f.ctx)).arrayBuffer();
+  assert.equal(f.store.reads,reads,'duplicate query never consults shared storage');
  }finally{Date.now=oldNow;f.restore();}
 });
 

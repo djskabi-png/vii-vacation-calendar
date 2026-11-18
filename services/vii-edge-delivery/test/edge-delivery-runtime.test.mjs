@@ -21,6 +21,23 @@ test('internal cache keeps the origin hard expiry while client freshness stays c
 
 const headers = () => new Headers({ 'Content-Type': 'text/html; charset=utf-8', 'X-VII-Cache-Build': 'test-build', 'X-VII-Cache-Until': String(Date.now() + 60_000), 'Set-Cookie': '__cf_bm=infra; Path=/' });
 
+test('exact anonymous public catalog reads are cached while malformed, private and transactional API reads bypass',async()=>{
+ const catalogHeaders=new Headers({'Content-Type':'application/json','X-VII-Cache-Build':'test-build','X-VII-Cache-Until':String(Date.now()+300_000),'Cache-Control':'public,max-age=60'});
+ const h=harness({body:'{"entries":[{"supplierId":1}]}',headers:catalogHeaders});
+ const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};
+ try{
+  const safe=new Request('https://edge.test/api/catalog?world=events&view=search',{headers:{Accept:'application/json'}});
+  const first=await worker.fetch(safe,env,h.ctx);assert.equal(first.status,200);assert.equal(first.headers.get('X-VII-Edge-Delivery'),'MISS');await first.arrayBuffer();await new Promise(resolve=>setTimeout(resolve,0));
+  const hit=await worker.fetch(safe,env,h.ctx);assert.equal(hit.headers.get('X-VII-Edge-Delivery'),'HIT');assert.equal(h.stats().originCalls,1);
+  for(const request of [
+   new Request('https://edge.test/api/catalog?world=events&view=search&view=search',{headers:{Accept:'application/json'}}),
+   new Request('https://edge.test/api/catalog?world=events&view=search',{headers:{Accept:'application/json',Authorization:'private'}}),
+   new Request('https://edge.test/api/leads',{method:'POST',body:'{}',headers:{'Content-Type':'application/json'}}),
+  ])await(await worker.fetch(request,env,h.ctx)).arrayBuffer();
+  assert.equal(h.stats().originCalls,4);
+ }finally{h.restore();}
+});
+
 test('delivery timing describes this lookup and distinguishes retained origin fill timing',async()=>{
  const originHeaders=headers();originHeaders.set('Server-Timing','vii-cache;dur=999, vii-edge-lookup;dur=8888, vii-edge-origin;dur=7777, app;desc="one,vii-edge-origin;dur=42"');originHeaders.set('X-VII-Cache-Read-Ms','999');const h=harness({headers:originHeaders});
  const env={ORIGIN:'https://vii-vacation-calendar.adir-naor-7510.chatgpt.site',EXPECTED_BUILD:'test-build'};

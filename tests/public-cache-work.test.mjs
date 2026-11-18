@@ -87,6 +87,18 @@ test('only the observed generic public-stream framework default retains existing
   assert.equal(await readPublicCache(data),null);
 });
 
+test('sitemap index and segments use the bounded versioned public cache',async()=>{
+  for (const path of ['/sitemap.xml','/sitemaps/vacations/1.xml']) {
+    const request=new Request(`https://vii.spaplus.co${path}`,{headers:{Accept:'application/xml'}});
+    const p=await publicCachePolicy(request,new URL(request.url),'sitemap-build');
+    assert.equal(p.kind,'data');assert.equal(p.ttlSeconds,900);assert.equal(p.expectedContentType,'application/xml');
+    const ctx=context();
+    const output=storePublicCache(new Response('<?xml version="1.0"?><urlset/>',{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'public, max-age=300'}}),p,undefined,ctx);
+    assert.equal(output.headers.get('X-VII-Data-Cache'),'MISS');await output.text();await ctx.settle();
+    const hit=await readPublicCache(p);assert.equal(hit.headers.get('X-VII-Data-Cache'),'HIT');
+  }
+});
+
 test('Worker does not add a request queue or coalescing wait to HTML,Flight or catalog',()=>{
   const worker=readFileSync(new URL('../worker/index.ts',import.meta.url),'utf8');
   assert.match(worker,/if \(cachePolicy && !refreshPublic\)/);
