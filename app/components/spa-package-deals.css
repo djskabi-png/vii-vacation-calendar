@@ -11,7 +11,7 @@
 .spa-package-deals__days button[aria-pressed=true] small { color:#fff; opacity:1; }
 .spa-package-deals__audiences { align-items:center; color:#526f7c; font-size:.82rem; }
 .spa-package-deals__audiences-label { font-weight:700; white-space:nowrap; }
-.spa-package-deals__audience-options { display:flex; align-items:center; gap:6px; }
+.spa-package-deals__audience-options { display:flex; align-items:center; gap:6px; max-width:100%; }
 .spa-package-deals__audiences button { min-width:52px; min-height:44px; padding:8px 12px; border:1px solid #d2e0e4; border-radius:999px; background:#fff; color:#355c67; font-size:.84rem; font-weight:700; }
 .spa-package-deals__audiences button[aria-pressed=true] { color:#fff; background:var(--spa-deal-accent); border-color:var(--spa-deal-accent); }
 .spa-package-deals__controls button:disabled { opacity:.4; cursor:default; }
@@ -37,7 +37,7 @@
 .spa-package-card:target { outline:3px solid var(--brand,#087f8c); outline-offset:5px; scroll-margin-top:100px; }
 .spa-package-request-date { color:#355c67; font-size:.88rem; line-height:1.6; }
 @media(max-width:1050px){.spa-package-deals__days{flex-basis:100%}.spa-package-deals__audiences{justify-content:flex-start}.spa-deal-card{flex-basis:calc((100% - 16px)/2)}}
-@media(max-width:720px){.spa-package-deals__surface{margin-top:14px}.spa-deal-card{flex-basis:86%;}.spa-package-deals .section-head{align-items:flex-start;flex-wrap:wrap;gap:8px}.spa-package-deals .section-head h2{font-size:1.35rem}.spa-package-deals .section-head a{font-size:.84rem}.spa-package-deals__controls{gap:12px}.spa-package-deals__days{width:100%;scrollbar-width:none;gap:8px}.spa-package-deals__days::-webkit-scrollbar{display:none}.spa-package-deals__days button{flex:0 0 76px;padding:8px 10px}.spa-package-deals__audiences{width:100%;gap:12px}.spa-package-deals__context{font-size:.8rem}.spa-deal-card h3{min-height:4.65em}}
+@media(max-width:720px){.spa-package-deals__surface{margin-top:14px}.spa-deal-card{flex-basis:86%;}.spa-package-deals .section-head{align-items:flex-start;flex-wrap:wrap;gap:8px}.spa-package-deals .section-head h2{font-size:1.35rem}.spa-package-deals .section-head a{font-size:.84rem}.spa-package-deals__controls{gap:12px}.spa-package-deals__days{width:100%;scrollbar-width:none;gap:8px}.spa-package-deals__days::-webkit-scrollbar{display:none}.spa-package-deals__days button{flex:0 0 76px;padding:8px 10px}.spa-package-deals__audiences{display:grid;grid-template-columns:auto minmax(0,1fr);width:100%;gap:8px}.spa-package-deals__audience-options{min-width:0;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}.spa-package-deals__audience-options::-webkit-scrollbar{display:none}.spa-package-deals__audiences button{flex:0 0 auto}.spa-package-deals__context{font-size:.8rem}.spa-deal-card h3{min-height:4.65em}}
 .spa-package-deals--grid{padding-top:34px}
 .spa-package-deals--grid .event-rail-controls{display:none}
 .spa-package-deals--grid .event-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;overflow:visible;scroll-snap-type:none}

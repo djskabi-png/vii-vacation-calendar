@@ -1,0 +1,49 @@
+{
+  "checkedAt": "2026-11-18T04:26:00Z",
+  "scope": "live supplier and public API reconciliation for Kira and Liran fix lists",
+  "findings": [
+    {
+      "ids": ["LIRAN-02"],
+      "status": "upstream_contract_gap",
+      "evidence": "Silvester live search returned 325 rows: 14 available, 18 unavailable with online capability, 51 unavailable without online capability and 242 unknown. The bulk rows did not expose minimumNights or min_nights.",
+      "required": "For every candidate return site and unit identity, requested dates, availability truth state, restriction reason and minimum stay at arrival, even when the requested stay is shorter than that minimum."
+    },
+    {
+      "ids": ["LIRAN-03"],
+      "status": "frontend_fixed",
+      "evidence": "Suite Tohar exposes one two-guest room and a four-guest live search returned unknown/no_availability. Unit-scoped catalog rows had bypassed the guest predicate; the candidate now rejects known undersized units."
+    },
+    {
+      "ids": ["LIRAN-04"],
+      "status": "source_snapshot_explained",
+      "evidence": "The current central day-pass snapshot contains exactly two explicit no-treatment packages: site 356 package 6723 and site 406 package 6722. No additional result may be invented from package wording."
+    },
+    {
+      "ids": ["LIRAN-16", "LIRAN-17", "LIRAN-18", "LIRAN-20"],
+      "status": "upstream_data_present",
+      "evidence": "event-2684 exposes rooms 4511 and 4512 with types, capacities, images and grouped features. Existing projections and affected-family tests retain those identities."
+    },
+    {
+      "ids": ["LIRAN-22"],
+      "status": "upstream_failure",
+      "evidence": "vacation-279 has catalog gallery data, but /api/vii/stay-calendar returned supplier_http_404_not_found. The public model must remain contact-only until the supplier calendar identity is repaired."
+    },
+    {
+      "ids": ["LIRAN-25"],
+      "status": "upstream_data_gap",
+      "evidence": "Spa House room records 1896 and 1899 expose one-hour, two-hour and three-hour prices but no separate night price. The UI already supports a supplied night price and must not infer one."
+    },
+    {
+      "ids": ["LIRAN-29"],
+      "status": "upstream_delivery_contract_required",
+      "evidence": "The candidate now requires a valid email for every join world and only reports receipt delivery when the service returns emailDelivered=true.",
+      "required": "The lead service must idempotently create one request, send one non-sensitive receipt for every join world and return a durable request id plus emailDelivered truth."
+    },
+    {
+      "ids": ["KIRA-03", "KIRA-04", "LIRAN-10"],
+      "status": "origin_overload_observed_candidate_protection_added",
+      "evidence": "A sequential public catalog probe returned vacations in 5.25 seconds and events in 2.4 seconds, then rooms and spa failed with 500 in about 0.3 seconds. Public browser audits subsequently observed broad 500/503 responses.",
+      "candidate": "Exact anonymous GET /api/catalog caching, version-bound R2 reuse and same-build stale-if-error were added. Private, malformed, duplicated-query and transactional requests bypass the shared cache."
+    }
+  ]
+}

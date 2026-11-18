@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     return json({ success: false, error: "missing_required_fields" }, 400);
   }
 
-  const isVacationJoin = payload.purpose === "join" && payload.world === "vacation";
-  if (isVacationJoin && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(payload.email || ""))) {
+  const isJoinRequest = payload.purpose === "join";
+  if (isJoinRequest && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(payload.email || ""))) {
     return json({ success: false, error: "valid_email_required" }, 400);
   }
 

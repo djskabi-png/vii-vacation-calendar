@@ -1208,6 +1208,7 @@
         "app/gift-card/",
         "app/api/integrations/spaplus/bookings/route.ts",
         "app/api/leads/route.ts",
+        "app/components/lead-intake-form.tsx",
         "app/api/vii/booking/route.ts",
         "app/lib/operations-audit.ts"
       ]
@@ -1263,6 +1264,7 @@
       "match": [
         "vite.config.ts",
         "scripts/release-build-identity.mjs",
+        ".gitattributes",
         ".openai/prepare-vii-release-handoff.ps1",
         "package.json",
         "pnpm-lock.yaml",

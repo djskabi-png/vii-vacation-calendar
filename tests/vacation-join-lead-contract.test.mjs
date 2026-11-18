@@ -16,11 +16,13 @@ test("VII server forwards leads to the global system with a shared secret", asyn
   assert.match(route, /emailDelivered: result\.emailDelivered === true/);
 });
 
-test("vacation join form requires email and reports confirmed delivery", async () => {
+test("every join form requires email and reports only confirmed delivery", async () => {
   const form = await read("app/components/lead-intake-form.tsx");
+  const route = await read("app/api/leads/route.ts");
 
-  assert.match(form, /effectiveSelectedWorld === "vacation"/);
-  assert.match(form, /required=\{isJoin && effectiveSelectedWorld === "vacation"\}/);
+  assert.match(form, /required=\{isJoin\}/);
+  assert.match(route, /const isJoinRequest = payload\.purpose === "join"/);
+  assert.match(route, /isJoinRequest && !\/\^\[\^\\s@\]/);
   assert.match(form, /sourceChannel: isJoin \? "site_join" : "site_form"/);
   assert.match(form, /locale: document\.documentElement\.lang \|\| "he"/);
   assert.match(form, /setEmailDelivered\(result\.emailDelivered === true\)/);

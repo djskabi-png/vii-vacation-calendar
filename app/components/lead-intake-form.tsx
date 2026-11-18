@@ -105,7 +105,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
         <span aria-hidden="true">✓</span>
         <h2>{isJoin ? effectiveSelectedWorld === "providers" ? "הקמת עמוד הספק התחילה" : "בקשת שיתוף הפעולה התקבלה" : isAccessibility ? "דיווח הנגישות התקבל" : "בקשת ההזמנה התקבלה"}</h2>
         <p>{isJoin ? effectiveSelectedWorld === "providers" ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו והועברו לנציג מומחה בתחום שבחרתם. הנציג יעבור על העסק ויחזור עם דרך שיתוף הפעולה המתאימה, לפני כל התחייבות." : isAccessibility ? "הדיווח נשמר עם פרטי העמוד והמכשיר שמסרתם כדי שנוכל לבדוק ולטפל בו." : "פרטי ההזמנה נשמרו. הזמינות, המחיר והתנאים יאושרו לפני כל חיוב או התחייבות."}</p>
-        {isJoin && effectiveSelectedWorld === "vacation" && emailDelivered ? <p>אישור קבלת הבקשה נשלח לכתובת הדוא״ל שמילאתם.</p> : null}
+        {isJoin && emailDelivered ? <p>אישור קבלת הבקשה נשלח לכתובת הדוא״ל שמילאתם.</p> : null}
         {reference ? <strong dir="ltr">{reference}</strong> : null}
         <Link className="button secondary" href="/">חזרה לדף הבית</Link>
       </section>
@@ -146,7 +146,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
       {isJoin ? <label>שם העסק<input required name="organization" autoComplete="organization" minLength={2} /></label> : null}
       <label>שם מלא<input key={`name-${account?.email || "guest"}`} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
       <label>טלפון לחזרה<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} defaultValue={account?.phone || ""} /></label>
-      <label className={formVariant === "corporate" ? "form-wide" : undefined}>{isJoin && effectiveSelectedWorld === "vacation" ? "כתובת דוא״ל" : "כתובת דוא״ל, לא חובה"}<input key={`email-${account?.email || "guest"}`} required={isJoin && effectiveSelectedWorld === "vacation"} name="email" type="email" autoComplete="email" defaultValue={account?.email || ""} /></label>
+      <label className={formVariant === "corporate" ? "form-wide" : undefined}>{isJoin ? "כתובת דוא״ל" : "כתובת דוא״ל, לא חובה"}<input key={`email-${account?.email || "guest"}`} required={isJoin} name="email" type="email" autoComplete="email" defaultValue={account?.email || ""} /></label>
       {formVariant === "corporate" ? <>
         <div className="lead-intake-form__divider form-wide"><span>על האירוע</span></div>
         <label>מועד משוער<input name="event_date" placeholder="לדוגמה, סוף ספטמבר" /></label>

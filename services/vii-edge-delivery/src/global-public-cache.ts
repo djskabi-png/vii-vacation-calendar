@@ -57,7 +57,7 @@ async function bodyBytes(stream:ReadableStream<Uint8Array>,limit:number,onCancel
  const out=new Uint8Array(size);let offset=0;for(const part of parts){out.set(part,offset);offset+=part.byteLength;}return out;
 }
 
-export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,key:Request,build:string){
+export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,key:Request,build:string,options:{allowStale?:boolean;maxStaleMs?:number}={}){
  if(!bucket)return undefined;
  const start=Date.now();let expired=false,cancel:(()=>Promise<void>)|undefined;
  const work=(async()=>{
@@ -70,9 +70,14 @@ export async function readGlobalPublicCache(bucket:PublicCacheBucket|undefined,k
   let value;try{value=JSON.parse(decoder.decode(bytes.subarray(4,4+length)));}catch{return undefined;}
   if(value?.version!==1||value.key!==key.url||value.build!==build||value.status!==200||!Array.isArray(value.headers))return undefined;
   const headers=new Headers(value.headers),until=Number(headers.get('X-VII-Cache-Until'));
-  if(headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||!Number.isFinite(until)||until<=Date.now()||until>Date.now()+900_000||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return undefined;
+  const stale=Number.isFinite(until)&&until<=Date.now();
+  const maxStaleMs=options.maxStaleMs??24*60*60_000;
+  if(headers.has('Set-Cookie')||headers.get('X-VII-Cache-Build')!==build||!Number.isFinite(until)
+    ||stale&&(!options.allowStale||Date.now()-until>maxStaleMs)||until>Date.now()+900_000
+    ||/(?:private|no-store|no-cache)/i.test(headers.get('Cache-Control')||''))return undefined;
   const expected=decodeURIComponent(new URL(key.url).pathname).includes('/api/')?'application/json':key.url.includes('.rsc')?'text/x-component':'text/html';
   if(!(headers.get('Content-Type')||'').includes(expected))return undefined;
+  headers.set('X-VII-Global-Cache-State',stale?'stale':'fresh');
   return new Response(bytes.subarray(4+length),{status:200,headers});
  })();
  const result=await bounded(work,400);expired=true;if(!result&&cancel)void cancel().catch(()=>undefined);

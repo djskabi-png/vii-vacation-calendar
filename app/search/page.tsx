@@ -40,7 +40,7 @@ import { VacationGeographyNav } from "../components/vacation-geography-nav";
 import { currencyLabelParts } from "../lib/currency-label";
 import { managedPresentationHref, managedSearchParams } from "../lib/managed-search-params.ts";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
-import { vacationInventorySummary } from "../lib/vacation-inventory";
+import { matchesVacationGuestCapacity, vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
 import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
@@ -745,7 +745,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
 
   const mapCandidates = useMemo(() => properties.filter((property) => {
       const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(propertyAccommodationTypes(property), selectedTypes, landing);
-      const matchesGuests = property.capacityScope === "unit" || property.guests >= guests;
+      const matchesGuests = matchesVacationGuestCapacity(property, guests);
       const matchesBedrooms = !bedrooms || (property.bedrooms || 0) >= bedrooms;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       const catalogPrice = vacationCatalogDisplayedPrice(property, startingPrices[property.slug], property.price);
@@ -1011,7 +1011,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
     const matchesPrice = !priceFilterActive
       || (typeof draftPrice === "number" && draftPrice >= shownFilters.minPrice && draftPrice <= shownFilters.maxPrice);
     return matchesType
-      && (property.capacityScope === "unit" || property.guests >= shownFilters.guests)
+      && matchesVacationGuestCapacity(property, shownFilters.guests)
       && (!shownFilters.bedrooms || (property.bedrooms || 0) >= shownFilters.bedrooms)
       && matchesPrice
       && (!shownFilters.pool || matchesVacationSearchFilter(property, "pool"))

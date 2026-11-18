@@ -137,7 +137,7 @@ async function verifyLocaleExperience(page, path, locale) {
     for (const element of document.querySelectorAll("body *")) for (const node of element.childNodes) {
       if (node.nodeType !== 3) continue;
       const text = node.textContent?.replace(/\s+/g, " ").trim() || "";
-      if (text.length < 2 || !visible(element) || element.closest("script,style,noscript,svg,[data-no-translate]")) continue;
+      if (text.length < 2 || !visible(element) || element.closest("script,style,noscript,svg,[data-no-translate],[data-original-business-name][lang='he']")) continue;
       textSamples.push({ selector: selector(element), text: text.slice(0, 220) });
     }
 

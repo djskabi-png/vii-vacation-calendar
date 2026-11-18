@@ -147,9 +147,14 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
 }
 
 export async function sitemapManifest() {
-  const manifest: Array<{ section: SitemapSection; total: number }> = [];
-  for (const section of sitemapSectionOrder) manifest.push({ section, total: (await sitemapSection(section)).length });
-  return manifest;
+  // Sections are independent read projections. Running them serially made the
+  // tiny sitemap index wait for every world one after another (about12s in
+  // production). Preserve the canonical section order while resolving the
+  // independent inventories concurrently.
+  return Promise.all(sitemapSectionOrder.map(async (section) => ({
+    section,
+    total: (await sitemapSection(section)).length,
+  })));
 }
 
 export async function sitemapInventory(): Promise<Record<SitemapSection, SitemapUrlEntry[]>> {
