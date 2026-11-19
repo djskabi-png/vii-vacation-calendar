@@ -25,7 +25,9 @@ test("accepted legacy amenity parity keeps supplier topics instead of one generi
 
 test("the place page keeps current supplier groups authoritative and hydrates only an empty snapshot", async () => {
   const source = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
-  assert.match(source, /supplierDetail\.featureGroups\?\.length \? supplierDetail\.featureGroups : legacyPlaceFeatureGroups\(base\.slug\) \|\| base\.featureGroups/);
+  assert.match(source, /const hasSupplierPropertyAmenities = supplierFeatureGroups\.length > 0 \|\| supplierFeatures\.length > 0/);
+  assert.match(source, /featureGroups: hasSupplierPropertyAmenities \? supplierFeatureGroups : legacyPlaceFeatureGroups\(base\.slug\) \|\| base\.featureGroups/);
+  assert.match(source, /features: hasSupplierPropertyAmenities \? supplierFeatures : base\.features/);
 });
 
 test("descriptive bedroom names stay in where-you-sleep and missing unit media is explicit without borrowing a property image", async () => {

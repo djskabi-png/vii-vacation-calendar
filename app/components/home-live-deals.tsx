@@ -477,7 +477,11 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const renderedCount = usePacedRailRender(selectionKey, displayedDeals.length, active, layout === "grid" || deferUntilNearViewport && layout === "rail");
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : scopedData && scopedData.key !== selectionKey ? "loading" : data && scopedData === null ? "ready" : state;
   const refreshing = displayState === "loading" && retainedData !== null;
-  const fallbackPlaces = retainedData ? [] : fallbackProperties.slice(0, layout === "grid" ? 6 : 3);
+  // Complete result grids must never show real-looking catalog cards and then
+  // replace them with a different availability set. Rails may keep their
+  // compact discovery fallback, while grids use neutral skeletons until the
+  // single authoritative result set is ready.
+  const fallbackPlaces = retainedData || layout === "grid" ? [] : fallbackProperties.slice(0, 3);
   const fallbackVisible = fallbackPlaces.length > 0 && displayState !== "ready";
   // Permanent weekend pages already own an exact date range before their
   // live availability snapshot resolves. Keep that search context on the
@@ -500,6 +504,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     ru: `${displayedDealCount} доступных вариантов`,
     fr: `${displayedDealCount} séjours disponibles`,
   } as const)[language];
+  const gridStatusLabel = displayState === "ready"
+    ? resultCountLabel
+    : displayState === "error"
+      ? text.error
+      : fallbackVisible
+        ? `${fallbackPlaces.length} ${language === "he" ? "מקומות לבדיקה" : ""}`
+        : text.loading;
 
   // Reserve every snap area at once. Appending RTL flex items while Safari is
   // settling a snap changes the rail's extent and can sweep through the list.
@@ -520,7 +531,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
 
   return <section inert={pendingSeed || undefined} aria-busy={pendingSeed || undefined} className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}${layout === "grid" ? " home-live-deals--grid" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{visibleTitle}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{displayState === "ready" ? resultCountLabel : fallbackVisible ? `${fallbackPlaces.length} ${language === "he" ? "מקומות לבדיקה" : ""}` : text.loading}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={visibleTitle} itemSelector=".home-live-deals__item" disabled={fallbackVisible ? fallbackPlaces.length === 0 : displayState !== "ready" || !displayedDealCount} /></>}</div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{visibleTitle}</h2></div><div>{layout === "grid" ? <span className="home-live-deals__count" aria-live="polite">{gridStatusLabel}</span> : <><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={visibleTitle} itemSelector=".home-live-deals__item" disabled={fallbackVisible ? fallbackPlaces.length === 0 : displayState !== "ready" || !displayedDealCount} /></>}</div></div>
       {!fixedPeriod ? <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} aria-busy={period === item.id && displayState === "loading" || undefined} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;

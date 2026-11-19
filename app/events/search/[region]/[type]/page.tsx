@@ -4,7 +4,7 @@ import EventSearchPage from "../../page";
 import { approvedWorldLocation } from "../../../../lib/world-location-pages.ts";
 import { normalizeEventVenueType, eventVenueTypeOrder } from "../../../../lib/event-search-taxonomy.ts";
 import { eventCombinationHref } from "../../../../data/world-search-landings.ts";
-import { publicCatalogSummaries } from '../../../../lib/public-catalog-read.ts';
+import { serverPublicSearchCatalog } from '../../../../lib/server-public-search-catalog.ts';
 import { PublishedCatalogSeed } from '../../../../lib/published-catalog-seed';
 import type { EventPlace } from '../../../../data/site-data';
 import { publishedSearchPage } from '../../../../lib/search-page-content.ts';
@@ -18,7 +18,7 @@ const slugs: Record<string, string> = { lofts: "לופטים", villas: "וילו
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { region, type } = await params; const location = region === 'israel' ? 'כל הארץ' : (await approvedWorldLocation("events", region))?.label; const venue = slugs[type];
   if (!location || !venue || !eventVenueTypeOrder.includes(venue as never)) return { robots: { index: false, follow: false } };
-  const hasInventory = (await publicCatalogSummaries<EventPlace>('events')).some(place => matchesEventSearchLocation(place, location) && matchesEventVenueType(place, venue));
+  const hasInventory = (await serverPublicSearchCatalog<EventPlace>('events')).some(place => matchesEventSearchLocation(place, location) && matchesEventVenueType(place, venue));
   const canonical = canonicalLegacyEventSearchPath({ location, type: venue }) || eventCombinationHref(location, venue); const title = `${venue} לאירועים ב${location}`; return { title, description: `${title}, עם תמונות, מתקנים ופנייה ישירה למקום.`, ...(!hasInventory ? { robots: { index: false, follow: true } } : {}), alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description: `${title}, עם תמונות, מתקנים ופנייה ישירה למקום.` } };
 }
 export default async function EventCombinationPage({ params, searchParams }: Props) {
@@ -35,6 +35,6 @@ export default async function EventCombinationPage({ params, searchParams }: Pro
     permanentRedirect(localizedPath(legacyPath + (query.size ? `?${query}` : ''), ['he', 'en', 'ru', 'fr'].includes(locale) ? locale as 'he' | 'en' | 'ru' | 'fr' : 'he'));
   }
   const path = eventCombinationHref(location, venue);
-  const [places, editorial] = await Promise.all([publicCatalogSummaries<EventPlace>('events'), publishedSearchPage(path)]);
+  const [places, editorial] = await Promise.all([serverPublicSearchCatalog<EventPlace>('events'), publishedSearchPage(path)]);
   return <PublishedCatalogSeed world="events" entries={places} complete={true}><EventSearchPage initialArea={location} initialSearchParams={{ location: location === 'כל הארץ' ? 'הכל' : location, type: normalizeEventVenueType(venue) }} managedPath={path} landingTitle={editorial?.title} landingDescription={editorial?.description} /></PublishedCatalogSeed>;
 }

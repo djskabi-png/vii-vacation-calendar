@@ -26,8 +26,8 @@ test("feature icon resolver always renders a vector icon and protects the Hebrew
 
 test("every place-detail feature family consumes the shared semantic icon", () => {
   assert.match(sharedAmenities, /<FeatureIcon label=\{item\} className="unified-amenities__icon" \/>/);
-  assert.match(vacation, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
-  assert.match(events, /<UnifiedAmenityList items=\{localizedBusinessList\(eventFeatures, language, translate\)\} \/>/);
+  assert.match(vacation, /<UnifiedAmenityList groups=\{propertyAmenityGroups\} \/>/);
+  assert.match(events, /<UnifiedAmenityList groups=\{eventAmenityGroups\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{facility\} className="spa-facility-icon" \/>/);
   assert.match(discover, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{feature\} className="discovery-card__chip-icon" \/>/);

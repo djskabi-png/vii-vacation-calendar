@@ -17,7 +17,7 @@ import { managedVacationPriority } from "../../lib/vacation-priority.ts";
 import { publicCatalogDatabase, type ReportingDatabase } from "../../lib/runtime-database.ts";
 import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 import { projectSergeyPublicCatalogValue } from "../../lib/sergey-public-catalog-projection.ts";
-import { mergeBundledDetail } from "../../lib/public-catalog-read.ts";
+import { bundledPublicSearchCatalogSummaries, mergeBundledDetail, projectPublicSearchCatalogEntries } from "../../lib/public-catalog-read.ts";
 import { readPublicSearchCatalogSnapshot } from "../../lib/public-search-catalog-snapshot.ts";
 import { spaPlacesFromSites } from "../../lib/spa-discovery-card.ts";
 import type { SpaPlusSite } from "../../data/spaplus.ts";
@@ -150,11 +150,13 @@ export async function catalogResponse(request: Request, db: D1Database | null): 
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
         if (view === "search") {
+          const searchWorld = world as "vacations" | "events";
+          const projected = await projectPublicSearchCatalogEntries(searchWorld, publicEntries.map((entry) => entry.summary), await readPublishedItems(db, world === "vacations" ? "vacation" : "events").catch(() => []));
           if (world === "events") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
-       entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as unknown as EventPlace[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
-     const prioritized = withVacationSearchPriority(entries as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+       entries: publicEventSearchPlaces(projected as EventPlace[]).map((summary, index) => ({ ...publicEntries[index], summary })) }, { headers: publicCatalogCache });
+     const prioritized = withVacationSearchPriority(publicVacationSearchProperties(projected as Property[]).map((summary, index) => ({ ...publicEntries[index], summary })) as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
           return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
-            entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
+            entries: prioritized }, { headers: publicCatalogCache });
         }
         return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries }, { headers: publicCatalogCache });
       }
@@ -176,11 +178,12 @@ export async function catalogResponse(request: Request, db: D1Database | null): 
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
       entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
   if (view === "search") {
+    const searchSummaries = await bundledPublicSearchCatalogSummaries<EventPlace | Property>(world as "vacations" | "events");
     if (world === "events") return Response.json({ world, source: "bundled-fallback", fetchedAt,
-       entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as unknown as EventPlace[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
-     const prioritized = withVacationSearchPriority(entries as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+       entries: searchSummaries.map((summary, index) => ({ ...rawEntries[index], summary })) }, { headers: publicCatalogCache });
+     const prioritized = withVacationSearchPriority(searchSummaries.map((summary, index) => ({ ...rawEntries[index], summary })) as unknown as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
-      entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
+      entries: prioritized }, { headers: publicCatalogCache });
   }
   if (supplierId !== null) {
     const entry = entries.find((item) => item.supplierId === supplierId);

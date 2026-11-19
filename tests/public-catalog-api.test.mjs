@@ -173,9 +173,9 @@ test("search paints bounded snapshots and replaces them with the accepted catalo
   assert.match(hook, /if \(\(seed === null \|\| !seedComplete\) && !browserCatalog\) void load\(\)/);
   assert.match(hook, /visibilitychange/);
   assert.match(vacationLayout, /bundledPublicCatalogSummaries<Property>\("vacations"\)/);
-  assert.match(eventLayout, /bundledPublicCatalogSummaries<EventPlace>\("events"\)/);
+  assert.match(eventLayout, /serverPublicSearchCatalog<EventPlace>\("events"\)/);
   assert.match(vacationLayout, /complete=\{false\}/);
-  assert.match(eventLayout, /complete=\{false\}/);
+  assert.match(eventLayout, /entries=\{entries\} complete/);
   assert.match(hook, /if \(!hasAcceptedContent\.current\) setItems\(\[\]\);\s*setError\(!hasAcceptedContent\.current\)/);
   assert.match(hook, /hasAcceptedContent\.current = true/);
   assert.match(hook, /requestIdleCallback/);

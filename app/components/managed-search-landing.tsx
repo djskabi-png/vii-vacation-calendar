@@ -14,6 +14,7 @@ import { matchesSearchLocation } from "../data/search-taxonomy";
 import { matchesVacationAccommodationType, matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { serverPublicSearchCatalog } from "../lib/server-public-search-catalog.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { WorldLanding } from "./world-landing";
@@ -31,7 +32,7 @@ function filterEvent(place: EventPlace, location: string, filters: Record<string
 }
 
 async function resultsFor(world: string, location: string, filters: Record<string, string | number | boolean>, fallbackMode?: "nearby"): Promise<{ items: Result[]; expanded: boolean }> {
-  if (world === "events") return { items: (await publicCatalogSummaries<EventPlace>("events")).filter((place) => filterEvent(place, location, filters)).map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/events/place/${place.slug}` })), expanded: false };
+  if (world === "events") return { items: (await serverPublicSearchCatalog<EventPlace>("events")).filter((place) => filterEvent(place, location, filters)).map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/events/place/${place.slug}` })), expanded: false };
   if (world === "vacation") {
     const catalog = await publicCatalogSummaries<Property>("vacations");
     const featureIds = typeof filters.features === "string" ? filters.features.split(",").filter(Boolean) : [];
@@ -77,8 +78,8 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
     </>;
   }
   if (page.world === "events") {
-    const eventEntries = await publicCatalogSummaries<EventPlace>("events");
-    return <PublishedCatalogSeed world="events" entries={eventEntries}>
+    const eventEntries = await serverPublicSearchCatalog<EventPlace>("events");
+    return <PublishedCatalogSeed world="events" entries={eventEntries} complete>
       <EventSearchPage initialArea={page.location} landingTitle={page.h1} landingDescription={page.metaDescription}
         initialSearchParams={Object.fromEntries(Object.entries(page.filters).map(([key, value]) => [key, value === true ? "1" : String(value)]))}
         managedPath={page.canonicalPath} managedBody={page.body} managedFaq={page.faq} />

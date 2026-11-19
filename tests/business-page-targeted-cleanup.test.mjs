@@ -25,8 +25,8 @@ test("date launcher uses one clear mobile hierarchy", () => {
 
 test("mobile amenities stay short until the visitor expands them", () => {
   assert.match(business, /<h2>מתקנים ושירותים<\/h2>/);
-  assert.match(business, /const propertyAmenities = localizedBusinessList/);
-  assert.match(business, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
+  assert.match(business, /const propertyAmenityGroups = featureGroups\.map/);
+  assert.match(business, /<UnifiedAmenityList groups=\{propertyAmenityGroups\} \/>/);
   assert.match(styles, /\.unified-amenities__toggle/);
   assert.doesNotMatch(business, /mobileFeaturePreview|mobileFeaturesOpen|allFeaturesOpen/);
   assert.doesNotMatch(business, /<h2>מה מחכה לכם במקום<\/h2>/);

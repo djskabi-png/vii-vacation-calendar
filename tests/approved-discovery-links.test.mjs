@@ -48,8 +48,8 @@ test("approved birthday and family pages have real matching inventory", async ()
 
 test("approved event pages receive a complete server catalog seed", () => {
   const landing = readFileSync(new URL("../app/components/managed-search-landing.tsx", import.meta.url), "utf8");
-  assert.match(landing, /publicCatalogSummaries<EventPlace>\("events"\)/);
-  assert.match(landing, /<PublishedCatalogSeed world="events" entries=\{eventEntries\}>/);
+  assert.match(landing, /serverPublicSearchCatalog<EventPlace>\("events"\)/);
+  assert.match(landing, /<PublishedCatalogSeed world="events" entries=\{eventEntries\} complete>/);
 });
 
 test("homepage first paint is fed by the authoritative server presentation", () => {

@@ -82,13 +82,16 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
    // Availability has one transport identity per scope. Putting presentation
    // rotation in this URL fragmented both browser and edge caches into cold
    // variants. Fair per-document ordering remains in orderDiscoveryRail.
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:6_000, totalTimeoutMs:10_000, retries:1, cache:"default", persist:true, freshMs:120_000, staleMs:900_000,
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:5_000, totalTimeoutMs:7_000, retries:1, cache:"default", persist:true, freshMs:120_000, staleMs:900_000,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){
     const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);});
     setResult(current=>{if(body.availabilityStatus!=="refreshing")return{key:requestKey,data:body,status:"ready"};
      const previous=current.key===requestKey&&current.data?.availabilityStatus==="verified"?current.data:null;
-     return{key:requestKey,data:previous,status:followup?"loading":previous?"ready":"error"};});
+     // A provider-side refresh is not verified inventory. Without a previous
+     // verified snapshot, leave the neutral skeleton immediately and expose a
+     // retry action while the bounded background follow-up may continue.
+     return{key:requestKey,data:previous,status:previous?"ready":"error"};});
     if(followup){followupCountRef.current = followup.nextCount; followupTimer = followup.timer as number; }}})
    .catch(()=>{if(!controller.signal.aborted) setResult(current=>current.key===requestKey&&current.data?{...current,status:"ready"}:{key:requestKey,data:null,status:"error"});});
   return ()=>{controller.abort(); if(followupTimer !== undefined) window.clearTimeout(followupTimer);};

@@ -15,12 +15,12 @@ const details = JSON.parse(fs.readFileSync(new URL("../app/data/sergey-place-det
 test("event projection preserves supplier gallery groups, grouped facilities and room measurements", () => {
   assert.match(projector, /galleryGroups: detail\.galleryGroups\?\.length \? detail\.galleryGroups : base\.galleryGroups/);
   assert.match(projector, /images: \[\.\.\.new Set\(\[\.\.\.\(detail\.images \|\| \[\]\), \.\.\.\(base\.images \|\| \[\]\)\]\)\]/);
-  assert.match(projector, /featureGroups: featureGroups\.length \? featureGroups : base\.featureGroups/);
+  assert.match(projector, /featureGroups: hasSupplierPropertyAmenities \? featureGroups : base\.featureGroups/);
   assert.match(projector, /roomOptions: roomOptions\.length \? roomOptions : base\.roomOptions/);
   assert.match(projector, /builtArea: room\.builtArea/);
   assert.match(projector, /totalArea: room\.totalArea/);
-  assert.match(client, /featureGroups\.flatMap/);
-  assert.match(client, /eventFeatures\.length/);
+  assert.match(client, /const eventAmenityGroups = useMemo/);
+  assert.match(client, /completeFeatureGroups\(room\.featureGroups, room\.features\)/);
   assert.match(client, /שטח בנוי/);
   assert.match(client, /שטח כללי/);
 });
@@ -59,8 +59,9 @@ test("accepted features remain visible when supplier taxonomy groups are incompl
   assert.match(client, /function completeFeatureGroups/);
   assert.match(client, /title: "מתקנים נוספים", items: ungrouped/);
   assert.match(client, /completeFeatureGroups\(place\.featureGroups, place\.features\)/);
-  assert.match(client, /const eventFeatures = useMemo/);
-  assert.match(client, /seen\.has\(key\)/);
+  assert.match(client, /const eventAmenityGroups = useMemo/);
+  assert.match(client, /<UnifiedAmenityList groups=\{eventAmenityGroups\} \/>/);
+  assert.doesNotMatch(projector, /detail\.rooms\.flatMap\(\(room\) => room\.features\)/);
 });
 
 test("selected place summaries use the same official public database as the catalog API", () => {

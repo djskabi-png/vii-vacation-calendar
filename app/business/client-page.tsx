@@ -152,8 +152,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
   const property = useMemo<Property>(() => {
     const base = initialProperty;
+    if (!supplierDetail) return base;
     const supplierBedrooms = supplierDetail ? totalBedroomCountFromRooms(supplierDetail.rooms) : 0;
-    return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
+    const supplierFeatureGroups = (supplierDetail.featureGroups || []).filter((group) => group.title.trim() && group.items.length);
+    const supplierFeatures = [...new Set([...(supplierDetail.features || []), ...supplierFeatureGroups.flatMap((group) => group.items)])];
+    const hasSupplierPropertyAmenities = supplierFeatureGroups.length > 0 || supplierFeatures.length > 0;
+    return { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
       units: supplierDetail.units || base.units, bedrooms: supplierBedrooms || base.bedrooms, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), ...(supplierDetail.whatsapp ? { whatsapp: supplierDetail.whatsapp } : {}) },
@@ -164,8 +168,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
         bedrooms: room.bedrooms, builtArea: room.builtArea, totalArea: room.totalArea, area: room.area, image: room.images?.[0] || "", images: room.images || [], features: room.features,
         featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })) : base.roomOptions,
-      featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : legacyPlaceFeatureGroups(base.slug) || base.featureGroups,
-      features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features])] } : base;
+      featureGroups: hasSupplierPropertyAmenities ? supplierFeatureGroups : legacyPlaceFeatureGroups(base.slug) || base.featureGroups,
+      features: hasSupplierPropertyAmenities ? supplierFeatures : base.features,
+      highlights: supplierDetail.highlights?.length ? supplierDetail.highlights.map((label) => ({ label, icon: "default" as const })) : base.highlights };
   }, [initialProperty, supplierDetail]);
   const visibleReviewSummary = useMemo(() => normalizeReviewSummary({
     count: supplierDetail?.reviewCount ?? property.reviews,
@@ -369,7 +374,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
     resolvedBusinessFeatureGroups(liveFeatureGroups, property.featureGroups),
     property.features,
   );
-  const propertyAmenities = localizedBusinessList(featureGroups.flatMap((group) => group.items), language, translate);
+  const propertyAmenityGroups = featureGroups.map((group) => ({
+    title: localizedBusinessList([group.title], language, translate)[0] || translate("מאפיינים נוספים"),
+    items: localizedBusinessList(group.items, language, translate),
+  }));
   const placeGalleryImages = property.images;
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
   const unitCopy = {
@@ -586,7 +594,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
             <section id="features" className="feature-section">
               <span className="eyebrow">עיקרי המקום</span>
               <h2>מתקנים ושירותים</h2>
-              {featureGroups.length ? <UnifiedAmenityList items={propertyAmenities} /> : <p className="feature-section__loading" aria-live="polite">{translate(featureGroupsSettled ? "פרטי המתקנים המלאים יתעדכנו ברענון הבא." : "טוענים את מתקני המקום…")}</p>}
+              {featureGroups.length ? <UnifiedAmenityList groups={propertyAmenityGroups} /> : <p className="feature-section__loading" aria-live="polite">{translate(featureGroupsSettled ? "פרטי המתקנים המלאים יתעדכנו ברענון הבא." : "טוענים את מתקני המקום…")}</p>}
             </section>
 
             {verifiedSleepingRooms.length ? <VerifiedSleepingDetails placeName={localizedPropertyName} rooms={verifiedSleepingRooms} /> : property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. לפרטים על סוגי המיטות, בדקו מול המקום.`}</p></section> : null}

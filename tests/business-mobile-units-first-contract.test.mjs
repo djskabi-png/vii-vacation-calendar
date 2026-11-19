@@ -8,7 +8,7 @@ const css = readEffectiveWorldCss();
 
 test("mobile business details place bookable units before the long facilities inventory", () => {
   assert.ok(source.indexOf('id="rooms"') < source.indexOf('id="features"'));
-  assert.match(source, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
+  assert.match(source, /<UnifiedAmenityList groups=\{propertyAmenityGroups\} \/>/);
   assert.doesNotMatch(source, /feature-section__mobile-preview|mobileFeaturesOpen|mobile-feature-groups/);
 });
 

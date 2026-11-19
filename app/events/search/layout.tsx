@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
-import { bundledPublicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { serverPublicSearchCatalog } from "../../lib/server-public-search-catalog.ts";
 import { PublishedCatalogSeed } from "../../lib/published-catalog-seed";
 import type { EventPlace } from "../../data/site-data";
 import { SearchDepthSeed } from "../../components/search-depth-seed";
 import { trails } from "../../data/trail-data";
 import { providerProfiles } from "../../data/world-data";
-import { publicEventSearchPlaces } from "../../lib/public-event-search";
 
 const searchDepthSeed = {
   trails: trails.map((trail) => ({ slug: trail.slug, name: trail.name, mainArea: trail.mainArea, region: trail.region, areaTags: trail.areaTags, image: trail.image || `/images/trails/${trail.slug}.jpg`, meta: `${trail.duration} · ${trail.difficulty}` })),
@@ -13,6 +12,6 @@ const searchDepthSeed = {
 };
 
 export default async function EventSearchLayout({ children }: { children: ReactNode }) {
-  const entries = publicEventSearchPlaces(await bundledPublicCatalogSummaries<EventPlace>("events"));
-  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries} complete={false}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
+  const entries = await serverPublicSearchCatalog<EventPlace>("events");
+  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries} complete>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

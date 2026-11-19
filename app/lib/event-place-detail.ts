@@ -6,8 +6,9 @@ function nonEmptyGroups(groups: ListingFeatureGroup[] | undefined) {
 }
 
 export function eventFeatureGroups(detail: SupplierPlaceDetail): ListingFeatureGroup[] {
-  const shared = nonEmptyGroups(detail.featureGroups);
-  const source = shared.length ? shared : detail.rooms.flatMap((room) => nonEmptyGroups(room.featureGroups));
+  // Only shared supplier amenities belong to the venue. Room/space groups are
+  // rendered inside their owning room and must never be promoted to the place.
+  const source = nonEmptyGroups(detail.featureGroups);
   const merged = new Map<string, string[]>();
   for (const group of source) {
     const current = merged.get(group.title) || [];
@@ -41,6 +42,8 @@ export function eventRoomOptions(detail: SupplierPlaceDetail): StayOption[] {
 export function projectEventPlaceDetail(base: EventPlace, detail?: SupplierPlaceDetail): EventPlace {
   if (!detail) return base;
   const featureGroups = eventFeatureGroups(detail);
+  const supplierFeatures = [...new Set([...(detail.features || []), ...featureGroups.flatMap((group) => group.items)])];
+  const hasSupplierPropertyAmenities = featureGroups.length > 0 || supplierFeatures.length > 0;
   const roomOptions = eventRoomOptions(detail);
   return {
     ...base,
@@ -61,12 +64,8 @@ export function projectEventPlaceDetail(base: EventPlace, detail?: SupplierPlace
     },
     description: detail.summary || base.description,
     roomOptions: roomOptions.length ? roomOptions : base.roomOptions,
-    featureGroups: featureGroups.length ? featureGroups : base.featureGroups,
-    features: [...new Set([
-      ...(detail.highlights || []),
-      ...(detail.features || []),
-      ...base.features,
-      ...detail.rooms.flatMap((room) => room.features),
-    ])],
+    featureGroups: hasSupplierPropertyAmenities ? featureGroups : base.featureGroups,
+    features: hasSupplierPropertyAmenities ? supplierFeatures : base.features,
+    highlights: detail.highlights?.length ? detail.highlights.map((label) => ({ label, icon: "default" as const })) : base.highlights,
   };
 }

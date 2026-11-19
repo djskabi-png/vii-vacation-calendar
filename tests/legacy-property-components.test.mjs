@@ -25,7 +25,7 @@ test("property page preserves description, highlights and full feature groups as
   assert.match(page, /\{aboutCanExpand \? <button className="property-about__toggle"/);
   assert.match(page, /aria-controls="property-about-description" aria-expanded=\{aboutExpanded\}/);
   assert.match(page, /aboutExpanded \? "סגור" : "פתח עוד"/);
-  assert.match(page, /<UnifiedAmenityList items=\{propertyAmenities\} \/>/);
+  assert.match(page, /<UnifiedAmenityList groups=\{propertyAmenityGroups\} \/>/);
   assert.doesNotMatch(page, /property-feature-groups|modal-feature-groups/);
   assert.match(page, /resolvedBusinessFeatureGroups\(liveFeatureGroups, property\.featureGroups\)/);
   assert.match(page, /featureGroups\.length/);

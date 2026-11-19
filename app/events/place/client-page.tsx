@@ -92,11 +92,10 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => projectEventPlaceDetail(initialPlace, supplierDetail), [initialPlace, supplierDetail]);
   const featureGroups = useMemo(() => completeFeatureGroups(place.featureGroups, place.features), [place.featureGroups, place.features]);
-  const eventFeatures = useMemo(() => {
-    const values = [...featureGroups.flatMap((group) => group.items), ...(supplierDetail?.rooms.flatMap((room) => [...room.features, ...(room.featureGroups || []).flatMap((group) => group.items)]) || [])];
-    const seen = new Set<string>();
-    return values.filter((value) => { const key = value.trim().replace(/\s+/g, " ").toLocaleLowerCase("he-IL"); if (!key || seen.has(key)) return false; seen.add(key); return true; });
-  }, [featureGroups, supplierDetail?.rooms]);
+  const eventAmenityGroups = useMemo(() => featureGroups.map((group) => ({
+    title: localizedBusinessList([group.title], language, translate)[0] || translate("מאפיינים נוספים"),
+    items: localizedBusinessList(group.items, language, translate),
+  })), [featureGroups, language, translate]);
   const eventContentCopy = {
     he: { name: "מתחם אירועים מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מתחם אירועים ב${location}. כאן תוכלו לראות תמונות, מתקנים, קיבולת ודרכי יצירת קשר.`, unit: "מתחם אירוח", policy: "הערות ותנאים נוספים מאושרים ישירות מול המקום." },
     en: { name: "Verified event venue", location: "Israel", description: (name: string, location: string) => `${name} is a verified event venue in ${location}. Explore its photos, amenities, capacity and contact options.`, unit: "Event space", policy: "Additional notes and terms are confirmed directly with the venue." },
@@ -184,8 +183,14 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <div className="shell event-place-layout">
           <div>
             {place.description ? <section id="event-about"><h2>{translate("על המקום")}</h2><ExpandableDescription text={localizedDescription} /></section> : null}
-            {eventFeatures.length ? <section id="event-features"><h2>{translate("מאפייני המקום")}</h2><UnifiedAmenityList items={localizedBusinessList(eventFeatures, language, translate)} /></section> : null}
-            {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים במקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3>{room.quantity > 0 || room.guests > 0 || room.builtArea || room.area || room.totalArea ? <p>{room.quantity > 0 ? `${room.quantity} ${room.quantity === 1 ? "מתחם" : "מתחמים"}` : ""}{room.quantity > 0 && room.guests > 0 ? " · " : ""}{room.guests > 0 ? `עד ${room.guests} משתתפים ביחידה` : ""}{room.builtArea || room.area ? ` · שטח בנוי ${room.builtArea || room.area} מ״ר` : ""}{room.totalArea ? ` · שטח כללי ${room.totalArea} מ״ר` : ""}</p> : null}</article>)}</div></section> : null}
+            {eventAmenityGroups.length ? <section id="event-features"><h2>{translate("מאפייני המקום")}</h2><UnifiedAmenityList groups={eventAmenityGroups} /></section> : null}
+            {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים במקום</h2><div>{supplierDetail.rooms.map((room, index) => {
+              const roomGroups = completeFeatureGroups(room.featureGroups, room.features).map((group) => ({
+                title: localizedBusinessList([group.title], language, translate)[0] || translate("מאפיינים נוספים"),
+                items: localizedBusinessList(group.items, language, translate),
+              }));
+              return <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3>{room.quantity > 0 || room.guests > 0 || room.builtArea || room.area || room.totalArea ? <p>{room.quantity > 0 ? `${room.quantity} ${room.quantity === 1 ? "מתחם" : "מתחמים"}` : ""}{room.quantity > 0 && room.guests > 0 ? " · " : ""}{room.guests > 0 ? `עד ${room.guests} משתתפים ביחידה` : ""}{room.builtArea || room.area ? ` · שטח בנוי ${room.builtArea || room.area} מ״ר` : ""}{room.totalArea ? ` · שטח כללי ${room.totalArea} מ״ר` : ""}</p> : null}{roomGroups.length ? <UnifiedAmenityList groups={roomGroups} className="supplier-room-amenities" /> : null}</article>;
+            })}</div></section> : null}
             <ListingAccessibility slug={place.slug} features={place.features} filterIds={place.searchFilterIds} featureGroups={featureGroups} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{localizedLocation}</h2><p>{localizedArea}</p>{typeof place.lat === "number" && typeof place.lng === "number" ? <span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span> : <span className="location-card__inline-note">המיקום המדויק טרם נמסר על ידי המקום.</span>}</div>{typeof place.lat === "number" && typeof place.lng === "number" ? <DeferredListingMap listings={[place]} mode="events" single /> : null}</section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div>{place.guests > 0 ? <article><b>קיבולת</b><p>עד {place.guests} אורחים ביחידה הגדולה. קיבולת האירוע כולו תיבדק מול המקום.</p></article> : null}<article><b>תיאום</b><p>התאריך, הקיבולת והמחיר הסופי מאושרים ישירות מול המקום בבקשה אחת.</p></article>{supplierDetail?.policy.remarks ? <article><b>הערות המקום</b><p>{safeEventText(supplierDetail.policy.remarks, eventContentCopy.policy)}</p></article> : null}</div></section>

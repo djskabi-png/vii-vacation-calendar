@@ -12,7 +12,10 @@ export function verifiedSupplierVideosFor(slug: string, poster: string): Listing
   });
 }
 export function attachVerifiedSupplierVideo<T extends { slug: string; image: string; videos?: ListingVideo[] }>(property: T): T {
-  if (property.videos !== undefined) return property;
+  // A supplier response may explicitly contain an empty array while the
+  // accepted legacy inventory still has a verified real video. Preserve any
+  // current supplier video, but let an empty list use that verified fallback.
+  if (property.videos?.length) return property;
   const videos = verifiedSupplierVideosFor(property.slug, property.image);
   return videos.length ? { ...property, videos } : property;
 }

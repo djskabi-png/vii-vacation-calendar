@@ -14,7 +14,9 @@ import { localGalleryMediaUrl } from "./legacy-gallery-media.ts";
 import { projectSergeyPublicCatalogValue } from "./sergey-public-catalog-projection.ts";
 import { readOnceInServerRequest } from './server-request-reads.ts';
 import { eventSearchTaxonomy } from './event-search-taxonomy.ts';
-import type { EventPlace } from '../data/site-data.ts';
+import { publicEventSearchPlaces } from './public-event-search.ts';
+import { publicVacationSearchProperties } from './public-vacation-search.ts';
+import type { EventPlace, Property } from '../data/site-data.ts';
 import type { D1Database } from '../../types/cloudflare-runtime';
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
@@ -36,6 +38,19 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
  */
 export async function bundledPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   return await publicSummaries(world, bundled(world)) as T[];
+}
+
+/**
+ * Immutable fallback for search routes. Unlike the display-card projection,
+ * this derives semantic facets from the accepted supplier source before the
+ * public description is shortened. SSR and the hydrated search API therefore
+ * retain the same filter identities even when the runtime database is cold.
+ */
+export async function bundledPublicSearchCatalogSummaries<T>(world: "vacations" | "events"): Promise<T[]> {
+  const projected = await projectPublicSearchCatalogEntries(world, bundled(world), []);
+  return (world === "events"
+    ? publicEventSearchPlaces(projected as EventPlace[])
+    : publicVacationSearchProperties(projected as Property[])) as T[];
 }
 
 /**

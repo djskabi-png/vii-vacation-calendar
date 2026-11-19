@@ -6,13 +6,13 @@ import * as jsx from 'react/jsx-runtime';
 import {attachVerifiedSupplierVideo,isSafeYoutubeEmbed,legacySupplierVideos} from '../app/lib/verified-supplier-videos.ts';
 import {homeTourVideos} from '../app/lib/home-video-selection.ts';
 
-test('verified legacy video belongs only to its active resolved supplier and preserves explicit current arrays',()=>{
+test('verified legacy video belongs only to its active resolved supplier, fills empty arrays and preserves current videos',()=>{
  const place={slug:'vacation-2356',image:'/same-place.jpg'};
  const attached=attachVerifiedSupplierVideo(place);
  assert.equal(legacySupplierVideos[place.slug][0].sourceUrl,'https://www.vii.co.il/Shilo_Suites');
  assert.equal(attached.videos[0].embedUrl,'https://www.youtube-nocookie.com/embed/WNhfp-IKebA');
  assert.equal(attached.videos[0].poster,place.image);
- assert.deepEqual(attachVerifiedSupplierVideo({...place,videos:[]}).videos,[]);
+ assert.equal(attachVerifiedSupplierVideo({...place,videos:[]}).videos[0].embedUrl,'https://www.youtube-nocookie.com/embed/WNhfp-IKebA');
  const current=[{title:'Current source',src:'/current.mp4',poster:'/same-place.jpg',note:''}];
  assert.equal(attachVerifiedSupplierVideo({...place,videos:current}).videos,current);
  assert.equal(attachVerifiedSupplierVideo({...place,slug:'vacation-523'}).videos,undefined);

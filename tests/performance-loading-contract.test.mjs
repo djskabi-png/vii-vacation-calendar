@@ -211,12 +211,16 @@ test("place detail enrichment is lazy, deduplicated and independently cacheable"
 });
 
 test("event search serializes a bounded discovery projection", async () => {
-  const [layout, projection] = await Promise.all([
+  const [layout, projection, serverCatalog, publicCatalogRead] = await Promise.all([
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),
     readFile(new URL("app/lib/public-event-search.ts", root), "utf8"),
+    readFile(new URL("app/lib/server-public-search-catalog.ts", root), "utf8"),
+    readFile(new URL("app/lib/public-catalog-read.ts", root), "utf8"),
   ]);
-  assert.match(layout, /publicEventSearchPlaces\(/);
-  assert.doesNotMatch(layout, /publicEventSearchPlaces\([^)]*,\s*1\)/);
+  assert.match(layout, /serverPublicSearchCatalog<EventPlace>\("events"\)/);
+  assert.match(serverCatalog, /bundledPublicSearchCatalogSummaries<T>\(world\)/);
+  assert.match(publicCatalogRead, /publicEventSearchPlaces\(projected as EventPlace\[\]\)/);
+  assert.doesNotMatch(publicCatalogRead, /publicEventSearchPlaces\([^)]*,\s*1\)/);
   assert.match(projection, /imageLimit = 5/);
   assert.match(projection, /description: ""/);
   assert.doesNotMatch(projection, /roomOptions|dailyAvailability|dateQuotes|reviewHighlights/);

@@ -6,11 +6,12 @@ import { getHourlyDetails } from "../app/data/hourly-details.ts";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("event details expose one feature disclosure and no redundant title action", () => {
+test("event details keep property and room feature disclosures scoped and omit redundant title action", () => {
   const source = read("app/events/place/client-page.tsx");
-  assert.match(source, /const eventFeatures = useMemo/);
+  assert.match(source, /const eventAmenityGroups = useMemo/);
   assert.match(source, /<h2>\{translate\("מאפייני המקום"\)\}<\/h2>/);
-  assert.equal((source.match(/<UnifiedAmenityList/g) || []).length, 1);
+  assert.equal((source.match(/<UnifiedAmenityList/g) || []).length, 2);
+  assert.match(source, /className="supplier-room-amenities"/);
   assert.doesNotMatch(source, /translate\("בדיקת אירוע"\)/);
   assert.doesNotMatch(source, /CollapsibleFeatureList|mobileInitialCount/);
 });
