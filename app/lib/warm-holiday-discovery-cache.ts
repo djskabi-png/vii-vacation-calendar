@@ -50,5 +50,10 @@ export async function warmHolidayDiscoveryCache(db: D1Database, now = new Date()
   const names = new Map(index.places.map(place => [place.supplierId, place.name]));
   const catalog = discoveryVacationCatalog(await publicCatalogSummaries<DiscoveryVacationPlace>("vacations"));
   const jobs = holidayWarmSelections(holidays, settings).map(({ holiday, guests, requestedFrom, requestedTill }) => async () => cachedHolidayDiscovery({ db, id: holiday.id, from: holiday.from, till: holiday.till, guests, part: "all", requestedFrom, requestedTill, now, load: () => getHomeHolidayDeals({ id: holiday.id, token, holidays, now, publicSiteIds: index.publishedIds, publicNames: names, resolveCatalog: catalog, guests, part: "all", from: requestedFrom, till: requestedTill }), validate: value => Boolean(value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)) }));
-  return runHolidayWarmJobs(jobs, { limit: 2, deadline });
+  // The supplier check for one holiday expands to the accepted 1-4 night
+  // plan. With two workers, the six public couple tabs could consume the
+  // entire 90 second admission window and leave the next visitor doing the
+  // cold work. Four bounded workers prepare the complete visible couple row
+  // first, while the lease still coalesces identical visitor and cron reads.
+  return runHolidayWarmJobs(jobs, { limit: 4, deadline });
 }

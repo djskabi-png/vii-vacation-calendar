@@ -1,4 +1,5 @@
 import test from "node:test"; import assert from "node:assert/strict"; import { runHolidayWarmJobs, holidayWarmSelections, holidayDiscoveryKey } from "../app/lib/warm-holiday-discovery-cache.ts";
+import { readFileSync } from "node:fs";
 import { defaultHomeDisplaySettings } from '../app/lib/home-display-settings.ts';
 test("holiday warm jobs run max two concurrently and isolate one failure", async () => {
   let active = 0, max = 0; const jobs = Array.from({ length: 18 }, (_, i) => async () => { active++; max = Math.max(max, active); await new Promise(r => setTimeout(r, 2)); active--; if (i === 4) throw new Error("one failure"); return i; });
@@ -9,6 +10,11 @@ test("deadline stops admitting new holiday jobs", async () => {
   let now = 0, started = 0; const jobs = Array.from({ length: 18 }, () => async () => { started++; now += 10; return started; });
   const result = await runHolidayWarmJobs(jobs, { limit: 2, deadline: 25, now: () => now });
   assert.ok(started <= 4); assert.equal(result.length, started);
+});
+
+test("the production holiday warmer admits four bounded workers so all visible couple tabs are prepared before a visitor arrives", () => {
+  const source = readFileSync(new URL("../app/lib/warm-holiday-discovery-cache.ts", import.meta.url), "utf8");
+  assert.match(source, /runHolidayWarmJobs\(jobs, \{ limit: 4, deadline \}\)/);
 });
 
 test('visible CMS holidays are all prepared for two guests before larger parties; hidden and exact dates are respected', () => {
