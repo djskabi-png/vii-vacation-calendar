@@ -1,0 +1,8 @@
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:react-canary (25%)
+  - rsc:virtual-client-package (11%)
+  - rsc:rsc-css-export-transform (9%)
+  - vinext:og-font-patch (9%)
+  - rsc:scan-strip (7%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+

@@ -1,0 +1,99 @@
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 369 modules transformed.
+rendering chunks...
+✓ built in 3.21s
+[2/5] analyze server references...
+[2Ktransforming...✓ 99 modules transformed.
+rendering chunks...
+✓ built in 511ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 375 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.57s
+[4/5] build client environment...
+[2Ktransforming...✓ 106 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.05s
+[5/5] build ssr environment...
+[2Ktransforming...✓ 105 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 933ms
+[0m
+  Route (app)
+  ┌ ? /                                       
+  ├ ? /access-denied                          
+  ├ ƒ /adir                                   
+  ├ ƒ /admin                                  
+  ├ ƒ /admin/bugs                             
+  ├ ƒ /admin/operations                       
+  ├ ƒ /admin/operations/dashboard-preview     
+  ├ ƒ /admin/operations/spas/new              
+  ├ ƒ /admin/projects                         
+  ├ ƒ /admin/spa-previews                     
+  ├ λ /admin/spa-previews/data                
+  ├ λ /admin/spa-previews/media               
+  ├ λ /admin/spa-previews/records             
+  ├ ƒ /admin/tools                            
+  ├ ? /ads/ontario-preview                    
+  ├ λ /api/adir/projects-public               
+  ├ λ /api/admin/meta-campaign                
+  ├ λ /api/cms/bugs                           
+  ├ λ /api/cms/content                        
+  ├ λ /api/cms/delivery-status                
+  ├ λ /api/cms/operations                     
+  ├ λ /api/cms/projects                       
+  ├ λ /api/cms/projects-public                
+  ├ λ /api/cms/public                         
+  ├ λ /api/cms/spa-previews                   
+  ├ λ /api/cms/submissions                    
+  ├ λ /api/cms/submissions/notes              
+  ├ λ /api/cms/users                          
+  ├ λ /api/contact                            
+  ├ λ /api/integrations/meta-ontario-leads    
+  ├ λ /api/integrations/roomsvip-leads        
+  ├ λ /api/integrations/vii-leads             
+  ├ λ /api/market-spa-leads                   
+  ├ λ /api/meeting-contacts                   
+  ├ λ /api/meetings                           
+  ├ λ /api/meetings/calendar                  
+  ├ λ /api/tools/media-studio/sso             
+  ├ λ /api/tools/presentation-studio/authorize
+  ├ λ /api/tools/presentation-studio/exchange 
+  ├ λ /api/tools/video/sso                    
+  ├ λ /assets/:path+                          
+  ├ ? /booking                                
+  ├ ? /booking/existing                       
+  ├ ? /booking/improved                       
+  ├ ƒ /ca/:slug                               
+  ├ ? /demo/new-spa                           
+  ├ ? /en-ca/canada                           
+  ├ ? /en-ca/ontario                          
+  ├ ƒ /en-ca/ontario/:area                    
+  ├ ? /en-ca/quebec                           
+  ├ ? /fr-ca/canada                           
+  ├ ? /fr-ca/ontario                          
+  ├ ƒ /fr-ca/ontario/:area                    
+  ├ ? /fr-ca/quebec                           
+  ├ ? /he-il/israel                           
+  ├ λ /spa-preview-media/:key+                
+  ├ λ /spa-previews-public/:slug              
+  ├ ƒ /tools                                  
+  ├ ƒ /tools/media-studio                     
+  ├ ƒ /tools/meetings                         
+  ├ ƒ /tools/video                            
+  └ ƒ /vila4u                                 
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+

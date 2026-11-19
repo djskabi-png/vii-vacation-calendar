@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-v921-cumulative-20261119",
+  "project": "VII",
+  "task_type": "production_release_and_lead_delivery",
+  "requested_outcome": "Publish one cumulative VII release containing the verified v918 night-price fix and the complete v919 candidate fixes, and make every site-join request reach Liran's service inbox while the submitter receives one idempotent receipt email.",
+  "natural_destination": "https://vii.spaplus.co and the production VII lead ingestion service at https://app.spaplus.co/api/integrations/vii-leads",
+  "authorization_boundary": "Adir explicitly authorized completing and publishing the cumulative VII fixes and ensuring Liran receives the requested emails. No purchases, subscriptions, unrelated deployments, destructive data changes, or guessed recipients are authorized.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The task combines many previously saved fixes and a production integration, so one repaired detail cannot stand in for the complete release.",
+      "acceptance_impact": "Map the cumulative affected family, run focused and broad tests, verify the exact public build, and exercise the critical journeys after publication."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The public VII destination has multiple historical release sources and must preserve rollback and predecessor assets.",
+      "acceptance_impact": "Prove source ancestry, release identity, rollback source, retained assets, public headers, and an old-tab continuity check."
+    },
+    {
+      "lesson_id": "ADIR-LEADS-001",
+      "reason": "Liran's request is about the real lead-delivery outcome, not only form acceptance or code presence.",
+      "acceptance_impact": "Verify persist-before-notify behavior, exact service recipient, submitter receipt, idempotency, failure handling, and production delivery evidence."
+    },
+    {
+      "lesson_id": "ADIR-COMMS-001",
+      "reason": "Production email is an external communication with recipient and duplicate-delivery risk.",
+      "acceptance_impact": "Use a stable submission identity, verify sender and recipients, do not retry uncertain sends, and retain a provider receipt."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The cumulative candidate changes shared search, loading, slider and mobile behavior.",
+      "acceptance_impact": "Test desktop, 390-pixel mobile, reload, route transitions, overlays and return states without stale locks or overflow."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "Past technical checks missed visibly broken public mobile states.",
+      "acceptance_impact": "Capture and independently inspect the exact public mobile release with meaningful visible content."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The candidate touches shared galleries, search, joins and world surfaces.",
+      "acceptance_impact": "Verify the affected world and component family rather than only the reported example."
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "reason": "The public product and email receipts contain Hebrew.",
+      "acceptance_impact": "Verify approved Hebrew fonts and rendered RTL direction in the public UI and actual email output."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the latest night-price fix is live while the saved v919 fixes remain on another branch.",
+      "prevention": "Create one clean release branch from the exact public v918 commit and cherry-pick the v919 candidate before any new change.",
+      "acceptance_check": "The final release ancestry contains both ee786c40 and 63368895 and the public build header matches the final commit."
+    },
+    {
+      "rejection": "The form says success but Liran does not receive the request.",
+      "prevention": "Extend the production ingestion contract to all join worlds and add a dedicated service-copy recipient without replacing existing recipients.",
+      "acceptance_check": "A controlled production join creates one stored submission, one service email to Liran and one receipt to the submitter with provider evidence."
+    },
+    {
+      "rejection": "A retry or double click creates duplicate leads or duplicate email.",
+      "prevention": "Keep the same submission ID through retries and use one deterministic provider idempotency key with persisted duplicate detection.",
+      "acceptance_check": "Submitting the same controlled identity twice yields one stored record and no second provider email."
+    },
+    {
+      "rejection": "The cumulative fixes compile but break sliders, search, galleries or mobile layout.",
+      "prevention": "Run focused affected-family tests, full suite, build, release gates and exact public desktop/mobile journeys.",
+      "acceptance_check": "The exact deployed build passes the route and interaction matrix with no new console or network errors."
+    },
+    {
+      "rejection": "Publication overwrites retained assets or cannot be rolled back.",
+      "prevention": "Use the documented VII retained-asset publication workflow and bind evidence to the exact predecessor and candidate digest.",
+      "acceptance_check": "Retention, identity, rollback and old-tab continuity receipts all pass."
+    },
+    {
+      "rejection": "The UI says an email was sent even when the provider did not confirm it.",
+      "prevention": "Display receipt success only when the upstream returns an explicit email-delivery result and return actionable failure otherwise.",
+      "acceptance_check": "Success and failure fixtures prove truthful user feedback, and the live controlled send has provider confirmation."
+    }
+  ],
+  "affected_family": [
+    "VII public source ancestry and deployment identity",
+    "all join-form worlds and validation states",
+    "production lead persistence and email delivery",
+    "search and vacation capacity filtering",
+    "home and world sliders",
+    "place and card galleries",
+    "SPA route and caching resilience",
+    "sitemap inventory generation",
+    "desktop and 390-pixel mobile public routes",
+    "rollback assets and old-tab continuity"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII master release and retention requirements",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "Accepted VII visible product behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Liran email requirements L08 and LIRAN-29",
+        "source": "project_knowledge/plans/VII_DOCUMENT_3_LIRAN_ADIR_COMMENTS_20261105.md and project_knowledge/VII_LIRAN_FIX_LIST_2026-11-18.md"
+      },
+      {
+        "label": "Existing v919 candidate reconciliation",
+        "source": "project_knowledge/evidence/final-fixes-20261118/reconciliation-ledger.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After clean ancestry merge and focused lead-contract tests, before broad build and production publication.",
+    "checks": [
+      "The cumulative branch contains both previous commits without dropped files.",
+      "All join worlds require valid email and return truthful receipt state.",
+      "The production ingestion code preserves existing recipients while explicitly adding Liran and deduplicating addresses."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the public header point to a build that omits either v918 or v919?",
+      "Can Liran miss a non-vacation join even while the form reports success?",
+      "Can a duplicate submission create a second email or lead?",
+      "Can a shared search, slider or gallery route regress on mobile after publication?",
+      "Can an old open tab request an asset removed by the new release?"
+    ],
+    "natural_destination_evidence": "Exact public VII build headers, live desktop/mobile journeys, production lead storage evidence and provider email receipt bound to a controlled submission ID.",
+    "affected_family_evidence": "Focused test logs, full suite/build/release gates, retained-asset receipt and a representative public route matrix across all affected worlds."
+  },
+  "effectiveness": {
+    "baseline": "Public v918 contains the night-price fix but not v919. Production lead email sends only for vacation joins and the service-copy recipient is not independently proven in the release evidence.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One cumulative public build, zero dropped candidate fixes, one idempotent service email to Liran for every controlled join world, one submitter receipt, and no new high or critical public regression."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -1048,7 +1048,7 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
   const feedText = await feed.text();
   assert.equal(feed.status, 200);
   assert.match(feed.headers.get("content-type") ?? "", /application\/rss\+xml/);
-  assert.equal((feedText.match(/<item>/g) || []).length, 42);
+  assert.equal((feedText.match(/<item>/g) || []).length, 46);
 
   const [llms, llmsFull, seo, sitemapSource, questions, key] = await Promise.all([
     readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),

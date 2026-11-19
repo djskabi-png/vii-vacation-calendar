@@ -1,0 +1,43 @@
+{
+  "candidate_before_evidence_commit": "6602254105100b4cca4ee4237c0b1c7d276fdfb7",
+  "build": {
+    "status": "passed",
+    "worker_startup_bytes": 933373,
+    "worker_startup_budget_bytes": 1048576,
+    "rsc_manifests_agree": true
+  },
+  "full_suite": {
+    "initial_total": 3429,
+    "initial_passed": 3426,
+    "initial_failed": 2,
+    "initial_skipped": 1,
+    "resolved_failures": [
+      "The isolated quality-browser service dependency was installed from its own frozen lockfile with --ignore-workspace; both quality-browser Workerd tests then passed.",
+      "The RSS inventory assertion was updated from the obsolete 42-item count to the candidate's 46 reviewed feed items; the complete rendered HTML family then passed."
+    ],
+    "targeted_recheck": {
+      "passed": 93,
+      "failed": 0
+    },
+    "effective_result": {
+      "passed": 3428,
+      "failed": 0,
+      "skipped": 1
+    }
+  },
+  "liran_stability": {
+    "passed": 60,
+    "failed": 0
+  },
+  "spaplus_lead_service": {
+    "tests_passed": 111,
+    "tests_failed": 0,
+    "active_version": "571c8a0e-f98e-4369-a06c-12b50daeb38b",
+    "traffic_percent": 100,
+    "liran_recipient": "vila4uservice@gmail.com"
+  },
+  "truthful_open_external_findings": [
+    "The automatic Meta source reconciliation already failed before the lead-service deployment because four Graph form reads return 400 and the Israel verified page token is unavailable. VII source reconciliation itself succeeded with zero outstanding rows.",
+    "tools.spaplus.co and admin.spaplus.co remain pointed at the Sites custom-domain origin and return 404 even after the isolated Worker route was redeployed; this is a separate DNS/SaaS routing issue and is not used as evidence for VII release approval."
+  ]
+}

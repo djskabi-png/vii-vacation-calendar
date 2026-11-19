@@ -1,0 +1,94 @@
+{"status":"PASS","cron":"*/5 * * * *","sources":["Meta six forms including RoomsVIP fallback","VII source outbox"],"bundleChecked":false}
+{"status":"PASS","bundleChecked":false,"scope":"Google login/state recovery, isolated legacy entry and atomic permission preservation"}
+Generated 344 editable Ontario fields.
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 359 modules transformed.
+rendering chunks...
+✓ built in 1.32s
+[2/5] analyze server references...
+[2Ktransforming...✓ 100 modules transformed.
+rendering chunks...
+✓ built in 432ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 365 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.21s
+[4/5] build client environment...
+[2Ktransforming...✓ 107 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 894ms
+[5/5] build ssr environment...
+[2Ktransforming...✓ 106 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 718ms
+[0m
+  Route (app)
+  ┌ ? /                                   
+  ├ ? /access-denied                      
+  ├ ƒ /adir                               
+  ├ ƒ /admin                              
+  ├ ƒ /admin/bugs                         
+  ├ ƒ /admin/operations                   
+  ├ ƒ /admin/operations/dashboard-preview 
+  ├ ƒ /admin/operations/spas/new          
+  ├ ƒ /admin/projects                     
+  ├ ƒ /admin/spa-previews                 
+  ├ λ /admin/spa-previews/data            
+  ├ λ /admin/spa-previews/media           
+  ├ λ /admin/spa-previews/records         
+  ├ ? /ads/ontario-preview                
+  ├ λ /api/admin/meta-campaign            
+  ├ λ /api/cms/bugs                       
+  ├ λ /api/cms/content                    
+  ├ λ /api/cms/delivery-status            
+  ├ λ /api/cms/operations                 
+  ├ λ /api/cms/projects                   
+  ├ λ /api/cms/projects-public            
+  ├ λ /api/cms/public                     
+  ├ λ /api/cms/spa-previews               
+  ├ λ /api/cms/submissions                
+  ├ λ /api/cms/submissions/notes          
+  ├ λ /api/cms/users                      
+  ├ λ /api/contact                        
+  ├ λ /api/integrations/meta-ontario-leads
+  ├ λ /api/integrations/roomsvip-leads    
+  ├ λ /api/integrations/vii-leads         
+  ├ λ /api/market-spa-leads               
+  ├ λ /api/tools/media-studio/sso         
+  ├ λ /assets/:path+                      
+  ├ ? /booking                            
+  ├ ? /booking/existing                   
+  ├ ? /booking/improved                   
+  ├ ƒ /ca/:slug                           
+  ├ ? /demo/new-spa                       
+  ├ ? /en-ca/canada                       
+  ├ ? /en-ca/ontario                      
+  ├ ƒ /en-ca/ontario/:area                
+  ├ ? /en-ca/quebec                       
+  ├ ? /fr-ca/canada                       
+  ├ ? /fr-ca/ontario                      
+  ├ ƒ /fr-ca/ontario/:area                
+  ├ ? /fr-ca/quebec                       
+  ├ ? /he-il/israel                       
+  ├ λ /spa-preview-media/:key+            
+  ├ λ /spa-previews-public/:slug          
+  ├ ƒ /tools                              
+  ├ ƒ /tools/media-studio                 
+  └ ƒ /vila4u                             
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+
+{"status":"PASS","cron":"*/5 * * * *","sources":["Meta six forms including RoomsVIP fallback","VII source outbox"],"bundleChecked":true}
+{"status":"PASS","bundleChecked":true,"scope":"Google login/state recovery, isolated legacy entry and atomic permission preservation"}
