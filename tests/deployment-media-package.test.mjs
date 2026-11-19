@@ -8,8 +8,8 @@ const pruneSource = await readFile("scripts/prune-deployment-assets.mjs", "utf8"
 
 test("deployment media aliases preserve removed URLs through the Worker", () => {
   assert.match(aliasesSource, /export const deploymentMediaAliases/);
-  assert.match(aliasesSource, /"\/og\.png": "\/og-v2\.png"/);
-  assert.match(aliasesSource, /"\/vii-calendar-social\.png": "\/og-v2\.png"/);
+  assert.match(aliasesSource, /"\/og\.png": "\/og-v3\.png"/);
+  assert.match(aliasesSource, /"\/vii-calendar-social\.png": "\/og-v3\.png"/);
   assert.doesNotMatch(aliasesSource, /media\\\\/);
   assert.match(workerSource, /deploymentMediaAliases\[url\.pathname\]/);
   assert.match(workerSource, /Response\.redirect\(new URL\(mediaAlias, url\.origin\), 308\)/);

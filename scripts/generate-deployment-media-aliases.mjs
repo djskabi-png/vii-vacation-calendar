@@ -28,8 +28,8 @@ for (const filename of await filesUnder(mediaRoot)) {
 }
 
 const aliases = {
-  "/og.png": "/og-v2.png",
-  "/vii-calendar-social.png": "/og-v2.png",
+  "/og.png": "/og-v3.png",
+  "/vii-calendar-social.png": "/og-v3.png",
 };
 
 for (const paths of groups.values()) {

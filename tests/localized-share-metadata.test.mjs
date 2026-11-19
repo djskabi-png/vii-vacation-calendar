@@ -9,6 +9,13 @@ test("root metadata publishes the current localized pathname as the social URL",
   assert.match(source, /openGraph:\s*\{[\s\S]*?url:\s*pathname,[\s\S]*?locale:\s*openGraphLocale/);
 });
 
+test("root metadata uses the approved cache-busting social image", async () => {
+  const source = await read("app/layout.tsx");
+  assert.match(source, /images:\s*\[\{ url: "\/og-v3\.png", width: 1200, height: 630,/);
+  assert.match(source, /images:\s*\["\/og-v3\.png"\]/);
+  assert.doesNotMatch(source, /images:[^\n]*\/og-v2\.png/);
+});
+
 test("business metadata localizes canonical and social URLs", async () => {
   const source = await read("app/business/page.tsx");
   assert.match(source, /const canonical = localizedPath\(`\/business\?id=\$\{property\.slug\}`, language\)/);

@@ -77,6 +77,6 @@ export const deploymentMediaAliases: Readonly<Record<string, string>> = Object.f
   "/media/verified/vacation/vacation-villa-monkata-2.jpeg": "/media/verified/events/events-monkata-2.jpeg",
   "/media/verified/vacation/vacation-villa-monkata-3.jpeg": "/media/verified/events/events-monkata-3.jpeg",
   "/media/verified/vacation/vacation-villa-monkata-4.jpeg": "/media/verified/events/events-monkata-4.jpeg",
-  "/og.png": "/og-v2.png",
-  "/vii-calendar-social.png": "/og-v2.png"
+  "/og.png": "/og-v3.png",
+  "/vii-calendar-social.png": "/og-v3.png"
 });
