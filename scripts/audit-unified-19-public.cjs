@@ -81,6 +81,11 @@ async function runCase(browser, viewport, item) {
         await openNatural(page, "/business?id=vacation-2705");
         await page.locator("[data-gallery-trigger]").first().click();
         await page.waitForSelector(".story-gallery", { state: "visible", timeout: 10_000 });
+        await page.waitForFunction(() => {
+          const topics = [...document.querySelectorAll(".story-gallery__tabs button")].map((button) => button.textContent || "");
+          return ["גלריה כללית", "פנים הסוויטות", "מתחם הבריכה והחצר לכל סוויטה", "מתחם הבר המשותף"]
+            .every((title) => topics.some((topic) => topic.includes(title)));
+        }, undefined, { timeout: 10_000 });
         const topics = await page.locator(".story-gallery__tabs button").allTextContents();
         for (const title of ["גלריה כללית", "פנים הסוויטות", "מתחם הבריכה והחצר לכל סוויטה", "מתחם הבר המשותף"]) {
           if (!topics.some((topic) => topic.includes(title))) throw new Error(`supplier_gallery_topic_missing:${title}`);

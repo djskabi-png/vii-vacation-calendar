@@ -34,6 +34,10 @@ test("inactive public page is indexable but has no contact or offer surface", as
   assert.match(page, /פרטי הטלפון, הוואטסאפ, ההזמנה והזמינות הוסרו/);
   assert.match(page, /place\.images\.map/);
   assert.match(page, /הגלריה המלאה/);
+  assert.match(page, /BreadcrumbList/);
+  assert.match(page, /LodgingBusiness/);
+  assert.match(page, /EventVenue/);
+  assert.match(page, /DaySpa/);
   assert.doesNotMatch(page, /tel:|wa\.me|LocalBusiness|Offer/);
 });
 

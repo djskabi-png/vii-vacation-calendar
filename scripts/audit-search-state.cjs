@@ -163,25 +163,27 @@ async function inspectHorizontalRails(page) {
   return page.evaluate(async () => {
     const rails = [...document.querySelectorAll("[data-horizontal-rail]")];
     const scrollContainers = rails.filter((rail) => rail.scrollWidth > rail.clientWidth + 1);
-    const overflowing = scrollContainers[0];
     let scrollMoved = null;
 
-    if (overflowing) {
-      const distance = overflowing.scrollWidth - overflowing.clientWidth;
-      const direction = getComputedStyle(overflowing).direction;
-      const before = overflowing.scrollLeft;
-      const midpoint = Math.max(1, Math.round(distance / 2));
-      const candidates = direction === "rtl"
-        ? [-distance, -midpoint, 0, distance]
-        : [distance, midpoint, 0, -distance];
+    if (scrollContainers.length) {
       scrollMoved = false;
-      for (const candidate of candidates) {
-        if (Math.abs(candidate - before) <= 1) continue;
-        overflowing.scrollTo({ left: candidate, behavior: "instant" });
-        await new Promise((resolve) => setTimeout(resolve, 75));
-        if (Math.abs(overflowing.scrollLeft - before) > 1) { scrollMoved = true; break; }
+      for (const overflowing of scrollContainers) {
+        const distance = overflowing.scrollWidth - overflowing.clientWidth;
+        const direction = getComputedStyle(overflowing).direction;
+        const before = overflowing.scrollLeft;
+        const midpoint = Math.max(1, Math.round(distance / 2));
+        const candidates = direction === "rtl"
+          ? [-distance, -midpoint, 0, distance]
+          : [distance, midpoint, 0, -distance];
+        for (const candidate of candidates) {
+          if (Math.abs(candidate - before) <= 1) continue;
+          overflowing.scrollTo({ left: candidate, behavior: "instant" });
+          await new Promise((resolve) => setTimeout(resolve, 75));
+          if (Math.abs(overflowing.scrollLeft - before) > 1) { scrollMoved = true; break; }
+        }
+        overflowing.scrollTo({ left: before, behavior: "instant" });
+        if (scrollMoved) break;
       }
-      overflowing.scrollTo({ left: before, behavior: "instant" });
     }
 
     return {

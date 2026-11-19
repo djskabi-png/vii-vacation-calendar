@@ -1218,6 +1218,7 @@
       "ownerBox": "seo",
       "match": [
         "app/sitemap.xml/",
+        "app/feed.xml/",
         "app/sitemaps/",
         "app/lib/search-page-content.ts",
         "app/lib/sitemap-inventory.ts",

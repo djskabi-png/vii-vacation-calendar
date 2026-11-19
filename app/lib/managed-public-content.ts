@@ -60,6 +60,7 @@ export async function managedMagazineArticles(items: readonly MagazineArticle[])
   return sortMagazineArticlesByPublication([...managed, ...originals.map(({ key, content }): MagazineArticle => ({ slug: key, title: content.title,
     category: content.attributes.category, excerpt: content.summary, image: content.attributes.image, imageAlt: content.imageAlt,
     imageTitle: content.attributes.imageTitle || content.imageAlt, imageCredit: content.attributes.imageCredit,
+    publishedLocales: ["he"],
     indexable: content.indexable, metaTitle: content.metaTitle, metaDescription: content.metaDescription,
     readTime: Math.max(1, Number(content.attributes.readTime) || 5), dateLabel: content.attributes.dateLabel,
     tags: split(content.attributes.tags), intro: content.body, takeaway: content.attributes.takeaway || content.summary,

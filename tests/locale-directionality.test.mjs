@@ -6,6 +6,7 @@ import test from "node:test";
 const css = readEffectiveWorldCss();
 const provider = readFileSync(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+const eventRelated = readFileSync(new URL("../app/events/place/related-slot.tsx", import.meta.url), "utf8");
 
 test("only Hebrew routes use RTL at bootstrap and after hydration", () => {
   assert.match(layout, /d\.dir=l==='he'\?'rtl':'ltr'/);
@@ -29,4 +30,10 @@ test("locale bootstrapping cannot leave a restored mobile tab blank", () => {
   assert.doesNotMatch(css, /html\[data-locale-pending\]\s+body\s*\{[^}]*visibility:\s*hidden/s);
   assert.doesNotMatch(css, /locale-pending-failsafe/);
   assert.match(layout, /d\.removeAttribute\('data-locale-pending'\)/);
+});
+
+test("original Hebrew business names stay isolated instead of being treated as untranslated interface copy", () => {
+  assert.match(eventRelated, /data-original-business-name/);
+  assert.match(eventRelated, /data-no-translate=\{originalHebrewName \? true : undefined\}/);
+  assert.match(eventRelated, /dir=\{originalHebrewName \? "rtl" : undefined\}/);
 });

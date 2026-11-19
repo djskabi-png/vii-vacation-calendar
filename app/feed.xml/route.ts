@@ -7,7 +7,9 @@ function xml(value: string) {
 }
 
 export async function GET() {
-  const items = (await managedMagazineArticles(magazineArticles)).filter(article => article.indexable !== false).map((article) => `
+  const articles = (await managedMagazineArticles(magazineArticles)).filter(article => article.indexable !== false);
+  const uniqueArticles = [...new Map(articles.map((article) => [article.slug, article])).values()];
+  const items = uniqueArticles.map((article) => `
     <item>
       <title>${xml(article.title)}</title>
       <link>${SITE_URL}/guides/${article.slug}/</link>

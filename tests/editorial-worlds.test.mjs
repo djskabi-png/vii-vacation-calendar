@@ -56,9 +56,11 @@ test("shared editorial links never import article bodies", async () => {
 });
 test("Hebrew-only editorial content is not misrepresented as approved translations", async () => {
   const data=await fs.readFile(new URL("../app/data/magazine-data.ts",import.meta.url),"utf8");
+  const managed=await fs.readFile(new URL("../app/lib/managed-public-content.ts",import.meta.url),"utf8");
   const route=await fs.readFile(new URL("../app/guides/[slug]/page.tsx",import.meta.url),"utf8");
   const worker=await fs.readFile(new URL("../worker/index.ts",import.meta.url),"utf8");
   assert.match(data,/publishedLocales: \["he"\]/);
+  assert.match(managed,/publishedLocales: \["he"\]/);
   assert.match(route,/localeApproved && article.indexable !== false/);
   assert.match(route,/index: false, follow: true/);
   assert.match(worker,/hebrewOnlyArticle \? \{ "he-IL": basePath, "x-default": basePath \}/);

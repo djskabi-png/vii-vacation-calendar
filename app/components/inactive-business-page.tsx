@@ -33,16 +33,38 @@ export function inactiveBusinessMetadata(place: InactiveBusiness) {
 export default function InactiveBusinessPage({ place }: { place: InactiveBusiness }) {
   const world = worlds[place.world];
   const location = [place.location, place.area].filter(Boolean).join(" · ");
+  const publicUrl = `https://vii.spaplus.co${place.canonicalPath}`;
+  const businessType = place.world === "events" ? "EventVenue" : place.world === "spa" ? "DaySpa" : "LodgingBusiness";
   return <main className={styles.page}>
-    <StructuredData data={{
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: place.name,
-      description: `${place.name} אינו נמצא כרגע בפרסום פעיל באתר.`,
-      url: `https://vii.spaplus.co${place.canonicalPath}`,
-      ...(place.image ? { primaryImageOfPage: { "@type": "ImageObject", url: absolutePublicUrl(place.image) } } : {}),
-      ...(place.updatedAt ? { dateModified: place.updatedAt } : {}),
-    }} />
+    <StructuredData data={[
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: place.name,
+        description: `${place.name} אינו נמצא כרגע בפרסום פעיל באתר.`,
+        url: publicUrl,
+        ...(place.image ? { primaryImageOfPage: { "@type": "ImageObject", url: absolutePublicUrl(place.image) } } : {}),
+        ...(place.updatedAt ? { dateModified: place.updatedAt } : {}),
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "ראשי", item: "https://vii.spaplus.co/" },
+          { "@type": "ListItem", position: 2, name: world.label, item: absolutePublicUrl(world.href) },
+          { "@type": "ListItem", position: 3, name: place.name, item: publicUrl },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": businessType,
+        name: place.name,
+        description: place.description,
+        url: publicUrl,
+        ...(place.image ? { image: place.images.map(absolutePublicUrl) } : {}),
+        ...(location ? { address: { "@type": "PostalAddress", addressLocality: place.location || place.area, addressRegion: place.area || undefined, addressCountry: "IL" } } : {}),
+      },
+    ]} />
     <div className={styles.shell}>
       <nav className={styles.crumbs} aria-label="פירורי לחם">
         <Link href="/">ראשי</Link><span aria-hidden="true">/</span><Link href={world.href}>{world.label}</Link>

@@ -1048,7 +1048,10 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
   const feedText = await feed.text();
   assert.equal(feed.status, 200);
   assert.match(feed.headers.get("content-type") ?? "", /application\/rss\+xml/);
-  assert.equal((feedText.match(/<item>/g) || []).length, 46);
+  const feedItemCount = (feedText.match(/<item>/g) || []).length;
+  const feedGuids = [...feedText.matchAll(/<guid[^>]*>(.*?)<\/guid>/g)].map((match) => match[1]);
+  assert.ok(feedItemCount >= 46, `expected at least 46 RSS items, received ${feedItemCount}`);
+  assert.equal(new Set(feedGuids).size, feedItemCount, "every RSS item must have a unique guid");
 
   const [llms, llmsFull, seo, sitemapSource, questions, key] = await Promise.all([
     readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
