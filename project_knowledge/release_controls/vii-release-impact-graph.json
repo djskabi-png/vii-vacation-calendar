@@ -918,6 +918,8 @@
         "app/lib/header-search-visibility.ts",
         "app/globals.css",
         "app/lib/world-availability.ts",
+        "app/lib/deployment-media-aliases.generated.ts",
+        "public/og-v3.png",
         "app/components/discovery-card.tsx",
         "app/components/masu-experience.tsx",
         "app/components/new-tab-navigation.tsx",
