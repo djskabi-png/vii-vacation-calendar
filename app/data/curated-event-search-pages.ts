@@ -21,13 +21,13 @@ export const curatedEventSearchPages = [
   page({
     id: "curated-event-birthday-venues", slug: "birthday-venues", title: "מקומות לימי הולדת בישראל",
     description: "מקומות לימי הולדת ברחבי הארץ, עם תמונות, מתקנים, כמות משתתפים ופרטי קשר ישירים לתכנון החגיגה.",
-    sourcePath: "/events/search?eventType=%D7%99%D7%9E%D7%99+%D7%94%D7%95%D7%9C%D7%93%D7%AA", filters: { eventType: "ימי הולדת" }, latestResultCount: 11,
+    sourcePath: "/events/search?eventType=%D7%99%D7%9E%D7%99+%D7%94%D7%95%D7%9C%D7%93%D7%AA", filters: { eventType: "ימי הולדת" }, latestResultCount: 10,
     body: "יום הולדת מוצלח מתחיל במקום שמתאים לאופי החגיגה ולמספר המשתתפים. בעמוד זה מרוכזים מקומות שמסומנים כמתאימים לימי הולדת, עם גלריות, מתקנים ופרטי קשר.\n\nלפני שסוגרים מומלץ לוודא שעות פעילות, מדיניות מוזיקה, אפשרויות אוכל, נגישות ותנאי תשלום וביטול ישירות מול המקום.",
   }),
   page({
     id: "curated-event-family-events", slug: "family-events", title: "מקומות לאירועים משפחתיים בישראל",
     description: "מקומות לאירועים משפחתיים ברחבי הארץ, עם תמונות, מתקנים, התאמה לכמות המשתתפים ופנייה ישירה למקום.",
-    sourcePath: "/events/search?eventType=%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D+%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%D7%99%D7%99%D7%9D", filters: { eventType: "אירועים משפחתיים" }, latestResultCount: 8,
+    sourcePath: "/events/search?eventType=%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D+%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%D7%99%D7%99%D7%9D", filters: { eventType: "אירועים משפחתיים" }, latestResultCount: 7,
     body: "אירוע משפחתי דורש מקום שנוח לדורות שונים ומותאם לכמות המשתתפים. כאן מרוכזים מקומות שמסומנים כמתאימים לאירועים משפחתיים, עם תמונות, מתקנים ופרטי קשר.\n\nבדקו מראש נגישות, חניה, אפשרויות ישיבה ואוכל, שעות פעילות ומדיניות ביטול כדי לבחור מקום שמתאים לכל המשפחה.",
   }),
   page({

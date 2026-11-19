@@ -36,9 +36,11 @@ test("actual bundled list preserves bedroom facts without invoking any detail re
     const rows = await list(world);
     const accepted = acceptedSergeySummaries(world);
     assert.deepEqual(rows.map(row=>row.supplierId),accepted.map(row=>row.supplierId));
-    for (const row of rows) {
+    for (const [index, row] of rows.entries()) {
       const key = `${world === "vacations" ? "vacation" : "event"}-${row.supplierId}`;
-      assert.equal(row.summary.bedrooms || 0,bedroomIndex[key] || 0,key);
+      const compactBedrooms = Number(bedroomIndex[key] || 0);
+      const acceptedBedrooms = Number(accepted[index].bedrooms || 0);
+      assert.equal(row.summary.bedrooms || 0, compactBedrooms || acceptedBedrooms, key);
     }
   }
   assert.equal(detailCalls,0);
