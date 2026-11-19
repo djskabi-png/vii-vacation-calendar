@@ -72,7 +72,7 @@ async function verifyMap(page) {
   await page.waitForTimeout(350);
   toggle = page.locator(".mobile-map-fab:visible").first();
   await toggle.click({ timeout: 10_000 });
-  await page.waitForSelector(".listing-map.is-ready", { state: "visible", timeout: 25_000 });
+  await page.waitForSelector('.listing-map-shell[data-map-ready="true"] .listing-map', { state: "visible", timeout: 25_000 });
   await page.waitForSelector(".vii-map-marker-wrap", { state: "visible", timeout: 20_000 });
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const selected = await clickTopmost(page, ".vii-map-marker-wrap:not(.is-cluster)");

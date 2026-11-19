@@ -42,7 +42,7 @@ try {
   await prepare(desktop);
   const mapStartedAt = Date.now();
   await desktop.locator('.mobile-map-fab[data-map-interactive="true"]').click();
-  await desktop.locator(".listing-map.is-ready").waitFor({ timeout: 25_000 });
+  await desktop.locator('.listing-map-shell[data-map-ready="true"] .listing-map').waitFor({ timeout: 25_000 });
   await desktop.locator(".map-location-control").waitFor({ timeout: 5_000 });
   report.desktop.mapReadyMs = Date.now() - mapStartedAt;
   report.desktop.geometry = await desktop.evaluate(() => {
@@ -83,7 +83,7 @@ try {
   const mobile = await mobileContext.newPage();
   await prepare(mobile);
   await mobile.locator('.mobile-map-fab[data-map-interactive="true"]').click();
-  await mobile.locator(".listing-map.is-ready").waitFor({ timeout: 25_000 });
+  await mobile.locator('.listing-map-shell[data-map-ready="true"] .listing-map').waitFor({ timeout: 25_000 });
   report.mobile.geometry = await mobile.evaluate(() => {
     const shell = document.querySelector(".listing-map-shell")?.getBoundingClientRect();
     const toolbar = document.querySelector(".map-pane-toolbar");

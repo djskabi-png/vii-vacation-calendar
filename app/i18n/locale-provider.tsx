@@ -1545,12 +1545,14 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
 }
 
 export function LocaleProvider({ children, initialLanguage = "he", initialAuxiliarySeed }: { children: ReactNode; initialLanguage?: SiteLanguage; initialAuxiliarySeed?: AuxiliarySeed }) {
-  // Localized HTML is translated at the edge before hydration. The first
-  // browser render must therefore derive the same locale from the URL instead
-  // of replaying a Hebrew RSC default over an already localized document.
+  // Vinext renders client-component islands with the context default while the
+  // surrounding RSC tree is localized on the server. Keep the first client
+  // pass on that same Hebrew source value, then synchronize to the route in the
+  // effect below. Non-Hebrew documents remain covered by data-locale-pending,
+  // so visitors do not see the short source-language hand-off.
   const [language, setLanguageState] = useState<SiteLanguage>(() => {
     if (initialAuxiliarySeed && initialLanguage !== "he") seedAuxiliaryTranslations(initialLanguage, initialAuxiliarySeed);
-    return initialLanguage;
+    return "he";
   });
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
@@ -1576,9 +1578,15 @@ export function LocaleProvider({ children, initialLanguage = "he", initialAuxili
       localStorage.setItem(languageStorageKey, routeLanguage);
       setLanguageState(routeLanguage);
     };
-    syncLanguageWithRoute();
+    // The provider effect can run while streamed child islands are still
+    // hydrating. Switching context immediately made those late islands render
+    // Russian/English/French against their Hebrew server HTML. Use the same
+    // bounded hydration hand-off as the DOM translator; route changes after
+    // that point still synchronize immediately through popstate.
+    const initialSync = window.setTimeout(syncLanguageWithRoute, 1_800);
     window.addEventListener("popstate", syncLanguageWithRoute);
     return () => {
+      window.clearTimeout(initialSync);
       window.removeEventListener("popstate", syncLanguageWithRoute);
     };
   }, []);
@@ -1647,7 +1655,12 @@ export function LocaleProvider({ children, initialLanguage = "he", initialAuxili
     const pendingRoots = new Set<Node>();
     const observe = () => observer.current?.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
     const start = () => {
-      const hydrationDelay = process.env.NODE_ENV === "development" ? 1_800 : 800;
+      // The home page contains streamed Suspense islands. On slower mobile or
+      // Cyrillic font loads they can still be hydrating after 800 ms; mutating
+      // their text at that point causes an intermittent React #418 recovery.
+      // Keep the document behind data-locale-pending until the same bounded
+      // 1.8 s hand-off used in development, then translate and observe it.
+      const hydrationDelay = 1_800;
       hydrationFrame = window.requestAnimationFrame(() => {
         startTimer = window.setTimeout(() => {
         if (!active) return;

@@ -49,7 +49,7 @@ async function state(page) {
       deferredLoaders: visible(".map-deferred-loading").length,
       shells: visible(".listing-map-shell").length,
       maps: visible(".listing-map").length,
-      readyMaps: visible(".listing-map.is-ready").length,
+      readyMaps: visible('.listing-map-shell[data-map-ready="true"] .listing-map').length,
       tiles: document.querySelectorAll(".leaflet-tile").length,
       loadedTiles: [...document.querySelectorAll(".leaflet-tile")].filter((image) => image.complete && image.naturalWidth > 0).length,
       markers: document.querySelectorAll(".vii-map-marker-wrap").length,

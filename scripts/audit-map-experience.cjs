@@ -67,7 +67,7 @@ async function snapshot(page) {
     const experience = document.querySelector(".map-results-experience");
     const experienceStyle = experience ? getComputedStyle(experience) : null;
     return {
-      ready: visible(".listing-map.is-ready").length,
+      ready: visible('.listing-map-shell[data-map-ready="true"] .listing-map').length,
       tiles: [...document.querySelectorAll(".leaflet-tile")].filter((image) => image.complete && image.naturalWidth > 0).length,
       markers: visible(".vii-map-marker-wrap").length,
       priceMarkers: visible(".marker-kind--price:not(.is-cluster)").length,
@@ -198,7 +198,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
       return button?.getAttribute("aria-pressed") === "true" || Boolean(document.querySelector(".map-results-experience"));
     }, null, { timeout: 10_000 });
     record.checks.firstClickAccepted = true;
-    await page.locator(".listing-map.is-ready").waitFor({ timeout: 35_000 });
+    await page.locator('.listing-map-shell[data-map-ready="true"] .listing-map').waitFor({ timeout: 35_000 });
     await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 15_000 });
     // A locale route can finish a same-URL document handoff just after the
     // first hydrated frame. Sample only after the retained map is stable.
@@ -240,7 +240,7 @@ async function runCase(browser, { world, path, language, viewportId, viewport })
       if (!searchAreaVisible) throw new Error("search_this_area_not_offered_after_two_distinct_viewport_changes");
       record.checks.searchAreaAfterViewportChange = await visibleCount(page, ".map-search-area");
       await page.locator(".map-search-area:visible").click({ force: true });
-      await page.locator(".listing-map.is-ready").waitFor({ timeout: 10_000 });
+      await page.locator('.listing-map-shell[data-map-ready="true"] .listing-map').waitFor({ timeout: 10_000 });
       await page.waitForFunction(() => document.querySelectorAll(".vii-map-marker-wrap").length > 0, null, { timeout: 10_000 });
       await page.waitForTimeout(500);
     }

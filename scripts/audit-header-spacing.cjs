@@ -191,7 +191,11 @@ async function inspectSiteControls(page) {
           try {
             const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded", timeout: 60000 });
             if (!response || response.status() >= 400) throw new Error(`route-status-${response?.status() || "missing"}`);
-            await page.waitForLoadState("load", { timeout: 30000 });
+            await page.waitForSelector('html[data-vii-hydrated="true"]', { timeout: 20000 });
+            await Promise.race([
+              page.evaluate(() => document.fonts?.ready),
+              page.waitForTimeout(5000),
+            ]);
             await page.locator("header").first().waitFor({ state: "visible", timeout: 15000 });
             await page.waitForFunction(() => {
               const header = document.querySelector(".site-header");

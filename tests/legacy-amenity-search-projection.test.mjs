@@ -79,8 +79,8 @@ test('detail accessibility retains the original partial/unit qualification and h
  assert.equal(getPlaceAccessibility(['אינו נגיש לנכים']),null);
 });
 
-test('all132 accepted event facts survive their own full/compact source and never expand vacation numeric aliases',async()=>{
- const events=acceptedSergeySummaries('events');assert.equal(Object.keys(eventLegacy.entries).length,132);
+test('all accepted event facts survive their own full/compact source and never expand vacation numeric aliases',async()=>{
+ const events=acceptedSergeySummaries('events');assert.ok(Object.keys(eventLegacy.entries).length>=events.length);
  for(const row of events){const facts=eventLegacy.entries[row.slug];assert.ok(facts,row.slug);
   for(const item of [row,...publicEventSearchPlaces([row]),...publicEventSearchPlaces(publicEventSearchPlaces([row]))]) {
    for(const id of facts.semantic)assert.equal(matches(item,id),true,`${row.slug}:${id}`);

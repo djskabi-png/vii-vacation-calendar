@@ -304,7 +304,8 @@
 .discovery-sort-control .modern-select__trigger strong {
   font-size: .82rem;
   font-weight: 820;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .discovery-sort-control.modern-select--compact .modern-select__menu {
   width: max-content;

@@ -15,5 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const articles = await managedMagazineArticles(magazineArticles);
-  return <GuidesPage initialArticles={articles.map(magazineCard)} />;
+  const { translate, language } = await serverPublicCopy();
+  return <GuidesPage initialArticles={articles.map(magazineCard)} initialHeading={{
+    language,
+    title: translate("מדריכי נופש, ספא ואירועים בישראל"),
+    description: translate("מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר."),
+  }} />;
 }

@@ -20,7 +20,7 @@ const quizOptions = [
   { label: "לצאת ולגלות", slug: "build-a-day-around-your-stay", note: "בונים יום טיול חכם" },
 ];
 
-export default function GuidesPage({ initialArticles }: { initialArticles: MagazineCard[] }) {
+export default function GuidesPage({ initialArticles, initialHeading }: { initialArticles: MagazineCard[]; initialHeading: { language: string; title: string; description: string } }) {
   const { language, translate } = useSiteLanguage();
   const [category, setCategory] = useState("הכל");
   const [query, setQuery] = useState("");
@@ -68,8 +68,8 @@ export default function GuidesPage({ initialArticles }: { initialArticles: Magaz
         <div className="shell magazine-feature">
           <div className="magazine-feature__copy">
             <span className="eyebrow">{translate("החופשה הטובה מתחילה ברעיון טוב")}</span>
-            <h1>{translate("מדריכי נופש, ספא ואירועים בישראל")}</h1>
-            <p>{translate("מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר.")}</p>
+            <h1>{initialHeading.title}</h1>
+            <p>{initialHeading.description}</p>
             <Link className="button primary" href={`/guides/${featured.slug}`}>לכתבה הראשית</Link>
           </div>
           <Link className="magazine-feature__story" href={`/guides/${featured.slug}`}>

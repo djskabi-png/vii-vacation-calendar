@@ -167,18 +167,21 @@ async function inspectHorizontalRails(page) {
     let scrollMoved = null;
 
     if (overflowing) {
-      const before = overflowing.scrollLeft;
       const distance = overflowing.scrollWidth - overflowing.clientWidth;
       const direction = getComputedStyle(overflowing).direction;
-      const target = Math.max(240, distance / 2);
-      const candidates = direction === "rtl" ? [-target, target] : [target, -target];
+      const before = overflowing.scrollLeft;
+      const midpoint = Math.max(1, Math.round(distance / 2));
+      const candidates = direction === "rtl"
+        ? [-distance, -midpoint, 0, distance]
+        : [distance, midpoint, 0, -distance];
       scrollMoved = false;
       for (const candidate of candidates) {
-        overflowing.scrollLeft = candidate;
-        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        if (Math.abs(candidate - before) <= 1) continue;
+        overflowing.scrollTo({ left: candidate, behavior: "instant" });
+        await new Promise((resolve) => setTimeout(resolve, 75));
         if (Math.abs(overflowing.scrollLeft - before) > 1) { scrollMoved = true; break; }
       }
-      overflowing.scrollLeft = before;
+      overflowing.scrollTo({ left: before, behavior: "instant" });
     }
 
     return {

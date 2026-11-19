@@ -35,7 +35,7 @@ test("compact sorting hides the redundant label but preserves it for accessible 
 test("mobile result count is restrained to two lines and selected sort text has contrast", () => {
   assert.match(css, /\.discovery-results-count\s*\{[^}]*font-size:\s*\.9rem\s*!important/s);
   assert.match(css, /@media \(max-width:\s*760px\)[\s\S]*?\.discovery-results-count\s*\{[^}]*-webkit-line-clamp:\s*2/s);
-  assert.match(css, /\.discovery-sort-control \.modern-select__trigger strong\s*\{[^}]*flex:\s*0 0 auto/s);
+  assert.match(css, /\.discovery-sort-control \.modern-select__trigger strong\s*\{[^}]*flex:\s*1 1 auto[^}]*min-width:\s*0/s);
   assert.match(css, /\.spa-results__view-actions \.modern-select\.discovery-sort-control\s*\{[^}]*min-width:\s*118px[^}]*flex:\s*0 0 118px/s);
   assert.match(css, /\.modern-select__menu button\.is-selected > span,[\s\S]*?color:\s*#fff\s*!important/s);
 });
