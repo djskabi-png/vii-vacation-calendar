@@ -48,8 +48,8 @@ export function normalizeSergeyHourlyRates(basePrices: unknown, roomValue?: unkn
   const scalarNight = firstPositive(sources, ["overnightPrice", "nightPrice", "pricePerNight", "nightlyPrice"]);
   const night: SergeyHourlyRate = {
     duration: "לילה",
-    weekday: firstPositive(sources, ["overnightPriceWeekday", "nightPriceWeekday", "overnightWeekdayPrice", "nightWeekdayPrice"]) ?? scalarNight,
-    weekend: firstPositive(sources, ["overnightPriceWeekend", "nightPriceWeekend", "overnightWeekendPrice", "nightWeekendPrice"]) ?? scalarNight,
+    weekday: firstPositive(sources, ["overnightPriceWeekday", "nightPriceWeekday", "overnightWeekdayPrice", "nightWeekdayPrice", "weekday1"]) ?? scalarNight,
+    weekend: firstPositive(sources, ["overnightPriceWeekend", "nightPriceWeekend", "overnightWeekendPrice", "nightWeekendPrice", "weekend1"]) ?? scalarNight,
   };
   return [...hourly, night].filter((rate) => rate.weekday !== null || rate.weekend !== null);
 }

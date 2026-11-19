@@ -83,6 +83,18 @@ test("hourly mapping keeps a scalar room-level night price without fabricating o
   ]);
 });
 
+test("hourly catalog maps documented weekday1 and weekend1 night prices", async () => {
+  const subject = client({
+    rooms: [{ roomID: 71, roomName: "סוויטה", roomCount: 1,
+      basePrices: { hourPriceWeekday: 250, hourPriceWeekend: 250, weekday1: 550, weekend1: 700 } }],
+  });
+  const rates = (await subject.client.fetchCandidate()).entries[0].summary.rooms[0].rates;
+  assert.deepEqual(rates, [
+    { duration: "שעה", weekday: 250, weekend: 250 },
+    { duration: "לילה", weekday: 550, weekend: 700 },
+  ]);
+});
+
 test("rejects mismatched supplier identity and malformed room inventory", async () => {
   await assert.rejects(() => client({ id: 18 }).client.fetchCandidate(), /invalid_room_identity/);
   await assert.rejects(() => client({ rooms: [{ roomID: null, roomName: "חדר" }] }).client.fetchCandidate(), /invalid_room_inventory/);

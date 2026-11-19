@@ -36,11 +36,34 @@ test("accepts an exact room-level overnight projection when basePrices omits it"
   assert.deepEqual(rates.at(-1), { duration: "לילה", weekday: 550, weekend: 600 });
 });
 
+test("maps the documented supplier weekday1 and weekend1 fields to the night rate", () => {
+  assert.deepEqual(normalizeSergeyHourlyRates({
+    hourPriceWeekday: 250,
+    hourPriceWeekend: 250,
+    weekday1: 550,
+    weekend1: 650,
+  }), [
+    { duration: "שעה", weekday: 250, weekend: 250 },
+    { duration: "לילה", weekday: 550, weekend: 650 },
+  ]);
+});
+
+test("accepts documented night aliases from the room projection", () => {
+  assert.deepEqual(normalizeSergeyHourlyRates({}, {
+    weekday1: "560",
+    weekend1: "710",
+  }), [
+    { duration: "לילה", weekday: 560, weekend: 710 },
+  ]);
+});
+
 test("never invents an overnight price from missing, zero, malformed or unrelated fields", () => {
   for (const value of [
     {},
     { nightPrice: 0 },
     { nightPrice: "550.50" },
+    { weekday1: 0, weekend1: -700 },
+    { weekday1: "550.50", weekend1: "not-a-price" },
     { nightlyMinimumStay: 550 },
     { nightPrice: -550 },
   ]) {
