@@ -17,6 +17,10 @@ test("the mobile gallery tour uses a light full workspace while the image viewer
   assert.match(css, /\.story-gallery__workspace\s*\{\s*background:\s*#02090c;/);
 });
 
+test("a short video gallery does not stretch its only card to the full viewer height", () => {
+  assert.match(css, /\.story-gallery__videos \{[^}]*align-content: start;[^}]*align-items: start;/);
+});
+
 test("discovery detail hydrates the complete public gallery without blocking its first shell", () => {
   assert.match(discoveryDetail, /fetch\("\/api\/vii\/card-galleries"/);
   assert.match(discoveryDetail, /items: \[\{ world: item\.world, id: item\.id \}\]/);
