@@ -25,5 +25,12 @@
   "מתוך 10 ·": { "en": "out of 10 ·", "ru": "из 10 ·", "fr": "sur 10 ·" },
   "מקומות לפי סוג": { "en": "Venues by type", "ru": "Площадки по типу", "fr": "Lieux par catégorie" },
   "סוגי מקומות לאירועים": { "en": "Types of event venues", "ru": "Типы площадок для мероприятий", "fr": "Types de lieux pour événements" },
-  "ספקים לאירוע": { "en": "Event suppliers", "ru": "Поставщики для мероприятий", "fr": "Prestataires événementiels" }
+  "ספקים לאירוע": { "en": "Event suppliers", "ru": "Поставщики для мероприятий", "fr": "Prestataires événementiels" },
+  ", בקשת ההצטרפות שלכם ל־VII התקבלה.": { "en": ", your request to join VII has been received.", "ru": ", ваша заявка на присоединение к VII получена.", "fr": ", votre demande d’adhésion à VII a bien été reçue." },
+  "שם העסק:": { "en": "Business name:", "ru": "Название компании:", "fr": "Nom de l’établissement :" },
+  "תחום:": { "en": "Category:", "ru": "Категория:", "fr": "Catégorie :" },
+  "מספר פנייה:": { "en": "Request reference:", "ru": "Номер заявки:", "fr": "Référence de la demande :" },
+  "הפרטים הועברו לצוות המתאים. נציג יחזור אליכם לאחר בדיקה, לפני כל התחייבות או חיוב.": { "en": "Your details have been forwarded to the relevant team. A representative will contact you after review, before any commitment or charge.", "ru": "Ваши данные переданы соответствующей команде. Представитель свяжется с вами после проверки, до возникновения каких-либо обязательств или оплаты.", "fr": "Vos informations ont été transmises à l’équipe concernée. Un représentant vous contactera après vérification, avant tout engagement ou paiement." },
+  "אין צורך להשיב למייל זה.": { "en": "There is no need to reply to this email.", "ru": "Отвечать на это письмо не требуется.", "fr": "Il n’est pas nécessaire de répondre à cet e-mail." },
+  "בקשת ההצטרפות שלכם ל־VII התקבלה": { "en": "Your request to join VII has been received", "ru": "Ваша заявка на присоединение к VII получена", "fr": "Votre demande d’adhésion à VII a bien été reçue" }
 }

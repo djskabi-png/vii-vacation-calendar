@@ -34,7 +34,9 @@ test('provider controls preserve the accepted pre-provider effective cascade aft
   // viewport collision guard for compact select menus while preserving every
   // world-owned slot.
   // Freeze that cumulative cascade so later edits cannot silently disturb it.
-  const expected='7d0909a435c35adfee9a4a510da5f001aa006234e30082534073627dd71b770a';
+  // v924 added only the accepted short-video grid alignment rules to the
+  // cumulative shared cascade. Freeze that exact deployed result.
+  const expected='878efada733487fcf871e71ae227b70598ed9c5b47709333424be3f6b71bd4fd';
   assert.equal(sources.manifest.baselineSource,'81f03b74022e01fabe433381bc1fbd9b2d0e23e0');
   assert.equal(createHash('sha256').update(actual).digest('hex'),expected);
   assert.deepEqual(new Set(sources.manifest.slots.map(s=>s.world)),new Set(['spa','events','hourly','vacations']));
