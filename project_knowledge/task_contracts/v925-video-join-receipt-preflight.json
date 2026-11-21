@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "task_id": "v925-video-join-receipt-20261121",
+  "project": "VII",
+  "task_type": "supplier media and transactional email closure",
+  "requested_outcome": "Finish supplier video support and join-form receipt email, publish the exact cumulative candidate, and verify both on production before maker and simulated-Adir approval.",
+  "natural_destination": "Public VII place galleries and the public join form on vii.spaplus.co.",
+  "authorization_boundary": "Code, tests, one cumulative production publication, one bounded join receipt test to an owner-controlled address, and production verification are authorized. DNS, audience, supplier writes, billing and unrelated production data remain unchanged.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The user requires production proof and two approvals.","acceptance_impact":"Local tests do not count as delivery; exact production video and email flows must be exercised."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Video identity and email delivery truth must not be inferred.","acceptance_impact":"Videos remain place-scoped and the UI claims email delivery only after a provider confirmation."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The gallery code supports video but production still drops supplier fields or maps a video to the wrong place.","prevention":"Verify API normalization, legacy place mapping and the actual production gallery.","acceptance_check":"Ahuzat Yosef and a second mapped place expose only their verified videos; unsafe or cross-place URLs remain rejected."},
+    {"rejection":"The join form says an email was sent when only the lead was accepted.","prevention":"Send through VII with a stable idempotency key and set emailDelivered only from a provider message ID or an upstream confirmed delivery.","acceptance_check":"A real production submission receives exactly one receipt and the public success screen truthfully reports it."},
+    {"rejection":"A new release overwrites later cumulative fixes or mismatches the edge build.","prevention":"Publish only a clean descendant of the current cumulative branch, retain rollback identity and rebind the edge to the observed build.","acceptance_check":"Source guard, build, affected-family tests, exact deployment receipt and public build agreement all pass."},
+    {"rejection":"Desktop works while mobile gallery or join form is visually broken.","prevention":"Inspect the two public journeys at desktop and 390-pixel mobile after deployment.","acceptance_check":"Video play and join success are usable, modern Hebrew and free of overflow at both viewports."}
+  ],
+  "affected_family": ["vacation, spa, event and hourly place media normalization","shared place gallery video tab and player","join routes for every world","lead proxy and receipt provider","production Site and edge build alignment"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII platform decisions","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},{"label":"VII accepted feedback","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"Verified supplier video inventory","source":"project_knowledge/task_contracts/supplier-videos-20261113-contract.json"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After focused implementation tests and before the production build.","checks":["Every verified legacy mapping resolves to its exact catalog source URL.","The receipt provider uses a stable submission-scoped idempotency key.","Failure or missing configuration never produces a false sent claim."],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can an unsafe or wrong-place video render?","Can a provider timeout create a false delivery claim or duplicate retry?","Can production serve an older build after deployment?","Can mobile hide the video or join success state?"],"natural_destination_evidence":"Exact public gallery interaction and one owner-controlled join receipt submission on the deployed build.","affected_family_evidence":"Focused tests, full build, source guard, shared-family routes and desktop/mobile production inspection."},
+  "effectiveness": {"baseline":"Video support existed locally and partly publicly; join receipt truth depended on the external lead API.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Both production journeys pass with no false delivery claim, duplicate receipt or media identity regression."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

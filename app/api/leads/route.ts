@@ -1,5 +1,6 @@
 import { saveWhatsAppLead } from "../../lib/whatsapp-lead-storage";
 import { recordBookingAudit } from "../../lib/operations-audit";
+import { deliverJoinReceipt } from "../../lib/join-receipt-email";
 
 const upstream = "https://app.spaplus.co/api/integrations/vii-leads";
 
@@ -120,11 +121,27 @@ export async function POST(request: Request) {
           amount: Number.isFinite(Number(payload.expectedTotal)) ? Number(payload.expectedTotal) : null, currency: "ILS" });
       } catch (error) { console.error("VII lead booking audit unavailable after acceptance", error); }
     }
+    const upstreamEmailDelivered = result.emailDelivered === true;
+    const localReceipt = isJoinRequest && !upstreamEmailDelivered
+      ? await deliverJoinReceipt({
+          submissionId: localReference,
+          email: String(payload.email || ""),
+          name: String(payload.name || ""),
+          organization: String(payload.organization || ""),
+          world: String(payload.world || ""),
+          reference,
+        })
+      : null;
+    const emailDelivered = upstreamEmailDelivered || localReceipt?.status === "sent";
+    if (isJoinRequest && !emailDelivered) {
+      console.error("VII join receipt not confirmed", { reference, status: localReceipt?.status || "upstream_unconfirmed", reason: localReceipt && "reason" in localReceipt ? localReceipt.reason : null });
+    }
     return json({
       success: true,
       reference,
       upstreamDelivered: true,
-      emailDelivered: result.emailDelivered === true,
+      emailDelivered,
+      emailDeliveryStatus: upstreamEmailDelivered ? "upstream_confirmed" : localReceipt?.status || "not_requested",
     });
   } catch {
     if (isBookingRequest) {

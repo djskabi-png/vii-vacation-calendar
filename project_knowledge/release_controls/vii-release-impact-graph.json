@@ -1214,7 +1214,8 @@
         "app/api/leads/route.ts",
         "app/components/lead-intake-form.tsx",
         "app/api/vii/booking/route.ts",
-        "app/lib/operations-audit.ts"
+        "app/lib/operations-audit.ts",
+        "app/lib/join-receipt-email.ts"
       ]
     },
     {

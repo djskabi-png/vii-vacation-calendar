@@ -13,7 +13,8 @@ test("VII server forwards leads to the global system with a shared secret", asyn
   assert.match(route, /sourceSite: "vii\.co\.il"/);
   assert.match(route, /sourceHost: "vii\.spaplus\.co"/);
   assert.match(route, /sourceBrand: "VII"/);
-  assert.match(route, /emailDelivered: result\.emailDelivered === true/);
+  assert.match(route, /deliverJoinReceipt/);
+  assert.match(route, /upstreamEmailDelivered \|\| localReceipt\?\.status === "sent"/);
 });
 
 test("every join form requires email and reports only confirmed delivery", async () => {
