@@ -5,6 +5,7 @@ import { SpaEditorialReviewError, catalogDiagnosticLimit,
   type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import { isBannedPublicMedia } from "./public-media-policy.ts";
 import { isQuarantinedGalleryMedia } from "./legacy-gallery-media.ts";
+import { localSupplierMediaUrl } from "./supplier-media-identity.ts";
 import officialFacilityEvidence from "../data/spaplus-official-facility-evidence.json" with { type: "json" };
 
 function text(value: unknown) {
@@ -12,15 +13,18 @@ function text(value: unknown) {
 }
 
 function withCanonicalSpaImage(site: SpaPlusSite): SpaPlusSite {
-  const gallery = Array.isArray(site.gallery)
+  const sourceGallery = Array.isArray(site.gallery)
     ? site.gallery.filter((image) => Boolean(image) && !isBannedPublicMedia(image) && !isQuarantinedGalleryMedia(image))
     : [];
-  const image = site.image && !isBannedPublicMedia(site.image) && !isQuarantinedGalleryMedia(site.image)
-    && (gallery.length === 0 || gallery.includes(site.image))
+  const sourceImage = site.image && !isBannedPublicMedia(site.image) && !isQuarantinedGalleryMedia(site.image)
+    && (sourceGallery.length === 0 || sourceGallery.includes(site.image))
     ? site.image
-    : gallery[0];
+    : sourceGallery[0];
+  const gallery = sourceGallery.map(localSupplierMediaUrl).filter((image): image is string => Boolean(image));
+  const image = sourceImage ? localSupplierMediaUrl(sourceImage) || gallery[0] : gallery[0];
   return { ...site, image, gallery, packages: Array.isArray(site.packages) ? site.packages.map(pack =>
-    isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" } : pack) : [] };
+    isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" }
+      : { ...pack, image: localSupplierMediaUrl(pack.image) || "" }) : [] };
 }
 
 type SpaFacilityEvidence = {

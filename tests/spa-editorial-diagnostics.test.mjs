@@ -3,6 +3,7 @@ import test from "node:test";
 import catalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate, projectSpaViiSite } from "../app/lib/spa-editorial-policy.ts";
 import { sanitizeCatalogDiagnostics } from "../app/lib/supplier-catalog-diagnostics.ts";
+import { localSupplierMediaUrl } from "../app/lib/supplier-media-identity.ts";
 
 test("reviewed supplier changes preserve VII copy instead of rejecting the whole catalog", async () => {
   const sites = catalog.sites.slice(0, 3);
@@ -40,7 +41,7 @@ test("an orphan supplier cover is replaced by the first approved gallery image",
   const gallery = ["https://www.spaplus.co.il/gallery/working-cover.jpeg", ...(site.gallery || [])];
   const projected = await projectSpaViiSite({ ...site,
     image: "https://www.spaplus.co.il/gallery/orphan-cover.jpeg", gallery });
-  assert.equal(projected.image, gallery[0]);
+  assert.equal(projected.image, localSupplierMediaUrl(gallery[0]));
   assert.equal(site.image, catalog.sites[0].image);
 });
 
@@ -54,8 +55,8 @@ test("unavailable supplier media is removed and the first approved gallery image
     gallery: [...unavailable, approved], packages: [] };
   const before = structuredClone(site);
   const projected = await projectSpaViiSite(site);
-  assert.equal(projected.image, approved);
-  assert.deepEqual(projected.gallery, [approved]);
+  assert.equal(projected.image, localSupplierMediaUrl(approved));
+  assert.deepEqual(projected.gallery, [localSupplierMediaUrl(approved)]);
   assert.deepEqual(site, before);
 });
 
@@ -64,8 +65,8 @@ test("an approved supplier cover and gallery remain unchanged", async () => {
   const site = { id: 534, title: "Spa", city: "Nahariya", image: approved,
     gallery: [approved], packages: [] };
   const projected = await projectSpaViiSite(site);
-  assert.equal(projected.image, approved);
-  assert.deepEqual(projected.gallery, [approved]);
+  assert.equal(projected.image, localSupplierMediaUrl(approved));
+  assert.deepEqual(projected.gallery, [localSupplierMediaUrl(approved)]);
 });
 
 test("a spa with only unavailable media exposes no broken cover", async () => {

@@ -9,6 +9,7 @@ import { catalogResponse } from "../app/api/catalog/route.ts";
 import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
 import spaCatalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate } from "../app/lib/spa-editorial-policy.ts";
+import { localSupplierMediaUrl } from "../app/lib/supplier-media-identity.ts";
 import {proveSupplierDetail,proveSupplierMediaDetail} from '../app/lib/supplier-detail-contract.ts';
 import {syncSupplierCatalogWorld} from '../app/lib/supplier-catalog-runtime.ts';
 
@@ -120,7 +121,10 @@ test("changed Spa facts are accepted while reviewed public prose remains protect
     const publicBody = await (await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa&id=6"), db)).json();
     assert.notDeepEqual(publicBody.entry.summary.about, site.about);
     assert.doesNotMatch(JSON.stringify(publicBody), /new unreviewed supplier words/);
-    assert.deepEqual(publicBody.entry.summary.packages, site.packages);
+    assert.deepEqual(publicBody.entry.summary.packages, site.packages.map((pack) => ({
+      ...pack,
+      image: localSupplierMediaUrl(pack.image) || "",
+    })));
   } finally { db.close(); }
 });
 const baseline = [

@@ -10,6 +10,7 @@ import { legacyGalleryFilename } from "./legacy-gallery-media.ts";
 import {validSupplierDetailProof} from './supplier-detail-contract.ts';
 import { compareSupplierCatalogEntries, catalogContentIntegrityIssues, catalogRemovalWithinGuard } from "./supplier-catalog-sync.ts";
 import { archiveGalleryCandidate } from "./gallery-candidate-archive.ts";
+import { archiveNewSupplierMediaCandidate } from "./supplier-media-candidate-archive.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 
@@ -68,6 +69,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
         return;
       }
       await archiveGalleryCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl });
+      await archiveNewSupplierMediaCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl });
     },
     fetchCandidate: async (previous) => {
       archivePrevious = previous;

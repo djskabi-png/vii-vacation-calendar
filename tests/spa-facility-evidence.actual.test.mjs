@@ -4,12 +4,14 @@ import fs from 'node:fs';
 import {createSourceLoader} from './helpers/source-module-loader.mjs';
 const load=createSourceLoader();
 const {projectSpaViiSite,projectSpaCatalogEntries}=load('app/lib/spa-editorial-policy.ts');
+const {localSupplierMediaUrl}=load('app/lib/supplier-media-identity.ts');
 const {spaPlacesFromSites}=load('app/lib/spa-discovery-card.ts');
 const {spaItemMatches,spaLandings}=load('app/data/spa-landings.ts');
 const catalog=JSON.parse(fs.readFileSync('app/data/spaplus-public-catalog.json','utf8')).sites;
 const evidence=JSON.parse(fs.readFileSync('app/data/spaplus-official-facility-evidence.json','utf8')).entries;
 const pool=spaLandings.find(item=>item.id==='pool');
 const raw=id=>structuredClone(catalog.find(item=>item.id===id));
+const localPackages=packages=>packages.map(pack=>({...pack,image:localSupplierMediaUrl(pack.image)||''}));
 
 test('actual public catalog projection unions partial upstream facts by exact supplier ID',async()=>{
   const original={...raw(6),features:['מקור קיים'],facilityIds:[999]};
@@ -27,7 +29,7 @@ test('Kempinski optional paid pool is searchable without inventing package inclu
   assert.ok(projected.facilityIds.includes(999));
   assert.equal(projected.features.includes('בריכה'),false);
   assert.ok(projected.optionalFeatures.some(item=>item.label==='בריכה'&&item.kind==='optional-paid'));
-  assert.deepEqual(projected.packages,raw(385).packages);
+  assert.deepEqual(projected.packages,localPackages(raw(385).packages));
   assert.equal(spaItemMatches(spaPlacesFromSites([projected])[0],pool),true);
 });
 test('an unrelated supplier cannot inherit facilities through a matching title',async()=>{
@@ -47,7 +49,7 @@ test('every reviewed evidence row preserves identity, packages and catalog inven
   assert.equal(projected.length,rows.length);
   for(let i=0;i<rows.length;i++){
     assert.equal(projected[i].id,rows[i].id);
-    assert.deepEqual(projected[i].packages,rows[i].packages);
+    assert.deepEqual(projected[i].packages,localPackages(rows[i].packages));
     for(const label of evidence[rows[i].id].labels||[])assert.ok(projected[i].features.includes(label));
   }
 });

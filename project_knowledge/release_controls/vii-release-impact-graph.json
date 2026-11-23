@@ -1408,6 +1408,12 @@
         "app/components/property-gallery.tsx",
         "app/lib/legacy-gallery-media.ts",
         "app/lib/supplier-videos.ts",
+        "app/lib/supplier-media-identity.ts",
+        "app/lib/supplier-media-store.ts",
+        "app/lib/supplier-media-recovery.ts",
+        "app/lib/supplier-media-backfill.ts",
+        "app/lib/supplier-media-candidate-archive.ts",
+        "app/api/vii/supplier-media/",
         "app/components/gallery-action-content.tsx"
       ]
     },

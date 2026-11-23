@@ -14,6 +14,7 @@ import { spaViiCopyOrNull } from "../app/data/spa-vii-copy.ts";
 import { spaPlacesFromSites } from "../app/lib/spa-discovery-card.ts";
 import { spaSearchStateFromValues, spaItemMatchesSearch } from "../app/data/spa-search-landings.ts";
 import { isQuarantinedGalleryMedia } from "../app/lib/legacy-gallery-media.ts";
+import { localSupplierMediaUrl } from "../app/lib/supplier-media-identity.ts";
 
 test("all 159 active Spa sources are pinned, individually rewritten and fact-mapped", async () => {
   assert.equal(copies.length, 159);
@@ -41,7 +42,8 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
     const projected=await projectSpaViiSite(site);
     assert.deepEqual(projected.about, copy.paragraphs);
     assert.deepEqual(projected.packages, site.packages.map((pack) =>
-      isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" } : pack));
+      isQuarantinedGalleryMedia(pack.image) ? { ...pack, image: "" }
+        : { ...pack, image: localSupplierMediaUrl(pack.image) || "" }));
     assert.deepEqual(projected.opening, site.opening);
     const excluded=review.excludedSourceArtifacts.map(x=>x.text).join(" ");
     const text=copy.paragraphs.join(" ");
@@ -62,8 +64,8 @@ test("changed supplier facts refresh while supplier prose can never overwrite VI
   }
   const commercial={...site, image:"https://www.spaplus.co.il/gallery/new.jpg", packages:site.packages.map(x=>({...x,price:x.price+1,durationMinutes:70}))};
   const view=await projectSpaViiSite(commercial);
-  assert.deepEqual(view.packages,commercial.packages); assert.deepEqual(view.opening,commercial.opening);
-  assert.equal(view.image,commercial.image);
+  assert.deepEqual(view.packages,commercial.packages.map((pack)=>({...pack,image:localSupplierMediaUrl(pack.image)||""}))); assert.deepEqual(view.opening,commercial.opening);
+  assert.equal(view.image,localSupplierMediaUrl(commercial.image));
   const added=await projectSpaViiSite({...site,id:999999,title:"ספא חדש",city:"חיפה",about:["טקסט ספק שלא אושר"]});
   assert.match(added.shortDescription,/ספא חדש/); assert.doesNotMatch(added.about.join(" "),/טקסט ספק/);
   await validateSpaEditorialCandidate([{supplierId:6,summary:site}]);

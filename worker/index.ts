@@ -164,6 +164,17 @@ const worker = {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }
     }));
+    ctx.waitUntil((async () => {
+      const [{ readSupplierCatalog }, { bundledCatalogBaseline }, { runSupplierMediaBackfill }] = await Promise.all([
+        import("../app/lib/supplier-catalog-store.ts"),
+        import("../app/lib/supplier-catalog-runtime.ts"),
+        import("../app/lib/supplier-media-backfill.ts"),
+      ]);
+      const accepted = await readSupplierCatalog(database, "spa");
+      const entries = accepted?.entries?.length ? accepted.entries : await bundledCatalogBaseline("spa");
+      const state = await runSupplierMediaBackfill(entries, env.UPLOADS);
+      if (state.status === "blocked") console.error("VII supplier media backfill blocked", state.failures.slice(0, 3));
+    })().catch((error) => console.error("VII supplier media backfill unavailable", error)));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
     return withServerRequestReads(async () => {
