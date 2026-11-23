@@ -1,11 +1,10 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useRef, useState } from "react";
 import { boundedSliderIndex } from "./slider-rail-controls";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResponsiveCardImage } from "./responsive-card-image";
+import { heroImageWidths } from "../lib/responsive-media";
 import { GalleryActionContent } from "./gallery-action-content";
 
 type PropertyGalleryProps = {
@@ -62,7 +61,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
     >
       <ResponsiveCardImage alt={`${name}, ${copy.image} ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, ${copy.image} ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "auto"} decoding="async"
         quality={index === 0 ? 88 : 82}
-        imageWidths={index === 0 ? [640, 960, 1280, 1600] : undefined}
+        imageWidths={index === 0 ? heroImageWidths : undefined}
         sizes={galleryImages.length === 1 ? "(max-width: 760px) calc(100vw - 32px), 1200px" : index === 0 ? "(max-width: 760px) calc(100vw - 32px), 600px" : "(max-width: 760px) calc(100vw - 32px), 300px"} />
       {index === 4 && <GalleryActionContent label={copy.full} />}
     </button>)}
