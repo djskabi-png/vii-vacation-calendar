@@ -1,6 +1,7 @@
 import {discoverySeedRank} from './discovery-slider-order.ts';
 import type { SpaPlusSite } from "../data/spaplus";
 import { eventDealDate } from "./event-deal-dates.ts";
+import { localSupplierMediaUrl } from "./supplier-media-identity.ts";
 export type SpaDayAvailability = { siteID: number; date: string; available: number };
 export type SpaDealAudience = "single" | "couple" | "group";
 export type SpaDealSite = Pick<SpaPlusSite, "id" | "title" | "city" | "image"> & { titleEN?:string|null; packages: SpaPlusSite["packages"] };
@@ -47,8 +48,8 @@ export function selectSpaPackageDeals(sites: SpaDealSite[], availability: SpaDay
     return site.packages.flatMap(pack => {
       const key = `${site.id}:${pack.id}`;
       const matches = audience === "group" ? pack.group || (pack.people ?? 0) >= 3 : !pack.group && pack.people === (audience === "single" ? 1 : 2);
-      const image = pack.image || site.image || "";
-      if (!matches || !Number.isSafeInteger(pack.id) || pack.id <= 0 || !Number.isFinite(pack.price) || pack.price <= 0 || !pack.title?.trim() || !/^https:\/\/www\.spaplus\.co\.il\/gallery\//.test(image) || seen.has(key)) return [];
+      const image = localSupplierMediaUrl(pack.image || site.image);
+      if (!matches || !Number.isSafeInteger(pack.id) || pack.id <= 0 || !Number.isFinite(pack.price) || pack.price <= 0 || !pack.title?.trim() || !image || seen.has(key)) return [];
       seen.add(key);
       return [{ siteId: site.id, packageId: pack.id, siteName: site.title, siteNameEN:site.titleEN || "", city: site.city, title: pack.title, price: pack.price, people: pack.people, durationMinutes: pack.durationMinutes || null, image, href: spaPackageDealHref(site.id, pack.id, date) }];
     });
@@ -61,10 +62,10 @@ export function selectSpaCatalogPackages(sites: SpaDealSite[], date: string, aud
   return sites.flatMap(site => site.packages.flatMap(pack => {
     const key = `${site.id}:${pack.id}`;
     const matches = audience === "group" ? pack.group || (pack.people ?? 0) >= 3 : !pack.group && pack.people === (audience === "single" ? 1 : 2);
-    const image = pack.image || site.image || "";
+    const image = localSupplierMediaUrl(pack.image || site.image);
     if (!matches || !Number.isSafeInteger(site.id) || site.id <= 0 || !Number.isSafeInteger(pack.id) || pack.id <= 0
       || !Number.isFinite(pack.price) || pack.price <= 0 || !pack.title?.trim()
-      || !/^https:\/\/www\.spaplus\.co\.il\/gallery\//.test(image) || seen.has(key)) return [];
+      || !image || seen.has(key)) return [];
     seen.add(key);
     return [{ siteId: site.id, packageId: pack.id, siteName: site.title, siteNameEN: site.titleEN || "", city: site.city,
       title: pack.title, price: pack.price, people: pack.people, durationMinutes: pack.durationMinutes || null, image,

@@ -82,7 +82,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region,fixedDateO
    // Availability has one transport identity per scope. Putting presentation
    // rotation in this URL fragmented both browser and edge caches into cold
    // variants. Fair per-document ordering remains in orderDiscoveryRail.
-   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:5_000, totalTimeoutMs:7_000, retries:1, cache:"default", persist:true, freshMs:120_000, staleMs:900_000,
+   discoveryJson<DealResponse>(`/api/spa/deals?${new URLSearchParams({clock:clockKey,...(regionLabel?{region:regionLabel}:{}),...(fullDateRequest?{full:"1",date:requestDate}:{})})}`,`stored-media:${clockKey}:${requestDate || "all"}`,{signal:controller.signal, timeoutMs:5_000, totalTimeoutMs:7_000, retries:1, cache:"default", persist:true, freshMs:120_000, staleMs:900_000,
    shouldCache:value=>(value as DealResponse|null)?.availabilityStatus==="verified"})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){
     const followup = scheduleSpaDealFollowup(body.availabilityStatus, followupCountRef.current, ()=>{if(!controller.signal.aborted) setAttempt(value=>value+1);});

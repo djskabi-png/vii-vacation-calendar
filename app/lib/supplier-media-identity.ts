@@ -66,8 +66,12 @@ export function localSupplierMediaUrl(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const candidate = value.trim();
   if (candidate.startsWith(SUPPLIER_MEDIA_ROOT)) {
-    const token = decodeURIComponent(candidate.slice(SUPPLIER_MEDIA_ROOT.length));
-    return supplierMediaSourceFromToken(token) ? `${SUPPLIER_MEDIA_ROOT}${token}` : null;
+    try {
+      const token = decodeURIComponent(candidate.slice(SUPPLIER_MEDIA_ROOT.length));
+      return supplierMediaSourceFromToken(token) ? `${SUPPLIER_MEDIA_ROOT}${token}` : null;
+    } catch {
+      return null;
+    }
   }
   const token = supplierMediaToken(candidate);
   return token ? `${SUPPLIER_MEDIA_ROOT}${token}` : null;

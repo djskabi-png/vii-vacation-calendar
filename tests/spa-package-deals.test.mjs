@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {selectSpaPackageDeals,orderSpaDealExposure,validSpaDealDate,spaPackageDealHref,millisecondsToNextIsraelDay} from '../app/lib/spa-package-deals.ts';
+import {selectSpaCatalogPackages,selectSpaPackageDeals,orderSpaDealExposure,validSpaDealDate,spaPackageDealHref,millisecondsToNextIsraelDay} from '../app/lib/spa-package-deals.ts';
+import {localSupplierMediaUrl} from '../app/lib/supplier-media-identity.ts';
 import { scheduleSpaDealFollowup } from '../app/lib/spa-followup.ts';
 
 test('followup scheduler executes bounded 2s then 4s sequence and stops when verified',()=>{const timers=[];const calls=[];let count=0;let next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('first'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,1);assert.equal(timers[0].delay,2000);timers.shift().fn();count=next.nextCount;next=scheduleSpaDealFollowup('refreshing',count,()=>calls.push('second'),(fn,delay)=>{timers.push({fn,delay});return timers.at(-1)});assert.equal(next.nextCount,2);assert.equal(timers[0].delay,4000);assert.equal(scheduleSpaDealFollowup('verified',count,()=>{},()=>{}),null);assert.equal(scheduleSpaDealFollowup('refreshing',2,()=>{},()=>{}),null);assert.deepEqual(calls,['first']);});
@@ -16,7 +17,18 @@ test('weighted exposure is applied before the twenty-item rail cap and rotates e
 test('tomorrow join changes site inventory; missing and zero excluded',()=>{assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-18','single').map(x=>x.siteId),[2]);assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-19','single'),[]);});
 test('audience is package-specific, group does not leak into couple or solo',()=>{assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-17','couple').map(x=>x.packageId),[13]);assert.deepEqual(selectSpaPackageDeals(sites,rows,'2026-10-17','group').map(x=>x.packageId),[14]);});
 test('invalid amount, unsafe image and duplicate package not rendered',()=>{const input=[site(1,[pack(1,0),pack(2,-1),pack(3,NaN),{...pack(4,1),image:'javascript:bad'},pack(5,50),pack(5,50)])];assert.deepEqual(selectSpaPackageDeals(input,rows,'2026-10-17','single').map(x=>x.packageId),[5]);});
-test('missing package image uses photograph of the same spa only',()=>{const input=[site(1,[{...pack(1,100),image:null}])];assert.equal(selectSpaPackageDeals(input,rows,'2026-10-17','single')[0].image,photo);});
+test('missing package image uses the stored photograph of the same spa only',()=>{const input=[site(1,[{...pack(1,100),image:null}])];assert.equal(selectSpaPackageDeals(input,rows,'2026-10-17','single')[0].image,localSupplierMediaUrl(photo));});
+test('live availability and catalog fallback both accept the same archived image published by the spa catalog',()=>{
+  const image=localSupplierMediaUrl(photo);
+  assert.ok(image);
+  const input=[{...site(1,[{...pack(11,100),image}]),image}];
+  assert.deepEqual(selectSpaPackageDeals(input,rows,'2026-10-17','single').map(deal=>[deal.packageId,deal.image]),[[11,image]]);
+  assert.deepEqual(selectSpaCatalogPackages(input,'2026-10-17','single').map(deal=>[deal.packageId,deal.image]),[[11,image]]);
+  assert.deepEqual(selectSpaPackageDeals(input,rows,'2026-10-18','single'),[]);
+  const malformed=[site(1,[{...pack(11,100),image:'/api/vii/supplier-media/%'}])];
+  assert.deepEqual(selectSpaPackageDeals(malformed,rows,'2026-10-17','single'),[]);
+  assert.deepEqual(selectSpaCatalogPackages(malformed,'2026-10-17','single'),[]);
+});
 test('known group with unspecified people is not invented as3',()=>{const result=selectSpaPackageDeals([site(1,[pack(1,100,null,true)])],rows,'2026-10-17','group');assert.equal(result[0].people,null);});
 test('dates reject impossible calendar values and missing source',()=>{for(const date of ['bad','2026-02-30','2026-13-01','']){assert.equal(validSpaDealDate(date),false);assert.deepEqual(selectSpaPackageDeals(sites,rows,date,'single'),[]);}assert.equal(validSpaDealDate('2028-02-29'),true);});
 test('exact package and requested date retained without inventing supplier query contract',()=>{assert.equal(spaPackageDealHref(6,2054,'2026-10-17'),'/discover/place/spa-6?date=2026-10-17&package=2054#spa-package-2054');});
