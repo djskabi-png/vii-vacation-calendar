@@ -39,3 +39,44 @@ jobs:
           fi
           node .github/scripts/prepare-owned-cloudflare-staging.mjs
           pnpm exec wrangler deploy --config dist/server/wrangler.owned-staging.json --message "GitHub ${GITHUB_SHA}"
+
+  production-qualification:
+    name: Production qualification (read-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable && corepack prepare pnpm@10.25.0 --activate
+      - name: Install pinned application and browser-worker dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --dir services/vii-quality-browser install --frozen-lockfile
+      - name: Build the exact candidate
+        run: pnpm build
+      - name: Run the complete regression suite
+        id: regression
+        run: node --test --test-reporter=tap tests/*.test.mjs > "$RUNNER_TEMP/vii-production-regression.tap" 2>&1
+      - name: Report qualification for the exact source
+        if: always()
+        env:
+          REGRESSION_OUTCOME: ${{ steps.regression.outcome }}
+        run: |
+          {
+            echo '### VII production regression'
+            echo
+            printf 'Source commit `%s`\n\n' "$GITHUB_SHA"
+            printf 'Regression result `%s`\n' "$REGRESSION_OUTCOME"
+            echo
+            echo 'Public deployment requires separate restore, live-provider and rollback verification.'
+            if [ -f "$RUNNER_TEMP/vii-production-regression.tap" ]; then
+              echo
+              echo '```text'
+              awk '/^not ok [0-9]+ - / || /^# (tests|pass|fail|cancelled|skipped|todo) [0-9]+$/ { print }' "$RUNNER_TEMP/vii-production-regression.tap"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

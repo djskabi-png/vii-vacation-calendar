@@ -865,6 +865,8 @@
         "app/lib/online-booking-capability.ts",
         "app/lib/supplier-starting-price.ts",
         "app/lib/catalog-status-mcp.ts",
+        "app/lib/catalog-pull-mcp.ts",
+        "app/lib/supplier-catalog-diagnostics.ts",
         "app/lib/live-business-amenities.ts",
         "app/lib/vacation-search-filter-index.ts",
         "app/mcp/route.ts",
@@ -1000,6 +1002,7 @@
         "app/lib/legacy-search-intent.ts",
         "app/lib/legacy-search-intent-rules.ts",
         "app/lib/legacy-search-intent-source.ts",
+        "app/lib/legacy-landing-editorial.ts",
         "app/lib/world-location-path.ts",
         "app/lib/world-location-pages.ts",
         "app/data/legacy-vacation-intents.generated.json",
@@ -1191,6 +1194,7 @@
       "match": [
         "app/admin/",
         "app/api/admin/",
+        "app/lib/catalog-sync-presentation.ts",
         "app/lib/vii-conversions.ts",
         "app/lib/admin-professor-intent.ts",
         "app/lib/admin-professor-openai.ts",
@@ -1205,6 +1209,7 @@
       "ownerBox": "booking",
       "match": [
         "app/components/vacation-booking-hub.tsx",
+        "app/components/booking-date-fields.tsx",
         "app/booking/client-page.tsx",
         "app/components/detail-sticky-dock.tsx",
         "app/lib/quoted-price-guests.ts",
@@ -1226,6 +1231,7 @@
         "app/feed.xml/",
         "app/sitemaps/",
         "app/lib/search-page-content.ts",
+        "app/lib/legacy-landing-meta-fields.ts",
         "app/lib/sitemap-inventory.ts",
         "app/lib/seo.ts",
         "app/lib/public-url.ts",
@@ -1269,6 +1275,7 @@
       "ownerBox": "build-system",
       "match": [
         "vite.config.ts",
+        "next.config.ts",
         "scripts/release-build-identity.mjs",
         ".gitattributes",
         ".openai/prepare-vii-release-handoff.ps1",
@@ -1292,6 +1299,9 @@
         "scripts/",
         "project_knowledge/",
         ".openai/",
+        ".github/scripts/prepare-owned-cloudflare-staging.mjs",
+        ".github/workflows/deploy-pages.yml",
+        ".github/workflows/vii-owned-staging.yml",
         ".gitignore",
         "tools/"
       ]
