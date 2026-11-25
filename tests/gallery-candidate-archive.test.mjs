@@ -49,3 +49,35 @@ test("an injected clock is used consistently during archival", async () => {
   const result=await archiveGalleryCandidate({previous:entry('/api/vii/media/old.jpg'),candidate:entry('/api/vii/media/new.jpg'),bucket:fake(),fetchImpl:fetchOk,now:()=>0});
   assert.equal(result.complete,true);
 });
+
+test("a slow read of a valid archived image can resume without reporting corrupt data", async () => {
+  const metadata = { size: jpeg.byteLength, httpMetadata: { contentType: "image/jpeg" } };
+  let elapsed = 0;
+  let slow = true;
+  let checkpoint = null;
+  const bucket = {
+    async head() { return metadata; },
+    async get(key) {
+      if (key.includes("/operations/")) return checkpoint;
+      if (slow) elapsed = 30_000;
+      return { ...metadata, body: new Response(jpeg).body };
+    },
+    async put(key, value) {
+      assert.match(key, /\/operations\//);
+      checkpoint = { size: value.length, text: async () => value };
+    },
+  };
+  const input = {
+    previous: entry("/api/vii/media/old.jpg"), candidate: entry("/api/vii/media/new.jpg"),
+    bucket, resumeScope: "events", now: () => elapsed,
+    fetchImpl: async () => assert.fail("An existing image must not be fetched from the origin"),
+  };
+  await assert.rejects(() => archiveGalleryCandidate(input), { message: "archive_batch_requires_resume" });
+  assert.equal(checkpoint, null);
+  slow = false;
+  elapsed = 0;
+  const resumed = await archiveGalleryCandidate(input);
+  assert.equal(resumed.complete, true);
+  assert.deepEqual(resumed.skipped, ["new.jpg"]);
+  assert.equal(await checkpoint.text(), "1");
+});

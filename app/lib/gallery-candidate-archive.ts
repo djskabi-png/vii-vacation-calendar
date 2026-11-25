@@ -23,13 +23,28 @@ function collectMedia(value: unknown, out: Set<string>) {
   if (value && typeof value === "object") for (const [key, item] of Object.entries(value)) if (mediaFields.has(key) || key === "pictures" || key === "galleryGroups") collectMedia(item, out);
 }
 function digest(bytes: Uint8Array<ArrayBuffer>) { return crypto.subtle.digest("SHA-256", bytes).then(hash => [...new Uint8Array(hash)].map(x => x.toString(16).padStart(2, "0")).join("")); }
+class ArchiveBudgetExpired extends Error {
+  constructor() { super("archive_batch_requires_resume"); }
+}
 async function readBody(response: Response, deadline: number, clock: () => number) {
-  if (clock() > deadline) throw Error("archive_budget_requires_resume");
+  if (clock() >= deadline) {
+    void response.body?.cancel().catch(() => {});
+    throw new ArchiveBudgetExpired();
+  }
   const length = response.headers.get("content-length");
   if (length && (!/^\d+$/.test(length) || Number(length) < 1 || Number(length) > MAX)) throw Error("archive_image_size_invalid");
   if (!response.body) throw Error("archive_image_body_missing");
   const reader = response.body.getReader(), chunks: Uint8Array[] = []; let size = 0;
-  try { while (true) { const part = await reader.read(); if (part.done) break; size += part.value.byteLength; if (size > MAX) throw Error("archive_image_too_large"); chunks.push(part.value); } }
+  try {
+    while (true) {
+      const part = await reader.read();
+      if (clock() >= deadline) throw new ArchiveBudgetExpired();
+      if (part.done) break;
+      size += part.value.byteLength;
+      if (size > MAX) throw Error("archive_image_too_large");
+      chunks.push(part.value);
+    }
+  }
   catch (error) { await reader.cancel().catch(() => {}); throw error; }
   finally { reader.releaseLock(); }
   if (!size || (length && Number(length) !== size)) throw Error("archive_image_size_mismatch");
@@ -44,7 +59,10 @@ async function archiveOne(filename: string, bucket: R2Bucket, fetchImpl: typeof 
     if (!object || storedGalleryContentType(object.httpMetadata?.contentType) !== type || object.size !== existing.size) throw Error("archive_existing_invalid");
     let bytes: Awaited<ReturnType<typeof readBody>>;
     try { bytes = await readBody(new Response(object.body as unknown as ReadableStream, { headers: { "content-length": String(object.size) } }), deadline, clock); }
-    catch { throw Error("archive_existing_invalid"); }
+    catch (error) {
+      if (error instanceof ArchiveBudgetExpired) throw error;
+      throw Error("archive_existing_invalid");
+    }
     if (!sourceImageMagic(bytes, type)) throw Error("archive_existing_invalid");
     const sha256 = await digest(bytes), recorded = object.customMetadata?.sha256;
     if (recorded !== undefined && (!/^[a-f0-9]{64}$/i.test(recorded) || recorded.toLowerCase() !== sha256)) throw Error("archive_existing_checksum_mismatch");
@@ -60,7 +78,12 @@ async function archiveOne(filename: string, bucket: R2Bucket, fetchImpl: typeof 
   if (!stored) {
     const winner = await bucket.get(key); if (!winner) throw Error("archive_conditional_race_invalid");
     const winnerType = storedGalleryContentType(winner.httpMetadata?.contentType); if (winnerType !== type || !(winner.size > 0 && winner.size <= MAX)) throw Error("archive_conditional_race_invalid");
-    let winning: Awaited<ReturnType<typeof readBody>>; try { winning = await readBody(new Response(winner.body as unknown as ReadableStream, { headers: { "content-length": String(winner.size) } }), deadline, clock); } catch { throw Error("archive_conditional_race_invalid"); }
+    let winning: Awaited<ReturnType<typeof readBody>>;
+    try { winning = await readBody(new Response(winner.body as unknown as ReadableStream, { headers: { "content-length": String(winner.size) } }), deadline, clock); }
+    catch (error) {
+      if (error instanceof ArchiveBudgetExpired) throw error;
+      throw Error("archive_conditional_race_invalid");
+    }
     if (!sourceImageMagic(winning, type) || await digest(winning) !== sha256) throw Error("archive_conditional_race_invalid");
     return { filename, bytes: winning.byteLength, sha256 };
   }
