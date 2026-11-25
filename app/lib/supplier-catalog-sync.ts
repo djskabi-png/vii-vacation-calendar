@@ -184,11 +184,13 @@ export function catalogRemovalWithinGuard(before: number, removed: number, befor
 
 function errorCode(error: unknown) {
   const message = error instanceof Error ? error.message : "unknown_error";
-  return /^[a-z_]{3,100}$/.test(message) ? message : "supplier_sync_failed";
+  return /^[a-z_]{3,100}$/.test(message) || /^(?:archive_source|supplier_media)_http_[1-5]\d{2}$/.test(message) ? message : "supplier_sync_failed";
 }
 
 function failureCategory(code: string, stage: NonNullable<CatalogSyncDiagnostics["failure"]>["stage"]): NonNullable<CatalogSyncDiagnostics["failure"]>["category"] {
   if (code === "gallery_archive_storage_unavailable") return "resource_or_runtime";
+  if (code === "archive_batch_requires_resume") return "resource_or_runtime";
+  if (/^(?:archive_source|supplier_media)_http_/.test(code)) return "provider";
   if (code.includes("not_authorized") || code.includes("missing_sergey_key")) return "authorization";
   if (code.includes("transport") || code.includes("timeout")) return "transport";
   if (code.includes("provider")) return "provider";
@@ -258,6 +260,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if (input.world === "spa" && !spaMediaWithinGuard(previous, candidate.entries)) {
       throw new Error("catalog_media_requires_review");
     }
+    stage = "media_archive";
     await input.validateCandidate?.(candidate.entries);
     stage = "candidate_stage";
     for (let index = 0; index < candidate.entries.length; index += 40) {

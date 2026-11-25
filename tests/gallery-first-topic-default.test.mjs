@@ -5,8 +5,8 @@ import test from "node:test";
 const gallery = readFileSync(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8");
 
 test("gallery opens the full selected scope unless the caller requested an exact supplier topic", () => {
-  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, initialTopic, initialTab\)/);
-  assert.match(gallery, /const \[topic, setTopic\] = useState<string \| null>\(\(\) => resolvedTopic\)/);
+  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, requestedTopic, initialTab\)/);
+  assert.match(gallery, /useState<string \| null>\(requestedTopic \|\| null\)/);
   assert.doesNotMatch(gallery, /const defaultTopic/);
   assert.doesNotMatch(gallery, />\{tabLabels\.all\}<small>/);
   assert.doesNotMatch(gallery, /mobileTourAll/);

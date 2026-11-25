@@ -28,6 +28,7 @@ function comparableSleepingTitle(value: string) {
 export function isVerifiedBedroomGroup(title: string) {
   const normalized = comparableSleepingTitle(title);
   return /^חדר שינה(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+    || /^חדר שינה נוסף(?:\s*\(\s*[^()]+\s*\))?$/.test(normalized)
     || /^חדר\s+\d+(?:\s*[-–—:]\s*.+)?$/.test(normalized)
     || /^bedroom(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
     || /^chambre(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
@@ -36,7 +37,7 @@ export function isVerifiedBedroomGroup(title: string) {
 
 function isNamedSleepingSpaceGroup(title: string) {
   const normalized = comparableSleepingTitle(title);
-  return /^(?:סוויטה|סוויטת\s+הורים)(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized)
+  return /^(?:מיני\s+)?(?:סוויטת\s+\S.+|סוויטה(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?)$/.test(normalized)
     || /^suite(?:\s+\d+)?(?:\s*[-–—:]\s*.+)?$/.test(normalized);
 }
 
@@ -62,18 +63,15 @@ export function verifiedBedroomGroupsFromRoom(room: Pick<SleepingSourceRoom, "be
     .filter(({ group }) => group && typeof group.title === "string" && Array.isArray(group.items) && group.items.length);
   const declaredBedrooms = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
   const explicitIndexes = new Set(groups.filter(({ group }) => isVerifiedBedroomGroup(group.title)).map(({ index }) => index));
-  const sleepingFactIndexes = groups
-    .filter(({ group }) => declaredBedrooms > 0 && isNamedSleepingSpaceGroup(group.title) && group.items.some(isVerifiedSleepingFact))
-    .map(({ index }) => index);
+  const namedSuites = groups.filter(({ group }) => !isVerifiedBedroomGroup(group.title) && isNamedSleepingSpaceGroup(group.title));
+  const matchesDeclaredLayout = declaredBedrooms > 0 && explicitIndexes.size + namedSuites.length === declaredBedrooms;
   const selectedIndexes = new Set(explicitIndexes);
 
-  // Supplier room names are not always literally "חדר שינה". Suites and
-  // similarly named sleeping spaces still belong in the bedroom list when
-  // their contents contain verified bed facts. The declared bedroom count is
-  // the authority that prevents auxiliary sleeping areas from inflating it.
-  for (const index of sleepingFactIndexes) {
-    if (declaredBedrooms && selectedIndexes.size >= declaredBedrooms) break;
-    selectedIndexes.add(index);
+  // A complete named suite layout can be corroborated by the declared count
+  // even if the supplier lists amenities and omits individual bed types.
+  for (const { group, index } of namedSuites) {
+    if (selectedIndexes.size >= declaredBedrooms) break;
+    if (matchesDeclaredLayout || group.items.some(isVerifiedSleepingFact)) selectedIndexes.add(index);
   }
 
   const selected = groups.filter(({ index }) => selectedIndexes.has(index));
@@ -110,11 +108,23 @@ export function verifiedSleepingRoomsFromProperty({ rooms, galleryGroups = [], s
       }];
     });
 
-    if (explicitGroups.length) return explicitGroups;
+    const bedroomCount = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
+    if (explicitGroups.length) {
+      const undisclosedCount = bedroomCount - explicitGroups.length;
+      if (undisclosedCount <= 0) return explicitGroups;
+      return [...explicitGroups, {
+        key: `${roomIndex}-remaining-bedrooms`,
+        name: undisclosedCount === 1 ? "חדר שינה נוסף" : `${undisclosedCount} חדרי שינה נוספים`,
+        unitName: scenario === "multi" ? room.name : undefined,
+        details: [],
+        bedroomCount: undisclosedCount,
+        totalUnits,
+        availableUnits,
+      }];
+    }
 
     const groupedSleepingFacts = [...new Set((room.featureGroups || []).flatMap((group) => group.items || []).filter(isVerifiedSleepingFact))];
     const sleepingFacts = [...new Set((room.features || []).filter(isVerifiedSleepingFact))];
-    const bedroomCount = Number.isFinite(room.bedrooms) ? Math.max(0, Math.floor(room.bedrooms)) : 0;
     // A supplier can confirm the sleeping arrangement without declaring a
     // bedroom count. Show those verified facts, but never invent a room.
     if (!bedroomCount && !groupedSleepingFacts.length) return [];

@@ -14,9 +14,9 @@ type ShareCopy = {
   preview: string;
   copy: string;
   copied: string;
+  copyFailed: string;
   whatsapp: string;
   facebook: string;
-  email: string;
   close: string;
   message: (title: string, kind: ShareKind) => string;
 };
@@ -30,9 +30,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
     preview: "מומלץ ב־V",
     copy: "העתקת קישור",
     copied: "הקישור הועתק",
+    copyFailed: "ההעתקה נכשלה. אפשר להעתיק את הקישור משורת הכתובת.",
     whatsapp: "וואטסאפ",
     facebook: "פייסבוק",
-    email: "דואר אלקטרוני",
     close: "סגירת חלון השיתוף",
     message: (title, kind) => kind === "article" ? `מצאתי ב־V כתבה שכדאי לקרוא: ${title}` : kind === "event" ? `מצאתי ב־V מקום לאירוע שיכול להתאים לנו: ${title}` : `מצאתי ב־V מקום שיכול להתאים לנו: ${title}`,
   },
@@ -44,9 +44,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
     preview: "Recommended on V",
     copy: "Copy link",
     copied: "Link copied",
+    copyFailed: "Couldn’t copy the link. You can copy it from the address bar.",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
-    email: "Email",
     close: "Close sharing window",
     message: (title, kind) => kind === "article" ? `Worth reading: ${title}` : kind === "event" ? `I found an event venue: ${title}` : `I found this place on V: ${title}`,
   },
@@ -58,9 +58,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
     preview: "Рекомендовано на V",
     copy: "Копировать ссылку",
     copied: "Ссылка скопирована",
+    copyFailed: "Не удалось скопировать ссылку. Её можно скопировать из адресной строки.",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
-    email: "Эл. почта",
     close: "Закрыть окно отправки",
     message: (title, kind) => kind === "article" ? `Стоит прочитать: ${title}` : kind === "event" ? `Я нашёл площадку для мероприятия: ${title}` : `Я нашёл это место на V: ${title}`,
   },
@@ -72,9 +72,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
     preview: "Recommandé sur V",
     copy: "Copier le lien",
     copied: "Lien copié",
+    copyFailed: "Impossible de copier le lien. Vous pouvez le copier depuis la barre d’adresse.",
     whatsapp: "WhatsApp",
     facebook: "Facebook",
-    email: "E-mail",
     close: "Fermer la fenêtre de partage",
     message: (title, kind) => kind === "article" ? `À lire : ${title}` : kind === "event" ? `J'ai trouvé un lieu pour un événement : ${title}` : `J'ai trouvé ce lieu sur V : ${title}`,
   },
@@ -96,10 +96,6 @@ function FacebookIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21v-8h3l.5-3H14V8.2c0-.9.3-1.7 1.8-1.7H18V3.8c-.4 0-1.7-.2-3-.2-3 0-5 1.8-5 5.1V10H7v3h3v8" /></svg>;
 }
 
-function MailIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></svg>;
-}
-
 function SharePreviewImage({ image, title, imageAlt }: { image?: string; title: string; imageAlt?: string }) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
@@ -118,7 +114,8 @@ export function ShareButton({ title, kind = "place", image, imageAlt, imageCapti
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"copied" | "failed" | null>(null);
+  const copied = copyStatus === "copied";
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -170,24 +167,32 @@ export function ShareButton({ title, kind = "place", image, imageAlt, imageCapti
 
   const show = () => {
     setUrl(canonicalShareUrl(window.location.href, kind));
-    setCopied(false);
+    setCopyStatus(null);
     setOpen(true);
   };
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
+      setCopyStatus("copied");
     } catch {
+      const active = document.activeElement;
       const field = document.createElement("textarea");
       field.value = url;
+      field.readOnly = true;
       field.style.position = "fixed";
       field.style.opacity = "0";
       document.body.appendChild(field);
-      field.select();
-      document.execCommand("copy");
-      field.remove();
+      try {
+        field.select();
+        setCopyStatus(document.execCommand("copy") ? "copied" : "failed");
+      } catch {
+        setCopyStatus("failed");
+      } finally {
+        field.remove();
+        if (active instanceof HTMLElement) active.focus({ preventScroll: true });
+      }
     }
-    setCopied(true);
   };
 
   const message = labels.message(translatedTitle, kind);
@@ -209,12 +214,11 @@ export function ShareButton({ title, kind = "place", image, imageAlt, imageCapti
             <div><small>{imageCaption || labels.preview}</small><strong>{translatedTitle}</strong></div>
           </div>
           <div className="share-dialog__options">
-            <button className={copied ? "share-option share-option--copied" : "share-option"} type="button" onClick={() => void copyLink()}><span><LinkIcon /></span><strong>{copied ? labels.copied : labels.copy}</strong></button>
+            <button className={copied ? "share-option share-option--copied" : "share-option"} type="button" onClick={() => void copyLink()}><span><LinkIcon /></span><strong>{labels.copy}</strong></button>
             <a className="share-option share-option--whatsapp" href={`https://wa.me/?text=${encodedMessage}`} target="_blank" rel="noopener noreferrer"><span><WhatsAppIcon /></span><strong>{labels.whatsapp}</strong></a>
             <a className="share-option share-option--facebook" href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer"><span><FacebookIcon /></span><strong>{labels.facebook}</strong></a>
-            <a className="share-option share-option--email" href={`mailto:?subject=${encodeURIComponent(translatedTitle)}&body=${encodedMessage}`}><span><MailIcon /></span><strong>{labels.email}</strong></a>
           </div>
-          <span className="share-dialog__status" role="status" aria-live="polite">{copied ? labels.copied : ""}</span>
+          <span className={copyStatus === "failed" ? "share-dialog__status share-dialog__status--error" : "share-dialog__status"} role="status" aria-live="polite">{copied ? labels.copied : copyStatus === "failed" ? labels.copyFailed : null}</span>
         </section>
       </div>,
       document.body,

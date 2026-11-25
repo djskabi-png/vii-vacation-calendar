@@ -8,7 +8,7 @@ const discoveryDetail = await readFile(new URL("../app/discover/place/client-pag
 
 test("opening the full gallery does not silently narrow to the first supplier topic", () => {
   assert.doesNotMatch(gallery, /initialTab === "all" \? defaultTopic/);
-  assert.match(gallery, /useState<string \| null>\(\(\) => resolvedTopic\)/);
+  assert.match(gallery, /useState<string \| null>\(requestedTopic \|\| null\)/);
   assert.match(gallery, /gallerySelectionScope\([\s\S]*?, resolvedTopic\)/);
 });
 

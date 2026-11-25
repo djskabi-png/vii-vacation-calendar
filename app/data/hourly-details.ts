@@ -4,13 +4,16 @@ import { hourlyEntryMode, type HourlyEntryMode } from "../lib/hourly-entry.ts";
 
 export type HourlyDetails = {
   about: string[];
-  stayOptions: { title: string; description: string; images?: string[]; roomId?: number }[];
+  stayOptions: { title: string; description: string; images?: string[]; roomId?: number; amenities: string[]; amenityGroups: HourlyAmenityGroup[] }[];
   rates: { duration: string; price: string }[];
   amenities: string[];
+  amenityGroups: HourlyAmenityGroup[];
   entryDisclosure?: { label: string; question: string; answer: string };
   arrivalNotes: string[];
   faq: { question: string; answer: string }[];
 };
+
+type HourlyAmenityGroup = { title: string; items: string[] };
 
 function entryDisclosure(mode: HourlyEntryMode | undefined) {
   if (mode === "no-meeting") return {
@@ -52,6 +55,11 @@ export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlac
     ...(rate.weekday ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · יום חול`, price: `₪ ${rate.weekday}` }] : []),
     ...(rate.weekend ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · סוף שבוע`, price: `₪ ${rate.weekend}` }] : []),
   ])) || [];
+  const rooms = place?.rooms || [];
+  const sharedAmenities = place?.features || [];
+  const commonRoomAmenities = (rooms[0]?.features || []).filter(amenity =>
+    !sharedAmenities.includes(amenity) && rooms.every(room => room.features.includes(amenity)),
+  );
   return {
     about: [item.description],
     stayOptions: place?.rooms.map((room) => ({
@@ -61,11 +69,16 @@ export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlac
       description: [
         room.count ? `${room.count} יחידות` : "",
         room.maxGuests ? `עד ${room.maxGuests} אורחים ביחידה` : "",
-        ...room.features,
       ].filter(Boolean).join(" · ") || "לפרטי החדר ולתיאום שהייה, פנו למקום.",
+      amenities: room.features || [],
+      amenityGroups: room.featureGroups || [],
     })) || [],
     rates,
-    amenities: item.features,
+    amenities: sharedAmenities,
+    amenityGroups: [
+      ...(place?.featureGroups || []),
+      ...(commonRoomAmenities.length ? [{ title: "בכל החדרים", items: commonRoomAmenities }] : []),
+    ],
     entryDisclosure: disclosure,
     arrivalNotes: [
       "לתיאום השהייה, מאשרים עם המקום את התאריך, השעה, משך האירוח והמחיר.",

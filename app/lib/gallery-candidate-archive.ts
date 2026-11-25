@@ -4,6 +4,7 @@ import { PUBLIC_GALLERY_OBJECT_PREFIX, storedGalleryContentType } from "./galler
 import { sourceImageMagic } from "./catalog-media-origin-recovery.ts";
 
 const MAX = 12_000_000, CAP = 256, CONCURRENCY = 2, BUDGET = 30_000;
+const RESUME_BATCH = 24;
 type Entry = { summary?: unknown; detail?: unknown };
 type Receipt = { archived: Array<{ filename: string; bytes?: number; sha256?: string }>; skipped: string[]; complete: boolean };
 const mediaFields = new Set(["image", "images", "gallery"]);
@@ -65,14 +66,45 @@ async function archiveOne(filename: string, bucket: R2Bucket, fetchImpl: typeof 
   }
   return { filename, bytes: bytes.byteLength, sha256 };
 }
-export async function archiveGalleryCandidate({ previous, candidate, bucket, fetchImpl = fetch, now = Date.now }: { previous: Entry; candidate: Entry; bucket: R2Bucket; fetchImpl?: typeof fetch; now?: () => number }): Promise<Receipt> {
+export async function archiveGalleryCandidate({ previous, candidate, bucket, fetchImpl = fetch, now = Date.now, resumeScope }: { previous: Entry; candidate: Entry; bucket: R2Bucket; fetchImpl?: typeof fetch; now?: () => number; resumeScope?: "vacations" | "events" }): Promise<Receipt> {
   const before = new Set<string>(), after = new Set<string>(); collect(previous, before); collect(candidate, after);
-  const files = [...after].filter(filename => !before.has(filename)); if (files.length > CAP) throw Error("archive_batch_requires_resume");
+  const files = [...after].filter(filename => !before.has(filename));
+  if (!resumeScope && files.length > CAP) throw Error("archive_batch_requires_resume");
+  if (!files.length) return { archived: [], skipped: [], complete: true };
+  let checkpointKey: string | undefined;
+  let completed = 0;
+  if (resumeScope) {
+    files.sort();
+    const fingerprint = await digest(new TextEncoder().encode(JSON.stringify(files)));
+    checkpointKey = `legacy-gallery/v1/operations/catalog-${resumeScope}-${fingerprint}.json`;
+    const checkpoint = await bucket.get(checkpointKey);
+    if (checkpoint && checkpoint.size <= 32) {
+      const cursor = Number(await checkpoint.text());
+      if (Number.isSafeInteger(cursor) && cursor >= 0 && cursor <= files.length) completed = cursor;
+    }
+  }
   const start = now(), deadline = start + BUDGET, archived: Receipt["archived"] = [], skipped: string[] = [];
-  let cursor = 0;
-  async function worker() { while (cursor < files.length) { if (now() >= deadline) throw Error("archive_batch_requires_resume"); const filename = files[cursor++]; const result = await archiveOne(filename, bucket, fetchImpl, deadline, now); if (result.skipped) skipped.push(filename); else archived.push({ filename, bytes: result.bytes, ...(result.sha256 ? { sha256: result.sha256 } : {}) }); } }
-  const results = await Promise.allSettled(Array.from({ length: Math.min(CONCURRENCY, files.length || 1) }, worker));
+  const end = checkpointKey ? Math.min(completed + RESUME_BATCH, files.length) : files.length;
+  const finished = new Set<number>();
+  let cursor = completed;
+  async function worker() {
+    while (cursor < end) {
+      if (now() >= deadline) throw Error("archive_batch_requires_resume");
+      const index = cursor++;
+      const filename = files[index];
+      const result = await archiveOne(filename, bucket, fetchImpl, deadline, now);
+      finished.add(index);
+      if (result.skipped) skipped.push(filename);
+      else archived.push({ filename, bytes: result.bytes, sha256: result.sha256 });
+    }
+  }
+  const results = await Promise.allSettled(Array.from({ length: Math.min(CONCURRENCY, end - completed) }, worker));
+  let next = completed;
+  while (finished.has(next)) next += 1;
+  if (checkpointKey && next > completed) {
+    await bucket.put(checkpointKey, String(next), { httpMetadata: { contentType: "application/json" } });
+  }
   const failure = results.find(result => result.status === "rejected"); if (failure) throw failure.reason;
-  if (now() >= deadline) throw Error("archive_batch_requires_resume");
+  if (next < files.length || now() >= deadline) throw Error("archive_batch_requires_resume");
   return { archived, skipped, complete: true };
 }

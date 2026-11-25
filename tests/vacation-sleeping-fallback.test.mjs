@@ -106,6 +106,39 @@ test("supplier titles such as room 1 remain verified bedroom groups and preserve
   assert.equal(totalVerifiedBedroomCount(rooms), 24);
 });
 
+test("Ahuzat Yosef exposes six named bedrooms and only supplier-attributed photos and bed facts", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-place-details.json", import.meta.url), "utf8"));
+  const { rooms, galleryGroups } = catalog.details["vacation-279"];
+  const sleeping = verifiedSleepingRoomsFromProperty({ rooms, galleryGroups, scenario: "single" });
+  assert.deepEqual(sleeping.map(room => room.name), [
+    "סוויטת אודם", "סוויטת שוהם", "חדר שינה נוסף ( בסוויטת שוהם )",
+    "סוויטת לשם", "סוויטת ברקת", "מיני סוויטה - ספיר",
+  ]);
+  assert.equal(totalVerifiedBedroomCount(sleeping), 6);
+  assert.equal(sleeping[0].galleryImage, undefined);
+  assert.ok(sleeping[2].details.includes("מיטת יחיד"));
+  assert.ok(sleeping[3].galleryImage);
+});
+
+test("a partial room layout retains the total without inventing missing room facts", () => {
+  const sleeping = verifiedSleepingRoomsFromProperty({
+    scenario: "single",
+    rooms: [{
+      name: "וילה",
+      quantity: 1,
+      bedrooms: 4,
+      featureGroups: [
+        { title: "חדר שינה 1", items: ["מיטת יחיד"] },
+        { title: "סוויטת הורים", items: ["מרפסת"] },
+      ],
+    }],
+  });
+  assert.equal(totalVerifiedBedroomCount(sleeping), 4);
+  assert.equal(sleeping.length, 2);
+  assert.deepEqual(sleeping[1].details, []);
+  assert.equal(sleeping[1].bedroomCount, 3);
+});
+
 test("ungrouped bed text without a bedroom count does not fabricate a sleeping section", () => {
   const rooms = verifiedSleepingRoomsFromProperty({
     scenario: "single",

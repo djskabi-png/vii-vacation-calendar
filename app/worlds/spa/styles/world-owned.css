@@ -36,11 +36,14 @@
 #spa-info.section, #spa-packages.section { padding-block:32px; }
 .world-page--spa > .world-popular-searches { margin-block:20px; }
 .world-page--spa > #world-results.section { padding-block:24px 32px; }
+.world-page--spa > #world-results.spa-results--after-search { padding-block-start:clamp(42px,3.4vw,56px); }
 .spa-results__filter-toggle { min-height:44px; padding:10px 16px; font-size:.88rem; white-space:nowrap; }
 .spa-results__filter-toggle[aria-expanded="true"] { background:var(--brand,#087f8c); color:#fff; border-color:var(--brand,#087f8c); }
 .spa-results__filter-strip { border:1px solid #c9e1e6; border-radius:18px; padding:18px; margin-block:12px; }
 .spa-results__landing-links { margin-block:0 16px; }
 @media(max-width:760px) {
+ .world-page--spa:has(> #world-results.spa-results--after-search) > .spa-discovery-hero { padding-block-end:24px; }
+ .world-page--spa > #world-results.spa-results--after-search { padding-block-start:16px; }
  .spa-results__heading { display:flex; flex-wrap:wrap; gap:10px; }
  .spa-results__heading h2 { flex-basis:100%; font-size:1.1rem; }
  .spa-results__view-actions { display:flex; flex:1; min-width:0; align-items:center; gap:8px; }

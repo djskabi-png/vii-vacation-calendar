@@ -71,6 +71,18 @@ export function spaSearchHref(state: SpaSearchState) {
   return segments.length ? `/spas/search/${segments.join("/")}` : "/spas";
 }
 
+export function spaQueryWithoutRedundantLocation(region: SpaSearchState["region"], query?: Record<string, string | string[] | undefined>) {
+  const location = query?.location;
+  const locations = Array.isArray(location) ? location : location ? [location] : [];
+  if (!region || !locations.length || !locations.every(value => value === region.slug || canonicalSearchLocation(value) === region.label)) return null;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query || {})) {
+    if (key === "location" || value === undefined) continue;
+    for (const entry of Array.isArray(value) ? value : [value]) params.append(key, entry);
+  }
+  return params;
+}
+
 export function spaBreadcrumbForLocation(area: string, location?: string) {
   return spaBreadcrumbsForLocation(area, location).at(-1)
     ?? { name: "בתי ספא", path: "/spas" };

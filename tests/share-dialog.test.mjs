@@ -32,7 +32,8 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.doesNotMatch(dialog, /<bdi>/);
   assert.match(dialog, /https:\/\/wa\.me\/\?text=/);
   assert.match(dialog, /facebook\.com\/sharer\/sharer\.php/);
-  assert.match(dialog, /mailto:\?subject=/);
+  assert.doesNotMatch(dialog, /mailto:|share-option--email/);
+  assert.match(css, /\.share-dialog__options \{[^}]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(dialog, /const copy: Record<SiteLanguage, ShareCopy>/);
   assert.match(css, /\.share-dialog-layer \{ position: fixed; z-index: 2100/);
   assert.match(css, /@media \(max-width: 767px\)[\s\S]*\.share-dialog-layer \{ align-items: end/);

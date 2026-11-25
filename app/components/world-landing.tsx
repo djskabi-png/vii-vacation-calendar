@@ -162,7 +162,7 @@ export async function WorldLanding({
       </>}
       {!hasTransactionalLandingState ? <div className="shell world-popular-searches"><ManagedHomeQuickSearches world={world === "activities" ? "attractions" : world} /></div> : null}
       {beforeResults}
-      <section id="world-results" className="section shell">
+      <section id="world-results" className={world === "spa" && !beforeResults ? "section shell spa-results--after-search" : "section shell"}>
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} initialFilters={initialFilters} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>

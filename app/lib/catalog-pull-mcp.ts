@@ -29,11 +29,12 @@ export async function pullCatalogSlot(db: D1Database, world: SupplierCatalogWorl
     limit: 2,
     sync: async (retryWorld, _source, retryRunId) => {
       const value = await dependencies.sync(retryRunId, retryWorld, "retry");
-      const result = (value && typeof value === "object" ? value : {}) as { status?: string; id?: string; errorCode?: string };
+      const result = (value && typeof value === "object" ? value : {}) as { status?: string; id?: string; errorCode?: string; diagnostics?: { failure?: { retryable?: boolean } } };
       return {
         status: ["accepted", "rejected", "failed", "skipped"].includes(result.status || "") ? result.status as "accepted" | "rejected" | "failed" | "skipped" : "failed",
         id: result.id || retryRunId,
         ...(result.errorCode ? { errorCode: result.errorCode } : {}),
+        ...(typeof result.diagnostics?.failure?.retryable === "boolean" ? { retryable: result.diagnostics.failure.retryable } : {}),
       };
     },
   });

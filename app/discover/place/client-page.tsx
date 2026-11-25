@@ -322,6 +322,7 @@ function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number
         return <article className="hourly-room-card" key={option.roomId ?? option.title}>
           {image ? <button className="hourly-room-card__media" type="button" onClick={() => setUnitGallery({ name: `${item.name} · ${option.title}`, images: option.images! })} aria-label={`${translate("פתיחת גלריה")} ${safeHourlyText(option.title, hourlyFallback.room)}`}><img src={image} alt={`${safeHourlyText(option.title, hourlyFallback.room)}`} title={`${safeHourlyText(option.title, hourlyFallback.room)}`} loading="lazy" decoding="async" /><span>{translate("לגלריה")} · {option.images!.length}</span></button> : null}
           <div className="hourly-room-card__body"><h3>{safeHourlyText(option.title, latinBusinessAlias(option.title) || `${hourlyFallback.room} ${index + 1}`)}</h3><p>{safeHourlyText(option.description, hourlyFallback.roomDescription)}</p>
+            {option.amenities.length || option.amenityGroups.length ? <UnifiedAmenityList items={option.amenities} groups={option.amenityGroups} /> : null}
             {roomRates.length ? <div className="hourly-room-card__rates" role="group" aria-label={`מחירי ${option.title}`}>{roomRates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span data-no-translate>{hourlyRateLabel(rate.duration, language, translate).replace(`${translate(option.title)} · `, "")}</span><strong><CurrencyText text={rate.price} /></strong></button>)}</div> : <p className="hourly-room-card__no-rate">{translate("למחיר ולבירור זמינות, פנו למקום.")}</p>}
           </div>
         </article>;
@@ -329,7 +330,7 @@ function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number
       <div className="hourly-contact-card" id="hourly-contact"><div><span className="eyebrow">{contactCopy.eyebrow}</span><h3>{contactCopy.title}</h3><p><CurrencyText text={(selectedRate ? contactCopy.selected(hourlyRateLabel(selectedRate.duration, language, translate), selectedRate.price) : "") + contactCopy.confirm} /></p></div><aside><small>{translate("טלפון המקום")}</small>{phoneHref ? <DirectPhoneLink phone={item.phone} placeName={item.name} className="hourly-phone-number" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_detail" }} /> : <span className="hourly-phone-missing">{translate("מספר טלפון אינו זמין כרגע")}</span>}<small>{contactCopy.payment}</small></aside></div>
     </div></section>
     <section className="section shell hourly-practical">
-      {details.amenities.length ? <div id="hourly-amenities"><span className="eyebrow">מה מחכה בחדר</span><h2>{translate("מאפייני המקום")}</h2><UnifiedAmenityList items={details.amenities} /></div> : null}
+      {details.amenities.length || details.amenityGroups.length ? <div id="hourly-amenities"><h2>{translate("מאפייני המקום")}</h2><UnifiedAmenityList items={details.amenities} groups={details.amenityGroups} /></div> : null}
       <div id="hourly-info"><span className="eyebrow">לפני שמגיעים</span><h2>{translate("מידע שימושי")}</h2><div className="hourly-info-list">{details.arrivalNotes.map((entry) => <p key={entry}>{safeHourlyText(entry, hourlyFallback.note)}</p>)}</div></div>
     </section>
     <section className="section shell depth-faq" id="hourly-faq"><div className="section-head"><div><h2>{translate("שאלות נפוצות")}</h2></div></div>{details.faq.map((entry) => <details key={entry.question}><summary>{translate(entry.question)}</summary><p>{translate(entry.answer)}</p></details>)}</section>
@@ -424,7 +425,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
     ];
     if (hourlyDetails) return [
       { href: "#hourly-about", label: "על המקום" }, { href: "#hourly-options", label: "אפשרויות שהייה" },
-      { href: "#hourly-amenities", label: "מה במקום" }, { href: "#hourly-info", label: "לפני שמגיעים" },
+      ...(hourlyDetails.amenities.length || hourlyDetails.amenityGroups.length ? [{ href: "#hourly-amenities" as const, label: "מה במקום" }] : []), { href: "#hourly-info", label: "לפני שמגיעים" },
       { href: "#hourly-faq", label: translate("שאלות נפוצות") },
       ...(item.lat && item.lng ? [{ href: "#location" as const, label: translate("מפה") }] : []),
       { href: "#reviews", label: translate("חוות דעת") },

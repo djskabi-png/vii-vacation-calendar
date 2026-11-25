@@ -340,6 +340,11 @@
 
 /* VII_FRAGMENT_BEGIN HOURLY_086 */
 .hourly-room-card__body h3 { margin: 0; font-size: clamp(1.4rem,2.3vw,2rem); }
+.hourly-room-card__body .unified-amenities__groups { grid-template-columns: 1fr; gap: 8px; }
+.hourly-room-card__body .unified-amenities__group h3 { margin-block-end: 10px; font-size: .9rem; }
+.hourly-room-card__body .unified-amenities__group .unified-amenities__list {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+}
 /* VII_FRAGMENT_END HOURLY_086 */
 
 /* VII_FRAGMENT_BEGIN HOURLY_087 */

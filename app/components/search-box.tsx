@@ -545,7 +545,7 @@ export function SearchBox({ mode = "vacation", compact = false, forceExpanded = 
       const params = new URLSearchParams();
       if (mode === "vacation" && !basePath) {
         params.set("location", isWholeCountrySelection(selectedLocation) && language !== "he" ? "all-country" : selectedLocation || "כל הארץ");
-      } else if (mode !== "events" && !(basePath && mode === "vacation" && selectedLocation === initialLocation) && selectedLocation !== "כל הארץ") {
+      } else if (mode !== "events" && mode !== "spa" && !(basePath && mode === "vacation" && selectedLocation === initialLocation) && selectedLocation !== "כל הארץ") {
         params.set("location", selectedLocation);
       }
       if (mode === "events") {

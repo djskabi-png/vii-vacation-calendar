@@ -2,9 +2,26 @@ import { readEffectiveWorldCss } from "./helpers/world-css.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { createSourceLoader } from "./helpers/source-module-loader.mjs";
 
 const root = new URL("../", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
+
+test("every bundled hourly room keeps its own full amenity set and the place shows only shared facts", async () => {
+  const { getHourlyDetails } = createSourceLoader()("app/data/hourly-details.ts");
+  const { places } = JSON.parse(await read("app/data/sergey-hourly-catalog.json"));
+  assert.ok(places.length >= 50);
+  for (const place of places) {
+    const projected = getHourlyDetails({ id: place.id, description: place.description, features: ["listing-preview-only"] }, place);
+    assert.deepEqual(projected.amenities, place.features);
+    for (const [index, room] of place.rooms.entries()) {
+      assert.deepEqual(projected.stayOptions[index].amenities, room.features);
+      assert.deepEqual(projected.stayOptions[index].amenityGroups, room.featureGroups);
+    }
+    const common = projected.amenityGroups.find(group => group.title === "בכל החדרים");
+    if (common) assert.ok(common.items.every(item => place.rooms.every(room => room.features.includes(item))));
+  }
+});
 
 test("hourly cards use one stretched place link and keep contacts separate", async () => {
   const card = await read("app/components/discovery-card.tsx");
@@ -40,7 +57,8 @@ test("hourly detail groups rooms, verified rates and amenities into polished sec
     assert.match(client, new RegExp(marker));
     assert.match(styles, new RegExp(`\\.${marker}`));
   }
-  assert.match(client, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
+  assert.match(client, /<UnifiedAmenityList items=\{details\.amenities\} groups=\{details\.amenityGroups\} \/>/);
+  assert.match(client, /<UnifiedAmenityList items=\{option\.amenities\} groups=\{option\.amenityGroups\} \/>/);
   assert.match(styles, /\.unified-amenities__list/);
   assert.match(client, /details\.rates\.filter\(\(rate\) => rate\.duration\.startsWith/);
   assert.doesNotMatch(client, /מה אומרים בשיחה\?/);

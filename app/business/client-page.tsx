@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -30,6 +30,7 @@ import { nearbyRecommendations, nearbyRecommendationCopy } from "../lib/nearby-r
 import { HomeMobileRail } from "../components/home-mobile-rail";
 import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
+import { generalPlaceGallery, unitGalleryTopicKey } from "../components/gallery-selection";
 import { useGalleryDeepLink } from "../components/use-gallery-deep-link";
 import { GuestReviewStudio } from "../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../components/whatsapp-lead-button";
@@ -150,7 +151,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const [mapActivated, setMapActivated] = useState(false);
   const locationMapVisible = useSectionActivation("location", !mapActivated);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
-  const property = useMemo<Property>(() => {
+  const supplierProperty = useMemo<Property>(() => {
     const base = initialProperty;
     if (!supplierDetail) return base;
     const supplierBedrooms = supplierDetail ? totalBedroomCountFromRooms(supplierDetail.rooms) : 0;
@@ -172,6 +173,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
       features: hasSupplierPropertyAmenities ? supplierFeatures : base.features,
       highlights: supplierDetail.highlights?.length ? supplierDetail.highlights.map((label) => ({ label, icon: "default" as const })) : base.highlights };
   }, [initialProperty, supplierDetail]);
+  const property = useMemo(() => ({ ...supplierProperty, ...generalPlaceGallery(supplierProperty) }), [supplierProperty]);
   const visibleReviewSummary = useMemo(() => normalizeReviewSummary({
     count: supplierDetail?.reviewCount ?? property.reviews,
     score: supplierDetail?.reviewScore ?? property.score,
@@ -341,10 +343,10 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const verifiedSleepingRooms = useMemo(() => verifiedSleepingRoomsFromProperty({
     rooms: property.roomOptions || [],
-    galleryGroups: property.galleryGroups,
+    galleryGroups: supplierProperty.galleryGroups,
     scenario: property.scenario,
     availableUnitCounts: supplierCalendarStay?.allowed ? supplierCalendarStay.availableUnitCounts : undefined,
-  }), [property.galleryGroups, property.roomOptions, property.scenario, supplierCalendarStay]);
+  }), [supplierProperty.galleryGroups, property.roomOptions, property.scenario, supplierCalendarStay]);
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     { href: "#about", label: translate("על המקום") },
     ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),
@@ -535,7 +537,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
                   const minimumStayRestriction = roomAvailability && "unavailableReason" in roomAvailability && roomAvailability.unavailableReason === "min_nights" && roomAvailability.minimumNights
                     ? `נדרשים לפחות ${roomAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
                     : "";
-                  const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
+                  const unitTopic = unitGalleryTopicKey(property.roomOptions!, roomIndex);
                   const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
                     : overallStayUnavailable
@@ -569,7 +571,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
-                  {room.images?.length ? <UnitPreviewGallery key={`${property.slug}:${room.supplierRoomID || roomIndex}`} images={room.images} roomName={localizedRoomName} propertyName={localizedPropertyName} onOpen={(index) => openGallery("units", unitGalleryStart + index, room.name)} /> : room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><ViewportResilientImage src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(room.image)} /><span>{translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={`${translate("אין תמונה זמינה עבור")} ${localizedRoomName}`}><span>{translate("תמונה לא זמינה")}</span></div>}
+                  {room.images?.length ? <UnitPreviewGallery key={`${property.slug}:${room.supplierRoomID || roomIndex}`} images={room.images} roomName={localizedRoomName} propertyName={localizedPropertyName} onOpen={(index) => openGallery("units", index, unitTopic)} /> : room.image && !failedRoomImages.has(room.image) ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", 0, unitTopic)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><ViewportResilientImage src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" onFailure={() => markRoomImageFailed(room.image)} /><span>{translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing room-card__image--unavailable" role="img" aria-label={`${translate("אין תמונה זמינה עבור")} ${localizedRoomName}`}><span>{translate("תמונה לא זמינה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
                     {sleepingPreviewGroups.length ? <RoomSleepingPreview roomName={localizedRoomName} groups={sleepingPreviewGroups} bedroomCount={room.bedrooms} /> : null}
@@ -637,7 +639,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, compl
         availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : supplierCalendar.calendar ? (date) => stayCalendarDay(supplierCalendar.calendar!, `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`).minimumStayTotal : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
 
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
-      <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); closeUnitDetails(); window.setTimeout(() => openGallery("units", start, room.name), 0); }} />
+      <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const unitTopic = unitGalleryTopicKey(property.roomOptions, selectedRoomIndex); closeUnitDetails(); window.setTimeout(() => openGallery("units", 0, unitTopic), 0); }} />
 
     </PageShell>
   );

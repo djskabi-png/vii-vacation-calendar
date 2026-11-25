@@ -12,7 +12,7 @@ export type CatalogSyncDiagnostics = {
     truncated: boolean;
   };
   failure?: {
-    stage: "source_fetch" | "candidate_validation" | "catalog_read" | "candidate_compare" | "candidate_stage" | "publish";
+    stage: "source_fetch" | "candidate_validation" | "catalog_read" | "candidate_compare" | "media_archive" | "candidate_stage" | "publish";
     category: "transport" | "provider" | "authorization" | "invalid_response" | "resource_or_runtime" | "database" | "invalid_data" | "unknown";
     elapsedMs: number;
     completed?: number;
@@ -92,7 +92,7 @@ export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnosti
       truncated: content.truncated === true || content.issues.length > catalogDiagnosticLimit || content.total > content.issues.length };
   }
   const failure = object(input.failure);
-  const stages = new Set(["source_fetch", "candidate_validation", "catalog_read", "candidate_compare", "candidate_stage", "publish"]);
+  const stages = new Set(["source_fetch", "candidate_validation", "catalog_read", "candidate_compare", "media_archive", "candidate_stage", "publish"]);
   const categories = new Set(["transport", "provider", "authorization", "invalid_response", "resource_or_runtime", "database", "invalid_data", "unknown"]);
   if (stages.has(String(failure.stage)) && categories.has(String(failure.category)) && count(failure.elapsedMs)) {
     output.failure = {

@@ -6,6 +6,7 @@ import { GET, POST } from "../app/api/admin/search-pages/route.ts";
 test("search page editor is limited to known public landing pages", () => {
   assert.ok(searchPageDefinitions.length >= 15);
   assert.equal(searchPageDefinition("/spas/spa-with-jacuzzi")?.world, "spa");
+  assert.equal(searchPageDefinition("/spas/search/north")?.world, "spa");
   assert.equal(searchPageDefinition("/events/search/north")?.world, "events");
   assert.equal(searchPageDefinition("/admin") || null, null);
   const good = { path: "/spas/spa-with-jacuzzi", title: "ספא עם ג'קוזי בישראל", description: "בתי ספא עם ג'קוזי, תמונות ופרטים שניתן לבדוק לפני בחירת חבילה.", status: "draft", expectedVersion: 0 };

@@ -4,12 +4,21 @@ import fs from 'node:fs';
 import ts from 'typescript';
 import {createSourceLoader} from './helpers/source-module-loader.mjs';
 const load=createSourceLoader();
-const {spaItemMatchesSearch,spaSearchStateFromValues,spaSearchHref}=load('app/data/spa-search-landings.ts');
+const {spaItemMatchesSearch,spaSearchStateFromValues,spaSearchHref,spaQueryWithoutRedundantLocation}=load('app/data/spa-search-landings.ts');
 const {spaLandings}=load('app/data/spa-landings.ts');
 const {pricedSpaSearchItem,spaPriceQuery}=load('app/lib/spa-search-prices.ts');
 const {localizedPath}=load('app/i18n/locale-routing.ts');
 const {spaPlacesFromSites}=load('app/lib/spa-discovery-card.ts');
 const {projectSpaViiSite}=load('app/lib/spa-editorial-policy.ts');
+
+test('canonical spa region drops only the duplicate location, while preserving search options',()=>{
+ const north=spaSearchStateFromValues('צפון');
+ assert.equal(spaSearchHref(north),'/spas/search/north');
+ assert.equal(spaQueryWithoutRedundantLocation(north.region,{location:'צפון',date:'2026-11-29',sort:'price-low'})?.toString(),'date=2026-11-29&sort=price-low');
+ assert.equal(spaQueryWithoutRedundantLocation(north.region,{location:['צפון','north']})?.toString(),'');
+ assert.equal(spaQueryWithoutRedundantLocation(north.region,{location:'מרכז'}),null);
+ assert.equal(spaQueryWithoutRedundantLocation(undefined,{location:'צפון'}),null);
+});
 const source=fs.readFileSync('app/components/world-map-results.tsx','utf8');
 const ast=ts.createSourceFile('results.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
 function find(predicate){let node;function visit(n){if(predicate(n))node=n;ts.forEachChild(n,visit);}visit(ast);assert.ok(node);return node;}

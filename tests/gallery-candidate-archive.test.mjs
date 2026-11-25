@@ -14,6 +14,30 @@ test("conditional race requires a valid winner", async () => { const bucket = fa
 test("missing storage fails closed for a new image", async () => { const bucket = fake(); await assert.rejects(() => archiveGalleryCandidate({ previous: entry("/api/vii/media/old.jpg"), candidate: entry("https://www.vii.co.il/gallery/missing.jpg"), bucket, fetchImpl: async () => new Response(null, { status: 404 }) }), /archive_source_http_404/); });
 test("more than 256 new filenames requires resume", async () => { const previous = { detail: { images: [] } }, candidate = { detail: { images: Array.from({ length: 257 }, (_, i) => `https://www.vii.co.il/gallery/${i}.jpg`) } }; await assert.rejects(() => archiveGalleryCandidate({ previous, candidate, bucket: fake() }), /archive_batch_requires_resume/); });
 
+test("a catalog delta above the old hard cap resumes with an actual persisted image checkpoint", async () => {
+  const objects = new Map();
+  const bucket = {
+    async head(key) { return objects.get(key) || null; },
+    async get(key) { return objects.get(key) || null; },
+    async put(key, value, options) {
+      const object = { size: value.length, httpMetadata: options.httpMetadata, text: async () => String(value), body: new Response(value).body };
+      objects.set(key, object);
+      return object;
+    },
+  };
+  const sources = new Set();
+  const input = {
+    previous: { detail: { images: [] } },
+    candidate: { detail: { images: Array.from({ length: 257 }, (_, i) => `/api/vii/media/${i}.jpg`) } },
+    bucket, resumeScope: "vacations", now: () => 0,
+    fetchImpl: async url => { assert.ok(!sources.has(url)); sources.add(url); return fetchOk(); },
+  };
+  for (let pass = 0; pass < 10; pass += 1) await assert.rejects(() => archiveGalleryCandidate(input), /archive_batch_requires_resume/);
+  assert.equal(sources.size, 240);
+  assert.equal((await archiveGalleryCandidate(input)).complete, true);
+  assert.equal(sources.size, 257);
+});
+
 test("existing image metadata cannot conceal invalid bytes or a wrong digest", async () => {
   const check = (body, sha256) => archiveGalleryCandidate({ previous: entry('/api/vii/media/old.jpg'), candidate: entry('/api/vii/media/new.jpg'),
     bucket: { async head(){return {size:body.length,httpMetadata:{contentType:'image/jpeg'}};}, async get(){return {size:body.length,httpMetadata:{contentType:'image/jpeg'},customMetadata:sha256?{sha256}:{},body:new Response(body).body};} }, fetchImpl:async()=>{throw Error('must_not_fetch');} });

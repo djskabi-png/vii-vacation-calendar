@@ -41,6 +41,7 @@ test("full-screen unit galleries expose visible mobile controls and keep grid an
 });
 
 test("supplier cover remains first while repeated unit media keeps one consistent unit count", () => {
+  assert.match(business, /\.\.\.generalPlaceGallery\(supplierProperty\)/);
   assert.match(business, /const placeGalleryImages = property\.images;/);
   assert.match(galleryExperience, /return uniqueGalleryItems\(\[/);
   assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.ungroupedPlaceItems,[\s\S]*?\.\.\.unitItems,/);

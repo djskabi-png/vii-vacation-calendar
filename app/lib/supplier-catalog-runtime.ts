@@ -68,7 +68,8 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
         if (!options?.fetchImpl) throw new Error("gallery_archive_storage_unavailable");
         return;
       }
-      await archiveGalleryCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl });
+      await archiveGalleryCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl,
+        resumeScope: world === "vacations" || world === "events" ? world : undefined });
       await archiveNewSupplierMediaCandidate({ previous: { detail: { rooms: archivePrevious } }, candidate: { detail: { rooms: entries } }, bucket: archive.bucket, fetchImpl: archive.fetchImpl });
     },
     fetchCandidate: async (previous) => {

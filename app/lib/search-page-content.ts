@@ -4,6 +4,7 @@ import { readOnceInServerRequest } from "./server-request-reads.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { spaLandings, spaLandingHref } from "../data/spa-landings.ts";
+import { spaSearchDescription, spaSearchHref, spaSearchRegions, spaSearchTitle } from "../data/spa-search-landings.ts";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { eventSearchHref, eventCombinationHref, eventTypeSlugs, hourlySearchHref } from "../data/world-search-landings.ts";
 import { canonicalLegacyEventSearchPath } from './legacy-event-intent-index.ts';
@@ -19,6 +20,10 @@ const allSearchPageDefinitions: SearchPageDefinition[] = [
   ...['כל הארץ', ...searchLocationOptions('events').filter(location => !['כל הארץ', 'הכל'].includes(location))].flatMap(location => Object.keys(eventTypeSlugs).filter(type => !canonicalLegacyEventSearchPath({ location, type })).map(type => ({ path: eventCombinationHref(location, type), world: 'events' as const, title: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}`, description: `${type} ${location === 'כל הארץ' ? 'בכל הארץ' : `ב${location}`}, עם תמונות, מתקנים ופרטי קשר לתכנון האירוע.` }))),
   { path: "/spas", world: "spa", title: "בתי ספא בישראל", description: "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם." },
   ...spaLandings.map((landing) => ({ path: spaLandingHref(landing), world: "spa" as const, title: landing.title, description: landing.description })),
+  ...spaSearchRegions.map((region) => {
+    const state = { region, features: [] };
+    return { path: spaSearchHref(state), world: "spa" as const, title: spaSearchTitle(state), description: spaSearchDescription(state) };
+  }),
   ...searchLocationOptions("events").filter((location) => !["כל הארץ", "הכל"].includes(location)).map((location) => ({ path: eventSearchHref(location), world: "events" as const, title: `מקומות לאירועים ב${location}`, description: `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.` })),
   { path: "/hourly", world: "hourly", title: "חדרים לפי שעה", description: "בוחרים אזור ומחייגים ישירות למקום, בלי להזמין לילה שלם." },
   ...searchLocationOptions("hourly").filter((location) => !["כל הארץ", "הכל"].includes(location)).map((location) => ({ path: hourlySearchHref(location), world: "hourly" as const, title: `חדרים לפי שעה ב${location}`, description: `חדרים וסוויטות לשהייה קצרה ב${location}, עם סינון לפי מחיר ומאפייני המקום.` })),
