@@ -86,22 +86,26 @@ function SpaBookingDialog({ bookingUrl, title, onClose }: { bookingUrl: string; 
   const { translate } = useSiteLanguage();
   const closeButton = useRef<HTMLButtonElement>(null);
   const [loaded, setLoaded] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => { setPortalTarget(document.body); }, []);
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (!portalTarget) return;
+    const previousOverflow = portalTarget.style.overflow;
+    portalTarget.style.overflow = "hidden";
     closeButton.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      portalTarget.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, portalTarget]);
 
-  return createPortal(
+  return portalTarget && createPortal(
     <div className="spa-booking-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="spa-booking-dialog" role="dialog" aria-modal="true" aria-labelledby="spa-booking-title">
         <header>
@@ -120,7 +124,7 @@ function SpaBookingDialog({ bookingUrl, title, onClose }: { bookingUrl: string; 
         <footer><button type="button" className="button secondary" onClick={onClose}>{translate("חזרה לעמוד המקום")}</button></footer>
       </section>
     </div>,
-    document.body,
+    portalTarget,
   );
 }
 

@@ -40,6 +40,16 @@ test('storage denial blocks automatic recovery instead of risking a reset loop',
   assert.equal(reset, false);
 });
 
+test('a boundary without a segment reset leaves document recovery available', () => {
+  assert.equal(recoverRouteBoundaryOnce({
+    currentHref: 'https://vii.spaplus.co/discover/place/spa-177?booking=5788',
+    now: 100_000,
+    storage: { getItem: () => assert.fail('no retry reservation'), setItem: () => assert.fail('no retry reservation') },
+    schedule: () => assert.fail('no animation frame without a reset callback'),
+    reset: undefined,
+  }), false);
+});
+
 test('navigation feedback is immediate, localized, accessible and explicitly finishable', () => {
   assert.match(progressSource, /dataset\.navigationPending = "true"/);
   assert.match(progressSource, /delete document\.documentElement\.dataset\.navigationPending/);

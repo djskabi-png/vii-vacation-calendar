@@ -19,6 +19,7 @@ export function recoverRouteBoundaryOnce(environment: {
   schedule: (callback: () => void) => void;
   reset: () => void;
 }) {
+  if (typeof environment.reset !== "function") return false;
   const current = new URL(environment.currentHref);
   const key = `${ROUTE_BOUNDARY_RECOVERY_PREFIX}:${current.pathname}`;
   try {
