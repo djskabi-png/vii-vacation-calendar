@@ -128,7 +128,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     // A refreshed supplier payload can replace a gallery while the dialog is
     // open. Never leave the cursor pointing at a removed image: that made the
     // representative photo, counter and arrows disagree after refresh.
-    if (visibleItems.length) setSelected((value) => Math.min(value, visibleItems.length - 1));
+    setSelected((value) => visibleItems.length ? Math.min(value, visibleItems.length - 1) : 0);
   }, [visibleItems.length]);
   const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
   const mobileGroups = useMemo(() => {

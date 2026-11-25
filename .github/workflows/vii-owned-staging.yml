@@ -73,6 +73,13 @@ jobs:
             printf 'Regression result `%s`\n' "$REGRESSION_OUTCOME"
             echo
             echo 'Public deployment requires separate restore, live-provider and rollback verification.'
+            if [ -n "$(git status --porcelain)" ]; then
+              echo
+              echo 'Worktree changes produced during qualification'
+              echo '```text'
+              git status --porcelain | sed -n '1,40p'
+              echo '```'
+            fi
             if [ -f "$RUNNER_TEMP/vii-production-regression.tap" ]; then
               echo
               echo '```text'
