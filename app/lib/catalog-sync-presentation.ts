@@ -76,7 +76,7 @@ export function catalogRunExplanation(world: SupplierCatalogWorld, errorCode: st
     if (failure.category === "resource_or_runtime") return "משיכת הספק הייתה גדולה מדי לריצה אחת ונעצרה לפני יצירת קטלוג מלא. הקטלוג הקודם נשמר.";
   }
   if (failure?.stage === "media_archive") {
-    if (errorCode === "archive_batch_requires_resume") return "ארכוב התמונות דורש הרצה נוספת. נקודת ההמשך נשמרת לקטלוג עם אותה רשימת תמונות.";
+    if (errorCode === "archive_batch_requires_resume") return "ארכוב התמונות דורש הרצה נוספת. הבדיקה תמשיך לפי ההתקדמות שנשמרה.";
     if (errorCode === "gallery_archive_storage_unavailable") return "מחסן התמונות הקבוע אינו זמין. הקטלוג הקודם נשמר.";
     return "אימות התמונות למחסן הקבוע נעצר לפני הפרסום. הקטלוג הקודם נשמר.";
   }

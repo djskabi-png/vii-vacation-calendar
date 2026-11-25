@@ -1,4 +1,9 @@
 {
+  "תאריך כניסה": {"en":"Check-in date","fr":"Date d’arrivée","ru":"Дата заезда"},
+  "תאריך יציאה": {"en":"Check-out date","fr":"Date de départ","ru":"Дата выезда"},
+  "תמונות ומתקנים": {"en":"Photos and amenities","fr":"Photos et équipements","ru":"Фотографии и удобства"},
+  "ההעתקה נכשלה. אפשר להעתיק את הקישור משורת הכתובת.": {"en":"Couldn’t copy the link. You can copy it from the address bar.","fr":"Impossible de copier le lien. Vous pouvez le copier depuis la barre d’adresse.","ru":"Не удалось скопировать ссылку. Её можно скопировать из адресной строки."},
+  "חדר שינה נוסף": {"en":"Additional bedroom","fr":"Chambre supplémentaire","ru":"Дополнительная спальня"},
   "הפחתת משתתפים": {"en":"Decrease participants","fr":"Réduire le nombre de participants","ru":"Уменьшить число участников"},
   "הוספת משתתפים": {"en":"Increase participants","fr":"Augmenter le nombre de participants","ru":"Увеличить число участников"},
   "הקלדת כמות משתתפים": {"en":"Enter the number of participants","fr":"Saisir le nombre de participants","ru":"Введите число участников"},
