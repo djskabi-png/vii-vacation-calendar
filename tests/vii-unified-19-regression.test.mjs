@@ -54,15 +54,16 @@ test("supplier gallery names and membership remain authoritative and shareable",
   assert.match(gallery, /group\.images\.map/);
   assert.match(gallery, /topicTabs\.map/);
   assert.match(gallery, /const resolvedTopic = resolveGalleryTopic/);
-  assert.match(gallery, /const \[topic, setTopic\] = useState<string \| null>\(\(\) => resolvedTopic\)/);
-  assert.match(gallery, /const \[selected, setSelected\] = useState\(initialTopic \? 0 : initialIndex\)/);
+  assert.match(gallery, /const \[selectedTopic, setTopic\] = useState<string \| null>\(requestedTopic \|\| null\)/);
+  assert.match(gallery, /const \[selected, setSelected\] = useState\(initialIndex\)/);
   assert.doesNotMatch(gallery, />\{tabLabels\.all\}<small>/);
   assert.match(selection, /const identity = `\$\{item\.category\}\\u0000\$\{keyFor\(item\)\}\\u0000\$\{item\.src\}`/);
   const scoped=[{category:"place",topic:"Suite",src:"editorial"},{category:"units",topic:"Suite",src:"room"}];
   assert.deepEqual(visibleGalleryItems(scoped,"all","Suite").map(item=>item.src),["editorial"]);
   assert.deepEqual(visibleGalleryItems(scoped,"units","Suite").map(item=>item.src),["room"]);
   assert.match(hook, /params\.set\("topic", topic\)/);
-  assert.match(page, /openGallery\("units", unitGalleryStart, room\.name\)/);
+  assert.match(page, /const unitTopic = unitGalleryTopicKey\(property\.roomOptions!, roomIndex\)/);
+  assert.match(page, /openGallery\("units", index, unitTopic\)/);
   const ara = bundledDetails.details["vacation-2705"];
   assert.deepEqual(ara.galleryGroups.map((group) => group.title), [
     "גלריה כללית",

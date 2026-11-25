@@ -29,7 +29,7 @@ test("every place-detail feature family consumes the shared semantic icon", () =
   assert.match(vacation, /<UnifiedAmenityList groups=\{propertyAmenityGroups\} \/>/);
   assert.match(events, /<UnifiedAmenityList groups=\{eventAmenityGroups\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{facility\} className="spa-facility-icon" \/>/);
-  assert.match(discover, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
+  assert.match(discover, /<UnifiedAmenityList items=\{details\.amenities\} groups=\{details\.amenityGroups\} \/>/);
   assert.match(discover, /<FeatureIcon label=\{feature\} className="discovery-card__chip-icon" \/>/);
   assert.match(sleeping, /<FeatureIcon label=\{amenity\} className="sleeping-amenity-icon" \/>/);
   assert.match(verifiedSleeping, /<FeatureIcon label=\{detail\} className="sleeping-amenity-icon" \/>/);

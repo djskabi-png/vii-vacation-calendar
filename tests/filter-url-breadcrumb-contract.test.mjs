@@ -95,7 +95,9 @@ test("spa, events and hourly preserve location in semantic search routes", () =>
   assert.match(spa, /matchesSearchLocation/);
 
   const spaPage = read("app/spas/search/[...segments]/page.tsx");
-  assert.match(spaPage, /alternates: \{ canonical: path \}/);
+  assert.match(spaPage, /const path = spaSearchHref\(state!\)/);
+  assert.match(spaPage, /serverLocalePath\(path\)/);
+  assert.match(spaPage, /alternates: \{ canonical \}/);
   assert.match(spaPage, /collectionSchema/);
   assert.match(spaPage, /initialSearchLocation/);
   assert.match(spaPage, /initialSpaAudience/);

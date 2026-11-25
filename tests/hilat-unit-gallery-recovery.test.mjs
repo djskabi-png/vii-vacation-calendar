@@ -35,8 +35,9 @@ test("Hilat Hanof has four detailed unit galleries and full-detail controls", as
   assert.equal((hilat.match(/featureGroups:/g) || []).length, 5);
   assert.match(business, /className="room-card__more"/);
   assert.match(business, />\{translate\("כל פרטי היחידה"\)\}<\/button>/);
-  assert.match(business, /openGallery\("units", unitGalleryStart, room\.name\)/);
-  assert.match(business, /closeUnitDetails\(\); window\.setTimeout\(\(\) => openGallery\("units", start, room\.name\), 0\)/);
+  assert.match(business, /const unitTopic = unitGalleryTopicKey\(property\.roomOptions!, roomIndex\)/);
+  assert.match(business, /<UnitPreviewGallery[^>]*onOpen=\{\(index\) => openGallery\("units", index, unitTopic\)\}/);
+  assert.match(business, /const unitTopic = unitGalleryTopicKey\(property\.roomOptions, selectedRoomIndex\); closeUnitDetails\(\); window\.setTimeout\(\(\) => openGallery\("units", 0, unitTopic\), 0\)/);
   assert.match(dialog, /לכל תמונות היחידה/);
   assert.match(dialog, /aria-modal="true"/);
 });
@@ -50,8 +51,9 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(gallery, /mobileGroups\.map/);
   assert.match(gallery, /property\.galleryGroups\?\.length/);
   assert.match(gallery, /topicTabs\.map/);
-  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, initialTopic, initialTab\)/);
-  assert.match(gallery, /const \[topic, setTopic\] = useState<string \| null>\(\(\) => resolvedTopic\)/);
+  assert.match(gallery, /const resolvedTopic = resolveGalleryTopic\(allItems, requestedTopic, initialTab\)/);
+  assert.match(gallery, /const \[selectedTopic, setTopic\] = useState<string \| null>\(requestedTopic \|\| null\)/);
+  assert.match(gallery, /const topic = selectedTopic === requestedTopic \? resolvedTopic \|\| selectedTopic : selectedTopic/);
   assert.doesNotMatch(gallery, /defaultTopic/);
   assert.match(gallery, /const \[mobileViewer, setMobileViewer\] = useState\(false\)/);
   assert.doesNotMatch(gallery, /useState\(initialIndex > 0 \|\| initialTab !== "all"\)/);

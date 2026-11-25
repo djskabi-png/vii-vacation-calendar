@@ -44,7 +44,7 @@ test("hourly room projection preserves API room order, exact names and image ord
 test("hourly feature disclosure uses one compact mobile section", () => {
   const source = read("app/discover/place/client-page.tsx");
   assert.match(source, /<h2>\{translate\("מאפייני המקום"\)\}<\/h2>/);
-  assert.match(source, /<UnifiedAmenityList items=\{details\.amenities\} \/>/);
+  assert.match(source, /<UnifiedAmenityList items=\{details\.amenities\} groups=\{details\.amenityGroups\} \/>/);
 });
 
 test("vacation geography starts closed and supports direct touch panning", () => {

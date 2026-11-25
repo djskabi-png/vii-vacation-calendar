@@ -8,7 +8,7 @@ test("shared world pages follow search, breadcrumbs, heading, results order", as
   const search = source.indexOf('className="world-hero"');
   const breadcrumbs = source.indexOf('className="world-breadcrumbs"');
   const heading = source.indexOf('className="world-page-heading shell"');
-  const results = source.indexOf('className="section shell"');
+  const results = source.indexOf('<section id="world-results"');
 
   assert.ok(search >= 0 && search < breadcrumbs);
   assert.ok(breadcrumbs < heading);
