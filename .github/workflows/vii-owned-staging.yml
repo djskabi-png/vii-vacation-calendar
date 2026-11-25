@@ -34,4 +34,4 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_API_TOKEN"
           node .github/scripts/prepare-owned-cloudflare-staging.mjs
-          pnpm exec wrangler deploy --config dist/server/wrangler.owned-staging.json
+          pnpm exec wrangler deploy --config dist/server/wrangler.owned-staging.json --message "GitHub ${GITHUB_SHA}"
