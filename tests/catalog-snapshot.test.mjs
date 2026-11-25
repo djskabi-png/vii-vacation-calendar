@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CATALOG_SNAPSHOT_SQL, CATALOG_SNAPSHOT_DIAGNOSTIC_SQL, SNAPSHOT_MAX_BYTES, catalogSnapshotResponse } from '../app/lib/catalog-snapshot.ts';
 import { verifyActiveCatalogSnapshot } from '../infrastructure/postgres/catalog-snapshot-reader.mjs';
+import { verifyLocalCatalogRestore } from '../infrastructure/cloudflare/verify-active-catalog-restore.mjs';
 import { authorizedAdminSession } from '../app/lib/admin-session.ts';
 import { createSignedValue } from '../app/lib/google-auth.ts';
 
@@ -34,6 +35,23 @@ function fixture(file = ':memory:') {
 }
 const deps = db => ({ authorized:async()=>true, database:async()=>db });
 const exported = async f => (await catalogSnapshotResponse(new Request(endpoint),deps(f.db))).text();
+
+test('a verified four-world export restores to the application schema with identical bytes', async () => {
+  const f = fixture();
+  try {
+    const wire = await exported(f);
+    const source = verifyActiveCatalogSnapshot(wire);
+    const restored = await verifyLocalCatalogRestore(wire);
+    assert.deepEqual(restored, {
+      scope: 'four-active-catalog-generations', storage: 'in-memory-sqlite', exactRoundTrip: true,
+      sha256: source.proof.sha256, counts: { run: 4, entry: 4, state: 4 },
+      fullDatabaseExport: false, cloudTargetVerified: false, productionReady: false,
+    });
+    await assert.rejects(() => verifyLocalCatalogRestore(wire.slice(0, -1)), /invalid_snapshot_stream/);
+  } finally {
+    f.sqlite.close();
+  }
+});
 
 test('one SQLite statement exports all4 active generations, preserves unknown payloads and changes no rows',async()=>{
   const f=fixture();

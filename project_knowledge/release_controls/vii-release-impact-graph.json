@@ -884,6 +884,7 @@
         "app/lib/gallery-api-audit-job.ts",
         "app/lib/r2-json-cas.ts",
         "app/lib/catalog-snapshot.ts",
+        "infrastructure/cloudflare/verify-active-catalog-restore.mjs",
         "infrastructure/postgres/catalog-snapshot-reader.mjs",
         "infrastructure/postgres/catalog-snapshot-limits.json",
         "app/lib/gallery-api-audit.ts",
