@@ -45,6 +45,36 @@ test("existing image metadata cannot conceal invalid bytes or a wrong digest", a
   await assert.rejects(()=>check(jpeg,'0'.repeat(64)),/archive_existing_checksum_mismatch/);
 });
 
+test("archive progress survives a refreshed supplier candidate with a changed image list", async () => {
+  const checkpoints = new Map();
+  const fetched = new Set();
+  const bucket = {
+    async head(key) {
+      assert.ok(!fetched.has(key.split("/").at(-1)), "Previously verified images must not consume the next batch");
+      return null;
+    },
+    async get(key) { return checkpoints.get(key) ?? null; },
+    async put(key, value, options) {
+      if (key.includes("/operations/")) {
+        const existing = checkpoints.get(key);
+        assert.deepEqual(options.onlyIf, existing ? { etagMatches: existing.etag } : { etagDoesNotMatch: "*" });
+        checkpoints.set(key, { size: value.length, etag: `after-${fetched.size}`, text: async () => value });
+      }
+      return {};
+    },
+  };
+  const photos = Array.from({ length: 26 }, (_, index) => `/api/vii/media/original-${index}.jpg`);
+  const options = {
+    previous: entry("/api/vii/media/baseline.jpg"), bucket, resumeScope: "vacations", now: () => 0,
+    fetchImpl: async url => { fetched.add(new URL(url).pathname.split("/").at(-1)); return fetchOk(); },
+  };
+  await assert.rejects(() => archiveGalleryCandidate({ ...options, candidate: { detail: { images: photos } } }), /archive_batch_requires_resume/);
+  assert.equal(fetched.size, 24);
+  const refreshed = { detail: { images: ["/api/vii/media/added.jpg", ...photos] } };
+  assert.equal((await archiveGalleryCandidate({ ...options, candidate: refreshed })).complete, true);
+  assert.equal(fetched.size, 27);
+});
+
 test("an injected clock is used consistently during archival", async () => {
   const result=await archiveGalleryCandidate({previous:entry('/api/vii/media/old.jpg'),candidate:entry('/api/vii/media/new.jpg'),bucket:fake(),fetchImpl:fetchOk,now:()=>0});
   assert.equal(result.complete,true);
@@ -64,7 +94,8 @@ test("a slow read of a valid archived image can resume without reporting corrupt
     },
     async put(key, value) {
       assert.match(key, /\/operations\//);
-      checkpoint = { size: value.length, text: async () => value };
+      checkpoint = { size: value.length, etag: "checkpoint", text: async () => value };
+      return checkpoint;
     },
   };
   const input = {
@@ -79,5 +110,5 @@ test("a slow read of a valid archived image can resume without reporting corrupt
   const resumed = await archiveGalleryCandidate(input);
   assert.equal(resumed.complete, true);
   assert.deepEqual(resumed.skipped, ["new.jpg"]);
-  assert.equal(await checkpoint.text(), "1");
+  assert.deepEqual(JSON.parse(await checkpoint.text()), ["new.jpg"]);
 });

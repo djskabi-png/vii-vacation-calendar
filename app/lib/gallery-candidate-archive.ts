@@ -5,6 +5,7 @@ import { sourceImageMagic } from "./catalog-media-origin-recovery.ts";
 
 const MAX = 12_000_000, CAP = 256, CONCURRENCY = 2, BUDGET = 30_000;
 const RESUME_BATCH = 24;
+const CHECKPOINT_MAX_BYTES = 1_000_000;
 type Entry = { summary?: unknown; detail?: unknown };
 type Receipt = { archived: Array<{ filename: string; bytes?: number; sha256?: string }>; skipped: string[]; complete: boolean };
 const mediaFields = new Set(["image", "images", "gallery"]);
@@ -95,39 +96,60 @@ export async function archiveGalleryCandidate({ previous, candidate, bucket, fet
   if (!resumeScope && files.length > CAP) throw Error("archive_batch_requires_resume");
   if (!files.length) return { archived: [], skipped: [], complete: true };
   let checkpointKey: string | undefined;
-  let completed = 0;
+  let checkpoint: Awaited<ReturnType<R2Bucket["get"]>> = null;
+  const verified = new Set<string>();
   if (resumeScope) {
     files.sort();
-    const fingerprint = await digest(new TextEncoder().encode(JSON.stringify(files)));
-    checkpointKey = `legacy-gallery/v1/operations/catalog-${resumeScope}-${fingerprint}.json`;
-    const checkpoint = await bucket.get(checkpointKey);
-    if (checkpoint && checkpoint.size <= 32) {
-      const cursor = Number(await checkpoint.text());
-      if (Number.isSafeInteger(cursor) && cursor >= 0 && cursor <= files.length) completed = cursor;
+    const encoder = new TextEncoder();
+    // Supplier details can refresh between attempts. Only carry receipts for
+    // verified files that the new candidate still references against this baseline.
+    const baseline = await digest(encoder.encode(JSON.stringify([...before].sort())));
+    checkpointKey = `legacy-gallery/v1/operations/catalog-${resumeScope}-baseline-${baseline}.json`;
+    checkpoint = await bucket.get(checkpointKey);
+    if (checkpoint && checkpoint.size <= CHECKPOINT_MAX_BYTES) {
+      const saved: unknown = JSON.parse(await checkpoint.text());
+      if (!Array.isArray(saved) || saved.some(filename => typeof filename !== "string")) throw Error("archive_checkpoint_invalid");
+      const savedFiles = new Set(saved);
+      for (const filename of files) if (savedFiles.has(filename)) verified.add(filename);
+    } else if (!checkpoint) {
+      const fingerprint = await digest(encoder.encode(JSON.stringify(files)));
+      const legacy = await bucket.get(`legacy-gallery/v1/operations/catalog-${resumeScope}-${fingerprint}.json`);
+      if (legacy && legacy.size <= 32) {
+        const cursor = Number(await legacy.text());
+        if (Number.isSafeInteger(cursor) && cursor > 0 && cursor <= files.length) {
+          for (const filename of files.slice(0, cursor)) verified.add(filename);
+        }
+      }
+    } else {
+      throw Error("archive_checkpoint_invalid");
     }
   }
   const start = now(), deadline = start + BUDGET, archived: Receipt["archived"] = [], skipped: string[] = [];
-  const end = checkpointKey ? Math.min(completed + RESUME_BATCH, files.length) : files.length;
-  const finished = new Set<number>();
-  let cursor = completed;
+  const pending = files.filter(filename => !verified.has(filename));
+  const end = checkpointKey ? Math.min(RESUME_BATCH, pending.length) : pending.length;
+  const previouslyVerified = verified.size;
+  let cursor = 0;
   async function worker() {
     while (cursor < end) {
       if (now() >= deadline) throw Error("archive_batch_requires_resume");
-      const index = cursor++;
-      const filename = files[index];
+      const filename = pending[cursor++];
       const result = await archiveOne(filename, bucket, fetchImpl, deadline, now);
-      finished.add(index);
+      verified.add(filename);
       if (result.skipped) skipped.push(filename);
       else archived.push({ filename, bytes: result.bytes, sha256: result.sha256 });
     }
   }
-  const results = await Promise.allSettled(Array.from({ length: Math.min(CONCURRENCY, end - completed) }, worker));
-  let next = completed;
-  while (finished.has(next)) next += 1;
-  if (checkpointKey && next > completed) {
-    await bucket.put(checkpointKey, String(next), { httpMetadata: { contentType: "application/json" } });
+  const results = await Promise.allSettled(Array.from({ length: Math.min(CONCURRENCY, end) }, worker));
+  if (checkpointKey && verified.size > previouslyVerified) {
+    const body = JSON.stringify([...verified].sort());
+    if (new TextEncoder().encode(body).byteLength > CHECKPOINT_MAX_BYTES) throw Error("archive_checkpoint_invalid");
+    const stored = await bucket.put(checkpointKey, body, {
+      onlyIf: checkpoint ? { etagMatches: checkpoint.etag } : { etagDoesNotMatch: "*" },
+      httpMetadata: { contentType: "application/json" },
+    });
+    if (!stored) throw new ArchiveBudgetExpired();
   }
   const failure = results.find(result => result.status === "rejected"); if (failure) throw failure.reason;
-  if (next < files.length || now() >= deadline) throw Error("archive_batch_requires_resume");
+  if (verified.size < files.length || now() >= deadline) throw Error("archive_batch_requires_resume");
   return { archived, skipped, complete: true };
 }
