@@ -24,7 +24,8 @@ jobs:
       - run: corepack enable && corepack prepare pnpm@10.25.0 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: node --test tests/booking-date-fields.actual.test.mjs tests/supplier-catalog-sync.test.mjs tests/gallery-candidate-archive.test.mjs
+      - name: Verify browser continuity and catalog changes on the upload candidate
+        run: node --test tests/cross-release-client-reference-actual.test.mjs tests/booking-date-fields.actual.test.mjs tests/supplier-catalog-sync.test.mjs tests/gallery-candidate-archive.test.mjs
       - run: node .github/scripts/prepare-owned-cloudflare-staging.mjs --dry-run
       - run: pnpm exec wrangler deploy --dry-run --config dist/server/wrangler.owned-staging.json
       - name: Upload to the private staging Worker
@@ -56,6 +57,8 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm --dir services/vii-quality-browser install --frozen-lockfile
+      - name: Install Chromium for rendered regression tests
+        run: pnpm exec playwright install --with-deps chromium
       - name: Build the exact candidate
         run: pnpm build
       - name: Run the complete regression suite

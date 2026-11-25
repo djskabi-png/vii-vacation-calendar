@@ -4,6 +4,11 @@
   "archiveSha256": "5dc55b2c946efda8bc7290a6468b08f3c5dca79e1d6c3e23d12099aee36bc6a5",
   "registryAsset": "/assets/index-BGpFtOky.js",
   "registrySha256": "567519273f9cbc6e3bf5ef6cce253c5d7ad68159e19511918b325f9819abf7ef",
+  "retainedShimExports": {
+    "59fca594cf69": ["ErrorBoundary", "ForbiddenBoundary", "NotFoundBoundary", "RedirectBoundary", "UnauthorizedBoundary"],
+    "0267e74c1d52": ["LayoutSegmentProvider"],
+    "05b45acc03fd": ["Children", "ParallelSlot", "Slot"]
+  },
   "clientReferenceIds": [
     "00c888875346",
     "01943f695bde",

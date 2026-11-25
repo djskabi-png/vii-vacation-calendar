@@ -21,3 +21,5 @@ Public promotion requires a verified production data restore, working supplier s
 For an authorized export of the four active catalog generations, run `node infrastructure/cloudflare/verify-active-catalog-restore.mjs <snapshot.ndjson>` locally. It restores the records in memory and compares a fresh application export with the source hash. Keep the snapshot out of Git and CI artifacts. This verifies the active catalog export only. Historical generations, accounts, bookings, CMS and media require separate recovery evidence.
 
 The Flight compatibility check uses the captured browser registry of the current public predecessor, v928. Before a later public promotion, bind the check to that release’s verified predecessor archive and keep an actual predecessor tab open for the post-deployment browser check. Historical v822 replay remains available with `VII_FLIGHT_PREDECESSOR=v822`.
+
+Use the clean CI build for release qualification. A shared or linked `node_modules` outside the checkout changes Vinext’s framework reference IDs. The staging job runs the predecessor compatibility check against the same build output it uploads.
