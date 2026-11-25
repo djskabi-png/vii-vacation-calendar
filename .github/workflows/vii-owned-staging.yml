@@ -32,6 +32,10 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.VII_STAGING_CLOUDFLARE_API_TOKEN }}
         run: |
-          test -n "$CLOUDFLARE_API_TOKEN"
+          export LC_ALL=C
+          if ! [[ "$CLOUDFLARE_API_TOKEN" =~ ^[A-Za-z0-9_-]{32,128}$ ]]; then
+            echo "The staging deployment secret is missing or malformed." >&2
+            exit 1
+          fi
           node .github/scripts/prepare-owned-cloudflare-staging.mjs
           pnpm exec wrangler deploy --config dist/server/wrangler.owned-staging.json --message "GitHub ${GITHUB_SHA}"
