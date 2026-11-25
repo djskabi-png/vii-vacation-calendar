@@ -1303,6 +1303,8 @@
         ".github/scripts/prepare-owned-cloudflare-staging.mjs",
         ".github/workflows/deploy-pages.yml",
         ".github/workflows/vii-owned-staging.yml",
+        "infrastructure/cloudflare/verify-d1-restore.mjs",
+        "infrastructure/cloudflare/verify-r2-restore.mjs",
         ".gitignore",
         "tools/"
       ]
