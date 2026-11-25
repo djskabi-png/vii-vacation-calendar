@@ -11,3 +11,9 @@ VII production releases use one fail-closed handoff rather than repeated ad hoc 
 7. Record the returned version and deployment IDs in the handoff receipt and verify the exact public destination. Never retry an uncertain mutation. Inspect the existing outcome first.
 
 The direct Sites connector and the `sites` Git remote are optional fast paths. Their failure must not cause repeated writes. The durable publication conversation is the proven fallback because it owns the correct workspace and can use remote build fallback from the verified Git commit.
+
+## Owner-controlled Cloudflare verification
+
+A push to `migration/vii-owned-cloudflare-staging-20261125` starts two independent jobs in `VII owned Cloudflare staging`. The staging job uses a credential restricted to the private Worker. The production qualification job builds the same source and runs the full regression suite without deployment credentials. Its run summary reports the exact Git commit and the suite result.
+
+Public promotion requires a verified production data restore, working supplier synchronization, and a rollback that preserves the deployed application and data. A successful private deployment alone does not qualify a commit for production. The public route stays on the live Sites origin until those conditions pass.

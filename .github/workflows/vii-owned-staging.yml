@@ -79,4 +79,4 @@ jobs:
               awk '/^not ok [0-9]+ - / || /^# (tests|pass|fail|cancelled|skipped|todo) [0-9]+$/ { print }' "$RUNNER_TEMP/vii-production-regression.tap"
               echo '```'
             fi
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"

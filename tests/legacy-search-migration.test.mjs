@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { sitemapSection } from "../app/lib/sitemap-inventory.ts";
 import { publicSearchOpportunityAllowed } from "../app/lib/search-opportunities.ts";
+import { promotedLegacyTarget } from "../app/lib/legacy-landing-editorial.ts";
 import { curatedVacationSearchPages } from "../app/data/curated-vacation-search-pages.ts";
 import { curatedEventSearchPages } from "../app/data/curated-event-search-pages.ts";
 import { legacyMissingSearchPages } from "../app/data/legacy-missing-search-pages.ts";
@@ -81,10 +82,21 @@ test("migrated pages satisfy publication content and URL requirements", () => {
 });
 
 test("only publication-quality migrated pages are included in the managed search sitemap family", async () => {
-  const entries = await sitemapSection("search-pages");
+  const [entries, vacationEntries] = await Promise.all([sitemapSection("search-pages"), sitemapSection("vacations")]);
   const eligible = [...publications.pages, ...legacyMissingSearchPages, ...curatedVacationSearchPages, ...legacyEventSearchPages, ...curatedEventSearchPages]
     .filter((page) => publicSearchOpportunityAllowed({ ...page, body: page.body || page.metaDescription }));
-  assert.equal(entries.length, eligible.length);
   const urls = new Set(entries.map((entry) => new URL(entry.url).pathname));
-  for (const page of eligible) assert.equal(urls.has(page.canonicalPath), true, page.canonicalPath);
+  const vacationUrls = new Set(vacationEntries.map((entry) => new URL(entry.url).pathname));
+  const expected = new Set();
+  for (const { canonicalPath } of eligible) {
+    const promoted = promotedLegacyTarget(canonicalPath);
+    if (!promoted) {
+      expected.add(canonicalPath);
+      continue;
+    }
+    assert.ok(!urls.has(canonicalPath), canonicalPath);
+    assert.ok(vacationUrls.has(promoted), promoted);
+  }
+  assert.equal(entries.length, urls.size, "each managed URL occurs once");
+  assert.deepEqual(urls, expected);
 });
