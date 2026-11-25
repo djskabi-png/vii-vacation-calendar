@@ -14,10 +14,10 @@ async function resolvePage(params: Props["params"]) {
   const world = searchWorldFromPublicSegment(segment);
   if (!world) return null;
   const locale = (await headers()).get("x-vii-locale") || "he";
+  const target = promotedLegacyTarget(`/search/${segment}/${slug}`);
+  if (target) permanentRedirect(locale === "he" ? target : `/${locale}${target}`);
   const page = await publishedOpportunityByPath(world, slug, locale);
   if (!page) return null;
-  const target = promotedLegacyTarget(page.canonicalPath);
-  if (target) permanentRedirect(locale === "he" ? target : `/${locale}${target}`);
   const editorial = await legacyLandingEditorial(page.canonicalPath, locale);
   const content = editorial?.content;
   return { page: content ? { ...page, h1: content.title, metaTitle: content.metaTitle, metaDescription: content.metaDescription,
