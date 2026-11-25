@@ -37,7 +37,7 @@ jobs:
 
       - name: Build static site
         env:
-          GITHUB_ACTIONS: "true"
+          VII_BUILD_STATIC_PAGES: "true"
         run: pnpm exec next build
 
       - name: Upload site

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const isGitHubPages = process.env.GITHUB_ACTIONS === "true";
+const isGitHubPages = process.env.VII_BUILD_STATIC_PAGES === "true";
 const pagesBasePath = "/vii-vacation-calendar";
 
 const nextConfig: NextConfig = {
