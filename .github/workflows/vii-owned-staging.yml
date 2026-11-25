@@ -1,0 +1,36 @@
+name: VII owned Cloudflare staging
+
+on:
+  push:
+    branches:
+      - migration/vii-owned-cloudflare-staging-20261125
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vii-owned-staging
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable && corepack prepare pnpm@10.25.0 --activate
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: node --test tests/booking-date-fields.actual.test.mjs tests/supplier-catalog-sync.test.mjs tests/gallery-candidate-archive.test.mjs
+      - run: node .github/scripts/prepare-owned-cloudflare-staging.mjs --dry-run
+      - run: pnpm exec wrangler deploy --dry-run --config dist/server/wrangler.owned-staging.json
+      - name: Upload to the private staging Worker
+        if: vars.VII_OWNED_STAGING_DEPLOY == 'enabled'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.VII_STAGING_CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          node .github/scripts/prepare-owned-cloudflare-staging.mjs
+          pnpm exec wrangler deploy --config dist/server/wrangler.owned-staging.json
