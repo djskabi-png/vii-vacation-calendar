@@ -22,6 +22,8 @@ For an authorized export of the four active catalog generations, run `node infra
 
 Once an authorized full source database snapshot and a separate snapshot from the restored target are available, compare them locally with `node infrastructure/cloudflare/verify-d1-restore.mjs SOURCE.sqlite RESTORED.sqlite`. This checks schema, indexes, SQLite integrity, foreign keys, and table row contents independent of insertion order. Keep both inputs outside the repository and record their origin separately. The comparator does not verify that either file came from the stated environment, or that the R2 objects were restored.
 
+For independently downloaded R2 exports that preserve object keys one-to-one, compare the bytes with `node infrastructure/cloudflare/verify-r2-restore.mjs SOURCE_DIR RESTORED_DIR SOURCE_OBJECT_COUNT`. Take the count from a complete, authorized listing of the source bucket at the backup point. Compare the source and restored bucket identities and object metadata separately, then verify gallery and review-media delivery through the application. Keep bucket contents outside Git and CI artifacts.
+
 The Flight compatibility check uses the captured browser registry of the current public predecessor, v928. Before a later public promotion, bind the check to that release’s verified predecessor archive and keep an actual predecessor tab open for the post-deployment browser check. Historical v822 replay remains available with `VII_FLIGHT_PREDECESSOR=v822`.
 
 Use the clean CI build for release qualification. A shared or linked `node_modules` outside the checkout changes Vinext’s framework reference IDs. The staging job runs the predecessor compatibility check against the same build output it uploads.
