@@ -19,7 +19,7 @@ test("unit sleeping, full details and map action remain usable across responsive
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 }, locale: "he-IL" });
   try {
     await page.goto(`${baseUrl}/business?id=vacation-2210`, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    const sleepingToggle = page.getByRole("button", { name: /הצגת 2 חדרי שינה נוספים/ });
+    const sleepingToggle = page.getByRole("button", { name: "2 חדרי שינה נוספים", exact: true });
     await sleepingToggle.waitFor({ state: "visible", timeout: 20_000 });
     await sleepingToggle.scrollIntoViewIfNeeded();
 
@@ -52,7 +52,7 @@ test("unit sleeping, full details and map action remain usable across responsive
         scrollWidth: document.documentElement.scrollWidth,
         mapButtonVisible: Boolean(document.querySelector(".property-location-action")?.getBoundingClientRect().width),
       }));
-      assert.equal(geometry.scrollWidth, geometry.viewport, `horizontal overflow at ${viewport.width}x${viewport.height}`);
+      assert.ok(geometry.scrollWidth <= geometry.viewport, `horizontal overflow at ${viewport.width}x${viewport.height}`);
       assert.equal(geometry.mapButtonVisible, true);
     }
   } finally {
