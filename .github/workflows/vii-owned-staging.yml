@@ -56,7 +56,7 @@ jobs:
       - name: Install pinned application and browser-worker dependencies
         run: |
           pnpm install --frozen-lockfile
-          pnpm --dir services/vii-quality-browser install --frozen-lockfile
+          pnpm --dir services/vii-quality-browser --ignore-workspace install --frozen-lockfile
       - name: Install Chromium for rendered regression tests
         run: pnpm exec playwright install --with-deps chromium
       - name: Build the exact candidate
