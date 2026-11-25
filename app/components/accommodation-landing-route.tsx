@@ -15,6 +15,7 @@ import {
 } from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 import { canonicalLegacyVacationSearchPath, semanticVacationFeaturesFromSearchParams, vacationSearchHasTransactionalState } from "../lib/legacy-search-intent.ts";
+import { decodeLegacyFaq, legacyLandingEditorial, legacySocialMetadata } from "../lib/legacy-landing-editorial.ts";
 
 export type AccommodationSearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -31,6 +32,13 @@ export async function accommodationLandingMetadata(categoryId: AccommodationCate
   const publishedProperties = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"));
   const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) return { robots: { index: false, follow: true } };
+  const editorial = await legacyLandingEditorial(landing.path, (await headers()).get("x-vii-locale") || "he");
+  if (editorial?.content) {
+    const { metaTitle, metaDescription, title, indexable } = editorial.content;
+    return { title: { absolute: metaTitle || title }, description: metaDescription,
+      alternates: { canonical: landing.path }, robots: !indexable || !landing.listings.length ? { index: false, follow: true } : undefined,
+      ...legacySocialMetadata(editorial.tags, landing.path, metaTitle || title, metaDescription) };
+  }
   return {
     title: `${landing.title} | ${landing.listings.length === 1 ? landing.category.countOne : `${landing.listings.length} מקומות`}`,
     description: landing.description,
@@ -71,11 +79,14 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     redirect(landing.region ? `${prefix}/search?location=${encodeURIComponent(landing.region.label)}` : `${prefix}/search`);
   }
 
+  const editorial = (await legacyLandingEditorial(landing.path, (await headers()).get("x-vii-locale") || "he"))?.content;
+  const pageTitle = editorial?.title || landing.title;
+  const pageDescription = editorial?.summary || landing.description;
   const breadcrumbs = [
     { name: "ראשי", path: "/" },
     { name: "נופש", path: "/search" },
     ...(landing.region ? [{ name: landing.category.title, path: landing.category.path }] : []),
-    { name: landing.title, path: landing.path },
+    { name: pageTitle, path: landing.path },
   ];
   const featureCounts = new Map<string, number>();
   for (const property of landing.listings) {
@@ -93,7 +104,7 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
   const localPlaces = [...new Set(landing.listings.map((property) => property.location).filter(Boolean))].slice(0, 6);
   const countText = landing.listings.length === 1 ? landing.category.countOne : `${landing.listings.length} מקומות אירוח`;
   const featureText = commonFeatures.length ? commonFeatures.join(", ") : "פרטי היחידות והמתקנים משתנים ממקום למקום";
-  const faqs = [
+  const faqs = editorial ? decodeLegacyFaq(editorial.attributes.legacyFaq) || [] : [
     {
       question: `כמה אפשרויות של ${landing.title} מופיעות בעמוד?`,
       answer: `בעמוד מופיעים כעת ${countText} מהמלאי הפעיל. הרשימה מתעדכנת כאשר מקום נוסף נכנס לקטגוריה או מפסיק להיות פעיל.`,
@@ -149,8 +160,8 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
 
   return <>
     <StructuredData data={collectionSchema(
-      landing.title,
-      landing.description,
+      pageTitle,
+      pageDescription,
       landing.path,
       structuredListings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })),
     )} />
@@ -158,17 +169,18 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug, search
     <StructuredData data={faqSchema(faqs)} />
     <PublishedCatalogSeed world="vacations" entries={initialListings} complete={false}><SearchExperience landing={{
       path: landing.path,
-      title: landing.title,
-      description: landing.description,
-      breadcrumb: landing.title,
+      title: pageTitle,
+      description: pageDescription,
+      breadcrumb: pageTitle,
       type: landing.category.propertyTypes[0],
       types: landing.category.propertyTypes,
       resultNoun: landing.category.title,
       resultNounOne: landing.category.countOne,
       area: landing.region?.label,
       listingSlugs: landing.listings.map((property) => property.slug),
-      guideTitle,
-      guideParagraphs,
+      guideTitle: editorial?.body.startsWith("## ") ? editorial.body.split("\n\n", 1)[0].slice(3) : guideTitle,
+      guideParagraphs: editorial ? editorial.body.split(/\n{2,}/).filter(Boolean).slice(editorial.body.startsWith("## ") ? 1 : 0) : guideParagraphs,
+      guideHasLegacyHeadings: Boolean(editorial),
       faqs,
       relatedLinks,
     }} /></PublishedCatalogSeed>

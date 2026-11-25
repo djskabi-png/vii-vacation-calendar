@@ -16,7 +16,7 @@ import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_M
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { serverPublicSearchCatalog } from "../lib/server-public-search-catalog.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
-import { breadcrumbSchema, collectionSchema } from "../lib/seo";
+import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 import { WorldLanding } from "./world-landing";
 import EventSearchPage from "../events/search/page";
 import styles from "../find/[slug]/search-landing.module.css";
@@ -62,6 +62,7 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
   if (page.world === "vacation") {
     return <>
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1, path: page.canonicalPath }])} />
+      {page.faq.length ? <StructuredData data={faqSchema(page.faq)} /> : null}
       <SearchExperience landing={{
         path: page.canonicalPath,
         title: page.h1,

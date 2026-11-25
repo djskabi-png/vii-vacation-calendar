@@ -2,7 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import { isManagedSearchListAttribute, validManagedSearchList } from "./homepage-search-href.ts";
 import { decodeWorldLandingFaq } from "./world-landing-faq.ts";
 
-export const contentTypes = ["homepage", "holiday", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
+export const contentTypes = ["homepage", "holiday", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer", "legacylanding"] as const;
 export const contentLocales = ["he", "en", "ru", "fr"] as const;
 export const contentStatuses = ["draft", "review", "scheduled", "published", "archived"] as const;
 export type ContentType = typeof contentTypes[number];
@@ -24,7 +24,7 @@ export type EditorialContent = {
 };
 export type ContentSource = {
   type: ContentType; key: string; world: string; locale?: ContentLocale; sourceLabel: string;
-  title: string; summary?: string; body?: string; slug?: string; imageAlt?: string; indexable?: boolean; links?: ManagedLink[]; attributes?: Record<string, string>;
+  title: string; summary?: string; body?: string; metaTitle?: string; metaDescription?: string; slug?: string; imageAlt?: string; indexable?: boolean; links?: ManagedLink[]; attributes?: Record<string, string>;
   initialStatus?: Extract<ContentStatus, "draft" | "scheduled">; scheduledAt?: string | null;
 };
 export type ContentItem = {
@@ -76,6 +76,9 @@ function attributes(value: unknown) {
     } else if (isManagedSearchListAttribute(key)) {
       if (!validManagedSearchList(raw)) return null;
       result[key] = raw;
+    } else if (key === "legacyMetadata" || key === "legacyFaq") {
+      if (raw.length > 24000) return null;
+      result[key] = raw;
     } else result[key] = clean(raw, 1200);
   }
   return result;
@@ -96,7 +99,7 @@ export function normalizeEditorial(value: unknown): EditorialContent | null {
 
 export function sourceEditorial(source: ContentSource): EditorialContent {
   return { title: clean(source.title, 160), summary: clean(source.summary, 1000), body: clean(source.body, 30_000),
-    metaTitle: clean(source.title, 90), metaDescription: clean(source.summary, 320), slug: clean(source.slug, 160),
+    metaTitle: clean(source.metaTitle ?? source.title, 90), metaDescription: clean(source.metaDescription ?? source.summary, 320), slug: clean(source.slug, 160),
     imageAlt: clean(source.imageAlt, 300), indexable: source.indexable === true, links: source.links || [], attributes: source.attributes || {} };
 }
 
@@ -193,8 +196,8 @@ export function parseContentCreate(value: unknown): ContentCreate | null {
   const row = value as Record<string, unknown>; const type = row.type; const locale = row.locale;
   const title = clean(row.title, 160); const key = clean(row.key, 160).toLowerCase();
   if (!isContentType(type) || !isContentLocale(locale) || !title || !asciiSlug.test(key)
-    || type === "homepage" || type === "navigation" || type === "footer") return null;
-  const worlds: Record<Exclude<ContentType, "navigation" | "footer">, string> = {
+    || type === "homepage" || type === "navigation" || type === "footer" || type === "legacylanding") return null;
+  const worlds: Record<Exclude<ContentType, "navigation" | "footer" | "legacylanding">, string> = {
     homepage: "global",
     vacation: "vacation", events: "events", hourly: "hourly", spa: "spa", providers: "providers",
     holiday: "vacation", attractions: "activities", trails: "activities", magazine: "magazine",
@@ -235,8 +238,9 @@ export function parseContentChange(value: unknown) {
   if (status === "scheduled" && (!scheduled || !Number.isFinite(scheduled.getTime()) || scheduled.getTime() <= Date.now())) return null;
   const chromeItem = row.id.startsWith("navigation:") || row.id.startsWith("footer:");
   const homepageItem = row.id.startsWith("homepage:");
-  if (["published", "scheduled"].includes(status) && ((chromeItem ? content.links.length < 1 : !homepageItem && content.summary.length < 20)
-    || (content.indexable && (!content.metaTitle || content.metaDescription.length < 30)))) return null;
+  const legacyItem = row.id.startsWith("legacylanding:");
+  if (["published", "scheduled"].includes(status) && ((chromeItem ? content.links.length < 1 : !homepageItem && !legacyItem && content.summary.length < 20)
+    || (content.indexable && (!content.metaTitle || (!legacyItem && content.metaDescription.length < 30))))) return null;
   if (["published", "scheduled"].includes(status) && !editorialLocaleApproved(content, locale)) return null;
   const required: Record<string, string[]> = {
     trails: ["mainArea", "region", "nature", "duration", "difficulty", "officialSource", "sourceName", "mapQuery"],

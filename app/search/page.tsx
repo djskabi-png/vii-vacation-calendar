@@ -92,6 +92,7 @@ export type SearchLandingContext = {
   listingSlugs?: string[];
   guideTitle?: string;
   guideParagraphs?: string[];
+  guideHasLegacyHeadings?: boolean;
   faqs?: Array<{ question: string; answer: string }>;
   relatedLinks?: Array<{ label: string; href: string }>;
   initialFilters?: Record<string, string | number | boolean>;
@@ -1312,7 +1313,7 @@ export function SearchExperience({ landing, embedded = false, beforeResults }: {
             {!onlineOnly && !selectedStay && !periodSearch && !catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {!mapOpen && !selectedStay && !periodSearch && selectedTypes.length === 0 && !pool && !spa && !whole && !accessibleOnly && !onlineOnly && !selectedExtras.length ? <RegionalAvailability world="vacation" region={area} guests={guests} embedded /> : null}
             {landing && filtered.length > 0 && <>
-              <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
+              <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph, index) => landing.guideHasLegacyHeadings && paragraph.startsWith("## ") ? <h3 key={index}>{paragraph.slice(3)}</h3> : <p key={index}>{paragraph}</p>)}</div></section>
               {landing.faqs?.length ? <section id="accommodation-faq" className="accommodation-page-faq" aria-labelledby="accommodation-page-faq-title"><h2 id="accommodation-page-faq-title">שאלות ותשובות על {landing.breadcrumb}</h2><div>{landing.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></section> : null}
               {landing.relatedLinks?.length ? <nav className="accommodation-related-links" aria-labelledby="accommodation-related-links-title"><h2 id="accommodation-related-links-title">עוד חיפושים שיכולים להתאים</h2><div>{landing.relatedLinks.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}</div></nav> : null}
             </>}

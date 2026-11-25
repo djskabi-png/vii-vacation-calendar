@@ -138,10 +138,10 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities")) && availability[(place.world === "activities" ? "attractions" : place.world) as keyof typeof availability] !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
       ...(availability.trails ? trails.map((trail) => ({ path: `/trails/${trail.slug}` })) : []),
   ]), ...articleEntries]); }
-  const { publishedOpportunityPaths } = await import("./search-opportunities.ts");
+  const [{ publishedOpportunityPaths }, { promotedLegacyTarget }] = await Promise.all([import("./search-opportunities.ts"), import("./legacy-landing-editorial.ts")]);
   const opportunityPaths = (await publishedOpportunityPaths()).filter(({ path }) => {
     const world = worldForPath(path);
-    return !world || availability[world] !== false;
+    return !promotedLegacyTarget(path) && (!world || availability[world] !== false);
   });
   return unique(opportunityPaths.map(({ path, updatedAt }) => ({ url: absoluteUrl(path), lastModified: updatedAt || undefined })));
 }

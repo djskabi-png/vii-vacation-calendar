@@ -5,6 +5,7 @@ import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { validEventLandingAttributes } from "../../../lib/event-landing-presentation.ts";
 import { isManagedWorldLandingType, validWorldLandingAttributes } from "../../../lib/world-landing-presentation.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
+import { decodeLegacyFaq, decodeLegacyMetadata } from "../../../lib/legacy-landing-editorial.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 async function actor(request: Request) {
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
       const change = parseContentChange(payload);
       const contentType = change?.id.split(":", 1)[0] || "";
       if (!change || (change.id.startsWith("events:landing:") && !validEventLandingAttributes(change.content.attributes))
+        || (contentType === "legacylanding" && (!decodeLegacyFaq(change.content.attributes.legacyFaq) || !decodeLegacyMetadata(change.content.attributes.legacyMetadata)))
         || (change.id.includes(":landing:") && isManagedWorldLandingType(contentType) && !validWorldLandingAttributes(change.content.attributes))) return { error: "invalid_content" as const };
       return saveContentItem(db, change, email);
     })();

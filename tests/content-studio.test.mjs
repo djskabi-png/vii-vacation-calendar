@@ -6,6 +6,7 @@ import {
   createContentItem, ensureContentItem, ensureContentItems, parseContentChange, parseContentCreate, readContentItems,
   readContentVersions, readManagedContentStates, readPublishedContent, readPublishedItems, saveContentItem,
 } from "../app/lib/content-studio.ts";
+import { decodeLegacyFaq, decodeLegacyMetadata, legacyLandingPublicPath, legacyLandingSources, legacySocialMetadata, promotedLegacyTarget } from "../app/lib/legacy-landing-editorial.ts";
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -23,6 +24,38 @@ async function database() {
 
 const source = { type: "spa", key: "77", world: "spa", sourceLabel: "Gal / Spa Plus API", locale: "he",
   title: "ספא מקור", summary: "זהו טקסט המקור שהתקבל ממערכת הספק ונשמר להשוואה.", body: "פסקת מקור", slug: "spa-source", indexable: true };
+
+test("legacy editorial maps the seven promoted redirects to editable targets and publishes the chosen revision", async () => {
+  const inventory = JSON.parse(await readFile(new URL("../app/data/legacy-redirect-inventory.json", import.meta.url), "utf8"));
+  const original = JSON.parse(await readFile(new URL("../app/data/legacy-landing-editorial.generated.json", import.meta.url), "utf8"));
+  const sources = legacyLandingSources();
+  assert.equal(new Set(sources.map(item => item.key)).size, sources.length);
+  assert.equal(Object.keys(original.promoted).length, 7);
+  for (const [path, page] of Object.entries(original.promoted)) {
+    assert.equal(inventory.redirects[page.source], path);
+    assert.equal(promotedLegacyTarget(page.previous), path);
+    const editor = sources.find(item => legacyLandingPublicPath(item.key) === path);
+    assert.equal(editor.body, page.body);
+    assert.equal(editor.metaTitle, page.metaTitle);
+    assert.equal(decodeLegacyFaq(editor.attributes.legacyFaq).length, page.faq.length);
+    const tags = decodeLegacyMetadata(editor.attributes.legacyMetadata);
+    assert.ok(tags.keywords);
+    assert.equal(legacySocialMetadata(tags, path, editor.metaTitle, editor.metaDescription).openGraph.url, path);
+  }
+  const suiteSource = sources.find(item => item.key === "suite-complexes");
+  const db = await database();
+  try {
+    const item = await ensureContentItem(db, suiteSource);
+    assert.equal(item.source.metaTitle, suiteSource.metaTitle);
+    assert.equal(await readPublishedContent(db, "legacylanding", item.entityKey), null);
+    const draft = change(item, "published", "כותרת סוויטות לאחר עריכה", "publish");
+    draft.content.attributes.legacyMetadata = JSON.stringify({ keywords: "סוויטות, נופש", "og:title": "כותרת שיתוף מעודכנת" });
+    await saveContentItem(db, draft, "editor@vii.co.il");
+    const published = await readPublishedContent(db, "legacylanding", item.entityKey);
+    assert.equal(decodeLegacyMetadata(published.content.attributes.legacyMetadata).keywords, "סוויטות, נופש");
+    assert.equal(decodeLegacyFaq(published.content.attributes.legacyFaq).length, 5);
+  } finally { db.close(); }
+});
 
 function change(item, status, title, action = "save", scheduledAt = null) {
   return parseContentChange({ id: item.id, expectedVersion: item.version, status, action, scheduledAt,
