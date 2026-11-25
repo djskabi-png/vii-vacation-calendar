@@ -20,6 +20,7 @@ import { DirectPhoneLink } from "../components/direct-phone-link";
 import { supplierPhoneLink } from "../lib/supplier-contact";
 import { bookingReturnHref } from "../lib/booking-return-href";
 import { CurrencyText } from "../components/currency-text";
+import { BookingDateFields } from "../components/booking-date-fields";
 
 type Props = {
   world: string;
@@ -73,13 +74,6 @@ function countStayNights(from: string, till: string) {
   return Math.round((end - start) / 86_400_000);
 }
 
-function formatBookingDate(value: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  const date = new Date(`${value}T12:00:00Z`);
-  if (!Number.isFinite(date.getTime())) return value;
-  return new Intl.DateTimeFormat("he-IL", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }).format(date);
-}
-
 export default function BookingPageClient(props: Props) {
   const { language, translate } = useSiteLanguage();
   const { account } = useAccountAccess();
@@ -128,6 +122,9 @@ export default function BookingPageClient(props: Props) {
   const supplierPhoneOnly = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.quote?.availability === "available" && supplierQuote.quote.nightlyPrice && !supplierQuote.onlineBooking);
   const onlineReady = props.world !== "vacation" || (supplierSiteID ? supplierBookingReady : liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
+  const bookedDates = arrival || departure
+    ? <dl className="booking-dates"><BookingDateFields arrival={arrival} departure={departure} time={props.world === "spa" ? spaTime : preferredTime} language={language} stay={props.world === "vacation"} /></dl>
+    : null;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
   const bookingSubject = props.world === "activities"
@@ -423,7 +420,7 @@ export default function BookingPageClient(props: Props) {
         <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון." : supplierBookingStatus === "confirmed" ? "המקום אישר את ההזמנה. לא בוצע חיוב דרך V." : supplierSiteID ? "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך V." : "פרטי הבקשה נשמרו. אישור המועד והמחיר יינתן בנפרד. לא בוצע חיוב."}</p>
         <div className="booking-success__summary">
           <strong>{props.placeName}</strong>
-          <span>{arrival}{departure ? " עד " + departure : ""}</span>
+          {bookedDates}
           <span>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים"}</span>
           {usesSpaPayment ? <span>{paymentMethodLabel}</span> : null}
           <b>{supplierSiteID && currentTotal ? <CurrencyText text={`₪ ${currentTotal.toLocaleString("he-IL")} `} /> : <CurrencyText text={props.price} />}</b>
@@ -524,7 +521,7 @@ export default function BookingPageClient(props: Props) {
           <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">{usesSpaPayment ? "סיכום ואופן התשלום" : "סיכום ושליחת הבקשה"}</h2></header>
           <div className="booking-review form-wide">
             <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small><CurrencyText text={props.offerName + (props.offerDuration ? " · " + props.offerDuration : "")} /></small></article>
-            <article><span>מועד והרכב</span><strong>{formatBookingDate(arrival) || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + formatBookingDate(departure) : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
+            <article><span>מועד והרכב</span>{bookedDates || <strong>לפי הבחירה</strong>}<small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
             <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong><CurrencyText text={props.price} /></strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
           </div>
