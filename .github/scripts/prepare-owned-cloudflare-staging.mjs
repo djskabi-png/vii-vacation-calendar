@@ -4,6 +4,10 @@ const accountId = "45b2f6dcf2cfe44204d2c470cbe682d9";
 const workerName = "vii-owned-migration-staging";
 const stagingId = "23aa3e6f-8ba4-4e00-aa79-28c7207562e8";
 const dryRun = process.argv.includes("--dry-run");
+const rehearseCron = process.argv.includes("--rehearse-cron");
+if (rehearseCron && !dryRun) {
+  throw new Error("The cron rehearsal requires --dry-run. It must not deploy or activate a schedule.");
+}
 
 const inputPath = new URL("../../dist/server/wrangler.json", import.meta.url);
 const generated = JSON.parse(await readFile(inputPath, "utf8"));
@@ -12,7 +16,7 @@ if (generated.main !== "index.js" || generated.assets?.binding !== "ASSETS" || g
 }
 
 const config = {
-  name: workerName,
+  name: rehearseCron ? `${workerName}-cron-rehearsal` : workerName,
   account_id: accountId,
   main: generated.main,
   compatibility_date: generated.compatibility_date,
@@ -29,6 +33,9 @@ const config = {
   }],
   r2_buckets: [{ binding: "UPLOADS", bucket_name: "vii-owned-migration-staging-media" }],
   images: { binding: "IMAGES" },
+  // Cloudflare ticks in UTC. The Worker chooses due slots in Asia/Jerusalem.
+  ...(rehearseCron ? { triggers: { crons: ["*/10 * * * *"] } } : {}),
 };
-const outputPath = new URL("../../dist/server/wrangler.owned-staging.json", import.meta.url);
+const outputPath = new URL(rehearseCron ? "../../dist/server/wrangler.owned-cron-rehearsal.json"
+  : "../../dist/server/wrangler.owned-staging.json", import.meta.url);
 await writeFile(outputPath, JSON.stringify(config, null, 2) + "\n");

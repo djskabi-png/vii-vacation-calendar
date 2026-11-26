@@ -16,6 +16,8 @@ The direct Sites connector and the `sites` Git remote are optional fast paths. T
 
 A push to `migration/vii-owned-cloudflare-staging-20261125` starts two independent jobs in `VII owned Cloudflare staging`. The staging job uses a credential restricted to the private Worker. The production qualification job builds the same source and runs the full regression suite without deployment credentials. Its run summary reports the exact Git commit and the suite result.
 
+The cron rehearsal checks a ten-minute Cloudflare trigger in a separate Wrangler dry-run configuration. The Worker resolves supplier slots in Israel time. The rehearsal must leave the private staging schedule disabled. At cutover, record which scheduler owns production before enabling the owned Worker trigger. Verify one accepted manual run and one accepted scheduled run for each of vacations and events against the public catalog. Then check the journal for competing writers or duplicate generations.
+
 Public promotion requires a verified production data restore, working supplier synchronization, and a rollback that preserves the deployed application and data. A successful private deployment alone does not qualify a commit for production. The public route stays on the live Sites origin until those conditions pass.
 
 For an authorized export of the four active catalog generations, run `node infrastructure/cloudflare/verify-active-catalog-restore.mjs <snapshot.ndjson>` locally. It restores the records in memory and compares a fresh application export with the source hash. Keep the snapshot out of Git and CI artifacts. This verifies the active catalog export only. Historical generations, accounts, bookings, CMS and media require separate recovery evidence.

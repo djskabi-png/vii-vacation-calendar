@@ -28,6 +28,11 @@ jobs:
         run: node --test tests/cross-release-client-reference-actual.test.mjs tests/booking-date-fields.actual.test.mjs tests/supplier-catalog-sync.test.mjs tests/gallery-candidate-archive.test.mjs
       - run: node .github/scripts/prepare-owned-cloudflare-staging.mjs --dry-run
       - run: pnpm exec wrangler deploy --dry-run --config dist/server/wrangler.owned-staging.json
+      - name: Qualify the owner-controlled catalog schedule without activating it
+        run: |
+          node --test tests/supplier-catalog-schedule.test.mjs tests/supplier-catalog-retry.test.mjs
+          node .github/scripts/prepare-owned-cloudflare-staging.mjs --dry-run --rehearse-cron
+          pnpm exec wrangler deploy --dry-run --config dist/server/wrangler.owned-cron-rehearsal.json
       - name: Upload to the private staging Worker
         if: vars.VII_OWNED_STAGING_DEPLOY == 'enabled'
         env:
